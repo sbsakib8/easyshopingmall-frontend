@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+
+/* color set up  */
+@theme {
+  --color-primary-color: #39B47f; 
+}
+
+
+/* #135E4B */
+/* #4CB572 */
+/* #A1D8B5 */
+/* #CCDCDB */
+
+
+/* header style  */
+
+.MuiToolbar-root{
+  @apply !bg-primary-color;  
+}
+
+
+.container{
+  @apply w-[98%] lg:w-[97%]  mx-auto my-3 md:my-5 lg:my-3 py-4 ;  
+}
+
+.MuiInputBase-root{
+  @apply  !border-2  border-primary-color! !outline-none !rounded-lg !shadow-sm w-full! h-13! ;
+}
