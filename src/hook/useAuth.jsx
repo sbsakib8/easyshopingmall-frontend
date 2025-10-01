@@ -1,9 +1,10 @@
+
 import axios from "axios";
 import { UrlBackend } from "../confic/urlExport";
-
+// signup
 export const UseAuth = async (formData, route) => {
   try {
-    const response = await axios.post(`${UrlBackend}/users/signup`, formData );
+    const response = await axios.post(`${UrlBackend}/users/signup`, formData , { withCredentials: true} );
 
     if (response.data.success) {
       route.push("/signin");
@@ -16,7 +17,8 @@ export const UseAuth = async (formData, route) => {
   }
 };
 
-export const UserSignin = async (formData, route) => {
+// signin
+export const UserSignin = async (formData, route ) => {
   try {
     const response = await axios.post(`${UrlBackend}/users/signin`, formData, {
       withCredentials: true,
@@ -33,20 +35,26 @@ export const UserSignin = async (formData, route) => {
   }
 };
 
-export const UserGet = async (id ) => {
-  try {
-    const response = await axios.get(`${UrlBackend}/users/${id}`);
+// logout 
+export const Logout = async (route)=>{
+   try {
+    const response = await axios.get(`${UrlBackend}/users/signout`, {
+      withCredentials: true,
+    });
+    if (response.data.success) {
+      route.push("/signin");
+    }
     return response.data; 
   } catch (error) {
     console.error("Registration error:", error.response?.data || error.message);
     throw error; 
   }
-};
+}
 
 // reset password
 export const sendOtp = async (formData) => {
   try {
-    const response = await axios.post(`${UrlBackend}/users/send-otp`, formData);
+    const response = await axios.post(`${UrlBackend}/users/send-otp`, formData , {withCredentials:true});
     return response.data;
 
   } catch (error) {
@@ -57,7 +65,7 @@ export const sendOtp = async (formData) => {
 // VERIFY OTP
 export const verifyOtp = async (formData) => {
   try {
-    const response = await axios.post(`${UrlBackend}/users/verify-otp`, formData);
+    const response = await axios.post(`${UrlBackend}/users/verify-otp`, formData , {withCredentials: true});
     return response.data;
   } catch (error) {
     console.error("Verify OTP error:", error.response?.data || error.message);
@@ -68,7 +76,7 @@ export const verifyOtp = async (formData) => {
 // CHANGE PASSWORD
 export const changePassword = async (formData) => {
   try {
-    const response = await axios.post(`${UrlBackend}/users/reset-password`, formData);
+    const response = await axios.post(`${UrlBackend}/users/reset-password`, formData , {withCredentials:true});
     return response.data;
   } catch (error) {
     console.error("Change Password error:", error.response?.data || error.message);

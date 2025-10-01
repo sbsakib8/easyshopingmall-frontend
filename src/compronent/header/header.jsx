@@ -13,6 +13,7 @@ import {
   Zap
 } from 'lucide-react';
 import Link from 'next/link';
+import { useSelector } from 'react-redux';
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -102,6 +103,10 @@ const Header = () => {
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
+
+  // user data fatch 
+  const data = useSelector((state) => state.user.data);
+   
 
   return (
     <>
@@ -336,14 +341,24 @@ const Header = () => {
             </div>
 
             <div className="flex items-center space-x-2 sm:space-x-4 lg:space-x-6">
-              <Link href="/account" className="flex items-center  text-gray-700 hover:text-emerald-600 transition-all duration-300 cursor-pointer group">
+               {
+                data ? <Link href="/account" className="flex items-center  text-gray-700 hover:text-emerald-600 transition-all duration-300 cursor-pointer group">
                 <div className="p-2 rounded-xl bg-gradient-to-r from-gray-100 to-gray-50 group-hover:from-emerald-100 group-hover:to-teal-100 transition-all duration-300 shadow-sm">
                   <User size={18} className="group-hover:scale-110 transition-transform duration-300" />
                 </div>
                 <div>
                   <div className=" hidden lg:block text-xs text-gray-500 font-medium">Account</div>
                 </div>
+              </Link> : <Link href="/signin" className="flex items-center  text-gray-700 hover:text-emerald-600 transition-all duration-300 cursor-pointer group">
+                <div className="p-2 rounded-xl bg-gradient-to-r from-gray-100 to-gray-50 group-hover:from-emerald-100 group-hover:to-teal-100 transition-all duration-300 shadow-sm">
+                  <User size={18} className="group-hover:scale-110 transition-transform duration-300" />
+                </div>
+                <div>
+                  <div className=" hidden lg:block text-xs text-gray-500 font-medium">SignIn</div>
+                </div>
               </Link>
+               }
+              
 
               {/* Wishlist - Responsive */}
               <div className="relative cursor-pointer group">

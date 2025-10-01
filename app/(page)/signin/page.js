@@ -11,6 +11,7 @@ import { googleSignIn, UserSignin } from "@/src/hook/useAuth";
 import toast from "react-hot-toast";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "@/firebase";
+import AuthRedirect from "@/src/utlis/authRedirect";
 
 
 const Signin=()=>{
@@ -47,7 +48,6 @@ const Signin=()=>{
   const provider = new GoogleAuthProvider();
   const result = await signInWithPopup(auth, provider);
   const user = result.user;
-  console.log("user", user.reloadUserInfo);
   try {
     await googleSignIn({
     name: user.reloadUserInfo.displayName,
@@ -60,9 +60,10 @@ const Signin=()=>{
   }
   
  }
-
+ 
 
   return (
+    <AuthRedirect>
     <div className='flex justify-center items-center lg:mt-20 h-auto py-20 bg-gray-100'>
       <div className='bg-white p-8 rounded-lg shadow-md w-[95%] md:w-[500px] lg:w-[600px] '>
         <h1 className='text-[27px] font-semibold mb-4'>Sign In</h1>
@@ -104,6 +105,7 @@ const Signin=()=>{
         </form>
       </div>
     </div>
+    </AuthRedirect>
   )
 }
 

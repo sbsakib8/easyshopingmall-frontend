@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   User, 
   Mail, 
@@ -19,13 +19,18 @@ import {
   Eye,
   X,
   Plus,
-  Trash2
+  Trash2,
+  LogOut,
+  LogOutIcon
 } from 'lucide-react';
 import Link from 'next/link';
-import { UserGet } from '@/src/hook/useAuth';
+import { Logout } from '@/src/hook/useAuth';
+import { useDispatch, useSelector } from 'react-redux';
+import { useRouter } from 'next/navigation';
+import { clearUser } from '@/src/redux/userSlice';
+import toast from 'react-hot-toast';
 
-const AccountPage = ({ userId }) => {
-  console.log("user id", userId);
+const AccountPage = () => {
   const [activeTab, setActiveTab] = useState('profile');
   const [isEditing, setIsEditing] = useState(false);
   const [showImageUpload, setShowImageUpload] = useState(false);
@@ -38,16 +43,9 @@ const AccountPage = ({ userId }) => {
     gender: 'Male'
   });
 
-// user dat a display
-  useEffect(() => {
-  const fetchUser = async () => {
-    const user = await UserGet("68cd9334f3296d31f7e2c90c");
-    console.log("get user data", user);
-  };
-
-  fetchUser();
-}, []);
-
+  // user data fatch 
+  const data = useSelector((state) => state.user.data);
+   console.log(data);
 
   const [orders] = useState([
     {
@@ -153,6 +151,25 @@ const AccountPage = ({ userId }) => {
     </button>
   );
 
+
+  // logout handel 
+   const dispatch = useDispatch();
+  const router = useRouter();
+  
+  const handleLogout = async () => {
+    try {
+      const res = await Logout(router); 
+      if (res.success) {
+        dispatch(clearUser())
+        localStorage.removeItem("persist:root")
+        router.push("/signin")
+       toast.success("User logged out successfully")
+      }
+    } catch (error) {
+      toast.error("Logout failed:", error);
+    }
+  };
+
   return (
     <div className="min-h-screen lg:mt-24 py-5 bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
@@ -194,6 +211,10 @@ const AccountPage = ({ userId }) => {
                 <TabButton id="payments" icon={CreditCard} label="Payment Methods" />
                 <TabButton id="settings" icon={Settings} label="Settings" />
               </nav>
+               <button onClick={handleLogout} className=' flex gap-2 md:ml-10 mt-10 bg-red-500 p-3 px-20 rounded-lg cursor-pointer hover:bg-amber-700'>
+                <span><LogOut/></span>
+                <span>LogOut</span>
+                </button>
             </div>
           </div>
 
