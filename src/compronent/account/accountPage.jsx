@@ -29,23 +29,30 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import { clearUser } from '@/src/redux/userSlice';
 import toast from 'react-hot-toast';
+import AuthUserNothave from '@/src/utlis/AuthUserNothave';
+
+
 
 const AccountPage = () => {
-  const [activeTab, setActiveTab] = useState('profile');
-  const [isEditing, setIsEditing] = useState(false);
-  const [showImageUpload, setShowImageUpload] = useState(false);
-  const [profileData, setProfileData] = useState({
-    name: 'Sakib Hossain',
-    email: 'sakibhossain7397@gmail.com',
-    phone: '+880 1234567890',
-    address: 'House 123, Road 456, Dhanmondi, Dhaka',
-    dateOfBirth: '1995-05-15',
-    gender: 'Male'
-  });
 
   // user data fatch 
   const data = useSelector((state) => state.user.data);
    console.log(data);
+
+
+  const [activeTab, setActiveTab] = useState('profile');
+  const [isEditing, setIsEditing] = useState(false);
+  const [showImageUpload, setShowImageUpload] = useState(false);
+  const [profileData, setProfileData] = useState({
+    name: data?.name ,
+    email: data?.email ,
+    phone: data?.mobile,
+    address: data?.address_details,
+    dateOfBirth: '1995-05-15',
+    gender: 'Male'
+  });
+
+  
 
   const [orders] = useState([
     {
@@ -171,6 +178,7 @@ const AccountPage = () => {
   };
 
   return (
+    <AuthUserNothave>
     <div className="min-h-screen lg:mt-24 py-5 bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
@@ -189,7 +197,7 @@ const AccountPage = () => {
               <div className="text-center mb-8">
                 <div className="relative inline-block">
                   <div className="w-24 h-24 cursor-pointer bg-gradient-to-r   from-emerald-600 via-green-600 to-teal-600 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg">
-                    {profileData.name.charAt(0)}
+                    <img className=' w-22 h-22 cursor-pointer rounded-full' src={data?.image } alt="" />
                   </div>
                   <button 
                     onClick={() => setShowImageUpload(true)}
@@ -564,6 +572,7 @@ const AccountPage = () => {
         }
       `}</style>
     </div>
+    </AuthUserNothave>
   );
 };
 

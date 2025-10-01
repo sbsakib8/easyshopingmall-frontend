@@ -1,6 +1,7 @@
 
 import axios from "axios";
 import { UrlBackend } from "../confic/urlExport";
+import { userget } from "../redux/userSlice";
 // signup
 export const UseAuth = async (formData, route) => {
   try {
@@ -18,13 +19,14 @@ export const UseAuth = async (formData, route) => {
 };
 
 // signin
-export const UserSignin = async (formData, route ) => {
+export const UserSignin = async (formData, route , dispatch ) => {
   try {
     const response = await axios.post(`${UrlBackend}/users/signin`, formData, {
       withCredentials: true,
     });
 
     if (response.data.success) {
+      dispatch(userget(response.data));
       route.push("/");
     }
 
@@ -85,12 +87,13 @@ export const changePassword = async (formData) => {
 }
 
 // google sign in
-export const googleSignIn = async (formData, route) => {
+export const googleSignIn = async (formData, route , dispatch) => {
   try {
      const response = await axios.post(`${UrlBackend}/users/google-auth`, formData, {
       withCredentials: true,
     });
     if (response.data.success) {
+      dispatch(userget(response.data));
       route.push("/");
     }
     return response.data;

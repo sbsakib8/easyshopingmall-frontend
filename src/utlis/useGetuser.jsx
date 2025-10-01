@@ -18,8 +18,6 @@ export const useGetUser = () => {
         setLoading(true);
         const data = await getUserProfile();
         setUser(data.user);
-        dispatch(userget(data.user)); 
-        console.log(data.user);
       } catch (err) {
         setError(err);
       } finally {

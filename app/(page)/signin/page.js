@@ -12,6 +12,7 @@ import toast from "react-hot-toast";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "@/firebase";
 import AuthRedirect from "@/src/utlis/authRedirect";
+import { useDispatch } from "react-redux";
 
 
 const Signin=()=>{
@@ -21,6 +22,7 @@ const Signin=()=>{
   const [password, setpassword] = useState('');
   const [showpassword, setShowPassword] = useState(false);
   const router = useRouter()
+  const dispatch = useDispatch();
   
    const handleSubmit = async (e) => {
   e.preventDefault();
@@ -28,7 +30,7 @@ const Signin=()=>{
   const user = { email, password };
 
   try {
-    const res = await UserSignin(user, router);
+    const res = await UserSignin(user, router, dispatch);
 
     if (res.data.success) {
       toast.success("Signin successfully!");
@@ -53,7 +55,7 @@ const Signin=()=>{
     name: user.reloadUserInfo.displayName,
      email: user.reloadUserInfo.email,
      image:user.reloadUserInfo.photoUrl
-    }, router);
+    }, router , dispatch);
   } catch (error) {
     console.error("Google sign-in failed:", error.response?.data || error.message);
     toast.error(error.response?.data?.message || "Google sign-in failed");
