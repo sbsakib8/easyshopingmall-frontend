@@ -59,7 +59,6 @@ const Header = () => {
     { name: 'Contact', href: 'contact' }
   ];
 
-  // যদি role === admin হয় তাহলে dashboard add করবে
   if (data?.role !== "USER") {
     navItems.push({ name: "Dashboard", href: "/dashboard" });
   }

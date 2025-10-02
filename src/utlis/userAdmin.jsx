@@ -9,13 +9,11 @@ const AuthAdminRole = ({ children }) => {
   const pathname = usePathname();
 
   useEffect(() => {
-    // যদি user লগইন না করে থাকে
     if (!data) {
       router.push("/");
       return;
     }
 
-    // যদি dashboard এ ঢুকতে চায় কিন্তু role !== admin
     if (pathname.startsWith("/dashboard") && data.role !== "ADMIN") {
       router.push("/");
     }
