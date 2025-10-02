@@ -26,6 +26,9 @@ const Header = () => {
   const [language, setLanguage] = useState('English');
   const [currency, setCurrency] = useState('USD');
   const [isScrolled, setIsScrolled] = useState(false);
+
+  // user data fatch 
+  const data = useSelector((state) => state.user.data);
   
   // Countdown timer state
   const [timeLeft, setTimeLeft] = useState({
@@ -53,9 +56,13 @@ const Header = () => {
     { name: 'About', href: '/about' },
     { name: 'Shop', href: '/shop' },
     { name: 'Blog', href: 'blog', badge: 'New' },
-    { name: 'Dashboard', href: 'dashboard' },
     { name: 'Contact', href: 'contact' }
   ];
+
+  // যদি role === admin হয় তাহলে dashboard add করবে
+  if (data?.role !== "USER") {
+    navItems.push({ name: "Dashboard", href: "/dashboard" });
+  }
 
   // Scroll effect
   useEffect(() => {
@@ -104,8 +111,7 @@ const Header = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  // user data fatch 
-  const data = useSelector((state) => state.user.data);
+  
    
 
   return (

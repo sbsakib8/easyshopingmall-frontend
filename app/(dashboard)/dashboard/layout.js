@@ -1,4 +1,5 @@
 import DashboardNebver from "@/src/dashboard/navber/nabverComponent";
+import AuthAdminRole from "@/src/utlis/userAdmin";
 
 export const metadata = {
   title: "Dashboard - EasyShoppingMall",
@@ -9,9 +10,11 @@ export default function DashboardLayout({ children }) {
   return (
     <html lang="en">
       <body>
+        <AuthAdminRole>
        <DashboardNebver>
         {children}  
-        </DashboardNebver>     
+        </DashboardNebver>
+        </AuthAdminRole>
       </body>
     </html>
   )
