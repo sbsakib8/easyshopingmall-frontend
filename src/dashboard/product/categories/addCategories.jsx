@@ -1,61 +1,15 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Plus, Edit3, Trash2, Eye, EyeOff, Save, X, Search, Filter, Grid, List, Upload, Image, Tag, Layers, ChevronDown, ChevronRight, BarChart3, Download } from 'lucide-react';
+import { CategoryAllGet, CategoryCreate, CategoryDelete, CategoryUploade } from '@/src/hook/usecategory';
+import { useDispatch, useSelector } from 'react-redux';
+import axios from 'axios';
+import toast from 'react-hot-toast';
+import { UrlBackend } from '@/src/confic/urlExport';
 
 const AddCategoriesComponent = () => {
-  const [categories, setCategories] = useState([
-    {
-      id: 1,
-      name: 'Electronics',
-      slug: 'electronics',
-      description: 'Latest electronic gadgets and devices',
-      icon: '📱',
-      color: '#3B82F6',
-      isActive: true,
-      sortOrder: 1,
-      parentId: null,
-      image: null,
-      metaTitle: 'Electronics - Best Gadgets',
-      metaDescription: 'Shop the latest electronics and gadgets',
-      subcategories: [
-        { id: 11, name: 'Mobile Phones', slug: 'mobile-phones', isActive: true, sortOrder: 1 },
-        { id: 12, name: 'Laptops', slug: 'laptops', isActive: true, sortOrder: 2 }
-      ]
-    },
-    {
-      id: 2,
-      name: 'Fashion',
-      slug: 'fashion',
-      description: 'Trendy clothing and accessories',
-      icon: '👗',
-      color: '#EC4899',
-      isActive: true,
-      sortOrder: 2,
-      parentId: null,
-      image: null,
-      metaTitle: 'Fashion - Latest Trends',
-      metaDescription: 'Discover the latest fashion trends',
-      subcategories: [
-        { id: 21, name: 'Men Clothing', slug: 'men-clothing', isActive: true, sortOrder: 1 },
-        { id: 22, name: 'Women Clothing', slug: 'women-clothing', isActive: true, sortOrder: 2 }
-      ]
-    },
-    {
-      id: 3,
-      name: 'Home & Garden',
-      slug: 'home-garden',
-      description: 'Everything for your home and garden',
-      icon: '🏠',
-      color: '#10B981',
-      isActive: false,
-      sortOrder: 3,
-      parentId: null,
-      image: null,
-      metaTitle: 'Home & Garden Essentials',
-      metaDescription: 'Transform your home and garden',
-      subcategories: []
-    }
-  ]);
+
+
 
   const [formData, setFormData] = useState({
     name: '',
@@ -73,6 +27,24 @@ const AddCategoriesComponent = () => {
   const [expandedCategories, setExpandedCategories] = useState(new Set());
   const [showAddForm, setShowAddForm] = useState(false);
 
+  // category get 
+  const dispatch = useDispatch()
+
+  const allCategorydata = useSelector((state) => state.category.allCategorydata);
+  const [categories, setCategories] = useState([]);
+
+
+  useEffect(() => {
+    CategoryAllGet(dispatch)
+  }, [])
+
+
+  useEffect(() => {
+    if (allCategorydata?.data) {
+      setCategories(allCategorydata.data);
+    }
+  }, [allCategorydata]);
+
   const iconOptions = ['📱', '👗', '🏠', '⚽', '📚', '💄', '🚗', '🧸', '🍔', '💊', '🎮', '🎵', '💼', '🌟', '🔧', '🎨', '🌿', '🍕'];
   const colorOptions = ['#3B82F6', '#EC4899', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#84CC16', '#F97316', '#64748B'];
 
@@ -87,7 +59,7 @@ const AddCategoriesComponent = () => {
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     let newValue = type === 'checkbox' ? checked : value;
-    
+
     if (name === 'name') {
       setFormData(prev => ({
         ...prev,
@@ -128,36 +100,64 @@ const AddCategoriesComponent = () => {
     setShowAddForm(false);
   };
 
-  const handleSubmit = () => {
-  try {
-    if (!formData.name.trim()) return;
+  const handleSubmit = async () => {
+    try {
+      if (!formData.name.trim()) return;
 
-    if (editingId) {
-      setCategories(prev =>
-        prev.map(cat =>
-          cat.id === editingId
-            ? { ...cat, ...formData, id: editingId }
-            : cat
-        )
-      );
-    } else {
-      // Add new category
-      const newCategory = {
-        ...formData,
-        id: Date.now(),
-        subcategories: []
-      };
-      setCategories(prev => [...prev, newCategory]);
-      console.log(newCategory);
+      if (editingId) {
+        setCategories(prev =>
+          prev.map(cat =>
+            cat._id === editingId
+              ? { ...cat, ...formData, _id: editingId }
+              : cat
+          )
+        );
+
+        await CategoryUploade(formData, editingId);
+        toast.success("Uploade new Category")
+      } else {
+        // নতুন category যোগ করা
+        const newCategory = {
+          ...formData,
+          subcategories: []
+        };
+
+        // লোকালি set করা
+        setCategories(prev => [...prev, newCategory]);
+
+        // Backend create কল করো
+        await CategoryCreate(newCategory, dispatch);
+        toast.success("added new Category")
+      }
+
+      resetForm();
+    } catch (error) {
+      toast.error("Error in handleSubmit:", error);
+      alert("Something went wrong while saving the category!");
     }
+  };
 
-    resetForm();
-  } catch (error) {
-    console.error("Error in handleSubmit:", error);
-    alert("Something went wrong while saving the category!");
-  }
-};
+  // delete categori 
+  const handelDelete = async (id) => {
+    if (!id) return;
 
+    const confirmDelete = window.confirm("Are you sure you want to delete this category?");
+    if (!confirmDelete) return;
+
+    try {
+      const response = await axios.delete(`${UrlBackend}/categories/${id}`); 
+      if (response.data.success) {
+        toast.success("Category deleted successfully ✅");
+
+        setCategories((prev) => prev.filter((cat) => cat._id !== id));
+      } else {
+        toast.error(response.data.message || "Failed to delete ❌");
+      }
+    } catch (error) {
+      toast.error("Delete error:", error);
+      toast.error(error.response?.data?.message || "Delete failed ❌");
+    }
+  };
 
 
   const startEdit = (category) => {
@@ -174,17 +174,35 @@ const AddCategoriesComponent = () => {
     setShowAddForm(true);
   };
 
-  const deleteCategory = (id) => {
-    if (window.confirm('Are you sure you want to delete this category? This action cannot be undone.')) {
-      setCategories(prev => prev.filter(cat => cat.id !== id));
-    }
-  };
 
-  const toggleCategoryStatus = (id) => {
-    setCategories(prev => prev.map(cat => 
-      cat.id === id ? { ...cat, isActive: !cat.isActive } : cat
-    ));
-  };
+
+ const toggleCategoryStatus = async (category) => {
+  try {
+    setCategories(prev =>
+      prev.map(cat =>
+        cat._id === category._id ? { ...cat, isActive: !cat.isActive } : cat
+      )
+    );
+
+    const updatedData = {
+      isActive: !category.isActive
+    };
+
+    await CategoryUploade(updatedData, category._id);
+
+    toast.success(`Category "${category.name}" status updated successfully.`);
+  } catch (error) {
+    toast.error("Failed to update category status:", error);
+
+    setCategories(prev =>
+      prev.map(cat =>
+        cat._id === category._id ? { ...cat, isActive: category.isActive } : cat
+      )
+    );
+  }
+};
+
+
 
   const toggleExpanded = (id) => {
     setExpandedCategories(prev => {
@@ -198,13 +216,38 @@ const AddCategoriesComponent = () => {
     });
   };
 
-  const bulkActivate = () => {
+ const bulkActivate = async () => {
+  try {
     setCategories(prev => prev.map(cat => ({ ...cat, isActive: true })));
-  };
 
-  const bulkDeactivate = () => {
+    for (const cat of categories) {
+      if (!cat.isActive) {
+        await CategoryUploade({ isActive: true }, cat._id);
+      }
+    }
+
+    toast.success("All categories activated successfully.");
+  } catch (error) {
+    toast.error("Failed to activate all categories:", error);
+
     setCategories(prev => prev.map(cat => ({ ...cat, isActive: false })));
-  };
+  }
+};
+
+  const bulkDeactivate = async () => {
+  try {
+    setCategories(prev => prev.map(cat => ({ ...cat, isActive: false })));
+
+    for (const cat of categories) {
+      await CategoryUploade({ isActive: false }, cat._id);
+    }
+
+    toast.success("All categories deactivated successfully.");
+  } catch (error) {
+    toast.error("Failed to deactivate all categories.");
+    setCategories(prev => prev.map(cat => ({ ...cat, isActive: true })));
+  }
+};
 
   const exportData = () => {
     const dataStr = JSON.stringify(categories, null, 2);
@@ -217,13 +260,16 @@ const AddCategoriesComponent = () => {
   };
 
   const filteredCategories = categories.filter(category => {
-    const matchesSearch = category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         category.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterStatus === 'all' || 
-                         (filterStatus === 'active' && category.isActive) ||
-                         (filterStatus === 'inactive' && !category.isActive);
-    return matchesSearch && matchesFilter;
-  });
+  const matchesSearch =
+    (category.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+     category.description?.toLowerCase().includes(searchTerm.toLowerCase()));
+  
+  const matchesFilter = filterStatus === 'all' ||
+    (filterStatus === 'active' && category.isActive) ||
+    (filterStatus === 'inactive' && !category.isActive);
+  
+  return matchesSearch && matchesFilter;
+});
 
   const mainCategories = categories.filter(cat => !cat.parentId);
   const activeCategories = categories.filter(cat => cat.isActive);
@@ -241,17 +287,17 @@ const AddCategoriesComponent = () => {
               <div className="absolute bottom-6 left-6 w-1 h-1 bg-purple-400 rounded-full animate-pulse"></div>
               <div className="absolute top-1/2 right-1/3 w-1 h-1 bg-cyan-400 rounded-full animate-bounce"></div>
             </div>
-            
+
             <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">
-                  Categories <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Add</span>! 
+                  Categories <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Add</span>!
                 </h1>
                 <p className="text-gray-300 text-sm sm:text-base">
                   EasyShoppingMall Admin Dashboard
                 </p>
               </div>
-             
+
             </div>
           </div>
         </div>
@@ -267,7 +313,7 @@ const AddCategoriesComponent = () => {
               <Layers className="text-cyan-400" size={28} />
             </div>
           </div>
-          
+
           <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 backdrop-blur-lg rounded-xl p-4 border border-white/10 transform hover:scale-105 transition-all duration-300">
             <div className="flex items-center justify-between">
               <div>
@@ -277,7 +323,7 @@ const AddCategoriesComponent = () => {
               <Eye className="text-emerald-400" size={28} />
             </div>
           </div>
-          
+
           <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-lg rounded-xl p-4 border border-white/10 transform hover:scale-105 transition-all duration-300">
             <div className="flex items-center justify-between">
               <div>
@@ -287,7 +333,7 @@ const AddCategoriesComponent = () => {
               <Grid className="text-pink-400" size={28} />
             </div>
           </div>
-          
+
           <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 backdrop-blur-lg rounded-xl p-4 border border-white/10 transform hover:scale-105 transition-all duration-300">
             <div className="flex items-center justify-between">
               <div>
@@ -333,21 +379,19 @@ const AddCategoriesComponent = () => {
               <div className="flex bg-white/10 rounded-xl border border-white/20 overflow-hidden">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`p-3 transition-all duration-300 ${
-                    viewMode === 'grid' 
-                      ? 'bg-purple-500 text-white' 
-                      : 'text-gray-300 hover:text-white hover:bg-white/10'
-                  }`}
+                  className={`p-3 transition-all duration-300 ${viewMode === 'grid'
+                    ? 'bg-purple-500 text-white'
+                    : 'text-gray-300 hover:text-white hover:bg-white/10'
+                    }`}
                 >
                   <Grid size={20} />
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`p-3 transition-all duration-300 ${
-                    viewMode === 'list' 
-                      ? 'bg-purple-500 text-white' 
-                      : 'text-gray-300 hover:text-white hover:bg-white/10'
-                  }`}
+                  className={`p-3 transition-all duration-300 ${viewMode === 'list'
+                    ? 'bg-purple-500 text-white'
+                    : 'text-gray-300 hover:text-white hover:bg-white/10'
+                    }`}
                 >
                   <List size={20} />
                 </button>
@@ -422,11 +466,10 @@ const AddCategoriesComponent = () => {
                         key={icon}
                         type="button"
                         onClick={() => setFormData(prev => ({ ...prev, icon }))}
-                        className={`p-3 rounded-xl border-2 transition-all duration-300 text-xl hover:scale-110 ${
-                          formData.icon === icon
-                            ? 'border-green-500 bg-green-500/20 shadow-lg'
-                            : 'border-white/20 hover:border-white/40'
-                        }`}
+                        className={`p-3 rounded-xl border-2 transition-all duration-300 text-xl hover:scale-110 ${formData.icon === icon
+                          ? 'border-green-500 bg-green-500/20 shadow-lg'
+                          : 'border-white/20 hover:border-white/40'
+                          }`}
                       >
                         {icon}
                       </button>
@@ -442,7 +485,7 @@ const AddCategoriesComponent = () => {
                   />
                 </div>
 
-               
+
 
                 <div className="space-y-2">
                   <label className="text-white font-medium">Category Image</label>
@@ -549,7 +592,7 @@ const AddCategoriesComponent = () => {
                 <X size={20} />
                 <span>Cancel</span>
               </button>
-              
+
               <button
                 type="button"
                 onClick={handleSubmit}
@@ -570,7 +613,7 @@ const AddCategoriesComponent = () => {
               <Tag className="mr-3 text-blue-400" />
               Categories ({filteredCategories.length})
             </h2>
-            
+
             {filteredCategories.length > 0 && (
               <div className="flex space-x-2">
                 <button
@@ -601,15 +644,15 @@ const AddCategoriesComponent = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredCategories.map(category => (
                 <div
-                  key={category.id}
+                  key={category._id}
                   className="bg-white/5 border border-white/20 rounded-2xl p-6 hover:bg-white/10 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center space-x-3">
                       <div
                         className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-lg transition-transform duration-300 hover:scale-110"
-                        style={{ 
-                          backgroundColor: category.color + '30', 
+                        style={{
+                          backgroundColor: category.color + '30',
                           border: `2px solid ${category.color}`,
                           boxShadow: `0 0 20px ${category.color}40`
                         }}
@@ -623,22 +666,22 @@ const AddCategoriesComponent = () => {
                     </div>
                     <div className="flex items-center space-x-2">
                       <button
-                        onClick={() => toggleCategoryStatus(category.id)}
-                        className={`p-2 rounded-lg transition-all duration-300 ${
-                          category.isActive
+                        onClick={() => toggleCategoryStatus(category)}
+                        className={`p-2 rounded-lg transition-all duration-300 ${category.isActive
                             ? 'text-green-400 hover:bg-green-500/20'
                             : 'text-gray-400 hover:bg-gray-500/20'
-                        }`}
+                          }`}
                       >
                         {category.isActive ? <Eye size={16} /> : <EyeOff size={16} />}
                       </button>
+
                     </div>
                   </div>
 
                   {category.image && (
                     <img
                       src={category.image}
-                      alt={category.name}
+                      alt={"name"}
                       className="w-full h-32 object-cover rounded-xl mb-4 border border-white/10"
                     />
                   )}
@@ -648,11 +691,10 @@ const AddCategoriesComponent = () => {
                   </p>
 
                   <div className="flex items-center justify-between mb-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      category.isActive
-                        ? 'bg-green-500/20 text-green-400'
-                        : 'bg-red-500/20 text-red-400'
-                    }`}>
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${category.isActive
+                      ? 'bg-green-500/20 text-green-400'
+                      : 'bg-red-500/20 text-red-400'
+                      }`}>
                       {category.isActive ? 'Active' : 'Inactive'}
                     </span>
                     <span className="text-gray-300 text-sm">
@@ -668,8 +710,9 @@ const AddCategoriesComponent = () => {
                       <Edit3 size={16} />
                       <span>Edit</span>
                     </button>
+
                     <button
-                      onClick={() => deleteCategory(category.id)}
+                      onClick={() => handelDelete(category._id)}
                       className="flex-1 px-4 py-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105"
                     >
                       <Trash2 size={16} />
@@ -699,26 +742,25 @@ const AddCategoriesComponent = () => {
                           <ChevronRight size={20} />
                         )}
                       </button>
-                      
+
                       <div
                         className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-lg"
-                        style={{ 
-                          backgroundColor: category.color + '30', 
+                        style={{
+                          backgroundColor: category.color + '30',
                           border: `2px solid ${category.color}`,
                           boxShadow: `0 0 15px ${category.color}40`
                         }}
                       >
                         {category.icon}
                       </div>
-                      
+
                       <div className="flex-1">
                         <div className="flex items-center space-x-4 flex-wrap">
                           <h3 className="text-white font-bold text-lg">{category.name}</h3>
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            category.isActive
-                              ? 'bg-green-500/20 text-green-400'
-                              : 'bg-red-500/20 text-red-400'
-                          }`}>
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${category.isActive
+                            ? 'bg-green-500/20 text-green-400'
+                            : 'bg-red-500/20 text-red-400'
+                            }`}>
                             {category.isActive ? 'Active' : 'Inactive'}
                           </span>
                           <span className="text-gray-300 text-sm">
@@ -745,23 +787,22 @@ const AddCategoriesComponent = () => {
 
                     <div className="flex items-center space-x-2">
                       <button
-                        onClick={() => toggleCategoryStatus(category.id)}
-                        className={`p-2 rounded-lg transition-all duration-300 ${
-                          category.isActive
-                            ? 'text-green-400 hover:bg-green-500/20'
-                            : 'text-gray-400 hover:bg-gray-500/20'
-                        }`}
+                        onClick={() => toggleCategoryStatus(category)}
+                        className={`p-2 rounded-lg transition-all duration-300 ${category.isActive
+                          ? 'text-green-400 hover:bg-green-500/20'
+                          : 'text-gray-400 hover:bg-gray-500/20'
+                          }`}
                       >
                         {category.isActive ? <Eye size={16} /> : <EyeOff size={16} />}
                       </button>
-                      
+
                       <button
                         onClick={() => startEdit(category)}
                         className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-all duration-300"
                       >
                         <Edit3 size={16} />
                       </button>
-                      
+
                       <button
                         onClick={() => deleteCategory(category.id)}
                         className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition-all duration-300"
@@ -786,11 +827,10 @@ const AddCategoriesComponent = () => {
                             <span className="text-xs text-gray-500">/{subcat.slug}</span>
                             <span className="text-xs text-gray-500">Order: {subcat.sortOrder}</span>
                           </div>
-                          <span className={`px-2 py-1 rounded-full text-xs ${
-                            subcat.isActive
-                              ? 'bg-green-500/20 text-green-400'
-                              : 'bg-red-500/20 text-red-400'
-                          }`}>
+                          <span className={`px-2 py-1 rounded-full text-xs ${subcat.isActive
+                            ? 'bg-green-500/20 text-green-400'
+                            : 'bg-red-500/20 text-red-400'
+                            }`}>
                             {subcat.isActive ? 'Active' : 'Inactive'}
                           </span>
                         </div>
@@ -811,7 +851,7 @@ const AddCategoriesComponent = () => {
               </div>
               <h3 className="text-2xl font-bold text-white mb-2">No Categories Found</h3>
               <p className="text-gray-300 mb-8 max-w-md mx-auto">
-                {searchTerm || filterStatus !== 'all' 
+                {searchTerm || filterStatus !== 'all'
                   ? 'Try adjusting your search or filter criteria to find what you\'re looking for'
                   : 'Start building your product catalog by adding your first category'
                 }
@@ -835,33 +875,33 @@ const AddCategoriesComponent = () => {
             <Edit3 className="mr-3 text-yellow-400" />
             Bulk Operations
           </h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <button 
+            <button
               onClick={bulkActivate}
               className="px-6 py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl hover:from-green-600 hover:to-emerald-600 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105 shadow-lg"
             >
               <Eye size={20} />
               <span>Activate All</span>
             </button>
-            
-            <button 
+
+            <button
               onClick={bulkDeactivate}
               className="px-6 py-4 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-xl hover:from-red-600 hover:to-pink-600 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105 shadow-lg"
             >
               <EyeOff size={20} />
               <span>Deactivate All</span>
             </button>
-            
-            <button 
+
+            <button
               onClick={() => alert('Import CSV functionality would be implemented here')}
               className="px-6 py-4 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-xl hover:from-purple-600 hover:to-indigo-600 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105 shadow-lg"
             >
               <Upload size={20} />
               <span>Import CSV</span>
             </button>
-            
-            <button 
+
+            <button
               onClick={exportData}
               className="px-6 py-4 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105 shadow-lg"
             >
@@ -877,7 +917,7 @@ const AddCategoriesComponent = () => {
             <BarChart3 className="mr-3 text-indigo-400" />
             Recent Category Activity
           </h2>
-          
+
           <div className="space-y-4">
             {[
               { action: 'Created', category: 'Gaming Accessories', time: '2 hours ago', type: 'create', user: 'Admin' },
@@ -888,11 +928,10 @@ const AddCategoriesComponent = () => {
             ].map((activity, index) => (
               <div key={index} className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-all duration-300 transform hover:scale-[1.02]">
                 <div className="flex items-center space-x-4">
-                  <div className={`w-3 h-3 rounded-full animate-pulse ${
-                    activity.type === 'create' ? 'bg-green-400' :
+                  <div className={`w-3 h-3 rounded-full animate-pulse ${activity.type === 'create' ? 'bg-green-400' :
                     activity.type === 'update' ? 'bg-blue-400' :
-                    'bg-red-400'
-                  }`}></div>
+                      'bg-red-400'
+                    }`}></div>
                   <div>
                     <p className="text-white font-medium">
                       {activity.action} "{activity.category}"
@@ -900,17 +939,16 @@ const AddCategoriesComponent = () => {
                     <p className="text-gray-300 text-sm">by {activity.user} • {activity.time}</p>
                   </div>
                 </div>
-                <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                  activity.type === 'create' ? 'bg-green-500/20 text-green-400' :
+                <div className={`px-3 py-1 rounded-full text-xs font-medium ${activity.type === 'create' ? 'bg-green-500/20 text-green-400' :
                   activity.type === 'update' ? 'bg-blue-500/20 text-blue-400' :
-                  'bg-red-500/20 text-red-400'
-                }`}>
+                    'bg-red-500/20 text-red-400'
+                  }`}>
                   {activity.action}
                 </div>
               </div>
             ))}
           </div>
-          
+
           <div className="mt-6 text-center">
             <button className="px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all duration-300">
               View All Activity
@@ -924,41 +962,39 @@ const AddCategoriesComponent = () => {
             <Layers className="mr-3 text-teal-400" />
             Category Hierarchy
           </h2>
-          
+
           <div className="bg-white/5 rounded-xl p-4 border border-white/10">
             {mainCategories.map(category => (
-              <div key={category.id} className="mb-4 last:mb-0">
+              <div key={category._id} className="mb-4 last:mb-0">
                 <div className="flex items-center space-x-3 p-3 bg-white/5 rounded-lg border border-white/10">
                   <div
                     className="w-8 h-8 rounded-lg flex items-center justify-center text-lg"
-                    style={{ 
-                      backgroundColor: category.color + '30', 
+                    style={{
+                      backgroundColor: category.color + '30',
                       border: `2px solid ${category.color}`
                     }}
                   >
                     {category.icon}
                   </div>
                   <span className="text-white font-medium">{category.name}</span>
-                  <span className={`px-2 py-1 rounded-full text-xs ${
-                    category.isActive
-                      ? 'bg-green-500/20 text-green-400'
-                      : 'bg-red-500/20 text-red-400'
-                  }`}>
+                  <span className={`px-2 py-1 rounded-full text-xs ${category.isActive
+                    ? 'bg-green-500/20 text-green-400'
+                    : 'bg-red-500/20 text-red-400'
+                    }`}>
                     {category.isActive ? 'Active' : 'Inactive'}
                   </span>
                 </div>
-                
+
                 {category.subcategories && category.subcategories.length > 0 && (
                   <div className="ml-6 mt-2 space-y-1">
                     {category.subcategories.map(subcat => (
                       <div key={subcat.id} className="flex items-center space-x-3 p-2 bg-white/3 rounded-lg">
                         <div className="w-1 h-4 bg-gray-400 rounded-full"></div>
                         <span className="text-gray-300 text-sm">{subcat.name}</span>
-                        <span className={`px-2 py-0.5 rounded-full text-xs ${
-                          subcat.isActive
-                            ? 'bg-green-500/20 text-green-400'
-                            : 'bg-red-500/20 text-red-400'
-                        }`}>
+                        <span className={`px-2 py-0.5 rounded-full text-xs ${subcat.isActive
+                          ? 'bg-green-500/20 text-green-400'
+                          : 'bg-red-500/20 text-red-400'
+                          }`}>
                           {subcat.isActive ? 'Active' : 'Inactive'}
                         </span>
                       </div>
@@ -976,7 +1012,7 @@ const AddCategoriesComponent = () => {
             <Tag className="mr-3 text-rose-400" />
             Quick Actions
           </h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-xl p-6 border border-white/10 hover:from-blue-500/20 hover:to-cyan-500/20 transition-all duration-300">
               <h3 className="text-white font-bold mb-2">Category Templates</h3>
@@ -985,7 +1021,7 @@ const AddCategoriesComponent = () => {
                 Browse Templates
               </button>
             </div>
-            
+
             <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-xl p-6 border border-white/10 hover:from-green-500/20 hover:to-emerald-500/20 transition-all duration-300">
               <h3 className="text-white font-bold mb-2">Category Analytics</h3>
               <p className="text-gray-300 text-sm mb-4">View detailed analytics for each category</p>
@@ -993,7 +1029,7 @@ const AddCategoriesComponent = () => {
                 View Analytics
               </button>
             </div>
-            
+
             <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-xl p-6 border border-white/10 hover:from-purple-500/20 hover:to-pink-500/20 transition-all duration-300">
               <h3 className="text-white font-bold mb-2">Bulk Import</h3>
               <p className="text-gray-300 text-sm mb-4">Import categories from CSV or other sources</p>
