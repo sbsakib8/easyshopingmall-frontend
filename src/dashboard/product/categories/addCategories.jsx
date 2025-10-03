@@ -60,17 +60,12 @@ const AddCategoriesComponent = () => {
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
-    description: '',
     icon: '',
-    color: '#3B82F6',
     isActive: true,
-    sortOrder: 1,
-    parentId: null,
     image: null,
     metaTitle: '',
     metaDescription: ''
   });
-
   const [editingId, setEditingId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
@@ -123,12 +118,8 @@ const AddCategoriesComponent = () => {
     setFormData({
       name: '',
       slug: '',
-      description: '',
       icon: '',
-      color: '#3B82F6',
       isActive: true,
-      sortOrder: categories.length + 1,
-      parentId: null,
       image: null,
       metaTitle: '',
       metaDescription: ''
@@ -138,15 +129,17 @@ const AddCategoriesComponent = () => {
   };
 
   const handleSubmit = () => {
+  try {
     if (!formData.name.trim()) return;
 
     if (editingId) {
-      // Update existing category
-      setCategories(prev => prev.map(cat => 
-        cat.id === editingId 
-          ? { ...cat, ...formData, id: editingId }
-          : cat
-      ));
+      setCategories(prev =>
+        prev.map(cat =>
+          cat.id === editingId
+            ? { ...cat, ...formData, id: editingId }
+            : cat
+        )
+      );
     } else {
       // Add new category
       const newCategory = {
@@ -155,21 +148,24 @@ const AddCategoriesComponent = () => {
         subcategories: []
       };
       setCategories(prev => [...prev, newCategory]);
+      console.log(newCategory);
     }
-    
+
     resetForm();
-  };
+  } catch (error) {
+    console.error("Error in handleSubmit:", error);
+    alert("Something went wrong while saving the category!");
+  }
+};
+
+
 
   const startEdit = (category) => {
     setFormData({
       name: category.name,
       slug: category.slug,
-      description: category.description,
       icon: category.icon,
-      color: category.color,
       isActive: category.isActive,
-      sortOrder: category.sortOrder,
-      parentId: category.parentId,
       image: category.image,
       metaTitle: category.metaTitle,
       metaDescription: category.metaDescription
@@ -414,46 +410,6 @@ const AddCategoriesComponent = () => {
                   <p className="text-gray-400 text-xs">URL: /category/{formData.slug}</p>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-white font-medium">Description</label>
-                  <textarea
-                    name="description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    rows="4"
-                    className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300 resize-none"
-                    placeholder="Enter category description"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-white font-medium">Sort Order</label>
-                    <input
-                      type="number"
-                      name="sortOrder"
-                      value={formData.sortOrder}
-                      onChange={handleInputChange}
-                      min="1"
-                      className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-white font-medium">Parent Category</label>
-                    <select
-                      name="parentId"
-                      value={formData.parentId || ''}
-                      onChange={handleInputChange}
-                      className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300"
-                    >
-                      <option value="" className="bg-slate-800">No Parent (Main Category)</option>
-                      {categories.filter(cat => cat.id !== editingId && !cat.parentId).map(cat => (
-                        <option key={cat.id} value={cat.id} className="bg-slate-800">{cat.name}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
               </div>
 
               {/* Right Column - Visual & SEO */}
@@ -486,31 +442,7 @@ const AddCategoriesComponent = () => {
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-white font-medium">Category Color</label>
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {colorOptions.map(color => (
-                      <button
-                        key={color}
-                        type="button"
-                        onClick={() => setFormData(prev => ({ ...prev, color }))}
-                        className={`w-10 h-10 rounded-xl border-3 transition-all duration-300 hover:scale-110 ${
-                          formData.color === color
-                            ? 'border-white shadow-lg scale-110'
-                            : 'border-white/30'
-                        }`}
-                        style={{ backgroundColor: color }}
-                      />
-                    ))}
-                  </div>
-                  <input
-                    type="color"
-                    name="color"
-                    value={formData.color}
-                    onChange={handleInputChange}
-                    className="w-full h-12 bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300"
-                  />
-                </div>
+               
 
                 <div className="space-y-2">
                   <label className="text-white font-medium">Category Image</label>

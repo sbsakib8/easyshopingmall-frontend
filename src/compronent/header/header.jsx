@@ -59,7 +59,7 @@ const Header = () => {
     { name: 'Contact', href: 'contact' }
   ];
 
-  if (data?.role !== "USER") {
+  if (data?.role === "ADMIN") {
     navItems.push({ name: "Dashboard", href: "/dashboard" });
   }
 

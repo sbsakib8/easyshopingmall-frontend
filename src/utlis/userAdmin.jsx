@@ -14,7 +14,7 @@ const AuthAdminRole = ({ children }) => {
       return;
     }
 
-    if (pathname.startsWith("/dashboard") && data.role !== "ADMIN") {
+    if (pathname.startsWith("/dashboard") && data.role === "USER" ) {
       router.push("/");
     }
   }, [data, pathname, router]);

@@ -1,18 +1,20 @@
 "use client";
 import React, { useState } from 'react';
 import { Upload, X, Plus, Star, Save, Eye, Package, Tag, DollarSign, BarChart3, Camera, MapPin } from 'lucide-react';
+import { Colorize } from '@mui/icons-material';
+import { ProductCreate } from '@/src/hook/useProduct';
 
 const AddProductComponent = () => {
   const [formData, setFormData] = useState({
     productName: '',
     description: '',
-    category: '',
-    subCategory: '',
+    category: [],
+    subCategory: [],
     featured: false,
     brand: '',
     productWeight: '',
     productSize: '',
-    location: '',
+    color: [],
     price: '',
     productStock: '',
     productRank: '',
@@ -23,6 +25,7 @@ const AddProductComponent = () => {
   });
 
   const [newTag, setNewTag] = useState('');
+  const [newColor, setNewColor] = useState('');
   const [dragOver, setDragOver] = useState(false);
 
   const categories = [
@@ -89,6 +92,16 @@ const AddProductComponent = () => {
     }
   };
 
+   const addcolor = () => {
+    if (newColor.trim() && !formData.color.includes(newColor.trim())) {
+      setFormData(prev => ({
+        ...prev,
+        color: [...prev.color, newColor.trim()]
+      }));
+      setNewColor('');
+    }
+  };
+
   const removeTag = (tagToRemove) => {
     setFormData(prev => ({
       ...prev,
@@ -96,11 +109,32 @@ const AddProductComponent = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Product Data:', formData);
-    alert('Product added successfully!');
+  const removecolor = (colorToRemove) => {
+    setFormData(prev => ({
+      ...prev,
+      color: prev.color.filter(color => color !== colorToRemove)
+    }));
   };
+
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    console.log("Product Data:", formData);
+
+    const response = await ProductCreate(formData);
+
+    if (response?.success) {
+      alert("Product added successfully!");
+    } else {
+      alert(response?.message || "Failed to add product");
+    }
+  } catch (error) {
+    console.error("Error adding product:", error);
+    alert("Something went wrong! Please try again.");
+  }
+};
+
 
   const handlePreview = () => {
     alert('Preview functionality would show product preview here');
@@ -299,20 +333,43 @@ const AddProductComponent = () => {
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="text-white font-medium flex items-center">
-                  <MapPin className="mr-2" size={16} />
-                  Location
-                </label>
+
+               <div className="">
+              <label className="text-white font-medium">Product Color</label>
+              <div className="flex flex-wrap gap-2">
+                {formData.color.map(color => (
+                  <span key={color} className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-full text-sm flex items-center">
+                    {color}
+                    <button
+                      type="button"
+                      onClick={() => removecolor(color)}
+                      className="ml-2 hover:bg-white/20 rounded-full transition-colors"
+                    >
+                      <X size={12} />
+                    </button>
+                  </span>
+                ))}
+              </div>
+              <div className="flex gap-2">
                 <input
                   type="text"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleInputChange}
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all duration-300"
-                  placeholder="Product location/warehouse"
+                  value={newColor}
+                  onChange={(e) => setNewColor(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addcolor())}
+                  className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Add product color"
                 />
+                <button
+                  type="button"
+                  onClick={addcolor}
+                  className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-300 flex items-center"
+                >
+                  <Plus size={20} />
+                </button>
               </div>
+            </div>
+
+              
             </div>
           </div>
 
