@@ -1,6 +1,6 @@
 "use client"
 import React, { useEffect, useState } from 'react';
-import { Plus, Edit3, Trash2, Eye, EyeOff, Save, X, Search, Filter, Grid, List, Upload, Image, Tag, Layers, ChevronDown, ChevronRight, BarChart3, Download } from 'lucide-react';
+import { Plus, Edit3, Trash2, Eye, EyeOff, Save, X, Search, Filter, Grid, List, Upload, Image, Tag, Layers, ChevronDown, ChevronRight, BarChart3, Download, Edit } from 'lucide-react';
 import { CategoryAllGet, CategoryCreate, CategoryDelete, CategoryUploade } from '@/src/hook/usecategory';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
@@ -45,8 +45,7 @@ const AddCategoriesComponent = () => {
     }
   }, [allCategorydata]);
 
-  const iconOptions = ['📱', '👗', '🏠', '⚽', '📚', '💄', '🚗', '🧸', '🍔', '💊', '🎮', '🎵', '💼', '🌟', '🔧', '🎨', '🌿', '🍕'];
-  const colorOptions = ['#3B82F6', '#EC4899', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#84CC16', '#F97316', '#64748B'];
+  const iconOptions = ['📱', '👗', '🏠', '⚽', '📚', '💄', '👪', '🧸', '👚', '👜', '🥾', '👙', '💼', '💝', '🤷‍♂️', '🎨', '🛌', '🏆','🛒', '🎨', '🎙', '📝'];
 
   const generateSlug = (name) => {
     return name.toLowerCase()
@@ -170,7 +169,7 @@ const AddCategoriesComponent = () => {
       metaTitle: category.metaTitle,
       metaDescription: category.metaDescription
     });
-    setEditingId(category.id);
+    setEditingId(category._id);
     setShowAddForm(true);
   };
 
@@ -804,7 +803,7 @@ const AddCategoriesComponent = () => {
                       </button>
 
                       <button
-                        onClick={() => deleteCategory(category.id)}
+                        onClick={() => handelDelete(category._id)}
                         className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition-all duration-300"
                       >
                         <Trash2 size={16} />
@@ -911,49 +910,122 @@ const AddCategoriesComponent = () => {
           </div>
         </div>
 
-        {/* Recent Activity */}
-        <div className="mt-8 bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
-          <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
-            <BarChart3 className="mr-3 text-indigo-400" />
-            Recent Category Activity
-          </h2>
 
-          <div className="space-y-4">
-            {[
-              { action: 'Created', category: 'Gaming Accessories', time: '2 hours ago', type: 'create', user: 'Admin' },
-              { action: 'Updated', category: 'Mobile Phones', time: '5 hours ago', type: 'update', user: 'Manager' },
-              { action: 'Deactivated', category: 'Vintage Items', time: '1 day ago', type: 'disable', user: 'Admin' },
-              { action: 'Created', category: 'Smart Watches', time: '2 days ago', type: 'create', user: 'Admin' },
-              { action: 'Updated', category: 'Fashion Accessories', time: '3 days ago', type: 'update', user: 'Editor' }
-            ].map((activity, index) => (
-              <div key={index} className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-all duration-300 transform hover:scale-[1.02]">
-                <div className="flex items-center space-x-4">
-                  <div className={`w-3 h-3 rounded-full animate-pulse ${activity.type === 'create' ? 'bg-green-400' :
-                    activity.type === 'update' ? 'bg-blue-400' :
-                      'bg-red-400'
-                    }`}></div>
-                  <div>
-                    <p className="text-white font-medium">
-                      {activity.action} "{activity.category}"
-                    </p>
-                    <p className="text-gray-300 text-sm">by {activity.user} • {activity.time}</p>
+        {/* category list table */}
+
+       <div className="bg-white/10 backdrop-blur-lg mt-5 rounded-2xl border border-white/20 overflow-scroll shadow-2xl">
+          {/* Table Header */}
+          <div className="bg-gradient-to-r  from-blue-600/30 to-indigo-600/30 px-6 py-4">
+            <div className=" flex justify-between  gap-4 items-center text-sm font-semibold text-blue-200 uppercase ">
+              <div>Image</div>
+              <div>Category</div>
+              <div className="">Icon</div>
+              <div className="">IsActive & Not </div>
+              <div className="text-right">Action</div>
+            </div>
+          </div>
+
+          {/* Table Body */}
+          <div className="divide-y divide-white/10">
+            {categories.map((category, index) => (
+              <div
+                key={category._id}
+                className="px-6 py-4 hover:bg-white/5 transition-all duration-300 transform hover:scale-[1.01] group"
+                style={{
+                  animationDelay: `${index * 0.1}s`,
+                  animation: 'slideInUp 0.6s ease-out forwards'
+                }}
+              >
+                <div className=" flex gap-4 items-center justify-between">
+                  {/* Image */}
+                  <div className="flex items-center">
+                    <div 
+                      className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-lg transform group-hover:scale-110 transition-all duration-300"
+                      style={{ backgroundColor: category.color }}
+                    >
+                      <img src={category.image} alt="" />
+                    </div>
+                      
                   </div>
-                </div>
-                <div className={`px-3 py-1 rounded-full text-xs font-medium ${activity.type === 'create' ? 'bg-green-500/20 text-green-400' :
-                  activity.type === 'update' ? 'bg-blue-500/20 text-blue-400' :
-                    'bg-red-500/20 text-red-400'
-                  }`}>
-                  {activity.action}
+
+                  {/* Category Name */}
+                  <div>
+                    <div className="font-semibold text-white text-lg group-hover:text-blue-300 transition-colors duration-300">
+                      {category.name}
+                    </div>
+                    <div className="text-sm text-gray-400">
+                      Status: <span className={`px-2 py-1 rounded-full text-xs ${
+                        category.status === 'active' 
+                          ? 'bg-green-500/20 text-green-400' 
+                          : 'bg-red-500/20 text-red-400'
+                      }`}>
+                        {category.status}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Color */}
+                  <div className="">
+                    <div className="flex items-center space-x-3">
+                      <div 
+                        className="w-10 h-10 flex justify-center items-center rounded-lg border-2 border-white/20 shadow-lg"
+                      >
+                         <span className="text-gray-300 text-2xl font-mono">{category.icon}</span>
+                      </div>
+                     
+                    </div>
+                  </div>
+
+                  {/* Products Count */}
+                  <div className="">
+                    <div className="text-white font-semibold">
+                      {category.isActive}
+                    </div>
+                    <div className="text-sm text-gray-400"> <span className={`px-2 py-1 rounded-full text-xs ${category.isActive
+                    ? 'bg-green-500/20 text-green-400'
+                    : 'bg-red-500/20 text-red-400'
+                    }`}>
+                    {category.isActive ? 'Active' : 'Inactive'}
+                  </span></div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center justify-end space-x-2">
+                     <button
+                        onClick={() => toggleCategoryStatus(category)}
+                        className={`p-2 rounded-lg transition-all duration-300 ${category.isActive
+                          ? 'text-green-400 hover:bg-green-500/20'
+                          : 'text-gray-400 hover:bg-gray-500/20'
+                          }`}
+                      >
+                        {category.isActive ? <Eye size={16} /> : <EyeOff size={16} />}
+                      </button>
+                    <button
+                       onClick={() => startEdit(category)}
+                      className="p-2 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 hover:text-blue-300 transition-all duration-300 transform hover:scale-110"
+                      title="Edit Category"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+                    <button
+                     onClick={() => handelDelete(category._id)}
+                      className="p-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-400 hover:text-red-300 transition-all duration-300 transform hover:scale-110"
+                      title="Delete Category"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="mt-6 text-center">
-            <button className="px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all duration-300">
-              View All Activity
-            </button>
-          </div>
+          {categories.length === 0 && (
+            <div className="px-6 py-12 text-center">
+              <div className="text-gray-400 text-lg mb-2">No categories found</div>
+              <div className="text-gray-500 text-sm">Try adjusting your search or filter criteria</div>
+            </div>
+          )}
         </div>
 
         {/* Category Tree Structure */}
