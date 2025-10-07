@@ -58,8 +58,8 @@ const DashboardNebver = ({ children }) => {
       submenu: [
         { path: "products/allproducts", id: 11, label: "All Products", icon: Package },
         { path: "products/addproduct", id: 12, label: "Add Product", icon: Plus },
-        { path: "products/categorieslist", id: 13, label: "Categories List", icon: Tag },
-        { path: "products/addcategorie", id: 14, label: "Add Categorie", icon: Tag },
+        { path: "products/subcategory", id: 13, label: "SubCategory", icon: Tag },
+        { path: "products/addcategorie", id: 14, label: "Categorie", icon: Tag },
         { path: "products/inventory", id: 16, label: "Inventory", icon: BarChart3 },
       ],
     },

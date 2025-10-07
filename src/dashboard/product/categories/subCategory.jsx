@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { UrlBackend } from '@/src/confic/urlExport';
+import { SubCategoryAllGet, SubCategoryCreate, SubCategoryUploade } from '@/src/hook/useSubcategory';
 
 const AddSubcategoriesComponent = () => {
   const [formData, setFormData] = useState({
@@ -15,7 +16,7 @@ const AddSubcategoriesComponent = () => {
     image: null,
     metaTitle: '',
     metaDescription: '',
-    parentCategory: ''
+    category: ''
   });
 
   const [editingId, setEditingId] = useState(null);
@@ -28,33 +29,37 @@ const AddSubcategoriesComponent = () => {
 
   const dispatch = useDispatch();
 
-  // Get categories from Redux store
+  // categoryget 
+  
   const allCategorydata = useSelector((state) => state.category.allCategorydata);
+  // Get subcategories from Redux store
+  const allsubCategorydata = useSelector((state) => state.subcategory.allsubCategorydata);
   const [categories, setCategories] = useState([]);
+  const [categoriename, setCategoriename] = useState("");
+  const [categorieid, setCategorieid] = useState("");
+
   const [subcategories, setSubcategories] = useState([]);
 
-  // Load categories
-  useEffect(() => {
+  console.log(categories);
+  // categori get 
+ useEffect(() => {
     if (allCategorydata?.data) {
       setCategories(allCategorydata.data);
     }
   }, [allCategorydata]);
 
-  // Load subcategories from API
   useEffect(() => {
-    fetchSubcategories();
-  }, []);
-
-  const fetchSubcategories = async () => {
-    try {
-      const response = await axios.get(`${UrlBackend}/subcategories`);
-      if (response.data.success) {
-        setSubcategories(response.data.data || []);
-      }
-    } catch (error) {
-      console.error("Error fetching subcategories:", error);
+    SubCategoryAllGet(dispatch)
+    }, [])
+  
+  // Load categories
+  useEffect(() => {
+    if (allsubCategorydata?.data) {
+      setSubcategories(allsubCategorydata.data);
     }
-  };
+  }, [allsubCategorydata]);
+
+  
 
   const iconOptions = ['📱', '💻', '⌚', '🎧', '📷', '🖥️', '⌨️', '🖱️', '👕', '👖', '👗', '👠', '👜', '🧥', '👔', '🥾', '🏠', '🛋️', '🛏️', '🪴', '🍳', '🧹', '⚽', '🏀', '🎾', '🏈', '⛳', '🎮', '🎯', '🎨'];
 
@@ -98,6 +103,8 @@ const AddSubcategoriesComponent = () => {
 
   const resetForm = () => {
     setFormData({
+       categoryname:"",
+      category:"",
       name: '',
       slug: '',
       icon: '',
@@ -105,7 +112,7 @@ const AddSubcategoriesComponent = () => {
       image: null,
       metaTitle: '',
       metaDescription: '',
-      parentCategory: ''
+      category: ''
     });
     setEditingId(null);
     setShowAddForm(false);
@@ -118,14 +125,14 @@ const AddSubcategoriesComponent = () => {
         return;
       }
 
-      if (!formData.parentCategory) {
+      if (!formData.category) {
         toast.error('Please select parent category');
         return;
       }
 
       if (editingId) {
         // Update existing subcategory
-        const response = await axios.put(`${UrlBackend}/subcategories/${editingId}`, formData);
+        const response = await SubCategoryUploade(formData, editingId);
         
         if (response.data.success) {
           setSubcategories(prev =>
@@ -137,7 +144,8 @@ const AddSubcategoriesComponent = () => {
         }
       } else {
         // Create new subcategory
-        const response = await axios.post(`${UrlBackend}/subcategories`, formData);
+        const response = await SubCategoryCreate(formData);
+        console.log("Submitting formData:", formData);
         
         if (response.data.success) {
           setSubcategories(prev => [...prev, response.data.data]);
@@ -464,8 +472,8 @@ const AddSubcategoriesComponent = () => {
                 <div className="space-y-2">
                   <label className="text-white font-medium">Parent Category *</label>
                   <select
-                    name="parentCategory"
-                    value={formData.parentCategory}
+                    name="category"
+                    value={formData.category}  
                     onChange={handleInputChange}
                     className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300"
                     required
@@ -644,7 +652,7 @@ const AddSubcategoriesComponent = () => {
               <button
                 type="button"
                 onClick={handleSubmit}
-                disabled={!formData.name.trim() || !formData.parentCategory}
+                disabled={!formData.name.trim() || !formData.category}
                 className="px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl hover:from-green-600 hover:to-emerald-600 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 <Save size={20} />
@@ -706,7 +714,7 @@ const AddSubcategoriesComponent = () => {
                             boxShadow: `0 0 20px ${categoryColor}40`
                           }}
                         >
-                          {subcategory.icon || '📦'}
+                          {subcategory?.icon || '📦'}
                         </div>
                         <div>
                           <h3 className="text-white font-bold text-lg">{subcategory.name}</h3>
