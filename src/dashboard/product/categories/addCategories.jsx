@@ -27,6 +27,8 @@ const AddCategoriesComponent = () => {
   const [expandedCategories, setExpandedCategories] = useState(new Set());
   const [showAddForm, setShowAddForm] = useState(false);
 
+  // subcategory add
+
   // category get 
   const dispatch = useDispatch()
 
