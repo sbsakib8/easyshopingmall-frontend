@@ -145,7 +145,6 @@ const AddSubcategoriesComponent = () => {
       } else {
         // Create new subcategory
         const response = await SubCategoryCreate(formData);
-        console.log("Submitting formData:", formData);
         
         if (response.data.success) {
           setSubcategories(prev => [...prev, response.data.data]);

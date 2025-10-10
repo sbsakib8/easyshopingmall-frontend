@@ -27,12 +27,19 @@ import {
   Clock,
 } from "lucide-react"
 import Link from "next/link"
+import { useGetcategory } from "@/src/utlis/usecategory"
 
 const DashboardNebver = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [activeMenu, setActiveMenu] = useState("dashboard")
   const [expandedMenus, setExpandedMenus] = useState({})
   const [notifications, setNotifications] = useState(3)
+
+
+  // category get    
+        const {category, loading, error} = useGetcategory()
+           console.log("sakib ", category);
+
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen)
 
