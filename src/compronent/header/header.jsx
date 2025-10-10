@@ -27,6 +27,7 @@ const Header = () => {
   const [currency, setCurrency] = useState('USD');
   const [isScrolled, setIsScrolled] = useState(false);
 
+  
   // user data fatch 
   const data = useSelector((state) => state.user.data);
   
