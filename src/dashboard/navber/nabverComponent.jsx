@@ -38,7 +38,6 @@ const DashboardNebver = ({ children }) => {
 
   // category get    
         const {category, loading, error} = useGetcategory()
-           console.log("sakib ", category);
 
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen)
