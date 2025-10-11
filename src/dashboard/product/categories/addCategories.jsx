@@ -3,9 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Plus, Edit3, Trash2, Eye, EyeOff, Save, X, Search, Filter, Grid, List, Upload, Image, Tag, Layers, ChevronDown, ChevronRight, BarChart3, Download, Edit } from 'lucide-react';
 import { CategoryAllGet, CategoryCreate, CategoryDelete, CategoryUploade } from '@/src/hook/usecategory';
 import { useDispatch, useSelector } from 'react-redux';
-import axios from 'axios';
 import toast from 'react-hot-toast';
-import { UrlBackend } from '@/src/confic/urlExport';
 
 const AddCategoriesComponent = () => {
 
@@ -28,6 +26,7 @@ const AddCategoriesComponent = () => {
   const [showAddForm, setShowAddForm] = useState(false);
 
   // subcategory add
+  const allsubCategorydata = useSelector((state) => state.subcategory.allsubCategorydata);
 
   // category get 
   const dispatch = useDispatch()
@@ -47,7 +46,7 @@ const AddCategoriesComponent = () => {
     }
   }, [allCategorydata]);
 
-  const iconOptions = ['📱', '👗', '🏠', '⚽', '📚', '💄', '👪', '🧸', '👚', '👜', '🥾', '👙', '💼', '💝', '🤷‍♂️', '🎨', '🛌', '🏆','🛒', '🎨', '🎙', '📝'];
+  const iconOptions = ['📱', '👗', '🏠', '⚽', '📚', '💄', '👪', '🧸', '👚', '👜', '🥾', '👙', '💼', '💝', '🤷‍♂️', '🎨', '🛌', '🏆', '🛒', '🎨', '🎙', '📝'];
 
   const generateSlug = (name) => {
     return name.toLowerCase()
@@ -77,15 +76,16 @@ const AddCategoriesComponent = () => {
   };
 
   const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setFormData(prev => ({
-        ...prev,
-        image: imageUrl
-      }));
-    }
-  };
+  const file = e.target.files[0];
+  if (file) {
+    const imageUrl = URL.createObjectURL(file);
+    setFormData(prev => ({
+      ...prev,
+      image: file,          
+      previewImage: imageUrl 
+    }));
+  }
+};
 
   const resetForm = () => {
     setFormData({
@@ -101,65 +101,56 @@ const AddCategoriesComponent = () => {
     setShowAddForm(false);
   };
 
-  const handleSubmit = async () => {
+   const handleSubmit = async () => {
     try {
-      if (!formData.name.trim()) return;
-
-      if (editingId) {
-        setCategories(prev =>
-          prev.map(cat =>
-            cat._id === editingId
-              ? { ...cat, ...formData, _id: editingId }
-              : cat
-          )
-        );
-
-        await CategoryUploade(formData, editingId);
-        toast.success("Uploade new Category")
-      } else {
-        // নতুন category যোগ করা
-        const newCategory = {
-          ...formData,
-          subcategories: []
-        };
-
-        // লোকালি set করা
-        setCategories(prev => [...prev, newCategory]);
-
-        // Backend create কল করো
-        await CategoryCreate(newCategory, dispatch);
-        toast.success("added new Category")
+      const data = new FormData();
+      data.append("name", formData.name);
+      data.append("slug", formData.slug);
+      data.append("icon", formData.icon);
+      data.append("isActive", formData.isActive);
+      data.append("metaTitle", formData.metaTitle);
+      data.append("metaDescription", formData.metaDescription);
+      if (formData.image) {
+        data.append("image", formData.image); 
       }
-
-      resetForm();
-    } catch (error) {
-      toast.error("Error in handleSubmit:", error);
-      alert("Something went wrong while saving the category!");
+  
+      let response;
+      if (editingId) {
+        response = await CategoryUploade(data, editingId);
+      } else {
+        response = await CategoryCreate(data);
+      }
+  
+      if (response.success) {
+        toast.success(editingId ? "Updated successfully ✅ " : "Created successfully ✅");
+        resetForm();
+      }
+    } catch (err) {
+      toast.error("Upload failed");
     }
   };
 
   // delete categori 
   const handelDelete = async (id) => {
-    if (!id) return;
+  if (!id) return;
 
-    const confirmDelete = window.confirm("Are you sure you want to delete this category?");
-    if (!confirmDelete) return;
+  const confirmDelete = window.confirm("Are you sure you want to delete this subcategory?");
+  if (!confirmDelete) return;
 
-    try {
-      const response = await axios.delete(`${UrlBackend}/categories/${id}`); 
-      if (response.data.success) {
-        toast.success("Category deleted successfully ✅");
+  try {
+    const response = await CategoryDelete(id);
 
-        setCategories((prev) => prev.filter((cat) => cat._id !== id));
-      } else {
-        toast.error(response.data.message || "Failed to delete ❌");
-      }
-    } catch (error) {
-      toast.error("Delete error:", error);
-      toast.error(error.response?.data?.message || "Delete failed ❌");
+    if (response.success) {
+      setCategories(prev => prev.filter(sub => sub._id !== id));
+      toast.success(response.message || "Subcategory deleted successfully ✅");
+    } else {
+      toast.error(response.message || "Delete failed ❌");
     }
-  };
-
+  } catch (error) {
+    console.error("Delete error:", error);
+    toast.error(error.response?.data?.message || "Delete failed ❌");
+  }
+};
 
   const startEdit = (category) => {
     setFormData({
@@ -177,31 +168,31 @@ const AddCategoriesComponent = () => {
 
 
 
- const toggleCategoryStatus = async (category) => {
-  try {
-    setCategories(prev =>
-      prev.map(cat =>
-        cat._id === category._id ? { ...cat, isActive: !cat.isActive } : cat
-      )
-    );
+  const toggleCategoryStatus = async (category) => {
+    try {
+      setCategories(prev =>
+        prev.map(cat =>
+          cat._id === category._id ? { ...cat, isActive: !cat.isActive } : cat
+        )
+      );
 
-    const updatedData = {
-      isActive: !category.isActive
-    };
+      const updatedData = {
+        isActive: !category.isActive
+      };
 
-    await CategoryUploade(updatedData, category._id);
+      await CategoryUploade(updatedData, category._id);
 
-    toast.success(`Category "${category.name}" status updated successfully.`);
-  } catch (error) {
-    toast.error("Failed to update category status:", error);
+      toast.success(`Category "${category.name}" status updated successfully.`);
+    } catch (error) {
+      toast.error("Failed to update category status:", error);
 
-    setCategories(prev =>
-      prev.map(cat =>
-        cat._id === category._id ? { ...cat, isActive: category.isActive } : cat
-      )
-    );
-  }
-};
+      setCategories(prev =>
+        prev.map(cat =>
+          cat._id === category._id ? { ...cat, isActive: category.isActive } : cat
+        )
+      );
+    }
+  };
 
 
 
@@ -217,38 +208,38 @@ const AddCategoriesComponent = () => {
     });
   };
 
- const bulkActivate = async () => {
-  try {
-    setCategories(prev => prev.map(cat => ({ ...cat, isActive: true })));
+  const bulkActivate = async () => {
+    try {
+      setCategories(prev => prev.map(cat => ({ ...cat, isActive: true })));
 
-    for (const cat of categories) {
-      if (!cat.isActive) {
-        await CategoryUploade({ isActive: true }, cat._id);
+      for (const cat of categories) {
+        if (!cat.isActive) {
+          await CategoryUploade({ isActive: true }, cat._id);
+        }
       }
+
+      toast.success("All categories activated successfully.");
+    } catch (error) {
+      toast.error("Failed to activate all categories:", error);
+
+      setCategories(prev => prev.map(cat => ({ ...cat, isActive: false })));
     }
-
-    toast.success("All categories activated successfully.");
-  } catch (error) {
-    toast.error("Failed to activate all categories:", error);
-
-    setCategories(prev => prev.map(cat => ({ ...cat, isActive: false })));
-  }
-};
+  };
 
   const bulkDeactivate = async () => {
-  try {
-    setCategories(prev => prev.map(cat => ({ ...cat, isActive: false })));
+    try {
+      setCategories(prev => prev.map(cat => ({ ...cat, isActive: false })));
 
-    for (const cat of categories) {
-      await CategoryUploade({ isActive: false }, cat._id);
+      for (const cat of categories) {
+        await CategoryUploade({ isActive: false }, cat._id);
+      }
+
+      toast.success("All categories deactivated successfully.");
+    } catch (error) {
+      toast.error("Failed to deactivate all categories.");
+      setCategories(prev => prev.map(cat => ({ ...cat, isActive: true })));
     }
-
-    toast.success("All categories deactivated successfully.");
-  } catch (error) {
-    toast.error("Failed to deactivate all categories.");
-    setCategories(prev => prev.map(cat => ({ ...cat, isActive: true })));
-  }
-};
+  };
 
   const exportData = () => {
     const dataStr = JSON.stringify(categories, null, 2);
@@ -261,16 +252,16 @@ const AddCategoriesComponent = () => {
   };
 
   const filteredCategories = categories.filter(category => {
-  const matchesSearch =
-    (category.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-     category.description?.toLowerCase().includes(searchTerm.toLowerCase()));
-  
-  const matchesFilter = filterStatus === 'all' ||
-    (filterStatus === 'active' && category.isActive) ||
-    (filterStatus === 'inactive' && !category.isActive);
-  
-  return matchesSearch && matchesFilter;
-});
+    const matchesSearch =
+      (category.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        category.description?.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    const matchesFilter = filterStatus === 'all' ||
+      (filterStatus === 'active' && category.isActive) ||
+      (filterStatus === 'inactive' && !category.isActive);
+
+    return matchesSearch && matchesFilter;
+  });
 
   const mainCategories = categories.filter(cat => !cat.parentId);
   const activeCategories = categories.filter(cat => cat.isActive);
@@ -339,7 +330,13 @@ const AddCategoriesComponent = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-orange-300 text-sm">Subcategories</p>
-                <p className="text-white text-2xl font-bold">{totalSubcategories}</p>
+                {allsubCategorydata && allsubCategorydata.data ? (
+                  <p className="text-white text-2xl font-bold">
+                    {allsubCategorydata.data.length}
+                  </p>
+                ) : (
+                  <p className="text-white text-2xl font-bold">0</p>
+                )}
               </div>
               <List className="text-orange-400" size={28} />
             </div>
@@ -510,6 +507,7 @@ const AddCategoriesComponent = () => {
                       <div>
                         <Image className="mx-auto mb-2 text-white/60" size={32} />
                         <input
+                        name="image"
                           type="file"
                           accept="image/*"
                           onChange={handleImageUpload}
@@ -669,8 +667,8 @@ const AddCategoriesComponent = () => {
                       <button
                         onClick={() => toggleCategoryStatus(category)}
                         className={`p-2 rounded-lg transition-all duration-300 ${category.isActive
-                            ? 'text-green-400 hover:bg-green-500/20'
-                            : 'text-gray-400 hover:bg-gray-500/20'
+                          ? 'text-green-400 hover:bg-green-500/20'
+                          : 'text-gray-400 hover:bg-gray-500/20'
                           }`}
                       >
                         {category.isActive ? <Eye size={16} /> : <EyeOff size={16} />}
@@ -915,7 +913,7 @@ const AddCategoriesComponent = () => {
 
         {/* category list table */}
 
-       <div className="bg-white/10 backdrop-blur-lg mt-5 rounded-2xl border border-white/20 overflow-scroll shadow-2xl">
+        <div className="bg-white/10 backdrop-blur-lg mt-5 rounded-2xl border border-white/20 overflow-scroll shadow-2xl">
           {/* Table Header */}
           <div className="bg-gradient-to-r  from-blue-600/30 to-indigo-600/30 px-6 py-4">
             <div className=" flex justify-between  gap-4 items-center text-sm font-semibold text-blue-200 uppercase ">
@@ -941,13 +939,13 @@ const AddCategoriesComponent = () => {
                 <div className=" flex gap-4 items-center justify-between">
                   {/* Image */}
                   <div className="flex items-center">
-                    <div 
+                    <div
                       className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-lg transform group-hover:scale-110 transition-all duration-300"
                       style={{ backgroundColor: category.color }}
                     >
                       <img src={category.image} alt="" />
                     </div>
-                      
+
                   </div>
 
                   {/* Category Name */}
@@ -956,11 +954,10 @@ const AddCategoriesComponent = () => {
                       {category.name}
                     </div>
                     <div className="text-sm text-gray-400">
-                      Status: <span className={`px-2 py-1 rounded-full text-xs ${
-                        category.status === 'active' 
-                          ? 'bg-green-500/20 text-green-400' 
+                      Status: <span className={`px-2 py-1 rounded-full text-xs ${category.status === 'active'
+                          ? 'bg-green-500/20 text-green-400'
                           : 'bg-red-500/20 text-red-400'
-                      }`}>
+                        }`}>
                         {category.status}
                       </span>
                     </div>
@@ -969,12 +966,12 @@ const AddCategoriesComponent = () => {
                   {/* Color */}
                   <div className="">
                     <div className="flex items-center space-x-3">
-                      <div 
+                      <div
                         className="w-10 h-10 flex justify-center items-center rounded-lg border-2 border-white/20 shadow-lg"
                       >
-                         <span className="text-gray-300 text-2xl font-mono">{category.icon}</span>
+                        <span className="text-gray-300 text-2xl font-mono">{category.icon}</span>
                       </div>
-                     
+
                     </div>
                   </div>
 
@@ -984,33 +981,33 @@ const AddCategoriesComponent = () => {
                       {category.isActive}
                     </div>
                     <div className="text-sm text-gray-400"> <span className={`px-2 py-1 rounded-full text-xs ${category.isActive
-                    ? 'bg-green-500/20 text-green-400'
-                    : 'bg-red-500/20 text-red-400'
-                    }`}>
-                    {category.isActive ? 'Active' : 'Inactive'}
-                  </span></div>
+                      ? 'bg-green-500/20 text-green-400'
+                      : 'bg-red-500/20 text-red-400'
+                      }`}>
+                      {category.isActive ? 'Active' : 'Inactive'}
+                    </span></div>
                   </div>
 
                   {/* Actions */}
                   <div className="flex items-center justify-end space-x-2">
-                     <button
-                        onClick={() => toggleCategoryStatus(category)}
-                        className={`p-2 rounded-lg transition-all duration-300 ${category.isActive
-                          ? 'text-green-400 hover:bg-green-500/20'
-                          : 'text-gray-400 hover:bg-gray-500/20'
-                          }`}
-                      >
-                        {category.isActive ? <Eye size={16} /> : <EyeOff size={16} />}
-                      </button>
                     <button
-                       onClick={() => startEdit(category)}
+                      onClick={() => toggleCategoryStatus(category)}
+                      className={`p-2 rounded-lg transition-all duration-300 ${category.isActive
+                        ? 'text-green-400 hover:bg-green-500/20'
+                        : 'text-gray-400 hover:bg-gray-500/20'
+                        }`}
+                    >
+                      {category.isActive ? <Eye size={16} /> : <EyeOff size={16} />}
+                    </button>
+                    <button
+                      onClick={() => startEdit(category)}
                       className="p-2 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 hover:text-blue-300 transition-all duration-300 transform hover:scale-110"
                       title="Edit Category"
                     >
                       <Edit className="w-4 h-4" />
                     </button>
                     <button
-                     onClick={() => handelDelete(category._id)}
+                      onClick={() => handelDelete(category._id)}
                       className="p-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-400 hover:text-red-300 transition-all duration-300 transform hover:scale-110"
                       title="Delete Category"
                     >

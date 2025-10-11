@@ -6,6 +6,7 @@ export const SubCategoryCreate = async (formData, ) => {
   try {
     const response = await axios.post(`${UrlBackend}/subcategories/create`, formData, {
       withCredentials: true,
+       headers: { "Content-Type": "multipart/form-data" },
     });
     return response.data; 
   } catch (error) {
@@ -19,6 +20,9 @@ export const SubCategoryAllGet = async (dispatch ) => {
   try {
     const response = await axios.get(`${UrlBackend}/subcategories`,  {
       withCredentials: true,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
     });
     dispatch(subcategoryGet(response.data))
     return response.data; 

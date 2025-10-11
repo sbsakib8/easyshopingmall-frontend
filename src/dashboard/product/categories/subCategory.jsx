@@ -2,10 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import { Plus, Edit3, Trash2, Eye, EyeOff, Save, X, Search, Filter, Grid, List, Upload, Image, Tag, Layers, ChevronDown, ChevronRight, BarChart3, Download, Edit, Link } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import axios from 'axios';
 import toast from 'react-hot-toast';
-import { UrlBackend } from '@/src/confic/urlExport';
-import { SubCategoryAllGet, SubCategoryCreate, SubCategoryUploade } from '@/src/hook/useSubcategory';
+import { SubCategoryAllGet, SubCategoryCreate, SubCategoryDelete, SubCategoryUploade } from '@/src/hook/useSubcategory';
 
 const AddSubcategoriesComponent = () => {
   const [formData, setFormData] = useState({
@@ -37,8 +35,10 @@ const AddSubcategoriesComponent = () => {
   const [categories, setCategories] = useState([]);
   const [categoriename, setCategoriename] = useState("");
   const [categorieid, setCategorieid] = useState("");
-
   const [subcategories, setSubcategories] = useState([]);
+
+  
+
 
   console.log(categories);
   // categori get 
@@ -90,16 +90,17 @@ const AddSubcategoriesComponent = () => {
     }
   };
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setFormData(prev => ({
-        ...prev,
-        image: imageUrl
-      }));
-    }
-  };
+ const handleImageUpload = (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    const imageUrl = URL.createObjectURL(file);
+    setFormData(prev => ({
+      ...prev,
+      image: file,          
+      previewImage: imageUrl 
+    }));
+  }
+};
 
   const resetForm = () => {
     setFormData({
@@ -119,64 +120,56 @@ const AddSubcategoriesComponent = () => {
   };
 
   const handleSubmit = async () => {
-    try {
-      if (!formData.name.trim()) {
-        toast.error('Please enter subcategory name');
-        return;
-      }
+  try {
+    const data = new FormData();
+    data.append("name", formData.name);
+    data.append("slug", formData.slug);
+    data.append("icon", formData.icon);
+    data.append("isActive", formData.isActive);
+    data.append("metaTitle", formData.metaTitle);
+    data.append("metaDescription", formData.metaDescription);
+    data.append("category", formData.category);
+    if (formData.image) {
+      data.append("image", formData.image); 
+    }
 
-      if (!formData.category) {
-        toast.error('Please select parent category');
-        return;
-      }
+    let response;
+    if (editingId) {
+      response = await SubCategoryUploade(data, editingId);
+    } else {
+      response = await SubCategoryCreate(data);
+    }
 
-      if (editingId) {
-        // Update existing subcategory
-        const response = await SubCategoryUploade(formData, editingId);
-        
-        if (response.data.success) {
-          setSubcategories(prev =>
-            prev.map(sub =>
-              sub._id === editingId ? { ...sub, ...formData } : sub
-            )
-          );
-          toast.success("Subcategory updated successfully");
-        }
-      } else {
-        // Create new subcategory
-        const response = await SubCategoryCreate(formData);
-        
-        if (response.data.success) {
-          setSubcategories(prev => [...prev, response.data.data]);
-          toast.success("Subcategory added successfully");
-        }
-      }
-
+    if (response.success) {
+      toast.success(editingId ? "Updated successfully ✅ " : "Created successfully ✅");
       resetForm();
-    } catch (error) {
-      console.error("Error in handleSubmit:", error);
-      toast.error(error.response?.data?.message || "Something went wrong!");
     }
-  };
+  } catch (err) {
+    toast.error("Upload failed");
+  }
+};
 
-  const handleDelete = async (id) => {
-    if (!id) return;
 
-    const confirmDelete = window.confirm("Are you sure you want to delete this subcategory?");
-    if (!confirmDelete) return;
+ const handleDelete = async (id) => {
+  if (!id) return;
 
-    try {
-      const response = await axios.delete(`${UrlBackend}/subcategories/${id}`);
-      
-      if (response.data.success) {
-        setSubcategories(prev => prev.filter(sub => sub._id !== id));
-        toast.success("Subcategory deleted successfully ✅");
-      }
-    } catch (error) {
-      console.error("Delete error:", error);
-      toast.error(error.response?.data?.message || "Delete failed ❌");
+  const confirmDelete = window.confirm("Are you sure you want to delete this subcategory?");
+  if (!confirmDelete) return;
+
+  try {
+    const response = await SubCategoryDelete(id);
+
+    if (response.success) {
+      setSubcategories(prev => prev.filter(sub => sub._id !== id));
+      toast.success(response.message || "Subcategory deleted successfully ✅");
+    } else {
+      toast.error(response.message || "Delete failed ❌");
     }
-  };
+  } catch (error) {
+    console.error("Delete error:", error);
+    toast.error(error.response?.data?.message || "Delete failed ❌");
+  }
+};
 
   const startEdit = (subcategory) => {
     setFormData({
@@ -187,7 +180,7 @@ const AddSubcategoriesComponent = () => {
       image: subcategory.image,
       metaTitle: subcategory.metaTitle,
       metaDescription: subcategory.metaDescription,
-      parentCategory: subcategory.parentCategory
+      category: subcategory.category?._id || ''
     });
     setEditingId(subcategory._id);
     setShowAddForm(true);
@@ -203,11 +196,9 @@ const AddSubcategoriesComponent = () => {
         )
       );
 
-      const response = await axios.put(`${UrlBackend}/subcategories/${subcategory._id}`, {
-        isActive: updatedStatus
-      });
+      const response = await SubCategoryUploade({isActive: updatedStatus},subcategory._id)
 
-      if (response.data.success) {
+      if (response.success) {
         toast.success(`Subcategory "${subcategory.name}" status updated`);
       }
     } catch (error) {
@@ -240,7 +231,7 @@ const AddSubcategoriesComponent = () => {
 
       for (const sub of subcategories) {
         if (!sub.isActive) {
-          await axios.put(`${UrlBackend}/subcategories/${sub._id}`, { isActive: true });
+          await SubCategoryUploade({isActive: true },sub._id)
         }
       }
 
@@ -257,14 +248,13 @@ const AddSubcategoriesComponent = () => {
       setSubcategories(prev => prev.map(sub => ({ ...sub, isActive: false })));
 
       for (const sub of subcategories) {
-        await axios.put(`${UrlBackend}/subcategories/${sub._id}`, { isActive: false });
+        await SubCategoryUploade({isActive: false },sub._id)
       }
 
       toast.success("All subcategories deactivated");
     } catch (error) {
       console.error("Bulk deactivate error:", error);
       toast.error("Failed to deactivate all");
-      fetchSubcategories();
     }
   };
 
@@ -288,17 +278,28 @@ const AddSubcategoriesComponent = () => {
     return category?.color || '#6366F1';
   };
 
-  const filteredSubcategories = subcategories.filter(subcategory => {
-    const matchesSearch = subcategory.name?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterStatus === 'all' ||
-      (filterStatus === 'active' && subcategory.isActive) ||
-      (filterStatus === 'inactive' && !subcategory.isActive);
-    const matchesCategory = filterCategory === 'all' || subcategory.parentCategory === filterCategory;
-    
-    return matchesSearch && matchesFilter && matchesCategory;
-  });
+ const filteredSubcategories = subcategories.filter((subcategory) => {
+  //  Search Filter
+  const matchesSearch = subcategory.name
+    ?.toLowerCase()
+    .includes(searchTerm.toLowerCase());
 
+  //  Status Filter
+  const matchesFilter =
+    filterStatus === "all" ||
+    (filterStatus === "active" && subcategory.isActive) ||
+    (filterStatus === "inactive" && !subcategory.isActive);
+
+  //  Category Filter
+  const matchesCategory =
+    filterCategory === "all" ||
+    subcategory.category === filterCategory ||          
+    subcategory.category?._id === filterCategory;       
+
+  return matchesSearch && matchesFilter && matchesCategory;
+});
   const activeSubcategories = subcategories.filter(sub => sub.isActive);
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 p-4 overflow-hidden">
@@ -564,6 +565,7 @@ const AddSubcategoriesComponent = () => {
                       <div>
                         <Image className="mx-auto mb-2 text-white/60" size={32} />
                         <input
+                        name="image"
                           type="file"
                           accept="image/*"
                           onChange={handleImageUpload}
@@ -885,8 +887,9 @@ const AddSubcategoriesComponent = () => {
                   <span>Add Your First Subcategory</span>
                 </button>
               )}
+ 
             </div>
-          )}
+          )} 
         </div>
 
         {/* Subcategory Table */}
