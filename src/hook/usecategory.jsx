@@ -7,6 +7,9 @@ export const CategoryCreate = async (formData, ) => {
   try {
     const response = await axios.post(`${UrlBackend}/categories/create`, formData, {
       withCredentials: true,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
     });
     return response.data; 
   } catch (error) {

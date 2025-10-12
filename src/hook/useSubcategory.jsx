@@ -20,6 +20,9 @@ export const SubCategoryAllGet = async (dispatch ) => {
   try {
     const response = await axios.get(`${UrlBackend}/subcategories`,  {
       withCredentials: true,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
     });
     dispatch(subcategoryGet(response.data))
     return response.data; 
