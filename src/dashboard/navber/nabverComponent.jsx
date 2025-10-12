@@ -28,6 +28,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { useGetcategory } from "@/src/utlis/usecategory"
+import { useGetSubcategory } from "@/src/utlis/useSubcategory"
 
 const DashboardNebver = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -38,6 +39,8 @@ const DashboardNebver = ({ children }) => {
 
   // category get    
         const {category, loading, error} = useGetcategory()
+        // subcategory all get 
+        const {} = useGetSubcategory()
 
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen)
