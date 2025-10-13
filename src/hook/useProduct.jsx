@@ -14,3 +14,17 @@ export const ProductCreate = async (formData, ) => {
     throw error; 
   }
 };
+
+
+// all product get 
+export const ProductAllGet = async (formData, ) => {
+  try {
+    const response = await axios.post(`${UrlBackend}/products/get`, formData, {
+      withCredentials: true,
+    });
+    return response.data; 
+  } catch (error) {
+    console.error("Registration error:", error.response?.data || error.message);
+    throw error; 
+  }
+};
