@@ -28,3 +28,22 @@ export const ProductAllGet = async (formData, ) => {
     throw error; 
   }
 };
+
+
+// all delete
+export const ProductDelete = async (_id) => {
+  try {
+    const response = await axios.delete(`${UrlBackend}/products/delete-product`, {
+      data: { _id },              
+      withCredentials: true,
+      headers: { "Content-Type": "application/json" }, 
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Delete error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+
+
