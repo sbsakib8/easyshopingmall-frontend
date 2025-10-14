@@ -28,3 +28,38 @@ export const ProductAllGet = async (formData, ) => {
     throw error; 
   }
 };
+
+
+//  delete
+export const ProductDelete = async (_id) => {
+  try {
+    const response = await axios.delete(`${UrlBackend}/products/delete-product`, {
+      data: { _id },              
+      withCredentials: true,
+      headers: { "Content-Type": "application/json" }, 
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Delete error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+
+// update
+export const ProductUpdate = async (formData) => {
+  try {
+    const response = await axios.put(
+      `${UrlBackend}/products/update-product-details`,
+      formData,
+      {
+        withCredentials: true,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("update error:", error.response?.data || error.message);
+    throw error;
+  }
+};

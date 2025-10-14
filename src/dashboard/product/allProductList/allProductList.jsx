@@ -2,19 +2,23 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import {
   Search, Package, Tag, Grid, Eye, Edit, Trash2, Star, Plus,
-  Download, RefreshCw,
+  Download, RefreshCw, X,
   TrendingUp, ArrowUp, MoreVertical,
   DollarSign, Activity, Zap, Globe,
 } from 'lucide-react';
 import { useGetProduct } from '@/src/utlis/userProduct';
 import { useSelector } from 'react-redux';
+import { useRouter } from 'next/navigation';
+import { UrlFrontend } from '@/src/confic/urlExport';
+import toast from 'react-hot-toast';
+import { ProductDelete, ProductUpdate } from '@/src/hook/useProduct';
 
 const ProductDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [currentTime, setCurrentTime] = useState(new Date());
-
- 
+  const Router = useRouter()
+  console.log(selectedCategory);
   // data 
   const [page, setPage] = useState(1);
   const formData = useMemo(() => ({
@@ -24,10 +28,9 @@ const ProductDashboard = () => {
   }), []);
 
   // product get 
-  const { product, loading, error } = useGetProduct(formData)
+  const { product, loading, error, refetch } = useGetProduct(formData)
   const allCategorydata = useSelector((state) => state.category.allCategorydata);
   const allsubCategorydata = useSelector((state) => state.subcategory.allsubCategorydata);
-
 
   // demo Sample product data after remove
   const [products, setProducts] = useState([])
@@ -36,34 +39,27 @@ const ProductDashboard = () => {
     if (product) {
       setProducts(product);
     }
-  }, [product, allCategorydata,allsubCategorydata]);
-
-  console.log(products);
+  }, [product, allCategorydata, allsubCategorydata]);
   // Calculate statistics
   const totalProducts = product?.length || 0;
-  const categories = [...new Set(products?.map(p => p.category))];
   const totalCategories = allCategorydata?.data.length || 0;
-  const subCategories = [...new Set(products?.map(p => p.subCategory))];
   const totalSubCategories = allsubCategorydata?.data.length || 0;
-
   // Filter products based on search and category
   const filteredProducts = useMemo(() => {
     return products?.filter(product => {
-      const matchesSearch = product.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.brand.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
+      const matchesSearch = product?.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product?.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product?.brand.toLowerCase().includes(searchTerm.toLowerCase()) || 
+         product?._id.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        product?.productStock?.toString().includes(searchTerm);
+      const matchesCategory =
+        selectedCategory === "All" ||
+        product?.category?.some(cat => cat.name === selectedCategory) ||
+        product?.subCategory?.some(sub => sub.name === selectedCategory);
+
       return matchesSearch && matchesCategory;
     });
   }, [products, searchTerm, selectedCategory]);
-
-  console.log("sakuiscbcfd", filteredProducts);
-
-  const handleDelete = (id) => {
-    setProducts(products?.filter(p => p.id !== id));
-  };
-
-
 
   const renderStars = (rating) => {
     return Array.from({ length: 5 }, (_, i) => (
@@ -87,6 +83,81 @@ const ProductDashboard = () => {
     return 'In Stock';
   };
 
+  // handle
+  const addProdcut = () => {
+    Router.push(`${UrlFrontend}/dashboard/products/addproduct`)
+  }
+
+  //  handleExport
+  const handleExport = () => {
+    const dataStr = JSON.stringify(products, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'products-export.json';
+    link.click();
+  }
+
+  // refetch 
+  const reFreshData = () => {
+    refetch()
+  }
+
+  //  action function click handle 
+  const [viewModal, setViewModal] = useState(null);
+  const [editModal, setEditModal] = useState(null);
+  const [deleteModal, setDeleteModal] = useState(null);
+
+  const handleView = (product) => {
+    setViewModal(product);
+  };
+
+  const handleEdit = (product) => {
+    setEditModal({ ...product });
+  };
+
+  const handleDelete = (id) => {
+    setDeleteModal(id);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      if (!deleteModal) return;
+      await ProductDelete(deleteModal);
+      setDeleteModal(null);
+      toast.success("Product deleted successfully");
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response?.data?.message || "Something went wrong");
+    }
+  };
+
+
+  const [load, setLoad] = useState(false);
+
+  const saveEdit = async () => {
+    setLoad(true);
+    try {
+      const res = await ProductUpdate(editModal);
+      if (res.success) {
+        toast.success("Product updated successfully!");
+        setProducts(products.map(p => p._id === editModal._id ? editModal : p));
+        setEditModal(null);
+      } else {
+        toast.error(res.message);
+      }
+    } catch (error) {
+      toast.error("Error updating product");
+    } finally {
+      setLoad(false);
+    }
+  };
+
+  const updateEditField = (field, value) => {
+    setEditModal({ ...editModal, [field]: value });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 relative overflow-hidden">
       {/* Animated Background Elements */}
@@ -95,13 +166,13 @@ const ProductDashboard = () => {
         <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-to-r from-purple-600/5 to-pink-600/5 rounded-full blur-3xl animate-float"></div>
         <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-gradient-to-r from-cyan-600/3 to-blue-600/3 rounded-full blur-3xl animate-bounce-slow"></div>
       </div>
+
       {/* Main Content */}
-      <div className={`transition-all  duration-500 lg:ml-15 py-5 px-2 lg:px-9`}>
+      <div className={`transition-all duration-500 lg:ml-15 py-5 px-2 lg:px-9`}>
 
         {/* Welcome Banner */}
         <div className="mb-8 animate-slideDown">
           <div className="relative bg-gradient-to-r from-gray-900/80 via-blue-900/80 to-purple-900/80 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-gray-700/50 shadow-2xl shadow-blue-500/10 overflow-hidden">
-            {/* Animated particles */}
             <div className="absolute inset-0">
               <div className="absolute top-4 right-4 w-2 h-2 bg-blue-400 rounded-full animate-ping"></div>
               <div className="absolute bottom-6 left-6 w-1 h-1 bg-purple-400 rounded-full animate-pulse"></div>
@@ -175,7 +246,6 @@ const ProductDashboard = () => {
               className={`group relative bg-gradient-to-br ${card.bgGradient} backdrop-blur-xl p-6 rounded-3xl border border-gray-700/30 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 hover:scale-105 animate-slideUp overflow-hidden`}
               style={{ animationDelay: `${index * 150}ms` }}
             >
-              {/* Glowing border effect */}
               <div className={`absolute inset-0 bg-gradient-to-r ${card.gradient} opacity-0 group-hover:opacity-10 rounded-3xl transition-opacity duration-500`}></div>
 
               <div className="relative z-10">
@@ -208,7 +278,6 @@ const ProductDashboard = () => {
         {/* Filters and Actions */}
         <div className="bg-gradient-to-r from-gray-900/90 via-gray-800/90 to-gray-900/90 backdrop-blur-xl rounded-3xl border border-gray-700/30 shadow-2xl p-6 sm:p-8 mb-8 animate-slideUp" style={{ animationDelay: '0.6s' }}>
           <div className="flex flex-col space-y-6">
-            {/* Header Section */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
               <div className="flex items-center space-x-3">
                 <div className="p-2 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg">
@@ -230,10 +299,8 @@ const ProductDashboard = () => {
               </div>
             </div>
 
-            {/* Filters Section */}
             <div className="flex flex-col lg:flex-row lg:items-end space-y-4 lg:space-y-0 lg:space-x-6">
               <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {/* Category Filter */}
                 <div className="relative">
                   <label className="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wide">
                     Category Filter
@@ -250,7 +317,6 @@ const ProductDashboard = () => {
                   </select>
                 </div>
 
-                {/* Search */}
                 <div className="sm:col-span-2 lg:col-span-2 relative">
                   <label className="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wide">
                     Search Products
@@ -259,7 +325,7 @@ const ProductDashboard = () => {
                     <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 transition-colors duration-300" size={20} />
                     <input
                       type="text"
-                      placeholder="Search by name, brand, description..."
+                      placeholder="Search by name, ID , SKU , Stock , brand, ..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="w-full pl-12 pr-4 py-3 bg-gray-800/50 border border-gray-600/50 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-gray-700/50 transition-all duration-300"
@@ -268,17 +334,16 @@ const ProductDashboard = () => {
                 </div>
               </div>
 
-              {/* Action Buttons */}
               <div className="flex flex-wrap gap-3">
-                <button className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-green-500/25 font-medium">
+                <button onClick={addProdcut} className="flex items-center cursor-pointer space-x-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-green-500/25 font-medium">
                   <Plus className="w-4 h-4" />
                   <span>Add Product</span>
                 </button>
-                <button className="flex items-center space-x-2 px-4 py-3 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-600/50 text-gray-300 hover:text-white rounded-xl transition-all duration-300 transform hover:scale-105">
+                <button onClick={handleExport} className="flex items-center space-x-2 px-4 py-3 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-600/50 text-gray-300 hover:text-white rounded-xl transition-all duration-300 transform hover:scale-105">
                   <Download className="w-4 h-4" />
                   <span className="hidden sm:inline">Export</span>
                 </button>
-                <button className="flex items-center space-x-2 px-4 py-3 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-600/50 text-gray-300 hover:text-white rounded-xl transition-all duration-300 transform hover:scale-105">
+                <button onClick={reFreshData} className="flex items-center space-x-2 px-4 py-3 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-600/50 text-gray-300 hover:text-white rounded-xl transition-all duration-300 transform hover:scale-105">
                   <RefreshCw className="w-4 h-4" />
                   <span className="hidden sm:inline">Refresh</span>
                 </button>
@@ -321,7 +386,6 @@ const ProductDashboard = () => {
               >
                 {/* Desktop Layout */}
                 <div className="hidden lg:grid lg:grid-cols-12 gap-4 items-center">
-                  {/* Product Info */}
                   <div className="col-span-3 flex items-center space-x-4">
                     <div className="relative group-hover:scale-110 transition-transform duration-300">
                       <img
@@ -344,7 +408,6 @@ const ProductDashboard = () => {
                     </div>
                   </div>
 
-                  {/* Category */}
                   <div className="col-span-2 space-y-2">
                     <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30 group-hover:bg-blue-500/30 transition-all duration-300">
                       {product?.category[0]?.name}
@@ -356,27 +419,23 @@ const ProductDashboard = () => {
                     </div>
                   </div>
 
-                  {/* Brand */}
                   <div className="col-span-1">
                     <span className="inline-flex items-center px-3 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-gray-700 to-gray-600 text-gray-200 border border-gray-600/50 group-hover:from-gray-600 group-hover:to-gray-500 transition-all duration-300">
                       {product?.brand}
                     </span>
                   </div>
 
-                  {/* Price */}
                   <div className="col-span-2">
                     <div className="space-y-1">
-                      <span className="text-xs text-blue-500  block">
+                      <span className="text-xs text-blue-500 block">
                         {product?.discount}%
                       </span>
                       <span className="font-bold text-lg text-emerald-400 block">
                         {product?.price}
                       </span>
-
                     </div>
                   </div>
 
-                  {/* Stock */}
                   <div className="col-span-1">
                     <div className="space-y-1">
                       <span className={`inline-flex items-center px-2 py-1 rounded-lg text-xs font-bold bg-gradient-to-r ${getStatusColor(product?.productStock)} text-white shadow-md`}>
@@ -386,7 +445,6 @@ const ProductDashboard = () => {
                     </div>
                   </div>
 
-                  {/* Rating */}
                   <div className="col-span-1">
                     <div className="flex items-center space-x-1 mb-1">
                       {renderStars(product?.ratings)}
@@ -394,13 +452,18 @@ const ProductDashboard = () => {
                     <p className="text-xs text-gray-400">{product?.ratings}.0</p>
                   </div>
 
-                  {/* Actions */}
                   <div className="col-span-2">
                     <div className="flex items-center space-x-2">
-                      <button className="p-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-cyan-500/25">
+                      <button
+                        onClick={() => handleView(product)}
+                        className="p-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-cyan-500/25"
+                      >
                         <Eye size={16} />
                       </button>
-                      <button className="p-2 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-emerald-500/25">
+                      <button
+                        onClick={() => handleEdit(product)}
+                        className="p-2 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-emerald-500/25"
+                      >
                         <Edit size={16} />
                       </button>
                       <button
@@ -436,7 +499,6 @@ const ProductDashboard = () => {
                           </h3>
                           <p className="text-xs text-gray-400 mb-2">{product?.brand}</p>
 
-                          {/* Mobile Tags */}
                           <div className="flex flex-wrap gap-2 mb-3">
                             <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
                               {product?.category[0]?.name}
@@ -449,17 +511,15 @@ const ProductDashboard = () => {
                             </span>
                           </div>
 
-                          {/* Mobile Price and Stats */}
                           <div className="flex items-center justify-between">
                             <div className="col-span-2">
                               <div className="space-y-1">
-                                <span className="text-xs text-blue-500  block">
+                                <span className="text-xs text-blue-500 block">
                                   {product?.discount}%
                                 </span>
                                 <span className="font-bold text-lg text-emerald-400 block">
                                   {product?.price}
                                 </span>
-
                               </div>
                             </div>
 
@@ -477,7 +537,6 @@ const ProductDashboard = () => {
                         </div>
                       </div>
 
-                      {/* Mobile Actions */}
                       <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-700/30">
                         <div className="flex items-center space-x-1 text-green-700">
                           <span className="text-xs font-medium">Stock</span>
@@ -485,10 +544,16 @@ const ProductDashboard = () => {
                         </div>
 
                         <div className="flex items-center space-x-2">
-                          <button className="p-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg">
+                          <button
+                            onClick={() => handleView(product)}
+                            className="p-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg"
+                          >
                             <Eye size={14} />
                           </button>
-                          <button className="p-2 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg">
+                          <button
+                            onClick={() => handleEdit(product)}
+                            className="p-2 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg"
+                          >
                             <Edit size={14} />
                           </button>
                           <button
@@ -557,6 +622,268 @@ const ProductDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* View Modal */}
+      {viewModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-purple-500/30 max-w-3xl w-full max-h-[90vh] overflow-y-auto animate-slideUp">
+            <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-purple-600 p-6 flex justify-between items-center z-10">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                <Eye className="w-6 h-6" />
+                Product Details
+              </h2>
+              <button
+                onClick={() => setViewModal(null)}
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <X className="w-6 h-6 text-white" />
+              </button>
+            </div>
+
+            <div className="p-6">
+              <div className="flex flex-col md:flex-row gap-6 mb-6">
+                <img
+                  src={viewModal?.images[0]}
+                  alt={viewModal?.productName}
+                  className="w-full md:w-64 h-64 rounded-xl object-cover border-2 border-purple-500/30"
+                />
+                <div className="flex-1">
+                  <h3 className="text-3xl font-bold text-white mb-2">{viewModal?.productName}</h3>
+                  <div className="flex gap-2 mb-4">
+                    {renderStars(viewModal?.ratings)}
+                    <span className="text-white font-semibold">({viewModal?.ratings}.0)</span>
+                  </div>
+                  <p className="text-gray-300 mb-4">{viewModal?.description}</p>
+                  <div className="flex gap-2 flex-wrap">
+                    <span className="px-4 py-2 rounded-lg bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                      {viewModal?.category[0]?.name}
+                    </span>
+                    <span className="px-4 py-2 rounded-lg bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                      {viewModal?.subCategory[0]?.name}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-slate-700/30 rounded-xl p-4 border border-slate-600/50">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Package className="w-5 h-5 text-cyan-400" />
+                    <span className="text-gray-400 text-sm">SKU</span>
+                  </div>
+                  <p className="text-white font-semibold">{viewModal?.sku}</p>
+                </div>
+
+                <div className="bg-slate-700/30 rounded-xl p-4 border border-slate-600/50">
+                  <div className="flex items-center gap-2 mb-2">
+                    <DollarSign className="w-5 h-5 text-emerald-400" />
+                    <span className="text-gray-400 text-sm">Price</span>
+                  </div>
+                  <p className="text-white font-semibold text-2xl">৳{viewModal?.price}</p>
+                </div>
+
+                <div className="bg-slate-700/30 rounded-xl p-4 border border-slate-600/50">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Tag className="w-5 h-5 text-purple-400" />
+                    <span className="text-gray-400 text-sm">Discount</span>
+                  </div>
+                  <p className="text-emerald-400 font-semibold text-2xl">{viewModal?.discount}%</p>
+                </div>
+
+                <div className="bg-slate-700/30 rounded-xl p-4 border border-slate-600/50">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Package className="w-5 h-5 text-orange-400" />
+                    <span className="text-gray-400 text-sm">Stock</span>
+                  </div>
+                  <p className="text-white font-semibold text-2xl">{viewModal?.productStock}</p>
+                  <p className="text-gray-400 text-sm">{getStatusText(viewModal?.productStock)}</p>
+                </div>
+
+                <div className="bg-slate-700/30 rounded-xl p-4 border border-slate-600/50">
+                  <span className="text-gray-400 text-sm">Brand</span>
+                  <p className="text-white font-semibold mt-2">{viewModal?.brand}</p>
+                </div>
+
+                <div className="bg-slate-700/30 rounded-xl p-4 border border-slate-600/50">
+                  <span className="text-gray-400 text-sm">Product ID</span>
+                  <p className="text-emerald-400 font-mono text-sm mt-2">#{viewModal?._id}</p>
+                </div>
+              </div>
+
+              {viewModal?.images?.length > 1 && (
+                <div className="mt-6">
+                  <h4 className="text-white font-semibold mb-3">All Images</h4>
+                  <div className="grid grid-cols-3 gap-3">
+                    {viewModal?.images.map((img, idx) => (
+                      <img
+                        key={idx}
+                        src={img}
+                        alt={`Product ${idx + 1}`}
+                        className="w-full h-32 rounded-lg object-cover border border-slate-600/50"
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {editModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-emerald-500/30 max-w-3xl w-full max-h-[90vh] overflow-y-auto animate-slideUp">
+            <div className="sticky top-0 bg-gradient-to-r from-emerald-600 to-teal-600 p-6 flex justify-between items-center z-10">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                <Edit className="w-6 h-6" />
+                Edit Product
+              </h2>
+              <button
+                onClick={() => setEditModal(null)}
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <X className="w-6 h-6 text-white" />
+              </button>
+            </div>
+
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-gray-300 text-sm font-semibold mb-2">Product Name</label>
+                  <input
+                    type="text"
+                    value={editModal?.productName}
+                    onChange={(e) => updateEditField('productName', e.target.value)}
+                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-gray-300 text-sm font-semibold mb-2">SKU</label>
+                  <input
+                    type="text"
+                    value={editModal?.sku}
+                    onChange={(e) => updateEditField('sku', e.target.value)}
+                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-gray-300 text-sm font-semibold mb-2">Brand</label>
+                  <input
+                    type="text"
+                    value={editModal?.brand}
+                    onChange={(e) => updateEditField('brand', e.target.value)}
+                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-gray-300 text-sm font-semibold mb-2">Price</label>
+                  <input
+                    type="number"
+                    value={editModal?.price}
+                    onChange={(e) => updateEditField('price', Number(e.target.value))}
+                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-gray-300 text-sm font-semibold mb-2">Discount (%)</label>
+                  <input
+                    type="number"
+                    value={editModal?.discount}
+                    onChange={(e) => updateEditField('discount', Number(e.target.value))}
+                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-gray-300 text-sm font-semibold mb-2">Stock</label>
+                  <input
+                    type="number"
+                    value={editModal?.productStock}
+                    onChange={(e) => updateEditField('productStock', Number(e.target.value))}
+                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-gray-300 text-sm font-semibold mb-2">Rating</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="5"
+                    value={editModal?.ratings}
+                    onChange={(e) => updateEditField('ratings', Number(e.target.value))}
+                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-gray-300 text-sm font-semibold mb-2">Description</label>
+                  <textarea
+                    value={editModal?.description}
+                    onChange={(e) => updateEditField('description', e.target.value)}
+                    rows="3"
+                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-emerald-500 transition-colors resize-none"
+                  ></textarea>
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={saveEdit}
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold rounded-lg transition-all transform hover:scale-105"
+                >
+                  {load ? "Saving..." : "Save Changes"}
+                </button>
+                <button
+                  onClick={() => setEditModal(null)}
+                  className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-pink-500/30 max-w-md w-full p-6 animate-slideUp">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-3 bg-pink-500/20 rounded-full">
+                <Trash2 className="w-8 h-8 text-pink-500" />
+              </div>
+              <h2 className="text-2xl font-bold text-white">Delete Product</h2>
+            </div>
+
+            <p className="text-gray-300 mb-6">
+              Are you sure you want to delete this product? This action cannot be undone.
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                onClick={confirmDelete}
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-semibold rounded-lg transition-all transform hover:scale-105"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => setDeleteModal(null)}
+                className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style jsx>{`
         @keyframes slideUp {
@@ -652,7 +979,6 @@ const ProductDashboard = () => {
           transform: scale(1.02);
         }
 
-        /* Custom scrollbar */
         ::-webkit-scrollbar {
           width: 8px;
         }
@@ -672,7 +998,6 @@ const ProductDashboard = () => {
           background: linear-gradient(to bottom, #2563eb, #7c3aed);
         }
 
-        /* Enhanced responsiveness */
         @media (max-width: 640px) {
           .grid {
             gap: 1rem;
@@ -709,12 +1034,10 @@ const ProductDashboard = () => {
           }
         }
 
-        /* Glassmorphism enhancements */
         .backdrop-blur-xl {
           backdrop-filter: blur(20px);
         }
 
-        /* Loading shimmer effect */
         @keyframes shimmer {
           0% {
             background-position: -200px 0;
@@ -730,13 +1053,11 @@ const ProductDashboard = () => {
           animation: shimmer 2s infinite;
         }
 
-        /* Hover glow effects */
         .hover-glow:hover {
           box-shadow: 0 20px 40px rgba(59, 130, 246, 0.15),
                       0 10px 20px rgba(139, 92, 246, 0.1);
         }
 
-        /* Enhanced mobile interactions */
         @media (hover: none) and (pointer: coarse) {
           .group:active {
             transform: scale(0.98);
@@ -747,13 +1068,11 @@ const ProductDashboard = () => {
           }
         }
 
-        /* Dark theme enhancements */
         .dark-glow {
           box-shadow: 0 0 20px rgba(59, 130, 246, 0.1),
                       0 0 40px rgba(139, 92, 246, 0.05);
         }
 
-        /* Advanced animations */
         @keyframes pulse-glow {
           0%, 100% {
             box-shadow: 0 0 20px rgba(59, 130, 246, 0.1);
