@@ -11,14 +11,14 @@ import { useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import { UrlFrontend } from '@/src/confic/urlExport';
 import toast from 'react-hot-toast';
-import { ProductDelete } from '@/src/hook/useProduct';
+import { ProductDelete, ProductUpdate } from '@/src/hook/useProduct';
 
 const ProductDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [currentTime, setCurrentTime] = useState(new Date());
   const Router = useRouter()
- 
+  console.log(selectedCategory);
   // data 
   const [page, setPage] = useState(1);
   const formData = useMemo(() => ({
@@ -39,19 +39,24 @@ const ProductDashboard = () => {
     if (product) {
       setProducts(product);
     }
-  }, [product, allCategorydata,allsubCategorydata]);
+  }, [product, allCategorydata, allsubCategorydata]);
   // Calculate statistics
   const totalProducts = product?.length || 0;
   const totalCategories = allCategorydata?.data.length || 0;
   const totalSubCategories = allsubCategorydata?.data.length || 0;
-
   // Filter products based on search and category
   const filteredProducts = useMemo(() => {
     return products?.filter(product => {
-      const matchesSearch = product.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.brand.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
+      const matchesSearch = product?.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product?.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product?.brand.toLowerCase().includes(searchTerm.toLowerCase()) || 
+         product?._id.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        product?.productStock?.toString().includes(searchTerm);
+      const matchesCategory =
+        selectedCategory === "All" ||
+        product?.category?.some(cat => cat.name === selectedCategory) ||
+        product?.subCategory?.some(sub => sub.name === selectedCategory);
+
       return matchesSearch && matchesCategory;
     });
   }, [products, searchTerm, selectedCategory]);
@@ -79,12 +84,12 @@ const ProductDashboard = () => {
   };
 
   // handle
-   const addProdcut =()=>{
-      Router.push(`${UrlFrontend}/dashboard/products/addproduct`)
-   }
+  const addProdcut = () => {
+    Router.push(`${UrlFrontend}/dashboard/products/addproduct`)
+  }
 
   //  handleExport
-  const handleExport = ()=> { 
+  const handleExport = () => {
     const dataStr = JSON.stringify(products, null, 2);
     const dataBlob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(dataBlob);
@@ -95,8 +100,8 @@ const ProductDashboard = () => {
   }
 
   // refetch 
-  const reFreshData = ()=>{
-     refetch()
+  const reFreshData = () => {
+    refetch()
   }
 
   //  action function click handle 
@@ -117,22 +122,36 @@ const ProductDashboard = () => {
   };
 
   const confirmDelete = async () => {
-  try {
-    if (!deleteModal) return;  // safety check
-    await ProductDelete(deleteModal);  // deleteModal is just the _id string
-    setDeleteModal(null);
-    toast.success("Product deleted successfully");
-  } catch (error) {
-    console.log(error);
-    toast.error(error.response?.data?.message || "Something went wrong");
-  }
-};
+    try {
+      if (!deleteModal) return;
+      await ProductDelete(deleteModal);
+      setDeleteModal(null);
+      toast.success("Product deleted successfully");
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response?.data?.message || "Something went wrong");
+    }
+  };
 
-  console.log(deleteModal);
 
-  const saveEdit = () => {
-    setProducts(products.map(p => p._id === editModal._id ? editModal : p));
-    setEditModal(null);
+  const [load, setLoad] = useState(false);
+
+  const saveEdit = async () => {
+    setLoad(true);
+    try {
+      const res = await ProductUpdate(editModal);
+      if (res.success) {
+        toast.success("Product updated successfully!");
+        setProducts(products.map(p => p._id === editModal._id ? editModal : p));
+        setEditModal(null);
+      } else {
+        toast.error(res.message);
+      }
+    } catch (error) {
+      toast.error("Error updating product");
+    } finally {
+      setLoad(false);
+    }
   };
 
   const updateEditField = (field, value) => {
@@ -147,7 +166,7 @@ const ProductDashboard = () => {
         <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-to-r from-purple-600/5 to-pink-600/5 rounded-full blur-3xl animate-float"></div>
         <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-gradient-to-r from-cyan-600/3 to-blue-600/3 rounded-full blur-3xl animate-bounce-slow"></div>
       </div>
-      
+
       {/* Main Content */}
       <div className={`transition-all duration-500 lg:ml-15 py-5 px-2 lg:px-9`}>
 
@@ -306,7 +325,7 @@ const ProductDashboard = () => {
                     <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 transition-colors duration-300" size={20} />
                     <input
                       type="text"
-                      placeholder="Search by name, brand, description..."
+                      placeholder="Search by name, ID , SKU , Stock , brand, ..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="w-full pl-12 pr-4 py-3 bg-gray-800/50 border border-gray-600/50 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-gray-700/50 transition-all duration-300"
@@ -435,13 +454,13 @@ const ProductDashboard = () => {
 
                   <div className="col-span-2">
                     <div className="flex items-center space-x-2">
-                      <button 
+                      <button
                         onClick={() => handleView(product)}
                         className="p-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-cyan-500/25"
                       >
                         <Eye size={16} />
                       </button>
-                      <button 
+                      <button
                         onClick={() => handleEdit(product)}
                         className="p-2 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-emerald-500/25"
                       >
@@ -525,13 +544,13 @@ const ProductDashboard = () => {
                         </div>
 
                         <div className="flex items-center space-x-2">
-                          <button 
+                          <button
                             onClick={() => handleView(product)}
                             className="p-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg"
                           >
                             <Eye size={14} />
                           </button>
-                          <button 
+                          <button
                             onClick={() => handleEdit(product)}
                             className="p-2 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg"
                           >
@@ -623,9 +642,9 @@ const ProductDashboard = () => {
 
             <div className="p-6">
               <div className="flex flex-col md:flex-row gap-6 mb-6">
-                <img 
-                  src={viewModal?.images[0]} 
-                  alt={viewModal?.productName} 
+                <img
+                  src={viewModal?.images[0]}
+                  alt={viewModal?.productName}
                   className="w-full md:w-64 h-64 rounded-xl object-cover border-2 border-purple-500/30"
                 />
                 <div className="flex-1">
@@ -696,9 +715,9 @@ const ProductDashboard = () => {
                   <h4 className="text-white font-semibold mb-3">All Images</h4>
                   <div className="grid grid-cols-3 gap-3">
                     {viewModal?.images.map((img, idx) => (
-                      <img 
+                      <img
                         key={idx}
-                        src={img} 
+                        src={img}
                         alt={`Product ${idx + 1}`}
                         className="w-full h-32 rounded-lg object-cover border border-slate-600/50"
                       />
@@ -819,7 +838,7 @@ const ProductDashboard = () => {
                   onClick={saveEdit}
                   className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold rounded-lg transition-all transform hover:scale-105"
                 >
-                  Save Changes
+                  {load ? "Saving..." : "Save Changes"}
                 </button>
                 <button
                   onClick={() => setEditModal(null)}
@@ -843,7 +862,7 @@ const ProductDashboard = () => {
               </div>
               <h2 className="text-2xl font-bold text-white">Delete Product</h2>
             </div>
-            
+
             <p className="text-gray-300 mb-6">
               Are you sure you want to delete this product? This action cannot be undone.
             </p>

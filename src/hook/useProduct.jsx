@@ -30,7 +30,7 @@ export const ProductAllGet = async (formData, ) => {
 };
 
 
-// all delete
+//  delete
 export const ProductDelete = async (_id) => {
   try {
     const response = await axios.delete(`${UrlBackend}/products/delete-product`, {
@@ -46,4 +46,20 @@ export const ProductDelete = async (_id) => {
 };
 
 
-
+// update
+export const ProductUpdate = async (formData) => {
+  try {
+    const response = await axios.put(
+      `${UrlBackend}/products/update-product-details`,
+      formData,
+      {
+        withCredentials: true,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("update error:", error.response?.data || error.message);
+    throw error;
+  }
+};

@@ -10,7 +10,6 @@ export const useGetProduct = (formData) => {
   const [error, setError] = useState(null);
   const dispatch = useDispatch();
 
-  // ✅ useEffect এর বাইরে fetch function রাখো
   const fetchProduct = useCallback(async () => {
     try {
       setLoading(true);
@@ -24,11 +23,9 @@ export const useGetProduct = (formData) => {
     }
   }, [formData]);
 
-  // ✅ useEffect এর ভিতরে শুধু call করো
   useEffect(() => {
     fetchProduct();
   }, [fetchProduct]);
 
-  // ✅ এখন আমরা refetch হিসেবে return করতে পারি
   return { product, loading, error, refetch: fetchProduct };
 };
