@@ -18,7 +18,6 @@ const ProductDashboard = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [currentTime, setCurrentTime] = useState(new Date());
   const Router = useRouter()
-  console.log(selectedCategory);
   // data 
   const [page, setPage] = useState(1);
   const formData = useMemo(() => ({
