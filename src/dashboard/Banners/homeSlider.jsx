@@ -1,79 +1,183 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { HomeBannerCreate, HomeBannerDelete, HomeBannerUploade } from "@/src/hook/useHomeBanner"
+import { useGetHomeBanner } from "@/src/utlis/useHomeBanner"
+import { useState, useRef, useEffect } from "react"
+import toast from "react-hot-toast"
 
 const HomeSliderPage=()=> {
-  const [sliders, setSliders] = useState([
-    {
-      id: "1",
-      title: "Summer Sale 2024",
-      description: "Get up to 50% off on all summer collections",
-      imageUrl: "/banner/homeslider1.jpg",
-      linkUrl: "/collections/summer",
-      order: 1,
-      isActive: true,
-    },
-    {
-      id: "2",
-      title: "New Arrivals",
-      description: "Discover the latest trends in fashion",
-      imageUrl: "/banner/homeslider2.jpg",
-      linkUrl: "/collections/new",
-      order: 2,
-      isActive: true,
-    },
-  ])
+
+  const { homebanner, loading, error, refetch } = useGetHomeBanner();
+const [sliders, setSliders] = useState([]);
+
+useEffect(() => {
+  if (homebanner) {
+    if (Array.isArray(homebanner)) {
+      setSliders(homebanner);
+    } else {
+      setSliders([homebanner]);
+    }
+  }
+}, [homebanner]);
 
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [editingSlider, setEditingSlider] = useState(null)
   const [formData, setFormData] = useState({
     title: "",
-    description: "",
-    imageUrl: "",
+    Description: "",
+    images: "",
     linkUrl: "",
-    order: 1,
   })
 
   const fileInputRef = useRef(null)
 
-  const handleAddSlider = () => {
-    const newSlider = {
-      id: Date.now().toString(),
-      ...formData,
-      isActive: true,
-    }
-    setSliders([...sliders, newSlider])
-    setFormData({ title: "", description: "", imageUrl: "", linkUrl: "", order: 1 })
-    setIsAddDialogOpen(false)
+  const handleImageUpload = (e) => {
+  const file = e.target.files?.[0];
+  if (file) {
+    setFormData({ ...formData, images: file }); 
   }
+};
+
+  const handleAddSlider = async () => {
+  try {
+    const data = new FormData();
+    data.append("title", formData.title);
+    data.append("Description", formData.Description);
+    data.append("Link_URL", formData.linkUrl);
+    data.append("active", true);
+
+    if (formData.images) {
+      data.append("images", formData.images);
+    }
+
+    const res = await HomeBannerCreate(data);
+
+    const newSlider = {
+      id: res?.data?._id || Date.now().toString(),
+      title: res?.data?.title || formData.title,
+      Description: res?.data?.Description || formData.Description,
+      images: res?.data?.images || [],
+      linkUrl: res?.data?.Link_URL || formData.linkUrl,
+      active: res?.data?.active ?? true,
+    };
+
+    setSliders((prev) => [...prev, newSlider]);
+
+    setFormData({
+      title: "",
+      Description: "",
+      images: "",
+      linkUrl: "",
+    });
+
+    setIsAddDialogOpen(false);
+    toast.success("Home banner added successfully!");
+  } catch (error) {
+    console.error(error);
+    toast.error("Failed to add home banner");
+  }
+};
 
   const handleEditSlider = (slider) => {
     setEditingSlider(slider)
     setFormData({
       title: slider.title,
-      description: slider.description,
-      imageUrl: slider.imageUrl,
+      Description: slider.Description,
+      images: slider.images,
       linkUrl: slider.linkUrl,
-      order: slider.order,
     })
   }
 
-  const handleUpdateSlider = () => {
-    if (!editingSlider) return
+// update slider
+  const handleUpdateSlider = async () => {
+  if (!editingSlider) return;
 
-    setSliders(sliders.map((slider) => (slider.id === editingSlider.id ? { ...slider, ...formData } : slider)))
-    setEditingSlider(null)
-    setFormData({ title: "", description: "", imageUrl: "", linkUrl: "", order: 1 })
-  }
+  try {
+    const updatedData = new FormData();
+    updatedData.append("title", formData.title || "");
+    updatedData.append("Description", formData.Description || "");
+    updatedData.append("Link_URL", formData.linkUrl || "");
+    updatedData.append("active", editingSlider.active ?? true);
 
-  const handleDeleteSlider = (id) => {
-    setSliders(sliders.filter((slider) => slider.id !== id))
-  }
+    if (formData.images instanceof File) {
+      updatedData.append("images", formData.images);
+    }
 
-  const toggleSliderStatus = (id) => {
-    setSliders(sliders.map((slider) => (slider.id === id ? { ...slider, isActive: !slider.isActive } : slider)))
+    await HomeBannerUploade(updatedData, editingSlider._id);
+
+    setSliders((prev) =>
+      prev.map((slider) =>
+        slider._id === editingSlider._id ? { ...slider, ...formData } : slider
+      )
+    );
+
+    setEditingSlider(null);
+    setFormData({
+      title: "",
+      Description: "",
+      images: "",
+      linkUrl: "",
+    });
+
+    if (typeof refetch === "function") refetch();
+
+    toast.success("Home banner updated successfully!");
+  } catch (error) {
+    console.error("Update slider error:", error);
+    toast.error("Failed to update banner");
   }
+};
+
+// delete slider
+  const handleDeleteSlider = async (id) => {
+  if (!id) return;
+
+  const confirmDelete = window.confirm("Are you sure you want to delete this banner?");
+  if (!confirmDelete) return;
+
+  try {
+    await HomeBannerDelete(id);
+
+    setSliders((prev) => prev.filter((slider) => slider?._id !== id));
+
+    if (typeof refetch === "function") refetch();
+
+    toast.success("Home banner deleted successfully!");
+  } catch (error) {
+    console.error("Delete banner error:", error);
+    toast.error("Failed to delete banner");
+  }
+};
+
+
+  // update slider active status
+
+  const toggleSliderStatus = async (id) => {
+  setSliders((prev) =>
+    prev.map((slider) =>
+      slider._id === id ? { ...slider, active: !slider.active } : slider
+    )
+  );
+
+  try {
+    const targetBanner = sliders.find((slider) => slider._id === id);
+    if (!targetBanner) return;
+
+    const updatedActive = !targetBanner.active;
+
+    const formData = new FormData();
+    formData.append("active", updatedActive);
+
+    await HomeBannerUploade(formData, id);
+
+    refetch();
+
+  } catch (error) {
+    toast.error("❌ Toggle slider status error:", error);
+  }
+};
+
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % sliders.length)
@@ -83,16 +187,7 @@ const HomeSliderPage=()=> {
     setCurrentSlide((prev) => (prev - 1 + sliders.length) % sliders.length)
   }
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        setFormData({ ...formData, imageUrl: e.target?.result  })
-      }
-      reader.readAsDataURL(file)
-    }
-  }
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black overflow-hidden">
@@ -122,7 +217,7 @@ const HomeSliderPage=()=> {
             </div>
             <div className="flex items-center space-x-2">
               <span className="px-4 py-2 bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-400 rounded-full text-sm font-medium border border-green-500/30">
-                {sliders.filter((s) => s.isActive).length} Active Sliders
+                {sliders?.filter((s) => s?.active).length} Active Sliders
               </span>
             </div>
           </div>
@@ -160,12 +255,12 @@ const HomeSliderPage=()=> {
                 <h3 className="text-2xl font-bold text-white">Live Preview</h3>
               </div>
 
-              {sliders.length > 0 ? (
+              {sliders?.length > 0 ? (
                 <div className="relative rounded-xl overflow-hidden bg-gray-800 shadow-xl">
                   <div className="aspect-[2/1] relative group">
                     <img
                       src={
-                        sliders[currentSlide]?.imageUrl || "/placeholder.svg?height=400&width=800&query=slider preview"
+                        sliders[currentSlide]?.images || "/placeholder.svg?height=400&width=800&query=slider preview"
                       }
                       alt={sliders[currentSlide]?.title}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
@@ -174,12 +269,12 @@ const HomeSliderPage=()=> {
                     <div className="absolute bottom-6 left-6 right-6 text-white transform transition-transform duration-500 group-hover:translate-y-[-4px]">
                       <h4 className="text-2xl font-bold mb-3 text-balance">{sliders[currentSlide]?.title}</h4>
                       <p className="text-gray-200 text-lg opacity-90 text-pretty">
-                        {sliders[currentSlide]?.description}
+                        {sliders[currentSlide]?.Description}
                       </p>
                     </div>
                   </div>
 
-                  {sliders.length > 1 && (
+                  {sliders?.length > 1 && (
                     <>
                       <button
                         className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
@@ -201,7 +296,7 @@ const HomeSliderPage=()=> {
                   )}
 
                   <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-3">
-                    {sliders.map((_, index) => (
+                    {sliders.map((banner, index) => (
                       <button
                         key={index}
                         className={`w-3 h-3 rounded-full transition-all duration-300 ${
@@ -260,8 +355,8 @@ const HomeSliderPage=()=> {
                   <label className="block text-gray-300 text-sm font-medium mb-2">Description</label>
                   <textarea
                     placeholder="Enter slider description"
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    value={formData.Description}
+                    onChange={(e) => setFormData({ ...formData, Description: e.target.value })}
                     rows={3}
                     className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 resize-none"
                   />
@@ -273,8 +368,8 @@ const HomeSliderPage=()=> {
                     <input
                       type="text"
                       placeholder="Image URL or upload"
-                      value={formData.imageUrl}
-                      onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                      value={formData.images}
+                      onChange={(e) => setFormData({ ...formData, images: e.target.value })}
                       className="flex-1 px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
                     />
                     <button
@@ -311,21 +406,12 @@ const HomeSliderPage=()=> {
                       className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
                     />
                   </div>
-                  <div>
-                    <label className="block text-gray-300 text-sm font-medium mb-2">Order</label>
-                    <input
-                      type="number"
-                      min="1"
-                      value={formData.order}
-                      onChange={(e) => setFormData({ ...formData, order: Number.parseInt(e.target.value) })}
-                      className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
-                    />
-                  </div>
+                  
                 </div>
 
                 <button
                   onClick={handleAddSlider}
-                  disabled={!formData.title || !formData.imageUrl}
+                  disabled={!formData.title || !formData.images}
                   className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:from-gray-700 disabled:to-gray-800 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all duration-300 hover:scale-[1.02] shadow-lg flex items-center justify-center gap-2"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -342,7 +428,7 @@ const HomeSliderPage=()=> {
           <div className="bg-gradient-to-br from-gray-900/50 to-black/50 backdrop-blur-sm border border-gray-800/50 rounded-2xl p-6 shadow-2xl">
             <h3 className="text-2xl font-bold text-white mb-6">Manage Sliders</h3>
 
-            {sliders.length === 0 ? (
+            {sliders?.length === 0 ? (
               <div className="text-center py-12">
                 <svg
                   className="w-20 h-20 text-gray-600 mx-auto mb-6"
@@ -362,44 +448,43 @@ const HomeSliderPage=()=> {
             ) : (
               <div className="space-y-4">
                 {sliders
-                  .sort((a, b) => a.order - b.order)
-                  .map((slider, index) => (
+                  ?.sort((a, b) => a.order - b.order)
+                  ?.map((slider, index) => (
                     <div
-                      key={slider.id}
+                      key={slider?._id}
                       className="flex flex-col md:flex-row items-start md:items-center gap-4 p-6 rounded-xl bg-gradient-to-r from-gray-800/30 to-gray-900/30 hover:from-gray-800/50 hover:to-gray-900/50 border border-gray-700/50 transition-all duration-300 hover:scale-[1.01] hover:shadow-xl"
                       style={{ animationDelay: `${index * 100}ms` }}
                     >
                       <img
-                        src={slider.imageUrl || "/placeholder.svg?height=80&width=120&query=slider thumbnail"}
-                        alt={slider.title}
+                        src={slider?.images || "/placeholder.svg?height=80&width=120&query=slider thumbnail"}
+                        alt={slider?.title}
                         className="w-full md:w-24 h-20 object-cover rounded-lg shadow-lg"
                       />
                       <div className="flex-1">
-                        <h4 className="font-bold text-white text-lg mb-2">{slider.title}</h4>
-                        <p className="text-gray-300 text-sm mb-3 text-pretty">{slider.description}</p>
+                        <h4 className="font-bold text-white text-lg mb-2">{slider?.title}</h4>
+                        <p className="text-gray-300 text-sm mb-3 text-pretty">{slider?.Description}</p>
                         <div className="flex flex-wrap items-center gap-3">
                           <span
                             className={`px-3 py-1 rounded-full text-xs font-medium ${
-                              slider.isActive
+                              slider?.active
                                 ? "bg-green-500/20 text-green-400 border border-green-500/30"
                                 : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
                             }`}
                           >
-                            {slider.isActive ? "Active" : "Inactive"}
+                            {slider?.active ? "Active" : "Inactive"}
                           </span>
-                          <span className="text-xs text-gray-500">Order: {slider.order}</span>
                         </div>
                       </div>
                       <div className="flex flex-wrap gap-2">
                         <button
-                          onClick={() => toggleSliderStatus(slider.id)}
+                          onClick={() => toggleSliderStatus(slider?._id)}
                           className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105 ${
-                            slider.isActive
+                            slider?.active
                               ? "bg-orange-600/20 text-orange-400 border border-orange-600/30 hover:bg-orange-600/30"
                               : "bg-green-600/20 text-green-400 border border-green-600/30 hover:bg-green-600/30"
                           }`}
                         >
-                          {slider.isActive ? "Deactivate" : "Activate"}
+                          {slider?.active ? "Deactivate" : "Activate"}
                         </button>
 
                         <button
@@ -417,7 +502,7 @@ const HomeSliderPage=()=> {
                         </button>
 
                         <button
-                          onClick={() => handleDeleteSlider(slider.id)}
+                          onClick={() => handleDeleteSlider(slider?._id)}
                           className="px-4 py-2 bg-red-600/20 text-red-400 border border-red-600/30 hover:bg-red-600/30 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -454,19 +539,42 @@ const HomeSliderPage=()=> {
                 <div>
                   <label className="block text-gray-300 text-sm font-medium mb-2">Description</label>
                   <textarea
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    value={formData.Description}
+                    onChange={(e) => setFormData({ ...formData, Description: e.target.value })}
                     rows={3}
                     className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 resize-none"
                   />
                 </div>
-                <div>
-                  <label className="block text-gray-300 text-sm font-medium mb-2">Image URL</label>
+                 <div>
+                  <label className="block text-gray-300 text-sm font-medium mb-2">Image</label>
+                  <div className="flex gap-3">
+                    <input
+                      type="text"
+                      placeholder="Image URL or upload"
+                      value={formData.images}
+                      onChange={(e) => setFormData({ ...formData, images: e.target.value })}
+                      className="flex-1 px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                    />
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-xl transition-all duration-300 hover:scale-105 shadow-lg"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                        />
+                      </svg>
+                    </button>
+                  </div>
                   <input
-                    type="text"
-                    value={formData.imageUrl}
-                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -479,15 +587,7 @@ const HomeSliderPage=()=> {
                       className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
                     />
                   </div>
-                  <div>
-                    <label className="block text-gray-300 text-sm font-medium mb-2">Order</label>
-                    <input
-                      type="number"
-                      value={formData.order}
-                      onChange={(e) => setFormData({ ...formData, order: Number.parseInt(e.target.value) })}
-                      className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
-                    />
-                  </div>
+                 
                 </div>
                 <div className="flex gap-3 pt-4">
                   <button

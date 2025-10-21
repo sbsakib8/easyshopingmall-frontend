@@ -1,11 +1,10 @@
 import axios from "axios";
 import { UrlBackend } from "../confic/urlExport";
-import { categoryGet } from "../redux/categorySlice";
 
-// catagory add
-export const CategoryCreate = async (formData, ) => {
+// HomeBanner add
+export const HomeBannerCreate = async (formData, ) => {
   try {
-    const response = await axios.post(`${UrlBackend}/categories/create`, formData, {
+    const response = await axios.post(`${UrlBackend}/homeBannerRoutes/create`, formData, {
       withCredentials: true,
       headers: {
         "Content-Type": "multipart/form-data",
@@ -18,15 +17,13 @@ export const CategoryCreate = async (formData, ) => {
   }
 };
 
-// catagory ALL GET
-export const CategoryAllGet = async (dispatch ) => {
+// HomeBanner ALL GET
+export const HomeBannerAllGet = async () => {
   try {
-    const response = await axios.get(`${UrlBackend}/categories`,  {
+    const response = await axios.get(`${UrlBackend}/homeBannerRoutes/get`,  {
       withCredentials: true,
     });
-    dispatch(categoryGet(response.data))
     return response.data; 
-   
   } catch (error) {
     console.error("Registration error:", error.response?.data || error.message);
     throw error; 
@@ -34,11 +31,11 @@ export const CategoryAllGet = async (dispatch ) => {
 };
 
 
-// uplosd categoti
-export const CategoryUploade = async (formData, categoryId) => {
+// uplosd HomeBanner
+export const HomeBannerUploade = async (formData, id) => {
   try {
     const response = await axios.put(
-      `${UrlBackend}/categories/${categoryId}`, 
+      `${UrlBackend}/homeBannerRoutes/${id}`, 
       formData, 
       {
         withCredentials: true, 
@@ -46,23 +43,23 @@ export const CategoryUploade = async (formData, categoryId) => {
     );
     return response.data;
   } catch (error) {
-    console.error("Category update error:", error.response?.data || error.message);
+    console.error("HomeBanner update error:", error.response?.data || error.message);
     throw error;
   }
 };
 
-// delete category
-export const CategoryDelete = async (categoryId) => {
+// delete HomeBanner
+export const HomeBannerDelete = async (categoryId) => {
   try {
     const response = await axios.delete(
-      `${UrlBackend}/categories/${categoryId}`, 
+      `${UrlBackend}/homeBannerRoutes/${categoryId}`, 
       {
         withCredentials: true, 
       }
     );
     return response.data;
   } catch (error) {
-    console.error("Category update error:", error.response?.data || error.message);
+    console.error("HomeBanner update error:", error.response?.data || error.message);
     throw error;
   }
 };
