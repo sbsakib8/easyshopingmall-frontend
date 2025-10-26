@@ -1,48 +1,18 @@
 "use client"
-import React, { useState } from 'react';
-import { Search, Plus, Edit2, Trash2, Eye, Calendar, User, Tag, TrendingUp } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Plus, Edit2, Trash2, Eye, Calendar, User, Tag, TrendingUp, Loader2 } from 'lucide-react';
+import { useSelector } from 'react-redux';
+import { BlogCreate, blogUploade, blogDelete } from '@/src/hook/content/userBlogs';
+import { useGetBlogs } from '@/src/utlis/content/useBlogs';
 
 const BlogsAdminDashboard = () => {
-  const [blogs, setBlogs] = useState([
-    {
-      id: 1,
-      title: "10 Best E-commerce Trends for 2025",
-      author: "John Doe",
-      category: "Trends",
-      status: "Published",
-      date: "2025-01-15",
-      views: 1250,
-      excerpt: "Discover the latest e-commerce trends that will shape the future of online shopping...",
-      image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=200&fit=crop"
-    },
-    {
-      id: 2,
-      title: "How to Optimize Your Product Pages",
-      author: "Jane Smith",
-      category: "SEO",
-      status: "Draft",
-      date: "2025-01-10",
-      views: 890,
-      excerpt: "Learn proven strategies to increase your product page conversion rates...",
-      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=200&fit=crop"
-    },
-    {
-      id: 3,
-      title: "Social Media Marketing for Online Stores",
-      author: "Mike Johnson",
-      category: "Marketing",
-      status: "Published",
-      date: "2025-01-08",
-      views: 2100,
-      excerpt: "Effective social media strategies to drive traffic and sales to your store...",
-      image: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=200&fit=crop"
-    }
-  ]);
-
+  const { blogs: apiBlogs, loading, error, refetch } = useGetBlogs();
+  const [blogs, setBlogs] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editingBlog, setEditingBlog] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
+  const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     author: '',
@@ -50,38 +20,69 @@ const BlogsAdminDashboard = () => {
     status: 'Draft',
     excerpt: '',
     content: '',
-    image: ''
+    image: null
   });
 
-  const categories = ['Trends', 'SEO', 'Marketing', 'Technology', 'Business'];
-  const statuses = ['All', 'Published', 'Draft', 'Scheduled'];
+  // Get categories from Redux
+  const allCategorydata = useSelector((state) => state.category.allCategorydata);
+
+  // Update local blogs when API data changes
+  useEffect(() => {
+    if (apiBlogs && Array.isArray(apiBlogs)) {
+      setBlogs(apiBlogs);
+    }
+  }, [apiBlogs]);
+
+  const statuses = ['All', 'Published', 'Draft'];
 
   const filteredBlogs = blogs.filter(blog => {
-    const matchesSearch = blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         blog.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         blog.category.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = blog.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         blog.author?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         blog.category?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = filterStatus === 'All' || blog.status === filterStatus;
     return matchesSearch && matchesStatus;
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editingBlog) {
-      setBlogs(blogs.map(blog => 
-        blog.id === editingBlog.id 
-          ? { ...blog, ...formData, id: editingBlog.id }
-          : blog
-      ));
-    } else {
-      const newBlog = {
-        ...formData,
-        id: Date.now(),
-        date: new Date().toISOString().split('T')[0],
-        views: 0
-      };
-      setBlogs([newBlog, ...blogs]);
+    
+    if (!formData.title || !formData.author || !formData.category || !formData.excerpt || !formData.content) {
+      alert('Please fill in all required fields');
+      return;
     }
-    resetForm();
+    
+    setSubmitting(true);
+
+    try {
+      const submitData = new FormData();
+      submitData.append('title', formData.title);
+      submitData.append('author', formData.author);
+      submitData.append('category', formData.category);
+      submitData.append('status', formData.status);
+      submitData.append('excerpt', formData.excerpt);
+      submitData.append('content', formData.content);
+      
+      if (formData.image && formData.image instanceof File) {
+        submitData.append('image', formData.image);
+      }
+
+      if (editingBlog) {
+        // Update existing blog
+        await blogUploade(submitData, editingBlog._id || editingBlog.id);
+      } else {
+        // Create new blog
+        await BlogCreate(submitData);
+      }
+
+      // Refetch blogs after successful submission
+      await refetch();
+      resetForm();
+    } catch (error) {
+      console.error('Error submitting blog:', error);
+      alert('Failed to save blog. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const resetForm = () => {
@@ -92,21 +93,42 @@ const BlogsAdminDashboard = () => {
       status: 'Draft',
       excerpt: '',
       content: '',
-      image: ''
+      image: null
     });
     setEditingBlog(null);
     setShowModal(false);
   };
 
   const handleEdit = (blog) => {
-    setFormData(blog);
+    setFormData({
+      title: blog.title || '',
+      author: blog.author || '',
+      category: blog.category || '',
+      status: blog.status || 'Draft',
+      excerpt: blog.excerpt || '',
+      content: blog.content || '',
+      image: null
+    });
     setEditingBlog(blog);
     setShowModal(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this blog?')) {
-      setBlogs(blogs.filter(blog => blog.id !== id));
+      try {
+        await blogDelete(id);
+        await refetch();
+      } catch (error) {
+        console.error('Error deleting blog:', error);
+        alert('Failed to delete blog. Please try again.');
+      }
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData({...formData, image: file});
     }
   };
 
@@ -119,9 +141,48 @@ const BlogsAdminDashboard = () => {
     }
   };
 
+  const getImageUrl = (blog) => {
+    if (blog.image) {
+      // If image is a URL
+      if (typeof blog.image === 'string') {
+        return blog.image;
+      }
+      // If image path is from backend
+      return blog.image;
+    }
+    return 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=400&h=200&fit=crop';
+  };
+
+  if (loading && blogs.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="animate-spin mx-auto mb-4 text-blue-400" size={48} />
+          <p className="text-gray-400">Loading blogs...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-400 mb-4">Error loading blogs</p>
+          <button 
+            onClick={refetch}
+            className="bg-blue-500 hover:bg-blue-600 px-6 py-2 rounded-lg transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white overflow-hidden">
-      <div className="transition-all  duration-500 lg:ml-15 py-5 px-2 lg:px-9">
+      <div className="transition-all duration-500 lg:ml-15 py-5 px-2 lg:px-9">
         {/* Header Section */}
         <div className="mb-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -180,7 +241,7 @@ const BlogsAdminDashboard = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-purple-300 text-sm">Total Views</p>
-                <p className="text-2xl font-bold text-white">{blogs.reduce((sum, blog) => sum + blog.views, 0).toLocaleString()}</p>
+                <p className="text-2xl font-bold text-white">{blogs.reduce((sum, blog) => sum + (blog.views || 0), 0).toLocaleString()}</p>
               </div>
               <div className="bg-purple-500/30 p-3 rounded-xl">
                 <TrendingUp size={24} className="text-purple-300" />
@@ -217,10 +278,10 @@ const BlogsAdminDashboard = () => {
         {/* Blogs Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
           {filteredBlogs.map((blog) => (
-            <div key={blog.id} className="group bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-2xl overflow-hidden hover:border-blue-500/50 transition-all duration-500 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/20">
+            <div key={blog._id || blog.id} className="group bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-2xl overflow-hidden hover:border-blue-500/50 transition-all duration-500 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/20">
               <div className="relative overflow-hidden">
                 <img 
-                  src={blog.image || 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=400&h=200&fit=crop'} 
+                  src={getImageUrl(blog)} 
                   alt={blog.title}
                   className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
                 />
@@ -248,7 +309,7 @@ const BlogsAdminDashboard = () => {
                   </div>
                   <div className="flex items-center gap-1">
                     <Calendar size={14} />
-                    {new Date(blog.date).toLocaleDateString()}
+                    {new Date(blog.date || blog.createdAt).toLocaleDateString()}
                   </div>
                   <div className="flex items-center gap-1">
                     <Tag size={14} />
@@ -259,7 +320,7 @@ const BlogsAdminDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1 text-gray-400">
                     <Eye size={14} />
-                    <span className="text-xs">{blog.views} views</span>
+                    <span className="text-xs">{blog.views || 0} views</span>
                   </div>
                   
                   <div className="flex gap-2">
@@ -270,7 +331,7 @@ const BlogsAdminDashboard = () => {
                       <Edit2 size={16} />
                     </button>
                     <button
-                      onClick={() => handleDelete(blog.id)}
+                      onClick={() => handleDelete(blog._id || blog.id)}
                       className="p-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-all duration-300 transform hover:scale-110"
                     >
                       <Trash2 size={16} />
@@ -305,7 +366,7 @@ const BlogsAdminDashboard = () => {
               <div className="p-6 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Title</label>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">Title *</label>
                     <input
                       type="text"
                       value={formData.title}
@@ -315,7 +376,7 @@ const BlogsAdminDashboard = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Author</label>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">Author *</label>
                     <input
                       type="text"
                       value={formData.author}
@@ -328,15 +389,15 @@ const BlogsAdminDashboard = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Category</label>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">Category *</label>
                     <select
                       value={formData.category}
                       onChange={(e) => setFormData({...formData, category: e.target.value})}
                       className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
                     >
                       <option value="">Select Category</option>
-                      {categories.map(category => (
-                        <option key={category} value={category}>{category}</option>
+                      {allCategorydata?.data?.map(category => (
+                        <option key={category._id} value={category?.name}>{category?.name}</option>
                       ))}
                     </select>
                   </div>
@@ -349,24 +410,22 @@ const BlogsAdminDashboard = () => {
                     >
                       <option value="Draft">Draft</option>
                       <option value="Published">Published</option>
-                      <option value="Scheduled">Scheduled</option>
                     </select>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">Image URL</label>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">Image</label>
                   <input
-                    type="url"
-                    value={formData.image}
-                    onChange={(e) => setFormData({...formData, image: e.target.value})}
-                    className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
-                    placeholder="Enter image URL (optional)"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="w-full cursor-pointer bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-500/20 file:text-blue-400 hover:file:bg-blue-500/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">Excerpt</label>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">Excerpt *</label>
                   <textarea
                     value={formData.excerpt}
                     onChange={(e) => setFormData({...formData, excerpt: e.target.value})}
@@ -376,7 +435,7 @@ const BlogsAdminDashboard = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">Content</label>
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">Content *</label>
                   <textarea
                     value={formData.content}
                     onChange={(e) => setFormData({...formData, content: e.target.value})}
@@ -388,13 +447,22 @@ const BlogsAdminDashboard = () => {
                 <div className="flex gap-4 pt-4">
                   <button
                     onClick={handleSubmit}
-                    className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 px-6 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105"
+                    disabled={submitting}
+                    className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 px-6 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
                   >
-                    {editingBlog ? 'Update Blog' : 'Create Blog'}
+                    {submitting ? (
+                      <>
+                        <Loader2 className="animate-spin" size={20} />
+                        {editingBlog ? 'Updating...' : 'Creating...'}
+                      </>
+                    ) : (
+                      editingBlog ? 'Update Blog' : 'Create Blog'
+                    )}
                   </button>
                   <button
                     onClick={resetForm}
-                    className="px-6 py-3 bg-gray-700/50 hover:bg-gray-600/50 text-gray-300 rounded-xl font-semibold transition-all duration-300"
+                    disabled={submitting}
+                    className="px-6 py-3 bg-gray-700/50 hover:bg-gray-600/50 text-gray-300 rounded-xl font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Cancel
                   </button>
