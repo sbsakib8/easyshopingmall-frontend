@@ -29,6 +29,7 @@ import {
 import Link from "next/link"
 import { useGetcategory } from "@/src/utlis/usecategory"
 import { useGetSubcategory } from "@/src/utlis/useSubcategory"
+import NotificationDropdown from "@/src/helper/notification"
 
 const DashboardNebver = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -190,14 +191,9 @@ const DashboardNebver = ({ children }) => {
                 <Search className="w-5 h-5 text-white" />
               </button>
 
-              <button className="relative p-3 rounded-xl bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-600 hover:to-gray-800 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl group border border-gray-600/50">
-                <Bell className="w-5 h-5 text-white group-hover:animate-bounce" />
-                {notifications > 0 && (
-                  <span className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-red-600 to-red-700 text-white text-xs rounded-full flex items-center justify-center animate-bounce shadow-lg border border-red-500/50">
-                    {notifications}
-                  </span>
-                )}
-              </button>
+{/* Notification  */}
+
+              <NotificationDropdown/>
 
               <div className="flex items-center space-x-3 pl-4 border-l border-gray-700/60">
                 <div className="relative group">
