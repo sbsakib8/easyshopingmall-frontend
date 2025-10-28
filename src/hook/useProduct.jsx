@@ -63,3 +63,22 @@ export const ProductUpdate = async (formData) => {
     throw error;
   }
 };
+
+// sockeet io product update
+export const ProductNotification = async (formData) => {
+  try {
+    const response = await axios.post(
+      `${UrlBackend}/notification`,
+      formData,
+      {
+        withCredentials: true,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("update error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
