@@ -6,14 +6,11 @@ import {
   Package,
   Users,
   Settings,
-  Bell,
   Search,
   Menu,
   TrendingUp,
-  Star,
   DollarSign,
   BarChart3,
-  RefreshCw,
   Plus,
   ChevronRight,
   ImageIcon,
@@ -30,12 +27,16 @@ import Link from "next/link"
 import { useGetcategory } from "@/src/utlis/usecategory"
 import { useGetSubcategory } from "@/src/utlis/useSubcategory"
 import NotificationDropdown from "@/src/helper/notification"
+import { useSelector } from "react-redux"
 
 const DashboardNebver = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [activeMenu, setActiveMenu] = useState("dashboard")
   const [expandedMenus, setExpandedMenus] = useState({})
-  const [notifications, setNotifications] = useState(3)
+
+
+  // admin user data get
+  const data = useSelector((state) => state.user.data);
 
 
   // category get    
@@ -198,13 +199,15 @@ const DashboardNebver = ({ children }) => {
               <div className="flex items-center space-x-3 pl-4 border-l border-gray-700/60">
                 <div className="relative group">
                   <div className="w-10 h-10 bg-gradient-to-r from-gray-600 via-gray-700 to-gray-800 rounded-full flex items-center justify-center shadow-lg shadow-black/50 transform group-hover:scale-110 transition-all duration-300 border border-gray-600/50">
-                    <span className="text-white font-bold text-sm group-hover:animate-pulse">SH</span>
+                  {
+                    data?.image ?  <img className=" w-9 h-9 rounded-full cursor-pointer" src={data?.image} alt="image" /> : <span className="text-white font-bold text-sm group-hover:animate-pulse">{data?.name?.slice(0,2).toUpperCase()}</span>
+                  }
                   </div>
                   <div className="absolute -inset-1 bg-gradient-to-r from-gray-600 to-gray-800 rounded-full opacity-0 group-hover:opacity-30 blur transition-all duration-300"></div>
                 </div>
                 <div className="hidden sm:block">
-                  <p className="text-sm font-semibold text-white">Sakib Hossain</p>
-                  <p className="text-xs text-gray-400 font-medium">Super Admin</p>
+                  <p className="text-sm font-semibold text-white">{data?.name}</p>
+                  <p className="text-xs text-gray-400 font-medium">{data?.email}</p>
                 </div>
               </div>
             </div>
