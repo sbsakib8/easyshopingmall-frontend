@@ -36,7 +36,6 @@ const AddProductComponent = () => {
   const allCategorydata = useSelector((state) => state.category.allCategorydata);
 
   // socket test
-
   const [notifications, setNotifications] = useState([]);
   console.log(notifications);
   useEffect(() => {
