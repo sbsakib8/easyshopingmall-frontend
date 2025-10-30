@@ -1,9 +1,11 @@
 "use client";
 import React, { useState } from 'react';
 import { Upload, X, Plus, Star, Save, Eye, Package, Tag, DollarSign, BarChart3, Camera, MapPin } from 'lucide-react';
-import { ProductCreate } from '@/src/hook/useProduct';
+import { ProductCreate, ProductNotification } from '@/src/hook/useProduct';
 import { useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
+import socket from '@/src/confic/socket';
+import { useEffect } from 'react';
 
 const AddProductComponent = () => {
   const [formData, setFormData] = useState({
@@ -33,23 +35,29 @@ const AddProductComponent = () => {
   const allsubCategorydata = useSelector((state) => state.subcategory.allsubCategorydata);
   const allCategorydata = useSelector((state) => state.category.allCategorydata);
 
-  const categories = [
-    'Electronics', 'Fashion', 'Home & Garden', 'Sports', 'Books', 'Beauty',
-    'Automotive', 'Toys', 'Food & Beverages', 'Health'
-  ];
+  // socket test
+  const [notifications, setNotifications] = useState([]);
+  console.log(notifications);
+  useEffect(() => {
+    // socket connect হলে
+    socket.on("connect", () => {
+      console.log("🟢 Socket connected:", socket.id);
+    });
 
-  const subCategories = {
-    'Electronics': ['Mobile Phones', 'Laptops', 'Headphones', 'Cameras', 'Gaming'],
-    'Fashion': ['Men Clothing', 'Women Clothing', 'Shoes', 'Accessories', 'Jewelry'],
-    'Home & Garden': ['Furniture', 'Kitchen', 'Decor', 'Garden Tools', 'Lighting'],
-    'Sports': ['Fitness', 'Outdoor', 'Team Sports', 'Water Sports', 'Winter Sports'],
-    'Books': ['Fiction', 'Non-Fiction', 'Educational', 'Children', 'Comics'],
-    'Beauty': ['Skincare', 'Makeup', 'Hair Care', 'Fragrance', 'Tools'],
-    'Automotive': ['Car Parts', 'Accessories', 'Tools', 'Care Products', 'Electronics'],
-    'Toys': ['Educational', 'Action Figures', 'Dolls', 'Board Games', 'Outdoor Toys'],
-    'Food & Beverages': ['Snacks', 'Beverages', 'Organic', 'International', 'Frozen'],
-    'Health': ['Supplements', 'Medical Devices', 'Personal Care', 'Fitness', 'Wellness']
-  };
+    // নতুন notification এলে
+    socket.on("notification:new", (notif) => {
+      console.log("📩 New notification:", notif);
+      setNotifications((prev) => [notif, ...prev]);
+      toast.success(` ${notif.title}: ${notif.message}`);
+    });
+
+    // cleanup
+    return () => {
+      socket.off("connect");
+      socket.off("notification:new");
+    };
+  }, []);
+
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -60,7 +68,7 @@ const AddProductComponent = () => {
         type === 'checkbox'
           ? checked
           : (name === 'category' || name === 'subCategory'
-            ? [value] 
+            ? [value]
             : value)
     }));
   };
@@ -128,57 +136,66 @@ const AddProductComponent = () => {
   };
 
   const resetForm = () => {
-  setFormData({
-    productName: '',
-    description: '',
-    category: '',
-    subCategory: '',
-    featured: false,
-    brand: '',
-    productWeight: '',
-    productSize: '',
-    color: [],
-    price: '',
-    productStock: '',
-    productRank: '',
-    discount: '',
-    ratings: 5,
-    tags: [],
-    images: []
-  });
-};
+    setFormData({
+      productName: '',
+      description: '',
+      category: '',
+      subCategory: '',
+      featured: false,
+      brand: '',
+      productWeight: '',
+      productSize: '',
+      color: [],
+      price: '',
+      productStock: '',
+      productRank: '',
+      discount: '',
+      ratings: 5,
+      tags: [],
+      images: []
+    });
+  };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    const formDataToSend = new FormData();
+    try {
+      const formDataToSend = new FormData();
 
-    for (const key in formData) {
-      if (key === "images") {
-        formData.images.forEach(img => {
-          formDataToSend.append("images", img.file); 
-        });
-      } else if (key === "category" || key === "subCategory") {
-        formData[key].forEach(id => formDataToSend.append(key, id));
-      } else {
-        formDataToSend.append(key, formData[key]);
+      for (const key in formData) {
+        if (key === "images") {
+          formData.images.forEach(img => {
+            formDataToSend.append("images", img.file);
+          });
+        } else if (key === "category" || key === "subCategory") {
+          formData[key].forEach(id => formDataToSend.append(key, id));
+        } else {
+          formDataToSend.append(key, formData[key]);
+        }
       }
-    }
 
-    const response = await ProductCreate(formDataToSend);
+      const response = await ProductCreate(formDataToSend);
 
-    if (response?.success) {
-      toast.success("✅ Product added successfully!");
-      resetForm()
-    } else {
-      toast.error(response?.message || "Failed to add product");
+      if (response?.success) {
+        toast.success("✅ Product added successfully!");
+        resetForm()
+        // 🧩 এখন notification পাঠাও
+      await ProductNotification({
+        title: "New Product Added",
+        message: `product create is now live!`,
+        type: "stock",
+        referenceId: response.data._id,
+        meta: { category: response.data.category },
+      });
+
+      } else {
+        toast.error(response?.message || "Failed to add product");
+      }
+    } catch (error) {
+      console.error("Error adding product:", error);
+      toast.error("❌ Something went wrong! Please try again.");
     }
-  } catch (error) {
-    console.error("Error adding product:", error);
-    toast.error("❌ Something went wrong! Please try again.");
-  }
-};
+  };
 
 
   const handlePreview = () => {
@@ -507,8 +524,8 @@ const AddProductComponent = () => {
                     <Star
                       size={24}
                       className={`${star <= formData.ratings
-                          ? 'text-yellow-400 fill-current'
-                          : 'text-gray-400'
+                        ? 'text-yellow-400 fill-current'
+                        : 'text-gray-400'
                         } transition-colors duration-200`}
                     />
                   </button>
@@ -528,8 +545,8 @@ const AddProductComponent = () => {
             {/* Drag & Drop Upload Area */}
             <div
               className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 ${dragOver
-                  ? 'border-blue-400 bg-blue-500/20'
-                  : 'border-white/30 hover:border-white/50'
+                ? 'border-blue-400 bg-blue-500/20'
+                : 'border-white/30 hover:border-white/50'
                 }`}
               onDrop={handleDrop}
               onDragOver={(e) => {

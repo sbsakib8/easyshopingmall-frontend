@@ -1,40 +1,120 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Mail, Phone, MapPin, Clock, Send, CheckCircle, User, MessageSquare } from 'lucide-react';
-
+import { ContactCreate } from '@/src/hook/content/useContact';
+import toast from 'react-hot-toast';
+import { CreateNotification } from '@/src/hook/useNotification';
+import socket from '@/src/confic/socket';
 const ContactPage = () => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    subject: '',
-    message: ''
+    name: "",
+    email: "",
+    phone: "",
+    subject: "",
+    message: "",
   });
+
   const [isSubmitted, setIsSubmitted] = useState(false);
-
+  const [loading, setLoading] = useState(false);
   const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  const handleSubmit = (e) => {
+  // socket test
+    const [notifications, setNotifications] = useState([]);
+    useEffect(() => {
+      // socket connect 
+      socket.on("connect", () => {
+        console.log("🟢 Socket connected:", socket.id);
+      });
+  
+      //  notification 
+      socket.on("notification:new", (notif) => {
+        console.log("📩 New notification:", notif);
+        setNotifications((prev) => [notif, ...prev]);
+        toast.success(` ${notif.title}: ${notif.message}`);
+      });
+  
+      // cleanup
+      return () => {
+        socket.off("connect");
+        socket.off("notification:new");
+      };
+    }, []);
+
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitted(true);
-    setTimeout(() => setIsSubmitted(false), 3000);
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      subject: '',
-      message: ''
-    });
+
+    const { name, email, phone, subject, message } = formData;
+
+    if (!name.trim()) {
+      toast.error("অনুগ্রহ করে নাম লিখুন");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email.trim() || !emailRegex.test(email)) {
+      toast.error("অনুগ্রহ করে সঠিক ইমেইল দিন");
+      return;
+    }
+
+    const phoneRegex = /^(?:\+?88)?01[3-9]\d{8}$/;
+    if (phone && !phoneRegex.test(phone)) {
+      toast.error("অনুগ্রহ করে সঠিক ফোন নম্বর দিন (বাংলাদেশ ফরম্যাট)");
+      return;
+    }
+
+    if (!subject.trim()) {
+      toast.error("অনুগ্রহ করে বিষয় লিখুন");
+      return;
+    }
+
+    if (!message.trim() || message.length < 10) {
+      toast.error("বার্তাটি কমপক্ষে ১০ অক্ষরের হতে হবে");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+     const response = await ContactCreate(formData);
+      setIsSubmitted(true);
+
+      // Notify admin via socke
+      await CreateNotification({
+              title: "New Email Received",
+              message: `${name} - ${subject}`,
+              type: "email",
+              referenceId: response.data._id,
+              meta: { message: response.data.message },
+            });
+
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        subject: "",
+        message: "",
+      });
+
+      setTimeout(() => setIsSubmitted(false), 3000);
+    } catch (error) {
+      alert("ফর্ম সাবমিট করতে সমস্যা হয়েছে! আবার চেষ্টা করুন।");
+      console.error("Submit error:", error);
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   return (
     <div className="min-h-screen lg:mt-20 py-4 bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900 relative overflow-hidden">
-      
+
 
       <div className="relative z-10 container mx-auto px-4 py-12 lg:py-20">
         {/* Header Section */}
@@ -136,6 +216,7 @@ const ContactPage = () => {
                       onChange={handleInputChange}
                       className="w-full px-6 py-4 bg-white/5 border border-white/20 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 group-hover:bg-white/10"
                       placeholder="আপনার নাম লিখুন"
+                      required
                     />
                   </div>
 
@@ -152,6 +233,7 @@ const ContactPage = () => {
                       onChange={handleInputChange}
                       className="w-full px-6 py-4 bg-white/5 border border-white/20 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 group-hover:bg-white/10"
                       placeholder="your@email.com"
+                      required
                     />
                   </div>
                 </div>
@@ -186,6 +268,7 @@ const ContactPage = () => {
                       onChange={handleInputChange}
                       className="w-full px-6 py-4 bg-white/5 border border-white/20 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 group-hover:bg-white/10"
                       placeholder="আপনার বার্তার বিষয়"
+                      required
                     />
                   </div>
                 </div>
@@ -203,6 +286,7 @@ const ContactPage = () => {
                     rows="6"
                     className="w-full px-6 py-4 bg-white/5 border border-white/20 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 resize-none group-hover:bg-white/10"
                     placeholder="আপনার বার্তা বিস্তারিত লিখুন..."
+                    required
                   ></textarea>
                 </div>
 
@@ -210,12 +294,41 @@ const ContactPage = () => {
                 <div className="text-center">
                   <button
                     onClick={handleSubmit}
-                    className="inline-flex items-center px-12 py-4 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25 group"
+                    disabled={loading}
+                    className={`inline-flex items-center px-12 py-4 bg-gradient-to-r from-blue-500 to-purple-600 
+    hover:from-blue-600 hover:to-purple-700 text-white font-semibold rounded-2xl 
+    transition-all duration-300 group cursor-pointer 
+    ${loading ? "opacity-60 cursor-not-allowed" : "hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25"}`}
                   >
-                    <Send className="w-5 h-5 mr-3 group-hover:translate-x-1 transition-transform duration-300" />
-                    বার্তা পাঠান
+                    {loading ? (
+                      <svg
+                        className="animate-spin h-5 w-5 mr-3"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                        ></path>
+                      </svg>
+                    ) : (
+                      <Send className="w-5 h-5 mr-3 group-hover:translate-x-1 transition-transform duration-300" />
+                    )}
+
+                    {loading ? "Sending..." : "বার্তা পাঠান"}
                   </button>
                 </div>
+
               </div>
             </div>
           </div>

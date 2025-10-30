@@ -6,14 +6,11 @@ import {
   Package,
   Users,
   Settings,
-  Bell,
   Search,
   Menu,
   TrendingUp,
-  Star,
   DollarSign,
   BarChart3,
-  RefreshCw,
   Plus,
   ChevronRight,
   ImageIcon,
@@ -23,18 +20,27 @@ import {
   FileText,
   Shield,
   Globe,
-  Mail,
   Clock,
+  AppWindow,
+  ImageDown,
+  BookImage,
+  ImagePlus,
 } from "lucide-react"
 import Link from "next/link"
 import { useGetcategory } from "@/src/utlis/usecategory"
 import { useGetSubcategory } from "@/src/utlis/useSubcategory"
+import NotificationDropdown from "@/src/helper/notification"
+import { useSelector } from "react-redux"
+import { MdEmail } from "react-icons/md"
 
 const DashboardNebver = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [activeMenu, setActiveMenu] = useState("dashboard")
   const [expandedMenus, setExpandedMenus] = useState({})
-  const [notifications, setNotifications] = useState(3)
+
+
+  // admin user data get
+  const data = useSelector((state) => state.user.data);
 
 
   // category get    
@@ -109,13 +115,13 @@ const DashboardNebver = ({ children }) => {
     {
       id: 6,
       label: "Banners",
-      icon: TrendingUp,
+      icon: AppWindow ,
       path: "/dashboard/banner/home-slider",
       submenu: [
-        { path: "/banner/home-slider", id: 27, label: "Home Slider", icon: Mail },
-        { path: "/banner/center-banner", id: 28, label: "Center Banner", icon: Tag },
+        { path: "/banner/home-slider", id: 27, label: "Home Slider", icon: BookImage },
+        { path: "/banner/center-banner", id: 28, label: "Center Banner", icon: ImagePlus },
         { path: "/banner/left-banner", id: 29, label: "Left Banner", icon: ImageIcon },
-        { path: "/banner/right-banner", id: 30, label: "Right Banner", icon: Mail },
+        { path: "/banner/right-banner", id: 30, label: "Right Banner", icon: ImageDown  },
       ],
     },
     {
@@ -126,6 +132,7 @@ const DashboardNebver = ({ children }) => {
       submenu: [
         { path: "/content/blogs", id:31, label: "Blogs", icon: FileText },
         { path: "/content/media-library", id: 32, label: "Media Library", icon: ImageIcon },
+        { path: "/content/email-list", id: 50, label: "Email", icon: MdEmail },
       ],
     },
     {
@@ -190,25 +197,22 @@ const DashboardNebver = ({ children }) => {
                 <Search className="w-5 h-5 text-white" />
               </button>
 
-              <button className="relative p-3 rounded-xl bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-600 hover:to-gray-800 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl group border border-gray-600/50">
-                <Bell className="w-5 h-5 text-white group-hover:animate-bounce" />
-                {notifications > 0 && (
-                  <span className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-red-600 to-red-700 text-white text-xs rounded-full flex items-center justify-center animate-bounce shadow-lg border border-red-500/50">
-                    {notifications}
-                  </span>
-                )}
-              </button>
+{/* Notification  */}
+
+              <NotificationDropdown/>
 
               <div className="flex items-center space-x-3 pl-4 border-l border-gray-700/60">
                 <div className="relative group">
                   <div className="w-10 h-10 bg-gradient-to-r from-gray-600 via-gray-700 to-gray-800 rounded-full flex items-center justify-center shadow-lg shadow-black/50 transform group-hover:scale-110 transition-all duration-300 border border-gray-600/50">
-                    <span className="text-white font-bold text-sm group-hover:animate-pulse">SH</span>
+                  {
+                    data?.image ?  <img className=" w-9 h-9 rounded-full cursor-pointer" src={data?.image} alt="image" /> : <span className="text-white font-bold text-sm group-hover:animate-pulse">{data?.name?.slice(0,2).toUpperCase()}</span>
+                  }
                   </div>
                   <div className="absolute -inset-1 bg-gradient-to-r from-gray-600 to-gray-800 rounded-full opacity-0 group-hover:opacity-30 blur transition-all duration-300"></div>
                 </div>
                 <div className="hidden sm:block">
-                  <p className="text-sm font-semibold text-white">Sakib Hossain</p>
-                  <p className="text-xs text-gray-400 font-medium">Super Admin</p>
+                  <p className="text-sm font-semibold text-white">{data?.name}</p>
+                  <p className="text-xs text-gray-400 font-medium">{data?.email}</p>
                 </div>
               </div>
             </div>
