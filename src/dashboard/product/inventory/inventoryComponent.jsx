@@ -6,6 +6,8 @@ import { useGetProduct } from '@/src/utlis/userProduct';
 import { ProductDelete, ProductUpdate } from '@/src/hook/useProduct';
 import toast from 'react-hot-toast';
 import { useSelector } from 'react-redux';
+import socket from '@/src/confic/socket';
+import { CreateNotification } from '@/src/hook/useNotification';
 
 const InventoryDashboard = () => {
 
@@ -33,6 +35,7 @@ const InventoryDashboard = () => {
     }
   }, [product]);
 
+
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [sortBy, setSortBy] = useState('name');
@@ -46,6 +49,7 @@ const InventoryDashboard = () => {
   const [viewModal, setViewModal] = useState(null);
   const [editModal, setEditModal] = useState(null);
   const [deleteModal, setDeleteModal] = useState(null);
+  const [notifications, setNotifications] = useState([]);
 
   const handleView = (product) => {
     setViewModal(product);
@@ -73,7 +77,6 @@ const InventoryDashboard = () => {
 
 
   const [load, setLoad] = useState(false);
-
   const saveEdit = async () => {
     setLoad(true);
     try {
@@ -186,6 +189,60 @@ const InventoryDashboard = () => {
     if (stock <= 15) return 'Medium';
     return 'In Stock';
   };
+
+
+  //  notification 
+  useEffect(() => {
+  socket.on("connect", () => {
+    console.log("🟢 Socket connected:", socket.id);
+  });
+
+  socket.on("notification:new", notif => {
+    console.log("📩 New notification:", notif);
+    setNotifications(prev => [notif, ...prev]);
+    toast.success(`${notif.title}: ${notif.message}`);
+  });
+
+  return () => {
+    socket.off("connect");
+    socket.off("notification:new");
+  };
+}, []);
+
+// ✅ Send Notification for Low or Out of Stock
+const sendStockNotification = async (product) => {
+  try {
+    let notifType = "low-stock";
+    let message = `Only ${product.productStock} units left`;
+
+    if (product.productStock === 0) {
+      notifType = "out-of-stock";
+      message = "Product is Out of Stock ❌";
+    }
+
+    await CreateNotification({
+      title: product.productName,
+      message,
+      type: notifType,
+      referenceId: product._id,
+      meta: { stock: product.productStock }
+    });
+
+    console.log("✅ Stock notification sent:", product.productName);
+  } catch (error) {
+    console.error("❌ Notification error:", error);
+  }
+};
+
+useEffect(() => {
+  if (products.length > 0) {
+    products
+      .filter(p => p.productStock <= lowStockThreshold)
+      .forEach(product => {
+        sendStockNotification(product);
+      });
+  }
+}, [products, lowStockThreshold]);
 
 
   

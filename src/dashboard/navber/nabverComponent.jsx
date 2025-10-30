@@ -20,14 +20,18 @@ import {
   FileText,
   Shield,
   Globe,
-  Mail,
   Clock,
+  AppWindow,
+  ImageDown,
+  BookImage,
+  ImagePlus,
 } from "lucide-react"
 import Link from "next/link"
 import { useGetcategory } from "@/src/utlis/usecategory"
 import { useGetSubcategory } from "@/src/utlis/useSubcategory"
 import NotificationDropdown from "@/src/helper/notification"
 import { useSelector } from "react-redux"
+import { MdEmail } from "react-icons/md"
 
 const DashboardNebver = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -111,13 +115,13 @@ const DashboardNebver = ({ children }) => {
     {
       id: 6,
       label: "Banners",
-      icon: TrendingUp,
+      icon: AppWindow ,
       path: "/dashboard/banner/home-slider",
       submenu: [
-        { path: "/banner/home-slider", id: 27, label: "Home Slider", icon: Mail },
-        { path: "/banner/center-banner", id: 28, label: "Center Banner", icon: Tag },
+        { path: "/banner/home-slider", id: 27, label: "Home Slider", icon: BookImage },
+        { path: "/banner/center-banner", id: 28, label: "Center Banner", icon: ImagePlus },
         { path: "/banner/left-banner", id: 29, label: "Left Banner", icon: ImageIcon },
-        { path: "/banner/right-banner", id: 30, label: "Right Banner", icon: Mail },
+        { path: "/banner/right-banner", id: 30, label: "Right Banner", icon: ImageDown  },
       ],
     },
     {
@@ -128,6 +132,7 @@ const DashboardNebver = ({ children }) => {
       submenu: [
         { path: "/content/blogs", id:31, label: "Blogs", icon: FileText },
         { path: "/content/media-library", id: 32, label: "Media Library", icon: ImageIcon },
+        { path: "/content/email-list", id: 50, label: "Email", icon: MdEmail },
       ],
     },
     {

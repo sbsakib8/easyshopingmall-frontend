@@ -1,6 +1,25 @@
 import axios from "axios";
 import { UrlBackend } from "../confic/urlExport";
 
+// sockeet io product update
+export const CreateNotification = async (formData) => {
+  try {
+    const response = await axios.post(
+      `${UrlBackend}/notification`,
+      formData,
+      {
+        withCredentials: true,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("update error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+
 
 // all notification get 
 export const NotificationAllGet = async () => {
