@@ -25,6 +25,7 @@ import {
   ImageDown,
   BookImage,
   ImagePlus,
+  ShieldUser,
 } from "lucide-react"
 import Link from "next/link"
 import { useGetcategory } from "@/src/utlis/usecategory"
@@ -141,6 +142,7 @@ const DashboardNebver = ({ children }) => {
       icon: Settings,
       path: "/dashboard/settings/generalsettings",
       submenu: [
+        { path: "/settings/userupdate", id: 53, label: "User Manage", icon: ShieldUser },
         { path: "/settings/generalsettings", id: 33, label: "General Settings", icon: Settings },
         { path: "/settings/paymentsettings", id: 34, label: "Payment Settings", icon: DollarSign },
         { path: "/settings/shippingsettings", id: 35, label: "Shipping Settings", icon: Truck },
