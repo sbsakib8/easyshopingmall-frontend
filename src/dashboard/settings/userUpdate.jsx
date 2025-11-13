@@ -1,61 +1,28 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Shield, Trash2, Edit, X, Save, User, Mail, Phone, Calendar, Check, AlertCircle, UserCog, RefreshCw, Image as ImageIcon, Key, Clock } from 'lucide-react';
-
+import { useGetallUsers } from '@/src/utlis/useGetAllUser';
+import { deleteUser, updateUserProfile } from '@/src/hook/useAuth';
 export default function UserRoleManager() {
-  const [users, setUsers] = useState([
-    {
-      _id: '1',
-      name: 'John Doe',
-      email: 'john@example.com',
-      mobile: '+1234567890',
-      image: null,
-      role: 'USER',
-      status: 'Active',
-      verify_email: true,
-      last_login_date: '2024-10-28',
-      createdAt: '2024-01-15',
-      address_details: [],
-      shopping_cart: [],
-      orderHistory: []
-    },
-    {
-      _id: '2',
-      name: 'Jane Smith',
-      email: 'jane@example.com',
-      mobile: '+0987654321',
-      image: null,
-      role: 'ADMIN',
-      status: 'Active',
-      verify_email: true,
-      last_login_date: '2024-10-29',
-      createdAt: '2024-01-10',
-      address_details: [],
-      shopping_cart: [],
-      orderHistory: []
-    },
-    {
-      _id: '3',
-      name: 'Bob Wilson',
-      email: 'bob@example.com',
-      mobile: '+1122334455',
-      image: null,
-      role: 'USER',
-      status: 'Suspended',
-      verify_email: false,
-      last_login_date: '2024-10-20',
-      createdAt: '2024-01-20',
-      address_details: [],
-      shopping_cart: [],
-      orderHistory: []
-    }
-  ]);
-
+  // Get all users
+  const { allusers, loading: fetchLoading, error, refetch } = useGetallUsers();
+  
+  const [users, setUsers] = useState([]);
+  const [displayedUsers, setDisplayedUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [notification, setNotification] = useState({ show: false, message: '', type: '' });
+  const [updateLoading, setUpdateLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+
+  useEffect(() => {
+    if (allusers && allusers.length > 0) {
+      setUsers(allusers);
+      // Show only first 5 users initially
+      setDisplayedUsers(allusers.slice(0, 5));
+    }
+  }, [allusers]);
 
   const roles = [
     { value: 'USER', label: 'User', color: 'bg-blue-500', icon: '👤' },
@@ -65,7 +32,19 @@ export default function UserRoleManager() {
   const statuses = [
     { value: 'Active', label: 'Active', color: 'bg-green-500' },
     { value: 'Inactive', label: 'Inactive', color: 'bg-yellow-500' },
-    { value: 'Suspended', label: 'Suspended', color: 'bg-red-500' }
+    { value: 'Blocked', label: 'Blocked', color: 'bg-red-500' }
+  ];
+
+  const customerStatuses = [
+    { value: 'NewCustomer', label: 'New Customer' },
+    { value: 'TopCustomer', label: 'Top Customer' },
+    { value: 'ReturningCustomer', label: 'Returning Customer' },
+    { value: 'VIPCustomer', label: 'VIP Customer' },
+    { value: 'WholesaleCustomer', label: 'Wholesale Customer' },
+    { value: 'Reseller', label: 'Reseller' },
+    { value: '3starCustomer', label: '3 Star Customer' },
+    { value: '4starCustomer', label: '4 Star Customer' },
+    { value: '5starCustomer', label: '5 Star Customer' }
   ];
 
   const showNotification = (message, type = 'success') => {
@@ -75,61 +54,118 @@ export default function UserRoleManager() {
     }, 3000);
   };
 
-  const filteredUsers = users.filter(user => {
-    const term = searchTerm.toLowerCase();
-    return (
-      user.name.toLowerCase().includes(term) ||
-      user.email.toLowerCase().includes(term) ||
-      (user.mobile && user.mobile.includes(term)) ||
-      user._id.includes(term) ||
-      user.role.toLowerCase().includes(term)
-    );
-  });
+  // Handle search with dynamic display
+  useEffect(() => {
+    if (searchTerm.trim() === '') {
+      // No search - show first 5 users
+      setDisplayedUsers(users.slice(0, 5));
+      setHasSearched(false);
+    } else {
+      // Search active - show all matching users
+      const term = searchTerm.toLowerCase();
+      const filtered = users.filter(user => {
+        return (
+          user.name?.toLowerCase().includes(term) ||
+          user.email?.toLowerCase().includes(term) ||
+          (user.mobile && user.mobile.includes(term)) ||
+          user._id?.toString().includes(term) ||
+          user.role?.toLowerCase().includes(term) ||
+          user.status?.toLowerCase().includes(term) ||
+          user.customerstatus?.toLowerCase().includes(term)
+        );
+      });
+      setDisplayedUsers(filtered);
+      setHasSearched(true);
+    }
+  }, [searchTerm, users]);
 
   const handleEditUser = (user) => {
-    setEditingUser({ ...user });
+    setEditingUser({ 
+      ...user,
+      last_login_date: user.last_login_date ? new Date(user.last_login_date).toISOString().split('T')[0] : '',
+      createdAt: user.createdAt ? new Date(user.createdAt).toISOString().split('T')[0] : ''
+    });
     setShowModal(true);
   };
 
-  const handleUpdateUser = () => {
+  const handleUpdateUser = async () => {
     if (!editingUser.name || !editingUser.email) {
       showNotification('Name and Email are required!', 'error');
       return;
     }
 
-    setLoading(true);
-    setTimeout(() => {
-      setUsers(users.map(u => u._id === editingUser._id ? editingUser : u));
+    setUpdateLoading(true);
+    try {
+      const updateData = {
+        name: editingUser.name,
+        email: editingUser.email,
+        mobile: editingUser.mobile || null,
+        image: editingUser.image || null,
+        verify_email: editingUser.verify_email,
+        status: editingUser.status,
+        customerstatus: editingUser.customerstatus,
+        role: editingUser.role,
+        last_login_date: editingUser.last_login_date || null
+      };
+
+      // Call API to update user
+      await updateUserProfile(editingUser._id, updateData);
+      
+      // Update local state
+      setUsers(users.map(u => u._id === editingUser._id ? { ...u, ...updateData } : u));
+      
       showNotification('User updated successfully!', 'success');
       setShowModal(false);
       setEditingUser(null);
-      setLoading(false);
-    }, 1000);
+      
+      // Refetch to ensure data is in sync
+      refetch();
+    } catch (error) {
+      console.error('Update error:', error);
+      showNotification(error.response?.data?.message || 'Failed to update user!', 'error');
+    } finally {
+      setUpdateLoading(false);
+    }
   };
 
-  const handleDeleteUser = (userId) => {
-    if (!window.confirm('Are you sure you want to delete this user?')) return;
-    
-    setLoading(true);
-    setTimeout(() => {
-      setUsers(users.filter(u => u._id !== userId));
-      showNotification('User deleted successfully!', 'success');
-      setLoading(false);
-    }, 800);
+  const handleDeleteUser = async (userId) => {
+  if (!window.confirm("Are you sure you want to delete this user?")) return;
+
+  try {
+    const res = await deleteUser(userId); 
+
+    if (res.success) {
+      setUsers((prevUsers) => prevUsers.filter((u) => u._id !== userId));
+      showNotification("User deleted successfully!", "success");
+    } else {
+      showNotification(res.message || "Failed to delete user!", "error");
+    }
+  } catch (error) {
+    console.error("Delete user failed:", error);
+    showNotification("Failed to delete user!", "error");
+  }
+};
+
+  const handleRoleChange = async (userId, newRole) => {
+    try {
+      await updateUserProfile(userId, { role: newRole });
+      setUsers(users.map(u => u._id === userId ? { ...u, role: newRole } : u));
+      showNotification(`Role changed to ${newRole}!`, 'success');
+      refetch();
+    } catch (error) {
+      showNotification('Failed to change role!', 'error');
+    }
   };
 
-  const handleRoleChange = (userId, newRole) => {
-    setUsers(users.map(u => 
-      u._id === userId ? { ...u, role: newRole } : u
-    ));
-    showNotification(`Role changed to ${newRole}!`, 'success');
-  };
-
-  const handleStatusChange = (userId, newStatus) => {
-    setUsers(users.map(u => 
-      u._id === userId ? { ...u, status: newStatus } : u
-    ));
-    showNotification(`Status changed to ${newStatus}!`, 'success');
+  const handleStatusChange = async (userId, newStatus) => {
+    try {
+      await updateUserProfile(userId, { status: newStatus });
+      setUsers(users.map(u => u._id === userId ? { ...u, status: newStatus } : u));
+      showNotification(`Status changed to ${newStatus}!`, 'success');
+      refetch();
+    } catch (error) {
+      showNotification('Failed to change status!', 'error');
+    }
   };
 
   const getRoleColor = (role) => {
@@ -146,6 +182,43 @@ export default function UserRoleManager() {
     const statusObj = statuses.find(s => s.value === status);
     return statusObj ? statusObj.color : 'bg-gray-500';
   };
+
+  const formatDate = (date) => {
+    if (!date) return 'N/A';
+    return new Date(date).toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  };
+
+  if (fetchLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 flex items-center justify-center">
+        <div className="text-center">
+          <RefreshCw className="w-16 h-16 text-purple-500 animate-spin mx-auto mb-4" />
+          <p className="text-white text-xl">Loading users...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <p className="text-white text-xl">Error loading users</p>
+          <button 
+            onClick={refetch}
+            className="mt-4 bg-purple-500 text-white px-6 py-2 rounded-lg hover:bg-purple-600"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 p-4 md:p-8">
@@ -198,7 +271,7 @@ export default function UserRoleManager() {
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by name, email, mobile, ID or role..."
+              placeholder="Search by name, email, mobile, ID, role or status..."
               className="w-full pl-12 pr-4 py-4 bg-gray-900 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
             />
             {searchTerm && (
@@ -210,37 +283,48 @@ export default function UserRoleManager() {
               </button>
             )}
           </div>
-          {searchTerm && (
-            <p className="text-gray-400 text-sm mt-3">
-              Found {filteredUsers.length} user{filteredUsers.length !== 1 ? 's' : ''}
+          <div className="flex items-center justify-between mt-3">
+            <p className="text-gray-400 text-sm">
+              {hasSearched ? (
+                <>Found {displayedUsers.length} user{displayedUsers.length !== 1 ? 's' : ''}</>
+              ) : (
+                <>Showing {displayedUsers.length} of {users.length} users (search to see all)</>
+              )}
             </p>
-          )}
+            <button
+              onClick={refetch}
+              className="flex items-center gap-2 text-purple-400 hover:text-purple-300 text-sm"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Refresh
+            </button>
+          </div>
         </div>
 
         {/* Users Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredUsers.map((user) => (
+          {displayedUsers?.map((user) => (
             <div
-              key={user._id}
+              key={user?._id}
               className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl shadow-2xl p-6 border border-gray-700 hover:border-purple-500 transition-all duration-300 transform hover:scale-105 hover:shadow-purple-500/20"
             >
               {/* User Header */}
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className={`${getRoleColor(user.role)} w-14 h-14 rounded-xl flex items-center justify-center text-2xl shadow-lg`}>
-                    {user.image ? (
-                      <img src={user.image} alt={user.name} className="w-full h-full object-cover rounded-xl" />
+                  <div className={`${getRoleColor(user?.role)} w-14 h-14 rounded-xl flex items-center justify-center text-2xl shadow-lg`}>
+                    {user?.image ? (
+                      <img src={user?.image} alt={user?.name} className="w-full h-full object-cover rounded-xl" />
                     ) : (
-                      getRoleIcon(user.role)
+                      getRoleIcon(user?.role)
                     )}
                   </div>
                   <div>
-                    <h3 className="text-white font-bold text-lg">{user.name}</h3>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(user.status)} text-white`}>
-                        {user.status}
+                    <h3 className="text-white font-bold text-lg">{user?.name}</h3>
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                      <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(user?.status)} text-white`}>
+                        {user?.status}
                       </span>
-                      {user.verify_email && (
+                      {user?.verify_email && (
                         <span className="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-blue-500/20 text-blue-400">
                           ✓ Verified
                         </span>
@@ -254,25 +338,25 @@ export default function UserRoleManager() {
               <div className="space-y-2 mb-4">
                 <div className="flex items-center gap-2 text-gray-300 text-sm">
                   <Mail className="w-4 h-4 text-purple-400" />
-                  <span className="truncate">{user.email}</span>
+                  <span className="truncate">{user?.email}</span>
                 </div>
-                {user.mobile && (
+                {user?.mobile && (
                   <div className="flex items-center gap-2 text-gray-300 text-sm">
                     <Phone className="w-4 h-4 text-purple-400" />
-                    <span>{user.mobile}</span>
+                    <span>{user?.mobile}</span>
                   </div>
                 )}
                 <div className="flex items-center gap-2 text-gray-300 text-sm">
                   <Clock className="w-4 h-4 text-purple-400" />
-                  <span>Last Login: {user.last_login_date}</span>
+                  <span>Last Login: {formatDate(user?.last_login_date)}</span>
                 </div>
                 <div className="flex items-center gap-2 text-gray-300 text-sm">
                   <Calendar className="w-4 h-4 text-purple-400" />
-                  <span>Joined: {user.createdAt}</span>
+                  <span>Joined: {formatDate(user?.createdAt)}</span>
                 </div>
                 <div className="flex items-center gap-2 text-gray-300 text-sm">
                   <User className="w-4 h-4 text-purple-400" />
-                  <span>ID: {user._id}</span>
+                  <span className="truncate">ID: {user?._id}</span>
                 </div>
               </div>
 
@@ -280,13 +364,13 @@ export default function UserRoleManager() {
               <div className="mb-3">
                 <label className="block text-gray-400 text-xs font-medium mb-2">Change Role</label>
                 <select
-                  value={user.role}
-                  onChange={(e) => handleRoleChange(user._id, e.target.value)}
+                  value={user?.role}
+                  onChange={(e) => handleRoleChange(user?._id, e.target.value)}
                   className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer"
                 >
                   {roles.map((role) => (
-                    <option key={role.value} value={role.value}>
-                      {role.icon} {role.label}
+                    <option key={role?.value} value={role?.value}>
+                      {role?.icon} {role?.label}
                     </option>
                   ))}
                 </select>
@@ -296,13 +380,13 @@ export default function UserRoleManager() {
               <div className="mb-4">
                 <label className="block text-gray-400 text-xs font-medium mb-2">Change Status</label>
                 <select
-                  value={user.status}
-                  onChange={(e) => handleStatusChange(user._id, e.target.value)}
+                  value={user?.status}
+                  onChange={(e) => handleStatusChange(user?._id, e.target.value)}
                   className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer"
                 >
                   {statuses.map((status) => (
-                    <option key={status.value} value={status.value}>
-                      {status.label}
+                    <option key={status?.value} value={status?.value}>
+                      {status?.label}
                     </option>
                   ))}
                 </select>
@@ -318,9 +402,8 @@ export default function UserRoleManager() {
                   Edit
                 </button>
                 <button
-                  onClick={() => handleDeleteUser(user._id)}
-                  disabled={loading}
-                  className="bg-gradient-to-r from-red-500 to-pink-500 text-white py-2 px-4 rounded-lg hover:from-red-600 hover:to-pink-600 transition-all disabled:opacity-50 flex items-center justify-center"
+                  onClick={() => handleDeleteUser(user?._id)}
+                  className="bg-gradient-to-r from-red-500 to-pink-500 text-white py-2 px-4 rounded-lg hover:from-red-600 hover:to-pink-600 transition-all flex items-center justify-center"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -330,7 +413,7 @@ export default function UserRoleManager() {
         </div>
 
         {/* Empty State */}
-        {filteredUsers.length === 0 && (
+        {displayedUsers.length === 0 && (
           <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl shadow-2xl p-12 text-center border border-gray-700">
             <div className="bg-gradient-to-br from-purple-500 to-pink-500 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
               <Search className="w-10 h-10 text-white" />
@@ -373,7 +456,7 @@ export default function UserRoleManager() {
                   </label>
                   <input
                     type="text"
-                    value={editingUser.name}
+                    value={editingUser?.name}
                     onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
                     className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                     required
@@ -386,7 +469,7 @@ export default function UserRoleManager() {
                   </label>
                   <input
                     type="email"
-                    value={editingUser.email}
+                    value={editingUser?.email}
                     onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
                     className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                     required
@@ -397,18 +480,18 @@ export default function UserRoleManager() {
                   <label className="block text-gray-300 text-sm font-medium mb-2">Mobile Number</label>
                   <input
                     type="text"
-                    value={editingUser.mobile || ''}
+                    value={editingUser?.mobile || ''}
                     onChange={(e) => setEditingUser({ ...editingUser, mobile: e.target.value })}
                     className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                     placeholder="+1234567890"
                   />
                 </div>
 
-                <div>
+                <div className="md:col-span-2">
                   <label className="block text-gray-300 text-sm font-medium mb-2">Image URL</label>
                   <input
                     type="text"
-                    value={editingUser.image || ''}
+                    value={editingUser?.image || ''}
                     onChange={(e) => setEditingUser({ ...editingUser, image: e.target.value })}
                     className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                     placeholder="https://example.com/image.jpg"
@@ -438,6 +521,21 @@ export default function UserRoleManager() {
                     className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
                     {statuses.map((status) => (
+                      <option key={status.value} value={status.value}>
+                        {status.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-gray-300 text-sm font-medium mb-2">Customer Status</label>
+                  <select
+                    value={editingUser.customerstatus}
+                    onChange={(e) => setEditingUser({ ...editingUser, customerstatus: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  >
+                    {customerStatuses.map((status) => (
                       <option key={status.value} value={status.value}>
                         {status.label}
                       </option>
@@ -505,10 +603,10 @@ export default function UserRoleManager() {
             <div className="flex gap-3 p-6 border-t border-gray-700 sticky bottom-0 bg-gradient-to-br from-gray-800 to-gray-900">
               <button
                 onClick={handleUpdateUser}
-                disabled={loading}
+                disabled={updateLoading}
                 className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 px-6 rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all disabled:opacity-50 flex items-center justify-center gap-2 font-medium"
               >
-                {loading ? (
+                {updateLoading ? (
                   <>
                     <RefreshCw className="w-5 h-5 animate-spin" />
                     Updating...
