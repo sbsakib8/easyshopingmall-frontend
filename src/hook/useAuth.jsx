@@ -116,3 +116,44 @@ export const getUserProfile = async () => {
     throw error;
   }
 }
+
+// get all users
+export const getAllUser = async () => {
+  try {
+    const response = await axios.get(`${UrlBackend}/users/getallusers`, {
+      withCredentials: true,
+    });
+    return response.data;
+  }
+  catch (error) {
+    console.error("Get All User error:", error.response?.data || error.message);
+    throw error;
+  }
+}
+
+// update profile
+export const updateUserProfile = async (id , formData) => {
+  try {
+    const response = await axios.put(`${UrlBackend}/users/userupdate/${id}`, formData, {
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Update User Profile error:", error.response?.data || error.message);
+    throw error;
+  } 
+}
+
+// delete user
+export const deleteUser = async (id) => { 
+  try {
+    const response = await axios.delete(`${UrlBackend}/users/userdelete/${id}`, {
+      withCredentials: true,
+    });
+    return response.data;
+  }
+  catch (error) {
+    console.error("Delete User error:", error.response?.data || error.message);
+    throw error;
+  }
+}

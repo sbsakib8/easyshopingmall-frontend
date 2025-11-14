@@ -22,6 +22,7 @@ import {
   Search,
   Settings,
   Shield,
+  ShieldUser,
   ShoppingCart,
   Tag,
   TrendingUp,
@@ -141,6 +142,7 @@ const DashboardNebver = ({ children }) => {
       icon: Settings,
       path: "/dashboard/settings/generalsettings",
       submenu: [
+        { path: "/settings/userupdate", id: 53, label: "User Manage", icon: ShieldUser },
         { path: "/settings/generalsettings", id: 33, label: "General Settings", icon: Settings },
         { path: "/settings/paymentsettings", id: 34, label: "Payment Settings", icon: DollarSign },
         { path: "/settings/shippingsettings", id: 35, label: "Shipping Settings", icon: Truck },
@@ -241,8 +243,8 @@ const DashboardNebver = ({ children }) => {
                       }
                     }}
                     className={`w-full flex items-center justify-between px-4 py-3 text-sm font-semibold rounded-2xl transition-all duration-300 group relative overflow-hidden ${activeMenu === item.id
-                        ? "bg-gradient-to-r from-gray-700 to-gray-900 text-white shadow-xl shadow-black/50 transform scale-105 border border-gray-600/50"
-                        : "text-gray-300 hover:bg-gradient-to-r hover:from-gray-800/50 hover:to-black/50 hover:shadow-lg hover:shadow-black/20 hover:scale-105 hover:text-white border border-transparent hover:border-gray-700/30"
+                      ? "bg-gradient-to-r from-gray-700 to-gray-900 text-white shadow-xl shadow-black/50 transform scale-105 border border-gray-600/50"
+                      : "text-gray-300 hover:bg-gradient-to-r hover:from-gray-800/50 hover:to-black/50 hover:shadow-lg hover:shadow-black/20 hover:scale-105 hover:text-white border border-transparent hover:border-gray-700/30"
                       }`}
                   >
                     {/* Animated background */}
@@ -253,14 +255,14 @@ const DashboardNebver = ({ children }) => {
                     <Link href={`${item.path}`} className="flex items-center space-x-4 relative z-10">
                       <div
                         className={`p-2 rounded-xl transition-all duration-300 ${activeMenu === item.id
-                            ? "bg-white/10 shadow-lg backdrop-blur-sm"
-                            : "group-hover:bg-gray-700/30"
+                          ? "bg-white/10 shadow-lg backdrop-blur-sm"
+                          : "group-hover:bg-gray-700/30"
                           }`}
                       >
                         <item.icon
                           className={`w-5 h-5 transition-all duration-300 ${activeMenu === item.id
-                              ? "text-white scale-110"
-                              : "text-gray-400 group-hover:text-white group-hover:scale-110"
+                            ? "text-white scale-110"
+                            : "text-gray-400 group-hover:text-white group-hover:scale-110"
                             }`}
                         />
                       </div>
@@ -285,8 +287,8 @@ const DashboardNebver = ({ children }) => {
                   {item.submenu && sidebarOpen && (
                     <div
                       className={`mt-3 ml-6 space-y-2 overflow-hidden transition-all duration-500 transform ${expandedMenus[item.id]
-                          ? "max-h-96 opacity-100 translate-y-0"
-                          : "max-h-0 opacity-0 -translate-y-4"
+                        ? "max-h-96 opacity-100 translate-y-0"
+                        : "max-h-0 opacity-0 -translate-y-4"
                         }`}
                     >
                       {item.submenu.map((subItem, subIndex) => (
@@ -295,8 +297,8 @@ const DashboardNebver = ({ children }) => {
                           key={subItem.id}
                           onClick={() => setActiveMenu(subItem.id)}
                           className={`group flex items-center space-x-3 px-4 py-2.5 text-sm rounded-xl transition-all duration-300 transform hover:scale-105 ${activeMenu === subItem.id
-                              ? "bg-gradient-to-r from-gray-600 to-gray-800 text-white shadow-lg shadow-black/30 border border-gray-600/50"
-                              : "text-gray-400 hover:bg-gradient-to-r hover:from-gray-800/30 hover:to-black/30 hover:text-white hover:shadow-md border border-transparent hover:border-gray-700/20"
+                            ? "bg-gradient-to-r from-gray-600 to-gray-800 text-white shadow-lg shadow-black/30 border border-gray-600/50"
+                            : "text-gray-400 hover:bg-gradient-to-r hover:from-gray-800/30 hover:to-black/30 hover:text-white hover:shadow-md border border-transparent hover:border-gray-700/20"
                             } animate-slideInRight`}
                           style={{ animationDelay: `${subIndex * 0.05}s` }}
                         >
