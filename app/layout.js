@@ -1,8 +1,8 @@
+import { Providers } from "@/src/helper/providers";
 import { Lato, Roboto } from "next/font/google";
 import "./globals.css";
 import LayoutWrapper from "./LayoutWrapper";
-import { Providers } from "@/src/helper/providers";
-import  { Toaster } from 'react-hot-toast';
+import ToasterClient from "./ToasterClient";
 
 const lato = Lato({
   subsets: ["latin"],
@@ -24,14 +24,14 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
-    
+
   return (
     <html lang="en">
       <body className={`${lato.variable} ${roboto.variable} antialiased`}>
         <Providers>
-        <LayoutWrapper>{children}</LayoutWrapper>
+          <LayoutWrapper>{children}</LayoutWrapper>
         </Providers>
-          <Toaster position="top-right"/>
+        < ToasterClient />
       </body>
     </html>
   );

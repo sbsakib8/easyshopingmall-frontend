@@ -2,30 +2,33 @@ import axios from "axios";
 import { UrlBackend } from "../confic/urlExport";
 
 // product uploard
-export const ProductCreate = async (formData, ) => {
+export const ProductCreate = async (formData,) => {
   try {
     const response = await axios.post(`${UrlBackend}/products/create`, formData, {
       withCredentials: true,
-       headers: { "Content-Type": "multipart/form-data" },
+      headers: { "Content-Type": "multipart/form-data" },
     });
-    return response.data; 
+    return response.data;
   } catch (error) {
     console.error("Registration error:", error.response?.data || error.message);
-    throw error; 
+    throw error;
   }
 };
 
 
 // all product get 
-export const ProductAllGet = async (formData, ) => {
+export const ProductAllGet = async (formData,) => {
   try {
     const response = await axios.post(`${UrlBackend}/products/get`, formData, {
       withCredentials: true,
+      headers: {
+        "Content-Type": "application/json", // crucial!
+      },
     });
-    return response.data; 
+    return response.data;
   } catch (error) {
     console.error("Registration error:", error.response?.data || error.message);
-    throw error; 
+    throw error;
   }
 };
 
@@ -34,9 +37,9 @@ export const ProductAllGet = async (formData, ) => {
 export const ProductDelete = async (_id) => {
   try {
     const response = await axios.delete(`${UrlBackend}/products/delete-product`, {
-      data: { _id },              
+      data: { _id },
       withCredentials: true,
-      headers: { "Content-Type": "application/json" }, 
+      headers: { "Content-Type": "application/json" },
     });
     return response.data;
   } catch (error) {
