@@ -487,7 +487,7 @@ useEffect(() => {
                             </h3>
                             <div className="flex items-center justify-between">
                               <span className="px-3 py-1 bg-white/20 text-white/90 rounded-full text-xs font-medium">
-                                {product?.category[0].name}
+                                {product?.category[0]?.name}
                               </span>
                               <span className="text-sm text-white/70 font-mono">{product?.sku}</span>
                             </div>
