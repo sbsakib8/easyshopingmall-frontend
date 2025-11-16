@@ -42,6 +42,7 @@ const DashboardNebver = ({ children }) => {
 
   // admin user data get
   const data = useSelector((state) => state.user.data);
+  console.log('data', data);
 
 
   // category get    
