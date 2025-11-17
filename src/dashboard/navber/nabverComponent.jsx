@@ -355,15 +355,13 @@ const DashboardNebver = ({ children }) => {
 
       {/* Main Content */}
       <main
-        className="pt-16 transition-all duration-500 ease-out min-h-screen"
-        style={{
-          paddingLeft: sidebarOpen ? "18rem" : "0",
-          "@media (max-width: 768px)": {
-            paddingLeft: "0",
-          },
-        }}
+        className={`
+    pt-16 transition-all duration-500 ease-out min-h-screen
+    ${sidebarOpen ? "pl-72" : "pl-0"}
+    md:pl-0
+  `}
       >
-         {children}
+        {children}
       </main>
 
       <style jsx>{`
