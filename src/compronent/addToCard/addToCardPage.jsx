@@ -1,87 +1,95 @@
 "use client";
-import React, { useState } from 'react';
-import { 
-  ShoppingCart, 
-  Plus, 
-  Minus, 
-  Trash2, 
-  Heart, 
-  Tag, 
-  Truck, 
-  Shield, 
+import { getCartApi, removeCartItemApi, updateCartItemApi } from '@/src/hook/useCart';
+import {
+  AlertCircle,
   ArrowRight,
-  X,
-  Gift,
-  Percent,
-  CreditCard,
-  MapPin,
   Clock,
+  CreditCard,
+  Gift,
+  Heart,
+  MapPin,
+  Minus,
+  Percent,
+  Plus,
+  Shield,
+  ShoppingCart,
   Star,
-  AlertCircle
+  Tag,
+  Trash2,
+  Truck,
+  X
 } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 const ShoppingCartComponent = () => {
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: 'Premium Wireless Headphones',
-      price: 4500,
-      originalPrice: 5500,
-      quantity: 1,
-      image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop',
-      color: 'Black',
-      size: 'One Size',
-      inStock: true,
-      rating: 4.5,
-      discount: 18
-    },
-    {
-      id: 2,
-      name: 'Smart Watch Series 5',
-      price: 12000,
-      originalPrice: 15000,
-      quantity: 2,
-      image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=300&fit=crop',
-      color: 'Silver',
-      size: '42mm',
-      inStock: true,
-      rating: 4.8,
-      discount: 20
-    },
-    {
-      id: 3,
-      name: 'Bluetooth Speaker',
-      price: 2500,
-      originalPrice: 3000,
-      quantity: 1,
-      image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400&h=300&fit=crop',
-      color: 'Blue',
-      size: 'Medium',
-      inStock: false,
-      rating: 4.2,
-      discount: 17
-    }
-  ]);
+  const dispatch = useDispatch();
+  const { items: rawItems = [], loading, error } = useSelector((state) => state.cart);
+  const user = useSelector((state) => state.user.data);
 
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [showCouponInput, setShowCouponInput] = useState(false);
 
-  const updateQuantity = (id, newQuantity) => {
-    if (newQuantity === 0) {
-      removeItem(id);
+  useEffect(() => {
+    if (user?._id) {
+      getCartApi(user._id, dispatch);
+    }
+  }, [user?._id, dispatch]);
+
+  const cartItems = rawItems.map((item) => {
+    const product = item.productId || {};
+    const id = product._id || item.productId;
+    const price = item.price ?? product.price ?? 0;
+    const originalPrice =
+      product.oldPrice ?? product.old_price ?? product.price ?? price;
+    const quantity = item.quantity ?? 1;
+    const image =
+      (product.images && product.images[0]) ||
+      (product.image && product.image[0]) ||
+      'https://via.placeholder.com/100x100';
+    const name = product.productName || product.name || 'Product';
+    const inStock = (product.stock ?? 1) > 0;
+    const rating = product.rating ?? product.ratings ?? 4.5;
+    const color = product.color || 'Default';
+    const size = product.size || 'N/A';
+    const discount =
+      originalPrice && originalPrice > price
+        ? Math.round(((originalPrice - price) / originalPrice) * 100)
+        : 0;
+
+    return {
+      id,
+      productId: id,
+      name,
+      price,
+      originalPrice,
+      quantity,
+      image,
+      color,
+      size,
+      inStock,
+      rating,
+      discount,
+    };
+  });
+
+  const updateQuantity = (productId, newQuantity) => {
+    if (!user?._id) return;
+    if (newQuantity <= 0) {
+      removeItem(productId);
       return;
     }
-    setCartItems(items =>
-      items.map(item =>
-        item.id === id ? { ...item, quantity: newQuantity } : item
-      )
+    updateCartItemApi(
+      { userId: user._id, productId, quantity: newQuantity },
+      dispatch
     );
   };
 
-  const removeItem = (id) => {
-    setCartItems(items => items.filter(item => item.id !== id));
+  const removeItem = (productId) => {
+    if (!user?._id) return;
+    removeCartItemApi(user._id, productId, dispatch);
   };
 
   const applyCoupon = () => {
@@ -111,16 +119,49 @@ const ShoppingCartComponent = () => {
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const savings = cartItems.reduce((sum, item) => sum + ((item.originalPrice - item.price) * item.quantity), 0);
   const shipping = subtotal > 2000 ? 0 : 100;
-  
+
   let couponDiscount = 0;
   if (appliedCoupon) {
-    couponDiscount = appliedCoupon.type === 'percentage' 
+    couponDiscount = appliedCoupon.type === 'percentage'
       ? (subtotal * appliedCoupon.discount) / 100
       : appliedCoupon.discount;
   }
 
   const total = subtotal - couponDiscount + shipping;
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+  if (!user?._id) {
+    return (
+      <div className="min-h-screen lg:mt-24 py-5 flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <div className="bg-white shadow-lg rounded-2xl p-8 text-center max-w-md">
+          <h2 className="text-2xl font-bold mb-2 text-gray-900">Please sign in</h2>
+          <p className="text-gray-600 mb-4">You need to log in to view your cart.</p>
+          <Link
+            href="/signin"
+            className="inline-block bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-teal-700 hover:to-green-700 transition-all"
+          >
+            Go to Sign In
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen lg:mt-24 py-5 flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <p className="text-gray-600 text-lg">Loading cart...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen lg:mt-24 py-5 flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <p className="text-red-500 text-lg">{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen  lg:mt-24 py-5 bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -167,9 +208,9 @@ const ShoppingCartComponent = () => {
             {/* Cart Items */}
             <div className="lg:col-span-2  space-y-4">
               {cartItems.map((item, index) => (
-                <Link className=' space-y-10' href={`/productdetails/${item.id}`} key={item.id}>
-                <div 
-                  
+                // <Link className=' space-y-10' key={item.id}>
+                <div
+
                   className="bg-white mt-10 cursor-pointer rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300"
                   style={{
                     animation: `slideIn 0.5s ease-out ${index * 0.1}s both`
@@ -178,8 +219,8 @@ const ShoppingCartComponent = () => {
                   <div className="flex items-start space-x-4">
                     {/* Product Image */}
                     <div className="relative">
-                      <img 
-                        src={item.image} 
+                      <img
+                        src={item.image}
                         alt={item.name}
                         className="w-24 h-24 object-cover rounded-xl"
                       />
@@ -216,8 +257,8 @@ const ShoppingCartComponent = () => {
                           <button className="p-2  text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all duration-300">
                             <Heart className="w-5 h-5" />
                           </button>
-                          <button 
-                            onClick={() => removeItem(item.id)}
+                          <button
+                            onClick={() => removeItem(item.productId)}
                             className="p-2 text-gray-400 cursor-pointer hover:text-red-500 hover:bg-red-50 rounded-lg transition-all duration-300"
                           >
                             <Trash2 className="w-5 h-5" />
@@ -244,7 +285,7 @@ const ShoppingCartComponent = () => {
                         {/* Quantity Controls */}
                         <div className="flex items-center space-x-3">
                           <button
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            onClick={() => updateQuantity(item.productId, item.quantity - 1)}
                             className="w-8 h-8 cursor-pointer rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition-all duration-300"
                             disabled={!item.inStock}
                           >
@@ -252,7 +293,7 @@ const ShoppingCartComponent = () => {
                           </button>
                           <span className="font-semibold text-lg w-8 text-center">{item.quantity}</span>
                           <button
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            onClick={() => updateQuantity(item.productId, item.quantity + 1)}
                             className="w-8 h-8 cursor-pointer rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition-all duration-300"
                             disabled={!item.inStock}
                           >
@@ -263,7 +304,7 @@ const ShoppingCartComponent = () => {
                     </div>
                   </div>
                 </div>
-                </Link>
+                // </Link>
               ))}
 
               {/* Suggested Items */}
@@ -275,7 +316,7 @@ const ShoppingCartComponent = () => {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {[1, 2, 3, 4].map((i) => (
                     <div key={i} className="border border-gray-200 rounded-xl p-3 hover:shadow-lg transition-all duration-300 cursor-pointer group">
-                      <img 
+                      <img
                         src={`https://via.placeholder.com/100x100`}
                         alt="Suggested product"
                         className="w-full h-20 object-cover rounded-lg mb-2"
@@ -358,7 +399,7 @@ const ShoppingCartComponent = () => {
                     <span>Subtotal ({totalItems} items)</span>
                     <span>৳{subtotal.toLocaleString()}</span>
                   </div>
-                  
+
                   {savings > 0 && (
                     <div className="flex justify-between text-green-600">
                       <span>You Save</span>
@@ -449,7 +490,7 @@ const ShoppingCartComponent = () => {
           }
         }
       `}</style>
-    </div>
+    </div >
   );
 };
 

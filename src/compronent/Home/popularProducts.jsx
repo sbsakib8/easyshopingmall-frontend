@@ -1,38 +1,49 @@
 "use client";
-import React, { useState, useMemo } from "react";
 import {
-  ShoppingBag,
-  Laptop,
-  Footprints,
-  Coffee,
-  Sparkles,
   Heart,
-  Gem,
-  Star,
-  Eye,
-  ShoppingCart,
-  TrendingUp,
-  Award,
-  Gift,
-  Zap,
   Search,
+  ShoppingCart,
+  Sparkles,
+  Star
 } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
+import toast from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
 
 // 🧠 Import your hooks
+import { addToCartApi } from "../../hook/useCart";
+import {
+  addToWishlistApi,
+  getWishlistApi,
+  removeFromWishlistApi,
+} from "../../hook/useWishlist";
 import { useGetcategory } from "../../utlis/usecategory";
 import { useGetProduct } from "../../utlis/userProduct";
 
 const PopularProducts = () => {
   const [activeCategory, setActiveCategory] = useState("ALL");
-  const [isWishlist, setIsWishlist] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
+
+  const dispatch = useDispatch();
+  const { data: wishlistItems } = useSelector((state) => state.wishlist);
+  const user = useSelector((state) => state.user.data);
 
   const productParams = useMemo(() => ({ page: 1, limit: 20, search: "" }), []);
 
   // ✅ Fetch data dynamically
   const { category, loading: categoryLoading } = useGetcategory();
   const { product, loading: productLoading, error } = useGetProduct(productParams);
+
+  // ✅ Fetch wishlist once (for logged-in user)
+  useEffect(() => {
+    getWishlistApi(dispatch);
+  }, [dispatch]);
+
+  const wishlistIds = useMemo(
+    () => new Set((wishlistItems || []).map((item) => item.id)),
+    [wishlistItems]
+  );
 
   const loading = categoryLoading || productLoading;
 
@@ -76,11 +87,10 @@ const PopularProducts = () => {
     return [...Array(5)].map((_, i) => (
       <Star
         key={i}
-        className={`w-3 h-3 sm:w-4 sm:h-4 ${
-          i < Math.floor(rating)
+        className={`w-3 h-3 sm:w-4 sm:h-4 ${i < Math.floor(rating)
             ? "text-yellow-400 fill-current"
             : "text-gray-300"
-        }`}
+          }`}
       />
     ));
   };
@@ -105,11 +115,42 @@ const PopularProducts = () => {
     return colors[badge] || "bg-gradient-to-r from-gray-500 to-gray-600";
   };
 
-  const toggleWishlist = (id) => {
-    setIsWishlist((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
+  const toggleWishlist = async (id) => {
+    try {
+      if (wishlistIds.has(id)) {
+        await removeFromWishlistApi(id, dispatch);
+      } else {
+        await addToWishlistApi(id, dispatch);
+      }
+    } catch (err) {
+      console.error("Wishlist toggle error:", err);
+    }
+  };
+
+  const handleAddToCart = async (product) => {
+    if (!user?._id) {
+      toast.error("Please sign in to add items to cart");
+      return;
+    }
+    console.log('product', product);
+
+
+    try {
+      await addToCartApi(
+        {
+          userId: user._id,
+          productId: product.id,
+          quantity: 1,
+          price: product.price,
+        },
+        dispatch
+      );
+      toast.success(`${product.name} added to cart`);
+    } catch (err) {
+      console.error("Add to cart error:", err);
+      const msg = err?.response?.data?.message || "Failed to add to cart";
+      toast.error(msg);
+    }
   };
 
   if (loading)
@@ -158,11 +199,10 @@ const PopularProducts = () => {
           <div className="flex overflow-x-auto scrollbar-hide flex-wrap justify-center gap-2 sm:gap-3 animate-[fadeInUp_0.8s_ease-out]">
             <button
               onClick={() => setActiveCategory("ALL")}
-              className={`flex items-center space-x-2 px-4 py-2 sm:py-3 rounded-full font-medium transition-all duration-300 ${
-                activeCategory === "ALL"
+              className={`flex items-center space-x-2 px-4 py-2 sm:py-3 rounded-full font-medium transition-all duration-300 ${activeCategory === "ALL"
                   ? "bg-gradient-to-r from-gray-700 to-gray-900 text-white shadow-lg"
                   : "bg-white/70 text-gray-700 hover:bg-white/90 border border-gray-200"
-              }`}
+                }`}
             >
               All
             </button>
@@ -170,11 +210,10 @@ const PopularProducts = () => {
               <button
                 key={cat.id}
                 onClick={() => setActiveCategory(cat.id)}
-                className={`flex items-center space-x-2 px-4 py-2 sm:py-3 rounded-full font-medium transition-all duration-300 ${
-                  activeCategory === cat.id
+                className={`flex items-center space-x-2 px-4 py-2 sm:py-3 rounded-full font-medium transition-all duration-300 ${activeCategory === cat.id
                     ? `bg-gradient-to-r ${cat.color} text-white shadow-lg`
                     : "bg-white/70 text-gray-700 hover:bg-white/90 border border-gray-200"
-                }`}
+                  }`}
               >
                 <span>{cat.icon}</span>
                 <span>{cat.name}</span>
@@ -212,16 +251,14 @@ const PopularProducts = () => {
                       e.preventDefault();
                       toggleWishlist(p.id);
                     }}
-                    className={`p-2 rounded-full shadow-md ${
-                      isWishlist[p.id]
+                    className={`p-2 rounded-full shadow-md ${wishlistIds.has(p.id)
                         ? "bg-red-500 text-white"
                         : "bg-white/90 text-gray-600 hover:text-red-500"
-                    }`}
+                      }`}
                   >
                     <Heart
-                      className={`w-4 h-4 ${
-                        isWishlist[p.id] ? "fill-current" : ""
-                      }`}
+                      className={`w-4 h-4 ${wishlistIds.has(p.id) ? "fill-current" : ""
+                        }`}
                     />
                   </button>
                 </div>
@@ -256,7 +293,13 @@ const PopularProducts = () => {
                     </div>
                   )}
                 </div>
-                <button className="mt-4 w-full bg-green-600 text-white py-2 rounded-2xl font-semibold flex items-center justify-center gap-2">
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleAddToCart(p);
+                  }}
+                  className="mt-4 w-full bg-green-600 text-white py-2 rounded-2xl font-semibold flex items-center justify-center gap-2 hover:bg-green-700 transition-colors"
+                >
                   <ShoppingCart className="w-4 h-4" /> Add to Cart
                 </button>
               </div>

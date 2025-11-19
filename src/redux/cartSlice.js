@@ -24,13 +24,19 @@ const cartSlice = createSlice({
         cartUpdate: (state, action) => {
             state.loading = false;
             const updatedItem = action.payload;
-            state.items = state.items.map((item) =>
-                item.productId === updatedItem.productId ? updatedItem : item
-            );
+            state.items = state.items.map((item) => {
+                const currentId = typeof item.productId === 'object' ? item.productId?._id : item.productId;
+                const updatedId = typeof updatedItem.productId === 'object' ? updatedItem.productId?._id : updatedItem.productId;
+                return currentId === updatedId ? updatedItem : item;
+            });
         },
         cartRemove: (state, action) => {
             state.loading = false;
-            state.items = state.items.filter((item) => item.productId !== action.payload);
+            const id = action.payload;
+            state.items = state.items.filter((item) => {
+                const pid = typeof item.productId === 'object' ? item.productId?._id : item.productId;
+                return pid !== id;
+            });
         },
         cartClear: (state) => {
             state.loading = false;

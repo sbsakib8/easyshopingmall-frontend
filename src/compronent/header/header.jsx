@@ -13,7 +13,9 @@ import {
   Zap
 } from 'lucide-react';
 import Link from 'next/link';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { getWishlistApi } from '@/src/hook/useWishlist';
+import { getCartApi } from '@/src/hook/useCart';
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -21,8 +23,12 @@ const Header = () => {
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [isCurrencyOpen, setIsCurrencyOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [cartCount, setCartCount] = useState(4);
-  const [wishlistCount, setWishlistCount] = useState(2);
+
+  const dispatch = useDispatch();
+  const { data: wishlistItems } = useSelector((state) => state.wishlist);
+  const { items: cartItems } = useSelector((state) => state.cart);
+  const wishlistCount = wishlistItems?.length || 0;
+  const cartCount = (cartItems || []).reduce((sum, item) => sum + (item.quantity || 1), 0);
   const [language, setLanguage] = useState('English');
   const [currency, setCurrency] = useState('USD');
   const [isScrolled, setIsScrolled] = useState(false);
@@ -30,6 +36,14 @@ const Header = () => {
   
   // user data fatch 
   const data = useSelector((state) => state.user.data);
+  
+  // load wishlist + cart for logged-in user
+  useEffect(() => {
+    if (data?._id) {
+      getWishlistApi(dispatch);
+      getCartApi(data._id, dispatch);
+    }
+  }, [dispatch, data?._id]);
   
   // Countdown timer state
   const [timeLeft, setTimeLeft] = useState({
