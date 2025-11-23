@@ -1,5 +1,6 @@
 "use client";
 import { getCartApi, removeCartItemApi, updateCartItemApi } from '@/src/hook/useCart';
+import { removeItemLocal, updateQuantityLocal } from '@/src/redux/cartSlice';
 import {
   AlertCircle,
   ArrowRight,
@@ -40,7 +41,7 @@ const ShoppingCartComponent = () => {
 
   const cartItems = rawItems.map((item) => {
     const product = item.productId || {};
-    const id = product._id || item.productId;
+    const id = product._id || item.productId_id;
     const price = item.price ?? product.price ?? 0;
     const originalPrice =
       product.oldPrice ?? product.old_price ?? product.price ?? price;
@@ -75,22 +76,37 @@ const ShoppingCartComponent = () => {
     };
   });
 
-  const updateQuantity = (productId, newQuantity) => {
+  const updateQuantity = (productId, newQty) => {
+
     if (!user?._id) return;
-    if (newQuantity <= 0) {
+
+    if (newQty <= 0) {
       removeItem(productId);
       return;
     }
+
+    // 🔥 INSTANT UI UPDATE
+    dispatch(updateQuantityLocal({ productId, quantity: newQty }));
+
+    // 🔥 BACKEND UPDATE (slow)
     updateCartItemApi(
-      { userId: user._id, productId, quantity: newQuantity },
+      { userId: user._id, productId, quantity: newQty },
       dispatch
     );
   };
 
   const removeItem = (productId) => {
     if (!user?._id) return;
+
+    // 🔥 INSTANT REMOVE
+    dispatch(removeItemLocal(productId));
+
+    // 🔥 BACKEND REMOVE
     removeCartItemApi(user._id, productId, dispatch);
   };
+
+
+
 
   const applyCoupon = () => {
     if (couponCode.toLowerCase() === 'save20') {
@@ -393,6 +409,8 @@ const ShoppingCartComponent = () => {
                   )}
                 </div>
 
+                {/* Move delivery address & order placement to checkout page */}
+
                 {/* Price Breakdown */}
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between text-gray-600">
@@ -449,8 +467,11 @@ const ShoppingCartComponent = () => {
                   <span>Estimated delivery: 2-3 business days</span>
                 </div>
 
-                {/* Checkout Button */}
-                <Link href={"/checkout"} className="w-full cursor-pointer bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 hover:from-teal-600 hover:to-green-700 text-white py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center space-x-2">
+                {/* Go to Checkout Button */}
+                <Link
+                  href="/checkout"
+                  className="w-full cursor-pointer bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 hover:from-teal-600 hover:to-green-700 text-white py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center space-x-2"
+                >
                   <CreditCard className="w-5 h-5" />
                   <span>Proceed to Checkout</span>
                   <ArrowRight className="w-5 h-5" />

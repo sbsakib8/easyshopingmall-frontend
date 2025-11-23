@@ -1,50 +1,82 @@
-// src/redux/cartSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 
 const cartSlice = createSlice({
     name: "cart",
     initialState: {
-        items: [],       // all cart items
+        items: [],
         loading: false,
         error: null,
     },
+
     reducers: {
+        // -------- API Loading (ONLY for initial fetch)
         cartLoading: (state) => {
             state.loading = true;
             state.error = null;
         },
+
         cartSuccess: (state, action) => {
             state.loading = false;
             state.items = action.payload;
         },
+
+        // -------- Add item from API
         cartAdd: (state, action) => {
             state.loading = false;
             state.items.push(action.payload);
         },
+
+        // -------- Backend update (overwrite updated item)
         cartUpdate: (state, action) => {
             state.loading = false;
-            const updatedItem = action.payload;
-            state.items = state.items.map((item) => {
-                const currentId = typeof item.productId === 'object' ? item.productId?._id : item.productId;
-                const updatedId = typeof updatedItem.productId === 'object' ? updatedItem.productId?._id : updatedItem.productId;
-                return currentId === updatedId ? updatedItem : item;
-            });
+            const updated = action.payload;
+
+            state.items = state.items.map(item =>
+                (item.productId._id || item.productId) === updated.productId
+                    ? updated
+                    : item
+            );
+
         },
+
+        // -------- Remove item based on productId
         cartRemove: (state, action) => {
             state.loading = false;
-            const id = action.payload;
-            state.items = state.items.filter((item) => {
-                const pid = typeof item.productId === 'object' ? item.productId?._id : item.productId;
-                return pid !== id;
-            });
+            const productId = action.payload;
+
+            state.items = state.items.filter(
+                (item) => item.productId !== productId
+            );
         },
+
         cartClear: (state) => {
             state.loading = false;
             state.items = [];
         },
+
         cartError: (state, action) => {
             state.loading = false;
             state.error = action.payload;
+        },
+
+        // -------- ⭐ OPTIMISTIC UPDATE (instant UI change)
+        updateQuantityLocal: (state, action) => {
+            const { productId, quantity } = action.payload;
+            const match = state.items.find(
+                (item) => item.productId._id === productId
+            );
+            if (match) {
+                match.quantity = quantity;
+                match.totalPrice = match.price * quantity;
+            }
+        },
+
+        // -------- ⭐ OPTIMISTIC REMOVE
+        removeItemLocal: (state, action) => {
+            const productId = action.payload;
+            state.items = state.items.filter(
+                (item) => item.productId !== productId
+            );
         },
     },
 });
@@ -57,6 +89,8 @@ export const {
     cartRemove,
     cartClear,
     cartError,
+    updateQuantityLocal,
+    removeItemLocal,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;

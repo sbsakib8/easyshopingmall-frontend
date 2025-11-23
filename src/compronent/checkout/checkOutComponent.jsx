@@ -1,23 +1,16 @@
 "use client"
 
+import { OrderCreate, initPaymentSession } from "@/src/hook/useOrder"
+import { Check, MapPin, Shield, ShoppingCart, Star, Truck } from "lucide-react"
 import { useState } from "react"
-import { ShoppingCart, MapPin, CreditCard, Check, Star, Shield, Truck } from "lucide-react"
-
-// Sample cart items for demonstration
-const cartItems = [
-  { id: 1, name: "Samsung Galaxy A54", price: 45000, quantity: 1, image: "/modern-smartphone.png", rating: 4.5 },
-  { id: 2, name: "Nike Air Max Shoes", price: 8500, quantity: 2, image: "/diverse-sneaker-collection.png", rating: 4.8 },
-  { id: 3, name: "Wireless Headphones", price: 3200, quantity: 1, image: "/diverse-people-listening-headphones.png", rating: 4.6 },
-]
-
-const paymentMethods = [
-  { id: "bkash", name: "bKash", logo: "💳", color: "from-pink-500 to-pink-600", textColor: "text-pink-600" },
-  { id: "nagad", name: "Nagad", logo: "🏦", color: "from-orange-500 to-orange-600", textColor: "text-orange-600" },
-  { id: "rocket", name: "Rocket", logo: "🚀", color: "from-purple-500 to-purple-600", textColor: "text-purple-600" },
-  { id: "upay", name: "Upay", logo: "💰", color: "from-blue-500 to-blue-600", textColor: "text-blue-600" },
-]
+import toast from "react-hot-toast"
+import { useSelector } from "react-redux"
 
 const CheckoutComponent = () => {
+  const user = useSelector((state) => state.user.data)
+  const { items, loading, error } = useSelector((state) => state.cart)
+  console.log('cart', items)
+  const cartItems = items || []
   const [selectedPayment, setSelectedPayment] = useState("")
   const [customerInfo, setCustomerInfo] = useState({
     name: "",
@@ -31,6 +24,7 @@ const CheckoutComponent = () => {
     phoneNumber: "",
     transactionId: "",
   })
+  const [isProcessing, setIsProcessing] = useState(false)
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
   const deliveryCharge = 60
@@ -44,25 +38,79 @@ const CheckoutComponent = () => {
     setPaymentInfo((prev) => ({ ...prev, [field]: value }))
   }
 
-  const handleProceedToPayment = () => {
+  const handleProceedToPayment = async () => {
     if (!selectedPayment) {
-      alert("অনুগ্রহ করে একটি পেমেন্ট মেথড নির্বাচন করুন")
+      toast.error("অনুগ্রহ করে একটি পেমেন্ট মেথড নির্বাচন করুন")
       return
     }
 
     if (!customerInfo.name || !customerInfo.phone || !customerInfo.address) {
-      alert("অনুগ্রহ করে সকল প্রয়োজনীয় তথ্য পূরণ করুন")
+      toast.error("অনুগ্রহ করে সকল প্রয়োজনীয় তথ্য পূরণ করুন")
       return
     }
 
-    console.log("Order Details:", {
-      customer: customerInfo,
-      payment: { method: selectedPayment, ...paymentInfo },
-      items: cartItems,
-      total: total,
-    })
+    if (!user?._id) {
+      toast.error("অনুগ্রহ করে প্রথমে লগইন করুন")
+      return
+    }
 
-    alert(`অর্ডার সফল হয়েছে! ${selectedPayment} এর মাধ্যমে ৳${total} টাকা পেমেন্ট করুন।`)
+    if (!cartItems.length) {
+      toast.error("কার্ট খালি আছে")
+      return
+    }
+
+    const delivery_address = [
+      customerInfo.address,
+      customerInfo.area,
+      customerInfo.city,
+    ]
+      .filter(Boolean)
+      .join(", ")
+
+    try {
+      setIsProcessing(true)
+
+      // 1) Create order from user's cart via hook API
+      const orderRes = await OrderCreate({
+        userId: user._id,
+        delivery_address,
+      })
+
+      const dbOrder = orderRes?.data
+      const dbOrderId = dbOrder?._id
+
+      if (!dbOrderId) {
+        throw new Error("Order তৈরি করতে সমস্যা হয়েছে (ID পাওয়া যায়নি)")
+      }
+
+      // 2) Initialize SSLCommerz payment session via hook API
+      const paymentRes = await initPaymentSession({
+        dbOrderId,
+        user: {
+          name: customerInfo.name,
+          email: customerInfo.email,
+          phone: customerInfo.phone,
+          address: delivery_address,
+        },
+      })
+
+      const gatewayUrl = paymentRes?.url
+      if (!gatewayUrl) {
+        throw new Error("Payment গেটওয়ে URL পাওয়া যায়নি")
+      }
+
+      toast.success("আপনাকে পেমেন্ট পেইজে পাঠানো হচ্ছে...")
+      window.location.href = gatewayUrl
+    } catch (error) {
+      console.error("SSLCommerz init error:", error)
+      const msg =
+        error?.response?.data?.message ||
+        error?.message ||
+        "পেমেন্ট শুরু করতে সমস্যা হয়েছে, পরে আবার চেষ্টা করুন।"
+      toast.error(msg)
+    } finally {
+      setIsProcessing(false)
+    }
   }
 
   return (
@@ -228,83 +276,7 @@ const CheckoutComponent = () => {
               </div>
             </div>
 
-            {/* Payment Methods */}
-            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-              <div className="bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 p-6">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                    <CreditCard className="w-5 h-5 text-white" />
-                  </div>
-                  <h2 className="text-xl font-semibold text-white">পেমেন্ট মেথড</h2>
-                </div>
-              </div>
-              <div className="p-6">
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  {paymentMethods.map((method) => (
-                    <div
-                      key={method.id}
-                      className={`relative border-2 rounded-xl p-6 cursor-pointer transition-all duration-300 transform hover:scale-105 ${
-                        selectedPayment === method.id
-                          ? "border-purple-500 bg-purple-50 shadow-lg"
-                          : "border-gray-200 hover:border-purple-300 hover:shadow-md"
-                      }`}
-                      onClick={() => setSelectedPayment(method.id)}
-                    >
-                      {selectedPayment === method.id && (
-                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
-                          <Check className="w-4 h-4 text-white" />
-                        </div>
-                      )}
-                      <div className="text-center">
-                        <div className={`w-16 h-10 bg-gradient-to-r ${method.color} rounded-lg flex items-center justify-center mx-auto mb-3 text-2xl`}>
-                          {method.logo}
-                        </div>
-                        <span className={`text-sm font-semibold ${selectedPayment === method.id ? method.textColor : 'text-gray-700'}`}>
-                          {method.name}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
 
-                {selectedPayment && (
-                  <div className="border-t border-gray-200 pt-6 space-y-4 animate-in slide-in-from-top duration-300">
-                    <h3 className="font-semibold text-gray-900 flex items-center space-x-2">
-                      <Shield className="w-5 h-5 text-green-500" />
-                      <span>{paymentMethods.find((m) => m.id === selectedPayment)?.name} পেমেন্ট তথ্য</span>
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label htmlFor="paymentPhone" className="block text-sm font-semibold text-gray-700 mb-2">
-                          {selectedPayment} নম্বর
-                        </label>
-                        <input
-                          id="paymentPhone"
-                          type="tel"
-                          value={paymentInfo.phoneNumber}
-                          onChange={(e) => handlePaymentInfoChange("phoneNumber", e.target.value)}
-                          placeholder="01XXXXXXXXX"
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
-                        />
-                      </div>
-                      <div>
-                        <label htmlFor="transactionId" className="block text-sm font-semibold text-gray-700 mb-2">
-                          ট্রানজেকশন আইডি
-                        </label>
-                        <input
-                          id="transactionId"
-                          type="text"
-                          value={paymentInfo.transactionId}
-                          onChange={(e) => handlePaymentInfoChange("transactionId", e.target.value)}
-                          placeholder="TXN123456789"
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
           </div>
 
           {/* Right Column - Order Summary */}
@@ -318,32 +290,52 @@ const CheckoutComponent = () => {
                   <h2 className="text-xl font-semibold text-white">অর্ডার সামারি</h2>
                 </div>
               </div>
-              
+
               <div className="p-6">
+
                 {/* Cart Items */}
                 <div className="space-y-4 mb-6">
+                  {cartItems.length === 0 && (
+                    <div className="text-center py-6 text-gray-500">কার্ট খালি।</div>
+                  )}
+
                   {cartItems.map((item) => (
-                    <div key={item.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors duration-200">
+                    <div
+                      key={item._id}  // cart item id
+                      className="flex items-center space-x-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors duration-200"
+                    >
+                      {/* Product Image */}
                       <div className="relative">
                         <img
-                          src={item.image || "/placeholder.svg"}
-                          alt={item.name}
+                          src={item.images?.[0] || "/placeholder.svg"}
+                          alt={item.productId.productName || "Product"}
                           className="w-16 h-16 object-cover rounded-xl shadow-md"
                         />
                         <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
                           <span className="text-xs text-white font-bold">{item.quantity}</span>
                         </div>
                       </div>
+
+                      {/* Product Info */}
                       <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900 text-sm">{item.name}</h3>
+                        <h3 className="font-semibold text-gray-900 text-sm">
+                          {item.productId.productName || "Unnamed Product"}
+                        </h3>
+
                         <div className="flex items-center space-x-1 mt-1">
                           <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                          <span className="text-xs text-gray-600">{item.rating}</span>
+                          <span className="text-xs text-gray-600">{item.ratings || "5"}</span>
                         </div>
                       </div>
+
+                      {/* Price */}
                       <div className="text-right">
-                        <p className="font-bold text-gray-900">৳{(item.price * item.quantity).toLocaleString()}</p>
-                        <p className="text-xs text-gray-500">৳{item.price.toLocaleString()} x {item.quantity}</p>
+                        <p className="font-bold text-gray-900">
+                          ৳{(item.totalPrice || item.price * item.quantity).toLocaleString()}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          ৳{item.price.toLocaleString()} × {item.quantity}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -355,6 +347,7 @@ const CheckoutComponent = () => {
                     <span>সাবটোটাল</span>
                     <span className="font-medium">৳{subtotal.toLocaleString()}</span>
                   </div>
+
                   <div className="flex justify-between text-gray-700">
                     <span className="flex items-center space-x-1">
                       <Truck className="w-4 h-4" />
@@ -362,6 +355,7 @@ const CheckoutComponent = () => {
                     </span>
                     <span className="font-medium">৳{deliveryCharge}</span>
                   </div>
+
                   <div className="border-t border-gray-200 pt-3">
                     <div className="flex justify-between text-xl font-bold text-gray-900">
                       <span>মোট</span>
@@ -370,29 +364,33 @@ const CheckoutComponent = () => {
                   </div>
                 </div>
 
-                {/* Security Badge */}
+                {/* Secure Badge */}
                 <div className="flex items-center justify-center space-x-2 mb-6 p-3 bg-green-50 rounded-xl">
                   <Shield className="w-5 h-5 text-green-600" />
                   <span className="text-sm text-green-700 font-medium">১০০% নিরাপদ পেমেন্ট</span>
                 </div>
 
-                {/* Proceed Button */}
+                {/* Order Confirm Button */}
                 <button
                   onClick={handleProceedToPayment}
-                  className="w-full cursor-pointer bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 hover:to-teal-700 text-white py-4 rounded-xl text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                  disabled={isProcessing}
+                  className="w-full cursor-pointer bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 hover:to-teal-700 text-white py-4 rounded-xl text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  অর্ডার কনফার্ম করুন
+                  {isProcessing ? "প্রসেসিং হচ্ছে..." : "অর্ডার কনফার্ম করুন"}
                 </button>
 
                 <div className="mt-4 text-center">
                   <p className="text-xs text-gray-500">
-                    অর্ডার কনফার্ম করার মাধ্যমে আপনি আমাদের 
+                    অর্ডার কনফার্ম করার মাধ্যমে আপনি আমাদের
                     <span className="text-blue-600 font-medium"> শর্তাবলী</span> মেনে নিচ্ছেন
                   </p>
                 </div>
               </div>
             </div>
           </div>
+
+
+
         </div>
       </div>
     </div>

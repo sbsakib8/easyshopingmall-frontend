@@ -1,16 +1,30 @@
 import axios from "axios";
 import { UrlBackend } from "../confic/urlExport";
 
-// order
-export const OrderCreate = async (formData,) => {
+// ✅ Create order from cart
+export const OrderCreate = async (formData) => {
     try {
         const response = await axios.post(`${UrlBackend}/orders/create`, formData, {
             withCredentials: true,
             headers: { "Content-Type": "application/json" },
         });
+        return response.data; // { success, data: { ...order } }
+    } catch (error) {
+        console.error("Order creation error:", error.response?.data || error.message);
+        throw error;
+    }
+};
+
+// ✅ Initialize SSLCommerz payment session
+export const initPaymentSession = async (payload) => {
+    try {
+        const response = await axios.post(`${UrlBackend}/payment/init`, payload, {
+            withCredentials: true,
+            headers: { "Content-Type": "application/json" },
+        });
         return response.data;
     } catch (error) {
-        console.error("Registration error:", error.response?.data || error.message);
+        console.error("Payment init error:", error.response?.data || error.message);
         throw error;
     }
 };
