@@ -1,6 +1,6 @@
 "use client";
 import { getWishlistApi, removeFromWishlistApi } from "@/src/hook/useWishlist";
-import { Heart, ShoppingCart, Star, Trash2, Share2, Eye, Filter, Grid, List } from "lucide-react";
+import { Eye, Grid, Heart, List, Share2, ShoppingCart, Star, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -85,9 +85,8 @@ const WishlistComponent = () => {
     return Array.from({ length: 5 }, (_, i) => (
       <Star
         key={i}
-        className={`w-4 h-4 ${
-          i < Math.floor(value) ? "text-yellow-400 fill-current" : "text-gray-300"
-        }`}
+        className={`w-4 h-4 ${i < Math.floor(value) ? "text-yellow-400 fill-current" : "text-gray-300"
+          }`}
       />
     ));
   };
@@ -125,21 +124,19 @@ const WishlistComponent = () => {
             <div className="flex items-center bg-gray-100 rounded-xl p-1">
               <button
                 onClick={() => setViewMode("grid")}
-                className={`p-2 rounded-lg transition-all duration-300 ${
-                  viewMode === "grid"
+                className={`p-2 rounded-lg transition-all duration-300 ${viewMode === "grid"
                     ? "bg-white shadow-md text-teal-600"
                     : "text-gray-600 hover:text-green-600"
-                }`}
+                  }`}
               >
                 <Grid className="w-5 h-5" />
               </button>
               <button
                 onClick={() => setViewMode("list")}
-                className={`p-2 rounded-lg transition-all duration-300 ${
-                  viewMode === "list"
+                className={`p-2 rounded-lg transition-all duration-300 ${viewMode === "list"
                     ? "bg-white shadow-md text-teal-600"
                     : "text-gray-600 hover:text-green-600"
-                }`}
+                  }`}
               >
                 <List className="w-5 h-5" />
               </button>
@@ -183,19 +180,17 @@ const WishlistComponent = () => {
           </div>
         ) : (
           <div
-            className={`grid gap-6 ${
-              viewMode === "grid"
+            className={`grid gap-6 ${viewMode === "grid"
                 ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
                 : "grid-cols-1"
-            }`}
+              }`}
           >
             {sortedAndFilteredItems().map((item, index) => (
               <Link
                 href={`/productdetails/${item.id}`}
                 key={item.id}
-                className={`group cursor-pointer bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl hover:shadow-2xl border border-white/50 overflow-hidden transition-all duration-500 hover:scale-105 ${
-                  animatingItems.has(item.id) ? "animate-pulse opacity-50 scale-95" : ""
-                } ${viewMode === "list" ? "flex" : ""}`}
+                className={`group cursor-pointer bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl hover:shadow-2xl border border-white/50 overflow-hidden transition-all duration-500 hover:scale-105 ${animatingItems.has(item.id) ? "animate-pulse opacity-50 scale-95" : ""
+                  } ${viewMode === "list" ? "flex" : ""}`}
                 style={{
                   animationDelay: `${index * 100}ms`,
                   animation: "slideInUp 0.6s ease-out forwards",
@@ -203,9 +198,8 @@ const WishlistComponent = () => {
               >
                 {/* Image */}
                 <div
-                  className={`relative overflow-hidden ${
-                    viewMode === "list" ? "w-48 flex-shrink-0" : "h-64"
-                  }`}
+                  className={`relative overflow-hidden ${viewMode === "list" ? "w-48 flex-shrink-0" : "h-64"
+                    }`}
                 >
                   <img
                     src={item.image}
@@ -287,11 +281,10 @@ const WishlistComponent = () => {
                         addToCart(item);
                       }}
                       disabled={!item.inStock}
-                      className={`flex-1 cursor-pointer flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-semibold transition-all duration-300 ${
-                        item.inStock
+                      className={`flex-1 cursor-pointer flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-semibold transition-all duration-300 ${item.inStock
                           ? "bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 hover:from-teal-700 hover:to-green-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
                           : "bg-gray-200 text-gray-500 cursor-not-allowed"
-                      }`}
+                        }`}
                     >
                       <ShoppingCart className="w-5 h-5" />
                       {item.inStock ? "Add to Cart" : "Out of Stock"}
