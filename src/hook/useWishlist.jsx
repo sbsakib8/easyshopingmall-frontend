@@ -16,24 +16,37 @@ export const getWishlistApi = async (dispatch) => {
         dispatch(wishlistLoading());
 
         const res = await axios.get(`${UrlBackend}/wishlist`, { withCredentials: true });
+        console.log("RAW wishlist:", res.data.data);
 
-        const formatted = res.data.data.map((item) => ({
-            id: item.productId?._id,
-            name: item.productId?.name,
-            image: item.productId?.image?.[0],
-            price: item.productId?.price,
-            discount: item.productId?.discount,
-            rating: item.productId?.ratings,
-            inStock: item.productId?.stock > 0,
-            category: item.productId?.brand || "General",
-            originalPrice: item.productId?.price / (1 - item.productId?.discount / 100),
-            addedAt: item.addedAt,
-        }));
+
+        const formatted = res.data.data.map((item) => {
+            const product = item.productId;
+
+            return {
+                id: product?._id,                                  // product id
+                name: product?.productName,
+                image: product?.images?.[0],
+                price: product?.price,
+                discount: product?.discount,
+                rating: product?.ratings,
+                inStock: (product?.productStock || 0) > 0,
+                category: product?.brand || "General",
+
+                // Only if discount exists
+                originalPrice: product?.discount
+                    ? Math.round(product.price / (1 - product.discount / 100))
+                    : product?.price,
+
+                addedAt: item.addedAt,
+            };
+        });
 
         dispatch(wishlistSet(formatted));
     } catch (error) {
-        console.error("Get wishlist error:", error.response?.data || error.message);
-        dispatch(wishlistError(error.response?.data?.message || "Failed to load wishlist"));
+        console.error("Get wishlist error:", error?.response?.data || error.message);
+        dispatch(
+            wishlistError(error?.response?.data?.message || "Failed to load wishlist")
+        );
     }
 };
 
