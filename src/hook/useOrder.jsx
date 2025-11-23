@@ -22,7 +22,7 @@ export const initPaymentSession = async (payload) => {
             withCredentials: true,
             headers: { "Content-Type": "application/json" },
         });
-        return response.data; // { url, ... }
+        return response.data;
     } catch (error) {
         console.error("Payment init error:", error.response?.data || error.message);
         throw error;

@@ -23,7 +23,7 @@ export const getWishlistApi = async (dispatch) => {
             const product = item.productId;
 
             return {
-                id: product?._id,                                  // product id
+                id: product?._id,
                 name: product?.productName,
                 image: product?.images?.[0],
                 price: product?.price,
