@@ -1,6 +1,6 @@
 "use client";
-import React, { useState, useEffect } from 'react';
-import { ShoppingCart, Heart, Star, Filter, Search, Grid, List, ChevronDown, Plus, Minus, X, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
+import { ChevronDown, Filter, Grid, Heart, List, Minus, Plus, Search, ShoppingCart, SlidersHorizontal, Star, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 const ShopPage = () => {
   // Clothing products data
@@ -187,7 +187,7 @@ const ShopPage = () => {
     }
 
     // Price range filter
-    filtered = filtered.filter(product => 
+    filtered = filtered.filter(product =>
       product.price >= priceRange[0] && product.price <= priceRange[1]
     );
 
@@ -284,7 +284,7 @@ const ShopPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      
+
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Mobile Search */}
         <div className="md:hidden mb-6">
@@ -305,26 +305,24 @@ const ShopPage = () => {
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
             <div className="flex items-center gap-4 flex-wrap">
               <span className="text-gray-600 font-medium">Showing {products.length} results</span>
-              
+
               {/* Quick Filters */}
               <div className="flex gap-2">
                 <button
                   onClick={() => setFilterGender(filterGender === 'men' ? 'all' : 'men')}
-                  className={`px-3 py-1 rounded-full text-sm transition-all duration-300 ${
-                    filterGender === 'men'
+                  className={`px-3 py-1 rounded-full text-sm transition-all duration-300 ${filterGender === 'men'
                       ? 'bg-purple-100 text-purple-700 border border-purple-300'
                       : 'bg-gray-100 hover:bg-gray-200'
-                  }`}
+                    }`}
                 >
                   Men
                 </button>
                 <button
                   onClick={() => setFilterGender(filterGender === 'women' ? 'all' : 'women')}
-                  className={`px-3 py-1 rounded-full text-sm transition-all duration-300 ${
-                    filterGender === 'women'
+                  className={`px-3 py-1 rounded-full text-sm transition-all duration-300 ${filterGender === 'women'
                       ? 'bg-purple-100 text-purple-700 border border-purple-300'
                       : 'bg-gray-100 hover:bg-gray-200'
-                  }`}
+                    }`}
                 >
                   Women
                 </button>
@@ -359,17 +357,15 @@ const ShopPage = () => {
               <div className="flex border border-gray-300 rounded-lg overflow-hidden">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`p-2 transition-colors duration-300 ${
-                    viewMode === 'grid' ? 'bg-purple-500 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
-                  }`}
+                  className={`p-2 transition-colors duration-300 ${viewMode === 'grid' ? 'bg-purple-500 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
+                    }`}
                 >
                   <Grid className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`p-2 transition-colors duration-300 ${
-                    viewMode === 'list' ? 'bg-purple-500 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
-                  }`}
+                  className={`p-2 transition-colors duration-300 ${viewMode === 'list' ? 'bg-purple-500 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
+                    }`}
                 >
                   <List className="w-5 h-5" />
                 </button>
@@ -490,9 +486,8 @@ const ShopPage = () => {
                         {[...Array(5)].map((_, i) => (
                           <Star
                             key={i}
-                            className={`w-4 h-4 ${
-                              i < rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
-                            }`}
+                            className={`w-4 h-4 ${i < rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
+                              }`}
                           />
                         ))}
                         <span className="text-gray-600 text-sm">& Up</span>
@@ -525,27 +520,24 @@ const ShopPage = () => {
 
             {/* Products */}
             {products.length > 0 && (
-              <div className={`${
-                viewMode === 'grid'
+              <div className={`${viewMode === 'grid'
                   ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'
                   : 'space-y-6'
-              }`}>
+                }`}>
                 {currentProducts.map((product, index) => (
                   <div
                     key={product.id}
-                    className={`group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 ${
-                      viewMode === 'list' ? 'flex' : ''
-                    }`}
+                    className={`group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 ${viewMode === 'list' ? 'flex' : ''
+                      }`}
                   >
                     <div className={`relative ${viewMode === 'list' ? 'w-48' : ''}`}>
                       <img
                         src={product.image}
                         alt={product.name}
-                        className={`w-full object-cover group-hover:scale-105 transition-transform duration-500 ${
-                          viewMode === 'list' ? 'h-full' : 'h-56'
-                        }`}
+                        className={`w-full object-cover group-hover:scale-105 transition-transform duration-500 ${viewMode === 'list' ? 'h-full' : 'h-56'
+                          }`}
                       />
-                      
+
                       {/* Badges */}
                       <div className="absolute top-3 left-3 space-y-1">
                         {product.isNew && (
@@ -567,11 +559,10 @@ const ShopPage = () => {
                           className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors duration-300"
                         >
                           <Heart
-                            className={`w-4 h-4 ${
-                              wishlist.some(item => item.id === product.id)
+                            className={`w-4 h-4 ${wishlist.some(item => item.id === product.id)
                                 ? 'fill-red-500 text-red-500'
                                 : 'text-gray-600'
-                            }`}
+                              }`}
                           />
                         </button>
                       </div>
@@ -591,18 +582,17 @@ const ShopPage = () => {
                           {product.name}
                         </h3>
                         <p className="text-sm text-gray-500 mb-2">{product.brand}</p>
-                        
+
                         {/* Rating */}
                         <div className="flex items-center gap-1 mb-3">
                           <div className="flex items-center">
                             {[...Array(5)].map((_, i) => (
                               <Star
                                 key={i}
-                                className={`w-3 h-3 ${
-                                  i < Math.floor(product.rating)
+                                className={`w-3 h-3 ${i < Math.floor(product.rating)
                                     ? 'fill-yellow-400 text-yellow-400'
                                     : 'text-gray-300'
-                                }`}
+                                  }`}
                               />
                             ))}
                           </div>
@@ -627,11 +617,10 @@ const ShopPage = () => {
                         <button
                           onClick={() => addToCart(product)}
                           disabled={!product.inStock}
-                          className={`w-full py-2 px-4 rounded font-semibold transition-all duration-300 text-sm ${
-                            product.inStock
+                          className={`w-full py-2 px-4 rounded font-semibold transition-all duration-300 text-sm ${product.inStock
                               ? 'bg-green-600 text-white hover:bg-green-700 transform hover:scale-105'
                               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                          }`}
+                            }`}
                         >
                           {product.inStock ? (
                             <span className="flex items-center justify-center gap-2">
@@ -659,21 +648,20 @@ const ShopPage = () => {
                 >
                   Previous
                 </button>
-                
+
                 {[...Array(totalPages)].map((_, i) => (
                   <button
                     key={i + 1}
                     onClick={() => setCurrentPage(i + 1)}
-                    className={`px-4 py-2 rounded-lg transition-all duration-300 ${
-                      currentPage === i + 1
+                    className={`px-4 py-2 rounded-lg transition-all duration-300 ${currentPage === i + 1
                         ? 'bg-purple-500 text-white transform scale-110'
                         : 'bg-white border border-gray-300 hover:bg-purple-50'
-                    }`}
+                      }`}
                   >
                     {i + 1}
                   </button>
                 ))}
-                
+
                 <button
                   onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                   disabled={currentPage === totalPages}
@@ -690,8 +678,8 @@ const ShopPage = () => {
       {/* Shopping Cart Sidebar */}
       {cartOpen && (
         <div className="fixed inset-0 z-50 overflow-hidden">
-          <div 
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300" 
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300"
             onClick={() => setCartOpen(false)}
           ></div>
           <div className="absolute right-0 top-0 h-full w-96 bg-white shadow-2xl transform transition-transform duration-300">
@@ -725,7 +713,7 @@ const ShopPage = () => {
                         <h3 className="font-semibold text-sm mb-1">{item.name}</h3>
                         <p className="text-xs text-gray-500 mb-1">{item.brand}</p>
                         <p className="text-purple-600 font-bold">${item.price.toFixed(2)}</p>
-                        
+
                         <div className="flex items-center justify-between mt-2">
                           <div className="flex items-center space-x-2 bg-white rounded-lg border">
                             <button
@@ -775,7 +763,7 @@ const ShopPage = () => {
                 <button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 rounded-lg font-bold hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
                   Proceed to Checkout
                 </button>
-                <button 
+                <button
                   onClick={() => setCart([])}
                   className="w-full mt-2 bg-gray-200 text-gray-700 py-2 rounded-lg font-semibold hover:bg-gray-300 transition-colors duration-300"
                 >

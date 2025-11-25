@@ -9,8 +9,8 @@ import { useSelector } from "react-redux"
 const CheckoutComponent = () => {
   const user = useSelector((state) => state.user.data)
   const { items, loading, error } = useSelector((state) => state.cart)
-  console.log('cart', items)
   const cartItems = items || []
+
   const [selectedPayment, setSelectedPayment] = useState("")
   const [customerInfo, setCustomerInfo] = useState({
     name: "",
@@ -26,7 +26,7 @@ const CheckoutComponent = () => {
   })
   const [isProcessing, setIsProcessing] = useState(false)
 
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const subtotal = cartItems.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 0), 0)
   const deliveryCharge = 60
   const total = subtotal + deliveryCharge
 
@@ -38,6 +38,7 @@ const CheckoutComponent = () => {
     setPaymentInfo((prev) => ({ ...prev, [field]: value }))
   }
 
+  // Existing SSL one-click flow (unchanged except small guard)
   const handleProceedToPayment = async () => {
     if (!selectedPayment) {
       toast.error("অনুগ্রহ করে একটি পেমেন্ট মেথড নির্বাচন করুন")
@@ -74,6 +75,7 @@ const CheckoutComponent = () => {
       const orderRes = await OrderCreate({
         userId: user._id,
         delivery_address,
+        paymentMethod: 'online',
       })
 
       const dbOrder = orderRes?.data
@@ -100,6 +102,7 @@ const CheckoutComponent = () => {
       }
 
       toast.success("আপনাকে পেমেন্ট পেইজে পাঠানো হচ্ছে...")
+      // redirect to gateway
       window.location.href = gatewayUrl
     } catch (error) {
       console.error("SSLCommerz init error:", error)
@@ -108,6 +111,68 @@ const CheckoutComponent = () => {
         error?.message ||
         "পেমেন্ট শুরু করতে সমস্যা হয়েছে, পরে আবার চেষ্টা করুন।"
       toast.error(msg)
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  // Manual payment: show numbers, user pays externally, then submits transaction id + phone
+  const handleManualSubmit = async () => {
+    if (!customerInfo.name || !customerInfo.phone || !customerInfo.address) {
+      toast.error("অনুগ্রহ করে প্রয়োজনীয় গ্রাহক তথ্য পূরণ করুন")
+      return
+    }
+
+    if (!paymentInfo.phoneNumber || !paymentInfo.transactionId) {
+      toast.error("অনুগ্রহ করে আপনার পেমেন্ট নম্বর এবং ট্রানজ্যাকশন আইডি দিন")
+      return
+    }
+
+    if (!user?._id) {
+      toast.error("অনুগ্রহ করে প্রথমে লগইন করুন")
+      return
+    }
+
+    if (!cartItems.length) {
+      toast.error("কার্ট খালি আছে")
+      return
+    }
+
+    const delivery_address = [
+      customerInfo.address,
+      customerInfo.area,
+      customerInfo.city,
+    ]
+      .filter(Boolean)
+      .join(", ")
+
+    try {
+      setIsProcessing(true)
+
+      // Create order and attach manual payment info (backend should mark it pending/manual)
+      const orderRes = await OrderCreate({
+        userId: user._id,
+        delivery_address,
+        paymentMethod: 'manual',
+        paymentDetails: {
+          providerNumber: paymentInfo.phoneNumber,
+          transactionId: paymentInfo.transactionId,
+        },
+      })
+
+      const dbOrder = orderRes?.data
+      const dbOrderId = dbOrder?._id
+
+      if (!dbOrderId) throw new Error("Order ID missing after creation")
+
+      toast.success("ম্যানুয়াল পেমেন্ট রেকর্ড করা হয়েছে — আমরা যাচাই করে কনফার্ম করব।")
+
+      // redirect user to a simple success/pending page (adjust route to your app)
+      window.location.href = `/payment/${dbOrderId}/success`
+    } catch (err) {
+      console.error("Manual payment submit error:", err)
+      toast.error(err?.message || "ম্যানুয়াল পেমেন্ট সাবমিট করতে সমস্যা হয়েছে")
+      window.location.href = `/payment/${dbOrderId}/fail`
     } finally {
       setIsProcessing(false)
     }
@@ -279,7 +344,7 @@ const CheckoutComponent = () => {
 
           </div>
 
-          {/* Right Column - Order Summary */}
+          {/* Right Column - Order Summary + Payment Methods */}
           <div>
             <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden sticky top-8">
               <div className="bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 p-6">
@@ -308,7 +373,7 @@ const CheckoutComponent = () => {
                       <div className="relative">
                         <img
                           src={item.images?.[0] || "/placeholder.svg"}
-                          alt={item.productId.productName || "Product"}
+                          alt={item.productId?.productName || "Product"}
                           className="w-16 h-16 object-cover rounded-xl shadow-md"
                         />
                         <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
@@ -319,7 +384,7 @@ const CheckoutComponent = () => {
                       {/* Product Info */}
                       <div className="flex-1">
                         <h3 className="font-semibold text-gray-900 text-sm">
-                          {item.productId.productName || "Unnamed Product"}
+                          {item.productId?.productName || "Unnamed Product"}
                         </h3>
 
                         <div className="flex items-center space-x-1 mt-1">
@@ -331,10 +396,10 @@ const CheckoutComponent = () => {
                       {/* Price */}
                       <div className="text-right">
                         <p className="font-bold text-gray-900">
-                          ৳{(item.totalPrice || item.price * item.quantity).toLocaleString()}
+                          ৳{(item.totalPrice || (item.price || 0) * (item.quantity || 1)).toLocaleString()}
                         </p>
                         <p className="text-xs text-gray-500">
-                          ৳{item.price.toLocaleString()} × {item.quantity}
+                          ৳{(item.price || 0).toLocaleString()} × {item.quantity}
                         </p>
                       </div>
                     </div>
@@ -364,20 +429,134 @@ const CheckoutComponent = () => {
                   </div>
                 </div>
 
+                {/* Payment Methods */}
+                <div className="mb-4">
+                  <h4 className="text-sm font-semibold text-gray-700 mb-3">পেমেন্ট মেথড</h4>
+
+                  <div className="space-y-3">
+                    <label className={`flex items-center p-3 rounded-xl border ${selectedPayment === 'manual' ? 'border-blue-400 bg-blue-50' : 'border-gray-200 bg-white'} cursor-pointer`}>
+                      <input
+                        type="radio"
+                        name="payment"
+                        value="manual"
+                        checked={selectedPayment === 'manual'}
+                        onChange={() => setSelectedPayment('manual')}
+                        className="mr-3"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="font-medium">ম্যানুয়াল পেমেন্ট (Bkash / Nagad / Rocket)</div>
+                            <div className="text-xs text-gray-500">আপনি আমাদের প্রদত্ত নম্বরে পেমেন্ট করে ট্রানজ্যাকশন আইডি জমা দেবেন</div>
+                          </div>
+                          <div className="text-sm font-semibold text-gray-700">৳{total.toLocaleString()}</div>
+                        </div>
+
+                        {/* Show payment numbers when selected */}
+                        {selectedPayment === 'manual' && (
+                          <div className="mt-3 grid grid-cols-1 gap-2 text-sm">
+                            <div className="flex items-center justify-between bg-white p-2 rounded-lg border border-gray-200">
+                              <div>
+                                <div className="font-medium">Bkash Personal</div>
+                                <div className="text-xs text-gray-500">01XXXXXXXXX</div>
+                              </div>
+                              <div className="text-xs text-gray-400">Account</div>
+                            </div>
+                            <div className="flex items-center justify-between bg-white p-2 rounded-lg border border-gray-200">
+                              <div>
+                                <div className="font-medium">Nagad</div>
+                                <div className="text-xs text-gray-500">01YYYYYYYYY</div>
+                              </div>
+                              <div className="text-xs text-gray-400">Account</div>
+                            </div>
+
+                            <div className="grid grid-cols-1 gap-2 mt-2">
+                              <input
+                                type="text"
+                                placeholder="পেমেন্ট নম্বর (যেই নম্বর থেকে পেমেন্ট করেছেন)"
+                                value={paymentInfo.phoneNumber}
+                                onChange={(e) => handlePaymentInfoChange('phoneNumber', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-400"
+                              />
+                              <input
+                                type="text"
+                                placeholder="ট্রানজ্যাকশন আইডি (Transaction ID)"
+                                value={paymentInfo.transactionId}
+                                onChange={(e) => handlePaymentInfoChange('transactionId', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-400"
+                              />
+                              <button
+                                onClick={handleManualSubmit}
+                                disabled={isProcessing}
+                                className="w-full mt-2 bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white py-2 rounded-xl font-semibold disabled:opacity-60"
+                              >
+                                {isProcessing ? 'সাবমিট করা হচ্ছে...' : 'ম্যানুয়াল পেমেন্ট সাবমিট করুন'}
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </label>
+
+                    <label className={`flex items-center p-3 rounded-xl border ${selectedPayment === 'ssl' ? 'border-blue-400 bg-blue-50' : 'border-gray-200 bg-white'} cursor-pointer`}>
+                      <input
+                        type="radio"
+                        name="payment"
+                        value="ssl"
+                        checked={selectedPayment === 'ssl'}
+                        onChange={() => setSelectedPayment('ssl')}
+                        className="mr-3"
+                      />
+                      <div className="flex-1 flex items-center justify-between">
+                        <div>
+                          <div className="font-medium">One-click (SSLCommerz)</div>
+                          <div className="text-xs text-gray-500">শুধু ক্লিক করুন এবং পেমেন্ট গেটওয়ে খুলবে</div>
+                        </div>
+                        <div className="text-sm font-semibold text-gray-700">৳{total.toLocaleString()}</div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
                 {/* Secure Badge */}
-                <div className="flex items-center justify-center space-x-2 mb-6 p-3 bg-green-50 rounded-xl">
+                <div className="flex items-center justify-center space-x-2 mb-4 p-3 bg-green-50 rounded-xl">
                   <Shield className="w-5 h-5 text-green-600" />
                   <span className="text-sm text-green-700 font-medium">১০০% নিরাপদ পেমেন্ট</span>
                 </div>
 
-                {/* Order Confirm Button */}
-                <button
-                  onClick={handleProceedToPayment}
-                  disabled={isProcessing}
-                  className="w-full cursor-pointer bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 hover:to-teal-700 text-white py-4 rounded-xl text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  {isProcessing ? "প্রসেসিং হচ্ছে..." : "অর্ডার কনফার্ম করুন"}
-                </button>
+                {/* Action Buttons */}
+                <div className="space-y-3">
+                  <button
+                    onClick={() => {
+                      // one-click SSL
+                      if (selectedPayment !== 'ssl') {
+                        setSelectedPayment('ssl')
+                        return
+                      }
+                      handleProceedToPayment()
+                    }}
+                    disabled={isProcessing}
+                    className="w-full cursor-pointer bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 hover:to-teal-700 text-white py-3 rounded-xl text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {isProcessing ? "প্রসেসিং হচ্ছে..." : "One-Click SSLপেমেন্ট"}
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      // manual: if not selected, set selection. otherwise focus on inputs (no-op)
+                      if (selectedPayment !== 'manual') {
+                        setSelectedPayment('manual')
+                      } else {
+                        // if already selected, scroll to manual inputs
+                        const el = document.querySelector('input[placeholder="ট্রানজ্যাকশন আইডি (Transaction ID)"]')
+                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                      }
+                    }}
+                    className="w-full cursor-pointer border border-gray-300 text-gray-700 py-3 rounded-xl font-semibold transition-all duration-300 hover:bg-gray-50"
+                  >
+                    Pay Manually (Bkash / Nagad)
+                  </button>
+                </div>
 
                 <div className="mt-4 text-center">
                   <p className="text-xs text-gray-500">
@@ -385,10 +564,10 @@ const CheckoutComponent = () => {
                     <span className="text-blue-600 font-medium"> শর্তাবলী</span> মেনে নিচ্ছেন
                   </p>
                 </div>
+
               </div>
             </div>
           </div>
-
 
 
         </div>

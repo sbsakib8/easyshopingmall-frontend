@@ -9,9 +9,9 @@ export default function PaymentCancelled() {
             <div className="bg-white shadow-lg rounded-2xl p-10 max-w-md text-center animate-fadeIn">
                 <AlertTriangle className="mx-auto text-yellow-500 w-20 h-20 mb-4" />
 
-                <h1 className="text-2xl font-bold text-gray-800">Payment Cancelled</h1>
+                <h1 className="text-2xl font-bold text-gray-800">Payment Pending</h1>
                 <p className="text-gray-500 mt-2">
-                    You cancelled the payment process. No amount was charged.
+                    You Panding the payment process. No amount was charged.
                 </p>
 
                 <div className="mt-6 space-y-3">
