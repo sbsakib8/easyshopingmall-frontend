@@ -1,31 +1,24 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { OrderCreate } from "../hook/useOrder";
+import { useCallback, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getCartApi } from "../hook/useCart";
 
-// ✅ Custom hook
-export const useGetCart = (formData) => {
-    const [cart, setCart] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+// Simple hook that returns redux cart and provides a refetch helper
+export const useGetCart = () => {
     const dispatch = useDispatch();
+    const cartState = useSelector((state) => state.cart || { items: [], loading: false, error: null });
+    const user = useSelector((state) => state.user.data);
 
-    const fetchCart = useCallback(async () => {
-        try {
-            setLoading(true);
-            const data = await OrderCreate(formData);
-            setProduct(data.data);
-            setError(null);
-        } catch (err) {
-            setError(err);
-        } finally {
-            setLoading(false);
+    const refetch = useCallback(() => {
+        if (user?._id) {
+            return getCartApi(user._id, dispatch);
         }
-    }, [formData]);
+        return Promise.resolve();
+    }, [user, dispatch]);
 
     useEffect(() => {
-        fetchProduct();
-    }, [fetchOrder]);
+        if (user?._id) getCartApi(user._id, dispatch);
+    }, [user, dispatch]);
 
-    return { cart, loading, error, refetch: fetchCart };
+    return { cart: cartState.items || [], loading: cartState.loading, error: cartState.error, refetch };
 };
