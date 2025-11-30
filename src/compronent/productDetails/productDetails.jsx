@@ -1,8 +1,13 @@
 "use client"
+import { addToCartApi, getCartApi } from '@/src/hook/useCart';
 import { getProductDetailsApi } from '@/src/hook/useProductDetails';
+import { decreaseProductQuantity, increaseProductQuantity } from '@/src/hook/useUpdateProduct';
+import { addToWishlistApi, removeFromWishlistApi } from '@/src/hook/useWishlist';
+import { useGetProduct } from '@/src/utlis/userProduct';
 import { ChevronRight, Heart, Loader, Minus, Plus, RotateCcw, Share2, Shield, ShoppingCart, Star, Truck, Zap } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 
 const ProductDetails = () => {
@@ -11,15 +16,21 @@ const ProductDetails = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.data);
   const { data: wishlist } = useSelector((state) => state.wishlist);
+  const cartItems = useSelector((state) => state.cart.items || []);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [product, setProduct] = useState(null);
+  const [relatedProducts, setRelatedProducts] = useState([]);
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState(null);
   const [selectedColor, setSelectedColor] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
+
+  // Fetch all products for related products
+  const productParams = useMemo(() => ({}), []);
+  const { product: allProductsData } = useGetProduct(productParams);
 
   // Fetch product details
   useEffect(() => {
@@ -28,7 +39,7 @@ const ProductDetails = () => {
         setLoading(true);
         const data = await getProductDetailsApi(params.id);
         if (data) {
-          // Normalize product data
+          // Normalize product data - handle all API fields
           const normalized = {
             id: data._id || data.id,
             name: data.productName || data.name || 'Product',
@@ -39,14 +50,21 @@ const ProductDetails = () => {
             rating: Number(data.ratings ?? data.rating ?? 4) || 4,
             reviews: Number(data.reviews ?? 0) || 0,
             images: data.images || ['/banner/img/placeholder.png'],
-            sizes: data.sizes || [],
-            colors: data.colors || [],
+            sizes: data.productSize ? [data.productSize] : (data.sizes || []),
+            colors: Array.isArray(data.color) ? data.color : (data.colors || []),
             stock: Number(data.productStock ?? data.stock ?? 0) || 0,
             description: data.description || data.productDescription || '',
             specifications: data.specifications || {},
             category: data.category,
             subCategory: data.subCategory,
-            features: data.features || [],
+            features: data.features || (Array.isArray(data.tags) ? data.tags : []),
+            weight: Number(data.productWeight ?? 0) || 0,
+            size: data.productSize || '',
+            sku: data.sku || '',
+            rank: Number(data.productRank ?? 0) || 0,
+            featured: data.featured || false,
+            publish: data.publish || true,
+            tags: Array.isArray(data.tags) ? data.tags : [],
           };
           setProduct(normalized);
           if (normalized.colors?.length > 0) setSelectedColor(normalized.colors[0]);
@@ -64,12 +82,80 @@ const ProductDetails = () => {
     if (params.id) fetchProduct();
   }, [params.id]);
 
+  // Filter related products from same subcategory
+  useEffect(() => {
+    if (!product || !allProductsData || !Array.isArray(allProductsData)) return;
+
+    const normalized = allProductsData.map(p => {
+      let subCategoryVal = 'general';
+      if (Array.isArray(p.subCategory) && p.subCategory.length > 0) {
+        const s0 = p.subCategory[0];
+        subCategoryVal = typeof s0 === 'string' ? s0 : (s0?.name || String(s0));
+      } else if (p.subCategory && typeof p.subCategory === 'object') {
+        subCategoryVal = p.subCategory.name || String(p.subCategory);
+      } else if (p.subCategory) {
+        subCategoryVal = String(p.subCategory);
+      }
+
+      return {
+        id: p._id || p.id,
+        name: p.name || p.productName || 'Product',
+        price: Number(p.price ?? p.sell_price ?? 0) || 0,
+        originalPrice: Number(p.originalPrice ?? p.mrp ?? p.price ?? 0) || 0,
+        image: p.image || p.images?.[0] || '/banner/img/placeholder.png',
+        rating: Number(p.rating ?? 4) || 4,
+        reviews: Number(p.reviews ?? 0) || 0,
+        subCategory: subCategoryVal,
+        discount: Number(p.discount ?? 0) || 0,
+      };
+    });
+
+    // Get related products (same subcategory, max 6)
+    const related = normalized
+      .filter(p => p.subCategory === (typeof product.subCategory === 'string' ? product.subCategory : product.subCategory?.name) && p.id !== product.id)
+      .slice(0, 6);
+
+    setRelatedProducts(related);
+  }, [product, allProductsData]);
+
   const isWishlisted = product && (wishlist || []).some((i) => i.id === product.id);
 
-  const incrementQuantity = () => setQuantity(prev => prev + 1);
-  const decrementQuantity = () => setQuantity(prev => Math.max(1, prev - 1));
+  // Check if product is in cart
+  const cartItem = cartItems.find(item => item.productId._id === product?.id || item.productId.id === product?.id);
 
-  const handleAddToCart = async () => {
+  const incrementQuantity = async () => {
+    const newQuantity = quantity + 1;
+    setQuantity(newQuantity);
+
+    // If product is already in cart, update it
+    if (cartItem && user?._id) {
+      try {
+        await increaseProductQuantity(user._id, product.id, quantity, dispatch);
+        await getCartApi(user._id, dispatch);
+        toast.success('Quantity updated');
+      } catch (err) {
+        console.error('Update cart error:', err);
+        toast.error('Failed to update quantity');
+      }
+    }
+  };
+
+  const decrementQuantity = async () => {
+    const newQuantity = Math.max(1, quantity - 1);
+    setQuantity(newQuantity);
+
+    // If product is already in cart, update it
+    if (cartItem && user?._id) {
+      try {
+        await decreaseProductQuantity(user._id, product.id, quantity, dispatch);
+        await getCartApi(user._id, dispatch);
+        toast.success('Quantity updated');
+      } catch (err) {
+        console.error('Update cart error:', err);
+        toast.error('Failed to update quantity');
+      }
+    }
+  }; const handleAddToCart = async () => {
     if (!user?._id) {
       toast.error('Please sign in to add items to cart');
       return;
@@ -213,6 +299,23 @@ const ProductDetails = () => {
               <p className="text-blue-600 font-semibold text-sm uppercase tracking-wide">
                 {product.brand}
               </p>
+
+              {/* Category & SubCategory Info */}
+              {(product?.category || product?.subCategory) && (
+                <div className="text-xs text-gray-500 mt-1 space-y-1">
+                  {product?.category && (
+                    <p>
+                      <span className="font-semibold">Category:</span> {typeof product.category === 'string' ? product.category : product.category?.name || 'Category'}
+                    </p>
+                  )}
+                  {product?.subCategory && (
+                    <p>
+                      <span className="font-semibold">Subcategory:</span> {typeof product.subCategory === 'string' ? product.subCategory : product.subCategory?.name || 'Subcategory'}
+                    </p>
+                  )}
+                </div>
+              )}
+
               <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mt-2 leading-tight">
                 {product.name}
               </h1>
@@ -405,10 +508,11 @@ const ProductDetails = () => {
                 <p className="text-gray-600 text-lg leading-relaxed mb-6">
                   {product?.description || 'No description available'}
                 </p>
+
                 {product?.features?.length > 0 && (
                   <>
                     <h4 className="text-xl font-semibold mb-4">Key Features:</h4>
-                    <ul className="grid grid-cols-2 gap-2">
+                    <ul className="grid grid-cols-2 gap-2 mb-6">
                       {product.features.map((feature, index) => (
                         <li key={index} className="flex items-center space-x-2">
                           <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
@@ -418,11 +522,71 @@ const ProductDetails = () => {
                     </ul>
                   </>
                 )}
+
+                {product?.tags?.length > 0 && (
+                  <>
+                    <h4 className="text-xl font-semibold mb-4">Tags:</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {product.tags.map((tag, index) => (
+                        <span key={index} className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
             )}
 
             {activeTab === 'specifications' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Display all product specifications and details */}
+                <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                  <span className="font-medium text-gray-900">Product Name:</span>
+                  <span className="text-gray-600">{product?.name}</span>
+                </div>
+                <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                  <span className="font-medium text-gray-900">SKU:</span>
+                  <span className="text-gray-600">{product?.sku || 'N/A'}</span>
+                </div>
+                <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                  <span className="font-medium text-gray-900">Weight:</span>
+                  <span className="text-gray-600">{product?.weight ? `${product.weight} g` : 'N/A'}</span>
+                </div>
+                <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                  <span className="font-medium text-gray-900">Size:</span>
+                  <span className="text-gray-600">{product?.size || 'N/A'}</span>
+                </div>
+                <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                  <span className="font-medium text-gray-900">Stock Available:</span>
+                  <span className={`font-semibold ${product?.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {product?.stock} items
+                  </span>
+                </div>
+                <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                  <span className="font-medium text-gray-900">Rank:</span>
+                  <span className="text-gray-600">{product?.rank || 'N/A'}</span>
+                </div>
+                <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                  <span className="font-medium text-gray-900">Rating:</span>
+                  <span className="text-gray-600">{product?.rating} / 5</span>
+                </div>
+                <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                  <span className="font-medium text-gray-900">Discount:</span>
+                  <span className="text-green-600 font-semibold">{product?.discount}%</span>
+                </div>
+                <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                  <span className="font-medium text-gray-900">Status:</span>
+                  <span className={`px-3 py-1 rounded-full text-sm font-semibold ${product?.publish ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                    {product?.publish ? 'Published' : 'Unpublished'}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                  <span className="font-medium text-gray-900">Featured:</span>
+                  <span className={`px-3 py-1 rounded-full text-sm font-semibold ${product?.featured ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'}`}>
+                    {product?.featured ? 'Yes' : 'No'}
+                  </span>
+                </div>
                 {Object.entries(product?.specifications || {}).map(([key, value]) => (
                   <div key={key} className="flex justify-between items-center py-3 border-b border-gray-100">
                     <span className="font-medium text-gray-900">{key}:</span>
@@ -446,6 +610,81 @@ const ProductDetails = () => {
             )}
           </div>
         </div>
+
+        {/* Related Products Section */}
+        {relatedProducts.length > 0 && (
+          <div className="mt-20 pt-16 border-t border-gray-200">
+            <h2 className="text-3xl font-bold text-gray-900 mb-8">Related Products</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {relatedProducts.map((relProduct) => (
+                <div
+                  key={relProduct.id}
+                  onClick={() => router.push(`/productdetails/${relProduct.id}`)}
+                  className="group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
+                >
+                  <div className="relative overflow-hidden bg-gray-100">
+                    <img
+                      src={relProduct.image}
+                      alt={relProduct.name}
+                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    {relProduct.discount > 0 && (
+                      <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
+                        {relProduct.discount}% OFF
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="p-4">
+                    <h3 className="font-semibold text-gray-800 mb-1 line-clamp-2 group-hover:text-blue-600">
+                      {relProduct.name}
+                    </h3>
+
+                    {/* Rating */}
+                    <div className="flex items-center gap-1 mb-3">
+                      <div className="flex">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`w-3 h-3 ${i < Math.floor(relProduct.rating)
+                              ? 'fill-yellow-400 text-yellow-400'
+                              : 'text-gray-300'
+                              }`}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-xs text-gray-500">({relProduct.reviews})</span>
+                    </div>
+
+                    {/* Price */}
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-lg font-bold text-red-600">
+                        ${relProduct.price.toFixed(2)}
+                      </span>
+                      {relProduct.originalPrice > relProduct.price && (
+                        <span className="text-sm text-gray-400 line-through">
+                          ${relProduct.originalPrice.toFixed(2)}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Quick Actions */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/productdetails/${relProduct.id}`);
+                      }}
+                      className="w-full bg-blue-600 text-white py-2 px-3 rounded font-semibold hover:bg-blue-700 transition-colors duration-300 text-sm flex items-center justify-center gap-2"
+                    >
+                      <ShoppingCart className="w-4 h-4" />
+                      View Product
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

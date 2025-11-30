@@ -1,6 +1,7 @@
 "use client";
 import { getCartApi } from '@/src/hook/useCart';
 import { getWishlistApi } from '@/src/hook/useWishlist';
+import { useCategoryWithSubcategories } from '@/src/utlis/useCategoryWithSubcategories';
 import useWebsiteInfo from '@/src/utlis/useWebsiteInfo';
 import {
   ChevronDown,
@@ -15,15 +16,18 @@ import {
   Zap
 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
+  const [hoveredCategoryId, setHoveredCategoryId] = useState(null);
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [isCurrencyOpen, setIsCurrencyOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const router = useRouter();
 
   const dispatch = useDispatch();
   const { data: wishlistItems } = useSelector((state) => state.wishlist);
@@ -50,18 +54,15 @@ const Header = () => {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const { data: siteInfo, loading: siteLoading } = useWebsiteInfo();
   console.log(siteInfo);
+  // Fetch categories + subcategories from hook
+  const { categories, subcategories, loading: categoriesLoading, getSubcategoriesForCategory } = useCategoryWithSubcategories();
 
-  // Categories data
-  const categories = [
-    { name: 'Electronics', icon: '📱', subcategories: ['Smartphones', 'Laptops', 'Headphones', 'Cameras'] },
-    { name: 'Fashion', icon: '👕', subcategories: ['Men\'s Clothing', 'Women\'s Clothing', 'Shoes', 'Accessories'] },
-    { name: 'Home & Kitchen', icon: '🏠', subcategories: ['Furniture', 'Appliances', 'Decor', 'Kitchen Tools'] },
-    { name: 'Sports & Fitness', icon: '⚽', subcategories: ['Exercise Equipment', 'Sports Gear', 'Outdoor', 'Fitness Accessories'] },
-    { name: 'Books & Media', icon: '📚', subcategories: ['Books', 'Movies', 'Music', 'Games'] },
-    { name: 'Beauty & Health', icon: '💄', subcategories: ['Skincare', 'Makeup', 'Hair Care', 'Health Supplements'] },
-    { name: 'Automotive', icon: '🚗', subcategories: ['Car Parts', 'Accessories', 'Tools', 'Maintenance'] },
-    { name: 'Baby & Kids', icon: '🍼', subcategories: ['Baby Care', 'Toys', 'Kids Clothing', 'Strollers'] }
-  ];
+  // Attach nested subcategory names to each category for the old UI structure
+  const menuCategories = (categories || []).map(cat => ({
+    ...cat,
+    icon: cat.icon || cat.image || null,
+    subcategories: (subcategories || []).filter(s => (s.categoryId === cat.id || s.categoryId?._id === cat.id)).map(s => s.name)
+  }));
 
   // Navigation items
   const navItems = [
@@ -120,6 +121,15 @@ const Header = () => {
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const handleSearch = (q) => {
+    const query = (q || searchQuery || '').trim();
+    if (query) {
+      router.push(`/shop?search=${encodeURIComponent(query)}`);
+    } else {
+      router.push('/shop');
+    }
   };
 
 
@@ -301,17 +311,26 @@ const Header = () => {
                           <span>Shop by Category</span>
                         </h3>
                       </div>
-                      <div className="grid grid-cols-1 z-50 py-2 max-h-96 overflow-y-scroll">
-                        {categories.map((category, index) => (
-                          <div key={index} className="group relative">
-                            <button className="flex items-center space-x-3 w-full px-6 py-4 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 transition-all duration-300 group">
-                              <span className="text-xl transform group-hover:scale-110 transition-transform duration-300">{category.icon}</span>
-                              <span className="font-semibold text-gray-700 group-hover:text-emerald-600">{category.name}</span>
-                              <ChevronDown size={14} className="ml-auto transform -rotate-90 group-hover:text-emerald-600 transition-colors duration-300" />
+                      <div className="grid grid-cols-1 z-60 py-2 max-h-96 overflow-visible">
+                        {menuCategories.map((category, index) => (
+                          <div
+                            key={index}
+                            className="relative"
+                            onMouseEnter={() => setHoveredCategoryId(category.id)}
+                            onMouseLeave={() => setHoveredCategoryId(null)}
+                          >
+                            <button className="flex items-center space-x-3 w-full px-6 py-4 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 transition-all duration-300">
+                              <span className="text-xl">{category.icon}</span>
+                              <span className="font-semibold text-gray-700">{category.name}</span>
+                              <ChevronDown size={14} className="ml-auto transform -rotate-90 transition-colors duration-300" />
                             </button>
 
                             {/* Subcategories */}
-                            <div className="absolute left-full top-0 w-64 bg-white/95 backdrop-blur-md border border-gray-200/60 rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ml-2 overflow-hidden">
+                            <div
+                              className={`absolute left-full top-0 w-64 bg-white/95 backdrop-blur-md border border-gray-200/60 rounded-2xl shadow-2xl transition-all duration-200 ml-2 overflow-visible z-70 ${hoveredCategoryId === category.id ? 'opacity-100 visible translate-x-0' : 'opacity-0 invisible -translate-x-2'}`}
+                              onMouseEnter={() => setHoveredCategoryId(category.id)}
+                              onMouseLeave={() => setHoveredCategoryId(null)}
+                            >
                               <div className="bg-gradient-to-r from-gray-50 to-white p-3 border-b border-gray-200/60">
                                 <h4 className="font-semibold text-gray-800">{category.name}</h4>
                               </div>
@@ -341,12 +360,13 @@ const Header = () => {
                     placeholder="Search for products, categories or brands"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(); }}
                     className="w-full px-4 lg:px-6 py-3 lg:py-4 bg-transparent focus:outline-none text-gray-700 placeholder-gray-500 font-medium"
                   />
                 </div>
 
                 {/* Search Button */}
-                <button className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-6 lg:px-8 py-3 lg:py-4 hover:from-emerald-700 hover:to-teal-700 transition-all duration-300 flex items-center space-x-2 group shadow-lg">
+                <button onClick={() => handleSearch()} className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-6 lg:px-8 py-3 lg:py-4 hover:from-emerald-700 hover:to-teal-700 transition-all duration-300 flex items-center space-x-2 group shadow-lg">
                   <Search size={16} className="group-hover:scale-110 transition-transform duration-300" />
                   <span className="font-semibold hidden lg:inline">Search</span>
                 </button>
@@ -426,10 +446,11 @@ const Header = () => {
                   placeholder="Search products..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(); }}
                   className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-transparent focus:outline-none text-gray-700 placeholder-gray-500 font-medium text-sm sm:text-base"
                 />
               </div>
-              <button className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 sm:px-6 py-2 sm:py-3 hover:from-emerald-700 hover:to-teal-700 transition-all duration-300">
+              <button onClick={() => handleSearch()} className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 sm:px-6 py-2 sm:py-3 hover:from-emerald-700 hover:to-teal-700 transition-all duration-300">
                 <Search size={16} className="sm:w-5 sm:h-5" />
               </button>
             </div>
@@ -476,7 +497,7 @@ const Header = () => {
         {/* Enhanced Mobile Menu - Fully Responsive */}
         {isMobileMenuOpen && (
           <div className="lg:hidden bg-white/95 backdrop-blur-md border-t border-gray-200/60 animate-in slide-in-from-top-5 duration-300">
-            <nav className="px-2 sm:px-4 py-3 sm:py-4 space-y-1 sm:space-y-2 max-h-96 overflow-y-auto">
+            <nav className="px-2 sm:px-4 py-3 sm:py-4 space-y-1 sm:space-y-2 max-h-96 overflow-visible">
               {navItems.map((item, index) => (
                 <Link
                   key={index}
@@ -504,7 +525,7 @@ const Header = () => {
 
                 {isCategoriesOpen && (
                   <div className="mt-2 ml-2 sm:ml-4 space-y-1 bg-gradient-to-r from-gray-50 to-white rounded-xl p-2 animate-in slide-in-from-top-3 duration-300">
-                    {categories.map((category, index) => (
+                    {menuCategories.map((category, index) => (
                       <div key={index} className="group">
                         <a
                           href="#"
