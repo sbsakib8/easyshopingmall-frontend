@@ -2,9 +2,10 @@
 import { addToCartApi, getCartApi, removeCartItemApi, updateCartItemApi } from '@/src/hook/useCart';
 import { addToWishlistApi, removeFromWishlistApi } from '@/src/hook/useWishlist';
 import { useGetProduct } from '@/src/utlis/userProduct';
+import { useSearchProduct } from '@/src/utlis/useSearchProduct';
 import { useWishlist } from '@/src/utlis/useWishList';
 import { ChevronDown, Filter, Grid, Heart, List, Minus, Plus, Search, ShoppingCart, SlidersHorizontal, Star, X } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
@@ -16,6 +17,7 @@ const ShopPage = () => {
   // memoize params to avoid passing a new object each render
   const productParams = useMemo(() => ({}), []);
   const { product, loading, error, refetch } = useGetProduct(productParams);
+
 
   const [allProducts, setAllProducts] = useState([]);
 
@@ -61,6 +63,7 @@ const ShopPage = () => {
   const [viewMode, setViewMode] = useState('grid');
   const [sortBy, setSortBy] = useState('name');
   const [filterCategory, setFilterCategory] = useState('all');
+  const [filterSubCategory, setFilterSubCategory] = useState('all');
   const [filterBrand, setFilterBrand] = useState('all');
   const [filterGender, setFilterGender] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
@@ -71,8 +74,87 @@ const ShopPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 8;
 
+  const searchParams = useSearchParams();
+  const urlSearch = searchParams?.get('search') || '';
+
+  // when user navigates with ?search=..., call server-side search
+  const { data: searchData, loading: searchLoading, error: searchError, refetch: refetchSearch } = useSearchProduct({ search: urlSearch, page: currentPage, limit: 200 });
+
+  // keep the local search input in sync with URL search param
+  useEffect(() => {
+    if (urlSearch) setSearchTerm(urlSearch);
+    else setSearchTerm('');
+  }, [urlSearch]);
+
   // Filter and search products
   useEffect(() => {
+    // If there's a search query param, prefer server-side search results
+    if (urlSearch) {
+      const list = searchData?.products ?? searchData?.data ?? searchData ?? [];
+      if (Array.isArray(list) && list.length > 0) {
+        const normalized = list.map((p) => {
+          // normalize category to a string (API may return object or array)
+          let categoryVal = 'uncategorized';
+          if (Array.isArray(p.category) && p.category.length > 0) {
+            const c0 = p.category[0];
+            categoryVal = typeof c0 === 'string' ? c0 : (c0?.name || String(c0));
+          } else if (p.category && typeof p.category === 'object') {
+            categoryVal = p.category.name || String(p.category);
+          } else if (p.category) {
+            categoryVal = String(p.category);
+          }
+
+          // normalize subCategory
+          let subCategoryVal = 'general';
+          if (Array.isArray(p.subCategory) && p.subCategory.length > 0) {
+            const s0 = p.subCategory[0];
+            subCategoryVal = typeof s0 === 'string' ? s0 : (s0?.name || String(s0));
+          } else if (p.subCategory && typeof p.subCategory === 'object') {
+            subCategoryVal = p.subCategory.name || String(p.subCategory);
+          } else if (p.subCategory) {
+            subCategoryVal = String(p.subCategory);
+          }
+
+          return {
+            id: p._id || p.id || (p._id?.toString && p._id.toString()) || String(p.id || ''),
+            name: p.name || p.productName || p.title || 'Untitled',
+            price: Number(p.price ?? p.sell_price ?? p.sellingPrice ?? p.amount ?? 0) || 0,
+            originalPrice: Number(p.originalPrice ?? p.mrp ?? p.price ?? p.sell_price) || (Number(p.price ?? 0) || 0),
+            category: categoryVal,
+            subCategory: subCategoryVal,
+            brand: p.brand || p.manufacturer || 'Brand',
+            size: p.size || p.sizes || p.productSize || [],
+            color: p.color || p.colors || p.color || [],
+            rating: Number(p.rating ?? p.ratings) || 4,
+            reviews: Number(p.reviews ?? 0) || 0,
+            image: p.image || p.images?.[0] || '/banner/img/placeholder.png',
+            inStock: (typeof p.stock !== 'undefined' ? p.stock : (p.productStock ?? p.quantity ?? p.qty ?? 0)) > 0,
+            isNew: p.isNew || p.is_new || p.featured || false,
+            discount: Number(p.discount) || Number(p.offerPercent) || 0,
+            gender: p.gender || 'unisex',
+          };
+        });
+
+        setAllProducts(normalized);
+        setProducts(normalized);
+        try {
+          const prices = normalized.map(p => Number(p.price) || 0).filter(n => !Number.isNaN(n));
+          if (prices.length > 0) {
+            const actualMin = Math.min(...prices);
+            const actualMax = Math.max(...prices);
+            if (priceRange[0] === 0 && priceRange[1] === 300) {
+              setPriceRange([Math.floor(actualMin), Math.ceil(actualMax)]);
+            }
+          }
+        } catch (e) { }
+      } else {
+        setAllProducts([]);
+        setProducts([]);
+      }
+
+      return;
+    }
+
     // API may return different shapes:
     // - { products: [...] }
     // - array (already product.data set by hook)
@@ -91,12 +173,24 @@ const ShopPage = () => {
           categoryVal = String(p.category);
         }
 
+        // normalize subCategory
+        let subCategoryVal = 'general';
+        if (Array.isArray(p.subCategory) && p.subCategory.length > 0) {
+          const s0 = p.subCategory[0];
+          subCategoryVal = typeof s0 === 'string' ? s0 : (s0?.name || String(s0));
+        } else if (p.subCategory && typeof p.subCategory === 'object') {
+          subCategoryVal = p.subCategory.name || String(p.subCategory);
+        } else if (p.subCategory) {
+          subCategoryVal = String(p.subCategory);
+        }
+
         return {
           id: p._id || p.id || (p._id?.toString && p._id.toString()) || String(p.id || ''),
           name: p.name || p.productName || p.title || 'Untitled',
           price: Number(p.price ?? p.sell_price ?? p.sellingPrice ?? p.amount ?? 0) || 0,
           originalPrice: Number(p.originalPrice ?? p.mrp ?? p.price ?? p.sell_price) || (Number(p.price ?? 0) || 0),
           category: categoryVal,
+          subCategory: subCategoryVal,
           brand: p.brand || p.manufacturer || 'Brand',
           size: p.size || p.sizes || p.productSize || [],
           color: p.color || p.colors || p.color || [],
@@ -131,7 +225,7 @@ const ShopPage = () => {
       setAllProducts([]);
       setProducts([]);
     }
-  }, [product]);
+  }, [product, urlSearch, searchData]);
 
   useEffect(() => {
     let filtered = [...allProducts];
@@ -147,6 +241,11 @@ const ShopPage = () => {
     // Category filter
     if (filterCategory !== 'all') {
       filtered = filtered.filter(product => product.category === filterCategory);
+    }
+
+    // SubCategory filter
+    if (filterSubCategory !== 'all') {
+      filtered = filtered.filter(product => product.subCategory === filterSubCategory);
     }
 
     // Brand filter
@@ -189,7 +288,7 @@ const ShopPage = () => {
 
     setProducts(filtered);
     setCurrentPage(1);
-  }, [searchTerm, filterCategory, filterBrand, filterGender, priceRange, ratingFilter, sortBy, allProducts]);
+  }, [searchTerm, filterCategory, filterSubCategory, filterBrand, filterGender, priceRange, ratingFilter, sortBy, allProducts]);
 
   // Add to cart (uses API + redux)
   const addToCart = async (product) => {
@@ -279,11 +378,15 @@ const ShopPage = () => {
   const totalPages = Math.ceil(products.length / productsPerPage);
 
   const categories = ['all', ...Array.from(new Set(allProducts.map(p => p.category)))];
+  const subCategories = filterCategory === 'all'
+    ? ['all', ...Array.from(new Set(allProducts.map(p => p.subCategory)))]
+    : ['all', ...Array.from(new Set(allProducts.filter(p => p.category === filterCategory).map(p => p.subCategory)))];
   const brands = ['all', ...Array.from(new Set(allProducts.map(p => p.brand)))];
   const genders = ['all', 'men', 'women', 'unisex'];
 
   const clearFilters = () => {
     setFilterCategory('all');
+    setFilterSubCategory('all');
     setFilterBrand('all');
     setFilterGender('all');
     setPriceRange([0, 300]);
@@ -447,7 +550,10 @@ const ShopPage = () => {
                         type="radio"
                         name="category"
                         checked={filterCategory === category}
-                        onChange={() => setFilterCategory(category)}
+                        onChange={() => {
+                          setFilterCategory(category);
+                          setFilterSubCategory('all');
+                        }}
                         className="text-purple-600 focus:ring-purple-500"
                       />
                       <span className="capitalize text-gray-700">
@@ -457,6 +563,29 @@ const ShopPage = () => {
                   ))}
                 </div>
               </div>
+
+              {/* Subcategories */}
+              {subCategories.length > 1 && (
+                <div className="bg-white p-6 rounded-lg shadow-md">
+                  <h3 className="font-bold text-lg mb-4 text-gray-800">Subcategories</h3>
+                  <div className="space-y-2">
+                    {subCategories.map(subcat => (
+                      <label key={subcat} className="flex items-center space-x-2 hover:bg-gray-50 p-2 rounded cursor-pointer">
+                        <input
+                          type="radio"
+                          name="subcategory"
+                          checked={filterSubCategory === subcat}
+                          onChange={() => setFilterSubCategory(subcat)}
+                          className="text-purple-600 focus:ring-purple-500"
+                        />
+                        <span className="capitalize text-gray-700">
+                          {subcat === 'all' ? 'All Subcategories' : subcat.replace('-', ' ')}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Select Brands */}
               <div className="bg-white p-6 rounded-lg shadow-md">
@@ -536,7 +665,8 @@ const ShopPage = () => {
                 {currentProducts.map((product, index) => (
                   <div
                     key={product.id}
-                    className={`group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 ${viewMode === 'list' ? 'flex' : ''
+                    onClick={() => router.push(`/productdetails/${product.id}`)}
+                    className={`group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 cursor-pointer ${viewMode === 'list' ? 'flex' : ''
                       }`}
                   >
                     <div className={`relative ${viewMode === 'list' ? 'w-48' : ''}`}>
@@ -564,7 +694,10 @@ const ShopPage = () => {
                       {/* Action Buttons */}
                       <div className="absolute top-3 right-3 space-y-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <button
-                          onClick={() => toggleWishlist(product)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleWishlist(product);
+                          }}
                           className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors duration-300"
                         >
                           <Heart
@@ -588,8 +721,7 @@ const ShopPage = () => {
                     <div className={`p-4 ${viewMode === 'list' ? 'flex-1 flex flex-col justify-between' : ''}`}>
                       <div>
                         <h3
-                          onClick={() => router.push(`/productdetails/${product.id}`)}
-                          className="font-semibold text-gray-800 mb-1 group-hover:text-purple-600 transition-colors duration-300 cursor-pointer hover:underline"
+                          className="font-semibold text-gray-800 mb-1 group-hover:text-purple-600 transition-colors duration-300"
                         >
                           {product.name}
                         </h3>
@@ -627,7 +759,10 @@ const ShopPage = () => {
 
                         {/* Add to Cart */}
                         <button
-                          onClick={() => addToCart(product)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            addToCart(product);
+                          }}
                           disabled={!product.inStock}
                           className={`w-full py-2 px-4 rounded font-semibold transition-all duration-300 text-sm ${product.inStock
                             ? 'bg-green-600 text-white hover:bg-green-700 transform hover:scale-105'

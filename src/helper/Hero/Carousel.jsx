@@ -1,33 +1,20 @@
 "use client";
-import React from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useGetHomeBanner } from '@/src/utlis/useHomeBanner';
-
-const slides = [
-  {
-    title: "Explore New Horizons",
-    description: "Discover breathtaking places and incredible adventures.",
-    image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80",
-  },
-  {
-    title: "Urban Lifestyle",
-    description: "Feel the vibe of vibrant cities across the globe.",
-    image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1600&q=80",
-  },
-  {
-    title: "Nature & Relaxation",
-    description: "Find your peace in nature's embrace.",
-    image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=80",
-  },
-];
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import React from 'react';
 
 const Carousel = () => {
   const { homebanner, loading, error, refetch } = useGetHomeBanner();
   const [currentSlide, setCurrentSlide] = React.useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = React.useState(true);
 
-  const slides = homebanner || [];
-  console.log('slide', slides)
+  // Filter only active banners from API
+  const slides = React.useMemo(() => {
+    if (!homebanner || !Array.isArray(homebanner)) return [];
+    return homebanner.filter(banner => banner.active === true);
+  }, [homebanner]);
+
+  console.log('Active slides:', slides)
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % slides.length);
@@ -100,7 +87,7 @@ const Carousel = () => {
                 }`}
             >
               <img
-                src={slide.images}
+                src={slide.images?.[0] || slide.image}
                 alt={slide.title}
                 className="w-full h-full object-cover"
               />
@@ -114,7 +101,7 @@ const Carousel = () => {
                     {slide.title}
                   </h2>
                   <p className="text-sm md:text-lg lg:text-xl opacity-90 leading-relaxed">
-                    {slide.description}
+                    {slide.Description || slide.description || ''}
                   </p>
                 </div>
               </div>
@@ -184,7 +171,7 @@ const Carousel = () => {
               }`}
           >
             <img
-              src={slide.images}
+              src={slide.images?.[0] || slide.image}
               alt={slide.title}
               className="w-16 h-10 object-cover"
             />
