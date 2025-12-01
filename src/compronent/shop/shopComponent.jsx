@@ -1,151 +1,63 @@
 "use client";
-import React, { useState, useEffect } from 'react';
-import { ShoppingCart, Heart, Star, Filter, Search, Grid, List, ChevronDown, Plus, Minus, X, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
+import { addToCartApi, getCartApi, removeCartItemApi, updateCartItemApi } from '@/src/hook/useCart';
+import { addToWishlistApi, removeFromWishlistApi } from '@/src/hook/useWishlist';
+import { useGetProduct } from '@/src/utlis/userProduct';
+import { useWishlist } from '@/src/utlis/useWishList';
+import { ChevronDown, Filter, Grid, Heart, List, Minus, Plus, Search, ShoppingCart, SlidersHorizontal, Star, X } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
+import toast from 'react-hot-toast';
+import { useDispatch, useSelector } from 'react-redux';
 
 const ShopPage = () => {
-  // Clothing products data
-  const [allProducts] = useState([
-    {
-      id: 1,
-      name: "Premium Cotton T-Shirt",
-      price: 29.00,
-      originalPrice: 39.00,
-      category: "t-shirts",
-      brand: "Urban Style",
-      size: ["S", "M", "L", "XL"],
-      color: ["White", "Black", "Gray"],
-      rating: 4.5,
-      reviews: 234,
-      image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400",
-      inStock: true,
-      isNew: true,
-      discount: 26,
-      gender: "men"
-    },
-    {
-      id: 2,
-      name: "Casual Denim Jeans",
-      price: 78.00,
-      originalPrice: 98.00,
-      category: "jeans",
-      brand: "Denim Co",
-      size: ["28", "30", "32", "34", "36"],
-      color: ["Blue", "Black", "Light Blue"],
-      rating: 4.3,
-      reviews: 156,
-      image: "https://images.unsplash.com/photo-1542272604-787c3835535d?w=400",
-      inStock: true,
-      isNew: false,
-      discount: 20,
-      gender: "men"
-    },
-    {
-      id: 3,
-      name: "Elegant Summer Dress",
-      price: 89.00,
-      originalPrice: 120.00,
-      category: "dresses",
-      brand: "Fashion Queen",
-      size: ["XS", "S", "M", "L"],
-      color: ["Red", "Blue", "White", "Pink"],
-      rating: 4.7,
-      reviews: 298,
-      image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400",
-      inStock: true,
-      isNew: true,
-      discount: 26,
-      gender: "women"
-    },
-    {
-      id: 4,
-      name: "Cozy Winter Sweater",
-      price: 65.00,
-      originalPrice: 85.00,
-      category: "sweaters",
-      brand: "Warm Wear",
-      size: ["S", "M", "L", "XL"],
-      color: ["Gray", "Navy", "Burgundy"],
-      rating: 4.4,
-      reviews: 89,
-      image: "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400",
-      inStock: false,
-      isNew: false,
-      discount: 24,
-      gender: "unisex"
-    },
-    {
-      id: 5,
-      name: "Sport Running Shoes",
-      price: 120.00,
-      originalPrice: 150.00,
-      category: "shoes",
-      brand: "Athletic Pro",
-      size: ["7", "8", "9", "10", "11"],
-      color: ["White", "Black", "Red"],
-      rating: 4.6,
-      reviews: 445,
-      image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400",
-      inStock: true,
-      isNew: true,
-      discount: 20,
-      gender: "unisex"
-    },
-    {
-      id: 6,
-      name: "Leather Jacket Premium",
-      price: 199.00,
-      originalPrice: 250.00,
-      category: "jackets",
-      brand: "Leather Craft",
-      size: ["S", "M", "L", "XL"],
-      color: ["Black", "Brown"],
-      rating: 4.8,
-      reviews: 123,
-      image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400",
-      inStock: true,
-      isNew: false,
-      discount: 20,
-      gender: "men"
-    },
-    {
-      id: 7,
-      name: "Floral Print Blouse",
-      price: 45.00,
-      originalPrice: 60.00,
-      category: "blouses",
-      brand: "Elegant Touch",
-      size: ["XS", "S", "M", "L"],
-      color: ["White", "Pink", "Blue"],
-      rating: 4.2,
-      reviews: 167,
-      image: "https://images.unsplash.com/photo-1583496661160-fb5886a13d27?w=400",
-      inStock: true,
-      isNew: true,
-      discount: 25,
-      gender: "women"
-    },
-    {
-      id: 8,
-      name: "Classic Formal Shirt",
-      price: 55.00,
-      originalPrice: 75.00,
-      category: "shirts",
-      brand: "Business Style",
-      size: ["S", "M", "L", "XL", "XXL"],
-      color: ["White", "Blue", "Light Blue"],
-      rating: 4.3,
-      reviews: 201,
-      image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400",
-      inStock: true,
-      isNew: false,
-      discount: 27,
-      gender: "men"
-    }
-  ]);
+  const router = useRouter();
 
-  const [products, setProducts] = useState(allProducts);
-  const [cart, setCart] = useState([]);
-  const [wishlist, setWishlist] = useState([]);
+  // Clothing products data
+  // memoize params to avoid passing a new object each render
+  const productParams = useMemo(() => ({}), []);
+  const { product, loading, error, refetch } = useGetProduct(productParams);
+
+  const [allProducts, setAllProducts] = useState([]);
+
+  const [products, setProducts] = useState([]);
+  const dispatch = useDispatch();
+
+  // Redux-backed cart & wishlist
+  const reduxCart = useSelector((state) => state.cart.items || []);
+  // Normalize redux cart items for UI
+  const cart = useMemo(() => {
+    return (reduxCart || []).map((item) => {
+      if (item?.productId) {
+        const prod = item.productId;
+        return {
+          id: prod._id || prod.id || String(prod?._id || prod?.id || ''),
+          name: prod.productName || prod.name || prod.title || 'Product',
+          image: prod.images?.[0] || prod.image || '/banner/img/placeholder.png',
+          price: Number(prod.price ?? prod.sell_price ?? prod.amount) || 0,
+          quantity: item.quantity || 1,
+          brand: prod.brand || prod.manufacturer || '',
+        };
+      }
+
+      return {
+        id: item.id || item._id || '',
+        name: item.name || item.productName || 'Product',
+        image: item.image || item.images?.[0] || '/banner/img/placeholder.png',
+        price: Number(item.price) || 0,
+        quantity: item.quantity || 1,
+        brand: item.brand || '',
+      };
+    });
+  }, [reduxCart]);
+  const user = useSelector((state) => state.user.data);
+  const { wishlist } = useWishlist();
+
+  // Load cart for logged-in user
+  useEffect(() => {
+    if (user?._id) {
+      getCartApi(user._id, dispatch);
+    }
+  }, [user, dispatch]);
   const [viewMode, setViewMode] = useState('grid');
   const [sortBy, setSortBy] = useState('name');
   const [filterCategory, setFilterCategory] = useState('all');
@@ -161,7 +73,68 @@ const ShopPage = () => {
 
   // Filter and search products
   useEffect(() => {
-    let filtered = allProducts;
+    // API may return different shapes:
+    // - { products: [...] }
+    // - array (already product.data set by hook)
+    // - { data: [...] }
+    const list = product?.products ?? product?.data ?? product ?? [];
+    if (Array.isArray(list) && list.length > 0) {
+      const normalized = list.map((p) => {
+        // normalize category to a string (API may return object or array)
+        let categoryVal = 'uncategorized';
+        if (Array.isArray(p.category) && p.category.length > 0) {
+          const c0 = p.category[0];
+          categoryVal = typeof c0 === 'string' ? c0 : (c0?.name || String(c0));
+        } else if (p.category && typeof p.category === 'object') {
+          categoryVal = p.category.name || String(p.category);
+        } else if (p.category) {
+          categoryVal = String(p.category);
+        }
+
+        return {
+          id: p._id || p.id || (p._id?.toString && p._id.toString()) || String(p.id || ''),
+          name: p.name || p.productName || p.title || 'Untitled',
+          price: Number(p.price ?? p.sell_price ?? p.sellingPrice ?? p.amount ?? 0) || 0,
+          originalPrice: Number(p.originalPrice ?? p.mrp ?? p.price ?? p.sell_price) || (Number(p.price ?? 0) || 0),
+          category: categoryVal,
+          brand: p.brand || p.manufacturer || 'Brand',
+          size: p.size || p.sizes || p.productSize || [],
+          color: p.color || p.colors || p.color || [],
+          rating: Number(p.rating ?? p.ratings) || 4,
+          reviews: Number(p.reviews ?? 0) || 0,
+          image: p.image || p.images?.[0] || '/banner/img/placeholder.png',
+          inStock: (typeof p.stock !== 'undefined' ? p.stock : (p.productStock ?? p.quantity ?? p.qty ?? 0)) > 0,
+          isNew: p.isNew || p.is_new || p.featured || false,
+          discount: Number(p.discount) || Number(p.offerPercent) || 0,
+          gender: p.gender || 'unisex',
+        };
+      });
+
+      setAllProducts(normalized);
+      setProducts(normalized);
+      // If user hasn't changed the price range (default [0,300]),
+      // expand it to cover actual product prices so items >300 aren't hidden.
+      try {
+        const prices = normalized.map(p => Number(p.price) || 0).filter(n => !Number.isNaN(n));
+        if (prices.length > 0) {
+          const actualMin = Math.min(...prices);
+          const actualMax = Math.max(...prices);
+          // only update if current range is the initial default
+          if (priceRange[0] === 0 && priceRange[1] === 300) {
+            setPriceRange([Math.floor(actualMin), Math.ceil(actualMax)]);
+          }
+        }
+      } catch (e) {
+        // ignore
+      }
+    } else {
+      setAllProducts([]);
+      setProducts([]);
+    }
+  }, [product]);
+
+  useEffect(() => {
+    let filtered = [...allProducts];
 
     // Search filter
     if (searchTerm) {
@@ -187,7 +160,7 @@ const ShopPage = () => {
     }
 
     // Price range filter
-    filtered = filtered.filter(product => 
+    filtered = filtered.filter(product =>
       product.price >= priceRange[0] && product.price <= priceRange[1]
     );
 
@@ -218,45 +191,81 @@ const ShopPage = () => {
     setCurrentPage(1);
   }, [searchTerm, filterCategory, filterBrand, filterGender, priceRange, ratingFilter, sortBy, allProducts]);
 
-  // Add to cart
-  const addToCart = (product) => {
-    const existingItem = cart.find(item => item.id === product.id);
-    if (existingItem) {
-      setCart(cart.map(item =>
-        item.id === product.id
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      ));
-    } else {
-      setCart([...cart, { ...product, quantity: 1 }]);
+  // Add to cart (uses API + redux)
+  const addToCart = async (product) => {
+    if (!user?._id) {
+      toast.error('Please sign in to add items to cart');
+      return;
+    }
+
+    try {
+      await addToCartApi(
+        {
+          userId: user._id,
+          productId: product.id,
+          quantity: 1,
+          price: product.price,
+        },
+        dispatch
+      );
+      toast.success(`${product.name} added to cart`);
+      // refresh cart
+      await getCartApi(user._id, dispatch);
+    } catch (err) {
+      console.error('Add to cart error:', err);
+      const msg = err?.response?.data?.message || 'Failed to add to cart';
+      toast.error(msg);
     }
   };
 
-  // Remove from cart
-  const removeFromCart = (productId) => {
-    setCart(cart.filter(item => item.id !== productId));
+  // Remove from cart (uses API + redux)
+  const removeFromCart = async (productId) => {
+    if (!user?._id) {
+      // optimistic local fallback (should rarely happen)
+      return;
+    }
+    try {
+      await removeCartItemApi(user._id, productId, dispatch);
+      toast.success('Removed from cart');
+      await getCartApi(user._id, dispatch);
+    } catch (err) {
+      console.error('Remove from cart error:', err);
+      toast.error('Failed to remove item');
+    }
   };
 
-  // Update quantity
-  const updateQuantity = (productId, newQuantity) => {
+  // Update quantity (API + redux)
+  const updateQuantity = async (productId, newQuantity) => {
+    if (!user?._id) {
+      return;
+    }
     if (newQuantity === 0) {
-      removeFromCart(productId);
-    } else {
-      setCart(cart.map(item =>
-        item.id === productId
-          ? { ...item, quantity: newQuantity }
-          : item
-      ));
+      await removeFromCart(productId);
+      return;
+    }
+    try {
+      await updateCartItemApi({ userId: user._id, productId, quantity: newQuantity }, dispatch);
+      await getCartApi(user._id, dispatch);
+    } catch (err) {
+      console.error('Update cart quantity error:', err);
+      toast.error('Failed to update quantity');
     }
   };
 
-  // Toggle wishlist
-  const toggleWishlist = (product) => {
-    const isInWishlist = wishlist.some(item => item.id === product.id);
-    if (isInWishlist) {
-      setWishlist(wishlist.filter(item => item.id !== product.id));
-    } else {
-      setWishlist([...wishlist, product]);
+  // Toggle wishlist (uses API + redux)
+  const toggleWishlist = async (product) => {
+    try {
+      const exists = (wishlist || []).some((i) => i.id === product.id);
+      if (exists) {
+        await removeFromWishlistApi(product.id, dispatch);
+        toast.success('Removed from wishlist');
+      } else {
+        await addToWishlistApi(product.id, dispatch);
+        toast.success('Added to wishlist');
+      }
+    } catch (err) {
+      console.error('Wishlist toggle error:', err);
+      toast.error('Failed to update wishlist');
     }
   };
 
@@ -269,8 +278,8 @@ const ShopPage = () => {
   const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
   const totalPages = Math.ceil(products.length / productsPerPage);
 
-  const categories = ['all', 't-shirts', 'jeans', 'dresses', 'sweaters', 'shoes', 'jackets', 'blouses', 'shirts'];
-  const brands = ['all', 'Urban Style', 'Denim Co', 'Fashion Queen', 'Warm Wear', 'Athletic Pro', 'Leather Craft', 'Elegant Touch', 'Business Style'];
+  const categories = ['all', ...Array.from(new Set(allProducts.map(p => p.category)))];
+  const brands = ['all', ...Array.from(new Set(allProducts.map(p => p.brand)))];
   const genders = ['all', 'men', 'women', 'unisex'];
 
   const clearFilters = () => {
@@ -284,7 +293,7 @@ const ShopPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      
+
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Mobile Search */}
         <div className="md:hidden mb-6">
@@ -305,26 +314,24 @@ const ShopPage = () => {
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
             <div className="flex items-center gap-4 flex-wrap">
               <span className="text-gray-600 font-medium">Showing {products.length} results</span>
-              
+
               {/* Quick Filters */}
               <div className="flex gap-2">
                 <button
                   onClick={() => setFilterGender(filterGender === 'men' ? 'all' : 'men')}
-                  className={`px-3 py-1 rounded-full text-sm transition-all duration-300 ${
-                    filterGender === 'men'
-                      ? 'bg-purple-100 text-purple-700 border border-purple-300'
-                      : 'bg-gray-100 hover:bg-gray-200'
-                  }`}
+                  className={`px-3 py-1 rounded-full text-sm transition-all duration-300 ${filterGender === 'men'
+                    ? 'bg-purple-100 text-purple-700 border border-purple-300'
+                    : 'bg-gray-100 hover:bg-gray-200'
+                    }`}
                 >
                   Men
                 </button>
                 <button
                   onClick={() => setFilterGender(filterGender === 'women' ? 'all' : 'women')}
-                  className={`px-3 py-1 rounded-full text-sm transition-all duration-300 ${
-                    filterGender === 'women'
-                      ? 'bg-purple-100 text-purple-700 border border-purple-300'
-                      : 'bg-gray-100 hover:bg-gray-200'
-                  }`}
+                  className={`px-3 py-1 rounded-full text-sm transition-all duration-300 ${filterGender === 'women'
+                    ? 'bg-purple-100 text-purple-700 border border-purple-300'
+                    : 'bg-gray-100 hover:bg-gray-200'
+                    }`}
                 >
                   Women
                 </button>
@@ -359,17 +366,15 @@ const ShopPage = () => {
               <div className="flex border border-gray-300 rounded-lg overflow-hidden">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`p-2 transition-colors duration-300 ${
-                    viewMode === 'grid' ? 'bg-purple-500 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
-                  }`}
+                  className={`p-2 transition-colors duration-300 ${viewMode === 'grid' ? 'bg-purple-500 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
+                    }`}
                 >
                   <Grid className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`p-2 transition-colors duration-300 ${
-                    viewMode === 'list' ? 'bg-purple-500 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
-                  }`}
+                  className={`p-2 transition-colors duration-300 ${viewMode === 'list' ? 'bg-purple-500 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'
+                    }`}
                 >
                   <List className="w-5 h-5" />
                 </button>
@@ -490,9 +495,8 @@ const ShopPage = () => {
                         {[...Array(5)].map((_, i) => (
                           <Star
                             key={i}
-                            className={`w-4 h-4 ${
-                              i < rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
-                            }`}
+                            className={`w-4 h-4 ${i < rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
+                              }`}
                           />
                         ))}
                         <span className="text-gray-600 text-sm">& Up</span>
@@ -525,27 +529,24 @@ const ShopPage = () => {
 
             {/* Products */}
             {products.length > 0 && (
-              <div className={`${
-                viewMode === 'grid'
-                  ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'
-                  : 'space-y-6'
-              }`}>
+              <div className={`${viewMode === 'grid'
+                ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'
+                : 'space-y-6'
+                }`}>
                 {currentProducts.map((product, index) => (
                   <div
                     key={product.id}
-                    className={`group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 ${
-                      viewMode === 'list' ? 'flex' : ''
-                    }`}
+                    className={`group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 ${viewMode === 'list' ? 'flex' : ''
+                      }`}
                   >
                     <div className={`relative ${viewMode === 'list' ? 'w-48' : ''}`}>
                       <img
                         src={product.image}
                         alt={product.name}
-                        className={`w-full object-cover group-hover:scale-105 transition-transform duration-500 ${
-                          viewMode === 'list' ? 'h-full' : 'h-56'
-                        }`}
+                        className={`w-full object-cover group-hover:scale-105 transition-transform duration-500 ${viewMode === 'list' ? 'h-full' : 'h-56'
+                          }`}
                       />
-                      
+
                       {/* Badges */}
                       <div className="absolute top-3 left-3 space-y-1">
                         {product.isNew && (
@@ -567,11 +568,10 @@ const ShopPage = () => {
                           className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors duration-300"
                         >
                           <Heart
-                            className={`w-4 h-4 ${
-                              wishlist.some(item => item.id === product.id)
-                                ? 'fill-red-500 text-red-500'
-                                : 'text-gray-600'
-                            }`}
+                            className={`w-4 h-4 ${wishlist.some(item => item.id === product.id)
+                              ? 'fill-red-500 text-red-500'
+                              : 'text-gray-600'
+                              }`}
                           />
                         </button>
                       </div>
@@ -587,22 +587,24 @@ const ShopPage = () => {
 
                     <div className={`p-4 ${viewMode === 'list' ? 'flex-1 flex flex-col justify-between' : ''}`}>
                       <div>
-                        <h3 className="font-semibold text-gray-800 mb-1 group-hover:text-purple-600 transition-colors duration-300">
+                        <h3
+                          onClick={() => router.push(`/productdetails/${product.id}`)}
+                          className="font-semibold text-gray-800 mb-1 group-hover:text-purple-600 transition-colors duration-300 cursor-pointer hover:underline"
+                        >
                           {product.name}
                         </h3>
                         <p className="text-sm text-gray-500 mb-2">{product.brand}</p>
-                        
+
                         {/* Rating */}
                         <div className="flex items-center gap-1 mb-3">
                           <div className="flex items-center">
                             {[...Array(5)].map((_, i) => (
                               <Star
                                 key={i}
-                                className={`w-3 h-3 ${
-                                  i < Math.floor(product.rating)
-                                    ? 'fill-yellow-400 text-yellow-400'
-                                    : 'text-gray-300'
-                                }`}
+                                className={`w-3 h-3 ${i < Math.floor(product.rating)
+                                  ? 'fill-yellow-400 text-yellow-400'
+                                  : 'text-gray-300'
+                                  }`}
                               />
                             ))}
                           </div>
@@ -627,11 +629,10 @@ const ShopPage = () => {
                         <button
                           onClick={() => addToCart(product)}
                           disabled={!product.inStock}
-                          className={`w-full py-2 px-4 rounded font-semibold transition-all duration-300 text-sm ${
-                            product.inStock
-                              ? 'bg-green-600 text-white hover:bg-green-700 transform hover:scale-105'
-                              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                          }`}
+                          className={`w-full py-2 px-4 rounded font-semibold transition-all duration-300 text-sm ${product.inStock
+                            ? 'bg-green-600 text-white hover:bg-green-700 transform hover:scale-105'
+                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                            }`}
                         >
                           {product.inStock ? (
                             <span className="flex items-center justify-center gap-2">
@@ -659,21 +660,20 @@ const ShopPage = () => {
                 >
                   Previous
                 </button>
-                
+
                 {[...Array(totalPages)].map((_, i) => (
                   <button
                     key={i + 1}
                     onClick={() => setCurrentPage(i + 1)}
-                    className={`px-4 py-2 rounded-lg transition-all duration-300 ${
-                      currentPage === i + 1
-                        ? 'bg-purple-500 text-white transform scale-110'
-                        : 'bg-white border border-gray-300 hover:bg-purple-50'
-                    }`}
+                    className={`px-4 py-2 rounded-lg transition-all duration-300 ${currentPage === i + 1
+                      ? 'bg-purple-500 text-white transform scale-110'
+                      : 'bg-white border border-gray-300 hover:bg-purple-50'
+                      }`}
                   >
                     {i + 1}
                   </button>
                 ))}
-                
+
                 <button
                   onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                   disabled={currentPage === totalPages}
@@ -690,8 +690,8 @@ const ShopPage = () => {
       {/* Shopping Cart Sidebar */}
       {cartOpen && (
         <div className="fixed inset-0 z-50 overflow-hidden">
-          <div 
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300" 
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300"
             onClick={() => setCartOpen(false)}
           ></div>
           <div className="absolute right-0 top-0 h-full w-96 bg-white shadow-2xl transform transition-transform duration-300">
@@ -725,7 +725,7 @@ const ShopPage = () => {
                         <h3 className="font-semibold text-sm mb-1">{item.name}</h3>
                         <p className="text-xs text-gray-500 mb-1">{item.brand}</p>
                         <p className="text-purple-600 font-bold">${item.price.toFixed(2)}</p>
-                        
+
                         <div className="flex items-center justify-between mt-2">
                           <div className="flex items-center space-x-2 bg-white rounded-lg border">
                             <button
@@ -775,8 +775,17 @@ const ShopPage = () => {
                 <button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 rounded-lg font-bold hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
                   Proceed to Checkout
                 </button>
-                <button 
-                  onClick={() => setCart([])}
+                <button
+                  onClick={async () => {
+                    if (!user?._id) return;
+                    try {
+                      await clearCartApi(user._id, dispatch);
+                      toast.success('Cart cleared');
+                    } catch (err) {
+                      console.error('Clear cart error:', err);
+                      toast.error('Failed to clear cart');
+                    }
+                  }}
                   className="w-full mt-2 bg-gray-200 text-gray-700 py-2 rounded-lg font-semibold hover:bg-gray-300 transition-colors duration-300"
                 >
                   Clear Cart
