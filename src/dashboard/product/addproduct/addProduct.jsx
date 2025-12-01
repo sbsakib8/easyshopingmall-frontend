@@ -15,8 +15,8 @@ const AddProductComponent = () => {
     subCategory: "",
     featured: false,
     brand: '',
-    productWeight: '',
-    productSize: '',
+    productWeight: [],
+    productSize: [],
     color: [],
     price: '',
     productStock: '',
@@ -29,6 +29,8 @@ const AddProductComponent = () => {
 
   const [newTag, setNewTag] = useState('');
   const [newColor, setNewColor] = useState('');
+  const [setsize , setsetsize] = useState('');
+  const [newWeight , setnewWeight] = useState('');
   const [dragOver, setDragOver] = useState(false);
 
   //  subcategory and category ..
@@ -121,6 +123,26 @@ const AddProductComponent = () => {
     }
   };
 
+  const addsize = () => {
+    if (setsize.trim() && !formData.productSize.includes(setsize.trim())) {
+      setFormData(prev => ({
+        ...prev,
+        productSize: [...prev.productSize, setsize.trim()]
+      }));
+      setsetsize('');
+    }
+  };
+
+  const addweight = () => {
+    if (newWeight.trim() && !formData.productWeight.includes(newWeight.trim())) {
+      setFormData(prev => ({
+        ...prev,
+        productWeight: [...prev.productWeight, newWeight.trim()]
+      }));
+      setnewWeight('');
+    }
+  };
+
   const removeTag = (tagToRemove) => {
     setFormData(prev => ({
       ...prev,
@@ -134,6 +156,18 @@ const AddProductComponent = () => {
       color: prev.color.filter(color => color !== colorToRemove)
     }));
   };
+  const removesize = (sizeToRemove) => {
+    setFormData(prev => ({
+      ...prev,
+      productSize: prev.productSize.filter(size => size !== sizeToRemove)
+    }));
+  };
+  const removeweight = (weightToRemove) => {
+    setFormData(prev => ({
+      ...prev,
+      productWeight: prev.productWeight.filter(weight => weight !== weightToRemove)
+    }));
+  };
 
   const resetForm = () => {
     setFormData({
@@ -143,8 +177,8 @@ const AddProductComponent = () => {
       subCategory: '',
       featured: false,
       brand: '',
-      productWeight: '',
-      productSize: '',
+      productWeight: [],
+      productSize: [],
       color: [],
       price: '',
       productStock: '',
@@ -383,31 +417,86 @@ const AddProductComponent = () => {
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="space-y-2">
-                <label className="text-white font-medium">Product Weight</label>
-                <input
-                  type="text"
-                  name="productWeight"
-                  value={formData.productWeight}
-                  onChange={handleInputChange}
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all duration-300"
-                  placeholder="e.g., 500g, 2kg"
-                />
+
+              
+
+               {/* add weight */}
+              <div className="">
+                <label className="text-white font-medium">Product weight</label>
+                <div className="flex flex-wrap gap-2">
+                  {formData.productWeight.map(weight => (
+                    <span key={weight} className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-full text-sm flex items-center">
+                      {weight}
+                      <button
+                        type="button"
+                        onClick={() => removeweight(weight)}
+                        className="ml-2 hover:bg-white/20 rounded-full transition-colors"
+                      >
+                        <X size={12} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newWeight}
+                    onChange={(e) => setnewWeight(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addweight())}
+                    className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Add product color"
+                  />
+                  <button
+                    type="button"
+                    onClick={addweight}
+                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-300 flex items-center"
+                  >
+                    <Plus size={20} />
+                  </button>
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-white font-medium">Product Size</label>
-                <input
-                  type="text"
-                  name="productSize"
-                  value={formData.productSize}
-                  onChange={handleInputChange}
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all duration-300"
-                  placeholder="e.g., XL, 12x8x4 inches"
-                />
+
+             
+
+                {/* add size */}
+              <div className="">
+                <label className="text-white font-medium">Product size</label>
+                <div className="flex flex-wrap gap-2">
+                  {formData.productSize.map(size => (
+                    <span key={size} className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-full text-sm flex items-center">
+                      {size}
+                      <button
+                        type="button"
+                        onClick={() => removesize(size)}
+                        className="ml-2 hover:bg-white/20 rounded-full transition-colors"
+                      >
+                        <X size={12} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={setsize}
+                    onChange={(e) => setsetsize(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addsize())}
+                    className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Add product color"
+                  />
+                  <button
+                    type="button"
+                    onClick={addsize}
+                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-300 flex items-center"
+                  >
+                    <Plus size={20} />
+                  </button>
+                </div>
               </div>
 
 
+               {/* add color */}
               <div className="">
                 <label className="text-white font-medium">Product Color</label>
                 <div className="flex flex-wrap gap-2">

@@ -200,19 +200,19 @@ export default function WebsiteInfoAdmin() {
 
         {/* Form */}
         {showForm && (
-          <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 mb-6">
-            <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">
+          <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl rounded-lg shadow-lg p-4 md:p-6 mb-6">
+            <h2 className="text-xl md:text-2xl font-bold mb-6">
               {editingId ? 'Edit Website Info' : 'Create New Website Info'}
             </h2>
             
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Top Bar Section */}
               <div className="border-b pb-6">
-                <h3 className="text-lg font-semibold text-gray-700 mb-4">📌 Top Bar Section</h3>
+                <h3 className="text-lg font-semibold  mb-4">📌 Top Bar Section</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Offer Text <span className="text-red-500">*</span>
+                    <label className="block text-sm font-medium mb-2">
+                      Offer Text <span className="text-pink-400">*</span>
                     </label>
                     <input
                       type="text"
@@ -226,7 +226,7 @@ export default function WebsiteInfoAdmin() {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Countdown Days</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Countdown Days</label>
                     <input
                       type="number"
                       name="countdownDays"
@@ -238,7 +238,7 @@ export default function WebsiteInfoAdmin() {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Countdown Hours</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Countdown Hours</label>
                     <input
                       type="number"
                       name="countdownHours"
@@ -251,7 +251,7 @@ export default function WebsiteInfoAdmin() {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Countdown Minutes</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Countdown Minutes</label>
                     <input
                       type="number"
                       name="countdownMinutes"
@@ -264,7 +264,7 @@ export default function WebsiteInfoAdmin() {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Countdown Seconds</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Countdown Seconds</label>
                     <input
                       type="number"
                       name="countdownSeconds"
@@ -277,7 +277,7 @@ export default function WebsiteInfoAdmin() {
                   </div>
                   
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Target Date & Time</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Target Date & Time</label>
                     <input
                       type="datetime-local"
                       name="countdownTargetDate"
@@ -288,7 +288,7 @@ export default function WebsiteInfoAdmin() {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Delivery Time</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Delivery Time</label>
                     <input
                       type="text"
                       name="deliveryText"
@@ -300,7 +300,7 @@ export default function WebsiteInfoAdmin() {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Support Contact</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Support Contact</label>
                     <input
                       type="text"
                       name="supportContact"
@@ -315,10 +315,10 @@ export default function WebsiteInfoAdmin() {
 
               {/* Discount Section */}
               <div className="border-b pb-6">
-                <h3 className="text-lg font-semibold text-gray-700 mb-4">🎁 Discount / Sale Section</h3>
+                <h3 className="text-lg font-semibold text-gray-300 mb-4">🎁 Discount / Sale Section</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
                       Discount Title <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -333,7 +333,7 @@ export default function WebsiteInfoAdmin() {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Discount Label</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Discount Label</label>
                     <input
                       type="text"
                       name="discountLabel"
@@ -345,7 +345,7 @@ export default function WebsiteInfoAdmin() {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
                       Discount Percent <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -362,7 +362,7 @@ export default function WebsiteInfoAdmin() {
                   </div>
                   
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Discount Link</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Discount Link</label>
                     <input
                       type="text"
                       name="discountLink"
@@ -377,10 +377,10 @@ export default function WebsiteInfoAdmin() {
 
               {/* Footer Section */}
               <div className="border-b pb-6">
-                <h3 className="text-lg font-semibold text-gray-700 mb-4">📍 Footer Section</h3>
+                <h3 className="text-lg font-semibold text-gray-300 mb-4">📍 Footer Section</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
                       Address <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -395,7 +395,7 @@ export default function WebsiteInfoAdmin() {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
                       Email <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -410,7 +410,7 @@ export default function WebsiteInfoAdmin() {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
                       Phone Number <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -429,7 +429,7 @@ export default function WebsiteInfoAdmin() {
               {/* Social Media Links */}
               <div className="border-b pb-6">
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-semibold text-gray-700">🔗 Social Media Links</h3>
+                  <h3 className="text-lg font-semibold text-gray-300">🔗 Social Media Links</h3>
                   <button
                     type="button"
                     onClick={addSocialLink}
@@ -442,10 +442,10 @@ export default function WebsiteInfoAdmin() {
                 
                 <div className="space-y-4">
                   {formData.socialLinks.map((link, index) => (
-                    <div key={index} className="bg-gray-50 p-4 rounded-lg">
+                    <div key={index} className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl p-4 rounded-lg">
                       <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                         <div>
-                          <label className="block text-xs font-medium text-gray-600 mb-1">Platform</label>
+                          <label className="block text-xs font-medium text-gray-300 mb-1">Platform</label>
                           <input
                             type="text"
                             value={link.platform}
@@ -456,7 +456,7 @@ export default function WebsiteInfoAdmin() {
                         </div>
                         
                         <div>
-                          <label className="block text-xs font-medium text-gray-600 mb-1">Icon</label>
+                          <label className="block text-xs font-medium text-gray-300 mb-1">Icon</label>
                           <input
                             type="text"
                             value={link.icon || ''}
@@ -467,7 +467,7 @@ export default function WebsiteInfoAdmin() {
                         </div>
                         
                         <div>
-                          <label className="block text-xs font-medium text-gray-600 mb-1">URL</label>
+                          <label className="block text-xs font-medium text-gray-300 mb-1">URL</label>
                           <input
                             type="url"
                             value={link.url}
@@ -491,7 +491,7 @@ export default function WebsiteInfoAdmin() {
                           <button
                             type="button"
                             onClick={() => removeSocialLink(index)}
-                            className="ml-auto bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition"
+                            className="ml-auto bg-red-500  p-2 rounded-lg hover:bg-red-600 transition"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -501,7 +501,7 @@ export default function WebsiteInfoAdmin() {
                   ))}
                   
                   {formData.socialLinks.length === 0 && (
-                    <p className="text-gray-500 text-center py-4">No social links added yet</p>
+                    <p className="text-gray-300 text-center py-4">No social links added yet</p>
                   )}
                 </div>
               </div>
@@ -516,7 +516,7 @@ export default function WebsiteInfoAdmin() {
                     onChange={handleInputChange}
                     className="w-5 h-5 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500"
                   />
-                  <span className="text-sm font-medium text-gray-700">Active Status</span>
+                  <span className="text-sm font-medium text-gray-300">Active Status</span>
                 </label>
               </div>
 
@@ -534,7 +534,7 @@ export default function WebsiteInfoAdmin() {
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+                  className="px-6 py-3 border border-gray-300 text-gray-300 rounded-lg hover:bg-gray-50 transition"
                 >
                   Cancel
                 </button>
@@ -544,13 +544,13 @@ export default function WebsiteInfoAdmin() {
         )}
 
         {/* Data List */}
-        <div className="bg-white rounded-lg shadow-lg p-4 md:p-6">
-          <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">Website Info List</h2>
+        <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl rounded-lg shadow-lg p-4 md:p-6">
+          <h2 className="text-xl md:text-2xl font-bold text-gray-300 mb-6">Website Info List</h2>
           
           {dataLoading ? (
             <div className="text-center py-12">
               <RefreshCw className="w-8 h-8 animate-spin mx-auto text-indigo-600" />
-              <p className="text-gray-600 mt-4">Loading data...</p>
+              <p className="text-gray-300 mt-4">Loading data...</p>
             </div>
           ) : dataError ? (
             <div className="text-center py-12">
@@ -558,17 +558,17 @@ export default function WebsiteInfoAdmin() {
               <p className="text-red-600">Error loading data. Please try again.</p>
               <button
                 onClick={refetch}
-                className="mt-4 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
+                className="mt-4 bg-indigo-600 px-4 py-2 rounded-lg hover:bg-indigo-700"
               >
                 Retry
               </button>
             </div>
           ) : !websiteinfo || websiteinfo.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-gray-600 mb-4">No data found. Create your first entry!</p>
+              <p className="text-gray-300 mb-4">No data found. Create your first entry!</p>
               <button
                 onClick={() => setShowForm(true)}
-                className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700"
+                className="bg-indigo-600  px-6 py-2 rounded-lg hover:bg-indigo-700"
               >
                 Create New
               </button>
@@ -580,21 +580,21 @@ export default function WebsiteInfoAdmin() {
                   <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-4">
                     <div className="flex-1">
                       <div className="flex flex-wrap items-center gap-3 mb-2">
-                        <h3 className="text-lg md:text-xl font-bold text-gray-800">{info.discountTitle}</h3>
+                        <h3 className="text-lg md:text-xl font-bold text-gray-300">{info.discountTitle}</h3>
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                           info.active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
                         }`}>
                           {info.active ? 'Active' : 'Inactive'}
                         </span>
                       </div>
-                      <p className="text-gray-600 text-sm md:text-base">{info.offerText}</p>
+                      <p className="text-gray-300 text-sm md:text-base">{info.offerText}</p>
                     </div>
                     
                     <div className="flex gap-2 w-full md:w-auto">
                       <button
                         onClick={() => handleEdit(info)}
                         disabled={loading}
-                        className="flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 flex-1 md:flex-initial"
+                        className="flex items-center justify-center gap-2 bg-blue-600  px-4 py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 flex-1 md:flex-initial"
                       >
                         <Edit className="w-4 h-4" />
                         Edit
@@ -611,36 +611,36 @@ export default function WebsiteInfoAdmin() {
                   
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
                     <div>
-                      <span className="font-medium text-gray-700">Discount:</span>
-                      <span className="ml-2 text-gray-600">{info.discountPercent}%</span>
+                      <span className="font-medium text-gray-300">Discount:</span>
+                      <span className="ml-2 text-gray-300">{info.discountPercent}%</span>
                     </div>
                     <div>
-                      <span className="font-medium text-gray-700">Email:</span>
-                      <span className="ml-2 text-gray-600 break-all">{info.email}</span>
+                      <span className="font-medium text-gray-300">Email:</span>
+                      <span className="ml-2 text-gray-300 break-all">{info.email}</span>
                     </div>
                     <div>
-                      <span className="font-medium text-gray-700">Phone:</span>
-                      <span className="ml-2 text-gray-600">{info.number}</span>
+                      <span className="font-medium text-gray-300">Phone:</span>
+                      <span className="ml-2 text-gray-300">{info.number}</span>
                     </div>
                     <div className="md:col-span-3">
-                      <span className="font-medium text-gray-700">Address:</span>
-                      <span className="ml-2 text-gray-600">{info.address}</span>
+                      <span className="font-medium text-gray-300">Address:</span>
+                      <span className="ml-2 text-gray-300">{info.address}</span>
                     </div>
                     {info.deliveryText && (
                       <div>
-                        <span className="font-medium text-gray-700">Delivery:</span>
-                        <span className="ml-2 text-gray-600">{info.deliveryText}</span>
+                        <span className="font-medium text-gray-300">Delivery:</span>
+                        <span className="ml-2 text-gray-300">{info.deliveryText}</span>
                       </div>
                     )}
                     {info.supportContact && (
                       <div>
-                        <span className="font-medium text-gray-700">Support:</span>
-                        <span className="ml-2 text-gray-600">{info.supportContact}</span>
+                        <span className="font-medium text-gray-300">Support:</span>
+                        <span className="ml-2 text-gray-300">{info.supportContact}</span>
                       </div>
                     )}
                     {info.socialLinks && info.socialLinks.length > 0 && (
                       <div className="md:col-span-3">
-                        <span className="font-medium text-gray-700">Social Media:</span>
+                        <span className="font-medium text-gray-300">Social Media:</span>
                         <div className="flex flex-wrap gap-2 mt-2">
                           {info.socialLinks.map((social, idx) => (
                             <a
