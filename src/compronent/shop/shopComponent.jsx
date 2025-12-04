@@ -10,6 +10,15 @@ import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 
+// Helper function to determine if product is new or old
+const isProductNew = (createdDate) => {
+  if (!createdDate) return true; // Default to new if no date
+  const created = new Date(createdDate);
+  const now = new Date();
+  const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  return created > monthAgo;
+};
+
 const ShopPage = () => {
   const router = useRouter();
 
@@ -88,6 +97,11 @@ const ShopPage = () => {
 
   // Filter and search products
   useEffect(() => {
+    // Debug: log search param and server search result to help troubleshooting
+    try {
+      // eslint-disable-next-line no-console
+      console.log('Shop debug - urlSearch:', urlSearch, 'searchLoading:', searchLoading, 'searchData:', searchData);
+    } catch (e) { }
     // If there's a search query param, prefer server-side search results
     if (urlSearch) {
       const list = searchData?.products ?? searchData?.data ?? searchData ?? [];
@@ -129,7 +143,7 @@ const ShopPage = () => {
             reviews: Number(p.reviews ?? 0) || 0,
             image: p.image || p.images?.[0] || '/banner/img/placeholder.png',
             inStock: (typeof p.stock !== 'undefined' ? p.stock : (p.productStock ?? p.quantity ?? p.qty ?? 0)) > 0,
-            isNew: p.isNew || p.is_new || p.featured || false,
+            isNew: isProductNew(p.createdAt || p.created_at || p.createdDate),
             discount: Number(p.discount) || Number(p.offerPercent) || 0,
             gender: p.gender || 'unisex',
           };
@@ -198,7 +212,7 @@ const ShopPage = () => {
           reviews: Number(p.reviews ?? 0) || 0,
           image: p.image || p.images?.[0] || '/banner/img/placeholder.png',
           inStock: (typeof p.stock !== 'undefined' ? p.stock : (p.productStock ?? p.quantity ?? p.qty ?? 0)) > 0,
-          isNew: p.isNew || p.is_new || p.featured || false,
+          isNew: isProductNew(p.createdAt || p.created_at || p.createdDate),
           discount: Number(p.discount) || Number(p.offerPercent) || 0,
           gender: p.gender || 'unisex',
         };
@@ -679,9 +693,13 @@ const ShopPage = () => {
 
                       {/* Badges */}
                       <div className="absolute top-3 left-3 space-y-1">
-                        {product.isNew && (
+                        {product.isNew ? (
                           <span className="bg-green-500 text-white px-2 py-1 rounded text-xs font-bold">
                             NEW
+                          </span>
+                        ) : (
+                          <span className="bg-gray-500 text-white px-2 py-1 rounded text-xs font-bold">
+                            OLD
                           </span>
                         )}
                         {product.discount > 0 && (
