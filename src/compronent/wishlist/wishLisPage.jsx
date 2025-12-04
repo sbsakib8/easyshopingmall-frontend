@@ -1,4 +1,5 @@
 "use client";
+import LoadingPage from "@/src/helper/loading/loadingPge";
 import { getWishlistApi, removeFromWishlistApi } from "@/src/hook/useWishlist";
 import { Eye, Grid, Heart, List, Share2, ShoppingCart, Star, Trash2 } from "lucide-react";
 import Link from "next/link";
@@ -96,9 +97,7 @@ const WishlistComponent = () => {
   // Loading + Error
   if (loading)
     return (
-      <div className="min-h-screen flex items-center justify-center text-gray-500 text-lg">
-        Loading wishlist...
-      </div>
+      <LoadingPage />
     );
 
   if (error)
