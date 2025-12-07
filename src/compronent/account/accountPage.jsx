@@ -28,6 +28,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
+import OrderDetailsModal from '../productDetails/OrderDetailsModal';
 
 
 
@@ -64,6 +65,17 @@ const AccountPage = () => {
       isDefault: true
     }
   ] : []))) || [];
+
+  const [selectedOrder, setSelectedOrder] = useState(null);
+
+  const handleViewOrder = (order) => {
+    setSelectedOrder(order);
+  };
+
+  const closeModal = () => {
+    setSelectedOrder(null);
+  };
+
 
   // fetch user orders when user is available
   useEffect(() => {
@@ -114,8 +126,8 @@ const AccountPage = () => {
     <button
       onClick={() => setActiveTab(id)}
       className={`flex items-center cursor-pointer space-x-3 w-full px-4 py-3 rounded-xl transition-all duration-300 group ${activeTab === id
-          ? 'bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 text-white shadow-lg transform scale-105'
-          : 'text-gray-600 hover:bg-gray-50 hover:text-teal-600'
+        ? 'bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 text-white shadow-lg transform scale-105'
+        : 'text-gray-600 hover:bg-gray-50 hover:text-teal-600'
         }`}
     >
       <Icon className={`w-5 h-5 transition-transform duration-300 ${activeTab === id ? 'scale-110' : 'group-hover:scale-110'
@@ -148,6 +160,7 @@ const AccountPage = () => {
       toast.error("Logout failed:", error);
     }
   };
+
 
   return (
     <AuthUserNothave>
@@ -212,8 +225,8 @@ const AccountPage = () => {
                       <button
                         onClick={() => isEditing ? handleSave() : setIsEditing(true)}
                         className={`flex items-center  cursor-pointer space-x-2 px-6 py-3 rounded-xl font-medium transition-all duration-300 ${isEditing
-                            ? 'bg-teal-500 hover:bg-teal-800 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-1'
-                            : 'bg-green-500 hover:bg-green-600 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-1'
+                          ? 'bg-teal-500 hover:bg-teal-800 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-1'
+                          : 'bg-green-500 hover:bg-green-600 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-1'
                           }`}
                       >
                         {isEditing ? <Save className="w-4 h-4" /> : <Edit3 className="w-4 h-4" />}
@@ -312,7 +325,7 @@ const AccountPage = () => {
                       {orders.map((order, index) => {
                         const firstProduct = order.products && order.products[0];
                         const image = firstProduct?.image?.[0] || firstProduct?.productId?.images?.[0] || '/banner/img/placeholder.png';
-                        const id = order.orderId || order._id;
+                        const id = data._id;
                         const date = order.createdAt ? new Date(order.createdAt).toLocaleDateString() : '';
                         const itemsCount = (order.products && order.products.length) || 0;
                         const status = order.order_status || order.payment_status || 'pending';
@@ -339,7 +352,10 @@ const AccountPage = () => {
                                   {status}
                                 </span>
                                 <span className="font-bold text-lg text-gray-900">৳{totalAmt}</span>
-                                <button className="p-2 text-gray-400 cursor-pointer hover:text-teal-600 hover:bg-blue-50 rounded-lg transition-all duration-300">
+                                <button
+                                  onClick={() => handleViewOrder(order)}
+                                  className="p-2 text-gray-400 cursor-pointer hover:text-teal-600 hover:bg-blue-50 rounded-lg transition-all duration-300"
+                                >
                                   <Eye className="w-5 h-5" />
                                 </button>
                               </div>
@@ -347,6 +363,15 @@ const AccountPage = () => {
                           </div>
                         );
                       })}
+
+                      {
+                        selectedOrder && (
+                          <OrderDetailsModal
+                            order={selectedOrder}
+                            onClose={() => setSelectedOrder(null)}
+                          />
+                        )
+                      }
                     </div>
                   </div>
                 )}

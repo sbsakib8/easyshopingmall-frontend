@@ -121,8 +121,15 @@ const ProductDetails = () => {
   const isWishlisted = product && (wishlist || []).some((i) => i.id === product.id);
 
   // Check if product is in cart
-  const cartItem = cartItems.find(item => item.productId._id === product?.id || item.productId.id === product?.id);
+  const cartItem = cartItems.find(item => item.productId?._id === product?.id || item.productId?.id === product?.id);
 
+  const toggleSize = (size) => {
+    setSelectedSize((prev) =>
+      prev.includes(size)
+        ? prev.filter((s) => s !== size) // remove
+        : [...prev, size]               // add
+    );
+  };
   const incrementQuantity = async () => {
     const newQuantity = quantity + 1;
     setQuantity(newQuantity);
@@ -196,6 +203,10 @@ const ProductDetails = () => {
       toast.error('Failed to update wishlist');
     }
   };
+
+  // FIX product size array (API returns ["40,41,42,43,44"])
+  const rawSizes = product?.productSize?.[0] || "";
+  const cleanedSizes = rawSizes.split(",").map(s => s.trim());
 
   if (loading) {
     return (
@@ -365,7 +376,7 @@ const ProductDetails = () => {
                 <div className="flex space-x-3">
                   {product?.colors?.map((color) => (
                     <button
-                      key={color.name}
+                      key={color.id}
                       onClick={() => setSelectedColor(color.name)}
                       className={`w-10 h-10 rounded-full border-2 transition-all duration-300 ${selectedColor === color.name
                         ? 'ring-4 ring-blue-300 scale-110'
@@ -381,27 +392,44 @@ const ProductDetails = () => {
               </div>
             )}
 
-            {/* Size Selection */}
-            {(product?.sizes?.length || 0) > 0 && (
+            {product?.sizes?.length > 0 && (
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">Size</h3>
-                <div className="grid grid-cols-6 gap-2">
-                  {product?.sizes?.map((size) => (
-                    <button
-                      key={size}
-                      onClick={() => setSelectedSize(size)}
-                      className={`py-3 px-4 border-2 rounded-lg font-semibold transition-all duration-300 ${selectedSize === size
-                        ? 'border-blue-500 bg-gradient-to-r from-blue-500 to-purple-500 text-white scale-105'
-                        : 'border-gray-300 bg-white text-gray-700 hover:border-blue-300 hover:scale-105'
-                        }`}
-                    >
-                      {size}
-                    </button>
-                  ))}
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">Sizes</h3>
+
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {product.sizes.map((size) => {
+                    const isActive = selectedSize === size;
+
+                    return (
+                      <button
+                        key={size}
+                        onClick={() =>
+                          setSelectedSize((prev) => (prev === size ? null : size))
+                        }
+                        className={`
+              flex items-center justify-center
+              h-8
+              px-3 rounded-full font-semibold
+              transition-all duration-300 border
+              ${isActive
+                            ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white border-transparent shadow-md scale-105"
+                            : "bg-white text-gray-800 border-gray-300 hover:border-blue-400 hover:scale-105"
+                          }
+            `}
+                      >
+                        {size}
+
+                        {isActive && (
+                          <span className="text-white font-bold text-lg leading-none ml-1">
+                            ✓
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
-
             {/* Quantity */}
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Quantity</h3>
