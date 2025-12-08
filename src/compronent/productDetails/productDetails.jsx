@@ -5,6 +5,7 @@ import { decreaseProductQuantity, increaseProductQuantity } from '@/src/hook/use
 import { addToWishlistApi, removeFromWishlistApi } from '@/src/hook/useWishlist';
 import { useGetProduct } from '@/src/utlis/userProduct';
 import { ChevronRight, Heart, Loader, Minus, Plus, RotateCcw, Share2, Shield, ShoppingCart, Star, Truck, Zap } from 'lucide-react';
+import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -262,10 +263,13 @@ const ProductDetails = () => {
           {/* Image Gallery */}
           <div className="space-y-4">
             <div className="relative overflow-hidden rounded-2xl bg-white shadow-2xl group">
-              <img
+              <Image
+                width={1200}
+                height={1400}
+                quality={95}
                 src={product?.images?.[selectedImage]}
                 alt={product?.name}
-                className="w-full h-96 lg:h-[500px] object-cover transition-transform duration-700 group-hover:scale-105"
+                className="w-full h-auto object-cover "
               />
               {product?.discount > 0 && (
                 <div className="absolute top-4 left-4 bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1 rounded-full text-sm font-semibold animate-pulse">

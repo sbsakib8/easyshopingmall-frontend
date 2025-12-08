@@ -22,8 +22,6 @@ const isProductNew = (createdDate) => {
 const ShopPage = () => {
   const router = useRouter()
 
-  // Clothing products data
-  // memoize params to avoid passing a new object each render
   const productParams = useMemo(() => ({}), [])
   const { product, loading, error, refetch } = useGetProduct(productParams)
 
@@ -478,32 +476,7 @@ const ShopPage = () => {
               <span className="text-gray-600 font-medium">Showing {products.length} results</span>
 
               {/* Quick Filters */}
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setFilterGender(filterGender === "men" ? "all" : "men")}
-                  className={`px-3 py-1 rounded-full text-sm transition-all duration-300 ${filterGender === "men"
-                      ? "bg-purple-100 text-purple-700 border border-purple-300"
-                      : "bg-gray-100 hover:bg-gray-200"
-                    }`}
-                >
-                  Men
-                </button>
-                <button
-                  onClick={() => setFilterGender(filterGender === "women" ? "all" : "women")}
-                  className={`px-3 py-1 rounded-full text-sm transition-all duration-300 ${filterGender === "women"
-                      ? "bg-purple-100 text-purple-700 border border-purple-300"
-                      : "bg-gray-100 hover:bg-gray-200"
-                    }`}
-                >
-                  Women
-                </button>
-                <button
-                  onClick={clearFilters}
-                  className="px-3 py-1 rounded-full text-sm bg-red-100 text-red-700 hover:bg-red-200 transition-colors duration-300"
-                >
-                  Clear All
-                </button>
-              </div>
+
             </div>
 
             <div className="flex items-center gap-4">
@@ -730,8 +703,8 @@ const ShopPage = () => {
             {products.length > 0 && (
               <div
                 className={`${viewMode === "grid"
-                    ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                    : "space-y-6"
+                  ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                  : "space-y-6"
                   }`}
               >
                 {currentProducts.map((product, index) => (
@@ -774,8 +747,8 @@ const ShopPage = () => {
                         >
                           <Heart
                             className={`w-4 h-4 ${wishlist.some((item) => item.id === product.id)
-                                ? "fill-red-500 text-red-500"
-                                : "text-gray-600"
+                              ? "fill-red-500 text-red-500"
+                              : "text-gray-600"
                               }`}
                           />
                         </button>
@@ -829,8 +802,8 @@ const ShopPage = () => {
                           }}
                           disabled={!product.inStock}
                           className={`w-full py-2 px-4 rounded font-semibold transition-all duration-300 text-sm ${product.inStock
-                              ? "bg-green-600 text-white hover:bg-green-700 transform hover:scale-105"
-                              : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                            ? "bg-green-600 text-white hover:bg-green-700 transform hover:scale-105"
+                            : "bg-gray-300 text-gray-500 cursor-not-allowed"
                             }`}
                         >
                           {product.inStock ? (
@@ -865,8 +838,8 @@ const ShopPage = () => {
                     key={i + 1}
                     onClick={() => setCurrentPage(i + 1)}
                     className={`px-4 py-2 rounded-lg transition-all duration-300 ${currentPage === i + 1
-                        ? "bg-purple-500 text-white transform scale-110"
-                        : "bg-white border border-gray-300 hover:bg-purple-50"
+                      ? "bg-purple-500 text-white transform scale-110"
+                      : "bg-white border border-gray-300 hover:bg-purple-50"
                       }`}
                   >
                     {i + 1}
