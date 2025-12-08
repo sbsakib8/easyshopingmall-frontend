@@ -1,19 +1,22 @@
 "use client";
 import React, { useState } from 'react';
 import { Upload, X, Plus, Star, Save, Eye, Package, Tag, DollarSign, BarChart3, Camera, MapPin } from 'lucide-react';
-import { Colorize } from '@mui/icons-material';
-import { ProductCreate } from '@/src/hook/useProduct';
+import { ProductCreate, ProductNotification } from '@/src/hook/useProduct';
+import { useSelector } from 'react-redux';
+import toast from 'react-hot-toast';
+import socket from '@/src/confic/socket';
+import { useEffect } from 'react';
 
 const AddProductComponent = () => {
   const [formData, setFormData] = useState({
     productName: '',
     description: '',
-    category: [],
-    subCategory: [],
+    category: "",
+    subCategory: "",
     featured: false,
     brand: '',
-    productWeight: '',
-    productSize: '',
+    productWeight: [],
+    productSize: [],
     color: [],
     price: '',
     productStock: '',
@@ -26,31 +29,49 @@ const AddProductComponent = () => {
 
   const [newTag, setNewTag] = useState('');
   const [newColor, setNewColor] = useState('');
+  const [setsize , setsetsize] = useState('');
+  const [newWeight , setnewWeight] = useState('');
   const [dragOver, setDragOver] = useState(false);
 
-  const categories = [
-    'Electronics', 'Fashion', 'Home & Garden', 'Sports', 'Books', 'Beauty', 
-    'Automotive', 'Toys', 'Food & Beverages', 'Health'
-  ];
+  //  subcategory and category ..
+  const allsubCategorydata = useSelector((state) => state.subcategory.allsubCategorydata);
+  const allCategorydata = useSelector((state) => state.category.allCategorydata);
 
-  const subCategories = {
-    'Electronics': ['Mobile Phones', 'Laptops', 'Headphones', 'Cameras', 'Gaming'],
-    'Fashion': ['Men Clothing', 'Women Clothing', 'Shoes', 'Accessories', 'Jewelry'],
-    'Home & Garden': ['Furniture', 'Kitchen', 'Decor', 'Garden Tools', 'Lighting'],
-    'Sports': ['Fitness', 'Outdoor', 'Team Sports', 'Water Sports', 'Winter Sports'],
-    'Books': ['Fiction', 'Non-Fiction', 'Educational', 'Children', 'Comics'],
-    'Beauty': ['Skincare', 'Makeup', 'Hair Care', 'Fragrance', 'Tools'],
-    'Automotive': ['Car Parts', 'Accessories', 'Tools', 'Care Products', 'Electronics'],
-    'Toys': ['Educational', 'Action Figures', 'Dolls', 'Board Games', 'Outdoor Toys'],
-    'Food & Beverages': ['Snacks', 'Beverages', 'Organic', 'International', 'Frozen'],
-    'Health': ['Supplements', 'Medical Devices', 'Personal Care', 'Fitness', 'Wellness']
-  };
+  // socket test
+  const [notifications, setNotifications] = useState([]);
+  console.log(notifications);
+  useEffect(() => {
+    // socket connect হলে
+    socket.on("connect", () => {
+      console.log("🟢 Socket connected:", socket.id);
+    });
+
+    // নতুন notification এলে
+    socket.on("notification:new", (notif) => {
+      console.log("📩 New notification:", notif);
+      setNotifications((prev) => [notif, ...prev]);
+      toast.success(` ${notif.title}: ${notif.message}`);
+    });
+
+    // cleanup
+    return () => {
+      socket.off("connect");
+      socket.off("notification:new");
+    };
+  }, []);
+
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
+
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]:
+        type === 'checkbox'
+          ? checked
+          : (name === 'category' || name === 'subCategory'
+            ? [value]
+            : value)
     }));
   };
 
@@ -61,7 +82,7 @@ const AddProductComponent = () => {
       url: URL.createObjectURL(file),
       name: file.name
     }));
-    
+
     setFormData(prev => ({
       ...prev,
       images: [...prev.images, ...newImages]
@@ -92,13 +113,33 @@ const AddProductComponent = () => {
     }
   };
 
-   const addcolor = () => {
+  const addcolor = () => {
     if (newColor.trim() && !formData.color.includes(newColor.trim())) {
       setFormData(prev => ({
         ...prev,
         color: [...prev.color, newColor.trim()]
       }));
       setNewColor('');
+    }
+  };
+
+  const addsize = () => {
+    if (setsize.trim() && !formData.productSize.includes(setsize.trim())) {
+      setFormData(prev => ({
+        ...prev,
+        productSize: [...prev.productSize, setsize.trim()]
+      }));
+      setsetsize('');
+    }
+  };
+
+  const addweight = () => {
+    if (newWeight.trim() && !formData.productWeight.includes(newWeight.trim())) {
+      setFormData(prev => ({
+        ...prev,
+        productWeight: [...prev.productWeight, newWeight.trim()]
+      }));
+      setnewWeight('');
     }
   };
 
@@ -115,25 +156,80 @@ const AddProductComponent = () => {
       color: prev.color.filter(color => color !== colorToRemove)
     }));
   };
+  const removesize = (sizeToRemove) => {
+    setFormData(prev => ({
+      ...prev,
+      productSize: prev.productSize.filter(size => size !== sizeToRemove)
+    }));
+  };
+  const removeweight = (weightToRemove) => {
+    setFormData(prev => ({
+      ...prev,
+      productWeight: prev.productWeight.filter(weight => weight !== weightToRemove)
+    }));
+  };
+
+  const resetForm = () => {
+    setFormData({
+      productName: '',
+      description: '',
+      category: '',
+      subCategory: '',
+      featured: false,
+      brand: '',
+      productWeight: [],
+      productSize: [],
+      color: [],
+      price: '',
+      productStock: '',
+      productRank: '',
+      discount: '',
+      ratings: 5,
+      tags: [],
+      images: []
+    });
+  };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    console.log("Product Data:", formData);
+    try {
+      const formDataToSend = new FormData();
 
-    const response = await ProductCreate(formData);
+      for (const key in formData) {
+        if (key === "images") {
+          formData.images.forEach(img => {
+            formDataToSend.append("images", img.file);
+          });
+        } else if (key === "category" || key === "subCategory") {
+          formData[key].forEach(id => formDataToSend.append(key, id));
+        } else {
+          formDataToSend.append(key, formData[key]);
+        }
+      }
 
-    if (response?.success) {
-      alert("Product added successfully!");
-    } else {
-      alert(response?.message || "Failed to add product");
+      const response = await ProductCreate(formDataToSend);
+
+      if (response?.success) {
+        toast.success("✅ Product added successfully!");
+        resetForm()
+        // 🧩 এখন notification পাঠাও
+      await ProductNotification({
+        title: "New Product Added",
+        message: `product create is now live!`,
+        type: "stock",
+        referenceId: response.data._id,
+        meta: { category: response.data.category },
+      });
+
+      } else {
+        toast.error(response?.message || "Failed to add product");
+      }
+    } catch (error) {
+      console.error("Error adding product:", error);
+      toast.error("❌ Something went wrong! Please try again.");
     }
-  } catch (error) {
-    console.error("Error adding product:", error);
-    alert("Something went wrong! Please try again.");
-  }
-};
+  };
 
 
   const handlePreview = () => {
@@ -142,12 +238,12 @@ const AddProductComponent = () => {
 
   return (
     <div className="min-h-screen  bg-gradient-to-br from-gray-900 via-black to-gray-900 overflow-hidden">
-        {/* main section */}
+      {/* main section */}
       <div className={`transition-all  duration-500 py-5 lg:ml-15 px-2 lg:px-9`}>
         {/* Header */}
         <div className="mb-8">
           <div className="relative bg-gradient-to-r from-gray-900/80 via-blue-900/80 to-purple-900/80 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-gray-700/50 shadow-2xl shadow-blue-500/10 overflow-hidden">
-          {/* Animated particles */}
+            {/* Animated particles */}
             <div className="absolute inset-0">
               <div className="absolute top-4 right-4 w-2 h-2 bg-blue-400 rounded-full animate-ping"></div>
               <div className="absolute bottom-6 left-6 w-1 h-1 bg-purple-400 rounded-full animate-pulse"></div>
@@ -167,7 +263,7 @@ const AddProductComponent = () => {
               <Package className="mr-3 text-blue-400" />
               Basic Information
             </h2>
-            
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-white font-medium">Product Name</label>
@@ -215,7 +311,7 @@ const AddProductComponent = () => {
               <Tag className="mr-3 text-green-400" />
               Categories & Classification
             </h2>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div className="space-y-2">
                 <label className="text-white font-medium">Category</label>
@@ -227,9 +323,15 @@ const AddProductComponent = () => {
                   required
                 >
                   <option value="" className="bg-slate-800">Select Category</option>
-                  {categories.map(cat => (
-                    <option key={cat} value={cat} className="bg-slate-800">{cat}</option>
-                  ))}
+                  {allCategorydata && allCategorydata.data && allCategorydata.data.length > 0 ? (
+                    allCategorydata?.data?.map(cat => (
+                      <option key={cat._id} value={cat._id} className="bg-slate-800">
+                        {cat.name}
+                      </option>
+                    ))
+                  ) : (
+                    <option disabled>No categories found</option>
+                  )}
                 </select>
               </div>
 
@@ -243,9 +345,15 @@ const AddProductComponent = () => {
                   disabled={!formData.category}
                 >
                   <option value="" className="bg-slate-800">Select Sub Category</option>
-                  {formData.category && subCategories[formData.category]?.map(subCat => (
-                    <option key={subCat} value={subCat} className="bg-slate-800">{subCat}</option>
-                  ))}
+                  {allsubCategorydata && allsubCategorydata.data && allsubCategorydata.data.length > 0 ? (
+                    allsubCategorydata?.data?.map(cat => (
+                      <option key={cat._id} value={cat._id} className="bg-slate-800">
+                        {cat.name}
+                      </option>
+                    ))
+                  ) : (
+                    <option disabled>No subcategories found</option>
+                  )}
                 </select>
               </div>
 
@@ -307,69 +415,124 @@ const AddProductComponent = () => {
               <BarChart3 className="mr-3 text-yellow-400" />
               Product Details
             </h2>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="space-y-2">
-                <label className="text-white font-medium">Product Weight</label>
-                <input
-                  type="text"
-                  name="productWeight"
-                  value={formData.productWeight}
-                  onChange={handleInputChange}
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all duration-300"
-                  placeholder="e.g., 500g, 2kg"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-white font-medium">Product Size</label>
-                <input
-                  type="text"
-                  name="productSize"
-                  value={formData.productSize}
-                  onChange={handleInputChange}
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all duration-300"
-                  placeholder="e.g., XL, 12x8x4 inches"
-                />
-              </div>
-
-
-               <div className="">
-              <label className="text-white font-medium">Product Color</label>
-              <div className="flex flex-wrap gap-2">
-                {formData.color.map(color => (
-                  <span key={color} className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-full text-sm flex items-center">
-                    {color}
-                    <button
-                      type="button"
-                      onClick={() => removecolor(color)}
-                      className="ml-2 hover:bg-white/20 rounded-full transition-colors"
-                    >
-                      <X size={12} />
-                    </button>
-                  </span>
-                ))}
-              </div>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={newColor}
-                  onChange={(e) => setNewColor(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addcolor())}
-                  className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Add product color"
-                />
-                <button
-                  type="button"
-                  onClick={addcolor}
-                  className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-300 flex items-center"
-                >
-                  <Plus size={20} />
-                </button>
-              </div>
-            </div>
 
               
+
+               {/* add weight */}
+              <div className="">
+                <label className="text-white font-medium">Product weight</label>
+                <div className="flex flex-wrap gap-2">
+                  {formData.productWeight.map(weight => (
+                    <span key={weight} className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-full text-sm flex items-center">
+                      {weight}
+                      <button
+                        type="button"
+                        onClick={() => removeweight(weight)}
+                        className="ml-2 hover:bg-white/20 rounded-full transition-colors"
+                      >
+                        <X size={12} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newWeight}
+                    onChange={(e) => setnewWeight(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addweight())}
+                    className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Add product color"
+                  />
+                  <button
+                    type="button"
+                    onClick={addweight}
+                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-300 flex items-center"
+                  >
+                    <Plus size={20} />
+                  </button>
+                </div>
+              </div>
+
+
+             
+
+                {/* add size */}
+              <div className="">
+                <label className="text-white font-medium">Product size</label>
+                <div className="flex flex-wrap gap-2">
+                  {formData.productSize.map(size => (
+                    <span key={size} className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-full text-sm flex items-center">
+                      {size}
+                      <button
+                        type="button"
+                        onClick={() => removesize(size)}
+                        className="ml-2 hover:bg-white/20 rounded-full transition-colors"
+                      >
+                        <X size={12} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={setsize}
+                    onChange={(e) => setsetsize(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addsize())}
+                    className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Add product color"
+                  />
+                  <button
+                    type="button"
+                    onClick={addsize}
+                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-300 flex items-center"
+                  >
+                    <Plus size={20} />
+                  </button>
+                </div>
+              </div>
+
+
+               {/* add color */}
+              <div className="">
+                <label className="text-white font-medium">Product Color</label>
+                <div className="flex flex-wrap gap-2">
+                  {formData.color.map(color => (
+                    <span key={color} className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-full text-sm flex items-center">
+                      {color}
+                      <button
+                        type="button"
+                        onClick={() => removecolor(color)}
+                        className="ml-2 hover:bg-white/20 rounded-full transition-colors"
+                      >
+                        <X size={12} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newColor}
+                    onChange={(e) => setNewColor(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addcolor())}
+                    className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Add product color"
+                  />
+                  <button
+                    type="button"
+                    onClick={addcolor}
+                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-300 flex items-center"
+                  >
+                    <Plus size={20} />
+                  </button>
+                </div>
+              </div>
+
+
             </div>
           </div>
 
@@ -379,7 +542,7 @@ const AddProductComponent = () => {
               <DollarSign className="mr-3 text-green-400" />
               Pricing & Inventory
             </h2>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="space-y-2">
                 <label className="text-white font-medium">Price ($)</label>
@@ -449,11 +612,10 @@ const AddProductComponent = () => {
                   >
                     <Star
                       size={24}
-                      className={`${
-                        star <= formData.ratings
-                          ? 'text-yellow-400 fill-current'
-                          : 'text-gray-400'
-                      } transition-colors duration-200`}
+                      className={`${star <= formData.ratings
+                        ? 'text-yellow-400 fill-current'
+                        : 'text-gray-400'
+                        } transition-colors duration-200`}
                     />
                   </button>
                 ))}
@@ -471,11 +633,10 @@ const AddProductComponent = () => {
 
             {/* Drag & Drop Upload Area */}
             <div
-              className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 ${
-                dragOver
-                  ? 'border-blue-400 bg-blue-500/20'
-                  : 'border-white/30 hover:border-white/50'
-              }`}
+              className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 ${dragOver
+                ? 'border-blue-400 bg-blue-500/20'
+                : 'border-white/30 hover:border-white/50'
+                }`}
               onDrop={handleDrop}
               onDragOver={(e) => {
                 e.preventDefault();
@@ -544,7 +705,7 @@ const AddProductComponent = () => {
               <Eye size={20} />
               <span>Preview Product</span>
             </button>
-            
+
             <button
               type="submit"
               className="px-8 py-4 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-xl hover:from-green-600 hover:to-blue-600 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105 shadow-lg"
@@ -566,7 +727,7 @@ const AddProductComponent = () => {
               <Package className="text-cyan-400" size={32} />
             </div>
           </div>
-          
+
           <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
             <div className="flex items-center justify-between">
               <div>
@@ -576,7 +737,7 @@ const AddProductComponent = () => {
               <Tag className="text-emerald-400" size={32} />
             </div>
           </div>
-          
+
           <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
             <div className="flex items-center justify-between">
               <div>

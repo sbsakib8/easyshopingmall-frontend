@@ -1,490 +1,684 @@
-"use client"
-import { useState, useRef } from "react"
-import {
-  Upload,
-  Search,
-  Grid,
-  List,
-  Trash2,
-  Eye,
-  Download,
-  ImageIcon,
-  Video,
-  FileText,
-  Music,
-  X,
-  Plus,
-  User,
-  Tag,
-} from "lucide-react"
+"use client";
+import React, { useState, useEffect } from 'react';
+import { Trash2, Plus, Save, X, RefreshCw, Edit, Check, AlertCircle } from 'lucide-react';
+import { WebsiteinfoCreate, WebsiteinfoDelete, WebsiteinfoUploade } from '@/src/hook/content/useWebsiteInfo';
+import { useGetwebsiteinfo } from '@/src/utlis/content/useWebsiteinfo';
 
-const MediaLibrary = () => {
-  const [mediaFiles, setMediaFiles] = useState([
-    {
-      id: 1,
-      name: "product-hero.jpg",
-      type: "image",
-      size: "2.4 MB",
-      url: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400",
-      uploadDate: "2024-09-01",
-      tags: ["product", "hero", "banner"],
-      uploader: "Admin",
-    },
-    {
-      id: 2,
-      name: "category-fashion.jpg",
-      type: "image",
-      size: "1.8 MB",
-      url: "https://images.unsplash.com/photo-1445205170230-053b83016050?w=400",
-      uploadDate: "2024-09-02",
-      tags: ["fashion", "category"],
-      uploader: "Editor",
-    },
-    {
-      id: 3,
-      name: "product-demo.mp4",
-      type: "video",
-      size: "15.2 MB",
-      url: "https://via.placeholder.com/400x300/667eea/ffffff?text=Video",
-      uploadDate: "2024-09-03",
-      tags: ["product", "demo", "video"],
-      uploader: "Marketing",
-    },
-    {
-      id: 4,
-      name: "brand-guide.pdf",
-      type: "document",
-      size: "3.7 MB",
-      url: "https://via.placeholder.com/400x300/f093fb/ffffff?text=PDF",
-      uploadDate: "2024-08-30",
-      tags: ["brand", "guide", "document"],
-      uploader: "Design Team",
-    },
-  ])
 
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedType, setSelectedType] = useState("all")
-  const [viewMode, setViewMode] = useState("grid")
-  const [selectedFiles, setSelectedFiles] = useState([])
-  const [showUploadModal, setShowUploadModal] = useState(false)
-  const [dragOver, setDragOver] = useState(false)
-  const fileInputRef = useRef(null)
+export default function WebsiteInfoAdmin() {
+  const { websiteinfo, loading: dataLoading, error: dataError, refetch } = useGetwebsiteinfo();
+  const [loading, setLoading] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+  const [notification, setNotification] = useState({ show: false, message: '', type: '' });
+  const [formData, setFormData] = useState({
+    offerText: '',
+    countdownDays: 0,
+    countdownHours: 0,
+    countdownMinutes: 0,
+    countdownSeconds: 0,
+    countdownTargetDate: '',
+    deliveryText: '',
+    supportContact: '',
+    discountTitle: '',
+    discountLabel: 'Sale',
+    discountPercent: 0,
+    discountLink: '',
+    address: '',
+    email: '',
+    number: '',
+    socialLinks: [],
+    active: true
+  });
 
-  const fileTypes = {
-    image: {
-      icon: ImageIcon,
-      color: "text-emerald-400",
-      bgColor: "bg-gradient-to-br from-emerald-500/20 to-teal-500/20",
-    },
-    video: { icon: Video, color: "text-blue-400", bgColor: "bg-gradient-to-br from-blue-500/20 to-cyan-500/20" },
-    document: { icon: FileText, color: "text-rose-400", bgColor: "bg-gradient-to-br from-rose-500/20 to-pink-500/20" },
-    audio: { icon: Music, color: "text-purple-400", bgColor: "bg-gradient-to-br from-purple-500/20 to-violet-500/20" },
-  }
+  const showNotification = (message, type = 'success') => {
+    setNotification({ show: true, message, type });
+    setTimeout(() => {
+      setNotification({ show: false, message: '', type: '' });
+    }, 3000);
+  };
 
-  const filteredFiles = mediaFiles.filter((file) => {
-    const matchesSearch =
-      file.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      file.tags.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-    const matchesType = selectedType === "all" || file.type === selectedType
-    return matchesSearch && matchesType
-  })
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : type === 'number' ? Number(value) : value
+    }));
+  };
 
-  const handleFileUpload = (files) => {
-    Array.from(files).forEach((file, index) => {
-      const newFile = {
-        id: Date.now() + index,
-        name: file.name,
-        type: file.type.startsWith("image/")
-          ? "image"
-          : file.type.startsWith("video/")
-            ? "video"
-            : file.type.startsWith("audio/")
-              ? "audio"
-              : "document",
-        size: (file.size / (1024 * 1024)).toFixed(1) + " MB",
-        url: URL.createObjectURL(file),
-        uploadDate: new Date().toISOString().split("T")[0],
-        tags: ["new"],
-        uploader: "Current User",
+  const handleSocialLinkChange = (index, field, value) => {
+    const newSocialLinks = [...formData.socialLinks];
+    newSocialLinks[index] = { ...newSocialLinks[index], [field]: value };
+    setFormData(prev => ({ ...prev, socialLinks: newSocialLinks }));
+  };
+
+  const addSocialLink = () => {
+    setFormData(prev => ({
+      ...prev,
+      socialLinks: [...prev.socialLinks, { platform: '', icon: '', url: '', active: true }]
+    }));
+  };
+
+  const removeSocialLink = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      socialLinks: prev.socialLinks.filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Validation
+    if (!formData.offerText || !formData.discountTitle || !formData.address || !formData.email || !formData.number) {
+      showNotification('Please fill all required fields!', 'error');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      if (editingId) {
+        await WebsiteinfoUploade(formData, editingId);
+        showNotification('Successfully updated!', 'success');
+      } else {
+        await WebsiteinfoCreate(formData);
+        showNotification('Successfully created!', 'success');
       }
-      setMediaFiles((prev) => [newFile, ...prev])
-    })
-    setShowUploadModal(false)
-  }
+      resetForm();
+      refetch();
+    } catch (error) {
+      console.error('Error:', error);
+      showNotification(error.response?.data?.message || 'Operation failed!', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const handleDragOver = (e) => {
-    e.preventDefault()
-    setDragOver(true)
-  }
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this item?')) return;
 
-  const handleDragLeave = () => {
-    setDragOver(false)
-  }
+    setLoading(true);
+    try {
+      await WebsiteinfoDelete(id);
+      showNotification('Successfully deleted!', 'success');
+      refetch();
+    } catch (error) {
+      console.error('Error:', error);
+      showNotification('Delete failed!', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const handleDrop = (e) => {
-    e.preventDefault()
-    setDragOver(false)
-    const files = e.dataTransfer.files
-    handleFileUpload(files)
-  }
+  const handleEdit = (info) => {
+    setFormData({
+      offerText: info.offerText || '',
+      countdownDays: info.countdownDays || 0,
+      countdownHours: info.countdownHours || 0,
+      countdownMinutes: info.countdownMinutes || 0,
+      countdownSeconds: info.countdownSeconds || 0,
+      countdownTargetDate: info.countdownTargetDate ? new Date(info.countdownTargetDate).toISOString().slice(0, 16) : '',
+      deliveryText: info.deliveryText || '',
+      supportContact: info.supportContact || '',
+      discountTitle: info.discountTitle || '',
+      discountLabel: info.discountLabel || 'Sale',
+      discountPercent: info.discountPercent || 0,
+      discountLink: info.discountLink || '',
+      address: info.address || '',
+      email: info.email || '',
+      number: info.number || '',
+      socialLinks: info.socialLinks || [],
+      active: info.active !== undefined ? info.active : true
+    });
+    setEditingId(info._id);
+    setShowForm(true);
+  };
 
-  const deleteSelectedFiles = () => {
-    setMediaFiles((prev) => prev.filter((file) => !selectedFiles.includes(file.id)))
-    setSelectedFiles([])
-  }
-
-  const toggleFileSelection = (fileId) => {
-    setSelectedFiles((prev) => (prev.includes(fileId) ? prev.filter((id) => id !== fileId) : [...prev, fileId]))
-  }
-
-  const FileCard = ({ file }) => {
-    const FileIcon = fileTypes[file.type]?.icon || FileText
-    const isSelected = selectedFiles.includes(file.id)
-
-    return (
-      <div
-        className={`group relative bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border ${
-          isSelected ? "border-cyan-400/50 ring-2 ring-cyan-400/30" : "border-gray-700/50 hover:border-gray-600/50"
-        } transform hover:scale-105`}
-        onClick={() => toggleFileSelection(file.id)}
-      >
-        <div className="aspect-square relative overflow-hidden bg-gradient-to-br from-gray-700/30 to-gray-800/30">
-          {file.type === "image" ? (
-            <img
-              src={file.url || "/placeholder.svg"}
-              alt={file.name}
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-            />
-          ) : (
-            <div
-              className={`flex items-center justify-center h-full ${fileTypes[file.type]?.bgColor || "bg-gradient-to-br from-gray-600/20 to-gray-700/20"}`}
-            >
-              <FileIcon className={`w-16 h-16 ${fileTypes[file.type]?.color || "text-gray-400"}`} />
-            </div>
-          )}
-
-          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-            <div className="flex gap-1">
-              <button className="p-1.5 bg-black/60 backdrop-blur-sm rounded-full hover:bg-black/80 transition-colors">
-                <Eye className="w-4 h-4 text-white" />
-              </button>
-              <button className="p-1.5 bg-black/60 backdrop-blur-sm rounded-full hover:bg-black/80 transition-colors">
-                <Download className="w-4 h-4 text-white" />
-              </button>
-            </div>
-          </div>
-
-          {isSelected && (
-            <div className="absolute top-2 left-2 w-5 h-5 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full flex items-center justify-center">
-              <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </div>
-          )}
-        </div>
-
-        <div className="p-4">
-          <h3 className="font-medium text-white truncate mb-1">{file.name}</h3>
-          <div className="flex items-center justify-between text-sm text-gray-300 mb-2">
-            <span>{file.size}</span>
-            <span>{file.uploadDate}</span>
-          </div>
-          <div className="flex flex-wrap gap-1 mb-2">
-            {file.tags.slice(0, 2).map((tag, index) => (
-              <span
-                key={index}
-                className="px-2 py-1 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-300 text-xs rounded-full border border-cyan-500/30"
-              >
-                {tag}
-              </span>
-            ))}
-            {file.tags.length > 2 && (
-              <span className="px-2 py-1 bg-gradient-to-r from-gray-600/20 to-gray-700/20 text-gray-300 text-xs rounded-full border border-gray-600/30">
-                +{file.tags.length - 2}
-              </span>
-            )}
-          </div>
-          <div className="flex items-center text-xs text-gray-400">
-            <User className="w-3 h-3 mr-1" />
-            {file.uploader}
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  const ListView = ({ file }) => {
-    const FileIcon = fileTypes[file.type]?.icon || FileText
-    const isSelected = selectedFiles.includes(file.id)
-
-    return (
-      <div
-        className={`flex items-center p-4 bg-gradient-to-r from-gray-800/50 to-gray-900/50 backdrop-blur-sm rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 border ${
-          isSelected
-            ? "border-cyan-400/50 bg-gradient-to-r from-cyan-900/20 to-blue-900/20"
-            : "border-gray-700/50 hover:border-gray-600/50"
-        }`}
-        onClick={() => toggleFileSelection(file.id)}
-      >
-        <div
-          className={`w-12 h-12 rounded-lg flex items-center justify-center ${fileTypes[file.type]?.bgColor || "bg-gradient-to-br from-gray-600/20 to-gray-700/20"} mr-4`}
-        >
-          {file.type === "image" ? (
-            <img
-              src={file.url || "/placeholder.svg"}
-              alt={file.name}
-              className="w-full h-full object-cover rounded-lg"
-            />
-          ) : (
-            <FileIcon className={`w-6 h-6 ${fileTypes[file.type]?.color || "text-gray-400"}`} />
-          )}
-        </div>
-
-        <div className="flex-1 min-w-0">
-          <h3 className="font-medium text-white truncate">{file.name}</h3>
-          <div className="flex items-center gap-4 text-sm text-gray-300 mt-1">
-            <span>{file.size}</span>
-            <span>{file.uploadDate}</span>
-            <span>{file.uploader}</span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <div className="flex gap-1">
-            {file.tags.slice(0, 3).map((tag, index) => (
-              <span
-                key={index}
-                className="px-2 py-1 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-300 text-xs rounded-full border border-cyan-500/30"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-          <div className="flex gap-1 ml-4">
-            <button className="p-2 hover:bg-gray-700/50 rounded-full transition-colors">
-              <Eye className="w-4 h-4 text-gray-300" />
-            </button>
-            <button className="p-2 hover:bg-gray-700/50 rounded-full transition-colors">
-              <Download className="w-4 h-4 text-gray-300" />
-            </button>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  const resetForm = () => {
+    setFormData({
+      offerText: '',
+      countdownDays: 0,
+      countdownHours: 0,
+      countdownMinutes: 0,
+      countdownSeconds: 0,
+      countdownTargetDate: '',
+      deliveryText: '',
+      supportContact: '',
+      discountTitle: '',
+      discountLabel: 'Sale',
+      discountPercent: 0,
+      discountLink: '',
+      address: '',
+      email: '',
+      number: '',
+      socialLinks: [],
+      active: true
+    });
+    setEditingId(null);
+    setShowForm(false);
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black overflow-hidden">
-      <div className="transition-all  duration-500 lg:ml-15 py-5 px-2 lg:px-9">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black p-4 md:p-6 text-white overflow-hidden">
+      <div className="max-w-7xl mx-auto">
+        {/* Notification */}
+        {notification.show && (
+          <div className={`fixed top-4 right-4 z-50 ${
+            notification.type === 'success' ? 'bg-green-500' : 'bg-red-500'
+          } text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-slide-in`}>
+            {notification.type === 'success' ? <Check className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
+            {notification.message}
+          </div>
+        )}
+
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div className="bg-gradient-to-r from-green-900/80 via-blue-900/80 to-purple-900/80 backdrop-blur-xl  rounded-lg shadow-lg p-4 md:p-6 mb-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                Media Library
-              </h1>
-              <p className="text-gray-400 mt-1">Manage your media files and assets</p>
+              <h1 className="text-2xl md:text-3xl font-bold text-white">Website Info Management</h1>
+              <p className="text-white mt-1">Admin Dashboard</p>
             </div>
-
-            <button
-              onClick={() => setShowUploadModal(true)}
-              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl hover:from-cyan-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
-            >
-              <Plus className="w-5 h-5 mr-2" />
-              Upload Files
-            </button>
-          </div>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-gradient-to-br from-emerald-500/10 to-teal-500/10 backdrop-blur-sm rounded-xl p-6 border border-emerald-500/20 shadow-lg">
-            <div className="flex items-center">
-              <div className="p-3 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-lg">
-                <ImageIcon className="w-6 h-6 text-emerald-400" />
-              </div>
-              <div className="ml-4">
-                <p className="text-2xl font-bold text-white">{mediaFiles.filter((f) => f.type === "image").length}</p>
-                <p className="text-gray-300 text-sm">Images</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 backdrop-blur-sm rounded-xl p-6 border border-blue-500/20 shadow-lg">
-            <div className="flex items-center">
-              <div className="p-3 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-lg">
-                <Video className="w-6 h-6 text-blue-400" />
-              </div>
-              <div className="ml-4">
-                <p className="text-2xl font-bold text-white">{mediaFiles.filter((f) => f.type === "video").length}</p>
-                <p className="text-gray-300 text-sm">Videos</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-br from-rose-500/10 to-pink-500/10 backdrop-blur-sm rounded-xl p-6 border border-rose-500/20 shadow-lg">
-            <div className="flex items-center">
-              <div className="p-3 bg-gradient-to-br from-rose-500/20 to-pink-500/20 rounded-lg">
-                <FileText className="w-6 h-6 text-rose-400" />
-              </div>
-              <div className="ml-4">
-                <p className="text-2xl font-bold text-white">
-                  {mediaFiles.filter((f) => f.type === "document").length}
-                </p>
-                <p className="text-gray-300 text-sm">Documents</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-br from-purple-500/10 to-violet-500/10 backdrop-blur-sm rounded-xl p-6 border border-purple-500/20 shadow-lg">
-            <div className="flex items-center">
-              <div className="p-3 bg-gradient-to-br from-purple-500/20 to-violet-500/20 rounded-lg">
-                <Tag className="w-6 h-6 text-purple-400" />
-              </div>
-              <div className="ml-4">
-                <p className="text-2xl font-bold text-white">{mediaFiles.length}</p>
-                <p className="text-gray-300 text-sm">Total Files</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Search and Filter Bar */}
-        <div className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 backdrop-blur-sm rounded-xl p-6 mb-6 border border-gray-700/50 shadow-lg">
-          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
-            <div className="flex-1 relative max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Search files, tags..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-gray-700/50 border border-gray-600/50 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200 text-white placeholder-gray-400"
-              />
-            </div>
-
-            <div className="flex items-center gap-3">
-              <select
-                value={selectedType}
-                onChange={(e) => setSelectedType(e.target.value)}
-                className="px-4 py-2.5 bg-gray-700/50 border border-gray-600/50 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200 text-white"
-              >
-                <option value="all">All Types</option>
-                <option value="image">Images</option>
-                <option value="video">Videos</option>
-                <option value="document">Documents</option>
-                <option value="audio">Audio</option>
-              </select>
-
-              <div className="flex border border-gray-600/50 rounded-lg overflow-hidden">
-                <button
-                  onClick={() => setViewMode("grid")}
-                  className={`p-2.5 transition-colors ${viewMode === "grid" ? "bg-gradient-to-r from-cyan-500 to-blue-500 text-white" : "bg-gray-700/50 text-gray-300 hover:bg-gray-600/50"}`}
-                >
-                  <Grid className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => setViewMode("list")}
-                  className={`p-2.5 transition-colors ${viewMode === "list" ? "bg-gradient-to-r from-cyan-500 to-blue-500 text-white" : "bg-gray-700/50 text-gray-300 hover:bg-gray-600/50"}`}
-                >
-                  <List className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {selectedFiles.length > 0 && (
-            <div className="mt-4 p-3 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 rounded-lg flex items-center justify-between">
-              <span className="text-cyan-300 font-medium">{selectedFiles.length} files selected</span>
+            <div className="flex gap-3 w-full md:w-auto">
               <button
-                onClick={deleteSelectedFiles}
-                className="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-red-500 to-rose-500 text-white rounded-lg hover:from-red-600 hover:to-rose-600 transition-colors"
+                onClick={refetch}
+                disabled={dataLoading || loading}
+                className="flex items-center justify-center gap-2 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition disabled:opacity-50 flex-1 md:flex-initial"
               >
-                <Trash2 className="w-4 h-4 mr-1" />
-                Delete Selected
+                <RefreshCw className={`w-4 h-4 ${dataLoading ? 'animate-spin' : ''}`} />
+                Refresh
               </button>
+              <button
+                onClick={() => setShowForm(!showForm)}
+                className="flex items-center justify-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition flex-1 md:flex-initial"
+              >
+                {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                {showForm ? 'Cancel' : 'Add New'}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Form */}
+        {showForm && (
+          <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl rounded-lg shadow-lg p-4 md:p-6 mb-6">
+            <h2 className="text-xl md:text-2xl font-bold mb-6">
+              {editingId ? 'Edit Website Info' : 'Create New Website Info'}
+            </h2>
+            
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Top Bar Section */}
+              <div className="border-b pb-6">
+                <h3 className="text-lg font-semibold  mb-4">📌 Top Bar Section</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium mb-2">
+                      Offer Text <span className="text-pink-400">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="offerText"
+                      value={formData.offerText}
+                      onChange={handleInputChange}
+                      placeholder="FREE delivery & 40% Discount..."
+                      required
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Countdown Days</label>
+                    <input
+                      type="number"
+                      name="countdownDays"
+                      value={formData.countdownDays}
+                      onChange={handleInputChange}
+                      min="0"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Countdown Hours</label>
+                    <input
+                      type="number"
+                      name="countdownHours"
+                      value={formData.countdownHours}
+                      onChange={handleInputChange}
+                      min="0"
+                      max="23"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Countdown Minutes</label>
+                    <input
+                      type="number"
+                      name="countdownMinutes"
+                      value={formData.countdownMinutes}
+                      onChange={handleInputChange}
+                      min="0"
+                      max="59"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Countdown Seconds</label>
+                    <input
+                      type="number"
+                      name="countdownSeconds"
+                      value={formData.countdownSeconds}
+                      onChange={handleInputChange}
+                      min="0"
+                      max="59"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                  
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Target Date & Time</label>
+                    <input
+                      type="datetime-local"
+                      name="countdownTargetDate"
+                      value={formData.countdownTargetDate}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Delivery Time</label>
+                    <input
+                      type="text"
+                      name="deliveryText"
+                      value={formData.deliveryText}
+                      onChange={handleInputChange}
+                      placeholder="7:00 to 22:00"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Support Contact</label>
+                    <input
+                      type="text"
+                      name="supportContact"
+                      value={formData.supportContact}
+                      onChange={handleInputChange}
+                      placeholder="+258 3268 21485"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Discount Section */}
+              <div className="border-b pb-6">
+                <h3 className="text-lg font-semibold text-gray-300 mb-4">🎁 Discount / Sale Section</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Discount Title <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="discountTitle"
+                      value={formData.discountTitle}
+                      onChange={handleInputChange}
+                      placeholder="Get 30% Discount Now"
+                      required
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Discount Label</label>
+                    <input
+                      type="text"
+                      name="discountLabel"
+                      value={formData.discountLabel}
+                      onChange={handleInputChange}
+                      placeholder="Sale"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Discount Percent <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      name="discountPercent"
+                      value={formData.discountPercent}
+                      onChange={handleInputChange}
+                      min="0"
+                      max="100"
+                      placeholder="30"
+                      required
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                  
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Discount Link</label>
+                    <input
+                      type="text"
+                      name="discountLink"
+                      value={formData.discountLink}
+                      onChange={handleInputChange}
+                      placeholder="/shop"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer Section */}
+              <div className="border-b pb-6">
+                <h3 className="text-lg font-semibold text-gray-300 mb-4">📍 Footer Section</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Address <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="address"
+                      value={formData.address}
+                      onChange={handleInputChange}
+                      placeholder="123 Main St, City, Country"
+                      required
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Email <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      placeholder="info@example.com"
+                      required
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Phone Number <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="number"
+                      value={formData.number}
+                      onChange={handleInputChange}
+                      placeholder="+1234567890"
+                      required
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Social Media Links */}
+              <div className="border-b pb-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-semibold text-gray-300">🔗 Social Media Links</h3>
+                  <button
+                    type="button"
+                    onClick={addSocialLink}
+                    className="flex items-center gap-2 bg-green-600 text-white px-3 py-1 rounded-lg hover:bg-green-700 transition text-sm"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add Link
+                  </button>
+                </div>
+                
+                <div className="space-y-4">
+                  {formData.socialLinks.map((link, index) => (
+                    <div key={index} className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl p-4 rounded-lg">
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-300 mb-1">Platform</label>
+                          <input
+                            type="text"
+                            value={link.platform}
+                            onChange={(e) => handleSocialLinkChange(index, 'platform', e.target.value)}
+                            placeholder="Facebook"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500"
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-xs font-medium text-gray-300 mb-1">Icon</label>
+                          <input
+                            type="text"
+                            value={link.icon || ''}
+                            onChange={(e) => handleSocialLinkChange(index, 'icon', e.target.value)}
+                            placeholder="fa-facebook"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500"
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-xs font-medium text-gray-300 mb-1">URL</label>
+                          <input
+                            type="url"
+                            value={link.url}
+                            onChange={(e) => handleSocialLinkChange(index, 'url', e.target.value)}
+                            placeholder="https://facebook.com"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500"
+                          />
+                        </div>
+                        
+                        <div className="flex items-end gap-2">
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={link.active}
+                              onChange={(e) => handleSocialLinkChange(index, 'active', e.target.checked)}
+                              className="w-4 h-4 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500"
+                            />
+                            <span className="text-sm">Active</span>
+                          </label>
+                          
+                          <button
+                            type="button"
+                            onClick={() => removeSocialLink(index)}
+                            className="ml-auto bg-red-500  p-2 rounded-lg hover:bg-red-600 transition"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  {formData.socialLinks.length === 0 && (
+                    <p className="text-gray-300 text-center py-4">No social links added yet</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Active Status */}
+              <div className="flex items-center gap-3">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="active"
+                    checked={formData.active}
+                    onChange={handleInputChange}
+                    className="w-5 h-5 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500"
+                  />
+                  <span className="text-sm font-medium text-gray-300">Active Status</span>
+                </label>
+              </div>
+
+              {/* Form Actions */}
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="flex items-center justify-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                >
+                  <Save className="w-4 h-4" />
+                  {loading ? 'Saving...' : editingId ? 'Update' : 'Create'}
+                </button>
+                
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="px-6 py-3 border border-gray-300 text-gray-300 rounded-lg hover:bg-gray-50 transition"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {/* Data List */}
+        <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl rounded-lg shadow-lg p-4 md:p-6">
+          <h2 className="text-xl md:text-2xl font-bold text-gray-300 mb-6">Website Info List</h2>
+          
+          {dataLoading ? (
+            <div className="text-center py-12">
+              <RefreshCw className="w-8 h-8 animate-spin mx-auto text-indigo-600" />
+              <p className="text-gray-300 mt-4">Loading data...</p>
+            </div>
+          ) : dataError ? (
+            <div className="text-center py-12">
+              <AlertCircle className="w-8 h-8 mx-auto text-red-600 mb-4" />
+              <p className="text-red-600">Error loading data. Please try again.</p>
+              <button
+                onClick={refetch}
+                className="mt-4 bg-indigo-600 px-4 py-2 rounded-lg hover:bg-indigo-700"
+              >
+                Retry
+              </button>
+            </div>
+          ) : !websiteinfo || websiteinfo.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-300 mb-4">No data found. Create your first entry!</p>
+              <button
+                onClick={() => setShowForm(true)}
+                className="bg-indigo-600  px-6 py-2 rounded-lg hover:bg-indigo-700"
+              >
+                Create New
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {websiteinfo.map((info) => (
+                <div key={info._id} className="border border-gray-200 rounded-lg p-4 md:p-6 hover:shadow-md transition">
+                  <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-4">
+                    <div className="flex-1">
+                      <div className="flex flex-wrap items-center gap-3 mb-2">
+                        <h3 className="text-lg md:text-xl font-bold text-gray-300">{info.discountTitle}</h3>
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          info.active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                        }`}>
+                          {info.active ? 'Active' : 'Inactive'}
+                        </span>
+                      </div>
+                      <p className="text-gray-300 text-sm md:text-base">{info.offerText}</p>
+                    </div>
+                    
+                    <div className="flex gap-2 w-full md:w-auto">
+                      <button
+                        onClick={() => handleEdit(info)}
+                        disabled={loading}
+                        className="flex items-center justify-center gap-2 bg-blue-600  px-4 py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 flex-1 md:flex-initial"
+                      >
+                        <Edit className="w-4 h-4" />
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(info._id)}
+                        disabled={loading}
+                        className="flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition disabled:opacity-50"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                    <div>
+                      <span className="font-medium text-gray-300">Discount:</span>
+                      <span className="ml-2 text-gray-300">{info.discountPercent}%</span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-300">Email:</span>
+                      <span className="ml-2 text-gray-300 break-all">{info.email}</span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-300">Phone:</span>
+                      <span className="ml-2 text-gray-300">{info.number}</span>
+                    </div>
+                    <div className="md:col-span-3">
+                      <span className="font-medium text-gray-300">Address:</span>
+                      <span className="ml-2 text-gray-300">{info.address}</span>
+                    </div>
+                    {info.deliveryText && (
+                      <div>
+                        <span className="font-medium text-gray-300">Delivery:</span>
+                        <span className="ml-2 text-gray-300">{info.deliveryText}</span>
+                      </div>
+                    )}
+                    {info.supportContact && (
+                      <div>
+                        <span className="font-medium text-gray-300">Support:</span>
+                        <span className="ml-2 text-gray-300">{info.supportContact}</span>
+                      </div>
+                    )}
+                    {info.socialLinks && info.socialLinks.length > 0 && (
+                      <div className="md:col-span-3">
+                        <span className="font-medium text-gray-300">Social Media:</span>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {info.socialLinks.map((social, idx) => (
+                            <a
+                              key={idx}
+                              href={social.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-xs hover:bg-indigo-200 transition"
+                            >
+                              {social.platform}
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>
-
-        {/* File Grid/List */}
-        {viewMode === "grid" ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {filteredFiles.map((file) => (
-              <FileCard key={file.id} file={file} />
-            ))}
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {filteredFiles.map((file) => (
-              <ListView key={file.id} file={file} />
-            ))}
-          </div>
-        )}
-
-        {filteredFiles.length === 0 && (
-          <div className="text-center py-12">
-            <div className="w-24 h-24 mx-auto bg-gradient-to-br from-gray-700/50 to-gray-800/50 rounded-full flex items-center justify-center mb-4">
-              <Search className="w-12 h-12 text-gray-400" />
-            </div>
-            <h3 className="text-lg font-medium text-white mb-2">No files found</h3>
-            <p className="text-gray-400">Try adjusting your search or filter criteria</p>
-          </div>
-        )}
       </div>
 
-      {/* Upload Modal */}
-      {showUploadModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl max-w-lg w-full p-6 shadow-2xl transform transition-all duration-200 border border-gray-700/50">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-white">Upload Files</h2>
-              <button
-                onClick={() => setShowUploadModal(false)}
-                className="p-2 hover:bg-gray-700/50 rounded-full transition-colors"
-              >
-                <X className="w-6 h-6 text-gray-400" />
-              </button>
-            </div>
-
-            <div
-              className={`border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200 ${
-                dragOver
-                  ? "border-cyan-400 bg-gradient-to-br from-cyan-500/10 to-blue-500/10"
-                  : "border-gray-600 hover:border-gray-500 bg-gradient-to-br from-gray-700/20 to-gray-800/20"
-              }`}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-            >
-              <Upload className={`w-12 h-12 mx-auto mb-4 ${dragOver ? "text-cyan-400" : "text-gray-400"}`} />
-              <h3 className="text-lg font-medium text-white mb-2">Drag and drop files here</h3>
-              <p className="text-gray-400 mb-4">or</p>
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-colors"
-              >
-                Browse Files
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                accept="image/*,video/*,audio/*,.pdf,.doc,.docx"
-                onChange={(e) => handleFileUpload(e.target.files)}
-                className="hidden"
-              />
-              <p className="text-sm text-gray-400 mt-4">Supports: Images, Videos, Audio, Documents</p>
-            </div>
-          </div>
-        </div>
-      )}
+      <style jsx>{`
+        @keyframes slide-in {
+          from {
+            transform: translateX(100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+        .animate-slide-in {
+          animation: slide-in 0.3s ease-out;
+        }
+      `}</style>
     </div>
-  )
+  );
 }
-
-export default MediaLibrary

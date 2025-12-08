@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { Star, TrendingUp } from "lucide-react";
 import Link from "next/link";
+import { useGetcategory } from "@/src/utlis/usecategory";
 
 const categoridata = [
   { id: 1, name: "Electronics", image: "https://images.unsplash.com/photo-1498049794561-7780e7231661?auto=format&fit=crop&w=300&q=80", items: "1,234", trending: true },
@@ -17,9 +18,12 @@ const categoridata = [
 ];
 
 function Categories() {
+  const { category, loading, error } = useGetcategory(); 
   const [paused, setPaused] = useState(false);
-  const loopData = [...categoridata, ...categoridata]; 
+  const loopData = [...(category || []), ...(category || [])]; 
 
+  console.log('looping', loopData);
+  
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
@@ -63,16 +67,15 @@ function Categories() {
               {/* Content */}
               <div className="p-3 text-center">
                 <h3 className="text-sm font-bold text-gray-800">{item.name}</h3>
-                <p className="text-xs text-gray-500">{item.items} items</p>
+                <p className="text-xs text-gray-500">{item.metaDescription} items</p>
                 <div className="flex justify-center gap-1 my-2">
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className={`w-3 h-3 ${
-                        i < 4
+                      className={`w-3 h-3 ${i < 4
                           ? "fill-yellow-400 text-yellow-400"
                           : "text-gray-300"
-                      }`}
+                        }`}
                     />
                   ))}
                 </div>

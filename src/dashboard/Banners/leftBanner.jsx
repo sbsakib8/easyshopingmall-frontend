@@ -1,48 +1,36 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { LeftBannerCreate, LeftBannerDelete, LeftBannerUploade } from "@/src/hook/useLeftBanner"
+import { useGetLeftBanner } from "@/src/utlis/banner/useLeftBanner"
+import { Trash2 } from "lucide-react"
+import { useState, useRef, useEffect } from "react"
+import toast from "react-hot-toast"
 
 const LeftBanner = () => {
-  const [banners, setBanners] = useState([
-    {
-      id: 1,
-      title: "Summer Sale 2024",
-      image: "/summer-sale-banner-colorful.jpg",
-      link: "/summer-sale",
-      description: "Get up to 50% off on all summer collections",
-      status: "active",
-      createdAt: "2024-01-15",
-    },
-    {
-      id: 2,
-      title: "New Arrivals",
-      image: "/new-arrivals-fashion-banner-modern.jpg",
-      link: "/new-arrivals",
-      description: "Check out our latest fashion trends",
-      status: "active",
-      createdAt: "2024-01-10",
-    },
-    {
-      id: 3,
-      title: "Black Friday Deal",
-      image: "/black-friday-sale-banner-dark-theme.jpg",
-      link: "/black-friday",
-      description: "Biggest sale of the year - up to 70% off",
-      status: "inactive",
-      createdAt: "2024-01-05",
-    },
-  ])
+  
+  const { leftbanner, loading, error, refetch } = useGetLeftBanner();
+  const [banners, setBanners] = useState([]);
+  useEffect(() => {
+    if (leftbanner) {
+      if (Array.isArray(leftbanner)) {
+        setBanners(leftbanner);
+      } else {
+        setBanners([leftbanner]);
+      }
+    }
+  }, [leftbanner]);
+  
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingBanner, setEditingBanner] = useState(null)
+   const [deleteModal, setDeleteModal] = useState(null)
   const [formData, setFormData] = useState({
     title: "",
-    image: "",
+    images: "",
     link: "",
-    description: "",
+    Description: "",
     status: "active",
   })
-  const [showSuccess, setShowSuccess] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
@@ -52,7 +40,7 @@ const LeftBanner = () => {
   const filteredBanners = banners.filter((banner) => {
     const matchesSearch =
       banner.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      banner.description.toLowerCase().includes(searchTerm.toLowerCase())
+      banner.Description.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = statusFilter === "all" || banner.status === statusFilter
     return matchesSearch && matchesStatus
   })
@@ -66,18 +54,18 @@ const LeftBanner = () => {
       setEditingBanner(banner)
       setFormData({
         title: banner.title,
-        image: banner.image,
+        images: banner.images,
         link: banner.link,
-        description: banner.description,
+        Description: banner.Description,
         status: banner.status,
       })
     } else {
       setEditingBanner(null)
       setFormData({
         title: "",
-        image: "",
+        images: "",
         link: "",
-        description: "",
+        Description: "",
         status: "active",
       })
     }
@@ -89,49 +77,111 @@ const LeftBanner = () => {
     setEditingBanner(null)
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  // Create or Update Banner
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    const data = new FormData();
+    data.append("title", formData.title);
+    data.append("Description", formData.Description);
+    data.append("Link_URL", formData.link);
+    data.append("status", formData.status);
+    if (formData.images) data.append("images", formData.images);
+
+    let res;
 
     if (editingBanner) {
-      setBanners(banners.map((banner) => (banner.id === editingBanner.id ? { ...banner, ...formData } : banner)))
+      res = await LeftBannerUploade(data, editingBanner._id || editingBanner.id);
+
+      setBanners((prev) =>
+        prev.map((banner) =>
+          banner._id === editingBanner._id || banner.id === editingBanner.id
+            ? { ...banner, ...formData }
+            : banner
+        )
+      );
+       refetch();
+      toast.success("✅ Banner updated successfully!");
     } else {
+      res = await LeftBannerCreate(data);
+
       const newBanner = {
-        id: Date.now(),
-        ...formData,
+        id: res?.data?._id || Date.now(),
+        ...res?.data || formData,
         createdAt: new Date().toISOString().split("T")[0],
-      }
-      setBanners([newBanner, ...banners])
+      };
+
+      setBanners((prev) => [newBanner, ...prev]);
+      refetch();
+    toast.success("✅ Banner Create successfully!");
     }
 
-    setShowSuccess(true)
-    setTimeout(() => setShowSuccess(false), 3000)
-    closeModal()
+    
+    closeModal();
+  } catch (error) {
+    console.error("leftbanner save error:", error);
+    toast.error("Something went wrong while saving the banner!");
   }
+};
 
-  const deleteBanner = (id) => {
-    setBanners(banners.filter((banner) => banner.id !== id))
-    setShowSuccess(true)
-    setTimeout(() => setShowSuccess(false), 3000)
-  }
 
-  const toggleAllStatus = () => {
-    const hasActive = banners.some((b) => b.status === "active")
-    const newStatus = hasActive ? "inactive" : "active"
-    setBanners(banners.map((banner) => ({ ...banner, status: newStatus })))
-    setShowSuccess(true)
-    setTimeout(() => setShowSuccess(false), 3000)
+  // delete banner
+ const handleDelete = (id) => {
+    setDeleteModal(id);
+  };
+//  confirm delete
+  const deleteBanner = async () => {
+    try {
+      if (!deleteModal) return;
+      await LeftBannerDelete(deleteModal);
+      setDeleteModal(null);
+      refetch();
+      toast.success("Product deleted successfully");
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response?.data?.message || "Something went wrong");
+    }
+  };
+
+ 
+
+
+  // Toggle All Status
+ const toggleAllStatus = async () => {
+  try {
+    const hasActive = banners.some((b) => b.status === "active");
+    const newStatus = hasActive ? "inactive" : "active";
+    setBanners((prev) =>
+      prev.map((banner) => ({
+        ...banner,
+        status: newStatus,
+      }))
+    );
+    await Promise.allSettled(
+      banners
+        .filter((b) => b._id)
+        .map(async (banner) => {
+          const data = new FormData();
+          data.append("status", newStatus);
+          await LeftBannerUploade(data, banner._id);
+        })
+    );
+    toast.success(`All banners are now ${newStatus}!`);
+  } catch (error) {
+    console.error("Error toggling all statuses:", error);
+    toast.error("Something went wrong while updating statuses!");
   }
+};
+
 
   const handleImageUpload = (e) => {
-    const file = e.target.files[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        setFormData({ ...formData, image: e.target.result })
-      }
-      reader.readAsDataURL(file)
-    }
+  const file = e.target.files?.[0];
+  if (file) {
+    setFormData({ ...formData, images: file }); 
   }
+};
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black  relative overflow-hidden">
@@ -279,37 +329,11 @@ const LeftBanner = () => {
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-sm border border-blue-500/30 rounded-2xl p-6 hover:from-blue-500/30 hover:to-cyan-500/30 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-300 text-sm font-medium">This Month</p>
-                  <p className="text-3xl font-bold text-white mt-1">3</p>
-                </div>
-                <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
-                  <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                </div>
-              </div>
-            </div>
+            
           </div>
         </div>
 
-        {showSuccess && (
-          <div className="fixed top-6 right-6 bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-8 py-4 rounded-2xl shadow-2xl shadow-emerald-500/25 z-50 transform animate-bounce">
-            <div className="flex items-center gap-3">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              <span className="font-semibold">Operation completed successfully! ✨</span>
-            </div>
-          </div>
-        )}
+       
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
           {currentBanners.map((banner, index) => (
@@ -320,7 +344,7 @@ const LeftBanner = () => {
             >
               <div className="relative overflow-hidden">
                 <img
-                  src={banner.image || "/placeholder.svg?height=200&width=400&query=banner"}
+                  src={banner.images || "/placeholder.svg?height=200&width=400&query=banner"}
                   alt={banner.title}
                   className="w-full h-52 object-cover transition-transform duration-500 group-hover:scale-110"
                 />
@@ -340,7 +364,7 @@ const LeftBanner = () => {
                 <h3 className="text-xl font-bold text-white mb-3 group-hover:bg-gradient-to-r group-hover:from-purple-400 group-hover:to-pink-400 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300">
                   {banner.title}
                 </h3>
-                <p className="text-gray-300 mb-4 line-clamp-2 leading-relaxed">{banner.description}</p>
+                <p className="text-gray-300 mb-4 line-clamp-2 leading-relaxed">{banner.Description}</p>
                 <p className="text-sm text-gray-400 mb-6 font-medium">Created: {banner.createdAt}</p>
 
                 <div className="flex gap-3">
@@ -351,7 +375,7 @@ const LeftBanner = () => {
                     ✏️ Edit
                   </button>
                   <button
-                    onClick={() => deleteBanner(banner.id)}
+                    onClick={() => handleDelete(banner._id)}
                     className="flex-1 bg-gradient-to-r from-red-500/20 to-pink-500/20 hover:from-red-500/40 hover:to-pink-500/40 text-red-300 border border-red-500/30 px-4 py-3 rounded-xl font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-red-500/25 transform hover:scale-105"
                   >
                     🗑️ Delete
@@ -414,17 +438,17 @@ const LeftBanner = () => {
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     className="w-full px-6 py-4 bg-gray-800/50 border border-gray-700/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all duration-300"
                     placeholder="Enter banner title"
-                    required
+                  
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-200 mb-3">Banner Image</label>
+                  <label className="block text-sm font-semibold text-gray-200 mb-3">Banner Images</label>
                   <div className="space-y-4">
                     <input
                       ref={fileInputRef}
                       type="file"
-                      accept="image/*"
+                      accept="images/*"
                       onChange={handleImageUpload}
                       className="hidden"
                     />
@@ -441,12 +465,12 @@ const LeftBanner = () => {
                           d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
                         />
                       </svg>
-                      📸 Upload Image
+                      📸 Upload Images
                     </button>
-                    {formData.image && (
+                    {formData.images && (
                       <div className="relative">
                         <img
-                          src={formData.image || "/placeholder.svg"}
+                          src={formData.images || "/placeholder.svg"}
                           alt="Preview"
                           className="w-full h-40 object-cover rounded-xl border border-gray-700/50"
                         />
@@ -463,19 +487,19 @@ const LeftBanner = () => {
                     onChange={(e) => setFormData({ ...formData, link: e.target.value })}
                     className="w-full px-6 py-4 bg-gray-800/50 border border-gray-700/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all duration-300"
                     placeholder="https://example.com"
-                    required
+                  
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-200 mb-3">Description</label>
                   <textarea
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    value={formData.Description}
+                    onChange={(e) => setFormData({ ...formData, Description: e.target.value })}
                     rows={4}
                     className="w-full px-6 py-4 bg-gray-800/50 border border-gray-700/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all duration-300 resize-none"
-                    placeholder="Enter banner description"
-                    required
+                    placeholder="Enter banner Description"
+                  
                   />
                 </div>
 
@@ -511,6 +535,39 @@ const LeftBanner = () => {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-pink-500/30 max-w-md w-full p-6 animate-slideUp">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-3 bg-pink-500/20 rounded-full">
+                <Trash2 className="w-8 h-8 text-pink-500" />
+              </div>
+              <h2 className="text-2xl font-bold text-white">Delete Product</h2>
+            </div>
+
+            <p className="text-gray-300 mb-6">
+              Are you sure you want to delete this product? This action cannot be undone.
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                onClick={deleteBanner}
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-semibold rounded-lg transition-all transform hover:scale-105"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => setDeleteModal(null)}
+                className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

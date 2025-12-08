@@ -1,28 +1,20 @@
 "use client";
-import React from 'react';
+import { useGetHomeBanner } from '@/src/utlis/useHomeBanner';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-
-const slides = [
-  {
-    title: "Explore New Horizons",
-    description: "Discover breathtaking places and incredible adventures.",
-    image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80",
-  },
-  {
-    title: "Urban Lifestyle",
-    description: "Feel the vibe of vibrant cities across the globe.",
-    image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1600&q=80",
-  },
-  {
-    title: "Nature & Relaxation",
-    description: "Find your peace in nature's embrace.",
-    image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=80",
-  },
-];
+import React from 'react';
 
 const Carousel = () => {
+  const { homebanner, loading, error, refetch } = useGetHomeBanner();
   const [currentSlide, setCurrentSlide] = React.useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = React.useState(true);
+
+  // Filter only active banners from API
+  const slides = React.useMemo(() => {
+    if (!homebanner || !Array.isArray(homebanner)) return [];
+    return homebanner.filter(banner => banner.active === true);
+  }, [homebanner]);
+
+  console.log('Active slides:', slides)
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % slides.length);
@@ -51,10 +43,33 @@ const Carousel = () => {
   const handleMouseEnter = () => setIsAutoPlaying(false);
   const handleMouseLeave = () => setIsAutoPlaying(true);
 
+
+  if (loading)
+    return (
+      <div className="flex items-center justify-center h-[400px]">
+        <p className="text-gray-500">Loading banners...</p>
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="flex items-center justify-center h-[400px]">
+        <p className="text-red-500">Failed to load banners</p>
+      </div>
+    );
+
+  if (!slides.length)
+    return (
+      <div className="flex items-center justify-center h-[400px]">
+        <p className="text-gray-500">No banners found</p>
+      </div>
+    );
+
+
   return (
     <div className="relative w-[98%]   mx-auto mt-6 group">
       {/* Main carousel container */}
-      <div 
+      <div
         className="relative h-[400px] md:h-[500px] lg:h-[600px] rounded-2xl overflow-hidden shadow-2xl"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -64,22 +79,21 @@ const Carousel = () => {
           {slides.map((slide, index) => (
             <div
               key={index}
-              className={`absolute inset-0 transition-all duration-700 ease-in-out ${
-                index === currentSlide
-                  ? 'opacity-100 translate-x-0'
-                  : index < currentSlide
+              className={`absolute inset-0 transition-all duration-700 ease-in-out ${index === currentSlide
+                ? 'opacity-100 translate-x-0'
+                : index < currentSlide
                   ? 'opacity-0 -translate-x-full'
                   : 'opacity-0 translate-x-full'
-              }`}
+                }`}
             >
               <img
-                src={slide.image}
+                src={slide.images?.[0] || slide.image}
                 alt={slide.title}
                 className="w-full h-full object-cover"
               />
               {/* Gradient overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-              
+
               {/* Content overlay */}
               <div className="absolute inset-0 flex flex-col justify-end items-center text-white text-center p-6 md:p-8 lg:p-12">
                 <div className="max-w-4xl mx-auto transform translate-y-0 opacity-100 transition-all duration-700">
@@ -87,7 +101,7 @@ const Carousel = () => {
                     {slide.title}
                   </h2>
                   <p className="text-sm md:text-lg lg:text-xl opacity-90 leading-relaxed">
-                    {slide.description}
+                    {slide.Description || slide.description || ''}
                   </p>
                 </div>
               </div>
@@ -136,11 +150,10 @@ const Carousel = () => {
           <button
             key={index}
             onClick={() => goToSlide(index)}
-            className={`w-3 h-3 rounded-full transition-all duration-300 ${
-              index === currentSlide
-                ? 'bg-blue-600 w-8'
-                : 'bg-gray-300 hover:bg-gray-400'
-            }`}
+            className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentSlide
+              ? 'bg-blue-600 w-8'
+              : 'bg-gray-300 hover:bg-gray-400'
+              }`}
             aria-label={`Go to slide ${index + 1}`}
           />
         ))}
@@ -152,14 +165,13 @@ const Carousel = () => {
           <button
             key={index}
             onClick={() => goToSlide(index)}
-            className={`relative overflow-hidden rounded-lg transition-all duration-300 ${
-              index === currentSlide
-                ? 'ring-2 ring-blue-500 ring-offset-2'
-                : 'opacity-60 hover:opacity-80'
-            }`}
+            className={`relative overflow-hidden rounded-lg transition-all duration-300 ${index === currentSlide
+              ? 'ring-2 ring-blue-500 ring-offset-2'
+              : 'opacity-60 hover:opacity-80'
+              }`}
           >
             <img
-              src={slide.image}
+              src={slide.images?.[0] || slide.image}
               alt={slide.title}
               className="w-16 h-10 object-cover"
             />

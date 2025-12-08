@@ -1,38 +1,55 @@
 "use client"
-import { useState } from "react"
+import NotificationDropdown from "@/src/helper/notification"
+import { useGetcategory } from "@/src/utlis/usecategory"
+import { useGetSubcategory } from "@/src/utlis/useSubcategory"
 import {
-  Home,
-  ShoppingCart,
-  Package,
-  Users,
-  Settings,
-  Bell,
-  Search,
-  Menu,
-  TrendingUp,
-  Star,
-  DollarSign,
+  AppWindow,
   BarChart3,
-  RefreshCw,
-  Plus,
+  BookImage,
   ChevronRight,
-  ImageIcon,
-  Tag,
-  Truck,
-  MessageSquare,
-  FileText,
-  Shield,
-  Globe,
-  Mail,
   Clock,
+  DollarSign,
+  FileText,
+  Globe,
+  Home,
+  ImageDown,
+  ImageIcon,
+  ImagePlus,
+  Menu,
+  MessageSquare,
+  Package,
+  Plus,
+  Search,
+  Settings,
+  Shield,
+  ShieldUser,
+  ShoppingCart,
+  Tag,
+  TrendingUp,
+  Truck,
+  Users,
 } from "lucide-react"
 import Link from "next/link"
+import { useState } from "react"
+import { MdEmail } from "react-icons/md"
+import { useSelector } from "react-redux"
 
 const DashboardNebver = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [activeMenu, setActiveMenu] = useState("dashboard")
   const [expandedMenus, setExpandedMenus] = useState({})
-  const [notifications, setNotifications] = useState(3)
+
+
+  // admin user data get
+  const data = useSelector((state) => state.user.data);
+  console.log('data', data);
+
+
+  // category get    
+  const { category, loading, error } = useGetcategory()
+  // subcategory all get 
+  const { } = useGetSubcategory()
+
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen)
 
@@ -58,8 +75,8 @@ const DashboardNebver = ({ children }) => {
       submenu: [
         { path: "products/allproducts", id: 11, label: "All Products", icon: Package },
         { path: "products/addproduct", id: 12, label: "Add Product", icon: Plus },
-        { path: "products/categorieslist", id: 13, label: "Categories List", icon: Tag },
-        { path: "products/addcategorie", id: 14, label: "Add Categorie", icon: Tag },
+        { path: "products/subcategory", id: 13, label: "SubCategory", icon: Tag },
+        { path: "products/addcategorie", id: 14, label: "Categorie", icon: Tag },
         { path: "products/inventory", id: 16, label: "Inventory", icon: BarChart3 },
       ],
     },
@@ -78,7 +95,7 @@ const DashboardNebver = ({ children }) => {
       id: 4,
       label: "Customers",
       icon: Users,
-       path: "/dashboard/customers/all-customers",
+      path: "/dashboard/customers/all-customers",
       submenu: [
         { path: "/customers/all-customers", id: 19, label: "All Customers", icon: Users },
         { path: "/customers/customer-groups", id: 20, label: "Customer Groups", icon: Users },
@@ -100,13 +117,13 @@ const DashboardNebver = ({ children }) => {
     {
       id: 6,
       label: "Banners",
-      icon: TrendingUp,
+      icon: AppWindow,
       path: "/dashboard/banner/home-slider",
       submenu: [
-        { path: "/banner/home-slider", id: 27, label: "Home Slider", icon: Mail },
-        { path: "/banner/center-banner", id: 28, label: "Center Banner", icon: Tag },
+        { path: "/banner/home-slider", id: 27, label: "Home Slider", icon: BookImage },
+        { path: "/banner/center-banner", id: 28, label: "Center Banner", icon: ImagePlus },
         { path: "/banner/left-banner", id: 29, label: "Left Banner", icon: ImageIcon },
-        { path: "/banner/right-banner", id: 30, label: "Right Banner", icon: Mail },
+        { path: "/banner/right-banner", id: 30, label: "Right Banner", icon: ImageDown },
       ],
     },
     {
@@ -115,16 +132,18 @@ const DashboardNebver = ({ children }) => {
       icon: FileText,
       path: "/dashboard/content/blogs",
       submenu: [
-        { path: "/content/blogs", id:31, label: "Blogs", icon: FileText },
+        { path: "/content/blogs", id: 31, label: "Blogs", icon: FileText },
         { path: "/content/media-library", id: 32, label: "Media Library", icon: ImageIcon },
+        { path: "/content/email-list", id: 50, label: "Email", icon: MdEmail },
       ],
     },
     {
-      id:8,
+      id: 8,
       label: "Settings",
       icon: Settings,
       path: "/dashboard/settings/generalsettings",
       submenu: [
+        { path: "/settings/userupdate", id: 53, label: "User Manage", icon: ShieldUser },
         { path: "/settings/generalsettings", id: 33, label: "General Settings", icon: Settings },
         { path: "/settings/paymentsettings", id: 34, label: "Payment Settings", icon: DollarSign },
         { path: "/settings/shippingsettings", id: 35, label: "Shipping Settings", icon: Truck },
@@ -181,25 +200,22 @@ const DashboardNebver = ({ children }) => {
                 <Search className="w-5 h-5 text-white" />
               </button>
 
-              <button className="relative p-3 rounded-xl bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-600 hover:to-gray-800 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl group border border-gray-600/50">
-                <Bell className="w-5 h-5 text-white group-hover:animate-bounce" />
-                {notifications > 0 && (
-                  <span className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-red-600 to-red-700 text-white text-xs rounded-full flex items-center justify-center animate-bounce shadow-lg border border-red-500/50">
-                    {notifications}
-                  </span>
-                )}
-              </button>
+              {/* Notification  */}
+
+              <NotificationDropdown />
 
               <div className="flex items-center space-x-3 pl-4 border-l border-gray-700/60">
                 <div className="relative group">
                   <div className="w-10 h-10 bg-gradient-to-r from-gray-600 via-gray-700 to-gray-800 rounded-full flex items-center justify-center shadow-lg shadow-black/50 transform group-hover:scale-110 transition-all duration-300 border border-gray-600/50">
-                    <span className="text-white font-bold text-sm group-hover:animate-pulse">SH</span>
+                    {
+                      data?.image ? <img className=" w-9 h-9 rounded-full cursor-pointer" src={data?.image} alt="image" /> : <span className="text-white font-bold text-sm group-hover:animate-pulse">{data?.name?.slice(0, 2).toUpperCase()}</span>
+                    }
                   </div>
                   <div className="absolute -inset-1 bg-gradient-to-r from-gray-600 to-gray-800 rounded-full opacity-0 group-hover:opacity-30 blur transition-all duration-300"></div>
                 </div>
                 <div className="hidden sm:block">
-                  <p className="text-sm font-semibold text-white">Sakib Hossain</p>
-                  <p className="text-xs text-gray-400 font-medium">Super Admin</p>
+                  <p className="text-sm font-semibold text-white">{data?.name}</p>
+                  <p className="text-xs text-gray-400 font-medium">{data?.email}</p>
                 </div>
               </div>
             </div>
@@ -209,9 +225,8 @@ const DashboardNebver = ({ children }) => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-16 left-0 z-40 h-[calc(100vh-4rem)] transition-all duration-500 ease-out ${
-          sidebarOpen ? "w-72" : "w-0 md:w-20"
-        } bg-black/95 backdrop-blur-xl border-r border-gray-800/50 shadow-2xl shadow-black/20 overflow-hidden`}
+        className={`fixed top-16 left-0 z-40 h-[calc(100vh-4rem)] transition-all duration-500 ease-out ${sidebarOpen ? "w-72" : "w-0 md:w-20"
+          } bg-black/95 backdrop-blur-xl border-r border-gray-800/50 shadow-2xl shadow-black/20 overflow-hidden`}
       >
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-gray-900/20 via-black/20 to-gray-800/20 pointer-events-none"></div>
@@ -228,11 +243,10 @@ const DashboardNebver = ({ children }) => {
                         toggleSubmenu(item.id)
                       }
                     }}
-                    className={`w-full flex items-center justify-between px-4 py-3 text-sm font-semibold rounded-2xl transition-all duration-300 group relative overflow-hidden ${
-                      activeMenu === item.id
-                        ? "bg-gradient-to-r from-gray-700 to-gray-900 text-white shadow-xl shadow-black/50 transform scale-105 border border-gray-600/50"
-                        : "text-gray-300 hover:bg-gradient-to-r hover:from-gray-800/50 hover:to-black/50 hover:shadow-lg hover:shadow-black/20 hover:scale-105 hover:text-white border border-transparent hover:border-gray-700/30"
-                    }`}
+                    className={`w-full flex items-center justify-between px-4 py-3 text-sm font-semibold rounded-2xl transition-all duration-300 group relative overflow-hidden ${activeMenu === item.id
+                      ? "bg-gradient-to-r from-gray-700 to-gray-900 text-white shadow-xl shadow-black/50 transform scale-105 border border-gray-600/50"
+                      : "text-gray-300 hover:bg-gradient-to-r hover:from-gray-800/50 hover:to-black/50 hover:shadow-lg hover:shadow-black/20 hover:scale-105 hover:text-white border border-transparent hover:border-gray-700/30"
+                      }`}
                   >
                     {/* Animated background */}
                     <div
@@ -241,25 +255,22 @@ const DashboardNebver = ({ children }) => {
 
                     <Link href={`${item.path}`} className="flex items-center space-x-4 relative z-10">
                       <div
-                        className={`p-2 rounded-xl transition-all duration-300 ${
-                          activeMenu === item.id
-                            ? "bg-white/10 shadow-lg backdrop-blur-sm"
-                            : "group-hover:bg-gray-700/30"
-                        }`}
+                        className={`p-2 rounded-xl transition-all duration-300 ${activeMenu === item.id
+                          ? "bg-white/10 shadow-lg backdrop-blur-sm"
+                          : "group-hover:bg-gray-700/30"
+                          }`}
                       >
                         <item.icon
-                          className={`w-5 h-5 transition-all duration-300 ${
-                            activeMenu === item.id
-                              ? "text-white scale-110"
-                              : "text-gray-400 group-hover:text-white group-hover:scale-110"
-                          }`}
+                          className={`w-5 h-5 transition-all duration-300 ${activeMenu === item.id
+                            ? "text-white scale-110"
+                            : "text-gray-400 group-hover:text-white group-hover:scale-110"
+                            }`}
                         />
                       </div>
                       {(sidebarOpen || !item.submenu) && (
                         <span
-                          className={`transition-all duration-300 ${
-                            sidebarOpen ? "opacity-100 transform translate-x-0" : "opacity-0 transform translate-x-4"
-                          } font-medium`}
+                          className={`transition-all duration-300 ${sidebarOpen ? "opacity-100 transform translate-x-0" : "opacity-0 transform translate-x-4"
+                            } font-medium`}
                         >
                           {item.label}
                         </span>
@@ -267,9 +278,8 @@ const DashboardNebver = ({ children }) => {
                     </Link>
                     {item.submenu && sidebarOpen && (
                       <ChevronRight
-                        className={`w-5 h-5 transition-all duration-300 relative z-10 ${
-                          expandedMenus[item.id] ? "rotate-90 text-white" : "text-gray-500"
-                        } ${activeMenu === item.id ? "text-white" : ""}`}
+                        className={`w-5 h-5 transition-all duration-300 relative z-10 ${expandedMenus[item.id] ? "rotate-90 text-white" : "text-gray-500"
+                          } ${activeMenu === item.id ? "text-white" : ""}`}
                       />
                     )}
                   </button>
@@ -277,28 +287,25 @@ const DashboardNebver = ({ children }) => {
                   {/* Submenu */}
                   {item.submenu && sidebarOpen && (
                     <div
-                      className={`mt-3 ml-6 space-y-2 overflow-hidden transition-all duration-500 transform ${
-                        expandedMenus[item.id]
-                          ? "max-h-96 opacity-100 translate-y-0"
-                          : "max-h-0 opacity-0 -translate-y-4"
-                      }`}
+                      className={`mt-3 ml-6 space-y-2 overflow-hidden transition-all duration-500 transform ${expandedMenus[item.id]
+                        ? "max-h-96 opacity-100 translate-y-0"
+                        : "max-h-0 opacity-0 -translate-y-4"
+                        }`}
                     >
                       {item.submenu.map((subItem, subIndex) => (
                         <Link
                           href={`/dashboard/${subItem.path}`}
                           key={subItem.id}
                           onClick={() => setActiveMenu(subItem.id)}
-                          className={`group flex items-center space-x-3 px-4 py-2.5 text-sm rounded-xl transition-all duration-300 transform hover:scale-105 ${
-                            activeMenu === subItem.id
-                              ? "bg-gradient-to-r from-gray-600 to-gray-800 text-white shadow-lg shadow-black/30 border border-gray-600/50"
-                              : "text-gray-400 hover:bg-gradient-to-r hover:from-gray-800/30 hover:to-black/30 hover:text-white hover:shadow-md border border-transparent hover:border-gray-700/20"
-                          } animate-slideInRight`}
+                          className={`group flex items-center space-x-3 px-4 py-2.5 text-sm rounded-xl transition-all duration-300 transform hover:scale-105 ${activeMenu === subItem.id
+                            ? "bg-gradient-to-r from-gray-600 to-gray-800 text-white shadow-lg shadow-black/30 border border-gray-600/50"
+                            : "text-gray-400 hover:bg-gradient-to-r hover:from-gray-800/30 hover:to-black/30 hover:text-white hover:shadow-md border border-transparent hover:border-gray-700/20"
+                            } animate-slideInRight`}
                           style={{ animationDelay: `${subIndex * 0.05}s` }}
                         >
                           <div
-                            className={`p-1.5 rounded-lg transition-all duration-300 ${
-                              activeMenu === subItem.id ? "bg-white/10 backdrop-blur-sm" : "group-hover:bg-gray-700/20"
-                            }`}
+                            className={`p-1.5 rounded-lg transition-all duration-300 ${activeMenu === subItem.id ? "bg-white/10 backdrop-blur-sm" : "group-hover:bg-gray-700/20"
+                              }`}
                           >
                             <subItem.icon className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" />
                           </div>
@@ -340,15 +347,13 @@ const DashboardNebver = ({ children }) => {
 
       {/* Main Content */}
       <main
-        className="pt-16 transition-all duration-500 ease-out min-h-screen"
-        style={{
-          paddingLeft: sidebarOpen ? "18rem" : "0",
-          "@media (max-width: 768px)": {
-            paddingLeft: "0",
-          },
-        }}
+        className={`
+    pt-16 transition-all duration-500 ease-out min-h-screen
+    ${sidebarOpen ? "pl-72" : "pl-0"}
+    md:pl-0
+  `}
       >
-         {children}
+        {children}
       </main>
 
       <style jsx>{`

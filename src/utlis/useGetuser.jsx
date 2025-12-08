@@ -1,10 +1,8 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { getUserProfile } from "../hook/useAuth";
 import { useDispatch } from "react-redux";
 import { userget } from "../redux/userSlice";
-
 
 // ✅ Custom hook
 export const useGetUser = () => {

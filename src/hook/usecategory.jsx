@@ -7,6 +7,9 @@ export const CategoryCreate = async (formData, ) => {
   try {
     const response = await axios.post(`${UrlBackend}/categories/create`, formData, {
       withCredentials: true,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
     });
     return response.data; 
   } catch (error) {
@@ -48,6 +51,7 @@ export const CategoryUploade = async (formData, categoryId) => {
   }
 };
 
+// delete category
 export const CategoryDelete = async (categoryId) => {
   try {
     const response = await axios.delete(
