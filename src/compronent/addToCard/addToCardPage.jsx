@@ -1,6 +1,7 @@
 "use client";
 import { getCartApi, removeCartItemApi, updateCartItemApi } from '@/src/hook/useCart';
 import { removeItemLocal, updateQuantityLocal } from '@/src/redux/cartSlice';
+import { useGetSubcategory } from "@/src/utlis/useSubcategory";
 import {
   AlertCircle,
   ArrowRight,
@@ -23,21 +24,58 @@ import {
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import {
+  addToWishlistApi,
+  removeFromWishlistApi
+} from "../../hook/useWishlist";
+
 
 const ShoppingCartComponent = () => {
   const dispatch = useDispatch();
   const { items: rawItems = [], loading, error } = useSelector((state) => state.cart);
+  const { data: wishlistItems } = useSelector((state) => state.wishlist);
+  console.log("Cart Items:", rawItems);
   const user = useSelector((state) => state.user.data);
 
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [showCouponInput, setShowCouponInput] = useState(false);
+  const [localWishlist, setLocalWishlist] = useState(new Set());
+  const { subcategory, loading: subcategoryLoading } = useGetSubcategory();
+
 
   useEffect(() => {
     if (user?._id) {
       getCartApi(user._id, dispatch);
     }
   }, [user?._id, dispatch]);
+
+  useEffect(() => {
+    setLocalWishlist(new Set((wishlistItems || []).map((item) => item.id)));
+  }, [wishlistItems]);
+
+
+  const toggleWishlist = async (id) => {
+    try {
+      const updatedSet = new Set(localWishlist);
+
+      if (updatedSet.has(id)) {
+        updatedSet.delete(id);
+        setLocalWishlist(updatedSet);
+
+        await removeFromWishlistApi(id, dispatch);
+      } else {
+        updatedSet.add(id);
+        setLocalWishlist(updatedSet);
+
+        await addToWishlistApi(id, dispatch);
+      }
+
+    } catch (err) {
+      console.error("Wishlist toggle error:", err);
+    }
+  };
+
 
   const cartItems = rawItems.map((item) => {
     const product = item.productId || {};
@@ -48,7 +86,7 @@ const ShoppingCartComponent = () => {
     const quantity = item.quantity ?? 1;
     const image =
       (product.images && product.images[0]) ||
-      (product.image && product.image[0]) ||
+      (product.images && product.image[0]) ||
       'https://via.placeholder.com/100x100';
     const name = product.productName || product.name || 'Product';
     const inStock = (product.stock ?? 1) > 0;
@@ -270,9 +308,23 @@ const ShoppingCartComponent = () => {
 
                         {/* Actions */}
                         <div className="flex items-center space-x-2">
-                          <button className="p-2  text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all duration-300">
-                            <Heart className="w-5 h-5" />
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              toggleWishlist(item.productId);
+                            }}
+                            className={`p-2 rounded-lg transition-all duration-300 
+                            ${localWishlist.has(item.productId)
+                                ? "text-red-500 bg-red-100"
+                                : "text-gray-400 hover:text-red-500 hover:bg-red-50"
+                              }`}
+                          >
+                            <Heart
+                              className="w-5 h-5"
+                              fill={localWishlist.has(item.productId) ? "red" : "none"}
+                            />
                           </button>
+
                           <button
                             onClick={() => removeItem(item.productId)}
                             className="p-2 text-gray-400 cursor-pointer hover:text-red-500 hover:bg-red-50 rounded-lg transition-all duration-300"
@@ -329,22 +381,37 @@ const ShoppingCartComponent = () => {
                   <Gift className="w-5 h-5 mr-2 text-purple-600" />
                   You might also like
                 </h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="border border-gray-200 rounded-xl p-3 hover:shadow-lg transition-all duration-300 cursor-pointer group">
-                      <img
-                        src={`https://via.placeholder.com/100x100`}
-                        alt="Suggested product"
-                        className="w-full h-20 object-cover rounded-lg mb-2"
-                      />
-                      <h4 className="text-sm font-medium text-gray-900 mb-1 group-hover:text-teal-600">
-                        Product {i}
-                      </h4>
-                      <p className="text-sm text-teal-600 font-bold">৳1,500</p>
-                    </div>
-                  ))}
-                </div>
+
+                {loading && (
+                  <p className="text-gray-500 text-sm">Loading recommendations...</p>
+                )}
+
+                {!loading && subcategory && (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {subcategory.map((item) => (
+                      <div
+                        key={item._id}
+                        className="border border-gray-200 rounded-xl p-3 hover:shadow-lg transition-all duration-300 cursor-pointer group"
+                      >
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="w-full h-20 object-cover rounded-lg mb-2"
+                        />
+
+                        <h4 className="text-sm font-medium text-gray-900 mb-1 group-hover:text-teal-600 flex items-center gap-1">
+                          <span>{item.icon}</span> {item.name}
+                        </h4>
+
+                        <p className="text-xs text-gray-500 capitalize">
+                          Category: {item.category?.name}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
+
             </div>
 
             {/* Order Summary */}
