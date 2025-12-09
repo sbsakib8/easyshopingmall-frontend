@@ -39,6 +39,7 @@ const ProductDetails = () => {
       try {
         setLoading(true);
         const data = await getProductDetailsApi(params.id);
+        console.log(data);
         if (data) {
           // Normalize product data - handle all API fields
           const normalized = {
@@ -60,7 +61,11 @@ const ProductDetails = () => {
             subCategory: data.subCategory,
             features: data.features || (Array.isArray(data.tags) ? data.tags : []),
             weight: Number(data.productWeight ?? 0) || 0,
-            size: data.productSize || '',
+            sizes: Array.isArray(data.productSize)
+         ? data.productSize
+         : typeof data.productSize === "string"
+           ? data.productSize.split(',').map(s => s.trim())
+           : [],
             sku: data.sku || '',
             rank: Number(data.productRank ?? 0) || 0,
             featured: data.featured || false,
@@ -79,9 +84,10 @@ const ProductDetails = () => {
         setLoading(false);
       }
     };
-
     if (params.id) fetchProduct();
   }, [params.id]);
+
+  
 
   // Filter related products from same subcategory
   useEffect(() => {
@@ -355,10 +361,18 @@ const ProductDetails = () => {
             </div>
 
             {/* Price */}
-            <div className="flex items-center space-x-4">
-              <span className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+            <div className="flex items-center space-x-7">
+              <span className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                 ৳{product?.price?.toFixed(0) || 0}
               </span>
+              <div>
+              {product?.discount > 0 && (
+                <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1 rounded-full text-sm font-semibold animate-pulse">
+                  {Math.round(product.discount)}% OFF
+                </div>
+              )}
+              <del  className="text-2xl font-bold bg-gradient-to-r from-gray-400 to-gray-500 bg-clip-text text-transparent">Rs { product?.rank}</del>
+              </div>
               {product?.originalPrice > product?.price && (
                 <>
                   <span className="text-xl text-gray-500 line-through">
@@ -378,17 +392,17 @@ const ProductDetails = () => {
                   Color: {selectedColor}
                 </h3>
                 <div className="flex space-x-3">
-                  {product?.colors?.map((color) => (
+                  {product?.colors?.map((color,index) => (
                     <button
-                      key={color.id}
-                      onClick={() => setSelectedColor(color.name)}
-                      className={`w-10 h-10 rounded-full border-2 transition-all duration-300 ${selectedColor === color.name
+                      key={index}
+                      onClick={() => setSelectedColor(color)}
+                      className={`w-10 h-10 rounded-full border-2 transition-all duration-300 ${selectedColor === color
                         ? 'ring-4 ring-blue-300 scale-110'
                         : 'hover:scale-110'
                         }`}
                       style={{
-                        backgroundColor: color.value,
-                        borderColor: color.border || color.value
+                        backgroundColor: color,
+                        borderColor: color || color
                       }}
                     />
                   ))}
@@ -400,7 +414,7 @@ const ProductDetails = () => {
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">Sizes</h3>
 
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-1">
                   {product.sizes.map((size) => {
                     const isActive = selectedSize === size;
 
@@ -411,7 +425,7 @@ const ProductDetails = () => {
                           setSelectedSize((prev) => (prev === size ? null : size))
                         }
                         className={`
-              flex items-center justify-center
+              flex items-center justify-center w-20
               h-8
               px-3 rounded-full font-semibold
               transition-all duration-300 border

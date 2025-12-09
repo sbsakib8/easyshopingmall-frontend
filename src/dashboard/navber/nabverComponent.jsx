@@ -38,6 +38,7 @@ const DashboardNebver = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [activeMenu, setActiveMenu] = useState("dashboard")
   const [expandedMenus, setExpandedMenus] = useState({})
+  const [isHovered, setIsHovered] = useState(false);
 
 
   // admin user data get
@@ -153,13 +154,13 @@ const DashboardNebver = ({ children }) => {
   ]
 
   return (
-    <div className=" bg-gradient-to-br from-gray-900 via-black to-gray-800">
+    <div className=" bg-gradient-to-br from-gray-900 via-black to-gray-800 ">
       {/* Top Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-xl border-b border-gray-800/50 shadow-2xl shadow-black/20">
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Left side */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-4 ">
               <button
                 onClick={toggleSidebar}
                 className="group p-3 rounded-xl bg-gradient-to-r from-gray-800 to-black hover:from-gray-700 hover:to-gray-900 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border border-gray-700/50"
@@ -224,14 +225,16 @@ const DashboardNebver = ({ children }) => {
       </nav>
 
       {/* Sidebar */}
+      
       <aside
-        className={`fixed top-16 left-0 z-40 h-[calc(100vh-4rem)] transition-all duration-500 ease-out ${sidebarOpen ? "w-72" : "w-0 md:w-20"
-          } bg-black/95 backdrop-blur-xl border-r border-gray-800/50 shadow-2xl shadow-black/20 overflow-hidden`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+        className={`fixed top-16 left-0 z-40 h-[calc(100vh-4rem)] transition-all duration-500 ease-out  ${sidebarOpen || isHovered ? "w-72" : "w-20"} bg-black/95 backdrop-blur-xl border-r border-gray-800/50 shadow-2xl shadow-black/20 overflow-hidden    `}
       >
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-gray-900/20 via-black/20 to-gray-800/20 pointer-events-none"></div>
 
-        <div className="flex flex-col h-full relative z-10">
+        <div className="flex flex-col h-full relative z-10  ">
           <div className="flex-1 px-4 py-6 overflow-y-auto">
             <nav className="space-y-3">
               {menuItems.map((item, index) => (
@@ -253,7 +256,7 @@ const DashboardNebver = ({ children }) => {
                       className={`absolute inset-0 bg-gradient-to-r from-gray-700/20 to-gray-900/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${activeMenu === item.id ? "opacity-30" : ""}`}
                     ></div>
 
-                    <Link href={`${item.path}`} className="flex items-center space-x-4 relative z-10">
+                    <Link  onClick={toggleSidebar}  href={`${item.path}`} className="flex items-center space-x-4 relative z-10">
                       <div
                         className={`p-2 rounded-xl transition-all duration-300 ${activeMenu === item.id
                           ? "bg-white/10 shadow-lg backdrop-blur-sm"
@@ -267,16 +270,16 @@ const DashboardNebver = ({ children }) => {
                             }`}
                         />
                       </div>
-                      {(sidebarOpen || !item.submenu) && (
+                      {(sidebarOpen || isHovered) && (
                         <span
-                          className={`transition-all duration-300 ${sidebarOpen ? "opacity-100 transform translate-x-0" : "opacity-0 transform translate-x-4"
+                          className={`transition-all duration-300 ${sidebarOpen || isHovered ? "opacity-100 transform translate-x-0" : "opacity-0 transform translate-x-4"
                             } font-medium`}
                         >
                           {item.label}
                         </span>
                       )}
                     </Link>
-                    {item.submenu && sidebarOpen && (
+                    {item.submenu && (sidebarOpen || isHovered) && (
                       <ChevronRight
                         className={`w-5 h-5 transition-all duration-300 relative z-10 ${expandedMenus[item.id] ? "rotate-90 text-white" : "text-gray-500"
                           } ${activeMenu === item.id ? "text-white" : ""}`}
@@ -285,8 +288,9 @@ const DashboardNebver = ({ children }) => {
                   </button>
 
                   {/* Submenu */}
-                  {item.submenu && sidebarOpen && (
+                  {item.submenu &&(sidebarOpen || isHovered) && (
                     <div
+                     onClick={toggleSidebar}
                       className={`mt-3 ml-6 space-y-2 overflow-hidden transition-all duration-500 transform ${expandedMenus[item.id]
                         ? "max-h-96 opacity-100 translate-y-0"
                         : "max-h-0 opacity-0 -translate-y-4"
@@ -304,6 +308,7 @@ const DashboardNebver = ({ children }) => {
                           style={{ animationDelay: `${subIndex * 0.05}s` }}
                         >
                           <div
+                    
                             className={`p-1.5 rounded-lg transition-all duration-300 ${activeMenu === subItem.id ? "bg-white/10 backdrop-blur-sm" : "group-hover:bg-gray-700/20"
                               }`}
                           >
@@ -321,7 +326,7 @@ const DashboardNebver = ({ children }) => {
 
           {/* Sidebar Footer */}
           <div className="p-4 border-t border-gray-800/50">
-            {sidebarOpen && (
+            {sidebarOpen || isHovered && (
               <div className="relative p-4 rounded-2xl bg-gradient-to-r from-gray-800 via-gray-900 to-black shadow-xl shadow-black/50 transform hover:scale-105 transition-all duration-300 group overflow-hidden border border-gray-700/50">
                 {/* Animated background */}
                 <div className="absolute inset-0 bg-gradient-to-r from-gray-700 via-gray-800 to-gray-900 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -344,12 +349,13 @@ const DashboardNebver = ({ children }) => {
           </div>
         </div>
       </aside>
+   
 
       {/* Main Content */}
       <main
         className={`
     pt-16 transition-all duration-500 ease-out min-h-screen
-    ${sidebarOpen ? "pl-72" : "pl-0"}
+    ${sidebarOpen || isHovered ? "pl-72" : "pl-0"}
     md:pl-0
   `}
       >
