@@ -5,6 +5,7 @@ import { decreaseProductQuantity, increaseProductQuantity } from '@/src/hook/use
 import { addToWishlistApi, removeFromWishlistApi } from '@/src/hook/useWishlist';
 import { useGetProduct } from '@/src/utlis/userProduct';
 import { ChevronRight, Heart, Loader, Minus, Plus, RotateCcw, Share2, Shield, ShoppingCart, Star, Truck, Zap } from 'lucide-react';
+import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -38,6 +39,7 @@ const ProductDetails = () => {
       try {
         setLoading(true);
         const data = await getProductDetailsApi(params.id);
+        console.log(data);
         if (data) {
           // Normalize product data - handle all API fields
           const normalized = {
@@ -59,7 +61,11 @@ const ProductDetails = () => {
             subCategory: data.subCategory,
             features: data.features || (Array.isArray(data.tags) ? data.tags : []),
             weight: Number(data.productWeight ?? 0) || 0,
-            size: data.productSize || '',
+            sizes: Array.isArray(data.productSize)
+         ? data.productSize
+         : typeof data.productSize === "string"
+           ? data.productSize.split(',').map(s => s.trim())
+           : [],
             sku: data.sku || '',
             rank: Number(data.productRank ?? 0) || 0,
             featured: data.featured || false,
@@ -78,9 +84,10 @@ const ProductDetails = () => {
         setLoading(false);
       }
     };
-
     if (params.id) fetchProduct();
   }, [params.id]);
+
+  
 
   // Filter related products from same subcategory
   useEffect(() => {
@@ -121,8 +128,15 @@ const ProductDetails = () => {
   const isWishlisted = product && (wishlist || []).some((i) => i.id === product.id);
 
   // Check if product is in cart
-  const cartItem = cartItems.find(item => item.productId._id === product?.id || item.productId.id === product?.id);
+  const cartItem = cartItems.find(item => item.productId?._id === product?.id || item.productId?.id === product?.id);
 
+  const toggleSize = (size) => {
+    setSelectedSize((prev) =>
+      prev.includes(size)
+        ? prev.filter((s) => s !== size) // remove
+        : [...prev, size]               // add
+    );
+  };
   const incrementQuantity = async () => {
     const newQuantity = quantity + 1;
     setQuantity(newQuantity);
@@ -197,6 +211,10 @@ const ProductDetails = () => {
     }
   };
 
+  // FIX product size array (API returns ["40,41,42,43,44"])
+  const rawSizes = product?.productSize?.[0] || "";
+  const cleanedSizes = rawSizes.split(",").map(s => s.trim());
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -251,10 +269,13 @@ const ProductDetails = () => {
           {/* Image Gallery */}
           <div className="space-y-4">
             <div className="relative overflow-hidden rounded-2xl bg-white shadow-2xl group">
-              <img
+              <Image
+                width={1200}
+                height={1400}
+                quality={95}
                 src={product?.images?.[selectedImage]}
                 alt={product?.name}
-                className="w-full h-96 lg:h-[500px] object-cover transition-transform duration-700 group-hover:scale-105"
+                className="w-full h-auto object-cover "
               />
               {product?.discount > 0 && (
                 <div className="absolute top-4 left-4 bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1 rounded-full text-sm font-semibold animate-pulse">
@@ -340,10 +361,18 @@ const ProductDetails = () => {
             </div>
 
             {/* Price */}
-            <div className="flex items-center space-x-4">
-              <span className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+            <div className="flex items-center space-x-7">
+              <span className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                 ৳{product?.price?.toFixed(0) || 0}
               </span>
+              <div>
+              {product?.discount > 0 && (
+                <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1 rounded-full text-sm font-semibold animate-pulse">
+                  {Math.round(product.discount)}% OFF
+                </div>
+              )}
+              <del  className="text-2xl font-bold bg-gradient-to-r from-gray-400 to-gray-500 bg-clip-text text-transparent">Rs { product?.rank}</del>
+              </div>
               {product?.originalPrice > product?.price && (
                 <>
                   <span className="text-xl text-gray-500 line-through">
@@ -363,17 +392,17 @@ const ProductDetails = () => {
                   Color: {selectedColor}
                 </h3>
                 <div className="flex space-x-3">
-                  {product?.colors?.map((color) => (
+                  {product?.colors?.map((color,index) => (
                     <button
-                      key={color.name}
-                      onClick={() => setSelectedColor(color.name)}
-                      className={`w-10 h-10 rounded-full border-2 transition-all duration-300 ${selectedColor === color.name
+                      key={index}
+                      onClick={() => setSelectedColor(color)}
+                      className={`w-10 h-10 rounded-full border-2 transition-all duration-300 ${selectedColor === color
                         ? 'ring-4 ring-blue-300 scale-110'
                         : 'hover:scale-110'
                         }`}
                       style={{
-                        backgroundColor: color.value,
-                        borderColor: color.border || color.value
+                        backgroundColor: color,
+                        borderColor: color || color
                       }}
                     />
                   ))}
@@ -381,27 +410,44 @@ const ProductDetails = () => {
               </div>
             )}
 
-            {/* Size Selection */}
-            {(product?.sizes?.length || 0) > 0 && (
+            {product?.sizes?.length > 0 && (
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">Size</h3>
-                <div className="grid grid-cols-6 gap-2">
-                  {product?.sizes?.map((size) => (
-                    <button
-                      key={size}
-                      onClick={() => setSelectedSize(size)}
-                      className={`py-3 px-4 border-2 rounded-lg font-semibold transition-all duration-300 ${selectedSize === size
-                        ? 'border-blue-500 bg-gradient-to-r from-blue-500 to-purple-500 text-white scale-105'
-                        : 'border-gray-300 bg-white text-gray-700 hover:border-blue-300 hover:scale-105'
-                        }`}
-                    >
-                      {size}
-                    </button>
-                  ))}
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">Sizes</h3>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-1">
+                  {product.sizes.map((size) => {
+                    const isActive = selectedSize === size;
+
+                    return (
+                      <button
+                        key={size}
+                        onClick={() =>
+                          setSelectedSize((prev) => (prev === size ? null : size))
+                        }
+                        className={`
+              flex items-center justify-center w-20
+              h-8
+              px-3 rounded-full font-semibold
+              transition-all duration-300 border
+              ${isActive
+                            ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white border-transparent shadow-md scale-105"
+                            : "bg-white text-gray-800 border-gray-300 hover:border-blue-400 hover:scale-105"
+                          }
+            `}
+                      >
+                        {size}
+
+                        {isActive && (
+                          <span className="text-white font-bold text-lg leading-none ml-1">
+                            ✓
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
-
             {/* Quantity */}
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Quantity</h3>

@@ -145,8 +145,6 @@ const PopularProducts = () => {
       toast.error("Please sign in to add items to cart");
       return;
     }
-    console.log('product', product);
-
 
     try {
       await addToCartApi(

@@ -5,21 +5,21 @@ import { userget } from "../redux/userSlice";
 // signup
 export const UseAuth = async (formData, route) => {
   try {
-    const response = await axios.post(`${UrlBackend}/users/signup`, formData , { withCredentials: true} );
+    const response = await axios.post(`${UrlBackend}/users/signup`, formData, { withCredentials: true });
 
     if (response.data.success) {
       route.push("/signin");
     }
 
-    return response.data; 
+    return response.data;
   } catch (error) {
     console.error("Registration error:", error.response?.data || error.message);
-    throw error; 
+    throw error;
   }
 };
 
 // signin
-export const UserSignin = async (formData, route , dispatch ) => {
+export const UserSignin = async (formData, route, dispatch) => {
   try {
     const response = await axios.post(`${UrlBackend}/users/signin`, formData, {
       withCredentials: true,
@@ -30,33 +30,33 @@ export const UserSignin = async (formData, route , dispatch ) => {
       route.push("/");
     }
 
-    return response.data; 
+    return response.data;
   } catch (error) {
     console.error("Registration error:", error.response?.data || error.message);
-    throw error; 
+    throw error;
   }
 };
 
 // logout 
-export const Logout = async (route)=>{
-   try {
+export const Logout = async (route) => {
+  try {
     const response = await axios.get(`${UrlBackend}/users/signout`, {
       withCredentials: true,
     });
     if (response.data.success) {
       route.push("/signin");
     }
-    return response.data; 
+    return response.data;
   } catch (error) {
     console.error("Registration error:", error.response?.data || error.message);
-    throw error; 
+    throw error;
   }
 }
 
 // reset password
 export const sendOtp = async (formData) => {
   try {
-    const response = await axios.post(`${UrlBackend}/users/send-otp`, formData , {withCredentials:true});
+    const response = await axios.post(`${UrlBackend}/users/send-otp`, formData, { withCredentials: true });
     return response.data;
 
   } catch (error) {
@@ -67,7 +67,7 @@ export const sendOtp = async (formData) => {
 // VERIFY OTP
 export const verifyOtp = async (formData) => {
   try {
-    const response = await axios.post(`${UrlBackend}/users/verify-otp`, formData , {withCredentials: true});
+    const response = await axios.post(`${UrlBackend}/users/verify-otp`, formData, { withCredentials: true });
     return response.data;
   } catch (error) {
     console.error("Verify OTP error:", error.response?.data || error.message);
@@ -78,7 +78,7 @@ export const verifyOtp = async (formData) => {
 // CHANGE PASSWORD
 export const changePassword = async (formData) => {
   try {
-    const response = await axios.post(`${UrlBackend}/users/reset-password`, formData , {withCredentials:true});
+    const response = await axios.post(`${UrlBackend}/users/reset-password`, formData, { withCredentials: true });
     return response.data;
   } catch (error) {
     console.error("Change Password error:", error.response?.data || error.message);
@@ -87,9 +87,9 @@ export const changePassword = async (formData) => {
 }
 
 // google sign in
-export const googleSignIn = async (formData, route , dispatch) => {
+export const googleSignIn = async (formData, route, dispatch) => {
   try {
-     const response = await axios.post(`${UrlBackend}/users/google-auth`, formData, {
+    const response = await axios.post(`${UrlBackend}/users/google-auth`, formData, {
       withCredentials: true,
     });
     if (response.data.success) {
@@ -132,7 +132,7 @@ export const getAllUser = async () => {
 }
 
 // update profile
-export const updateUserProfile = async (id , formData) => {
+export const updateUserProfile = async (id, formData) => {
   try {
     const response = await axios.put(`${UrlBackend}/users/userupdate/${id}`, formData, {
       withCredentials: true,
@@ -141,11 +141,11 @@ export const updateUserProfile = async (id , formData) => {
   } catch (error) {
     console.error("Update User Profile error:", error.response?.data || error.message);
     throw error;
-  } 
+  }
 }
 
 // delete user
-export const deleteUser = async (id) => { 
+export const deleteUser = async (id) => {
   try {
     const response = await axios.delete(`${UrlBackend}/users/userdelete/${id}`, {
       withCredentials: true,

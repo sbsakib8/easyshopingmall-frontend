@@ -1,10 +1,11 @@
 "use client";
-import React, { useEffect, useState } from 'react';
-import { Mail, Phone, MapPin, Clock, Send, CheckCircle, User, MessageSquare } from 'lucide-react';
-import { ContactCreate } from '@/src/hook/content/useContact';
-import toast from 'react-hot-toast';
-import { CreateNotification } from '@/src/hook/useNotification';
 import socket from '@/src/confic/socket';
+import { ContactCreate } from '@/src/hook/content/useContact';
+import { CreateNotification } from '@/src/hook/useNotification';
+import useWebsiteInfo from '@/src/utlis/useWebsiteInfo';
+import { CheckCircle, Clock, Mail, MapPin, MessageSquare, Phone, Send, User } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 const ContactPage = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -23,28 +24,30 @@ const ContactPage = () => {
       [name]: value,
     }));
   };
+  const { data: siteInfo, loading: siteLoading } = useWebsiteInfo();
+
 
   // socket test
-    const [notifications, setNotifications] = useState([]);
-    useEffect(() => {
-      // socket connect 
-      socket.on("connect", () => {
-        console.log("🟢 Socket connected:", socket.id);
-      });
-  
-      //  notification 
-      socket.on("notification:new", (notif) => {
-        console.log("📩 New notification:", notif);
-        setNotifications((prev) => [notif, ...prev]);
-        toast.success(` ${notif.title}: ${notif.message}`);
-      });
-  
-      // cleanup
-      return () => {
-        socket.off("connect");
-        socket.off("notification:new");
-      };
-    }, []);
+  const [notifications, setNotifications] = useState([]);
+  useEffect(() => {
+    // socket connect 
+    socket.on("connect", () => {
+      console.log("🟢 Socket connected:", socket.id);
+    });
+
+    //  notification 
+    socket.on("notification:new", (notif) => {
+      console.log("📩 New notification:", notif);
+      setNotifications((prev) => [notif, ...prev]);
+      toast.success(` ${notif.title}: ${notif.message}`);
+    });
+
+    // cleanup
+    return () => {
+      socket.off("connect");
+      socket.off("notification:new");
+    };
+  }, []);
 
 
   const handleSubmit = async (e) => {
@@ -82,17 +85,17 @@ const ContactPage = () => {
     setLoading(true);
 
     try {
-     const response = await ContactCreate(formData);
+      const response = await ContactCreate(formData);
       setIsSubmitted(true);
 
       // Notify admin via socke
       await CreateNotification({
-              title: "New Email Received",
-              message: `${name} - ${subject}`,
-              type: "email",
-              referenceId: response.data._id,
-              meta: { message: response.data.message },
-            });
+        title: "New Email Received",
+        message: `${name} - ${subject}`,
+        type: "email",
+        referenceId: response.data._id,
+        meta: { message: response.data.message },
+      });
 
       setFormData({
         name: "",
@@ -138,8 +141,7 @@ const ContactPage = () => {
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold text-white mb-2">ফোন</h3>
-                  <p className="text-gray-300">+880 1234-567890</p>
-                  <p className="text-gray-300">+880 1987-654321</p>
+                  <p className="text-gray-300">{siteInfo?.number}</p>
                 </div>
               </div>
             </div>
@@ -152,8 +154,7 @@ const ContactPage = () => {
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold text-white mb-2">ইমেইল</h3>
-                  <p className="text-gray-300">info@ecommerce.com</p>
-                  <p className="text-gray-300">support@ecommerce.com</p>
+                  <p className="text-gray-300">{siteInfo?.email}</p>
                 </div>
               </div>
             </div>
@@ -166,8 +167,7 @@ const ContactPage = () => {
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold text-white mb-2">ঠিকানা</h3>
-                  <p className="text-gray-300">১২৩, গুলশান এভিনিউ</p>
-                  <p className="text-gray-300">ঢাকা, বাংলাদেশ</p>
+                  <p className="text-gray-300">{siteInfo?.address}</p>
                 </div>
               </div>
             </div>
@@ -180,8 +180,7 @@ const ContactPage = () => {
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold text-white mb-2">অফিস সময়</h3>
-                  <p className="text-gray-300">সোম - শুক্র: ৯:০০ - ১৮:০০</p>
-                  <p className="text-gray-300">শনি: ১০:০০ - ১৬:০০</p>
+                  <p className="text-gray-300">{siteInfo?.deliveryText}</p>
                 </div>
               </div>
             </div>

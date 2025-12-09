@@ -14,14 +14,12 @@ const Carousel = () => {
     return homebanner.filter(banner => banner.active === true);
   }, [homebanner]);
 
-  console.log('Active slides:', slides)
-
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % slides.length);
+    setCurrentSlide((prev) => (prev + 1) % slides?.length);
   };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+    setCurrentSlide((prev) => (prev - 1 + slides?.length) % slides?.length);
   };
 
   const goToSlide = (index) => {
@@ -58,7 +56,7 @@ const Carousel = () => {
       </div>
     );
 
-  if (!slides.length)
+  if (!slides?.length)
     return (
       <div className="flex items-center justify-center h-[400px]">
         <p className="text-gray-500">No banners found</p>
@@ -76,7 +74,7 @@ const Carousel = () => {
       >
         {/* Slides */}
         <div className="relative w-full h-full">
-          {slides.map((slide, index) => (
+          {slides?.map((slide, index) => (
             <div
               key={index}
               className={`absolute inset-0 transition-all duration-700 ease-in-out ${index === currentSlide
@@ -87,8 +85,8 @@ const Carousel = () => {
                 }`}
             >
               <img
-                src={slide.images?.[0] || slide.image}
-                alt={slide.title}
+                src={slide?.images || slide?.image}
+                alt={slide?.title}
                 className="w-full h-full object-cover"
               />
               {/* Gradient overlay */}
@@ -98,10 +96,10 @@ const Carousel = () => {
               <div className="absolute inset-0 flex flex-col justify-end items-center text-white text-center p-6 md:p-8 lg:p-12">
                 <div className="max-w-4xl mx-auto transform translate-y-0 opacity-100 transition-all duration-700">
                   <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4 leading-tight">
-                    {slide.title}
+                    {slide?.title}
                   </h2>
                   <p className="text-sm md:text-lg lg:text-xl opacity-90 leading-relaxed">
-                    {slide.Description || slide.description || ''}
+                    {slide?.Description || slide?.description || ''}
                   </p>
                 </div>
               </div>
@@ -140,13 +138,13 @@ const Carousel = () => {
 
         {/* Progress indicator */}
         <div className="absolute top-4 right-4 bg-black/30 backdrop-blur-sm rounded-full px-3 py-1 text-white text-sm">
-          {currentSlide + 1} / {slides.length}
+          {currentSlide + 1} / {slides?.length}
         </div>
       </div>
 
       {/* Dots indicator */}
       <div className="flex justify-center mt-6 space-x-2">
-        {slides.map((_, index) => (
+        {slides?.map((_, index) => (
           <button
             key={index}
             onClick={() => goToSlide(index)}
@@ -161,7 +159,7 @@ const Carousel = () => {
 
       {/* Thumbnail navigation (optional) */}
       <div className="hidden lg:flex justify-center mt-4 space-x-2">
-        {slides.map((slide, index) => (
+        {slides?.map((slide, index) => (
           <button
             key={index}
             onClick={() => goToSlide(index)}
@@ -171,8 +169,8 @@ const Carousel = () => {
               }`}
           >
             <img
-              src={slide.images?.[0] || slide.image}
-              alt={slide.title}
+              src={slide?.images || slide?.image}
+              alt={slide?.title}
               className="w-16 h-10 object-cover"
             />
           </button>

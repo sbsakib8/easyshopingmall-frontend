@@ -29,8 +29,8 @@ const AddProductComponent = () => {
 
   const [newTag, setNewTag] = useState('');
   const [newColor, setNewColor] = useState('');
-  const [setsize , setsetsize] = useState('');
-  const [newWeight , setnewWeight] = useState('');
+  const [setsize, setsetsize] = useState('');
+  const [newWeight, setnewWeight] = useState('');
   const [dragOver, setDragOver] = useState(false);
 
   //  subcategory and category ..
@@ -198,11 +198,11 @@ const AddProductComponent = () => {
 
       for (const key in formData) {
         if (key === "images") {
-          formData.images.forEach(img => {
-            formDataToSend.append("images", img.file);
-          });
+          formData.images.forEach(img => formDataToSend.append("images", img.file));
         } else if (key === "category" || key === "subCategory") {
           formData[key].forEach(id => formDataToSend.append(key, id));
+        } else if (key === "productSize" || key === "color" || key === "productWeight" || key === "tags") {
+          formData[key].forEach(item => formDataToSend.append(key, item));
         } else {
           formDataToSend.append(key, formData[key]);
         }
@@ -214,13 +214,13 @@ const AddProductComponent = () => {
         toast.success("✅ Product added successfully!");
         resetForm()
         // 🧩 এখন notification পাঠাও
-      await ProductNotification({
-        title: "New Product Added",
-        message: `product create is now live!`,
-        type: "stock",
-        referenceId: response.data._id,
-        meta: { category: response.data.category },
-      });
+        await ProductNotification({
+          title: "New Product Added",
+          message: `product create is now live!`,
+          type: "stock",
+          referenceId: response.data._id,
+          meta: { category: response.data.category },
+        });
 
       } else {
         toast.error(response?.message || "Failed to add product");
@@ -418,9 +418,9 @@ const AddProductComponent = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-              
 
-               {/* add weight */}
+
+              {/* add weight */}
               <div className="">
                 <label className="text-white font-medium">Product weight</label>
                 <div className="flex flex-wrap gap-2">
@@ -457,9 +457,9 @@ const AddProductComponent = () => {
               </div>
 
 
-             
 
-                {/* add size */}
+
+              {/* add size */}
               <div className="">
                 <label className="text-white font-medium">Product size</label>
                 <div className="flex flex-wrap gap-2">
@@ -496,7 +496,7 @@ const AddProductComponent = () => {
               </div>
 
 
-               {/* add color */}
+              {/* add color */}
               <div className="">
                 <label className="text-white font-medium">Product Color</label>
                 <div className="flex flex-wrap gap-2">
