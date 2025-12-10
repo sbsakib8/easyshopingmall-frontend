@@ -19,7 +19,7 @@ const roboto = Roboto({
 });
 
 export const metadata = {
-  title: "EasyShoppingMall",
+  title: "EasyShoppingMallBD",
   description: "Your one-stop online shop for everything you need.",
 };
 
