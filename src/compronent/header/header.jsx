@@ -56,7 +56,6 @@ const Header = () => {
   // Countdown timer state (will be driven by website info)
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const { data: siteInfo, loading: siteLoading } = useWebsiteInfo();
-  console.log(siteInfo);
   // Fetch categories + subcategories from hook
   const { categories, subcategories, loading: categoriesLoading, getSubcategoriesForCategory } = useCategoryWithSubcategories();
 
@@ -441,73 +440,14 @@ const Header = () => {
                     placeholder="Search for products, categories or brands"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    onFocus={() => { router.push(`/shop?search=${encodeURIComponent(searchQuery || '')}`); }}
-                    onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(); }}
+                    onFocus={() => {
+                      router.push(`/shop?search=${encodeURIComponent(searchQuery || "")}`)
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleSearch()
+                    }}
                     className="w-full px-4 lg:px-6 py-3 lg:py-4 bg-transparent focus:outline-none text-gray-700 placeholder-gray-500 font-medium"
                   />
-                  {/* Live search dropdown */}
-                  {showLiveResults && (productsLoading || liveResults.length > 0) && (
-                    <div className="absolute left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 z-50 max-h-80 overflow-auto">
-                      <div className="p-2">
-                        {liveResults.slice(0, 6).map((item) => {
-                          const prod = item?.product || item; // handle wrapped shapes
-                          const id = prod._id || prod.id || prod.productId || prod._id?.toString();
-                          const name = prod.name || prod.productName || prod.title || 'Product';
-                          const image = prod.image || prod.images?.[0] || '/banner/img/placeholder.png';
-                          const price = Number(prod.price ?? prod.sell_price ?? prod.amount) || 0;
-                          const originalPrice = Number(prod.originalPrice ?? prod.oldPrice ?? prod.mrp) || 0;
-                          const created = prod.createdAt || prod.created_at || prod.createdDate;
-                          const isNew = (() => {
-                            if (!created) return true;
-                            const c = new Date(created);
-                            if (isNaN(c)) return true;
-                            return c > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-                          })();
-
-                          return (
-                            <div key={id} className="group bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-all duration-200 p-2 flex gap-3 items-start">
-                              <img src={image} alt={name} className="w-20 h-20 object-cover rounded-md" onClick={() => { setSearchQuery(name); setShowLiveResults(false); router.push(`/productdetails/${id}`); }} />
-
-                              <div className="flex-1">
-                                <div className="flex items-start justify-between gap-2">
-                                  <h4 className="text-sm font-semibold text-gray-800 line-clamp-2 cursor-pointer" onClick={() => { setSearchQuery(name); setShowLiveResults(false); router.push(`/productdetails/${id}`); }}>{name}</h4>
-                                  <div className="text-xs">
-                                    {isNew ? (
-                                      <span className="bg-green-500 text-white px-2 py-0.5 rounded text-[10px] font-bold">NEW</span>
-                                    ) : (
-                                      <span className="bg-gray-400 text-white px-2 py-0.5 rounded text-[10px] font-bold">OLD</span>
-                                    )}
-                                  </div>
-                                </div>
-
-                                <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                                  <div className="flex items-center">{renderStars(prod.rating || prod.ratings || 4)}</div>
-                                  <span className="text-xs text-gray-500">({prod.reviews || prod.reviewCount || 0})</span>
-                                </div>
-
-                                <div className="flex items-center justify-between mt-2 gap-4">
-                                  <div>
-                                    <span className="text-sm font-bold text-green-600">${price.toFixed ? price.toFixed(2) : price}</span>
-                                    {originalPrice > price && (
-                                      <span className="text-xs text-gray-400 line-through ml-2">${originalPrice.toFixed ? originalPrice.toFixed(2) : originalPrice}</span>
-                                    )}
-                                  </div>
-
-                                  <div className="flex flex-col items-end gap-2">
-                                    <button onClick={() => handleAddToCartFromHeader(prod)} className="bg-green-600 text-white px-3 py-1 rounded text-xs">Add</button>
-                                    <button onClick={() => toggleWishlistLocal(id)} className={`text-xs px-2 py-1 rounded ${wishlistIds.has(id) ? 'bg-red-500 text-white' : 'bg-white border text-gray-700'}`}>{wishlistIds.has(id) ? 'Remove' : 'Wish'}</button>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                        {(!productsLoading && liveResults.length === 0) && (
-                          <div className="p-4 text-center text-sm text-gray-500">No results</div>
-                        )}
-                      </div>
-                    </div>
-                  )}
                 </div>
 
                 {/* Search Button */}
