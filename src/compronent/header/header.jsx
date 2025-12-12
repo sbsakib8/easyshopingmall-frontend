@@ -16,10 +16,12 @@ import {
   X,
   Zap
 } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import logo from '../../../public/logo.jpeg';
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -353,7 +355,7 @@ const Header = () => {
                   <div className={`w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-emerald-500 via-green-500 to-teal-500 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 ${isScrolled ? 'animate-pulse' : ''
                     }`}>
                     <div className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 bg-white rounded-lg sm:rounded-xl flex items-center justify-center transform group-hover:rotate-12 transition-transform duration-300">
-                      <div className="w-3 h-3 sm:w-3.5 sm:h-3.5 lg:w-4 lg:h-4 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-md sm:rounded-lg"></div>
+                      <Image aria-required src={logo} alt="Logo" className="w-10 h-10 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
                     </div>
                   </div>
                   <div className="absolute -top-0.5 sm:-top-1 -right-0.5 sm:-right-1 w-2 h-2 sm:w-3 sm:h-3 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full animate-pulse"></div>

@@ -34,9 +34,11 @@ const isProductNew = (createdDate) => {
 const PopularProducts = () => {
   const [activeCategory, setActiveCategory] = useState("ALL");
   const [searchTerm, setSearchTerm] = useState("");
+  const [localWishlist, setLocalWishlist] = useState(new Set());
+
 
   const dispatch = useDispatch();
-  const { data: wishlistItems } = useSelector((state) => state.wishlist);
+  const { data: wishlistItems } = useSelector((state) => state?.wishlist?.data);
   const user = useSelector((state) => state.user.data);
 
   const productParams = useMemo(() => ({ page: 1, limit: 20, search: "" }), []);
@@ -50,10 +52,11 @@ const PopularProducts = () => {
     getWishlistApi(dispatch);
   }, [dispatch]);
 
-  const wishlistIds = useMemo(
-    () => new Set((wishlistItems || []).map((item) => item.id)),
-    [wishlistItems]
-  );
+  useEffect(() => {
+    setLocalWishlist(new Set((wishlistItems || []).map((item) => item.id)));
+  }, [wishlistItems]);
+
+
 
   const loading = categoryLoading || productLoading;
 
@@ -129,16 +132,34 @@ const PopularProducts = () => {
   };
 
   const toggleWishlist = async (id) => {
+    // Instant UI
+    setLocalWishlist((prev) => {
+      const updated = new Set(prev);
+      if (updated.has(id)) updated.delete(id);
+      else updated.add(id);
+      return updated;
+    });
+
     try {
-      if (wishlistIds.has(id)) {
+      const isInWishlist = localWishlist.has(id);
+
+      if (isInWishlist) {
         await removeFromWishlistApi(id, dispatch);
       } else {
         await addToWishlistApi(id, dispatch);
       }
+
+      // Sync with Redux (backend truth)
+      await getWishlistApi(dispatch);
+
     } catch (err) {
       console.error("Wishlist toggle error:", err);
     }
   };
+
+
+
+
 
   const handleAddToCart = async (product) => {
     if (!user?._id) {
@@ -271,15 +292,18 @@ const PopularProducts = () => {
                   <button
                     onClick={(e) => {
                       e.preventDefault();
-                      toggleWishlist(product.id);
+                      toggleWishlist(product.id); // Call our fixed toggle function
                     }}
-                    className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors duration-300"
+                    className={`p-2 rounded-lg transition-all duration-300
+      ${localWishlist.has(product.id)
+                        ? "text-red-500 bg-red-100"
+                        : "text-gray-400 hover:text-red-500 hover:bg-red-50"
+                      }`}
                   >
                     <Heart
-                      className={`w-4 h-4 ${wishlistIds.has(product.id)
-                        ? 'fill-red-500 text-red-500'
-                        : 'text-gray-600'
-                        }`}
+                      className="w-5 h-5"
+                      fill={localWishlist.has(product.id) ? "red" : "none"}
+                      strokeWidth={2}
                     />
                   </button>
                 </div>
