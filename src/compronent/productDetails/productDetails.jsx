@@ -62,10 +62,10 @@ const ProductDetails = () => {
             features: data.features || (Array.isArray(data.tags) ? data.tags : []),
             weight: Number(data.productWeight ?? 0) || 0,
             sizes: Array.isArray(data.productSize)
-         ? data.productSize
-         : typeof data.productSize === "string"
-           ? data.productSize.split(',').map(s => s.trim())
-           : [],
+              ? data.productSize
+              : typeof data.productSize === "string"
+                ? data.productSize.split(',').map(s => s.trim())
+                : [],
             sku: data.sku || '',
             rank: Number(data.productRank ?? 0) || 0,
             featured: data.featured || false,
@@ -87,7 +87,7 @@ const ProductDetails = () => {
     if (params.id) fetchProduct();
   }, [params.id]);
 
-  
+
 
   // Filter related products from same subcategory
   useEffect(() => {
@@ -174,10 +174,10 @@ const ProductDetails = () => {
       toast.error('Please sign in to add items to cart');
       return;
     }
-    if (!selectedSize || !selectedColor) {
-      toast.error('Please select size and color');
-      return;
-    }
+    // if (!selectedSize || !selectedColor) {
+    //   toast.error('Please select size and color');
+    //   return;
+    // }
     try {
       await addToCartApi(
         {
@@ -366,12 +366,12 @@ const ProductDetails = () => {
                 ৳{product?.price?.toFixed(0) || 0}
               </span>
               <div>
-              {product?.discount > 0 && (
-                <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1 rounded-full text-sm font-semibold animate-pulse">
-                  {Math.round(product.discount)}% OFF
-                </div>
-              )}
-              <del  className="text-2xl font-bold bg-gradient-to-r from-gray-400 to-gray-500 bg-clip-text text-transparent">Rs { product?.rank}</del>
+                {product?.discount > 0 && (
+                  <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1 rounded-full text-sm font-semibold animate-pulse">
+                    {Math.round(product.discount)}% OFF
+                  </div>
+                )}
+                <del className="text-2xl font-bold bg-gradient-to-r from-gray-400 to-gray-500 bg-clip-text text-transparent">Rs {product?.rank}</del>
               </div>
               {product?.originalPrice > product?.price && (
                 <>
@@ -392,7 +392,7 @@ const ProductDetails = () => {
                   Color: {selectedColor}
                 </h3>
                 <div className="flex space-x-3">
-                  {product?.colors?.map((color,index) => (
+                  {product?.colors?.map((color, index) => (
                     <button
                       key={index}
                       onClick={() => setSelectedColor(color)}

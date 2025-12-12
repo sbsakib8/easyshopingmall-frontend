@@ -385,43 +385,104 @@ const Header = () => {
                   </button>
 
                   {/* Enhanced Categories Dropdown */}
+                  {/* CATEGORY DROPDOWN */}
                   {isCategoriesOpen && (
-                    <div className="absolute  top-full left-0 mt-2 w-80 bg-white/95 backdrop-blur-md border border-gray-200/60 rounded-2xl shadow-2xl z-50 animate-in fade-in slide-in-from-top-5 duration-300 ">
+                    <div
+                      className="
+      absolute top-full left-0 mt-2 w-80 
+      bg-white/95 backdrop-blur-md border border-gray-200/60 
+      rounded-2xl shadow-2xl z-50 animate-in fade-in slide-in-from-top-5 
+      duration-300
+
+      md:w-80 w-screen md:rounded-2xl rounded-none md:left-0 left-1/2 
+      md:transform-none -translate-x-1/2 md:-translate-x-0
+    "
+                    >
+                      {/* Header */}
                       <div className="bg-gradient-to-r from-emerald-500 to-teal-500 p-4">
                         <h3 className="text-white font-bold text-lg flex items-center space-x-2">
                           <Star className="w-5 h-5 animate-spin" />
                           <span>Shop by Category</span>
                         </h3>
                       </div>
-                      <div className="grid grid-cols-1 z-60 py-2 max-h-96 overflow-visible">
+
+                      {/* CATEGORY LIST */}
+                      <div className="grid grid-cols-1 py-2 max-h-[80vh] overflow-y-auto">
                         {menuCategories.map((category, index) => (
                           <div
                             key={index}
-                            className="relative"
+                            className="relative border-b border-gray-100 md:border-none"
                             onMouseEnter={() => setHoveredCategoryId(category.id)}
                             onMouseLeave={() => setHoveredCategoryId(null)}
                           >
-                            <button className="flex items-center space-x-3 w-full px-6 py-4 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 transition-all duration-300">
+                            {/* CATEGORY BUTTON */}
+                            <button
+                              className="
+              flex items-center space-x-3 w-full px-6 py-4
+              hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 
+              transition-all duration-300
+              md:justify-start justify-between
+            "
+                              onClick={() => {
+                                // Mobile accordion toggle
+                                setHoveredCategoryId(
+                                  hoveredCategoryId === category.id ? null : category.id
+                                );
+                              }}
+                            >
                               <span className="text-xl">{category.icon}</span>
                               <span className="font-semibold text-gray-700">{category.name}</span>
-                              <ChevronDown size={14} className="ml-auto transform -rotate-90 transition-colors duration-300" />
+
+                              {/* Mobile chevron */}
+                              <ChevronDown
+                                size={16}
+                                className={`
+                md:hidden transform transition-transform
+                ${hoveredCategoryId === category.id ? "rotate-180" : ""}
+              `}
+                              />
+
+                              {/* Desktop side arrow */}
+                              <ChevronDown
+                                size={14}
+                                className="ml-auto transform -rotate-90 transition-colors duration-300 hidden md:block"
+                              />
                             </button>
 
-                            {/* Subcategories */}
+                            {/* ─── SUBCATEGORIES ─── */}
                             <div
-                              className={`absolute left-full top-0 w-64 bg-white/95 backdrop-blur-md border border-gray-200/60 rounded-2xl shadow-2xl transition-all duration-200 ml-2 overflow-visible z-70 ${hoveredCategoryId === category.id ? 'opacity-100 visible translate-x-0' : 'opacity-0 invisible -translate-x-2'}`}
-                              onMouseEnter={() => setHoveredCategoryId(category.id)}
-                              onMouseLeave={() => setHoveredCategoryId(null)}
+                              className={`
+              transition-all duration-300 overflow-hidden
+
+              /* Desktop mega menu */
+              md:absolute md:left-full md:top-0 md:w-64 
+              md:bg-white/95 md:backdrop-blur-md md:border md:border-gray-200/60 
+              md:rounded-2xl md:shadow-2xl md:ml-2 md:z-70 md:overflow-visible
+
+              ${hoveredCategoryId === category.id
+                                  ? "md:opacity-100 md:visible md:translate-x-0 max-h-96"
+                                  : "md:opacity-0 md:invisible md:-translate-x-2 max-h-0"
+                                }
+
+              /* MOBILE ACCORDION */
+              ${hoveredCategoryId === category.id ? "max-h-96" : "max-h-0"}
+            `}
                             >
-                              <div className="bg-gradient-to-r from-gray-50 to-white p-3 border-b border-gray-200/60">
+                              <div className="bg-gradient-to-r from-gray-50 to-white p-3 border-b border-gray-200/60 md:block hidden">
                                 <h4 className="font-semibold text-gray-800">{category.name}</h4>
                               </div>
+
                               <div className="py-2">
                                 {category.subcategories.map((sub, subIndex) => (
                                   <Link
                                     key={subIndex}
                                     href={`/shop?category=${encodeURIComponent(sub)}`}
-                                    className="block px-4 py-3 text-gray-600 hover:text-emerald-600 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 transition-all duration-200 font-medium"
+                                    className="
+                    block px-4 py-3 text-gray-600 
+                    hover:text-emerald-600 hover:bg-gradient-to-r 
+                    hover:from-emerald-50 hover:to-teal-50 
+                    transition-all duration-200 font-medium
+                  "
                                   >
                                     {sub}
                                   </Link>
@@ -433,6 +494,7 @@ const Header = () => {
                       </div>
                     </div>
                   )}
+
                 </div>
 
                 {/* Search Input */}
