@@ -6,8 +6,7 @@ import {
     wishlistClear,
     wishlistError,
     wishlistLoading,
-    wishlistRemove,
-    wishlistSet,
+    wishlistSet
 } from "../redux/wishlistSlice"; // ✅ make sure you add wishlistSet in your slice
 
 // ✅ Get all wishlist products
@@ -66,18 +65,23 @@ export const addToWishlistApi = async (productId, dispatch) => {
     }
 };
 
-// ✅ Remove product from wishlist
 export const removeFromWishlistApi = async (productId, dispatch) => {
     try {
+        dispatch(wishlistLoading());
+
         await axios.delete(`${UrlBackend}/wishlist/remove/${productId}`, {
             withCredentials: true,
         });
-        dispatch(wishlistRemove(productId));
+
+        // 🔥 Immediately refetch from backend
+        await getWishlistApi(dispatch);
+
     } catch (error) {
         console.error("Remove wishlist error:", error.response?.data || error.message);
         dispatch(wishlistError(error.response?.data?.message || "Remove failed"));
     }
 };
+
 
 // ✅ Clear wishlist
 export const clearWishlistApi = async (dispatch) => {

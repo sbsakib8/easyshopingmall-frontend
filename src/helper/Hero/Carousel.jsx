@@ -13,6 +13,7 @@ const Carousel = () => {
     if (!homebanner || !Array.isArray(homebanner)) return [];
     return homebanner.filter(banner => banner.active === true);
   }, [homebanner]);
+  console.log('Active Slides:', slides);
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % slides?.length);
@@ -76,7 +77,7 @@ const Carousel = () => {
         <div className="relative w-full h-full">
           {slides?.map((slide, index) => (
             <div
-              key={index}
+              key={slide._id}
               className={`absolute inset-0 transition-all duration-700 ease-in-out ${index === currentSlide
                 ? 'opacity-100 translate-x-0'
                 : index < currentSlide
