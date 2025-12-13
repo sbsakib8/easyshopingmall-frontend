@@ -29,14 +29,11 @@ const Carousel = () => {
 
   // Auto play functionality
   React.useEffect(() => {
-    if (!isAutoPlaying) return;
-
-    const interval = setInterval(() => {
-      nextSlide();
-    }, 4000);
-
+    if (!isAutoPlaying || slides.length === 0) return;
+    const interval = setInterval(() => nextSlide(), 4000);
     return () => clearInterval(interval);
-  }, [currentSlide, isAutoPlaying]);
+  }, [isAutoPlaying, slides.length]);
+
 
   // Pause autoplay on hover
   const handleMouseEnter = () => setIsAutoPlaying(false);
@@ -86,7 +83,7 @@ const Carousel = () => {
                 }`}
             >
               <img
-                src={slide?.images || slide?.image}
+                src={slide?.images?.[0] || ""}
                 alt={slide?.title}
                 className="w-full h-full object-cover"
               />

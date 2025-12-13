@@ -1,20 +1,24 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
 import { CenterBannerAllGet } from "@/src/hook/useCernterBanner";
+import { useCallback, useEffect, useState } from "react";
 
-// ✅ Custom hook
 export const useGetCenterBanner = () => {
-  const [centerbanner, setCenterBanner] = useState(null);
+  const [ads, setAds] = useState([]); // ✅ ALWAYS ARRAY
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchCenterBanner = useCallback(async () => {
+  const fetchAds = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await CenterBannerAllGet();
-      setCenterBanner(data.data);
+      const res = await CenterBannerAllGet();
+
+      // ✅ SAFEST EXTRACTION
+      const list = Array.isArray(res?.data) ? res.data : [];
+      setAds(list);
       setError(null);
     } catch (err) {
+      console.error("CenterBanner fetch error", err);
+      setAds([]);
       setError(err);
     } finally {
       setLoading(false);
@@ -22,8 +26,8 @@ export const useGetCenterBanner = () => {
   }, []);
 
   useEffect(() => {
-    fetchCenterBanner();
-  }, [fetchCenterBanner]);
+    fetchAds();
+  }, [fetchAds]);
 
-  return { centerbanner, loading, error, refetch: fetchCenterBanner };
+  return { ads, loading, error };
 };
