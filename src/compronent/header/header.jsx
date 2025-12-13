@@ -8,7 +8,6 @@ import {
   ChevronDown,
   Heart,
   Menu,
-  Package,
   Search,
   ShoppingCart,
   Star,
@@ -694,7 +693,7 @@ const Header = () => {
               </div>
 
               {/* Mobile Quick Actions */}
-              <div className="border-t border-gray-200/60 pt-3 sm:pt-4 mt-3 sm:mt-4 grid grid-cols-2 gap-2 sm:gap-3">
+              {/* <div className="border-t border-gray-200/60 pt-3 sm:pt-4 mt-3 sm:mt-4 grid grid-cols-2 gap-2 sm:gap-3">
                 <div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-3 sm:p-4 rounded-xl flex flex-col items-center space-y-1 sm:space-y-2 hover:from-emerald-700 hover:to-teal-700 transition-all duration-300 cursor-pointer group shadow-lg">
                   <Package size={20} className="group-hover:rotate-12 transition-transform duration-300" />
                   <span className="font-bold text-xs sm:text-sm text-center">30% Off Sale</span>
@@ -706,7 +705,7 @@ const Header = () => {
                   <span className="font-bold text-xs sm:text-sm text-center">Trending</span>
                   <span className="bg-white text-pink-600 px-2 py-0.5 rounded-full text-xs font-bold">Hot</span>
                 </div>
-              </div>
+              </div> */}
 
               {/* Mobile Contact Info */}
               <div className="border-t border-gray-200/60 pt-3 sm:pt-4 mt-3 sm:mt-4 text-center">

@@ -90,8 +90,8 @@ const ShoppingCartComponent = () => {
     const name = product.productName || product.name || 'Product';
     const inStock = (product.stock ?? 1) > 0;
     const rating = product.rating ?? product.ratings ?? 4.5;
-    const color = product.color || 'Default';
-    const size = product.size || 'N/A';
+    const color = item.color || 'Default';
+    const size = item.size || 'N/A';
     const discount =
       originalPrice && originalPrice > price
         ? Math.round(((originalPrice - price) / originalPrice) * 100)
