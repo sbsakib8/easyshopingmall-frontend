@@ -1,4 +1,5 @@
 "use client";
+import logo from '@/app/icon.png';
 import { getCartApi } from '@/src/hook/useCart';
 import { getWishlistApi } from '@/src/hook/useWishlist';
 import { useCategoryWithSubcategories } from '@/src/utlis/useCategoryWithSubcategories';
@@ -17,10 +18,9 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import logo from '../../../public/logo.jpeg';
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -41,6 +41,13 @@ const Header = () => {
   const [language, setLanguage] = useState('English');
   const [currency, setCurrency] = useState('USD');
   const [isScrolled, setIsScrolled] = useState(false);
+  const [openMobileCategory, setOpenMobileCategory] = useState(null);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setHoveredCategoryId(null);
+    setIsCategoriesOpen(false);
+  }, [pathname]);
 
 
   // user data fatch 
@@ -353,9 +360,10 @@ const Header = () => {
                 <div className="relative">
                   <div className={`w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-emerald-500 via-green-500 to-teal-500 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 ${isScrolled ? 'animate-pulse' : ''
                     }`}>
-                    <div className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 bg-white rounded-lg sm:rounded-xl flex items-center justify-center transform group-hover:rotate-12 transition-transform duration-300">
-                      <Image aria-required src={logo} alt="Logo" className="w-10 h-10 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
-                    </div>
+                    {/* <div className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 bg-white rounded-lg sm:rounded-xl flex items-center justify-center transform group-hover:rotate-12 transition-transform duration-300">
+                      <div className="w-3 h-3 sm:w-3.5 sm:h-3.5 lg:w-4 lg:h-4 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-md sm:rounded-lg"></div>
+                    </div> */}
+                    <Image src={logo} width={40} height={100} alt="Easy Shopping Mall Logo" />
                   </div>
                   <div className="absolute -top-0.5 sm:-top-1 -right-0.5 sm:-right-1 w-2 h-2 sm:w-3 sm:h-3 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full animate-pulse"></div>
                 </div>
@@ -384,19 +392,9 @@ const Header = () => {
                   </button>
 
                   {/* Enhanced Categories Dropdown */}
-                  {/* CATEGORY DROPDOWN */}
                   {isCategoriesOpen && (
-                    <div
-                      className="
-      absolute top-full left-0 mt-2 w-80 
-      bg-white/95 backdrop-blur-md border border-gray-200/60 
-      rounded-2xl shadow-2xl z-50 animate-in fade-in slide-in-from-top-5 
-      duration-300
+                    <div className="absolute top-full left-0 mt-2 w-80 bg-white/95 backdrop-blur-md border border-gray-200/60 rounded-2xl shadow-2xl z-50 animate-in fade-in slide-in-from-top-5 duration-300">
 
-      md:w-80 w-screen md:rounded-2xl rounded-none md:left-0 left-1/2 
-      md:transform-none -translate-x-1/2 md:-translate-x-0
-    "
-                    >
                       {/* Header */}
                       <div className="bg-gradient-to-r from-emerald-500 to-teal-500 p-4">
                         <h3 className="text-white font-bold text-lg flex items-center space-x-2">
@@ -405,91 +403,76 @@ const Header = () => {
                         </h3>
                       </div>
 
-                      {/* CATEGORY LIST */}
-                      <div className="grid grid-cols-1 py-2 max-h-[80vh] overflow-y-auto">
-                        {menuCategories.map((category, index) => (
-                          <div
-                            key={index}
-                            className="relative border-b border-gray-100 md:border-none"
-                            onMouseEnter={() => setHoveredCategoryId(category.id)}
-                            onMouseLeave={() => setHoveredCategoryId(null)}
-                          >
-                            {/* CATEGORY BUTTON */}
-                            <button
-                              className="
-              flex items-center space-x-3 w-full px-6 py-4
-              hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 
-              transition-all duration-300
-              md:justify-start justify-between
-            "
-                              onClick={() => {
-                                // Mobile accordion toggle
-                                setHoveredCategoryId(
-                                  hoveredCategoryId === category.id ? null : category.id
-                                );
-                              }}
-                            >
-                              <span className="text-xl">{category.icon}</span>
-                              <span className="font-semibold text-gray-700">{category.name}</span>
+                      <div className="py-2 max-h-96">
+                        {menuCategories.map((category) => {
+                          const activeSub = category.subcategories.find(
+                            (sub) => pathname === `/shop?category=${encodeURIComponent(sub)}`
+                          );
 
-                              {/* Mobile chevron */}
-                              <ChevronDown
-                                size={16}
-                                className={`
-                md:hidden transform transition-transform
-                ${hoveredCategoryId === category.id ? "rotate-180" : ""}
-              `}
-                              />
+                          const isActiveCategory =
+                            hoveredCategoryId === category.id || activeSub;
 
-                              {/* Desktop side arrow */}
-                              <ChevronDown
-                                size={14}
-                                className="ml-auto transform -rotate-90 transition-colors duration-300 hidden md:block"
-                              />
-                            </button>
-
-                            {/* ─── SUBCATEGORIES ─── */}
+                          return (
                             <div
-                              className={`
-              transition-all duration-300 overflow-hidden
-
-              /* Desktop mega menu */
-              md:absolute md:left-full md:top-0 md:w-64 
-              md:bg-white/95 md:backdrop-blur-md md:border md:border-gray-200/60 
-              md:rounded-2xl md:shadow-2xl md:ml-2 md:z-70 md:overflow-visible
-
-              ${hoveredCategoryId === category.id
-                                  ? "md:opacity-100 md:visible md:translate-x-0 max-h-96"
-                                  : "md:opacity-0 md:invisible md:-translate-x-2 max-h-0"
-                                }
-
-              /* MOBILE ACCORDION */
-              ${hoveredCategoryId === category.id ? "max-h-96" : "max-h-0"}
-            `}
+                              key={category.id}
+                              className="relative"
+                              onMouseEnter={() => setHoveredCategoryId(category.id)}
+                              onMouseLeave={() => setHoveredCategoryId(null)}
                             >
-                              <div className="bg-gradient-to-r from-gray-50 to-white p-3 border-b border-gray-200/60 md:block hidden">
-                                <h4 className="font-semibold text-gray-800">{category.name}</h4>
-                              </div>
+                              {/* Category Button */}
+                              <button
+                                className={`flex items-center space-x-3 w-full px-6 py-4 transition-all duration-300 ${isActiveCategory
+                                  ? "bg-emerald-50 text-emerald-700"
+                                  : "hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 text-gray-700"
+                                  }`}
+                              >
+                                <span className="text-xl">{category.icon}</span>
+                                <span className="font-semibold">{category.name}</span>
+                                <ChevronDown
+                                  size={14}
+                                  className={`ml-auto -rotate-90 transition-colors ${isActiveCategory ? "text-emerald-600" : ""
+                                    }`}
+                                />
+                              </button>
 
-                              <div className="py-2">
-                                {category.subcategories.map((sub, subIndex) => (
-                                  <Link
-                                    key={subIndex}
-                                    href={`/shop?category=${encodeURIComponent(sub)}`}
-                                    className="
-                    block px-4 py-3 text-gray-600 
-                    hover:text-emerald-600 hover:bg-gradient-to-r 
-                    hover:from-emerald-50 hover:to-teal-50 
-                    transition-all duration-200 font-medium
-                  "
-                                  >
-                                    {sub}
-                                  </Link>
-                                ))}
+                              {/* Subcategories */}
+                              <div
+                                className={`absolute left-full top-0 w-64 ml-2 bg-white/95 backdrop-blur-md border border-gray-200/60 rounded-2xl shadow-2xl transition-all duration-200 z-70
+              ${isActiveCategory
+                                    ? "opacity-100 visible translate-x-0"
+                                    : "opacity-0 invisible -translate-x-2"
+                                  }`}
+                              >
+                                <div className="bg-gradient-to-r from-gray-50 to-white p-3 border-b">
+                                  <h4 className="font-semibold text-gray-800">
+                                    {category.name}
+                                  </h4>
+                                </div>
+
+                                <div className="py-2">
+                                  {category.subcategories.map((sub) => {
+                                    const isActiveSub =
+                                      pathname ===
+                                      `/shop?category=${encodeURIComponent(sub)}`;
+
+                                    return (
+                                      <Link
+                                        key={sub}
+                                        href={`/shop?category=${encodeURIComponent(sub)}`}
+                                        className={`block px-4 py-3 transition-all duration-200 font-medium ${isActiveSub
+                                          ? "bg-emerald-600 text-white"
+                                          : "text-gray-600 hover:text-emerald-600 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50"
+                                          }`}
+                                      >
+                                        {sub}
+                                      </Link>
+                                    );
+                                  })}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
                   )}
@@ -650,47 +633,69 @@ const Header = () => {
               ))}
 
               {/* Mobile Categories Section */}
-              <div className="border-t border-gray-200/60 pt-3 sm:pt-4 mt-3 sm:mt-4">
+              <div className="border-t border-gray-200/60 pt-3 sm:pt-4 mt-3 sm:mt-4 sm:hidden">
                 <button
                   onClick={toggleCategories}
-                  className="flex items-center justify-between w-full py-3 sm:py-4 px-3 sm:px-4 text-gray-700 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 hover:text-emerald-600 rounded-lg sm:rounded-xl transition-all duration-300 font-medium shadow-sm"
+                  className="flex items-center justify-between w-full py-3 px-4 text-gray-700 rounded-xl transition-all duration-300 font-medium shadow-sm hover:bg-emerald-50"
                 >
-                  <span className="text-sm sm:text-base font-semibold">Categories</span>
-                  <ChevronDown size={16} className={`transition-transform duration-300 ${isCategoriesOpen ? 'rotate-180' : ''}`} />
+                  <span className="text-sm font-semibold">Categories</span>
+                  <ChevronDown
+                    size={16}
+                    className={`transition-transform duration-300 ${isCategoriesOpen ? "rotate-180" : ""
+                      }`}
+                  />
                 </button>
 
                 {isCategoriesOpen && (
-                  <div className="mt-2 ml-2 sm:ml-4 space-y-1 bg-gradient-to-r from-gray-50 to-white rounded-xl p-2 animate-in slide-in-from-top-3 duration-300">
-                    {menuCategories.map((category, index) => (
-                      <div key={index} className="group">
-                        <a
-                          href="#"
-                          className="flex items-center justify-between py-2 sm:py-3 px-2 sm:px-3 text-gray-600 hover:text-emerald-600 transition-all duration-200 rounded-lg hover:bg-white font-medium group"
-                        >
-                          <div className="flex items-center space-x-2 sm:space-x-3">
-                            <span className="text-base sm:text-lg transform group-hover:scale-110 transition-transform duration-300">{category.icon}</span>
-                            <span className="text-sm sm:text-base">{category.name}</span>
-                          </div>
-                          <ChevronDown size={14} className="transform -rotate-90 group-hover:text-emerald-600 transition-colors duration-300" />
-                        </a>
+                  <div className="mt-2 space-y-2 bg-gradient-to-r from-gray-50 to-white rounded-xl p-2 animate-in slide-in-from-top-3 duration-300">
+                    {menuCategories.map((category, index) => {
+                      const isOpen = openMobileCategory === index;
 
-                        {/* Mobile Subcategories */}
-                        <div className="hidden group-hover:block ml-4 sm:ml-6 space-y-1 animate-in slide-in-from-left-3 duration-200">
-                          {category.subcategories.map((sub, subIndex) => (
-                            <a
-                              key={subIndex}
-                              href="#"
-                              className="block py-2 px-2 sm:px-3 text-xs sm:text-sm text-gray-500 hover:text-emerald-600 transition-all duration-200 rounded-md hover:bg-emerald-50"
-                            >
-                              {sub}
-                            </a>
-                          ))}
+                      return (
+                        <div
+                          key={category.id}
+                          className="border border-gray-200 rounded-xl overflow-hidden bg-white"
+                        >
+                          {/* Category */}
+                          <button
+                            onClick={() =>
+                              setOpenMobileCategory(isOpen ? null : index)
+                            }
+                            className="w-full flex items-center justify-between px-4 py-3 text-gray-700 font-medium"
+                          >
+                            <div className="flex items-center space-x-3">
+                              <span className="text-lg">{category.icon}</span>
+                              <span className="text-sm">{category.name}</span>
+                            </div>
+
+                            <ChevronDown
+                              size={14}
+                              className={`transition-transform duration-300 ${isOpen ? "rotate-180" : ""
+                                }`}
+                            />
+                          </button>
+
+                          {/* Subcategories (FAQ style) */}
+                          {isOpen && (
+                            <div className="px-4 pb-3 space-y-1 animate-in slide-in-from-top-2">
+                              {category.subcategories.map((sub) => (
+                                <Link
+                                  key={sub}
+                                  href={`/shop?category=${encodeURIComponent(sub)}`}
+                                  className="block py-2 px-2 rounded-md text-sm text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 transition-all"
+                                >
+                                  {sub}
+                                </Link>
+                              ))}
+                            </div>
+                          )}
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
+
 
               {/* Mobile Quick Actions */}
               {/* <div className="border-t border-gray-200/60 pt-3 sm:pt-4 mt-3 sm:mt-4 grid grid-cols-2 gap-2 sm:gap-3">
@@ -708,13 +713,13 @@ const Header = () => {
               </div> */}
 
               {/* Mobile Contact Info */}
-              <div className="border-t border-gray-200/60 pt-3 sm:pt-4 mt-3 sm:mt-4 text-center">
+              {/* <div className="border-t border-gray-200/60 pt-3 sm:pt-4 mt-3 sm:mt-4 text-center">
                 <div className="flex items-center justify-center space-x-2 text-gray-600 mb-2">
                   <div className="w-2 h-2 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full animate-pulse"></div>
                   <span className="text-xs sm:text-sm">Need Help?</span>
                 </div>
                 <div className="text-emerald-600 font-semibold text-sm sm:text-base">+258 3268 21485</div>
-              </div>
+              </div> */}
             </nav>
           </div>
         )}
