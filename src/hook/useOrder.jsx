@@ -15,6 +15,28 @@ export const OrderCreate = async (formData) => {
     }
 };
 
+export const submitManualPayment = async (data) => {
+    try {
+        const response = await axios.post(
+            `${UrlBackend}/order/manual-payment`,
+            data,
+            {
+                withCredentials: true,
+                headers: { "Content-Type": "application/json" },
+            }
+        );
+
+        return response.data; // { success, order }
+    } catch (error) {
+        console.error(
+            "Manual payment error:",
+            error.response?.data || error.message
+        );
+        throw error;
+    }
+};
+
+
 // ✅ Initialize SSLCommerz payment session
 export const initPaymentSession = async (payload) => {
     try {
