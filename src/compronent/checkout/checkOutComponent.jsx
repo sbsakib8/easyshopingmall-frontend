@@ -5,6 +5,7 @@ import { MapPin, Shield, ShoppingCart, Star, Truck } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
+import LocationSelects from "../LocationSelects";
 
 export default function CheckoutComponent() {
   const user = useSelector((state) => state.user?.data);
@@ -17,16 +18,28 @@ export default function CheckoutComponent() {
     phone: user?.phone || "",
     email: user?.email || "",
     address: "",
-    city: "",
+    division: "",
+    district: "",
     area: "",
   });
+
   const [paymentInfo, setPaymentInfo] = useState({ phoneNumber: "", transactionId: "" });
   const [isProcessing, setIsProcessing] = useState(false);
   const [deliveryCharge, setDeliveryCharge] = useState(60);
 
+  const isValidBDPhone = (phone) => /^01[3-9]\d{8}$/.test(phone); // BD phone format
+  const isValidEmail = (email) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); // simple email regex
+  const detectDhaka = (address, city, area) => {
+    const addr = [address, city, area].filter(Boolean).join(" ").toLowerCase();
+    return addr.includes("dhaka") || addr.includes("ঢাকা");
+  };
+
+
   // subtotal
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 0), 0);
   const total = subtotal + deliveryCharge;
+  console.log('cartItems', cartItems);
 
   useEffect(() => {
     // if user already has an address prefills
@@ -35,22 +48,29 @@ export default function CheckoutComponent() {
     }
   }, [user]);
 
-  // calculate delivery charge whenever address/city/area changes
+
   useEffect(() => {
-    const addr = [customerInfo.address, customerInfo.city, customerInfo.area]
-      .filter(Boolean)
-      .join(" ")
-      .toLowerCase();
+    // Only allow 60 or 120
+    const dhakaDistricts = [
+      "Dhaka", "ঢাকা", "Dhanmondi", "Gulshan", "Mirpur", "Motijheel",
+      "Uttara", "Mohammadpur", "Tejgaon", "Kamrangirchar"
+    ];
 
-    // simple detection: if contains 'dhaka' (or বাংলা 'ঢাকা') treat as Dhaka
-    if (!addr) return;
-
-    if (addr.includes("dhaka") || addr.includes("ঢাকা")) {
+    if (dhakaDistricts.includes(customerInfo.district)) {
       setDeliveryCharge(60);
-    } else {
+    } else if (customerInfo.district) {
       setDeliveryCharge(120);
     }
-  }, [customerInfo.address, customerInfo.city, customerInfo.area]);
+  }, [customerInfo.district]);
+
+
+  const handleDistrictChange = (district) => {
+    setSelectedDistrict(district);
+    const distObj = districts.find(d => d.district === district);
+    setUpazilaList(distObj?.upazilas || []);
+    setCustomerInfo(prev => ({ ...prev, district, area: "", division: selectedDivision }));
+  };
+
 
   const handleInputChange = (field, value) => {
     setCustomerInfo((prev) => ({ ...prev, [field]: value }));
@@ -81,6 +101,26 @@ export default function CheckoutComponent() {
 
   // One-click SSL (full or delivery-only)
   const handleProceedToPayment = async ({ payDeliveryOnly = false } = {}) => {
+    const { name, phone, email, address, city, area } = customerInfo;
+
+    // 1️⃣ Required fields
+    if (!name || !phone || !address) {
+      toast.error("অনুগ্রহ করে সকল প্রয়োজনীয় তথ্য পূরণ করুন");
+      return;
+    }
+
+    // 2️⃣ Phone validation
+    if (!isValidBDPhone(phone)) {
+      toast.error("সঠিক বাংলাদেশি মোবাইল নম্বর দিন (01XXXXXXXXX)");
+      return;
+    }
+
+    // 3️⃣ Email validation (optional)
+    if (email && !isValidEmail(email)) {
+      toast.error("সঠিক ইমেইল ঠিকানা দিন");
+      return;
+    }
+
     if (!selectedPayment) {
       toast.error("অনুগ্রহ করে একটি পেমেন্ট মেথড নির্বাচন করুন");
       return;
@@ -246,6 +286,8 @@ export default function CheckoutComponent() {
             </div>
 
             {/* Delivery Address */}
+
+
             <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
               <div className="bg-gradient-to-r from-green-600 to-teal-600 p-6">
                 <div className="flex items-center space-x-3">
@@ -261,19 +303,11 @@ export default function CheckoutComponent() {
                     <label className="block text-sm font-semibold text-gray-700 mb-2">সম্পূর্ণ ঠিকানা *</label>
                     <textarea value={customerInfo.address} onChange={(e) => handleInputChange("address", e.target.value)} placeholder="বাড়ি/ফ্ল্যাট নম্বর, রোড নম্বর, এলাকার নাম" className="w-full px-4 py-3 border rounded-xl bg-gray-50" rows={3} />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">শহর</label>
-                      <input value={customerInfo.city} onChange={(e) => handleInputChange("city", e.target.value)} placeholder="ঢাকা, চট্টগ্রাম, সিলেট..." className="w-full px-4 py-3 border rounded-xl bg-gray-50" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">এলাকা</label>
-                      <input value={customerInfo.area} onChange={(e) => handleInputChange("area", e.target.value)} placeholder="থানা/উপজেলা" className="w-full px-4 py-3 border rounded-xl bg-gray-50" />
-                    </div>
-                  </div>
+
                 </div>
               </div>
             </div>
+            <LocationSelects customerInfo={customerInfo} setCustomerInfo={setCustomerInfo} />
           </div>
 
           {/* Right Column */}
@@ -295,7 +329,7 @@ export default function CheckoutComponent() {
                   {cartItems.map((item) => (
                     <div key={item._id || item.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-xl">
                       <div className="relative">
-                        <img src={item.images?.[0] || item.image || "/placeholder.svg"} alt={item.productId?.productName || item.name || "Product"} className="w-16 h-16 object-cover rounded-xl" />
+                        <img src={item.productId.images?.[0] || item.image || "/placeholder.svg"} alt={item.productId?.productName || item.name || "Product"} className="w-16 h-16 object-cover rounded-xl" />
                         <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-xs text-white font-bold">{item.quantity}</div>
                       </div>
 
@@ -337,8 +371,8 @@ export default function CheckoutComponent() {
 
                         {selectedPayment === 'manual' && (
                           <div className="mt-3 grid grid-cols-1 gap-2 text-sm">
-                            <div className="flex items-center justify-between bg-white p-2 rounded-lg border border-gray-200"><div><div className="font-medium">Bkash Personal</div><div className="text-xs text-gray-500">01XXXXXXXXX</div></div><div className="text-xs text-gray-400">Account</div></div>
-                            <div className="flex items-center justify-between bg-white p-2 rounded-lg border border-gray-200"><div><div className="font-medium">Nagad</div><div className="text-xs text-gray-500">01YYYYYYYYY</div></div><div className="text-xs text-gray-400">Account</div></div>
+                            <div className="flex items-center justify-between bg-white p-2 rounded-lg border border-gray-200"><div><div className="font-medium">Bkash Personal</div><div className="text-xs text-gray-500">01626420774</div></div><div className="text-xs text-gray-400">Account</div></div>
+                            <div className="flex items-center justify-between bg-white p-2 rounded-lg border border-gray-200"><div><div className="font-medium">Nagad</div><div className="text-xs text-gray-500">01626420774</div></div><div className="text-xs text-gray-400">Account</div></div>
 
                             <div className="grid grid-cols-1 gap-2 mt-2">
                               <input type="text" placeholder="পেমেন্ট নম্বর (যেই নম্বর থেকে পেমেন্ট করেছেন)" value={paymentInfo.phoneNumber} onChange={(e) => handlePaymentInfoChange('phoneNumber', e.target.value)} className="w-full px-3 py-2 border rounded-xl" />

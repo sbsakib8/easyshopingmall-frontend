@@ -13,6 +13,7 @@ const Carousel = () => {
     if (!homebanner || !Array.isArray(homebanner)) return [];
     return homebanner.filter(banner => banner.active === true);
   }, [homebanner]);
+  console.log('Active Slides:', slides);
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % slides?.length);
@@ -28,14 +29,11 @@ const Carousel = () => {
 
   // Auto play functionality
   React.useEffect(() => {
-    if (!isAutoPlaying) return;
-
-    const interval = setInterval(() => {
-      nextSlide();
-    }, 4000);
-
+    if (!isAutoPlaying || slides.length === 0) return;
+    const interval = setInterval(() => nextSlide(), 4000);
     return () => clearInterval(interval);
-  }, [currentSlide, isAutoPlaying]);
+  }, [isAutoPlaying, slides.length]);
+
 
   // Pause autoplay on hover
   const handleMouseEnter = () => setIsAutoPlaying(false);
@@ -76,7 +74,7 @@ const Carousel = () => {
         <div className="relative w-full h-full">
           {slides?.map((slide, index) => (
             <div
-              key={index}
+              key={slide._id}
               className={`absolute inset-0 transition-all duration-700 ease-in-out ${index === currentSlide
                 ? 'opacity-100 translate-x-0'
                 : index < currentSlide
@@ -85,7 +83,7 @@ const Carousel = () => {
                 }`}
             >
               <img
-                src={slide?.images || slide?.image}
+                src={slide?.images?.[0] || ""}
                 alt={slide?.title}
                 className="w-full h-full object-cover"
               />

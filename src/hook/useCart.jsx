@@ -48,6 +48,8 @@ export const updateCartItemApi = async (updateData, dispatch) => {
         });
 
         dispatch(cartUpdate(res.data.data));
+        await getCartApi(updateData.userId, dispatch);
+
     } catch (error) {
         dispatch(cartError(error.response?.data?.message || "Update cart failed"));
     }
@@ -61,6 +63,8 @@ export const removeCartItemApi = async (userId, productId, dispatch) => {
         });
 
         dispatch(cartRemove(productId));
+        await getCartApi(userId, dispatch);
+
     } catch (error) {
         dispatch(cartError(error.response?.data?.message || "Remove cart failed"));
     }

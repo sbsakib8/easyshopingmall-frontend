@@ -23,7 +23,7 @@ export default function PaymentSuccessPage() {
                 </p>
 
                 <Link
-                    href="/orders"
+                    href="/account"
                     className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg text-sm font-medium hover:bg-green-700 transition"
                 >
                     <ShoppingBag size={18} /> View Orders

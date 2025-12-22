@@ -33,8 +33,7 @@ import {
 const ShoppingCartComponent = () => {
   const dispatch = useDispatch();
   const { items: rawItems = [], loading, error } = useSelector((state) => state.cart);
-  const { data: wishlistItems } = useSelector((state) => state.wishlist);
-  console.log("Cart Items:", rawItems);
+  const { data: wishlistItems } = useSelector((state) => state?.wishlist?.data);
   const user = useSelector((state) => state.user.data);
 
   const [couponCode, setCouponCode] = useState('');
@@ -50,6 +49,7 @@ const ShoppingCartComponent = () => {
     }
   }, [user?._id, dispatch]);
 
+  // Sync localWishlist with Redux wishlist
   useEffect(() => {
     setLocalWishlist(new Set((wishlistItems || []).map((item) => item.id)));
   }, [wishlistItems]);
@@ -57,24 +57,23 @@ const ShoppingCartComponent = () => {
 
   const toggleWishlist = async (id) => {
     try {
-      const updatedSet = new Set(localWishlist);
+      const isInWishlist = localWishlist.has(id);
 
-      if (updatedSet.has(id)) {
-        updatedSet.delete(id);
-        setLocalWishlist(updatedSet);
-
+      if (isInWishlist) {
         await removeFromWishlistApi(id, dispatch);
       } else {
-        updatedSet.add(id);
-        setLocalWishlist(updatedSet);
-
         await addToWishlistApi(id, dispatch);
       }
+
+      // 🔥 Sync UI with Redux (source of truth)
+      const updated = new Set(wishlist.data.map((item) => item.id));
+      setLocalWishlist(updated);
 
     } catch (err) {
       console.error("Wishlist toggle error:", err);
     }
   };
+
 
 
   const cartItems = rawItems.map((item) => {
@@ -91,8 +90,8 @@ const ShoppingCartComponent = () => {
     const name = product.productName || product.name || 'Product';
     const inStock = (product.stock ?? 1) > 0;
     const rating = product.rating ?? product.ratings ?? 4.5;
-    const color = product.color || 'Default';
-    const size = product.size || 'N/A';
+    const color = item.color || 'Default';
+    const size = item.size || 'N/A';
     const discount =
       originalPrice && originalPrice > price
         ? Math.round(((originalPrice - price) / originalPrice) * 100)
@@ -142,9 +141,6 @@ const ShoppingCartComponent = () => {
     // 🔥 BACKEND REMOVE
     removeCartItemApi(user._id, productId, dispatch);
   };
-
-
-
 
   const applyCoupon = () => {
     if (couponCode.toLowerCase() === 'save20') {
@@ -261,7 +257,7 @@ const ShoppingCartComponent = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Cart Items */}
             <div className="lg:col-span-2  space-y-4">
-              {cartItems.map((item, index) => (
+              {cartItems?.map((item, index) => (
                 // <Link className=' space-y-10' key={item.id}>
                 <div
 
@@ -311,10 +307,23 @@ const ShoppingCartComponent = () => {
                           <button
                             onClick={(e) => {
                               e.preventDefault();
+
+                              // Optimistically toggle local state for instant UI feedback
+                              setLocalWishlist((prev) => {
+                                const updated = new Set(prev);
+                                if (updated.has(item.productId)) {
+                                  updated.delete(item.productId);
+                                } else {
+                                  updated.add(item.productId);
+                                }
+                                return updated;
+                              });
+
+                              // Call API to sync with Redux
                               toggleWishlist(item.productId);
                             }}
                             className={`p-2 rounded-lg transition-all duration-300 
-                            ${localWishlist.has(item.productId)
+      ${localWishlist.has(item.productId)
                                 ? "text-red-500 bg-red-100"
                                 : "text-gray-400 hover:text-red-500 hover:bg-red-50"
                               }`}
@@ -499,13 +508,13 @@ const ShoppingCartComponent = () => {
                     </div>
                   )}
 
-                  <div className="flex justify-between text-gray-600">
+                  {/* <div className="flex justify-between text-gray-600">
                     <span className="flex items-center">
                       Shipping
                       {shipping === 0 && <span className="ml-2 text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full">FREE</span>}
                     </span>
                     <span>{shipping === 0 ? 'FREE' : `৳${shipping}`}</span>
-                  </div>
+                  </div> */}
 
                   <hr className="my-4" />
 

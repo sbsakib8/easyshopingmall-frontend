@@ -1,7 +1,7 @@
 
 import Carousels from '@/src/helper/Hero/Carousel'
-import Categories from './Categories'
 import Ads from './Ads'
+import Categories from './Categories'
 import PopularProducts from './popularProducts'
 
 
@@ -15,7 +15,7 @@ function Hero() {
       <Categories />
       <Ads />
       <PopularProducts />
-      </div>
+    </div>
 
   )
 }
