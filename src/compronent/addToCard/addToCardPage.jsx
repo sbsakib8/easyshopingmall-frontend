@@ -22,7 +22,7 @@ import {
   X
 } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   addToWishlistApi,
@@ -74,47 +74,70 @@ const ShoppingCartComponent = () => {
     }
   };
 
+  // const cartItems = rawItems.map((item) => {
+  //   const product = item.productId || {};
+  //   const id = product._id || item.productId_id;
+  //   const price = item.price ?? product.price ?? 0;
+  //   const originalPrice =
+  //     product.oldPrice ?? product.old_price ?? product.price ?? price;
+  //   const quantity = item.quantity ?? 1;
+  //   const image =
+  //     (product.images && product.images[0]) ||
+  //     (product.images && product.image[0]) ||
+  //     'https://via.placeholder.com/100x100';
+  //   const name = product.productName || product.name || 'Product';
+  //   const inStock = (product.stock ?? 1) > 0;
+  //   const rating = product.rating ?? product.ratings ?? 4.5;
+  //   const color = item.color || 'Default';
+  //   const size = item.size || 'N/A';
+  //   const discount =
+  //     originalPrice && originalPrice > price
+  //       ? Math.round(((originalPrice - price) / originalPrice) * 100)
+  //       : 0;
+
+  //   return {
+  //     id,
+  //     productId: id,
+  //     categoryId,
+  //     name,
+  //     price,
+  //     originalPrice,
+  //     quantity,
+  //     image,
+  //     color,
+  //     size,
+  //     inStock,
+  //     rating,
+  //     discount,
+  //   };
+  // });
 
 
   const cartItems = rawItems.map((item) => {
     const product = item.productId || {};
     const id = product._id || item.productId_id;
-    const price = item.price ?? product.price ?? 0;
-    const originalPrice =
-      product.oldPrice ?? product.old_price ?? product.price ?? price;
-    const quantity = item.quantity ?? 1;
-    const image =
-      (product.images && product.images[0]) ||
-      (product.images && product.image[0]) ||
-      'https://via.placeholder.com/100x100';
-    const name = product.productName || product.name || 'Product';
-    const inStock = (product.stock ?? 1) > 0;
-    const rating = product.rating ?? product.ratings ?? 4.5;
-    const color = item.color || 'Default';
-    const size = item.size || 'N/A';
-    const discount =
-      originalPrice && originalPrice > price
-        ? Math.round(((originalPrice - price) / originalPrice) * 100)
-        : 0;
+    const categoryId =
+      product.category?.[0]?._id ||
+      product.category?._id ||
+      null;
 
     return {
       id,
       productId: id,
-      name,
-      price,
-      originalPrice,
-      quantity,
-      image,
-      color,
-      size,
-      inStock,
-      rating,
-      discount,
+      categoryId,
+      name: product.productName || product.name || 'Product',
+      price: item.price ?? product.price ?? 0,
+      originalPrice: product.oldPrice ?? product.price ?? 0,
+      quantity: item.quantity ?? 1,
+      image: product.images?.[0] || 'https://via.placeholder.com/100x100',
+      inStock: (product.stock ?? 1) > 0,
+      rating: product.ratings,
+      color: item.color || 'Default',
+      size: item.size || 'N/A',
     };
   });
 
   const updateQuantity = (productId, newQty) => {
-
     if (!user?._id) return;
 
     if (newQty <= 0) {
@@ -122,25 +145,31 @@ const ShoppingCartComponent = () => {
       return;
     }
 
-    // 🔥 INSTANT UI UPDATE
+    // 🔥 Optimistic UI
     dispatch(updateQuantityLocal({ productId, quantity: newQty }));
 
-    // 🔥 BACKEND UPDATE (slow)
+    // 🔥 Backend sync
     updateCartItemApi(
-      { userId: user._id, productId, quantity: newQty },
+      {
+        userId: user._id,
+        productId,
+        quantity: newQty,
+      },
       dispatch
     );
   };
 
+
   const removeItem = (productId) => {
     if (!user?._id) return;
 
-    // 🔥 INSTANT REMOVE
+    // 🔥 Optimistic remove
     dispatch(removeItemLocal(productId));
 
-    // 🔥 BACKEND REMOVE
+    // 🔥 Backend remove
     removeCartItemApi(user._id, productId, dispatch);
   };
+
 
   const applyCoupon = () => {
     if (couponCode.toLowerCase() === 'save20') {
@@ -161,6 +190,38 @@ const ShoppingCartComponent = () => {
       setCouponCode('');
     }
   };
+
+  const cartCategoryIds = useMemo(() => {
+    return [...new Set(
+      cartItems
+        .map(item => item.categoryId)
+        .filter(Boolean)
+    )];
+  }, [cartItems]);
+
+  const cartProductIds = useMemo(() => {
+    return cartItems.map(item => item.productId);
+  }, [cartItems]);
+
+  const handleAddToCart = async (product) => {
+    await addToCartApi({
+      productId: product._id,
+      quantity: 1,
+    });
+
+    toast.success("Added to cart");
+  };
+  const suggestedItems = useMemo(() => {
+    if (!subcategory || !cartCategoryIds.length) return [];
+
+    return subcategory.filter(item =>
+      cartCategoryIds.includes(item.category?._id) &&
+      !cartProductIds.includes(item._id)
+    );
+  }, [subcategory, cartCategoryIds, cartProductIds]);
+
+
+
 
   const removeCoupon = () => {
     setAppliedCoupon(null);
@@ -260,7 +321,7 @@ const ShoppingCartComponent = () => {
               {cartItems?.map((item, index) => (
                 // <Link className=' space-y-10' key={item.id}>
                 <div
-
+                  key={item.productId}
                   className="bg-white mt-10 cursor-pointer rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300"
                   style={{
                     animation: `slideIn 0.5s ease-out ${index * 0.1}s both`
@@ -385,22 +446,19 @@ const ShoppingCartComponent = () => {
               ))}
 
               {/* Suggested Items */}
-              <div className="bg-white rounded-2xl shadow-lg p-6 mt-8">
-                <h3 className="font-semibold text-lg text-gray-900 mb-4 flex items-center">
-                  <Gift className="w-5 h-5 mr-2 text-purple-600" />
-                  You might also like
-                </h3>
+              {/* Add-to-cart wise suggestions */}
+              {suggestedItems.length > 0 && (
+                <div className="bg-white rounded-2xl shadow-lg p-6 mt-8">
+                  <h3 className="font-semibold text-lg text-gray-900 mb-4 flex items-center">
+                    <Gift className="w-5 h-5 mr-2 text-purple-600" />
+                    You might also like
+                  </h3>
 
-                {loading && (
-                  <p className="text-gray-500 text-sm">Loading recommendations...</p>
-                )}
-
-                {!loading && subcategory && (
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {subcategory.map((item) => (
+                    {suggestedItems.slice(0, 8).map((item) => (
                       <div
                         key={item._id}
-                        className="border border-gray-200 rounded-xl p-3 hover:shadow-lg transition-all duration-300 cursor-pointer group"
+                        className="border border-gray-200 rounded-xl p-3 hover:shadow-lg transition-all duration-300 group"
                       >
                         <img
                           src={item.image}
@@ -408,18 +466,26 @@ const ShoppingCartComponent = () => {
                           className="w-full h-20 object-cover rounded-lg mb-2"
                         />
 
-                        <h4 className="text-sm font-medium text-gray-900 mb-1 group-hover:text-teal-600 flex items-center gap-1">
-                          <span>{item.icon}</span> {item.name}
+                        <h4 className="text-sm font-medium text-gray-900 mb-1 group-hover:text-teal-600">
+                          {item.name}
                         </h4>
 
-                        <p className="text-xs text-gray-500 capitalize">
+                        <p className="text-xs text-gray-500 mb-2">
                           Category: {item.category?.name}
                         </p>
+
+                        <button
+                          onClick={() => handleAddToCart(item)}
+                          className="w-full bg-teal-600 text-white text-xs py-1.5 rounded-lg hover:bg-teal-700 transition"
+                        >
+                          Add to Cart
+                        </button>
                       </div>
                     ))}
                   </div>
-                )}
-              </div>
+                </div>
+              )}
+
 
             </div>
 
@@ -473,7 +539,7 @@ const ShoppingCartComponent = () => {
                     <div className="bg-green-50 border border-green-200 rounded-xl p-3 flex items-center justify-between">
                       <div className="flex items-center space-x-2 text-green-700">
                         <Percent className="w-4 h-4" />
-                        <span className="font-medium">{appliedCoupon.code} Applied</span>
+                        <span className="font-medium">{appliedCoupon?.code} Applied</span>
                       </div>
                       <button
                         onClick={removeCoupon}
@@ -491,20 +557,20 @@ const ShoppingCartComponent = () => {
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between text-gray-600">
                     <span>Subtotal ({totalItems} items)</span>
-                    <span>৳{subtotal.toLocaleString()}</span>
+                    <span>৳{subtotal?.toLocaleString()}</span>
                   </div>
 
                   {savings > 0 && (
                     <div className="flex justify-between text-green-600">
                       <span>You Save</span>
-                      <span>-৳{savings.toLocaleString()}</span>
+                      <span>-৳{savings?.toLocaleString()}</span>
                     </div>
                   )}
 
                   {appliedCoupon && (
                     <div className="flex justify-between text-green-600">
                       <span>Coupon Discount</span>
-                      <span>-৳{couponDiscount.toLocaleString()}</span>
+                      <span>-৳{couponDiscount?.toLocaleString()}</span>
                     </div>
                   )}
 
@@ -520,7 +586,7 @@ const ShoppingCartComponent = () => {
 
                   <div className="flex justify-between text-lg font-bold text-gray-900">
                     <span>Total</span>
-                    <span>৳{total.toLocaleString()}</span>
+                    <span>৳{subtotal?.toLocaleString()}</span>
                   </div>
                 </div>
 

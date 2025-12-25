@@ -85,22 +85,37 @@ export default function CheckoutComponent() {
 
   // Create order helper
   const createOrder = async (override = {}) => {
-    const delivery_address = [customerInfo.address, customerInfo.area, customerInfo.city].filter(Boolean).join(", ");
+    const delivery_address = [
+      customerInfo.address,
+      customerInfo.area,
+      customerInfo.city,
+    ].filter(Boolean).join(", ");
 
     const payload = {
-      userId: user?._id,
-      products: cartItems,
+      userId: user._id,
+      products: cartItems.map(item => ({
+        productId: item.productId?._id || item.productId,
+        name: item.productId?.productName || item.name,
+        image: item.productId?.images || item.image,
+        quantity: item.quantity,
+        price: item.price,
+        size: item.size || null,
+        color: item.color || null,
+        weight: item.weight || null,
+      })),
+
       delivery_address,
       deliveryCharge,
-      subtotal,
-      total: subtotal + deliveryCharge,
-      paymentMethod: override.paymentMethod || (selectedPayment === "manual" ? "manual" : "online"),
-      paymentDetails: override.paymentDetails || undefined,
-      ...override,
+      subTotalAmt: subtotal,
+      totalAmt: subtotal + deliveryCharge,
+
+      payment_method: override.payment_method || "manual",
+      payment_details: override.payment_details || undefined,
     };
 
     return OrderCreate(payload);
   };
+
 
   // One-click SSL (full or delivery-only)
   const handleProceedToPayment = async ({ payDeliveryOnly = false } = {}) => {
@@ -129,11 +144,6 @@ export default function CheckoutComponent() {
       return;
     }
 
-    if (!customerInfo.name || !customerInfo.phone || !customerInfo.address) {
-      toast.error("অনুগ্রহ করে সকল প্রয়োজনীয় তথ্য পূরণ করুন");
-      return;
-    }
-
     if (!user?._id) {
       toast.error("অনুগ্রহ করে প্রথমে লগইন করুন");
       return;
@@ -144,53 +154,85 @@ export default function CheckoutComponent() {
       return;
     }
 
+    // ✅ FIX: delivery_address DEFINE
+    const delivery_address = [address, area, city].filter(Boolean).join(", ");
+
+    if (!delivery_address) {
+      toast.error("ডেলিভারি ঠিকানা আবশ্যক");
+      return;
+    }
+
     try {
       setIsProcessing(true);
 
-      // 1) create order in DB (status: pending)
-      const orderRes = await createOrder({ paymentMethod: payDeliveryOnly ? "partial" : "online" });
+      // 1️⃣ Create order (manual / pending)
+      const orderRes = await OrderCreate({
+        userId: user._id,
+        delivery_address,
+        products: cartItems,
+        payment_method: "sslcommerz",
+        payment_details: {
+          manualFor: payDeliveryOnly ? "delivery" : "full",
+        },
+        subTotalAmt: subtotal,
+        deliveryCharge,
+        totalAmt: payDeliveryOnly ? deliveryCharge : subtotal + deliveryCharge,
+      });
+
       const dbOrder = orderRes?.data;
       const dbOrderId = dbOrder?._id;
 
-      if (!dbOrderId) throw new Error("Order তৈরি করতে সমস্যা হয়েছে (ID পাওয়া যায়নি)");
+      if (!dbOrderId) {
+        throw new Error("Order তৈরি করতে সমস্যা হয়েছে (ID পাওয়া যায়নি)");
+      }
 
-      // 2) init payment session
-      const amountToPay = payDeliveryOnly ? deliveryCharge : subtotal + deliveryCharge;
+      // 2️⃣ Init SSL payment
+      const amountToPay = payDeliveryOnly
+        ? deliveryCharge
+        : subtotal + deliveryCharge;
 
       const paymentRes = await initPaymentSession({
         dbOrderId,
         user: {
-          name: customerInfo.name,
-          email: customerInfo.email,
-          phone: customerInfo.phone,
-          address: [customerInfo.address, customerInfo.area, customerInfo.city].filter(Boolean).join(", "),
+          name,
+          email,
+          phone,
+          address: delivery_address,
         },
         amount: amountToPay,
         isPartialPayment: payDeliveryOnly,
       });
 
-      const gatewayUrl = paymentRes?.url || paymentRes?.GatewayPageURL;
-      if (!gatewayUrl) throw new Error("Payment গেটওয়ে URL পাওয়া যায়নি");
+      const gatewayUrl =
+        paymentRes?.url || paymentRes?.GatewayPageURL;
+
+      if (!gatewayUrl) {
+        throw new Error("Payment গেটওয়ে URL পাওয়া যায়নি");
+      }
 
       toast.success("আপনাকে পেমেন্ট পেইজে পাঠানো হচ্ছে...");
       window.location.href = gatewayUrl;
+
     } catch (error) {
       console.error("SSLCommerz init error:", error);
-      const msg = error?.response?.data?.message || error?.message || "পেমেন্ট শুরু করতে সমস্যা হয়েছে, পরে আবার চেষ্টা করুন।";
+      const msg =
+        error?.response?.data?.message ||
+        error?.message ||
+        "পেমেন্ট শুরু করতে সমস্যা হয়েছে, পরে আবার চেষ্টা করুন।";
       toast.error(msg);
     } finally {
       setIsProcessing(false);
     }
   };
 
-  // Manual payment (full) or manual delivery payment
+
   // Manual payment (full) or manual delivery payment
   const handleManualSubmit = async ({ deliveryOnly = false }) => {
     try {
       setIsProcessing(true);
 
       // 1️⃣ Prepare delivery address
-      const delivery_address = [customerInfo.address, customerInfo.area, customerInfo.city]
+      const delivery_address = [customerInfo.division, customerInfo.address, customerInfo.area, customerInfo.city]
         .filter(Boolean)
         .join(", ");
 
