@@ -26,6 +26,9 @@ export default function CheckoutComponent() {
   const [paymentInfo, setPaymentInfo] = useState({ phoneNumber: "", transactionId: "" });
   const [isProcessing, setIsProcessing] = useState(false);
   const [deliveryCharge, setDeliveryCharge] = useState(60);
+  const [selectedManualMethod, setSelectedManualMethod] = useState(null);
+  const [createdOrder, setCreatedOrder] = useState(null);
+
 
   const isValidBDPhone = (phone) => /^01[3-9]\d{8}$/.test(phone); // BD phone format
   const isValidEmail = (email) =>
@@ -82,22 +85,37 @@ export default function CheckoutComponent() {
 
   // Create order helper
   const createOrder = async (override = {}) => {
-    const delivery_address = [customerInfo.address, customerInfo.area, customerInfo.city].filter(Boolean).join(", ");
+    const delivery_address = [
+      customerInfo.address,
+      customerInfo.area,
+      customerInfo.city,
+    ].filter(Boolean).join(", ");
 
     const payload = {
-      userId: user?._id,
-      products: cartItems,
+      userId: user._id,
+      products: cartItems.map(item => ({
+        productId: item.productId?._id || item.productId,
+        name: item.productId?.productName || item.name,
+        image: item.productId?.images || item.image,
+        quantity: item.quantity,
+        price: item.price,
+        size: item.size || null,
+        color: item.color || null,
+        weight: item.weight || null,
+      })),
+
       delivery_address,
       deliveryCharge,
-      subtotal,
-      total: subtotal + deliveryCharge,
-      paymentMethod: override.paymentMethod || (selectedPayment === "manual" ? "manual" : "online"),
-      paymentDetails: override.paymentDetails || undefined,
-      ...override,
+      subTotalAmt: subtotal,
+      totalAmt: subtotal + deliveryCharge,
+
+      payment_method: override.payment_method || "manual",
+      payment_details: override.payment_details || undefined,
     };
 
     return OrderCreate(payload);
   };
+
 
   // One-click SSL (full or delivery-only)
   const handleProceedToPayment = async ({ payDeliveryOnly = false } = {}) => {
@@ -126,11 +144,6 @@ export default function CheckoutComponent() {
       return;
     }
 
-    if (!customerInfo.name || !customerInfo.phone || !customerInfo.address) {
-      toast.error("অনুগ্রহ করে সকল প্রয়োজনীয় তথ্য পূরণ করুন");
-      return;
-    }
-
     if (!user?._id) {
       toast.error("অনুগ্রহ করে প্রথমে লগইন করুন");
       return;
@@ -141,96 +154,147 @@ export default function CheckoutComponent() {
       return;
     }
 
+    // ✅ FIX: delivery_address DEFINE
+    const delivery_address = [address, area, city].filter(Boolean).join(", ");
+
+    if (!delivery_address) {
+      toast.error("ডেলিভারি ঠিকানা আবশ্যক");
+      return;
+    }
+
     try {
       setIsProcessing(true);
 
-      // 1) create order in DB (status: pending)
-      const orderRes = await createOrder({ paymentMethod: payDeliveryOnly ? "partial" : "online" });
+      // 1️⃣ Create order (manual / pending)
+      const orderRes = await OrderCreate({
+        userId: user._id,
+        delivery_address,
+        products: cartItems,
+        payment_method: "sslcommerz",
+        payment_details: {
+          manualFor: payDeliveryOnly ? "delivery" : "full",
+        },
+        subTotalAmt: subtotal,
+        deliveryCharge,
+        totalAmt: payDeliveryOnly ? deliveryCharge : subtotal + deliveryCharge,
+      });
+
       const dbOrder = orderRes?.data;
       const dbOrderId = dbOrder?._id;
 
-      if (!dbOrderId) throw new Error("Order তৈরি করতে সমস্যা হয়েছে (ID পাওয়া যায়নি)");
+      if (!dbOrderId) {
+        throw new Error("Order তৈরি করতে সমস্যা হয়েছে (ID পাওয়া যায়নি)");
+      }
 
-      // 2) init payment session
-      const amountToPay = payDeliveryOnly ? deliveryCharge : subtotal + deliveryCharge;
+      // 2️⃣ Init SSL payment
+      const amountToPay = payDeliveryOnly
+        ? deliveryCharge
+        : subtotal + deliveryCharge;
 
       const paymentRes = await initPaymentSession({
         dbOrderId,
         user: {
-          name: customerInfo.name,
-          email: customerInfo.email,
-          phone: customerInfo.phone,
-          address: [customerInfo.address, customerInfo.area, customerInfo.city].filter(Boolean).join(", "),
+          name,
+          email,
+          phone,
+          address: delivery_address,
         },
         amount: amountToPay,
         isPartialPayment: payDeliveryOnly,
       });
 
-      const gatewayUrl = paymentRes?.url || paymentRes?.GatewayPageURL;
-      if (!gatewayUrl) throw new Error("Payment গেটওয়ে URL পাওয়া যায়নি");
+      const gatewayUrl =
+        paymentRes?.url || paymentRes?.GatewayPageURL;
+
+      if (!gatewayUrl) {
+        throw new Error("Payment গেটওয়ে URL পাওয়া যায়নি");
+      }
 
       toast.success("আপনাকে পেমেন্ট পেইজে পাঠানো হচ্ছে...");
       window.location.href = gatewayUrl;
+
     } catch (error) {
       console.error("SSLCommerz init error:", error);
-      const msg = error?.response?.data?.message || error?.message || "পেমেন্ট শুরু করতে সমস্যা হয়েছে, পরে আবার চেষ্টা করুন।";
+      const msg =
+        error?.response?.data?.message ||
+        error?.message ||
+        "পেমেন্ট শুরু করতে সমস্যা হয়েছে, পরে আবার চেষ্টা করুন।";
       toast.error(msg);
     } finally {
       setIsProcessing(false);
     }
   };
 
+
   // Manual payment (full) or manual delivery payment
-  const handleManualSubmit = async ({ deliveryOnly = false } = {}) => {
-    if (!customerInfo.name || !customerInfo.phone || !customerInfo.address) {
-      toast.error("অনুগ্রহ করে প্রয়োজনীয় গ্রাহক তথ্য পূরণ করুন");
-      return;
-    }
-
-    if (!paymentInfo.phoneNumber || !paymentInfo.transactionId) {
-      toast.error("অনুগ্রহ করে আপনার পেমেন্ট নম্বর এবং ট্রানজ্যাকশন আইডি দিন");
-      return;
-    }
-
-    if (!user?._id) {
-      toast.error("অনুগ্রহ করে প্রথমে লগইন করুন");
-      return;
-    }
-
-    if (!cartItems.length) {
-      toast.error("কার্ট খালি আছে");
-      return;
-    }
-
+  const handleManualSubmit = async ({ deliveryOnly = false }) => {
     try {
       setIsProcessing(true);
 
-      const orderRes = await createOrder({
+      // 1️⃣ Prepare delivery address
+      const delivery_address = [customerInfo.division, customerInfo.address, customerInfo.area, customerInfo.city]
+        .filter(Boolean)
+        .join(", ");
+
+      // 2️⃣ Create order in DB with payment_status pending
+      const orderRes = await OrderCreate({
+        userId: user._id,
+        delivery_address,
+        products: cartItems,
         paymentMethod: "manual",
         paymentDetails: {
           providerNumber: paymentInfo.phoneNumber,
           transactionId: paymentInfo.transactionId,
           manualFor: deliveryOnly ? "delivery" : "full",
         },
-        isPartialPayment: deliveryOnly,
+        subtotal,
+        total: subtotal + deliveryCharge,
+        deliveryCharge,
       });
 
-      const dbOrder = orderRes?.data;
-      const dbOrderId = dbOrder?._id;
+      const order = orderRes?.data;
+      if (!order?._id) throw new Error("Order creation failed");
 
-      if (!dbOrderId) throw new Error("Order ID missing after creation");
+      // ✅ Show user a success toast, but note it's pending
+      toast.success(
+        `ম্যানুয়াল পেমেন্ট জমা হয়েছে। অডমিনের কনফার্মেশনের অপেক্ষায় আছে।`
+      );
 
-      toast.success("ম্যানুয়াল পেমেন্ট রেকর্ড করা হয়েছে — আমরা যাচাই করে কনফার্ম করব।");
 
-      // go to pending page
-      window.location.href = `/order/${dbOrderId}/pending`;
+      // 3️⃣ Optionally, store order locally to show on frontend
+      setCreatedOrder(order);
+
+      // 4️⃣ Clear cart (optional, depending on your logic)
+      // dispatch(clearCart()); // if you have a redux action
+      window.location.href = '/account'
+
+
     } catch (err) {
-      console.error("Manual payment submit error:", err);
-      toast.error(err?.message || "ম্যানুয়াল পেমেন্ট সাবমিট করতে সমস্যা হয়েছে");
+      console.error("Manual payment error:", err);
+      const msg = err?.response?.data?.message || err?.message || "ম্যানুয়াল পেমেন্ট ব্যর্থ হয়েছে";
+      toast.error(msg);
     } finally {
       setIsProcessing(false);
     }
   };
+
+
+
+
+
+  const manualMethods = [
+    {
+      id: "bkash",
+      name: "Bkash Personal",
+      number: "01626420774",
+    },
+    {
+      id: "nagad",
+      name: "Nagad Personal",
+      number: "01626420774",
+    },
+  ];
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
@@ -354,65 +418,199 @@ export default function CheckoutComponent() {
 
                 {/* Payment Methods */}
                 <div className="mb-4">
-                  <h4 className="text-sm font-semibold text-gray-700 mb-3">পেমেন্ট মেথড</h4>
+                  <h4 className="text-sm font-semibold text-gray-700 mb-3">
+                    পেমেন্ট মেথড
+                  </h4>
 
                   <div className="space-y-3">
-                    {/* Manual (Full) */}
-                    <label className={`flex items-center p-3 rounded-xl border ${selectedPayment === 'manual' ? 'border-blue-400 bg-blue-50' : 'border-gray-200 bg-white'} cursor-pointer`}>
-                      <input type="radio" name="payment" value="manual" checked={selectedPayment === 'manual'} onChange={() => setSelectedPayment('manual')} className="mr-3" />
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
+
+                    {/* ================= Manual Payment ================= */}
+                    <div
+                      className={`p-3 rounded-xl border cursor-pointer
+        ${selectedPayment === 'manual'
+                          ? 'border-blue-400 bg-blue-50'
+                          : 'border-gray-200 bg-white'}
+      `}
+                      onClick={() => setSelectedPayment('manual')}
+                    >
+                      {/* Header */}
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="radio"
+                          name="payment"
+                          checked={selectedPayment === 'manual'}
+                          readOnly
+                        />
+
+                        <div className="flex-1 flex justify-between">
                           <div>
-                            <div className="font-medium">ম্যানুয়াল পেমেন্ট (Bkash / Nagad / Rocket)</div>
-                            <div className="text-xs text-gray-500">আপনি প্রদত্ত নম্বরে পেমেন্ট করে ট্রানজ্যাকশন আইডি জমা দেবেন</div>
-                          </div>
-                          <div className="text-sm font-semibold text-gray-700">৳{(subtotal + deliveryCharge).toLocaleString()}</div>
-                        </div>
-
-                        {selectedPayment === 'manual' && (
-                          <div className="mt-3 grid grid-cols-1 gap-2 text-sm">
-                            <div className="flex items-center justify-between bg-white p-2 rounded-lg border border-gray-200"><div><div className="font-medium">Bkash Personal</div><div className="text-xs text-gray-500">01626420774</div></div><div className="text-xs text-gray-400">Account</div></div>
-                            <div className="flex items-center justify-between bg-white p-2 rounded-lg border border-gray-200"><div><div className="font-medium">Nagad</div><div className="text-xs text-gray-500">01626420774</div></div><div className="text-xs text-gray-400">Account</div></div>
-
-                            <div className="grid grid-cols-1 gap-2 mt-2">
-                              <input type="text" placeholder="পেমেন্ট নম্বর (যেই নম্বর থেকে পেমেন্ট করেছেন)" value={paymentInfo.phoneNumber} onChange={(e) => handlePaymentInfoChange('phoneNumber', e.target.value)} className="w-full px-3 py-2 border rounded-xl" />
-                              <input type="text" placeholder="ট্রানজ্যাকশন আইডি (Transaction ID)" value={paymentInfo.transactionId} onChange={(e) => handlePaymentInfoChange('transactionId', e.target.value)} className="w-full px-3 py-2 border rounded-xl" />
-
-                              <div className="grid grid-cols-2 gap-2">
-                                <button onClick={() => handleManualSubmit({ deliveryOnly: false })} disabled={isProcessing} className="w-full bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white py-2 rounded-xl font-semibold disabled:opacity-60">{isProcessing ? 'সাবমিট করা হচ্ছে...' : 'ম্যানুয়াল (Full) সাবমিট করুন'}</button>
-                                <button onClick={() => handleManualSubmit({ deliveryOnly: true })} disabled={isProcessing} className="w-full border border-gray-300 py-2 rounded-xl">{isProcessing ? 'সাবমিট করা হচ্ছে...' : `ম্যানুয়াল (Delivery ৳${deliveryCharge})`}</button>
-                              </div>
+                            <div className="font-medium">
+                              ম্যানুয়াল পেমেন্ট (Bkash / Nagad / Rocket)
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              আপনি প্রদত্ত নম্বরে পেমেন্ট করে ট্রানজ্যাকশন আইডি জমা দেবেন
                             </div>
                           </div>
-                        )}
+
+                          <div className="text-sm font-semibold text-gray-700">
+                            ৳{(subtotal + deliveryCharge).toLocaleString()}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Expanded Manual Section */}
+                      {selectedPayment === 'manual' && (
+                        <div
+                          className="mt-4 space-y-3"
+                          onClick={(e) => e.stopPropagation()} // 🔥 key fix
+                        >
+                          {/* Manual Methods */}
+                          {manualMethods.map((method) => {
+                            const isActive = selectedManualMethod === method.id;
+
+                            return (
+                              <button
+                                key={method.id}
+                                type="button"
+                                onClick={() => setSelectedManualMethod(method.id)}
+                                className={`w-full flex items-center justify-between p-4 rounded-xl border transition
+                  ${isActive
+                                    ? 'border-green-500 bg-green-50'
+                                    : 'border-gray-200 bg-white hover:border-green-400'}
+                `}
+                              >
+                                <div className="text-left">
+                                  <div className="font-medium">{method.name}</div>
+                                  <div className="text-xs text-gray-500">{method.number}</div>
+                                </div>
+
+                                <span
+                                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center
+                    ${isActive ? 'border-green-600' : 'border-gray-300'}
+                  `}
+                                >
+                                  {isActive && (
+                                    <span className="w-2.5 h-2.5 rounded-full bg-green-600" />
+                                  )}
+                                </span>
+                              </button>
+                            );
+                          })}
+
+                          {/* Inputs */}
+                          <input
+                            type="text"
+                            placeholder="পেমেন্ট নম্বর (যেই নম্বর থেকে পেমেন্ট করেছেন)"
+                            value={paymentInfo.phoneNumber}
+                            onChange={(e) =>
+                              handlePaymentInfoChange('phoneNumber', e.target.value)
+                            }
+                            className="w-full px-3 py-2 border rounded-xl"
+                          />
+
+                          <input
+                            type="text"
+                            placeholder="ট্রানজ্যাকশন আইডি (Transaction ID)"
+                            value={paymentInfo.transactionId}
+                            onChange={(e) =>
+                              handlePaymentInfoChange('transactionId', e.target.value)
+                            }
+                            className="w-full px-3 py-2 border rounded-xl"
+                          />
+
+                          {/* Submit Buttons */}
+                          <div className="grid grid-cols-2 gap-2 pt-2">
+                            <button
+                              onClick={() => handleManualSubmit({ deliveryOnly: false })}
+                              disabled={isProcessing || !selectedManualMethod}
+                              className="w-full bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white py-2 rounded-xl font-semibold disabled:opacity-60"
+                            >
+                              {isProcessing ? 'সাবমিট করা হচ্ছে...' : 'ম্যানুয়াল (Full) সাবমিট করুন'}
+                            </button>
+
+                            <button
+                              onClick={() => handleManualSubmit({ deliveryOnly: true })}
+                              disabled={isProcessing || !selectedManualMethod}
+                              className="w-full border border-gray-300 py-2 rounded-xl disabled:opacity-60"
+                            >
+                              {isProcessing
+                                ? 'সাবমিট করা হচ্ছে...'
+                                : `ম্যানুয়াল (Delivery ৳${deliveryCharge})`}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* ================= SSL Full ================= */}
+                    <label
+                      className={`flex items-center p-3 rounded-xl border cursor-pointer
+        ${selectedPayment === 'ssl'
+                          ? 'border-blue-400 bg-blue-50'
+                          : 'border-gray-200 bg-white'}
+      `}
+                    >
+                      <input
+                        type="radio"
+                        name="payment"
+                        value="ssl"
+                        checked={selectedPayment === 'ssl'}
+                        onChange={() => setSelectedPayment('ssl')}
+                        className="mr-3"
+                      />
+
+                      <div className="flex-1 flex items-center justify-between">
+                        <div>
+                          <div className="font-medium">
+                            One-click (SSLCommerz) — Full
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            শুধু ক্লিক করুন এবং পেমেন্ট গেটওয়ে খুলবে
+                          </div>
+                        </div>
+
+                        <div className="text-sm font-semibold text-gray-700">
+                          ৳{(subtotal + deliveryCharge).toLocaleString()}
+                        </div>
                       </div>
                     </label>
 
-                    {/* SSL Full */}
-                    <label className={`flex items-center p-3 rounded-xl border ${selectedPayment === 'ssl' ? 'border-blue-400 bg-blue-50' : 'border-gray-200 bg-white'} cursor-pointer`}>
-                      <input type="radio" name="payment" value="ssl" checked={selectedPayment === 'ssl'} onChange={() => setSelectedPayment('ssl')} className="mr-3" />
+                    {/* ================= SSL Delivery ================= */}
+                    <label
+                      className={`flex items-center p-3 rounded-xl border cursor-pointer
+        ${selectedPayment === 'ssl-delivery'
+                          ? 'border-blue-400 bg-blue-50'
+                          : 'border-gray-200 bg-white'}
+      `}
+                    >
+                      <input
+                        type="radio"
+                        name="payment"
+                        value="ssl-delivery"
+                        checked={selectedPayment === 'ssl-delivery'}
+                        onChange={() => setSelectedPayment('ssl-delivery')}
+                        className="mr-3"
+                      />
+
                       <div className="flex-1 flex items-center justify-between">
                         <div>
-                          <div className="font-medium">One-click (SSLCommerz) — Full</div>
-                          <div className="text-xs text-gray-500">শুধু ক্লিক করুন এবং পেমেন্ট গেটওয়ে খুলবে</div>
+                          <div className="font-medium">
+                            Pay Delivery Fee Only (SSL)
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            আগে ডেলিভারি ফি দিন, পরে বাকি কনফার্ম
+                          </div>
                         </div>
-                        <div className="text-sm font-semibold text-gray-700">৳{(subtotal + deliveryCharge).toLocaleString()}</div>
+
+                        <div className="text-sm font-semibold text-gray-700">
+                          ৳{deliveryCharge}
+                        </div>
                       </div>
                     </label>
 
-                    {/* SSL Delivery-only */}
-                    <label className={`flex items-center p-3 rounded-xl border ${selectedPayment === 'ssl-delivery' ? 'border-blue-400 bg-blue-50' : 'border-gray-200 bg-white'} cursor-pointer`}>
-                      <input type="radio" name="payment" value="ssl-delivery" checked={selectedPayment === 'ssl-delivery'} onChange={() => setSelectedPayment('ssl-delivery')} className="mr-3" />
-                      <div className="flex-1 flex items-center justify-between">
-                        <div>
-                          <div className="font-medium">Pay Delivery Fee Only (SSL)</div>
-                          <div className="text-xs text-gray-500">আগে ডেলিভারি ফি দিন, পরে বাকি কনফার্ম</div>
-                        </div>
-                        <div className="text-sm font-semibold text-gray-700">৳{deliveryCharge}</div>
-                      </div>
-                    </label>
                   </div>
                 </div>
+
 
                 <div className="flex items-center justify-center space-x-2 mb-4 p-3 bg-green-50 rounded-xl">
                   <Shield className="w-5 h-5 text-green-600" />

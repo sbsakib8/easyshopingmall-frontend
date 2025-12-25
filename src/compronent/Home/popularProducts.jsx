@@ -77,8 +77,8 @@ const PopularProducts = () => {
       image: p.images?.[0] || "",
       price: p.price,
       originalPrice: p.oldPrice || p.price,
-      rating: p.rating || 4.5,
-      reviews: p.reviews || 0,
+      rating: p.ratings,
+      reviews: p.reviews,
       category: p.category?.[0]?.name?.toUpperCase() || "GENERAL",
       badge: p.tags?.[0] || "New",
       isNew: isProductNew(p.createdAt || p.created_at || p.createdDate),
@@ -156,10 +156,6 @@ const PopularProducts = () => {
       console.error("Wishlist toggle error:", err);
     }
   };
-
-
-
-
 
   const handleAddToCart = async (product) => {
     if (!user?._id) {
@@ -329,7 +325,7 @@ const PopularProducts = () => {
                   {/* Price */}
                   <div className="flex items-center gap-2 mb-3">
                     <span className="text-lg font-bold text-red-600">
-                      ${product.price.toFixed(2)}
+                      ${product.price}
                     </span>
                     {product.originalPrice > product.price && (
                       <span className="text-sm text-gray-400 line-through">

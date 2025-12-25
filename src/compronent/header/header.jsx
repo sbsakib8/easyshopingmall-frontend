@@ -99,31 +99,30 @@ const Header = () => {
 
   // Countdown timer effect
   useEffect(() => {
-    let timer;
-    const updateFromTarget = (target) => {
-      const now = Date.now();
-      const diff = Math.max(new Date(target).getTime() - now, 0);
+    if (!siteInfo?.countdownTargetDate) return;
+
+    const targetTime = new Date(siteInfo.countdownTargetDate).getTime();
+
+    const updateCountdown = () => {
+      const now = Date.now(); // UTC-based timestamp
+      const diff = Math.max(targetTime - now, 0);
+
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
       const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
       const minutes = Math.floor((diff / (1000 * 60)) % 60);
       const seconds = Math.floor((diff / 1000) % 60);
+
       setTimeLeft({ days, hours, minutes, seconds });
     };
 
-    if (siteInfo?.countdownTargetDate) {
-      updateFromTarget(siteInfo.countdownTargetDate);
-      timer = setInterval(() => updateFromTarget(siteInfo.countdownTargetDate), 1000);
-    } else if (siteInfo && (siteInfo.countdownDays || siteInfo.countdownHours || siteInfo.countdownMinutes || siteInfo.countdownSeconds)) {
-      setTimeLeft({
-        days: siteInfo.countdownDays || 0,
-        hours: siteInfo.countdownHours || 0,
-        minutes: siteInfo.countdownMinutes || 0,
-        seconds: siteInfo.countdownSeconds || 0,
-      });
-    }
+    updateCountdown();
+    const timer = setInterval(updateCountdown, 1000);
 
     return () => clearInterval(timer);
-  }, [siteInfo]);
+  }, [siteInfo?.countdownTargetDate]);
+
+
+
 
   const toggleCategories = () => {
     setIsCategoriesOpen(!isCategoriesOpen);
@@ -275,15 +274,15 @@ const Header = () => {
         } hidden sm:block`}>
         <div className="px-2 sm:px-5 lg:px-32 mx-auto flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
           <div className="flex flex-wrap items-center justify-center sm:justify-start space-x-2 sm:space-x-4 lg:space-x-6 mb-2 sm:mb-0">
-            <Link href="aboutus" className="text-gray-600 hover:text-emerald-600 transition-all duration-300 hover:scale-105 relative group">
+            <Link href="/about" className="text-gray-600 hover:text-emerald-600 transition-all duration-300 hover:scale-105 relative group">
               About Us
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-300 group-hover:w-full"></span>
             </Link>
-            <Link href="myaccout" className="text-gray-600 hover:text-emerald-600 transition-all duration-300 hover:scale-105 relative group">
+            <Link href="/account" className="text-gray-600 hover:text-emerald-600 transition-all duration-300 hover:scale-105 relative group">
               My Account
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-300 group-hover:w-full"></span>
             </Link>
-            <Link href="wishlist" className="text-gray-600 hover:text-emerald-600 transition-all duration-300 hover:scale-105 relative group">
+            <Link href="/wishlist" className="text-gray-600 hover:text-emerald-600 transition-all duration-300 hover:scale-105 relative group">
               Wishlist
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-300 group-hover:w-full"></span>
             </Link>
@@ -358,12 +357,12 @@ const Header = () => {
             <div className="flex items-center">
               <div className="flex items-center space-x-2 sm:space-x-3 group cursor-pointer">
                 <div className="relative">
-                  <div className={`w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-emerald-500 via-green-500 to-teal-500 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 ${isScrolled ? 'animate-pulse' : ''
+                  <div className={`w-6 h-6 sm:w-10 sm:h-10 lg:w-12 lg:h-12  from-emerald-500 via-green-500 to-teal-500 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 ${isScrolled ? 'animate-pulse' : ''
                     }`}>
                     {/* <div className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 bg-white rounded-lg sm:rounded-xl flex items-center justify-center transform group-hover:rotate-12 transition-transform duration-300">
                       <div className="w-3 h-3 sm:w-3.5 sm:h-3.5 lg:w-4 lg:h-4 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-md sm:rounded-lg"></div>
                     </div> */}
-                    <Image src={logo} width={40} height={100} alt="Easy Shopping Mall Logo" />
+                    <Image src={logo} width={60} height={100} alt="Easy Shopping Mall Logo" />
                   </div>
                   <div className="absolute -top-0.5 sm:-top-1 -right-0.5 sm:-right-1 w-2 h-2 sm:w-3 sm:h-3 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full animate-pulse"></div>
                 </div>

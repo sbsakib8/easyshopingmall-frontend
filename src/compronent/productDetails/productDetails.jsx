@@ -32,6 +32,7 @@ const ProductDetails = () => {
   // Fetch all products for related products
   const productParams = useMemo(() => ({}), []);
   const { product: allProductsData } = useGetProduct(productParams);
+  console.log('product', allProductsData)
 
   // Fetch product details
   useEffect(() => {
@@ -49,7 +50,7 @@ const ProductDetails = () => {
             price: Number(data.price ?? data.sell_price ?? 0) || 0,
             originalPrice: Number(data.oldPrice ?? data.mrp ?? data.price ?? 0) || 0,
             discount: Number(data.discount ?? 0) || 0,
-            rating: Number(data.ratings ?? data.rating ?? 4) || 4,
+            rating: Number(data?.ratings),
             reviews: Number(data.reviews ?? 0) || 0,
             images: data.images || ['/banner/img/placeholder.png'],
             sizes: data.productSize ? [data.productSize] : (data.sizes || []),
@@ -110,7 +111,7 @@ const ProductDetails = () => {
         price: Number(p.price ?? p.sell_price ?? 0) || 0,
         originalPrice: Number(p.originalPrice ?? p.mrp ?? p.price ?? 0) || 0,
         image: p.image || p.images?.[0] || '/banner/img/placeholder.png',
-        rating: Number(p.rating ?? 4) || 4,
+        rating: Number(p.ratings),
         reviews: Number(p.reviews ?? 0) || 0,
         subCategory: subCategoryVal,
         discount: Number(p.discount ?? 0) || 0,
@@ -169,15 +170,23 @@ const ProductDetails = () => {
         toast.error('Failed to update quantity');
       }
     }
-  }; const handleAddToCart = async () => {
+  };
+  const handleAddToCart = async () => {
     if (!user?._id) {
       toast.error('Please sign in to add items to cart');
       return;
     }
-    // if (!selectedSize || !selectedColor) {
-    //   toast.error('Please select size and color');
-    //   return;
-    // }
+
+    if (product?.sizes?.length && !selectedSize) {
+      toast.error('Please select a size');
+      return;
+    }
+
+    if (product?.colors?.length && !selectedColor) {
+      toast.error('Please select a color');
+      return;
+    }
+
     try {
       await addToCartApi(
         {
@@ -185,9 +194,15 @@ const ProductDetails = () => {
           productId: product.id,
           quantity,
           price: product.price,
+
+          // ✅ IMPORTANT
+          size: selectedSize,
+          color: selectedColor,
+          weight: product.weight || null,
         },
         dispatch
       );
+
       toast.success(`${product.name} added to cart`);
       await getCartApi(user._id, dispatch);
     } catch (err) {
@@ -195,6 +210,7 @@ const ProductDetails = () => {
       toast.error('Failed to add to cart');
     }
   };
+
 
   const handleWishlist = async () => {
     try {
