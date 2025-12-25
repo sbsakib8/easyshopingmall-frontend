@@ -628,7 +628,7 @@ const ShopPage = () => {
               )}
 
               {/* Select Brands */}
-              <div className="bg-white p-6 rounded-lg shadow-md">
+              {/* <div className="bg-white p-6 rounded-lg shadow-md">
                 <h3 className="font-bold text-lg mb-4 text-gray-800">Select Brands</h3>
                 <div className="space-y-2">
                   {brands.map((brand) => (
@@ -646,10 +646,10 @@ const ShopPage = () => {
                     </label>
                   ))}
                 </div>
-              </div>
+              </div> */}
 
               {/* Rating Filter */}
-              <div className="bg-white p-6 rounded-lg shadow-md">
+              {/* <div className="bg-white p-6 rounded-lg shadow-md">
                 <h3 className="font-bold text-lg mb-4 text-gray-800">Customer Rating</h3>
                 <div className="space-y-2">
                   {[4, 3, 2, 1].map((rating) => (
@@ -676,7 +676,7 @@ const ShopPage = () => {
                     </label>
                   ))}
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
 
