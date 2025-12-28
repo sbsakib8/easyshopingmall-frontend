@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Star, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { useGetcategory } from "@/src/utlis/usecategory";
+import { HomeBannerAllGet } from "@/src/hook/useHomeBanner";
 
 const categoridata = [
   { id: 1, name: "Electronics", image: "https://images.unsplash.com/photo-1498049794561-7780e7231661?auto=format&fit=crop&w=300&q=80", items: "1,234", trending: true },
