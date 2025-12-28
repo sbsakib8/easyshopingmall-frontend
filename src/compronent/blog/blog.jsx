@@ -5,7 +5,6 @@ import LoadingPage from '@/src/helper/loading/loadingPge';
 import BlogModal from './BlogModal';
 import { useGetBlogs } from '@/src/utlis/content/useBlogs';
 import { useGetcategory } from '@/src/utlis/usecategory';
-// import axios from 'axios';
 
 const BlogPage = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -24,9 +23,6 @@ if(loading || CatLoading) return <LoadingPage></LoadingPage>
   const handleSubscribe = () => {
     setsubscribe(!subscribe);
   }
-  const categories = ['All', 'Fashion', 'Electronics', 'Home & Living', 'Beauty', 'Sports', 'Tips & Tricks'];
-
- 
   const featuredPost = blogs[0];
   const regularPosts = blogs.slice(1)
 
@@ -100,7 +96,7 @@ if(loading || CatLoading) return <LoadingPage></LoadingPage>
                     <div className="flex items-center gap-4 text-sm text-gray-500">
                       <div className="flex items-center">
                         <User className="w-4 h-4 mr-1" />
-                        {featuredPost.author}
+                        {featuredPost?.author}
                       </div>
                       <div className="flex items-center">
                         <Clock className="w-4 h-4 mr-1" />
