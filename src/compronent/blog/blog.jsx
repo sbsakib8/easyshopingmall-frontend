@@ -4,37 +4,31 @@ import { Calendar, Clock, User, Heart, MessageCircle, Share2, Tag, TrendingUp, S
 import { BlogAllGet } from '@/src/hook/content/userBlogs';
 import LoadingPage from '@/src/helper/loading/loadingPge';
 import BlogModal from './BlogModal';
-import blog from '@/app/(page)/blog/page';
+import { useGetBlogs } from '@/src/utlis/content/useBlogs';
+import { useGetcategory } from '@/src/utlis/usecategory';
+// import axios from 'axios';
+
+
 
 const BlogPage = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [blogPosts, setBlogPosts] = useState([])
   const [searchQuery, setSearchQuery] = useState('');
   const [subscribe, setsubscribe] = useState(false);
-  const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [selectedPost, setSelectedPost] = useState({})
-
-
+const { blogs, loading }= useGetBlogs()
+const { category, CatLoading } = useGetcategory()
   useEffect( () => {
     setIsVisible(true);
-   const getBolog=async()=>{
-     const res = await BlogAllGet()
-    const data = await res.data
-    setBlogPosts(data)
-    setLoading(false)
-   }
-   getBolog()
+
   }, []);
-if(loading) return <LoadingPage></LoadingPage>
-console.log(blogPosts)
+if(loading || CatLoading) return <LoadingPage></LoadingPage>
   const handleSubscribe = () => {
     setsubscribe(!subscribe);
   }
   const categories = ['All', 'Fashion', 'Electronics', 'Home & Living', 'Beauty', 'Sports', 'Tips & Tricks'];
 
-  // const blogPosts = [
   //   {
   //     id: 1,
   //     title: "২০২৪ সালের সেরা ফ্যাশন ট্রেন্ড: যা জানা জরুরি",
@@ -115,8 +109,8 @@ console.log(blogPosts)
   //   }
   // ];
 
-  const featuredPost = blogPosts[0];
-  const regularPosts = blogPosts.slice(1);
+  const featuredPost = blogs[0];
+  const regularPosts = blogs.slice(1)
 
   const filteredPosts = regularPosts.filter(post => {
     const matchesCategory = selectedCategory === 'All' || post.category === selectedCategory;
@@ -124,7 +118,7 @@ console.log(blogPosts)
       post.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
-console.log(selectedPost)
+// console.log(selectedPost)
   return (
     <div className="min-h-screen lg:mt-20 py-5 bg-gradient-to-br from-slate-50 via-white to-blue-50">
       {/* Header Section */}
@@ -172,7 +166,7 @@ console.log(selectedPost)
                     </span>
                     <div className="flex items-center text-gray-500 text-sm">
                       <Calendar className="w-4 h-4 mr-1" />
-                      {featuredPost?.date}
+                      {featuredPost?.createdDateBn}
                     </div>
                   </div>
 
@@ -192,18 +186,18 @@ console.log(selectedPost)
                       </div>
                       <div className="flex items-center">
                         <Clock className="w-4 h-4 mr-1" />
-                        {featuredPost.readTime}
+                        {featuredPost?.readTime}
                       </div>
                     </div>
 
                     <div className="flex items-center gap-4">
                       <button className="flex items-center gap-1 text-gray-500 hover:text-red-500 transition-colors">
                         <Heart className="w-4 h-4" />
-                        {featuredPost.likes}
+                        {featuredPost?.likes}
                       </button>
                       <button className="flex items-center gap-1 text-gray-500 hover:text-blue-500 transition-colors">
                         <MessageCircle className="w-4 h-4" />
-                        {featuredPost?.comments || "500"}
+                        {featuredPost?.comments}
                       </button>
                       <button className="flex items-center gap-1 text-gray-500 hover:text-green-500 transition-colors">
                         <Share2 className="w-4 h-4" />
@@ -236,16 +230,16 @@ console.log(selectedPost)
 
             {/* Categories */}
             <div className="flex flex-wrap gap-2">
-              {categories.map((category) => (
+              {category?.map((cat) => (
                 <button
-                  key={category}
-                  onClick={() => setSelectedCategory(category)}
+                  key={cat.id}
+                  onClick={() => setSelectedCategory(cat.name)}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${selectedCategory === category
                       ? 'bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white shadow-lg'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                 >
-                  {category}
+                  {cat.name}
                 </button>
               ))}
             </div>
@@ -280,9 +274,9 @@ console.log(selectedPost)
                 <div className="p-6">
                   <div className="flex items-center text-gray-500 text-sm mb-3">
                     <Calendar className="w-4 h-4 mr-1" />
-                    {post.date}
+                    {post?.createdDateBn}
                     <Clock className="w-4 h-4 ml-4 mr-1" />
-                    {post.readTime}
+                    {post?.readTime}
                   </div>
 
                   <button onClick={()=> {
