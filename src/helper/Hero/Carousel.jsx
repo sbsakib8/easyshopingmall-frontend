@@ -85,7 +85,7 @@ const Carousel = () => {
               <img
                 src={slide?.images?.[0] || ""}
                 alt={slide?.title}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain md:object-cover bg-gray-100"
               />
               {/* Gradient overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />

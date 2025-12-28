@@ -94,9 +94,11 @@ const PopularProducts = () => {
   }, [mergedData.products, activeCategory]);
 
   const filteredProducts = useMemo(() => {
-    return currentProducts.filter((p) =>
+    const filtered = currentProducts.filter((p) =>
       p.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
+    // Limit to 30 items for home screen
+    return filtered.slice(0, 30);
   }, [currentProducts, searchTerm]);
 
   const renderStars = (rating) => {
@@ -251,7 +253,7 @@ const PopularProducts = () => {
 
       {/* Product Grid */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6">
           {filteredProducts.map((product) => (
             <Link
               href={`/productdetails/${product.id}`}
