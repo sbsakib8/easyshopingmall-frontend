@@ -1,14 +1,11 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, User, Heart, MessageCircle, Share2, Tag, TrendingUp, Search, Filter } from 'lucide-react';
-import { BlogAllGet } from '@/src/hook/content/userBlogs';
 import LoadingPage from '@/src/helper/loading/loadingPge';
 import BlogModal from './BlogModal';
 import { useGetBlogs } from '@/src/utlis/content/useBlogs';
 import { useGetcategory } from '@/src/utlis/usecategory';
 // import axios from 'axios';
-
-
 
 const BlogPage = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -29,86 +26,7 @@ if(loading || CatLoading) return <LoadingPage></LoadingPage>
   }
   const categories = ['All', 'Fashion', 'Electronics', 'Home & Living', 'Beauty', 'Sports', 'Tips & Tricks'];
 
-  //   {
-  //     id: 1,
-  //     title: "২০২৪ সালের সেরা ফ্যাশন ট্রেন্ড: যা জানা জরুরি",
-  //     excerpt: "এই বছরের সবচেয়ে জনপ্রিয় ফ্যাশন ট্রেন্ডগুলো নিয়ে বিস্তারিত আলোচনা। কীভাবে আপনি এই ট্রেন্ডগুলো আপনার স্টাইলে incorporate করবেন।",
-  //     image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=250&fit=crop",
-  //     category: "Fashion",
-  //     author: "Fatima Rahman",
-  //     date: "২৫ আগস্ট, ২০২৪",
-  //     readTime: "৮ মিনিট",
-  //     likes: 245,
-  //     comments: 18,
-  //     tags: ["Fashion", "Trend", "Style"]
-  //   },
-  //   {
-  //     id: 2,
-  //     title: "স্মার্টফোন কেনার আগে যে বিষয়গুলো মাথায় রাখবেন",
-  //     excerpt: "নতুন স্মার্টফোন কেনার সময় বাজেট, ফিচার, ব্র্যান্ড - সব মিলিয়ে সঠিক সিদ্ধান্ত নেওয়ার জন্য complete guide।",
-  //     image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=250&fit=crop",
-  //     category: "Electronics",
-  //     author: "Karim Ahmed",
-  //     date: "২২ আগস্ট, ২০২৪",
-  //     readTime: "১২ মিনিট",
-  //     likes: 189,
-  //     comments: 24,
-  //     tags: ["Mobile", "Technology", "Guide"]
-  //   },
-  //   {
-  //     id: 3,
-  //     title: "ঘর সাজানোর ১০টি সহজ এবং কার্যকর টিপস",
-  //     excerpt: "কম খরচে কীভাবে আপনার ঘরকে সুন্দর এবং আকর্ষণীয় করে তুলবেন? আমাদের expert টিপস ফলো করুন।",
-  //     image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=250&fit=crop",
-  //     category: "Home & Living",
-  //     author: "Nasreen Sultana",
-  //     date: "২০ আগস্ট, ২০২৪",
-  //     readTime: "৬ মিনিট",
-  //     likes: 156,
-  //     comments: 31,
-  //     tags: ["Home Decor", "Interior", "DIY"]
-  //   },
-  //   {
-  //     id: 4,
-  //     title: "গ্রীষ্মকালীন ত্বকের যত্নে করণীয়",
-  //     excerpt: "গরমের সময় ত্বকের বিশেষ যত্ন প্রয়োজন। জানুন কীভাবে আপনার ত্বককে healthy এবং glowing রাখবেন।",
-  //     image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=250&fit=crop",
-  //     category: "Beauty",
-  //     author: "Dr. Rashida Khan",
-  //     date: "১৮ আগস্ট, ২০২৪",
-  //     readTime: "৭ মিনিট",
-  //     likes: 298,
-  //     comments: 42,
-  //     tags: ["Skincare", "Beauty", "Health"]
-  //   },
-  //   {
-  //     id: 5,
-  //     title: "অনলাইন শপিংয়ে নিরাপত্তার ৮টি গুরুত্বপূর্ণ টিপস",
-  //     excerpt: "অনলাইনে কেনাকাটা করার সময় কীভাবে নিজেকে scam এবং fraud থেকে রক্ষা করবেন? জেনে নিন expert advice।",
-  //     image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=250&fit=crop",
-  //     category: "Tips & Tricks",
-  //     author: "Tanvir Islam",
-  //     date: "১৫ আগস্ট, ২০২৪",
-  //     readTime: "১০ মিনিট",
-  //     likes: 412,
-  //     comments: 56,
-  //     tags: ["Security", "Online Shopping", "Tips"]
-  //   },
-  //   {
-  //     id: 6,
-  //     title: "ফিটনেস এবং খেলাধুলার জন্য সেরা গিয়ার",
-  //     excerpt: "ঘরে বসে exercise করতে চান? জানুন কোন কোন equipment গুলো আপনার জন্য সবচেয়ে উপযোগী হবে।",
-  //     image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=250&fit=crop",
-  //     category: "Sports",
-  //     author: "Rafiq Hasan",
-  //     date: "১২ আগস্ট, ২০২৪",
-  //     readTime: "৯ মিনিট",
-  //     likes: 167,
-  //     comments: 22,
-  //     tags: ["Fitness", "Sports", "Equipment"]
-  //   }
-  // ];
-
+ 
   const featuredPost = blogs[0];
   const regularPosts = blogs.slice(1)
 
@@ -230,11 +148,20 @@ if(loading || CatLoading) return <LoadingPage></LoadingPage>
 
             {/* Categories */}
             <div className="flex flex-wrap gap-2">
+               <button
+                  onClick={() => setSelectedCategory("All")}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${selectedCategory === "All"
+                      ? 'bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white shadow-lg'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                >
+                  All
+                </button>
               {category?.map((cat) => (
                 <button
-                  key={cat.id}
+                  key={cat._id}
                   onClick={() => setSelectedCategory(cat.name)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${selectedCategory === category
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${selectedCategory === cat.name
                       ? 'bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white shadow-lg'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
