@@ -74,6 +74,12 @@ const Header = () => {
     subcategories: (subcategories || []).filter(s => (s.categoryId === cat.id || s.categoryId?._id === cat.id)).map(s => s.name)
   }));
 
+  // Debug: Log category count
+  useEffect(() => {
+    console.log(`📦 Total Categories Loaded: ${categories?.length || 0}`);
+    console.log('Categories:', categories);
+  }, [categories]);
+
   // Navigation items
   const navItems = [
     { name: 'Home', href: '/' },
@@ -402,7 +408,7 @@ const Header = () => {
                         </h3>
                       </div>
 
-                      <div className="py-2 max-h-96">
+                      <div className="py-2 max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-emerald-500 scrollbar-track-gray-100">
                         {menuCategories.map((category) => {
                           const activeSub = category.subcategories.find(
                             (sub) => pathname === `/shop?category=${encodeURIComponent(sub)}`
