@@ -244,7 +244,9 @@ const DashboardNebver = ({ children }) => {
                 <div key={item.id} className="animate-slideInLeft" style={{ animationDelay: `${index * 0.1}s` }}>
                   <button
                     onClick={() => {
-                    
+                    if(item.label==="Dashboard"){
+                      makeFalse()
+                    }
                       setActiveMenu(item.id)
                       if (item.submenu) {
                         toggleSubmenu(item.id)
