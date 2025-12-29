@@ -43,7 +43,7 @@ const DashboardNebver = ({ children }) => {
 
   // admin user data get
   const data = useSelector((state) => state.user.data);
-  console.log('data', data);
+  // console.log('data', data);
 
 
   // category get    
@@ -225,11 +225,10 @@ const DashboardNebver = ({ children }) => {
       </nav>
 
       {/* Sidebar */}
-      
       <aside
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-        className={`fixed top-16 left-0 z-40 h-[calc(100vh-4rem)] transition-all duration-500 ease-out  ${sidebarOpen || isHovered ? "w-72" : "w-20"} bg-black/95 backdrop-blur-xl border-r border-gray-800/50 shadow-2xl shadow-black/20 overflow-hidden    `}
+        className={`fixed top-16 left-0 z-40 h-[calc(100vh-4rem)] transition-all duration-500 ease-out ${sidebarOpen || isHovered ? "w-full md:w-72" : "w-0 md:w-20"} bg-black/95 backdrop-blur-xl border-r border-gray-800/50 shadow-2xl shadow-black/20 overflow-hidden`}
       >
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-gray-900/20 via-black/20 to-gray-800/20 pointer-events-none"></div>
