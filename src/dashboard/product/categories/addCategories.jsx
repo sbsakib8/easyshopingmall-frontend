@@ -644,7 +644,7 @@ const AddCategoriesComponent = () => {
               {filteredCategories.map(category => (
                 <div
                   key={category._id}
-                  className="bg-white/5 border border-white/20 rounded-2xl p-3 hover:bg-white/10 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl min-h-[400px] relative"
+                  className="bg-white/5 border border-white/20 rounded-2xl p-3 hover:bg-white/10 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl min-h-[340px] relative"
                 >
                   <div className="flex items-start justify-between ">
                     <div className="flex flex-col items-center space-x-3">
@@ -674,14 +674,14 @@ const AddCategoriesComponent = () => {
                     </div>
                   </div>
                   <div className='mb-3 mt-1'>
-                    <h3 className="text-white  text-sm">{category.name}</h3>
+                    <h3 className="text-white  text-xs">{category.name}</h3>
                     <p className="text-gray-300 text-sm">/{category.slug}</p>
                   </div>
                   {category.image && (
                     <img
                       src={category.image}
                       alt={"name"}
-                      className="w-full h-32 object-cover rounded-xl mb-4 border border-white/10"
+                      className="w-full h-20 object-cover rounded-xl mb-4 border border-white/10"
                     />
                   )}
 
