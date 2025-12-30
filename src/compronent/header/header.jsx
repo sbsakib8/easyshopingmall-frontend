@@ -348,6 +348,7 @@ const Header = () => {
         </div>
       </div>
 
+
       {/* Main Header */}
       <header className={`bg-white/95 backdrop-blur-md shadow-lg sticky top-0 z-40 border-b border-gray-200/50 transition-all duration-300 ${isScrolled ? 'h-16 sm:h-20' : 'h-20 sm:h-24 lg:h-[100px]'
         }`}>
