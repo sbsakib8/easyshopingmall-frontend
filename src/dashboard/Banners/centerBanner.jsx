@@ -8,17 +8,17 @@ import toast from "react-hot-toast"
 
 const CenterBanner = () => {
   
-  const { centerbanner, loading, error, refetch } = useGetCenterBanner();
+  const { ads, loading, error} = useGetCenterBanner();
   const [banners, setBanners] = useState([]);
   useEffect(() => {
-    if (centerbanner) {
-      if (Array.isArray(centerbanner)) {
-        setBanners(centerbanner);
+    if (ads) {
+      if (Array.isArray(ads)) {
+        setBanners(ads);
       } else {
-        setBanners([centerbanner]);
+        setBanners([ads]);
       }
     }
-  }, [centerbanner]);
+  }, [ads]);
   
 
   const [isModalOpen, setIsModalOpen] = useState(false)

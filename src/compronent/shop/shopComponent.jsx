@@ -577,7 +577,7 @@ const ShopPage = () => {
               {/* Product Categories */}
               <div className="bg-white p-6 rounded-lg shadow-md">
                 <h3 className="font-bold text-lg mb-4 text-gray-800">Product Categories</h3>
-                <div className="space-y-2">
+                <div className={`space-y-2 ${categories.length > 4 ? 'max-h-64 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-purple-500 scrollbar-track-gray-200' : ''}`}>
                   {categories.map((category) => (
                     <label
                       key={category}
@@ -605,7 +605,7 @@ const ShopPage = () => {
               {subCategories.length > 1 && (
                 <div className="bg-white p-6 rounded-lg shadow-md">
                   <h3 className="font-bold text-lg mb-4 text-gray-800">Subcategories</h3>
-                  <div className="space-y-2">
+                  <div className={`space-y-2 ${subCategories.length > 4 ? 'max-h-64 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-purple-500 scrollbar-track-gray-200' : ''}`}>
                     {subCategories.map((subcat) => (
                       <label
                         key={subcat}
@@ -703,7 +703,7 @@ const ShopPage = () => {
             {products.length > 0 && (
               <div
                 className={`${viewMode === "grid"
-                  ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                  ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6"
                   : "space-y-6"
                   }`}
               >
@@ -718,7 +718,7 @@ const ShopPage = () => {
                       <img
                         src={product.image || "/placeholder.svg"}
                         alt={product.name}
-                        className={`w-full object-cover group-hover:scale-105 transition-transform duration-500 ${viewMode === "list" ? "h-full" : "h-56"
+                        className={`w-full object-cover group-hover:scale-105 transition-transform duration-500 ${viewMode === "list" ? "h-full" : "h-40 sm:h-44"
                           }`}
                       />
 
@@ -743,52 +743,55 @@ const ShopPage = () => {
                             e.stopPropagation()
                             toggleWishlist(product)
                           }}
-                          className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors duration-300"
+                          className={`p-2 rounded-lg transition-all duration-300
+                            ${wishlist.some((item) => item.id === product.id)
+                              ? "text-red-500 bg-red-100"
+                              : "text-gray-400 hover:text-red-500 hover:bg-red-50"
+                            }`}
                         >
                           <Heart
-                            className={`w-4 h-4 ${wishlist.some((item) => item.id === product.id)
-                              ? "fill-red-500 text-red-500"
-                              : "text-gray-600"
-                              }`}
+                            className="w-5 h-5"
+                            fill={wishlist.some((item) => item.id === product.id) ? "red" : "none"}
+                            strokeWidth={2}
                           />
                         </button>
                       </div>
 
                       {!product.inStock && (
                         <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                          <span className="bg-red-500 text-white px-3 py-1 rounded font-semibold">Out of Stock</span>
+                          <span className="bg-red-500 text-white px-3 py-1 rounded font-semibold text-xs">Out of Stock</span>
                         </div>
                       )}
                     </div>
 
-                    <div className={`p-4 ${viewMode === "list" ? "flex-1 flex flex-col justify-between" : ""}`}>
+                    <div className={`p-3 ${viewMode === "list" ? "flex-1 flex flex-col justify-between" : ""}`}>
                       <div>
-                        <h3 className="font-semibold text-gray-800 mb-1 group-hover:text-purple-600 transition-colors duration-300">
+                        <h3 className="font-semibold text-sm text-gray-800 mb-1 group-hover:text-purple-600 transition-colors duration-300 line-clamp-2">
                           {product.name}
                         </h3>
-                        <p className="text-sm text-gray-500 mb-2">{product.brand}</p>
+                        <p className="text-xs text-gray-500 mb-2">{product.brand}</p>
 
                         {/* Rating */}
-                        <div className="flex items-center gap-1 mb-3">
+                        <div className="flex items-center gap-1 mb-2">
                           <div className="flex items-center">
                             {[...Array(5)].map((_, i) => (
                               <Star
                                 key={i}
-                                className={`w-3 h-3 ${i < Math.floor(product.rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+                                className={`w-3 h-3 sm:w-4 sm:h-4 ${i < Math.floor(product.rating) ? "text-yellow-400 fill-current" : "text-gray-300"
                                   }`}
                               />
                             ))}
                           </div>
-                          <span className="text-xs text-gray-500">({product.reviews})</span>
+                          <span className="text-xs text-gray-500">({product.rating})</span>
                         </div>
                       </div>
 
                       <div>
                         {/* Price */}
-                        <div className="flex items-center gap-2 mb-3">
-                          <span className="text-lg font-bold text-red-600">${product.price.toFixed(2)}</span>
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-base font-bold text-red-600">${product.price}</span>
                           {product.originalPrice > product.price && (
-                            <span className="text-sm text-gray-400 line-through">
+                            <span className="text-xs text-gray-400 line-through">
                               ${product.originalPrice.toFixed(2)}
                             </span>
                           )}
@@ -801,14 +804,14 @@ const ShopPage = () => {
                             addToCart(product)
                           }}
                           disabled={!product.inStock}
-                          className={`w-full py-2 px-4 rounded font-semibold transition-all duration-300 text-sm ${product.inStock
+                          className={`w-full py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs ${product.inStock
                             ? "bg-green-600 text-white hover:bg-green-700 transform hover:scale-105"
                             : "bg-gray-300 text-gray-500 cursor-not-allowed"
                             }`}
                         >
                           {product.inStock ? (
-                            <span className="flex items-center justify-center gap-2">
-                              <ShoppingCart className="w-4 h-4" />
+                            <span className="flex items-center justify-center gap-1">
+                              <ShoppingCart className="w-3 h-3" />
                               Add to Cart
                             </span>
                           ) : (
@@ -858,6 +861,16 @@ const ShopPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Custom Styles */}
+      <style jsx>{`
+        .line-clamp-2 {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+      `}</style>
     </div>
   )
 }
