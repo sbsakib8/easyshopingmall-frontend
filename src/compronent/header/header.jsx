@@ -707,10 +707,12 @@ const Header = () => {
 
         {/* Enhanced Mobile Menu - Fully Responsive */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden bg-white/95 backdrop-blur-md border-t border-gray-200/60 animate-in slide-in-from-top-5 duration-300">
+          <div className="lg:hidden max-h-[22vh] overflow-y-scroll
+ bg-white/95 backdrop-blur-md border-t border-gray-200/60 animate-in slide-in-from-top-5 duration-300">
             <nav className="px-2 sm:px-4 py-3 sm:py-4 space-y-1 sm:space-y-2 max-h-96 overflow-visible">
               {navItems.map((item, index) => (
                 <Link
+                onClick={toggleMobileMenu}
                   key={index}
                   href={item.href}
                   className="flex items-center justify-between py-3 sm:py-4 px-3 sm:px-4 text-gray-700 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 hover:text-emerald-600 rounded-lg sm:rounded-xl transition-all duration-300 font-medium shadow-sm"
@@ -725,7 +727,7 @@ const Header = () => {
               ))}
 
               {/* Mobile Categories Section */}
-              <div className="border-t border-gray-200/60 pt-3 sm:pt-4 mt-3 sm:mt-4 sm:hidden">
+              <div className="border-t max-h-[50vh] overflow-y-scroll border-gray-200/60 pt-3 sm:pt-4 mt-3 sm:mt-4 sm:hidden">
                 <button
                   onClick={toggleCategories}
                   className="flex items-center justify-between w-full py-3 px-4 text-gray-700 rounded-xl transition-all duration-300 font-medium shadow-sm hover:bg-emerald-50"
@@ -773,6 +775,7 @@ const Header = () => {
                               {category.subcategories.map((sub) => (
                                 <Link
                                   key={sub}
+                                  onClick={toggleMobileMenu}
                                   href={`/shop?category=${encodeURIComponent(sub)}`}
                                   className="block py-2 px-2 rounded-md text-sm text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 transition-all"
                                 >
