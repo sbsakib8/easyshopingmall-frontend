@@ -697,16 +697,16 @@ const AddSubcategoriesComponent = () => {
           </div>
 
           {viewMode === 'grid' ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredSubcategories.map(subcategory => {
                 const categoryColor = getCategoryColor(subcategory.parentCategory);
                 return (
                   <div
                     key={subcategory._id}
-                    className="bg-white/5 border border-white/20 rounded-2xl p-6 hover:bg-white/10 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl"
+                    className="bg-white/5 border border-white/20 rounded-2xl p-3 hover:bg-white/10 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl"
                   >
                     <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center space-x-3">
+                      <div className="flex flex-col items-center space-x-3">
                         <div
                           className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-lg transition-transform duration-300 hover:scale-110"
                           style={{
@@ -717,13 +717,7 @@ const AddSubcategoriesComponent = () => {
                         >
                           {subcategory?.icon || '📦'}
                         </div>
-                        <div>
-                          <h3 className="text-white font-bold text-lg">{subcategory.name}</h3>
-                          <p className="text-gray-300 text-sm">/{subcategory.slug}</p>
-                          <p className="text-gray-400 text-xs mt-1">
-                            {getCategoryName(subcategory.parentCategory)}
-                          </p>
-                        </div>
+                        
                       </div>
                       <button
                         onClick={() => toggleSubcategoryStatus(subcategory)}
@@ -735,6 +729,14 @@ const AddSubcategoriesComponent = () => {
                         {subcategory.isActive ? <Eye size={16} /> : <EyeOff size={16} />}
                       </button>
                     </div>
+                    
+                    <div className='my-3'>
+                          <h3 className="text-white font-bold text-sm ">{subcategory.name}</h3>
+                          <p className="text-gray-300 text-sm">/{subcategory.slug}</p>
+                          <p className="text-gray-400 text-xs mt-1">
+                            {getCategoryName(subcategory.parentCategory)}
+                          </p>
+                        </div>
 
                     {subcategory.image && (
                       <img
