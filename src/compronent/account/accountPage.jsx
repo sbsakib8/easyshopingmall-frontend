@@ -1,6 +1,6 @@
 "use client";
-import { Logout } from "@/src/hook/useAuth";
-import { clearUser } from "@/src/redux/userSlice";
+import { Logout, updateUserProfile } from "@/src/hook/useAuth";
+import { clearUser, userget } from "@/src/redux/userSlice";
 import AuthUserNothave from "@/src/utlis/AuthUserNothave";
 import { OrderAllGet } from "@/src/utlis/useOrder";
 import { useWishlist } from "@/src/utlis/useWishList";
@@ -33,7 +33,6 @@ import OrderDetailsModal from "../productDetails/OrderDetailsModal";
 const AccountPage = () => {
   // user data fatch
   const data = useSelector((state) => state.user.data);
-  console.log(data);
 
   const [activeTab, setActiveTab] = useState("profile");
   const [isEditing, setIsEditing] = useState(false);
@@ -101,6 +100,20 @@ const AccountPage = () => {
     };
   }, [data?._id]);
 
+  // Update profileData when user data loads
+  useEffect(() => {
+    if (data) {
+      setProfileData({
+        name: data.name || "",
+        email: data.email || "",
+        phone: data.mobile || "",
+        address: data.address_details || "",
+        dateOfBirth: data.dateOfBirth || "1995-05-15",
+        gender: data.gender || "Male",
+      });
+    }
+  }, [data]);
+
   const handleInputChange = (field, value) => {
     setProfileData((prev) => ({
       ...prev,
@@ -108,8 +121,93 @@ const AccountPage = () => {
     }));
   };
 
-  const handleSave = () => {
-    setIsEditing(false);
+  const handleSave = async () => {
+    if (!data?._id) {
+      toast.error("User ID not found");
+      return;
+    }
+
+    try {
+      // Prepare update data - send only address_details (not address)
+      const updateData = {
+        name: profileData.name || "",
+        email: profileData.email || "",
+        mobile: profileData.phone || "",
+        address: profileData.address || "",
+        dateOfBirth: profileData.dateOfBirth || "",
+        gender: profileData.gender || "",
+      };
+
+      console.log("=== BEFORE SENDING TO BACKEND ===");
+      console.log("Data being sent:", updateData);
+      console.log("Field check before sending:");
+      console.log("  name:", !!updateData.name, "=>", updateData.name);
+      console.log("  email:", !!updateData.email, "=>", updateData.email);
+      console.log("  mobile:", !!updateData.mobile, "=>", updateData.mobile);
+      console.log("  address_details:", !!updateData.address, "=>", updateData.address);
+      console.log("  dateOfBirth:", !!updateData.dateOfBirth, "=>", updateData.dateOfBirth);
+      console.log("  gender:", !!updateData.gender, "=>", updateData.gender);
+      console.log("================================");
+
+      // Call the update API
+      const response = await updateUserProfile(data._id, updateData);
+
+      console.log("=== AFTER RECEIVING FROM BACKEND ===");
+      console.log("Complete response:", response);
+      console.log("Response type:", typeof response);
+      console.log("Response.success:", response.success);
+      console.log("Response.data:", response.data);
+      console.log("Response.user:", response.user);
+      
+      const returnedUser = response.user || response.data || response;
+      console.log("\nReturned user object:", returnedUser);
+      console.log("\nField check after receiving:");
+      console.log("  name:", !!returnedUser?.name, "=>", returnedUser?.name);
+      console.log("  email:", !!returnedUser?.email, "=>", returnedUser?.email);
+      console.log("  mobile:", !!returnedUser?.mobile, "=>", returnedUser?.mobile);
+      console.log("  address_details:", !!returnedUser?.address_details, "=>", returnedUser?.address_details);
+      console.log("  dateOfBirth:", !!returnedUser?.dateOfBirth, "=>", returnedUser?.dateOfBirth);
+      console.log("  gender:", !!returnedUser?.gender, "=>", returnedUser?.gender);
+      
+      console.log("\n=== COMPARISON ===");
+      console.log("Sent address_details:", updateData.address_details);
+      console.log("Received address_details:", returnedUser?.address_details);
+      console.log("Match:", updateData.address_details === returnedUser?.address_details);
+      console.log("Sent dateOfBirth:", updateData.dateOfBirth);
+      console.log("Received dateOfBirth:", returnedUser?.dateOfBirth);
+      console.log("Match:", updateData.dateOfBirth === returnedUser?.dateOfBirth);
+      console.log("Sent gender:", updateData.gender);
+      console.log("Received gender:", returnedUser?.gender);
+      console.log("Match:", updateData.gender === returnedUser?.gender);
+      console.log("================================");
+
+      if (response.success || response.data) {
+        // Update Redux store with new data
+        const updatedUser = {
+          ...data,
+          name: updateData.name,
+          email: updateData.email,
+          mobile: updateData.mobile,
+          address_details: updateData.address_details,
+          dateOfBirth: updateData.dateOfBirth,
+          gender: updateData.gender,
+        };
+        
+        dispatch(userget(updatedUser));
+
+        toast.success("Profile updated successfully!");
+        setIsEditing(false);
+      } else {
+        toast.error(response.message || "Failed to update profile");
+      }
+    } catch (error) {
+      console.error("=== Error updating profile ===");
+      console.error("Error object:", error);
+      console.error("Error response:", error.response);
+      console.error("Error response data:", error.response?.data);
+      const errorMessage = error.response?.data?.message || error.message || "Failed to update profile";
+      toast.error(errorMessage);
+    }
   };
 
   const getStatusColor = (status) => {
@@ -271,9 +369,10 @@ const AccountPage = () => {
                           <User className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                           <input
                             type="text"
-                            value={profileData.name}
+                            value={profileData.name || ""}
                             onChange={(e) => handleInputChange("name", e.target.value)}
                             disabled={!isEditing}
+                            placeholder="Enter your full name"
                             className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
                               !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
                             }`}
@@ -287,9 +386,10 @@ const AccountPage = () => {
                           <Mail className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                           <input
                             type="email"
-                            value={profileData.email}
+                            value={profileData.email || ""}
                             onChange={(e) => handleInputChange("email", e.target.value)}
                             disabled={!isEditing}
+                            placeholder="Enter your email"
                             className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-teal-500 transition-all duration-300 ${
                               !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
                             }`}
@@ -303,9 +403,10 @@ const AccountPage = () => {
                           <Phone className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                           <input
                             type="tel"
-                            value={profileData.phone}
+                            value={profileData.phone || ""}
                             onChange={(e) => handleInputChange("phone", e.target.value)}
                             disabled={!isEditing}
+                            placeholder="Enter your phone number"
                             className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
                               !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
                             }`}
@@ -319,7 +420,7 @@ const AccountPage = () => {
                           <Calendar className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                           <input
                             type="date"
-                            value={profileData.dateOfBirth}
+                            value={profileData.dateOfBirth || ""}
                             onChange={(e) => handleInputChange("dateOfBirth", e.target.value)}
                             disabled={!isEditing}
                             className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-teal-500 transition-all duration-300 ${
@@ -329,15 +430,35 @@ const AccountPage = () => {
                         </div>
                       </div>
 
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Gender</label>
+                        <div className="relative">
+                          <User className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                          <select
+                            value={profileData.gender || "Male"}
+                            onChange={(e) => handleInputChange("gender", e.target.value)}
+                            disabled={!isEditing}
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-teal-500 transition-all duration-300 ${
+                              !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
+                            }`}
+                          >
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                          </select>
+                        </div>
+                      </div>
+
                       <div className="md:col-span-2 space-y-2">
                         <label className="text-sm font-medium text-gray-700">Address</label>
                         <div className="relative">
                           <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                           <textarea
-                            value={profileData.address}
+                            value={profileData.address || ""}
                             onChange={(e) => handleInputChange("address", e.target.value)}
                             disabled={!isEditing}
                             rows="3"
+                            placeholder="Enter your address"
                             className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 resize-none ${
                               !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
                             }`}
