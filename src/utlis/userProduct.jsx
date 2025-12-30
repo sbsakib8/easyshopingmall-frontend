@@ -13,7 +13,10 @@ export const useGetProduct = (formData) => {
   const fetchProduct = useCallback(async () => {
     try {
       setLoading(true);
+      console.log('🔍 useGetProduct - Fetching with params:', formData);
       const data = await ProductAllGet(formData);
+      console.log('✅ useGetProduct - Received data:', data);
+      console.log('📦 useGetProduct - Setting product to:', data.data);
       setProduct(data.data);
       setError(null);
     } catch (err) {

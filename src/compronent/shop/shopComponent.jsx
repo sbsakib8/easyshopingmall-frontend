@@ -22,7 +22,8 @@ const isProductNew = (createdDate) => {
 const ShopPage = () => {
   const router = useRouter()
 
-  const productParams = useMemo(() => ({}), [])
+  // Request all products without pagination limit
+  const productParams = useMemo(() => ({ limit: 1000 }), [])
   const { product, loading, error, refetch } = useGetProduct(productParams)
 
   const [allProducts, setAllProducts] = useState([])
@@ -77,7 +78,7 @@ const ShopPage = () => {
   const [showFilters, setShowFilters] = useState(false)
   const [cartOpen, setCartOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
-  const productsPerPage = 8
+  const productsPerPage = 40
 
   const searchParams = useSearchParams()
   const urlSearch = searchParams?.get("search") || ""
@@ -178,32 +179,52 @@ const ShopPage = () => {
           }
         })
 
-        setAllProducts(normalized)
-        setProducts(normalized)
-        try {
-          const prices = normalized.map((p) => Number(p.price) || 0).filter((n) => !Number.isNaN(n))
-          if (prices.length > 0) {
-            const actualMin = Math.min(...prices)
-            const actualMax = Math.max(...prices)
-            if (priceRange[0] === 0 && priceRange[1] === 300) {
-              setPriceRange([Math.floor(actualMin), Math.ceil(actualMax)])
-            }
+      setAllProducts(normalized)
+      setProducts(normalized)
+      
+      // Console log counts for search results
+      const categories = Array.from(new Set(normalized.map(p => p.category)))
+      const subCategories = Array.from(new Set(normalized.map(p => p.subCategory)))
+      console.log('📊 Search Results Data:')
+      console.log(`   Products: ${normalized.length}`)
+      console.log(`   Categories: ${categories.length}`, categories)
+      console.log(`   SubCategories: ${subCategories.length}`, subCategories)
+      
+      try {
+        const prices = normalized.map((p) => Number(p.price) || 0).filter((n) => !Number.isNaN(n))
+        if (prices.length > 0) {
+          const actualMin = Math.min(...prices)
+          const actualMax = Math.max(...prices)
+          if (priceRange[0] === 0 && priceRange[1] === 300) {
+            setPriceRange([Math.floor(actualMin), Math.ceil(actualMax)])
           }
-        } catch (e) { }
-      } else {
-        setAllProducts([])
-        setProducts([])
-      }
-
-      return
+        }
+      } catch (e) { }
+    } else {
+      // No search active - clear any previous search results
+      // and let the regular product loading below handle it
     }
+    
+    // Only return early if we're actively searching
+    if (urlSearch) {
+      return;
+    }
+  }
 
-    // API may return different shapes:
-    // - { products: [...] }
-    // - array (already product.data set by hook)
-    // - { data: [...] }
-    const list = product?.products ?? product?.data ?? product ?? []
-    if (Array.isArray(list) && list.length > 0) {
+  // API may return different shapes:
+  // - { products: [...] }
+  // - array (already product.data set by hook)
+  // - { data: [...] }
+  console.log('🔍 Shop Component - product value:', product);
+  console.log('🔍 Shop Component - product?.products:', product?.products);
+  console.log('🔍 Shop Component - product?.data:', product?.data);
+  console.log('🔍 Shop Component - Array.isArray(product):', Array.isArray(product));
+  
+  const list = product?.products ?? product?.data ?? product ?? []
+  console.log('📋 Shop Component - Final list to normalize:', list);
+  console.log('📋 Shop Component - List length:', Array.isArray(list) ? list.length : 'not an array');
+  
+  if (Array.isArray(list) && list.length > 0) {
       const normalized = list.map((p) => {
         // normalize category to a string (API may return object or array)
         let categoryVal = "uncategorized"
@@ -249,6 +270,15 @@ const ShopPage = () => {
 
       setAllProducts(normalized)
       setProducts(normalized)
+      
+      // Console log counts for all products
+      const categories = Array.from(new Set(normalized.map(p => p.category)))
+      const subCategories = Array.from(new Set(normalized.map(p => p.subCategory)))
+      console.log('📊 Fetched Data:')
+      console.log(`   Products: ${normalized.length}`)
+      console.log(`   Categories: ${categories.length}`, categories)
+      console.log(`   SubCategories: ${subCategories.length}`, subCategories)
+      
       // If user hasn't changed the price range (default [0,300]),
       // expand it to cover actual product prices so items >300 aren't hidden.
       try {
@@ -272,6 +302,8 @@ const ShopPage = () => {
 
   useEffect(() => {
     let filtered = [...allProducts]
+    
+    console.log('🔧 Filter & Sort - Starting with:', allProducts.length, 'products');
 
     // Search filter
     if (searchTerm) {
@@ -330,6 +362,18 @@ const ShopPage = () => {
       }
     })
 
+    console.log('✅ Filter & Sort - After all filters:', filtered.length, 'products');
+    console.log('   Active filters:', {
+      searchTerm,
+      filterCategory,
+      filterSubCategory,
+      filterBrand,
+      filterGender,
+      priceRange,
+      ratingFilter,
+      sortBy
+    });
+    
     setProducts(filtered)
     setCurrentPage(1)
   }, [
@@ -430,6 +474,13 @@ const ShopPage = () => {
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage
   const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct)
   const totalPages = Math.ceil(products.length / productsPerPage)
+  
+  console.log('📄 Pagination Info:');
+  console.log(`   Total products in state: ${products.length}`);
+  console.log(`   Products per page: ${productsPerPage}`);
+  console.log(`   Current page: ${currentPage}`);
+  console.log(`   Showing products ${indexOfFirstProduct + 1} to ${Math.min(indexOfLastProduct, products.length)}`);
+  console.log(`   Total pages: ${totalPages}`);
 
   const categories = ["all", ...Array.from(new Set(allProducts.map((p) => p.category)))]
   const subCategories =
@@ -869,6 +920,31 @@ const ShopPage = () => {
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
+        }
+        
+        /* Custom Scrollbar Styles */
+        .scrollbar-thin::-webkit-scrollbar {
+          width: 6px;
+        }
+        
+        .scrollbar-thin::-webkit-scrollbar-track {
+          background: #e5e7eb;
+          border-radius: 10px;
+        }
+        
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+          background: #a855f7;
+          border-radius: 10px;
+        }
+        
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+          background: #9333ea;
+        }
+        
+        /* Firefox */
+        .scrollbar-thin {
+          scrollbar-width: thin;
+          scrollbar-color: #a855f7 #e5e7eb;
         }
       `}</style>
     </div>
