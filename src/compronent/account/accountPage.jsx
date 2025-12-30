@@ -228,12 +228,12 @@ const AccountPage = () => {
                 </nav>
                 <button
                   onClick={handleLogout}
-                  className=" flex gap-2 md:ml-10 mt-10 bg-red-500 p-3 px-20 rounded-lg cursor-pointer hover:bg-amber-700"
+                  className="flex gap-2 mt-10 bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white p-3 px-20 md:px-18 rounded-lg cursor-pointer transition-transform duration-200 ease-in-out hover:scale-105"
                 >
                   <span>
                     <LogOut />
                   </span>
-                  <span>LogOut</span>
+                  <span className="font-medium">LogOut</span>
                 </button>
               </div>
             </div>
@@ -352,7 +352,6 @@ const AccountPage = () => {
                 {activeTab === "orders" && (
                   <div className="p-4 md:p-8">
                     {" "}
-                    
                     <div className="mb-6 md:mb-8">
                       <h2 className="text-xl md:text-2xl font-bold text-gray-900">Order History</h2>
                       <p className="text-sm md:text-base text-gray-600">
@@ -382,9 +381,7 @@ const AccountPage = () => {
                             className="border border-gray-200 rounded-xl p-4 md:p-6 hover:shadow-lg transition-all duration-300 hover:border-blue-300 group"
                             style={{ animation: `slideIn 0.5s ease-out ${index * 0.1}s both` }}
                           >
-                            
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                              
                               <div className="flex items-center space-x-4">
                                 <img
                                   src={image}
@@ -393,7 +390,6 @@ const AccountPage = () => {
                                 />
                                 <div className="min-w-0">
                                   {" "}
-                                  
                                   <h3 className="font-semibold text-gray-900 group-hover:text-green-600 transition-colors truncate">
                                     Order #{id.slice(-8)}{" "}
                                     {/* Puru ID mobile-e na dekhiye sesh 8 digit dekhano valo */}
@@ -404,7 +400,6 @@ const AccountPage = () => {
                                 </div>
                               </div>
 
-                              
                               <div className="flex items-center justify-between sm:justify-end space-x-4 border-t sm:border-t-0 pt-3 sm:pt-0">
                                 <div className="flex items-center space-x-3">
                                   <span
