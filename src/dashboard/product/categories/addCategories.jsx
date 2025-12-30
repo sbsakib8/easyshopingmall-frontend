@@ -76,16 +76,16 @@ const AddCategoriesComponent = () => {
   };
 
   const handleImageUpload = (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    const imageUrl = URL.createObjectURL(file);
-    setFormData(prev => ({
-      ...prev,
-      image: file,          
-      previewImage: imageUrl 
-    }));
-  }
-};
+    const file = e.target.files[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setFormData(prev => ({
+        ...prev,
+        image: file,
+        previewImage: imageUrl
+      }));
+    }
+  };
 
   const resetForm = () => {
     setFormData({
@@ -101,7 +101,7 @@ const AddCategoriesComponent = () => {
     setShowAddForm(false);
   };
 
-   const handleSubmit = async () => {
+  const handleSubmit = async () => {
     try {
       const data = new FormData();
       data.append("name", formData.name);
@@ -111,16 +111,16 @@ const AddCategoriesComponent = () => {
       data.append("metaTitle", formData.metaTitle);
       data.append("metaDescription", formData.metaDescription);
       if (formData.image) {
-        data.append("image", formData.image); 
+        data.append("image", formData.image);
       }
-  
+
       let response;
       if (editingId) {
         response = await CategoryUploade(data, editingId);
       } else {
         response = await CategoryCreate(data);
       }
-  
+
       if (response.success) {
         toast.success(editingId ? "Updated successfully ✅ " : "Created successfully ✅");
         resetForm();
@@ -132,25 +132,25 @@ const AddCategoriesComponent = () => {
 
   // delete categori 
   const handelDelete = async (id) => {
-  if (!id) return;
+    if (!id) return;
 
-  const confirmDelete = window.confirm("Are you sure you want to delete this subcategory?");
-  if (!confirmDelete) return;
+    const confirmDelete = window.confirm("Are you sure you want to delete this subcategory?");
+    if (!confirmDelete) return;
 
-  try {
-    const response = await CategoryDelete(id);
+    try {
+      const response = await CategoryDelete(id);
 
-    if (response.success) {
-      setCategories(prev => prev.filter(sub => sub._id !== id));
-      toast.success(response.message || "Subcategory deleted successfully ✅");
-    } else {
-      toast.error(response.message || "Delete failed ❌");
+      if (response.success) {
+        setCategories(prev => prev.filter(sub => sub._id !== id));
+        toast.success(response.message || "Subcategory deleted successfully ✅");
+      } else {
+        toast.error(response.message || "Delete failed ❌");
+      }
+    } catch (error) {
+      console.error("Delete error:", error);
+      toast.error(error.response?.data?.message || "Delete failed ❌");
     }
-  } catch (error) {
-    console.error("Delete error:", error);
-    toast.error(error.response?.data?.message || "Delete failed ❌");
-  }
-};
+  };
 
   const startEdit = (category) => {
     setFormData({
@@ -507,7 +507,7 @@ const AddCategoriesComponent = () => {
                       <div>
                         <Image className="mx-auto mb-2 text-white/60" size={32} />
                         <input
-                        name="image"
+                          name="image"
                           type="file"
                           accept="image/*"
                           onChange={handleImageUpload}
@@ -640,14 +640,14 @@ const AddCategoriesComponent = () => {
 
           {viewMode === 'grid' ? (
             /* Grid View */
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-8 gap-4">
               {filteredCategories.map(category => (
                 <div
                   key={category._id}
-                  className="bg-white/5 border border-white/20 rounded-2xl p-6 hover:bg-white/10 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl"
+                  className="bg-white/5 border border-white/20 rounded-2xl p-3 hover:bg-white/10 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl min-h-[400px] relative"
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center space-x-3">
+                  <div className="flex items-start justify-between ">
+                    <div className="flex flex-col items-center space-x-3">
                       <div
                         className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-lg transition-transform duration-300 hover:scale-110"
                         style={{
@@ -658,10 +658,7 @@ const AddCategoriesComponent = () => {
                       >
                         {category.icon}
                       </div>
-                      <div>
-                        <h3 className="text-white font-bold text-lg">{category.name}</h3>
-                        <p className="text-gray-300 text-sm">/{category.slug}</p>
-                      </div>
+
                     </div>
                     <div className="flex items-center space-x-2">
                       <button
@@ -676,7 +673,10 @@ const AddCategoriesComponent = () => {
 
                     </div>
                   </div>
-
+                  <div className='mb-3 mt-1'>
+                    <h3 className="text-white  text-sm">{category.name}</h3>
+                    <p className="text-gray-300 text-sm">/{category.slug}</p>
+                  </div>
                   {category.image && (
                     <img
                       src={category.image}
@@ -685,11 +685,11 @@ const AddCategoriesComponent = () => {
                     />
                   )}
 
-                  <p className="text-gray-300 text-sm mb-4 line-clamp-2">
+                  <p className="text-gray-300 text-sm line-clamp-2">
                     {category.description}
                   </p>
 
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex flex-col items-center justify-between mb-4">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${category.isActive
                       ? 'bg-green-500/20 text-green-400'
                       : 'bg-red-500/20 text-red-400'
@@ -701,13 +701,13 @@ const AddCategoriesComponent = () => {
                     </span>
                   </div>
 
-                  <div className="flex space-x-2">
+                  <div className="absolute bottom-2 flex space-x-2">
                     <button
                       onClick={() => startEdit(category)}
                       className="flex-1 px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105"
                     >
                       <Edit3 size={16} />
-                      <span>Edit</span>
+                    
                     </button>
 
                     <button
@@ -715,7 +715,7 @@ const AddCategoriesComponent = () => {
                       className="flex-1 px-4 py-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105"
                     >
                       <Trash2 size={16} />
-                      <span>Delete</span>
+                      
                     </button>
                   </div>
                 </div>
@@ -955,8 +955,8 @@ const AddCategoriesComponent = () => {
                     </div>
                     <div className="text-sm text-gray-400">
                       Status: <span className={`px-2 py-1 rounded-full text-xs ${category.status === 'active'
-                          ? 'bg-green-500/20 text-green-400'
-                          : 'bg-red-500/20 text-red-400'
+                        ? 'bg-green-500/20 text-green-400'
+                        : 'bg-red-500/20 text-red-400'
                         }`}>
                         {category.status}
                       </span>
