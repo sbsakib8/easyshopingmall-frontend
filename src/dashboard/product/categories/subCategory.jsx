@@ -703,7 +703,7 @@ const AddSubcategoriesComponent = () => {
                 return (
                   <div
                     key={subcategory._id}
-                    className="bg-white/5 border border-white/20 min-h-[400px] rounded-2xl p-3 hover:bg-white/10 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl relative"
+                    className="bg-white/5 border border-white/20 min-h-[350px] rounded-2xl p-3 hover:bg-white/10 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl relative"
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex flex-col items-center space-x-3">
@@ -731,7 +731,7 @@ const AddSubcategoriesComponent = () => {
                     </div>
                     
                     <div className='my-3 min-h-[100px]'>
-                          <h3 className="text-white font-bold text-sm ">{subcategory.name}</h3>
+                          <h3 className="text-white font-bold text-xs ">{subcategory.name}</h3>
                           <p className="text-gray-300 text-sm">/{subcategory.slug}</p>
                           <p className="text-gray-400 text-xs mt-1">
                             {getCategoryName(subcategory.parentCategory)}
@@ -742,7 +742,7 @@ const AddSubcategoriesComponent = () => {
                       <img
                         src={subcategory.image}
                         alt={subcategory.name}
-                        className="w-full h-32 object-cover rounded-xl mb-2 border border-white/10"
+                        className="w-full h-20 object-cover rounded-xl mb-2 border border-white/10"
                       />
                     )}
 
