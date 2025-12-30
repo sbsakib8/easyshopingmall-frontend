@@ -697,13 +697,13 @@ const AddSubcategoriesComponent = () => {
           </div>
 
           {viewMode === 'grid' ? (
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-8 gap-4">
               {filteredSubcategories.map(subcategory => {
                 const categoryColor = getCategoryColor(subcategory.parentCategory);
                 return (
                   <div
                     key={subcategory._id}
-                    className="bg-white/5 border border-white/20 rounded-2xl p-3 hover:bg-white/10 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl"
+                    className="bg-white/5 border border-white/20 min-h-[400px] rounded-2xl p-3 hover:bg-white/10 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl relative"
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex flex-col items-center space-x-3">
@@ -730,7 +730,7 @@ const AddSubcategoriesComponent = () => {
                       </button>
                     </div>
                     
-                    <div className='my-3'>
+                    <div className='my-3 min-h-[100px]'>
                           <h3 className="text-white font-bold text-sm ">{subcategory.name}</h3>
                           <p className="text-gray-300 text-sm">/{subcategory.slug}</p>
                           <p className="text-gray-400 text-xs mt-1">
@@ -742,12 +742,12 @@ const AddSubcategoriesComponent = () => {
                       <img
                         src={subcategory.image}
                         alt={subcategory.name}
-                        className="w-full h-32 object-cover rounded-xl mb-4 border border-white/10"
+                        className="w-full h-32 object-cover rounded-xl mb-2 border border-white/10"
                       />
                     )}
 
                     <div className="flex items-center justify-between mb-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${subcategory.isActive
+                      <span className={`px-3 py-1 rounded-full text-xs  ${subcategory.isActive
                         ? 'bg-green-500/20 text-green-400'
                         : 'bg-red-500/20 text-red-400'
                         }`}>
@@ -755,21 +755,21 @@ const AddSubcategoriesComponent = () => {
                       </span>
                     </div>
 
-                    <div className="flex space-x-2">
+                    <div className="absolute bottom-2 justify-between flex space-x-2">
                       <button
                         onClick={() => startEdit(subcategory)}
-                        className="flex-1 px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105"
+                        className=" px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-all duration-300 flex items-center justify-center  transform hover:scale-105"
                       >
-                        <Edit3 size={16} />
-                        <span>Edit</span>
+                        <Edit3 size={12} />
+                       
                       </button>
 
                       <button
                         onClick={() => handleDelete(subcategory._id)}
-                        className="flex-1 px-4 py-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105"
+                        className=" px-4 py-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-all duration-300 flex items-center justify-center  transform hover:scale-105"
                       >
                         <Trash2 size={16} />
-                        <span>Delete</span>
+                       
                       </button>
                     </div>
                   </div>
