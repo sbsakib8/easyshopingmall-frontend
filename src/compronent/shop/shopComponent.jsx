@@ -4,6 +4,7 @@ import { addToWishlistApi, removeFromWishlistApi } from "@/src/hook/useWishlist"
 import { useGetProduct } from "@/src/utlis/userProduct"
 import { useSearchProduct } from "@/src/utlis/useSearchProduct"
 import { useWishlist } from "@/src/utlis/useWishList"
+import { useCategoryWithSubcategories } from "@/src/utlis/useCategoryWithSubcategories"
 import { ChevronDown, Filter, Grid, Heart, List, Search, ShoppingCart, SlidersHorizontal, Star } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
@@ -59,6 +60,15 @@ const ShopPage = () => {
   }, [reduxCart])
   const user = useSelector((state) => state.user.data)
   const { wishlist } = useWishlist()
+  
+  // Fetch categories and subcategories from API
+  const { categories: apiCategories, subcategories: apiSubcategories, loading: categoriesLoading } = useCategoryWithSubcategories()
+  
+  // Log categories and subcategories from API
+  useEffect(() => {
+    console.log('🏷️ Shop Page - API Categories:', apiCategories.length, apiCategories)
+    console.log('🏷️ Shop Page - API Subcategories:', apiSubcategories.length, apiSubcategories)
+  }, [apiCategories, apiSubcategories])
 
   // Load cart for logged-in user
   useEffect(() => {
@@ -78,7 +88,7 @@ const ShopPage = () => {
   const [showFilters, setShowFilters] = useState(false)
   const [cartOpen, setCartOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
-  const productsPerPage = 40
+  const productsPerPage = 30
 
   const searchParams = useSearchParams()
   const urlSearch = searchParams?.get("search") || ""
@@ -482,14 +492,27 @@ const ShopPage = () => {
   console.log(`   Showing products ${indexOfFirstProduct + 1} to ${Math.min(indexOfLastProduct, products.length)}`);
   console.log(`   Total pages: ${totalPages}`);
 
-  const categories = ["all", ...Array.from(new Set(allProducts.map((p) => p.category)))]
-  const subCategories =
-    filterCategory === "all"
-      ? ["all", ...Array.from(new Set(allProducts.map((p) => p.subCategory)))]
-      : [
-        "all",
-        ...Array.from(new Set(allProducts.filter((p) => p.category === filterCategory).map((p) => p.subCategory))),
-      ]
+  // Use API categories if available, otherwise fall back to product categories
+  const categories = apiCategories.length > 0 
+    ? ["all", ...apiCategories.map(cat => cat.name)]
+    : ["all", ...Array.from(new Set(allProducts.map((p) => p.category)))]
+  
+  const subCategories = apiSubcategories.length > 0
+    ? (filterCategory === "all"
+        ? ["all", ...apiSubcategories.map(sub => sub.name)]
+        : ["all", ...apiSubcategories
+            .filter(sub => {
+              const category = apiCategories.find(cat => cat.id === sub.categoryId || cat.id === sub.categoryId?._id)
+              return category?.name === filterCategory
+            })
+            .map(sub => sub.name)])
+    : (filterCategory === "all"
+        ? ["all", ...Array.from(new Set(allProducts.map((p) => p.subCategory)))]
+        : ["all", ...Array.from(new Set(allProducts.filter((p) => p.category === filterCategory).map((p) => p.subCategory)))])
+  
+  console.log('🔍 Shop Page - Available Categories for Filter:', categories)
+  console.log('🔍 Shop Page - Available Subcategories for Filter:', subCategories)
+  
   const brands = ["all", ...Array.from(new Set(allProducts.map((p) => p.brand)))]
   const genders = ["all", "men", "women", "unisex"]
 
