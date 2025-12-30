@@ -93,15 +93,7 @@ const Header = () => {
     navItems.push({ name: "Dashboard", href: "/dashboard" });
   }
 
-  // Scroll effect
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   // Countdown timer effect
   useEffect(() => {
