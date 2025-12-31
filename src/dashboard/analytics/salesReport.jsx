@@ -53,7 +53,7 @@ const SalesReportDashboard = () => {
   const [showCalendar, setShowCalendar] = useState(false);
   const [calendarMonth, setCalendarMonth] = useState(new Date(2025, 11, 1)); // December 2025
   const [currentPage, setCurrentPage] = useState(0)
-const skip = 3
+const skip = 30
   // Filter data
   const filteredData = useMemo(() => {
     return salesData.filter(item => {
@@ -278,8 +278,8 @@ console.log(filteredData.length,totalPage)
               </button>
               
               {showCalendar && (
-                <div className="absolute top-full mt-2 bg-slate-800 border border-slate-700 rounded-xl p-4 shadow-2xl z-50 min-w-[600px]">
-                  <div className="flex gap-8 ">
+                <div className="relative top-full mt-2 bg-slate-800 border border-slate-700 rounded-xl p-4 shadow-2xl z-50 lg:min-w-[600px]">
+                  <div className="flex flex-col md:flex-row gap-8 ">
                     {/* December 2025 */}
                     <div className="flex-1 ">
                       <div className="flex items-center justify-between mb-4">
