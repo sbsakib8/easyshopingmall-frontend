@@ -93,13 +93,13 @@ const ChatBoot = () => {
           </div>
 
           {/* Input */}
-          <div className="p-3 border-t flex gap-2">
+          <div className="p-3 border-t border-indigo-600 flex gap-2">
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
               placeholder="Type your message..."
-              className="flex-1 px-3 py-2 border rounded-lg text-sm focus:outline-none"
+              className="flex-1 px-3 py-2 border border-indigo-600 rounded-lg text-sm focus:outline-none"
             />
             <button
               onClick={handleSend}
