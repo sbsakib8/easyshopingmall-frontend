@@ -3,6 +3,7 @@ import Carousels from '@/src/helper/Hero/Carousel'
 import Ads from './Ads'
 import Categories from './Categories'
 import PopularProducts from './popularProducts'
+import ChatBoot from './ChatBoot'
 
 
 function Hero() {
@@ -15,6 +16,7 @@ function Hero() {
       <Categories />
       <Ads />
       <PopularProducts />
+      <ChatBoot></ChatBoot>
     </div>
 
   )

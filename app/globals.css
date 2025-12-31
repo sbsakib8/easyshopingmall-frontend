@@ -27,3 +27,27 @@
 .MuiInputBase-root{
   @apply  !border-2  border-primary-color! !outline-none !rounded-lg !shadow-sm w-full! h-13! ;
 }
+
+
+/* Custom Scrollbar Styles */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  @apply bg-gray-200 rounded-full;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  @apply bg-purple-500 rounded-full;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  @apply bg-purple-600;
+}
+
+/* For Firefox */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #a855f7 #e5e7eb;
+}

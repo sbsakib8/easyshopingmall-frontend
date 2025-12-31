@@ -29,10 +29,26 @@ const ProductDetails = () => {
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
 
+  //review
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewText, setReviewText] = useState("");
+  const [reviewList, setReviewList] = useState([]);
+
   // Fetch all products for related products
   const productParams = useMemo(() => ({}), []);
   const { product: allProductsData } = useGetProduct(productParams);
   console.log('product', allProductsData)
+//store reviews in local storage
+
+useEffect(() => {
+  if (!product) return; // product না থাকলে কিছু না করা
+  const storedReviews = localStorage.getItem(`reviews_${product.id}`);
+  if (storedReviews) {
+    setReviewList(JSON.parse(storedReviews));
+  }
+}, [product]);
+
 
   // Fetch product details
   useEffect(() => {
@@ -658,18 +674,134 @@ const ProductDetails = () => {
               </div>
             )}
 
-            {activeTab === 'reviews' && (
-              <div className="text-center py-12">
-                <Star className="w-16 h-16 text-yellow-400 mx-auto mb-4" />
-                <h3 className="text-2xl font-semibold text-gray-900 mb-2">
-                  {product?.rating || 0} out of 5 stars
-                </h3>
-                <p className="text-gray-600">Based on {product?.reviews || 0} customer reviews</p>
-                <button className="mt-6 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-lg hover:shadow-lg transition-all duration-300">
-                  Write a Review
-                </button>
+
+{activeTab === 'reviews' && (
+  <div className="py-12 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+
+    {/* Summary */}
+    <div className="text-center mb-10">
+      <Star className="w-16 h-16 text-yellow-400 mx-auto mb-4" />
+      <h3 className="text-2xl sm:text-3xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-600 mb-2">
+        {product?.rating || 0} out of 5 stars
+      </h3>
+      <p className="text-center text-gray-700 text-base sm:text-lg mb-4">
+  Based on <span className="font-semibold text-blue-500">{reviewList.length || product?.reviews || 0}</span> customer reviews
+</p>
+
+
+      <button
+        onClick={() => setShowReviewForm(!showReviewForm)}
+        className="mt-6 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-lg hover:shadow-lg transition-all duration-300"
+      >
+        Write a Review
+      </button>
+    </div>
+
+    {/* Review Form */}
+    {showReviewForm && (
+      <div className="max-w-md mx-auto bg-white shadow-xl rounded-xl p-6 mb-12">
+       <h3 className="text-2xl sm:text-3xl font-extrabold text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 tracking-wide">
+  Rate This Product
+</h3>
+
+
+
+       
+
+        {/* Comment */}
+        <textarea
+          value={reviewText}
+          onChange={(e) => setReviewText(e.target.value)}
+          placeholder="Write your comment..."
+          className="w-full border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+         {/* ⭐ Rating */}
+        <div className="flex justify-center gap-2 mb-4">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <Star
+              key={star}
+              onClick={() => setReviewRating(star)}
+              className={`w-8 h-8 cursor-pointer transition ${
+                star <= reviewRating
+                  ? "text-yellow-400 fill-current scale-110"
+                  : "text-gray-300"
+              }`}
+            />
+          ))}
+        </div>
+
+        <button
+          onClick={() => {
+            if (!reviewRating || !reviewText) {
+              toast.error("Rating & comment required");
+              return;
+            }
+
+            const newReview = {
+              id: Date.now(),
+              author: user?.name || "Anonymous User",
+              avatar: user?.avatar || null,
+              rating: reviewRating,
+              text: reviewText,
+            };
+
+            const updatedList = [newReview, ...reviewList];
+            setReviewList(updatedList);
+            localStorage.setItem(`reviews_${product?.id}`, JSON.stringify(updatedList));
+
+            setReviewRating(0);
+            setReviewText("");
+            setShowReviewForm(false);
+          }}
+          className="w-full mt-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white py-2 rounded-lg hover:shadow-md transition-all"
+        >
+          Submit Review
+        </button>
+      </div>
+    )}
+
+    {/* Reviews Cards */}
+    <div className="grid grid-cols-1  gap-6">
+      {reviewList.map((review) => (
+        <div
+  key={review.id}
+  className="bg-white rounded-xl shadow-md p-5 flex flex-col gap-3 hover:shadow-xl transition-all duration-300 mx-auto w-full max-w-md"
+>
+          {/* Author Avatar */}
+          <div className="flex items-center gap-3">
+            {review.avatar ? (
+              <img
+                src={review.avatar}
+                alt={review.author}
+                className="w-12 h-12 rounded-full object-cover border"
+              />
+            ) : (
+              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white flex items-center justify-center font-bold text-lg">
+                {review.author?.[0]?.toUpperCase() || "A"}
               </div>
             )}
+            <h4 className="font-semibold text-gray-800 text-sm sm:text-base">{review.author}</h4>
+          </div>
+
+          {/* Rating */}
+          <div className="flex gap-1">
+            {[...Array(5)].map((_, i) => (
+              <Star
+                key={i}
+                className={`w-4 h-4 ${i < review.rating ? "text-yellow-400 fill-current" : "text-gray-300"}`}
+              />
+            ))}
+          </div>
+
+          {/* Comment */}
+          <p className="text-gray-600 text-sm sm:text-base">{review.text}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+
+
           </div>
         </div>
 
