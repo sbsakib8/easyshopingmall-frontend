@@ -53,7 +53,7 @@ const SalesReportDashboard = () => {
   const [showCalendar, setShowCalendar] = useState(false);
   const [calendarMonth, setCalendarMonth] = useState(new Date(2025, 11, 1)); // December 2025
   const [currentPage, setCurrentPage] = useState(0)
-const skip = 30
+const skip = 3
   // Filter data
   const filteredData = useMemo(() => {
     return salesData.filter(item => {
@@ -278,7 +278,7 @@ console.log(filteredData.length,totalPage)
               </button>
               
               {showCalendar && (
-                <div className="absolute top-full   mt-2 bg-slate-800 border border-slate-700 rounded-xl p-4 shadow-2xl z-50 min-w-[600px]">
+                <div className="absolute top-full mt-2 bg-slate-800 border border-slate-700 rounded-xl p-4 shadow-2xl z-50 min-w-[600px]">
                   <div className="flex gap-8 ">
                     {/* December 2025 */}
                     <div className="flex-1 ">
@@ -480,8 +480,8 @@ console.log(filteredData.length,totalPage)
         </div>
 
         {/* pagination buttons */}
-       <div className='flex justify-center' >
-        {[...Array(totalPage)].map((page,i)=><button onClick={()=>setCurrentPage(i)} className={`px-3 py-1  mx-1 ${currentPage==i?'bg-[#00D3F2] ':'bg-white'}`}>{i}</button>)}
+       <div className='flex justify-center flex-wrap mt-5 gap-y-3' >
+        {[...Array(totalPage)].map((page,i)=><button onClick={()=>setCurrentPage(i)} className={`px-4 py-1 rounded-sm mx-1 ${currentPage==i?'bg-[#00D3F2] ':'bg-white'}`}>{i}</button>)}
        </div>
       </div>
     </div>
