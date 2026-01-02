@@ -55,6 +55,7 @@ const ReviewsPage = () => {
       try {
         const data = await getPendingReviews();
         setReviews(data);
+        console.log(data)
       } catch (err) {
         console.error("Failed to fetch reviews", err);
       }
@@ -379,19 +380,19 @@ const ReviewsPage = () => {
                   {/* Customer Info */}
                   <div className="lg:col-span-3 flex items-center space-x-3">
                     <img
-                      src={review.avatar || "/placeholder.svg"}
+                      src={review.userId.image || "/placeholder.svg"}
                       alt={review.customerName}
                       className="w-12 h-12 rounded-full border-2 border-yellow-500"
                     />
                     <div>
-                      <h3 className="font-semibold text-white">{review.customerName}</h3>
-                      <p className="text-sm text-gray-400">{review.customerEmail}</p>
+                      <h3 className="font-semibold text-white">{review.userId.name}</h3>
+                      <p className="text-sm text-gray-400">{review.userId.email}</p>
                     </div>
                   </div>
 
                   {/* Product & Rating */}
                   <div className="lg:col-span-3">
-                    <h4 className="font-medium text-white mb-1">{review.productName}</h4>
+                    <h4 className="font-medium text-white mb-1">{review.productId}</h4>
                     <div className="flex items-center space-x-2">
                       <div className="flex">{renderStars(review.rating)}</div>
                       <span className="text-sm text-gray-400">({review.rating}/5)</span>
