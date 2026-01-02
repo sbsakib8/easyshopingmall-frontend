@@ -832,13 +832,13 @@ const ProductDetails = () => {
                 )}
 
                 {/* Reviews Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-4 sm:px-0">
+                <div className="grid grid-cols-1 gap-6">
                   {reviewList
                     .filter((review) => review.status === "approved")
                     .map((review) => (
                       <div
-                        key={review._id}
-                        className="bg-white rounded-xl shadow-md p-5 flex flex-col gap-3 hover:shadow-xl transition-all duration-300 w-full"
+                        key={review.id}
+                        className="bg-white rounded-xl shadow-md py-10 px-5 flex flex-col gap-3 hover:shadow-xl transition-all duration-300 mx-auto w-full max-w-md"
                       >
                         {/* Author */}
                         <div className="flex items-center gap-3">
@@ -855,7 +855,7 @@ const ProductDetails = () => {
                           )}
 
                           <h4 className="font-semibold text-gray-800 text-sm sm:text-base">
-                            {review.userId?.name || "Anonymous"}
+                            {review.userId.name || "Anonymous"}
                           </h4>
                         </div>
 
@@ -872,9 +872,7 @@ const ProductDetails = () => {
                         </div>
 
                         {/* Comment */}
-                        <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
-                          {review.comment}
-                        </p>
+                        <p className="text-gray-600 text-sm sm:text-base">{review.comment}</p>
                       </div>
                     ))}
                 </div>
