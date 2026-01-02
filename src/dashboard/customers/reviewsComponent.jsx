@@ -49,6 +49,7 @@ const ReviewsPage = () => {
   const averageRating = reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews;
   const approvedReviews = reviews.filter((r) => r.status === "approved").length;
   const pendingReviews = reviews.filter((r) => r.status === "pending").length;
+  // All Pending Review
   useEffect(() => {
     const fetchReviews = async () => {
       try {
