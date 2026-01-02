@@ -37,6 +37,9 @@ const AccountPage = () => {
   const [activeTab, setActiveTab] = useState("profile");
   const [isEditing, setIsEditing] = useState(false);
   const [showImageUpload, setShowImageUpload] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [profileData, setProfileData] = useState({
     name: data?.name,
     email: data?.email,
@@ -119,6 +122,108 @@ const AccountPage = () => {
       ...prev,
       [field]: value,
     }));
+  };
+
+  // Upload image to ImgBB
+  const uploadImageToImgBB = async (imageFile) => {
+    const formData = new FormData();
+    formData.append("image", imageFile);
+
+    try {
+      const response = await fetch(
+        `https://api.imgbb.com/1/upload?key=55d63e852df7bcf0393b2dedd1d8aaa9`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+      if (data.success) {
+        return data.data.url;
+      } else {
+        throw new Error("Failed to upload image to ImgBB");
+      }
+    } catch (error) {
+      console.error("ImgBB upload error:", error);
+      throw error;
+    }
+  };
+
+  // Handle image selection
+  const handleImageSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please select an image file");
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Image size should be less than 5MB");
+        return;
+      }
+
+      setSelectedImage(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Handle image upload and profile update
+  const handleImageUpload = async () => {
+    if (!selectedImage) {
+      toast.error("Please select an image first");
+      return;
+    }
+
+    if (!data?._id) {
+      toast.error("User ID not found");
+      return;
+    }
+
+    setUploadingImage(true);
+
+    try {
+      // Upload to ImgBB
+      const imageUrl = await uploadImageToImgBB(selectedImage);
+      
+      // Update profile with new image URL
+      const updateData = {
+        image: imageUrl,
+      };
+
+      const response = await updateUserProfile(data._id, updateData);
+
+      if (response.success || response.data) {
+        // Update Redux store with new image
+        const updatedUser = {
+          ...data,
+          image: imageUrl,
+        };
+        
+        dispatch(userget(updatedUser));
+
+        toast.success("Profile picture updated successfully!");
+        setShowImageUpload(false);
+        setSelectedImage(null);
+        setImagePreview(null);
+      } else {
+        toast.error(response.message || "Failed to update profile picture");
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      toast.error("Failed to upload image. Please try again.");
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   const handleSave = async () => {
@@ -759,6 +864,140 @@ const AccountPage = () => {
             }
           }
         `}</style>
+
+        {/* Image Upload Modal */}
+        {showImageUpload && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ backdropFilter: 'blur(8px)', backgroundColor: 'rgba(0, 0, 0, 0.3)' }}>
+            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 transform transition-all">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-bold text-gray-900">Update Profile Picture</h3>
+                <button
+                  onClick={() => {
+                    setShowImageUpload(false);
+                    setSelectedImage(null);
+                    setImagePreview(null);
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-300"
+                  disabled={uploadingImage}
+                >
+                  <X className="w-5 h-5 text-gray-600" />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {/* Image Preview */}
+                <div className="flex justify-center">
+                  <div className="relative">
+                    <div className="w-40 h-40 rounded-full overflow-hidden bg-gray-100 border-4 border-gray-200">
+                      {imagePreview ? (
+                        <img
+                          src={imagePreview}
+                          alt="Preview"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600">
+                          {data?.image ? (
+                            <img
+                              src={data.image}
+                              alt="Current"
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <User className="w-20 h-20 text-white" />
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <label
+                      htmlFor="image-upload"
+                      className="absolute bottom-2 right-2 bg-white rounded-full p-3 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer hover:scale-110"
+                    >
+                      <Camera className="w-5 h-5 text-gray-600" />
+                    </label>
+                    <input
+                      id="image-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageSelect}
+                      className="hidden"
+                      disabled={uploadingImage}
+                    />
+                  </div>
+                </div>
+
+                {/* File Info */}
+                {selectedImage && (
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center">
+                          <Camera className="w-5 h-5 text-teal-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">
+                            {selectedImage.name}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {(selectedImage.size / 1024).toFixed(2)} KB
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Upload Instructions */}
+                {!selectedImage && (
+                  <div className="text-center">
+                    <p className="text-sm text-gray-600">
+                      Click the camera icon to select an image
+                    </p>
+                    <p className="text-xs text-gray-500 mt-2">
+                      Supported formats: JPG, PNG, GIF (Max 5MB)
+                    </p>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex space-x-3">
+                  <button
+                    onClick={() => {
+                      setShowImageUpload(false);
+                      setSelectedImage(null);
+                      setImagePreview(null);
+                    }}
+                    className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-all duration-300"
+                    disabled={uploadingImage}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleImageUpload}
+                    disabled={!selectedImage || uploadingImage}
+                    className={`flex-1 px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center justify-center space-x-2 ${
+                      !selectedImage || uploadingImage
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white hover:shadow-lg hover:scale-105"
+                    }`}
+                  >
+                    {uploadingImage ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Uploading...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-5 h-5" />
+                        <span>Upload</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </AuthUserNothave>
   );
