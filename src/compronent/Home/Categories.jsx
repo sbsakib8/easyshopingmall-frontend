@@ -21,9 +21,7 @@ const categoridata = [
 function Categories() {
   const { category, loading, error } = useGetcategory(); 
   const [paused, setPaused] = useState(false);
-  const loopData = [...(category || []), ...(category || [])]; 
-
-  console.log('looping', loopData);
+  const loopData = [...(category || []), ...(category || [])];
   
   return (
     <div className="container mx-auto px-4 py-8">

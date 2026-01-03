@@ -63,12 +63,6 @@ const ShopPage = () => {
   
   // Fetch categories and subcategories from API
   const { categories: apiCategories, subcategories: apiSubcategories, loading: categoriesLoading } = useCategoryWithSubcategories()
-  
-  // Log categories and subcategories from API
-  useEffect(() => {
-    console.log('🏷️ Shop Page - API Categories:', apiCategories.length, apiCategories)
-    console.log('🏷️ Shop Page - API Subcategories:', apiSubcategories.length, apiSubcategories)
-  }, [apiCategories, apiSubcategories])
 
   // Load cart for logged-in user
   useEffect(() => {
@@ -137,11 +131,6 @@ const ShopPage = () => {
 
   // Filter and search products
   useEffect(() => {
-    // Debug: log search param and server search result to help troubleshooting
-    try {
-      // eslint-disable-next-line no-console
-      console.log("Shop debug - urlSearch:", urlSearch, "searchLoading:", searchLoading, "searchData:", searchData)
-    } catch (e) { }
     // If there's a search query param, prefer server-side search results
     if (urlSearch) {
       const list = searchData?.products ?? searchData?.data ?? searchData ?? []
@@ -192,14 +181,6 @@ const ShopPage = () => {
       setAllProducts(normalized)
       setProducts(normalized)
       
-      // Console log counts for search results
-      const categories = Array.from(new Set(normalized.map(p => p.category)))
-      const subCategories = Array.from(new Set(normalized.map(p => p.subCategory)))
-      console.log('📊 Search Results Data:')
-      console.log(`   Products: ${normalized.length}`)
-      console.log(`   Categories: ${categories.length}`, categories)
-      console.log(`   SubCategories: ${subCategories.length}`, subCategories)
-      
       try {
         const prices = normalized.map((p) => Number(p.price) || 0).filter((n) => !Number.isNaN(n))
         if (prices.length > 0) {
@@ -225,14 +206,8 @@ const ShopPage = () => {
   // - { products: [...] }
   // - array (already product.data set by hook)
   // - { data: [...] }
-  console.log('🔍 Shop Component - product value:', product);
-  console.log('🔍 Shop Component - product?.products:', product?.products);
-  console.log('🔍 Shop Component - product?.data:', product?.data);
-  console.log('🔍 Shop Component - Array.isArray(product):', Array.isArray(product));
   
   const list = product?.products ?? product?.data ?? product ?? []
-  console.log('📋 Shop Component - Final list to normalize:', list);
-  console.log('📋 Shop Component - List length:', Array.isArray(list) ? list.length : 'not an array');
   
   if (Array.isArray(list) && list.length > 0) {
       const normalized = list.map((p) => {
@@ -281,14 +256,6 @@ const ShopPage = () => {
       setAllProducts(normalized)
       setProducts(normalized)
       
-      // Console log counts for all products
-      const categories = Array.from(new Set(normalized.map(p => p.category)))
-      const subCategories = Array.from(new Set(normalized.map(p => p.subCategory)))
-      console.log('📊 Fetched Data:')
-      console.log(`   Products: ${normalized.length}`)
-      console.log(`   Categories: ${categories.length}`, categories)
-      console.log(`   SubCategories: ${subCategories.length}`, subCategories)
-      
       // If user hasn't changed the price range (default [0,300]),
       // expand it to cover actual product prices so items >300 aren't hidden.
       try {
@@ -312,8 +279,6 @@ const ShopPage = () => {
 
   useEffect(() => {
     let filtered = [...allProducts]
-    
-    console.log('🔧 Filter & Sort - Starting with:', allProducts.length, 'products');
 
     // Search filter
     if (searchTerm) {
@@ -372,18 +337,6 @@ const ShopPage = () => {
       }
     })
 
-    console.log('✅ Filter & Sort - After all filters:', filtered.length, 'products');
-    console.log('   Active filters:', {
-      searchTerm,
-      filterCategory,
-      filterSubCategory,
-      filterBrand,
-      filterGender,
-      priceRange,
-      ratingFilter,
-      sortBy
-    });
-    
     setProducts(filtered)
     setCurrentPage(1)
   }, [
@@ -484,13 +437,6 @@ const ShopPage = () => {
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage
   const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct)
   const totalPages = Math.ceil(products.length / productsPerPage)
-  
-  console.log('📄 Pagination Info:');
-  console.log(`   Total products in state: ${products.length}`);
-  console.log(`   Products per page: ${productsPerPage}`);
-  console.log(`   Current page: ${currentPage}`);
-  console.log(`   Showing products ${indexOfFirstProduct + 1} to ${Math.min(indexOfLastProduct, products.length)}`);
-  console.log(`   Total pages: ${totalPages}`);
 
   // Use API categories if available, otherwise fall back to product categories
   const categories = apiCategories.length > 0 
@@ -509,9 +455,6 @@ const ShopPage = () => {
     : (filterCategory === "all"
         ? ["all", ...Array.from(new Set(allProducts.map((p) => p.subCategory)))]
         : ["all", ...Array.from(new Set(allProducts.filter((p) => p.category === filterCategory).map((p) => p.subCategory)))])
-  
-  console.log('🔍 Shop Page - Available Categories for Filter:', categories)
-  console.log('🔍 Shop Page - Available Subcategories for Filter:', subCategories)
   
   const brands = ["all", ...Array.from(new Set(allProducts.map((p) => p.brand)))]
   const genders = ["all", "men", "women", "unisex"]

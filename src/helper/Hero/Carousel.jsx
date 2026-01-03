@@ -13,7 +13,6 @@ const Carousel = () => {
     if (!homebanner || !Array.isArray(homebanner)) return [];
     return homebanner.filter(banner => banner.active === true);
   }, [homebanner]);
-  console.log('Active Slides:', slides);
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % slides?.length);

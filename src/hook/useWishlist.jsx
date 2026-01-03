@@ -15,7 +15,6 @@ export const getWishlistApi = async (dispatch) => {
         dispatch(wishlistLoading());
 
         const res = await axios.get(`${UrlBackend}/wishlist`, { withCredentials: true });
-        console.log("RAW wishlist:", res.data.data);
 
 
         const formatted = res.data.data.map((item) => {
