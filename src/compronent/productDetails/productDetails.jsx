@@ -1,15 +1,29 @@
-"use client"
-import { addToCartApi, getCartApi } from '@/src/hook/useCart';
-import { getProductDetailsApi } from '@/src/hook/useProductDetails';
-import { decreaseProductQuantity, increaseProductQuantity } from '@/src/hook/useUpdateProduct';
-import { addToWishlistApi, removeFromWishlistApi } from '@/src/hook/useWishlist';
-import { useGetProduct } from '@/src/utlis/userProduct';
-import { ChevronRight, Heart, Loader, Minus, Plus, RotateCcw, Share2, Shield, ShoppingCart, Star, Truck, Zap } from 'lucide-react';
-import Image from 'next/image';
-import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
-import toast from 'react-hot-toast';
-import { useDispatch, useSelector } from 'react-redux';
+"use client";
+import { addToCartApi, getCartApi } from "@/src/hook/useCart";
+import { getProductDetailsApi } from "@/src/hook/useProductDetails";
+import { getApprovedReviews, submitReview } from "@/src/hook/useReview";
+import { decreaseProductQuantity, increaseProductQuantity } from "@/src/hook/useUpdateProduct";
+import { addToWishlistApi, removeFromWishlistApi } from "@/src/hook/useWishlist";
+import { useGetProduct } from "@/src/utlis/userProduct";
+import {
+  ChevronRight,
+  Heart,
+  Loader,
+  Minus,
+  Plus,
+  RotateCcw,
+  Share2,
+  Shield,
+  ShoppingCart,
+  Star,
+  Truck,
+  Zap,
+} from "lucide-react";
+import Image from "next/image";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import toast from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
 
 const ProductDetails = () => {
   const params = useParams();
@@ -27,7 +41,7 @@ const ProductDetails = () => {
   const [selectedSize, setSelectedSize] = useState(null);
   const [selectedColor, setSelectedColor] = useState(null);
   const [quantity, setQuantity] = useState(1);
-  const [activeTab, setActiveTab] = useState('description');
+  const [activeTab, setActiveTab] = useState("description");
 
   //review
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -38,16 +52,49 @@ const ProductDetails = () => {
   // Fetch all products for related products
   const productParams = useMemo(() => ({}), []);
   const { product: allProductsData } = useGetProduct(productParams);
-  console.log('product', allProductsData)
-//store reviews in local storage
+  console.log("product", allProductsData);
 
-useEffect(() => {
-  if (!product) return; // product না থাকলে কিছু না করা
-  const storedReviews = localStorage.getItem(`reviews_${product.id}`);
-  if (storedReviews) {
-    setReviewList(JSON.parse(storedReviews));
-  }
-}, [product]);
+  const handleSubmitReview = async () => {
+    if (!reviewRating || !reviewText) {
+      toast.error("Rating & comment required");
+      return;
+    }
+
+    try {
+      await submitReview(product?.id, {
+        rating: reviewRating,
+        comment: reviewText,
+        status: "pending",
+      });
+
+      toast.success("Review submitted. Waiting for admin approval.");
+
+      setReviewRating(0);
+      setReviewText("");
+      setShowReviewForm(false);
+    } catch (error) {
+      toast.error("Failed to submit review");
+    }
+  };
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        setLoading(true);
+        const data = await getApprovedReviews(params?.id);
+        setReviewList(data);
+        
+        const approveData = data.filter((review) => review.status === "approved");
+        console.log(approveData);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReviews();
+  }, [params?.id]);
 
 
   // Fetch product details
@@ -56,23 +103,23 @@ useEffect(() => {
       try {
         setLoading(true);
         const data = await getProductDetailsApi(params.id);
-        console.log(data);
+        
         if (data) {
           // Normalize product data - handle all API fields
           const normalized = {
             id: data._id || data.id,
-            name: data.productName || data.name || 'Product',
-            brand: data.brand || 'Brand',
+            name: data.productName || data.name || "Product",
+            brand: data.brand || "Brand",
             price: Number(data.price ?? data.sell_price ?? 0) || 0,
             originalPrice: Number(data.oldPrice ?? data.mrp ?? data.price ?? 0) || 0,
             discount: Number(data.discount ?? 0) || 0,
             rating: Number(data?.ratings),
             reviews: Number(data.reviews ?? 0) || 0,
-            images: data.images || ['/banner/img/placeholder.png'],
-            sizes: data.productSize ? [data.productSize] : (data.sizes || []),
-            colors: Array.isArray(data.color) ? data.color : (data.colors || []),
+            images: data.images || ["/banner/img/placeholder.png"],
+            sizes: data.productSize ? [data.productSize] : data.sizes || [],
+            colors: Array.isArray(data.color) ? data.color : data.colors || [],
             stock: Number(data.productStock ?? data.stock ?? 0) || 0,
-            description: data.description || data.productDescription || '',
+            description: data.description || data.productDescription || "",
             specifications: data.specifications || {},
             category: data.category,
             subCategory: data.subCategory,
@@ -81,9 +128,9 @@ useEffect(() => {
             sizes: Array.isArray(data.productSize)
               ? data.productSize
               : typeof data.productSize === "string"
-                ? data.productSize.split(',').map(s => s.trim())
-                : [],
-            sku: data.sku || '',
+              ? data.productSize.split(",").map((s) => s.trim())
+              : [],
+            sku: data.sku || "",
             rank: Number(data.productRank ?? 0) || 0,
             featured: data.featured || false,
             publish: data.publish || true,
@@ -95,8 +142,8 @@ useEffect(() => {
           setError(null);
         }
       } catch (err) {
-        console.error('Error fetching product:', err);
-        setError('Failed to load product details');
+        console.error("Error fetching product:", err);
+        setError("Failed to load product details");
       } finally {
         setLoading(false);
       }
@@ -104,18 +151,16 @@ useEffect(() => {
     if (params.id) fetchProduct();
   }, [params.id]);
 
-
-
   // Filter related products from same subcategory
   useEffect(() => {
     if (!product || !allProductsData || !Array.isArray(allProductsData)) return;
 
-    const normalized = allProductsData.map(p => {
-      let subCategoryVal = 'general';
+    const normalized = allProductsData.map((p) => {
+      let subCategoryVal = "general";
       if (Array.isArray(p.subCategory) && p.subCategory.length > 0) {
         const s0 = p.subCategory[0];
-        subCategoryVal = typeof s0 === 'string' ? s0 : (s0?.name || String(s0));
-      } else if (p.subCategory && typeof p.subCategory === 'object') {
+        subCategoryVal = typeof s0 === "string" ? s0 : s0?.name || String(s0);
+      } else if (p.subCategory && typeof p.subCategory === "object") {
         subCategoryVal = p.subCategory.name || String(p.subCategory);
       } else if (p.subCategory) {
         subCategoryVal = String(p.subCategory);
@@ -123,10 +168,10 @@ useEffect(() => {
 
       return {
         id: p._id || p.id,
-        name: p.name || p.productName || 'Product',
+        name: p.name || p.productName || "Product",
         price: Number(p.price ?? p.sell_price ?? 0) || 0,
         originalPrice: Number(p.originalPrice ?? p.mrp ?? p.price ?? 0) || 0,
-        image: p.image || p.images?.[0] || '/banner/img/placeholder.png',
+        image: p.image || p.images?.[0] || "/banner/img/placeholder.png",
         rating: Number(p.ratings),
         reviews: Number(p.reviews ?? 0) || 0,
         subCategory: subCategoryVal,
@@ -136,7 +181,13 @@ useEffect(() => {
 
     // Get related products (same subcategory, max 6)
     const related = normalized
-      .filter(p => p.subCategory === (typeof product.subCategory === 'string' ? product.subCategory : product.subCategory?.name) && p.id !== product.id)
+      .filter(
+        (p) =>
+          p.subCategory ===
+            (typeof product.subCategory === "string"
+              ? product.subCategory
+              : product.subCategory?.name) && p.id !== product.id
+      )
       .slice(0, 6);
 
     setRelatedProducts(related);
@@ -145,13 +196,16 @@ useEffect(() => {
   const isWishlisted = product && (wishlist || []).some((i) => i.id === product.id);
 
   // Check if product is in cart
-  const cartItem = cartItems.find(item => item.productId?._id === product?.id || item.productId?.id === product?.id);
+  const cartItem = cartItems.find(
+    (item) => item.productId?._id === product?.id || item.productId?.id === product?.id
+  );
 
   const toggleSize = (size) => {
-    setSelectedSize((prev) =>
-      prev.includes(size)
-        ? prev.filter((s) => s !== size) // remove
-        : [...prev, size]               // add
+    setSelectedSize(
+      (prev) =>
+        prev.includes(size)
+          ? prev.filter((s) => s !== size) // remove
+          : [...prev, size] // add
     );
   };
   const incrementQuantity = async () => {
@@ -163,10 +217,10 @@ useEffect(() => {
       try {
         await increaseProductQuantity(user._id, product.id, quantity, dispatch);
         await getCartApi(user._id, dispatch);
-        toast.success('Quantity updated');
+        toast.success("Quantity updated");
       } catch (err) {
-        console.error('Update cart error:', err);
-        toast.error('Failed to update quantity');
+        console.error("Update cart error:", err);
+        toast.error("Failed to update quantity");
       }
     }
   };
@@ -180,26 +234,26 @@ useEffect(() => {
       try {
         await decreaseProductQuantity(user._id, product.id, quantity, dispatch);
         await getCartApi(user._id, dispatch);
-        toast.success('Quantity updated');
+        toast.success("Quantity updated");
       } catch (err) {
-        console.error('Update cart error:', err);
-        toast.error('Failed to update quantity');
+        console.error("Update cart error:", err);
+        toast.error("Failed to update quantity");
       }
     }
   };
   const handleAddToCart = async () => {
     if (!user?._id) {
-      toast.error('Please sign in to add items to cart');
+      toast.error("Please sign in to add items to cart");
       return;
     }
 
     if (product?.sizes?.length && !selectedSize) {
-      toast.error('Please select a size');
+      toast.error("Please select a size");
       return;
     }
 
     if (product?.colors?.length && !selectedColor) {
-      toast.error('Please select a color');
+      toast.error("Please select a color");
       return;
     }
 
@@ -222,30 +276,29 @@ useEffect(() => {
       toast.success(`${product.name} added to cart`);
       await getCartApi(user._id, dispatch);
     } catch (err) {
-      console.error('Add to cart error:', err);
-      toast.error('Failed to add to cart');
+      console.error("Add to cart error:", err);
+      toast.error("Failed to add to cart");
     }
   };
-
 
   const handleWishlist = async () => {
     try {
       if (isWishlisted) {
         await removeFromWishlistApi(product.id, dispatch);
-        toast.success('Removed from wishlist');
+        toast.success("Removed from wishlist");
       } else {
         await addToWishlistApi(product.id, dispatch);
-        toast.success('Added to wishlist');
+        toast.success("Added to wishlist");
       }
     } catch (err) {
-      console.error('Wishlist error:', err);
-      toast.error('Failed to update wishlist');
+      console.error("Wishlist error:", err);
+      toast.error("Failed to update wishlist");
     }
   };
 
   // FIX product size array (API returns ["40,41,42,43,44"])
   const rawSizes = product?.productSize?.[0] || "";
-  const cleanedSizes = rawSizes.split(",").map(s => s.trim());
+  const cleanedSizes = rawSizes.split(",").map((s) => s.trim());
 
   if (loading) {
     return (
@@ -262,8 +315,11 @@ useEffect(() => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
-          <p className="text-red-600 text-lg">{error || 'Product not found'}</p>
-          <button onClick={() => router.back()} className="bg-blue-600 text-white px-6 py-2 rounded-lg">
+          <p className="text-red-600 text-lg">{error || "Product not found"}</p>
+          <button
+            onClick={() => router.back()}
+            className="bg-blue-600 text-white px-6 py-2 rounded-lg"
+          >
             Go Back
           </button>
         </div>
@@ -276,12 +332,19 @@ useEffect(() => {
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumb with Category & SubCategory */}
         <div className="flex items-center space-x-2 text-sm text-gray-600 mb-8 flex-wrap">
-          <button onClick={() => router.push('/')} className="hover:text-blue-600 hover:underline">Home</button>
+          <button onClick={() => router.push("/")} className="hover:text-blue-600 hover:underline">
+            Home
+          </button>
           <ChevronRight className="w-4 h-4" />
           {product?.category && (
             <>
-              <button onClick={() => router.push('/shop')} className="hover:text-blue-600 hover:underline">
-                {typeof product.category === 'string' ? product.category : product.category?.name || 'Category'}
+              <button
+                onClick={() => router.push("/shop")}
+                className="hover:text-blue-600 hover:underline"
+              >
+                {typeof product.category === "string"
+                  ? product.category
+                  : product.category?.name || "Category"}
               </button>
               <ChevronRight className="w-4 h-4" />
             </>
@@ -289,7 +352,9 @@ useEffect(() => {
           {product?.subCategory && (
             <>
               <span className="hover:text-blue-600 cursor-pointer hover:underline">
-                {typeof product.subCategory === 'string' ? product.subCategory : product.subCategory?.name || 'Subcategory'}
+                {typeof product.subCategory === "string"
+                  ? product.subCategory
+                  : product.subCategory?.name || "Subcategory"}
               </span>
               <ChevronRight className="w-4 h-4" />
             </>
@@ -297,7 +362,6 @@ useEffect(() => {
           <span className="text-gray-900 font-semibold truncate">{product?.name}</span>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-
           {/* Image Gallery */}
           <div className="space-y-4">
             <div className="relative overflow-hidden rounded-2xl bg-white shadow-2xl group">
@@ -316,12 +380,13 @@ useEffect(() => {
               )}
               <button
                 onClick={handleWishlist}
-                className={`absolute top-4 right-4 p-2 rounded-full transition-all duration-300 ${isWishlisted
-                  ? 'bg-red-500 text-white scale-110'
-                  : 'bg-white/80 text-gray-600 hover:bg-red-500 hover:text-white'
-                  }`}
+                className={`absolute top-4 right-4 p-2 rounded-full transition-all duration-300 ${
+                  isWishlisted
+                    ? "bg-red-500 text-white scale-110"
+                    : "bg-white/80 text-gray-600 hover:bg-red-500 hover:text-white"
+                }`}
               >
-                <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-current' : ''}`} />
+                <Heart className={`w-5 h-5 ${isWishlisted ? "fill-current" : ""}`} />
               </button>
             </div>
 
@@ -331,10 +396,11 @@ useEffect(() => {
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`relative overflow-hidden rounded-lg transition-all duration-300 ${selectedImage === index
-                    ? 'ring-4 ring-blue-500 shadow-lg scale-105'
-                    : 'hover:scale-105 hover:shadow-md'
-                    }`}
+                  className={`relative overflow-hidden rounded-lg transition-all duration-300 ${
+                    selectedImage === index
+                      ? "ring-4 ring-blue-500 shadow-lg scale-105"
+                      : "hover:scale-105 hover:shadow-md"
+                  }`}
                 >
                   <img
                     src={image}
@@ -358,12 +424,18 @@ useEffect(() => {
                 <div className="text-xs text-gray-500 mt-1 space-y-1">
                   {product?.category && (
                     <p>
-                      <span className="font-semibold">Category:</span> {typeof product.category === 'string' ? product.category : product.category?.name || 'Category'}
+                      <span className="font-semibold">Category:</span>{" "}
+                      {typeof product.category === "string"
+                        ? product.category
+                        : product.category?.name || "Category"}
                     </p>
                   )}
                   {product?.subCategory && (
                     <p>
-                      <span className="font-semibold">Subcategory:</span> {typeof product.subCategory === 'string' ? product.subCategory : product.subCategory?.name || 'Subcategory'}
+                      <span className="font-semibold">Subcategory:</span>{" "}
+                      {typeof product.subCategory === "string"
+                        ? product.subCategory
+                        : product.subCategory?.name || "Subcategory"}
                     </p>
                   )}
                 </div>
@@ -379,10 +451,11 @@ useEffect(() => {
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className={`w-5 h-5 ${i < Math.floor(product.rating)
-                        ? 'text-yellow-400 fill-current'
-                        : 'text-gray-300'
-                        }`}
+                      className={`w-5 h-5 ${
+                        i < Math.floor(product.rating)
+                          ? "text-yellow-400 fill-current"
+                          : "text-gray-300"
+                      }`}
                     />
                   ))}
                 </div>
@@ -403,7 +476,9 @@ useEffect(() => {
                     {Math.round(product.discount)}% OFF
                   </div>
                 )}
-                <del className="text-2xl font-bold bg-gradient-to-r from-gray-400 to-gray-500 bg-clip-text text-transparent">Rs {product?.rank}</del>
+                <del className="text-2xl font-bold bg-gradient-to-r from-gray-400 to-gray-500 bg-clip-text text-transparent">
+                  Rs {product?.rank}
+                </del>
               </div>
               {product?.originalPrice > product?.price && (
                 <>
@@ -420,21 +495,20 @@ useEffect(() => {
             {/* Color Selection */}
             {(product?.colors?.length || 0) > 0 && (
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                  Color: {selectedColor}
-                </h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">Color: {selectedColor}</h3>
                 <div className="flex space-x-3">
                   {product?.colors?.map((color, index) => (
                     <button
                       key={index}
                       onClick={() => setSelectedColor(color)}
-                      className={`w-10 h-10 rounded-full border-2 transition-all duration-300 ${selectedColor === color
-                        ? 'ring-4 ring-blue-300 scale-110'
-                        : 'hover:scale-110'
-                        }`}
+                      className={`w-10 h-10 rounded-full border-2 transition-all duration-300 ${
+                        selectedColor === color
+                          ? "ring-4 ring-blue-300 scale-110"
+                          : "hover:scale-110"
+                      }`}
                       style={{
                         backgroundColor: color,
-                        borderColor: color || color
+                        borderColor: color || color,
                       }}
                     />
                   ))}
@@ -453,26 +527,23 @@ useEffect(() => {
                     return (
                       <button
                         key={size}
-                        onClick={() =>
-                          setSelectedSize((prev) => (prev === size ? null : size))
-                        }
+                        onClick={() => setSelectedSize((prev) => (prev === size ? null : size))}
                         className={`
               flex items-center justify-center w-20
               h-8
               px-3 rounded-full font-semibold
               transition-all duration-300 border
-              ${isActive
-                            ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white border-transparent shadow-md scale-105"
-                            : "bg-white text-gray-800 border-gray-300 hover:border-blue-400 hover:scale-105"
-                          }
+              ${
+                isActive
+                  ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white border-transparent shadow-md scale-105"
+                  : "bg-white text-gray-800 border-gray-300 hover:border-blue-400 hover:scale-105"
+              }
             `}
                       >
                         {size}
 
                         {isActive && (
-                          <span className="text-white font-bold text-lg leading-none ml-1">
-                            ✓
-                          </span>
+                          <span className="text-white font-bold text-lg leading-none ml-1">✓</span>
                         )}
                       </button>
                     );
@@ -502,7 +573,8 @@ useEffect(() => {
                 <p className="text-gray-600">
                   {product?.stock > 0 ? (
                     <>
-                      Only <span className="font-semibold text-red-500">{product.stock} items</span> left in stock!
+                      Only <span className="font-semibold text-red-500">{product.stock} items</span>{" "}
+                      left in stock!
                     </>
                   ) : (
                     <span className="font-semibold text-red-600">Out of Stock</span>
@@ -516,13 +588,14 @@ useEffect(() => {
               <button
                 onClick={handleAddToCart}
                 disabled={product?.stock === 0}
-                className={`w-full py-4 rounded-xl font-semibold text-lg flex items-center justify-center space-x-2 transition-all duration-300 ${product?.stock === 0
-                  ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white hover:shadow-lg hover:scale-105'
-                  }`}
+                className={`w-full py-4 rounded-xl font-semibold text-lg flex items-center justify-center space-x-2 transition-all duration-300 ${
+                  product?.stock === 0
+                    ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                    : "bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white hover:shadow-lg hover:scale-105"
+                }`}
               >
                 <ShoppingCart className="w-5 h-5" />
-                <span>{product?.stock === 0 ? 'Out of Stock' : 'Add to Cart'}</span>
+                <span>{product?.stock === 0 ? "Out of Stock" : "Add to Cart"}</span>
               </button>
 
               <div className="grid grid-cols-2 gap-4">
@@ -565,14 +638,15 @@ useEffect(() => {
         <div className="mt-16">
           <div className="border-b border-gray-200">
             <nav className="flex space-x-8">
-              {['description', 'specifications', 'reviews'].map((tab) => (
+              {["description", "specifications", "reviews"].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm capitalize transition-all duration-300 ${activeTab === tab
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                    }`}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm capitalize transition-all duration-300 ${
+                    activeTab === tab
+                      ? "border-blue-500 text-blue-600"
+                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  }`}
                 >
                   {tab}
                 </button>
@@ -581,10 +655,10 @@ useEffect(() => {
           </div>
 
           <div className="mt-8">
-            {activeTab === 'description' && (
+            {activeTab === "description" && (
               <div className="prose max-w-none">
                 <p className="text-gray-600 text-lg leading-relaxed mb-6">
-                  {product?.description || 'No description available'}
+                  {product?.description || "No description available"}
                 </p>
 
                 {product?.features?.length > 0 && (
@@ -606,7 +680,10 @@ useEffect(() => {
                     <h4 className="text-xl font-semibold mb-4">Tags:</h4>
                     <div className="flex flex-wrap gap-2">
                       {product.tags.map((tag, index) => (
-                        <span key={index} className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+                        <span
+                          key={index}
+                          className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium"
+                        >
                           #{tag}
                         </span>
                       ))}
@@ -616,7 +693,7 @@ useEffect(() => {
               </div>
             )}
 
-            {activeTab === 'specifications' && (
+            {activeTab === "specifications" && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Display all product specifications and details */}
                 <div className="flex justify-between items-center py-3 border-b border-gray-100">
@@ -625,25 +702,31 @@ useEffect(() => {
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-gray-100">
                   <span className="font-medium text-gray-900">SKU:</span>
-                  <span className="text-gray-600">{product?.sku || 'N/A'}</span>
+                  <span className="text-gray-600">{product?.sku || "N/A"}</span>
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-gray-100">
                   <span className="font-medium text-gray-900">Weight:</span>
-                  <span className="text-gray-600">{product?.weight ? `${product.weight} g` : 'N/A'}</span>
+                  <span className="text-gray-600">
+                    {product?.weight ? `${product.weight} g` : "N/A"}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-gray-100">
                   <span className="font-medium text-gray-900">Size:</span>
-                  <span className="text-gray-600">{product?.size || 'N/A'}</span>
+                  <span className="text-gray-600">{product?.size || "N/A"}</span>
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-gray-100">
                   <span className="font-medium text-gray-900">Stock Available:</span>
-                  <span className={`font-semibold ${product?.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  <span
+                    className={`font-semibold ${
+                      product?.stock > 0 ? "text-green-600" : "text-red-600"
+                    }`}
+                  >
                     {product?.stock} items
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-gray-100">
                   <span className="font-medium text-gray-900">Rank:</span>
-                  <span className="text-gray-600">{product?.rank || 'N/A'}</span>
+                  <span className="text-gray-600">{product?.rank || "N/A"}</span>
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-gray-100">
                   <span className="font-medium text-gray-900">Rating:</span>
@@ -655,18 +738,29 @@ useEffect(() => {
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-gray-100">
                   <span className="font-medium text-gray-900">Status:</span>
-                  <span className={`px-3 py-1 rounded-full text-sm font-semibold ${product?.publish ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                    {product?.publish ? 'Published' : 'Unpublished'}
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                      product?.publish ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                    }`}
+                  >
+                    {product?.publish ? "Published" : "Unpublished"}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-gray-100">
                   <span className="font-medium text-gray-900">Featured:</span>
-                  <span className={`px-3 py-1 rounded-full text-sm font-semibold ${product?.featured ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'}`}>
-                    {product?.featured ? 'Yes' : 'No'}
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                      product?.featured ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-700"
+                    }`}
+                  >
+                    {product?.featured ? "Yes" : "No"}
                   </span>
                 </div>
                 {Object.entries(product?.specifications || {}).map(([key, value]) => (
-                  <div key={key} className="flex justify-between items-center py-3 border-b border-gray-100">
+                  <div
+                    key={key}
+                    className="flex justify-between items-center py-3 border-b border-gray-100"
+                  >
                     <span className="font-medium text-gray-900">{key}:</span>
                     <span className="text-gray-600">{value}</span>
                   </div>
@@ -674,134 +768,115 @@ useEffect(() => {
               </div>
             )}
 
+            {activeTab === "reviews" && (
+              <div className="py-12 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+                {/* Summary */}
+                <div className="text-center mb-10">
+                  <Star className="w-16 h-16 text-yellow-400 mx-auto mb-4" />
+                  <h3 className="text-2xl sm:text-3xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-600 mb-2">
+                    {product?.rating || 0} out of 5 stars
+                  </h3>
+                  <p className="text-center text-gray-700 text-base sm:text-lg mb-4">
+                    Based on{" "}
+                    <span className="font-semibold text-blue-500">
+                      {reviewList.length || product?.reviews || 0}
+                    </span>{" "}
+                    customer reviews
+                  </p>
 
-{activeTab === 'reviews' && (
-  <div className="py-12 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+                  <button
+                    onClick={() => setShowReviewForm(!showReviewForm)}
+                    className="mt-6 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-lg hover:shadow-lg transition-all duration-300"
+                  >
+                    Write a Review
+                  </button>
+                </div>
 
-    {/* Summary */}
-    <div className="text-center mb-10">
-      <Star className="w-16 h-16 text-yellow-400 mx-auto mb-4" />
-      <h3 className="text-2xl sm:text-3xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-600 mb-2">
-        {product?.rating || 0} out of 5 stars
-      </h3>
-      <p className="text-center text-gray-700 text-base sm:text-lg mb-4">
-  Based on <span className="font-semibold text-blue-500">{reviewList.length || product?.reviews || 0}</span> customer reviews
-</p>
+                {/* Review Form */}
+                {showReviewForm && (
+                  <div className="max-w-md mx-auto bg-white shadow-xl rounded-xl p-6 mb-12">
+                    <h3 className="text-2xl sm:text-3xl font-extrabold text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 tracking-wide">
+                      Rate This Product
+                    </h3>
 
+                    {/* Comment */}
+                    <textarea
+                      value={reviewText}
+                      onChange={(e) => setReviewText(e.target.value)}
+                      placeholder="Write your comment..."
+                      className="w-full border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    {/* ⭐ Rating */}
+                    <div className="flex justify-center gap-2 mb-4">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          onClick={() => setReviewRating(star)}
+                          className={`w-8 h-8 cursor-pointer transition ${
+                            star <= reviewRating
+                              ? "text-yellow-400 fill-current scale-110"
+                              : "text-gray-300"
+                          }`}
+                        />
+                      ))}
+                    </div>
 
-      <button
-        onClick={() => setShowReviewForm(!showReviewForm)}
-        className="mt-6 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-lg hover:shadow-lg transition-all duration-300"
-      >
-        Write a Review
-      </button>
-    </div>
+                    <button
+                      onClick={handleSubmitReview}
+                      className="w-full mt-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white py-2 rounded-lg hover:shadow-md transition-all"
+                    >
+                      Submit Review
+                    </button>
+                  </div>
+                )}
 
-    {/* Review Form */}
-    {showReviewForm && (
-      <div className="max-w-md mx-auto bg-white shadow-xl rounded-xl p-6 mb-12">
-       <h3 className="text-2xl sm:text-3xl font-extrabold text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 tracking-wide">
-  Rate This Product
-</h3>
+                {/* Reviews Cards */}
+                <div className="grid grid-cols-1 gap-6">
+                  {reviewList
+                    .filter((review) => review.status === "approved")
+                    .map((review) => (
+                      <div
+                        key={review.id}
+                        className="bg-white rounded-xl shadow-md py-10 px-5 flex flex-col gap-3 hover:shadow-xl transition-all duration-300 mx-auto w-full max-w-md"
+                      >
+                        {/* Author */}
+                        <div className="flex items-center gap-3">
+                          {review.image ? (
+                            <img
+                              src={review.image}
+                              alt={review.author || "Anonymous"}
+                              className="w-12 h-12 rounded-full object-cover border"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white flex items-center justify-center font-bold text-lg">
+                              {review.userId?.name?.[0]?.toUpperCase() || "A"}
+                            </div>
+                          )}
 
+                          <h4 className="font-semibold text-gray-800 text-sm sm:text-base">
+                            {review.userId.name || "Anonymous"}
+                          </h4>
+                        </div>
 
+                        {/* Rating */}
+                        <div className="flex gap-1">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`w-4 h-4 ${
+                                i < review.rating ? "text-yellow-400 fill-current" : "text-gray-300"
+                              }`}
+                            />
+                          ))}
+                        </div>
 
-       
-
-        {/* Comment */}
-        <textarea
-          value={reviewText}
-          onChange={(e) => setReviewText(e.target.value)}
-          placeholder="Write your comment..."
-          className="w-full border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-         {/* ⭐ Rating */}
-        <div className="flex justify-center gap-2 mb-4">
-          {[1, 2, 3, 4, 5].map((star) => (
-            <Star
-              key={star}
-              onClick={() => setReviewRating(star)}
-              className={`w-8 h-8 cursor-pointer transition ${
-                star <= reviewRating
-                  ? "text-yellow-400 fill-current scale-110"
-                  : "text-gray-300"
-              }`}
-            />
-          ))}
-        </div>
-
-        <button
-          onClick={() => {
-            if (!reviewRating || !reviewText) {
-              toast.error("Rating & comment required");
-              return;
-            }
-
-            const newReview = {
-              id: Date.now(),
-              author: user?.name || "Anonymous User",
-              avatar: user?.avatar || null,
-              rating: reviewRating,
-              text: reviewText,
-            };
-
-            const updatedList = [newReview, ...reviewList];
-            setReviewList(updatedList);
-            localStorage.setItem(`reviews_${product?.id}`, JSON.stringify(updatedList));
-
-            setReviewRating(0);
-            setReviewText("");
-            setShowReviewForm(false);
-          }}
-          className="w-full mt-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white py-2 rounded-lg hover:shadow-md transition-all"
-        >
-          Submit Review
-        </button>
-      </div>
-    )}
-
-    {/* Reviews Cards */}
-    <div className="grid grid-cols-1  gap-6">
-      {reviewList.map((review) => (
-        <div
-  key={review.id}
-  className="bg-white rounded-xl shadow-md p-5 flex flex-col gap-3 hover:shadow-xl transition-all duration-300 mx-auto w-full max-w-md"
->
-          {/* Author Avatar */}
-          <div className="flex items-center gap-3">
-            {review.avatar ? (
-              <img
-                src={review.avatar}
-                alt={review.author}
-                className="w-12 h-12 rounded-full object-cover border"
-              />
-            ) : (
-              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white flex items-center justify-center font-bold text-lg">
-                {review.author?.[0]?.toUpperCase() || "A"}
+                        {/* Comment */}
+                        <p className="text-gray-600 text-sm sm:text-base">{review.comment}</p>
+                      </div>
+                    ))}
+                </div>
               </div>
             )}
-            <h4 className="font-semibold text-gray-800 text-sm sm:text-base">{review.author}</h4>
-          </div>
-
-          {/* Rating */}
-          <div className="flex gap-1">
-            {[...Array(5)].map((_, i) => (
-              <Star
-                key={i}
-                className={`w-4 h-4 ${i < review.rating ? "text-yellow-400 fill-current" : "text-gray-300"}`}
-              />
-            ))}
-          </div>
-
-          {/* Comment */}
-          <p className="text-gray-600 text-sm sm:text-base">{review.text}</p>
-        </div>
-      ))}
-    </div>
-  </div>
-)}
-
-
           </div>
         </div>
 
@@ -840,10 +915,11 @@ useEffect(() => {
                         {[...Array(5)].map((_, i) => (
                           <Star
                             key={i}
-                            className={`w-3 h-3 ${i < Math.floor(relProduct.rating)
-                              ? 'fill-yellow-400 text-yellow-400'
-                              : 'text-gray-300'
-                              }`}
+                            className={`w-3 h-3 ${
+                              i < Math.floor(relProduct.rating)
+                                ? "fill-yellow-400 text-yellow-400"
+                                : "text-gray-300"
+                            }`}
                           />
                         ))}
                       </div>
