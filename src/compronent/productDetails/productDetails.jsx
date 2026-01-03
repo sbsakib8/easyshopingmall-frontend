@@ -83,7 +83,7 @@ const ProductDetails = () => {
         setLoading(true);
         const data = await getApprovedReviews(params?.id);
         setReviewList(data);
-        console.log("data", data);
+        
         const approveData = data.filter((review) => review.status === "approved");
         console.log(approveData);
       } catch (err) {
@@ -95,8 +95,7 @@ const ProductDetails = () => {
 
     fetchReviews();
   }, [params?.id]);
-  console.log("product:", product?.id, params.id);
-  console.log("product id:", product?._id);
+
 
   // Fetch product details
   useEffect(() => {
@@ -104,7 +103,7 @@ const ProductDetails = () => {
       try {
         setLoading(true);
         const data = await getProductDetailsApi(params.id);
-        console.log(data);
+        
         if (data) {
           // Normalize product data - handle all API fields
           const normalized = {
