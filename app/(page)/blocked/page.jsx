@@ -73,9 +73,15 @@ export default function BlockedPage() {
           Logout
         </button>
 
-        <p className="text-sm text-gray-500 mt-6">
-          Need help? Contact us at support@easyshoppingmallbd.com
-        </p>
+        <div className="mt-6 space-y-2">
+          <p className="text-sm text-gray-600 font-medium">Need help? Contact us:</p>
+          <p className="text-sm text-gray-700">
+            <strong>Call Us:</strong> <a href="tel:+8801626420774" className="text-red-600 hover:underline">+8801626420774</a>
+          </p>
+          <p className="text-sm text-gray-700">
+            <strong>Email:</strong> <a href="mailto:easyshoppingmall8@gmail.com" className="text-red-600 hover:underline">easyshoppingmall8@gmail.com</a>
+          </p>
+        </div>
       </div>
     </div>
   );
