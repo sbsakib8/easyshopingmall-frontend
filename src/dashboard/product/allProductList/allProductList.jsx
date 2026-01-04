@@ -810,8 +810,7 @@ const ProductDashboard = () => {
       )}
       clg
       {/* Edit Modal */}
-      {editModal &&
-        (console.log("Edit Modal Data:", editModal),
+      {editModal && (
         (
           <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
             <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-emerald-500/30 max-w-3xl w-full max-h-[90vh] overflow-y-auto animate-slideUp">
