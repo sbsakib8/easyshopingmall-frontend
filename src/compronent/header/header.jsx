@@ -73,7 +73,7 @@ const Header = () => {
   // Debug: Log category count
   useEffect(() => {
     console.log(`📦 Total Categories Loaded: ${categories?.length || 0}`);
-    console.log("Categories:", categories);
+    console.log('Categories:', categories);
   }, [categories]);
 
   // Navigation items
