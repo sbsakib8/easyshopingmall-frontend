@@ -179,7 +179,7 @@ const OrderManagement = () => {
   const [sortOrder, setSortOrder] = useState("desc")
   const [showFilters, setShowFilters] = useState(false)
   const { allOrders, loading: ordersLoading  } = useGetAllOrders()
-  console.log("allorders---->",allOrders)
+  // console.log("allorders---->",allOrders)
 
   // const newmockOrders = allOrders?.map(order => (
   //   {
@@ -303,8 +303,8 @@ const OrderManagement = () => {
     setShowModal(true)
   }
   if(ordersLoading)return <p>Loading...</p>
-  console.log("all orders ----->",allOrders)
-  console.log("filtered---->",filteredOrders)
+  // console.log("all orders ----->",allOrders)
+  // console.log("filtered---->",filteredOrders)
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 p-6 overflow-hidden">
       <div className="transition-all duration-500 lg:ml-15 py-5 px-2 lg:px-9 mx-auto space-y-8">
@@ -579,14 +579,14 @@ const OrderManagement = () => {
                               <Eye className="h-4 w-4" />
                             </button>
 
-                            <button
+                            {/* <button
                               onClick={(e) => {
                                 e.stopPropagation()
                               }}
                               className="p-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
                             >
                               <Edit className="h-4 w-4" />
-                            </button>
+                            </button> */}
 
                             <button
                               onClick={(e) => {
