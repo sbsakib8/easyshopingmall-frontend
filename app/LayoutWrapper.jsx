@@ -7,6 +7,7 @@ import { useGetUser } from "@/src/utlis/useGetuser";
 import { useDispatch } from "react-redux";
 import { userget, clearUser } from "@/src/redux/userSlice";
 import { useEffect } from "react";
+import BlockedUserRoute from "@/src/utlis/BlockedUserRoute";
 
 export default function LayoutWrapper({ children }) {
   const pathname = usePathname();
@@ -23,10 +24,10 @@ export default function LayoutWrapper({ children }) {
   }, [user, dispatch]);
 
   return (
-    <>
+    <BlockedUserRoute>
       {!hideLayout && <Header />}
       {children}
       {!hideLayout && <Footer />}
-    </>
+    </BlockedUserRoute>
   );
 }
