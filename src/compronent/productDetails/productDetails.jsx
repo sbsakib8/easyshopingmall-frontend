@@ -1,4 +1,9 @@
-"use client";
+"use client"
+import { useEffect, useMemo, useState } from 'react';
+import Image from 'next/image';
+import { useParams, useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
+import { useDispatch, useSelector } from 'react-redux';
 import { addToCartApi, getCartApi } from "@/src/hook/useCart";
 import { getProductDetailsApi } from "@/src/hook/useProductDetails";
 import { getApprovedReviews, submitReview } from "@/src/hook/useReview";
@@ -19,11 +24,7 @@ import {
   Truck,
   Zap,
 } from "lucide-react";
-import Image from "next/image";
-import { useParams, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
-import toast from "react-hot-toast";
-import { useDispatch, useSelector } from "react-redux";
+import CustomLoader from '@/src/compronent/loading/CustomLoader';
 
 const ProductDetails = () => {
   const params = useParams();
@@ -303,10 +304,7 @@ const ProductDetails = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <Loader className="w-12 h-12 animate-spin mx-auto text-blue-600" />
-          <p className="text-gray-600">Loading product details...</p>
-        </div>
+        <CustomLoader size="large" message="Loading product details..." />
       </div>
     );
   }
