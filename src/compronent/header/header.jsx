@@ -6,7 +6,7 @@ import { useCategoryWithSubcategories } from "@/src/utlis/useCategoryWithSubcate
 import { useGetProduct } from "@/src/utlis/userProduct";
 import useWebsiteInfo from "@/src/utlis/useWebsiteInfo";
 import { ChevronDown, Heart, Menu, Search, ShoppingCart, Star, User, X, Zap } from "lucide-react";
-import { Spin, ConfigProvider } from 'antd';
+import CustomLoader from '@/src/compronent/loading/CustomLoader';
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -479,9 +479,7 @@ const Header = () => {
                       <div className="py-2 relative">
                         {categoriesLoading ? (
                           <div className="flex items-center justify-center py-12">
-                            <ConfigProvider theme={{ token: { colorPrimary: '#047857' } }}>
-                              <Spin size="large" />
-                            </ConfigProvider>
+                            <CustomLoader size="medium" message="Loading categories..." />
                           </div>
                         ) : (
                           menuCategories.map((category) => {

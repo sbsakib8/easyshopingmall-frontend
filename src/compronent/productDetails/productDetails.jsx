@@ -1,12 +1,5 @@
 "use client"
 import { useEffect, useMemo, useState } from 'react';
-import { addToCartApi, getCartApi } from '@/src/hook/useCart';
-import { getProductDetailsApi } from '@/src/hook/useProductDetails';
-import { decreaseProductQuantity, increaseProductQuantity } from '@/src/hook/useUpdateProduct';
-import { addToWishlistApi, removeFromWishlistApi } from '@/src/hook/useWishlist';
-import { useGetProduct } from '@/src/utlis/userProduct';
-import { ChevronRight, Heart, Loader, Minus, Plus, RotateCcw, Share2, Shield, ShoppingCart, Star, Truck, Zap } from 'lucide-react';
-import { Spin, ConfigProvider } from 'antd';
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
@@ -31,11 +24,7 @@ import {
   Truck,
   Zap,
 } from "lucide-react";
-import Image from "next/image";
-import { useParams, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
-import toast from "react-hot-toast";
-import { useDispatch, useSelector } from "react-redux";
+import CustomLoader from '@/src/compronent/loading/CustomLoader';
 
 const ProductDetails = () => {
   const params = useParams();
@@ -315,12 +304,7 @@ const ProductDetails = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <ConfigProvider theme={{ token: { colorPrimary: '#047857' } }}>
-            <Spin size="large" />
-          </ConfigProvider>
-          <p className="text-gray-600 font-medium">Loading product details...</p>
-        </div>
+        <CustomLoader size="large" message="Loading product details..." />
       </div>
     );
   }

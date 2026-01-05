@@ -6,7 +6,7 @@ import { useSearchProduct } from "@/src/utlis/useSearchProduct"
 import { useWishlist } from "@/src/utlis/useWishList"
 import { useCategoryWithSubcategories } from "@/src/utlis/useCategoryWithSubcategories"
 import { ChevronDown, Filter, Grid, Heart, List, Search, ShoppingCart, SlidersHorizontal, Star } from "lucide-react"
-import { Spin, ConfigProvider } from 'antd'
+import CustomLoader from '@/src/compronent/loading/CustomLoader'
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 import toast from "react-hot-toast"
@@ -727,9 +727,7 @@ const ShopPage = () => {
             {/* Loading State */}
             {(loading || searchLoading) && (
               <div className="flex items-center justify-center py-20">
-                <ConfigProvider theme={{ token: { colorPrimary: '#047857' } }}>
-                  <Spin size="large" />
-                </ConfigProvider>
+                <CustomLoader size="large" message="Loading products..." />
               </div>
             )}
 
