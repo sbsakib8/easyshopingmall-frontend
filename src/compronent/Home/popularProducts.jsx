@@ -6,13 +6,13 @@ import {
   Sparkles,
   Star
 } from "lucide-react";
+import { Spin, ConfigProvider } from 'antd';
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 
 // 🧠 Import your hooks
-import LoadingPage from "@/src/helper/loading/loadingPge";
 import { addToCartApi } from "../../hook/useCart";
 import {
   addToWishlistApi,
@@ -71,19 +71,32 @@ const PopularProducts = () => {
       color: c.color || "from-slate-500 to-gray-600",
     }));
 
-    const products = product.map((p) => ({
-      id: p._id,
-      name: p.productName,
-      image: p.images?.[0] || "",
-      price: p.price,
-      originalPrice: p.oldPrice || p.price,
-      rating: p.ratings,
-      reviews: p.reviews,
-      category: p.category?.[0]?.name?.toUpperCase() || "GENERAL",
-      badge: p.tags?.[0] || "New",
-      isNew: isProductNew(p.createdAt || p.created_at || p.createdDate),
-      discount: p.discount || (p.oldPrice && p.price ? Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100) : 0),
-    }));
+    const products = product.map((p) => {
+      // Handle category - can be array or object
+      let categoryName = "GENERAL";
+      if (Array.isArray(p.category) && p.category.length > 0) {
+        const cat = p.category[0];
+        categoryName = (typeof cat === 'string' ? cat : cat?.name)?.toUpperCase() || "GENERAL";
+      } else if (typeof p.category === 'object' && p.category?.name) {
+        categoryName = p.category.name?.toUpperCase() || "GENERAL";
+      } else if (typeof p.category === 'string') {
+        categoryName = p.category.toUpperCase();
+      }
+
+      return {
+        id: p._id,
+        name: p.productName,
+        image: p.images?.[0] || "",
+        price: p.price,
+        originalPrice: p.oldPrice || p.price,
+        rating: p.ratings,
+        reviews: p.reviews,
+        category: categoryName,
+        badge: p.tags?.[0] || "New",
+        isNew: isProductNew(p.createdAt || p.created_at || p.createdDate),
+        discount: p.discount || (p.oldPrice && p.price ? Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100) : 0),
+      };
+    });
 
     return { products, categories };
   }, [product, category]);
@@ -185,7 +198,11 @@ const PopularProducts = () => {
 
   if (loading)
     return (
-      <LoadingPage />
+      <div className="min-h-screen flex items-center justify-center">
+        <ConfigProvider theme={{ token: { colorPrimary: '#047857' } }}>
+          <Spin size="large" />
+        </ConfigProvider>
+      </div>
     );
 
   if (error)

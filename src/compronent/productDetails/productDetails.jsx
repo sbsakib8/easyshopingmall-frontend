@@ -5,6 +5,7 @@ import { decreaseProductQuantity, increaseProductQuantity } from '@/src/hook/use
 import { addToWishlistApi, removeFromWishlistApi } from '@/src/hook/useWishlist';
 import { useGetProduct } from '@/src/utlis/userProduct';
 import { ChevronRight, Heart, Loader, Minus, Plus, RotateCcw, Share2, Shield, ShoppingCart, Star, Truck, Zap } from 'lucide-react';
+import { Spin, ConfigProvider } from 'antd';
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
@@ -251,8 +252,10 @@ useEffect(() => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
-          <Loader className="w-12 h-12 animate-spin mx-auto text-blue-600" />
-          <p className="text-gray-600">Loading product details...</p>
+          <ConfigProvider theme={{ token: { colorPrimary: '#047857' } }}>
+            <Spin size="large" />
+          </ConfigProvider>
+          <p className="text-gray-600 font-medium">Loading product details...</p>
         </div>
       </div>
     );

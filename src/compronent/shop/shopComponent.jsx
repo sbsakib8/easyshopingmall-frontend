@@ -6,6 +6,7 @@ import { useSearchProduct } from "@/src/utlis/useSearchProduct"
 import { useWishlist } from "@/src/utlis/useWishList"
 import { useCategoryWithSubcategories } from "@/src/utlis/useCategoryWithSubcategories"
 import { ChevronDown, Filter, Grid, Heart, List, Search, ShoppingCart, SlidersHorizontal, Star } from "lucide-react"
+import { Spin, ConfigProvider } from 'antd'
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 import toast from "react-hot-toast"
@@ -175,6 +176,7 @@ const ShopPage = () => {
             isNew: isProductNew(p.createdAt || p.created_at || p.createdDate),
             discount: Number(p.discount) || Number(p.offerPercent) || 0,
             gender: p.gender || "unisex",
+            tags: p.tags || [],
           }
         })
 
@@ -247,12 +249,14 @@ const ShopPage = () => {
           reviews: Number(p.reviews ?? 0) || 0,
           image: p.image || p.images?.[0] || "/banner/img/placeholder.png",
           inStock: (typeof p.stock !== "undefined" ? p.stock : (p.productStock ?? p.quantity ?? p.qty ?? 0)) > 0,
+          tags: p.tags || [],
           isNew: isProductNew(p.createdAt || p.created_at || p.createdDate),
           discount: Number(p.discount) || Number(p.offerPercent) || 0,
           gender: p.gender || "unisex",
+          tags: p.tags || [],
         }
       })
-
+      
       setAllProducts(normalized)
       setProducts(normalized)
       
@@ -277,47 +281,61 @@ const ShopPage = () => {
     }
   }, [product, urlSearch, searchData])
 
-  useEffect(() => {
-    let filtered = [...allProducts]
+  // Optimized filtering using useMemo for better performance
+  const filteredProducts = useMemo(() => {
+    let filtered = allProducts;
 
-    // Search filter
+    // Early return if no products
+    if (!filtered.length) return [];
+
+    const searchLower = searchTerm.toLowerCase();
+    
+    // Optimized search filter - single pass through products
     if (searchTerm) {
-      filtered = filtered.filter(
-        (product) =>
-          product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          product.brand.toLowerCase().includes(searchTerm.toLowerCase()),
-      )
+      filtered = filtered.filter((product) => {
+        // Early return on first match for better performance
+        if (product.name?.toLowerCase().includes(searchLower)) return true;
+        if (product.brand?.toLowerCase().includes(searchLower)) return true;
+        if (product.category?.toLowerCase().includes(searchLower)) return true;
+        if (product.subCategory?.toLowerCase().includes(searchLower)) return true;
+        
+        // Check tags only if other fields don't match
+        if (product.tags?.length) {
+          for (let i = 0; i < product.tags.length; i++) {
+            if (product.tags[i]?.toLowerCase().includes(searchLower)) return true;
+          }
+        }
+        
+        return false;
+      });
     }
 
-    // Category filter
-    if (filterCategory !== "all") {
-      filtered = filtered.filter((product) => product.category === filterCategory)
-    }
-
-    // This allows filtering by subcategory name which may have been passed from header
-    if (filterSubCategory !== "all") {
-      filtered = filtered.filter(
-        (product) => product.subCategory === filterSubCategory || product.category === filterSubCategory,
-      )
-    }
-
-    // Brand filter
-    if (filterBrand !== "all") {
-      filtered = filtered.filter((product) => product.brand === filterBrand)
-    }
-
-    // Gender filter
-    if (filterGender !== "all") {
-      filtered = filtered.filter((product) => product.gender === filterGender || product.gender === "unisex")
-    }
-
-    // Price range filter
-    filtered = filtered.filter((product) => product.price >= priceRange[0] && product.price <= priceRange[1])
-
-    // Rating filter
-    if (ratingFilter > 0) {
-      filtered = filtered.filter((product) => product.rating >= ratingFilter)
-    }
+    // Combine multiple filters in single pass
+    filtered = filtered.filter((product) => {
+      // Category filter
+      if (filterCategory !== "all" && product.category !== filterCategory) return false;
+      
+      // Subcategory filter
+      if (filterSubCategory !== "all" && 
+          product.subCategory !== filterSubCategory && 
+          product.category !== filterSubCategory) return false;
+      
+      // Brand filter
+      if (filterBrand !== "all" && product.brand !== filterBrand) return false;
+      
+      // Gender filter
+      if (filterGender !== "all" && 
+          product.gender !== filterGender && 
+          product.gender !== "unisex") return false;
+      
+      // Price range filter
+      if (product.price < priceRange[0] || product.price > priceRange[1]) return false;
+      
+      // Rating filter
+      if (ratingFilter > 0 && product.rating < ratingFilter) return false;
+      
+      return true;
+    });
 
     // Sort products
     filtered.sort((a, b) => {
@@ -337,9 +355,9 @@ const ShopPage = () => {
       }
     })
 
-    setProducts(filtered)
-    setCurrentPage(1)
+    return filtered;
   }, [
+    allProducts,
     searchTerm,
     filterCategory,
     filterSubCategory,
@@ -348,8 +366,13 @@ const ShopPage = () => {
     priceRange,
     ratingFilter,
     sortBy,
-    allProducts,
-  ])
+  ]);
+
+  // Update products and reset pagination when filters change
+  useEffect(() => {
+    setProducts(filteredProducts);
+    setCurrentPage(1);
+  }, [filteredProducts]);
 
   // Add to cart (uses API + redux)
   const addToCart = async (product) => {
@@ -467,6 +490,8 @@ const ShopPage = () => {
     setPriceRange([0, 300])
     setRatingFilter(0)
     setSearchTerm("")
+    // Clear URL search params as well
+    router.push('/shop')
   }
 
   return (
@@ -478,7 +503,7 @@ const ShopPage = () => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
-              placeholder="Search clothing..."
+              placeholder="Search products, categories, brands, tags..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 pr-4 py-3 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
@@ -699,8 +724,17 @@ const ShopPage = () => {
 
           {/* Products Grid */}
           <div className="flex-1">
+            {/* Loading State */}
+            {(loading || searchLoading) && (
+              <div className="flex items-center justify-center py-20">
+                <ConfigProvider theme={{ token: { colorPrimary: '#047857' } }}>
+                  <Spin size="large" />
+                </ConfigProvider>
+              </div>
+            )}
+
             {/* No Products Found */}
-            {products.length === 0 && (
+            {!loading && !searchLoading && products.length === 0 && (
               <div className="text-center py-12">
                 <div className="text-gray-400 mb-4">
                   <Search className="w-16 h-16 mx-auto" />
@@ -717,7 +751,7 @@ const ShopPage = () => {
             )}
 
             {/* Products */}
-            {products.length > 0 && (
+            {!loading && !searchLoading && products.length > 0 && (
               <div
                 className={`${viewMode === "grid"
                   ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6"

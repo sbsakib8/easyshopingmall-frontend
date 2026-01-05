@@ -6,6 +6,7 @@ import { useCategoryWithSubcategories } from "@/src/utlis/useCategoryWithSubcate
 import { useGetProduct } from "@/src/utlis/userProduct";
 import useWebsiteInfo from "@/src/utlis/useWebsiteInfo";
 import { ChevronDown, Heart, Menu, Search, ShoppingCart, Star, User, X, Zap } from "lucide-react";
+import { Spin, ConfigProvider } from 'antd';
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -147,6 +148,16 @@ const Header = () => {
     }, 300);
     return () => clearTimeout(t);
   }, [searchQuery]);
+
+  // Auto-search as user types (using debounced value)
+  useEffect(() => {
+    if (debouncedSearch) {
+      router.push(`/shop?search=${encodeURIComponent(debouncedSearch)}`);
+    } else if (debouncedSearch === '' && searchQuery === '') {
+      // When search is cleared, go to shop page without search params
+      router.push('/shop');
+    }
+  }, [debouncedSearch, searchQuery, router]);
   // Show live results when user types at least 2 chars
   useEffect(() => {
     // allow single-character suggestions (helpful for quick lookups)
@@ -466,9 +477,14 @@ const Header = () => {
 
                       {/* Main Categories List */}
                       <div className="py-2 relative">
-                        {" "}
-                        
-                        {menuCategories.map((category) => {
+                        {categoriesLoading ? (
+                          <div className="flex items-center justify-center py-12">
+                            <ConfigProvider theme={{ token: { colorPrimary: '#047857' } }}>
+                              <Spin size="large" />
+                            </ConfigProvider>
+                          </div>
+                        ) : (
+                          menuCategories.map((category) => {
                           const activeSub = category.subcategories.find(
                             (sub) => pathname === `/shop?category=${encodeURIComponent(sub)}`
                           );
@@ -523,14 +539,16 @@ const Header = () => {
                               </div>
                             </div>
                           );
-                        })}
+                        })
+                        )}
                       </div>
                     </div>
                   )}
                 </div>
 
                 {/* Search Input */}
-                <div className="flex-1 relative">
+                <div className="flex-1 relative flex items-center">
+                  <Search className="absolute left-4 lg:left-6 text-gray-400" size={18} />
                   <input
                     type="text"
                     placeholder="Search for products, categories or brands"
@@ -539,24 +557,9 @@ const Header = () => {
                     onFocus={() => {
                       router.push(`/shop?search=${encodeURIComponent(searchQuery || "")}`);
                     }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") handleSearch();
-                    }}
-                    className="w-full px-4 lg:px-6 py-3 lg:py-4 bg-transparent focus:outline-none text-gray-700 placeholder-gray-500 font-medium"
+                    className="w-full pl-12 lg:pl-14 pr-4 lg:pr-6 py-3 lg:py-4 bg-transparent focus:outline-none text-gray-700 placeholder-gray-500 font-medium"
                   />
                 </div>
-
-                {/* Search Button */}
-                <button
-                  onClick={() => handleSearch()}
-                  className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-6 lg:px-8 py-3 lg:py-4 hover:from-emerald-700 hover:to-teal-700 transition-all duration-300 flex items-center space-x-2 group shadow-lg"
-                >
-                  <Search
-                    size={16}
-                    className="group-hover:scale-110 transition-transform duration-300"
-                  />
-                  <span className="font-semibold hidden lg:inline">Search</span>
-                </button>
               </div>
             </div>
 
@@ -657,25 +660,17 @@ const Header = () => {
 
           {/* Mobile/Tablet Search Bar - Responsive */}
           <div className="lg:hidden pb-2 sm:pb-4">
-            <div className="flex shadow-lg rounded-xl sm:rounded-2xl overflow-hidden bg-white/90 backdrop-blur-sm border border-gray-200/60">
-              <div className="flex-1 relative">
+            <div className="shadow-lg rounded-xl sm:rounded-2xl overflow-hidden bg-white/90 backdrop-blur-sm border border-gray-200/60">
+              <div className="flex-1 relative flex items-center">
+                <Search className="absolute left-3 sm:left-4 text-gray-400" size={16} />
                 <input
                   type="text"
                   placeholder="Search products..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleSearch();
-                  }}
-                  className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-transparent focus:outline-none text-gray-700 placeholder-gray-500 font-medium text-sm sm:text-base"
+                  className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2 sm:py-3 bg-transparent focus:outline-none text-gray-700 placeholder-gray-500 font-medium text-sm sm:text-base"
                 />
               </div>
-              <button
-                onClick={() => handleSearch()}
-                className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 sm:px-6 py-2 sm:py-3 hover:from-emerald-700 hover:to-teal-700 transition-all duration-300"
-              >
-                <Search size={16} className="sm:w-5 sm:h-5" />
-              </button>
             </div>
           </div>
         </div>
