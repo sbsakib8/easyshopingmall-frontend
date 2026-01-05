@@ -32,6 +32,7 @@ import {
   ArrowUpDown,
   FilterIcon,
 } from "lucide-react"
+import { useGetAllOrders } from "@/src/utlis/useGetAllOrders"
 
 const mockOrders = [
   {
@@ -163,9 +164,10 @@ const statusIcons = {
 }
 
 const OrderManagement = () => {
+
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
-  const [priorityFilter, setPriorityFilter] = useState("all")
+  // const [priorityFilter, setPriorityFilter] = useState("all")
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [showModal, setShowModal] = useState(false)
@@ -176,6 +178,24 @@ const OrderManagement = () => {
   const [sortBy, setSortBy] = useState("orderDate")
   const [sortOrder, setSortOrder] = useState("desc")
   const [showFilters, setShowFilters] = useState(false)
+  const { allOrders, loading: ordersLoading  } = useGetAllOrders()
+  console.log("allorders---->",allOrders)
+
+  // const newmockOrders = allOrders?.map(order => (
+  //   {
+  //     id: order?.orderId,
+  //     customerName: order?.userId?.name,
+  //     customerEmail: order?.userId?.email,
+  //     orderDate: order?.products[0]?.productId?.createdAt,
+  //     status: order?.order_status,
+  //     total: order?.totalAmt,
+  //     priority: "high",
+  //     rating: order?.products[0]?.productId?.ratings,
+  //     items: order?.products[0]?.quantity,
+  //     trackingNumber: "TRK123456789",
+  //   }
+  // ))
+// console.log(mockOrders)
   const [notifications, setNotifications] = useState([
     { id: 1, message: "New order received from John Doe", type: "info", time: "2 min ago" },
     { id: 2, message: "Order ORD-003 has been shipped", type: "success", time: "5 min ago" },
@@ -188,18 +208,20 @@ const OrderManagement = () => {
   }, [])
 
   const filteredOrders = useMemo(() => {
-    const filtered = mockOrders.filter((order) => {
+  
+    const filtered = allOrders?.filter((order) => {
+       const customerName= order?.userId?.name || "user"
+       const customerEmail= order?.userId?.email || "user@damy.com"
       const matchesSearch =
-        order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.customerEmail.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesStatus = statusFilter === "all" || order.status === statusFilter
-      const matchesPriority = priorityFilter === "all" || order.priority === priorityFilter
-      return matchesSearch && matchesStatus && matchesPriority
+        customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order?.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+       customerEmail.toLowerCase().includes(searchTerm.toLowerCase())
+      const matchesStatus = statusFilter === "all" || order?.order_status === statusFilter
+      // const matchesPriority = priorityFilter === "all" || order.priority === priorityFilter
+      return matchesSearch && matchesStatus 
     })
-
     // Sort orders
-    filtered.sort((a, b) => {
+    filtered?.sort((a, b) => {
       let aValue = a[sortBy]
       let bValue = b[sortBy]
 
@@ -217,25 +239,24 @@ const OrderManagement = () => {
         return aValue < bValue ? 1 : -1
       }
     })
-
     return filtered
-  }, [searchTerm, statusFilter, priorityFilter, sortBy, sortOrder])
+  }, [searchTerm, statusFilter, sortBy, sortOrder,allOrders])
 
   // Calculate statistics
   const stats = useMemo(() => {
-    const total = mockOrders.length
-    const completed = mockOrders.filter((o) => o.status === "completed").length
-    const pending = mockOrders.filter((o) => o.status === "pending").length
-    const processing = mockOrders.filter((o) => o.status === "processing").length
-    const revenue = mockOrders.filter((o) => o.status === "completed").reduce((sum, o) => sum + o.total, 0)
+    const total = allOrders?.length
+    const completed = allOrders?.filter((o) => o?.order_status === "completed")?.length
+    const pending = allOrders?.filter((o) => o?.order_status === "pending")?.length
+    const processing = allOrders?.filter((o) => o?.order_status === "processing")?.length
+    const revenue = allOrders?.filter((o) => o?.order_status === "completed")?.reduce((sum, o) => sum + o.total, 0)
     const avgOrderValue = revenue / completed || 0
     return { total, completed, pending, processing, revenue, avgOrderValue }
-  }, [])
+  }, [allOrders])
 
   // Pagination
-  const totalPages = Math.ceil(filteredOrders.length / itemsPerPage)
+  const totalPages = Math.ceil(filteredOrders?.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
-  const paginatedOrders = filteredOrders.slice(startIndex, startIndex + itemsPerPage)
+  const paginatedOrders = filteredOrders?.slice(startIndex, startIndex + itemsPerPage)
 
   const handleBulkAction = async (action) => {
     setIsLoading(true)
@@ -246,10 +267,10 @@ const OrderManagement = () => {
   }
 
   const handleSelectAll = () => {
-    if (selectedOrders.size === paginatedOrders.length) {
+    if (selectedOrders?.size === paginatedOrders?.length) {
       setSelectedOrders(new Set())
     } else {
-      setSelectedOrders(new Set(paginatedOrders.map((order) => order.id)))
+      setSelectedOrders(new Set(paginatedOrders.map((order) => order?.orderId)))
     }
   }
 
@@ -281,11 +302,13 @@ const OrderManagement = () => {
     setSelectedOrder(order)
     setShowModal(true)
   }
-
+  if(ordersLoading)return <p>Loading...</p>
+  console.log("all orders ----->",allOrders)
+  console.log("filtered---->",filteredOrders)
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 p-6 overflow-hidden">
       <div className="transition-all duration-500 lg:ml-15 py-5 px-2 lg:px-9 mx-auto space-y-8">
-         {/* Welcome Banner */}
+        {/* Welcome Banner */}
         <div className="mb-8 animate-slideDown">
           <div className="relative bg-gradient-to-r from-gray-900/80 via-blue-900/80 to-purple-900/80 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-gray-700/50 shadow-2xl shadow-blue-500/10 overflow-hidden">
             {/* Animated particles */}
@@ -294,17 +317,17 @@ const OrderManagement = () => {
               <div className="absolute bottom-6 left-6 w-1 h-1 bg-purple-400 rounded-full animate-pulse"></div>
               <div className="absolute top-1/2 right-1/3 w-1 h-1 bg-cyan-400 rounded-full animate-bounce"></div>
             </div>
-            
+
             <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">
-                  Order List & <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Add</span>! 
+                  Order List & <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Add</span>!
                 </h1>
                 <p className="text-gray-300 text-sm sm:text-base">
                   EasyShoppingMall Admin Dashboard
                 </p>
               </div>
-             
+
             </div>
           </div>
         </div>
@@ -344,7 +367,7 @@ const OrderManagement = () => {
             <div className="relative">
               <DollarSign className="h-8 w-8 mb-3 text-purple-400" />
               <p className="text-gray-400 text-sm">Revenue</p>
-              <p className="text-3xl font-bold text-white">${stats.revenue.toFixed(0)}</p>
+              <p className="text-3xl font-bold text-white">${stats?.revenue?.toFixed(0)}</p>
             </div>
           </div>
 
@@ -392,8 +415,8 @@ const OrderManagement = () => {
                     </select>
 
                     <select
-                      value={priorityFilter}
-                      onChange={(e) => setPriorityFilter(e.target.value)}
+                      value={"priorityFilter"}
+                      onChange={(e) => "setPriorityFilter(e.target.value)"}
                       className="px-4 py-3 bg-gradient-to-r from-gray-700/50 to-gray-800/50 backdrop-blur-sm border border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 text-white"
                     >
                       <option className="bg-[#1A2533]" value="all">All Priority</option>
@@ -477,7 +500,7 @@ const OrderManagement = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Package className="h-6 w-6 text-blue-400" />
-                  <h2 className="text-2xl font-bold text-white">Orders ({filteredOrders.length})</h2>
+                  <h2 className="text-2xl font-bold text-white">Orders ({allOrders?.length})</h2>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -485,7 +508,7 @@ const OrderManagement = () => {
                     onClick={handleSelectAll}
                     className="p-2 rounded-xl bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 text-white hover:border-gray-500 transition-all duration-300"
                   >
-                    {selectedOrders.size === paginatedOrders.length ? (
+                    {selectedOrders?.size === paginatedOrders?.length ? (
                       <CheckSquare className="h-4 w-4" />
                     ) : (
                       <Square className="h-4 w-4" />
@@ -494,15 +517,15 @@ const OrderManagement = () => {
                 </div>
               </div>
             </div>
-
+            
             <div className="p-6">
               <div className="grid gap-6 grid-cols-1 xl:grid-cols-2">
-                {paginatedOrders.map((order, index) => {
+                {paginatedOrders?.map((order, index) => {
                   const StatusIcon = statusIcons[order.status]
-                  const isSelected = selectedOrders.has(order.id)
+                  const isSelected = selectedOrders.has(order?.orderId)
                   return (
                     <div
-                      key={order.id}
+                      key={order.orderId}
                       className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800/50 to-gray-900/50 border ${isSelected ? "border-blue-500 shadow-lg shadow-blue-500/25" : "border-gray-700 hover:border-gray-600"} shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-[1.02] cursor-pointer transform ${animateCards ? "translate-x-0 opacity-100" : "translate-x-10 opacity-0"}`}
                       style={{ transitionDelay: `${index * 100}ms` }}
                       onClick={() => handleViewOrder(order)}
@@ -515,7 +538,7 @@ const OrderManagement = () => {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation()
-                                handleSelectOrder(order.id)
+                                handleSelectOrder(order.orderId)
                               }}
                               className="p-1 rounded-lg hover:bg-gray-700 transition-colors duration-200"
                             >
@@ -532,15 +555,15 @@ const OrderManagement = () => {
 
                             <div>
                               <h3 className="text-xl font-bold text-white group-hover:text-blue-400 transition-colors duration-300">
-                                {order.id}
+                                {order.orderId}
                               </h3>
                               <div className="flex items-center gap-3 mt-1">
-                                <span className="text-gray-300 font-medium">{order.customerName}</span>
-                                <span
+                                <span className="text-gray-300 font-medium">{order?.userId?.name}</span>
+                                {/* <span
                                   className={`px-3 py-1 rounded-full text-xs font-semibold ${priorityColors[order.priority]}`}
                                 >
                                   {order.priority.toUpperCase()}
-                                </span>
+                                </span> */}
                               </div>
                             </div>
                           </div>
@@ -568,7 +591,7 @@ const OrderManagement = () => {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation()
-                                handleDeleteOrder(order.id)
+                                handleDeleteOrder(order?.orderId)
                               }}
                               className="p-2 rounded-xl bg-red-600 hover:bg-red-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
                             >
@@ -584,7 +607,7 @@ const OrderManagement = () => {
                               Date
                             </div>
                             <div className="text-white font-semibold">
-                              {new Date(order.orderDate).toLocaleDateString()}
+                              {new Date(order?.products[0]?.productId?.createdAt).toLocaleDateString()}
                             </div>
                           </div>
 
@@ -593,7 +616,7 @@ const OrderManagement = () => {
                               <DollarSign className="h-4 w-4" />
                               Total
                             </div>
-                            <div className="text-2xl font-bold text-green-400">${order.total.toFixed(2)}</div>
+                            <div className="text-2xl font-bold text-green-400">${order?.totalAmt.toFixed(2)}</div>
                           </div>
                         </div>
 
@@ -601,18 +624,18 @@ const OrderManagement = () => {
                           <div className="flex items-center gap-2">
                             {StatusIcon && <StatusIcon className="h-5 w-5 text-white" />}
                             <span
-                              className={`px-4 py-2 rounded-2xl text-sm font-semibold ${statusColors[order.status]} hover:scale-105 transition-transform duration-200`}
+                              className={`px-4 py-2 rounded-2xl text-sm font-semibold ${statusColors[order?.order_status]} hover:scale-105 transition-transform duration-200`}
                             >
-                              {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                              {order?.order_status.charAt(0).toUpperCase() + order?.order_status.slice(1)}
                             </span>
                           </div>
 
-                          {order.rating && (
+                          {order?.products[0]?.productId?.ratings && (
                             <div className="flex items-center gap-1">
                               {[...Array(5)].map((_, i) => (
                                 <Star
                                   key={i}
-                                  className={`h-4 w-4 ${i < order.rating ? "text-yellow-400 fill-current" : "text-gray-600"}`}
+                                  className={`h-4 w-4 ${i < order?.products[0]?.productId?.ratings ? "text-yellow-400 fill-current" : "text-gray-600"}`}
                                 />
                               ))}
                             </div>
@@ -627,14 +650,14 @@ const OrderManagement = () => {
                             </div>
                             <div className="flex items-center gap-2">
                               <Package className="h-4 w-4" />
-                              {order.items.length} item{order.items.length > 1 ? "s" : ""}
+                              {order?.products.length} item{order?.products.length > 1 ? "s" : ""}
                             </div>
-                            {order.trackingNumber && (
+                            {/* {order.trackingNumber && (
                               <div className="flex items-center gap-2">
                                 <Truck className="h-4 w-4" />
                                 {order.trackingNumber}
                               </div>
-                            )}
+                            )} */}
                           </div>
                         </div>
                       </div>
@@ -666,11 +689,10 @@ const OrderManagement = () => {
                           <button
                             key={page}
                             onClick={() => setCurrentPage(page)}
-                            className={`w-10 h-10 rounded-xl transition-all duration-300 hover:scale-105 ${
-                              currentPage === page
+                            className={`w-10 h-10 rounded-xl transition-all duration-300 hover:scale-105 ${currentPage === page
                                 ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg"
                                 : "bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 text-white hover:border-gray-500"
-                            }`}
+                              }`}
                           >
                             {page}
                           </button>
@@ -709,7 +731,7 @@ const OrderManagement = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="text-2xl font-bold">Order Details</h2>
-                    <p className="text-blue-200">{selectedOrder.id}</p>
+                    <p className="text-blue-200">{selectedOrder?.orderId}</p>
                   </div>
                   <button
                     onClick={() => setShowModal(false)}
@@ -732,19 +754,19 @@ const OrderManagement = () => {
                       <div className="space-y-3">
                         <div className="flex items-center gap-3">
                           <User className="h-4 w-4 text-gray-400" />
-                          <span className="font-medium text-white">{selectedOrder.customerName}</span>
+                          <span className="font-medium text-white">{selectedOrder?.userId?.name}</span>
                         </div>
                         <div className="flex items-center gap-3">
                           <Mail className="h-4 w-4 text-gray-400" />
-                          <span className="text-gray-300">{selectedOrder.customerEmail}</span>
+                          <span className="text-gray-300">{selectedOrder?.userId?.email}</span>
                         </div>
                         <div className="flex items-center gap-3">
                           <Phone className="h-4 w-4 text-gray-400" />
-                          <span className="text-gray-300">{selectedOrder.customerPhone}</span>
+                          <span className="text-gray-300">{selectedOrder?.userId?.mobile}</span>
                         </div>
                         <div className="flex items-start gap-3">
                           <MapPin className="h-4 w-4 text-gray-400 mt-1" />
-                          <span className="text-gray-300">{selectedOrder.shippingAddress}</span>
+                          <span className="text-gray-300">{selectedOrder?.delivery_address}</span>
                         </div>
                       </div>
                     </div>
@@ -762,17 +784,10 @@ const OrderManagement = () => {
                             {new Date(selectedOrder.orderDate).toLocaleDateString()}
                           </span>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Priority:</span>
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold ${priorityColors[selectedOrder.priority]}`}
-                          >
-                            {selectedOrder.priority.toUpperCase()}
-                          </span>
-                        </div>
+                        
                         <div className="flex justify-between">
                           <span className="text-gray-400">Total Items:</span>
-                          <span className="font-medium text-white">{selectedOrder.items.length}</span>
+                          <span className="font-medium text-white">{selectedOrder.products.length}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-gray-400">Status:</span>
@@ -782,9 +797,9 @@ const OrderManagement = () => {
                               return StatusIcon ? <StatusIcon className="h-4 w-4 text-white" /> : null
                             })()}
                             <span
-                              className={`px-4 py-2 rounded-xl text-sm font-semibold ${statusColors[selectedOrder.status]}`}
+                              className={`px-4 py-2 rounded-xl text-sm font-semibold ${statusColors[selectedOrder?.order_status]}`}
                             >
-                              {selectedOrder.status.charAt(0).toUpperCase() + selectedOrder.status.slice(1)}
+                              {selectedOrder?.order_status.charAt(0).toUpperCase() + selectedOrder?.order_status.slice(1)}
                             </span>
                           </div>
                         </div>
@@ -819,7 +834,7 @@ const OrderManagement = () => {
                         Order Items
                       </h3>
                       <div className="space-y-3">
-                        {selectedOrder.items.map((item, index) => (
+                        {selectedOrder?.products?.map((item, index) => (
                           <div
                             key={index}
                             className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 rounded-xl p-4 shadow-sm border border-gray-700 hover:border-gray-600 transition-colors duration-300"
@@ -842,7 +857,7 @@ const OrderManagement = () => {
                         <div className="flex justify-between items-center">
                           <span className="text-xl font-bold text-white">Total Amount:</span>
                           <span className="text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
-                            ${selectedOrder.total.toFixed(2)}
+                            ${selectedOrder?.totalAmt.toFixed(2)}
                           </span>
                         </div>
                       </div>
@@ -853,25 +868,25 @@ const OrderManagement = () => {
                       <h3 className="text-lg font-bold text-white mb-4">Quick Actions</h3>
                       <div className="grid grid-cols-2 gap-3">
                         <button
-                          onClick={() => handleStatusChange(selectedOrder.id, "processing")}
+                          onClick={() => handleStatusChange(selectedOrder?.orderId, "processing")}
                           className="px-4 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 text-sm font-medium"
                         >
                           Mark Processing
                         </button>
                         <button
-                          onClick={() => handleStatusChange(selectedOrder.id, "shipped")}
+                          onClick={() => handleStatusChange(selectedOrder.orderId, "shipped")}
                           className="px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 text-sm font-medium"
                         >
                           Mark Shipped
                         </button>
                         <button
-                          onClick={() => handleStatusChange(selectedOrder.id, "completed")}
+                          onClick={() => handleStatusChange(selectedOrder.orderId, "completed")}
                           className="px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 text-sm font-medium"
                         >
                           Mark Completed
                         </button>
                         <button
-                          onClick={() => handleStatusChange(selectedOrder.id, "cancelled")}
+                          onClick={() => handleStatusChange(selectedOrder?.orderId, "cancelled")}
                           className="px-4 py-3 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-xl hover:from-red-700 hover:to-rose-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 text-sm font-medium"
                         >
                           Cancel Order
@@ -886,7 +901,7 @@ const OrderManagement = () => {
         )}
 
         {/* Empty State */}
-        {filteredOrders.length === 0 && (
+        {filteredOrders?.length === 0 && (
           <div className="text-center py-12">
             <div className="w-24 h-24 bg-gradient-to-br from-gray-700 to-gray-800 rounded-full flex items-center justify-center mx-auto mb-6 border border-gray-600">
               <Package className="h-12 w-12 text-gray-400" />

@@ -33,6 +33,21 @@ export const OrderAllGet = async () => {
         throw error;
     }
 };
+/**
+ * 📦 Get all orders for (admin only)
+ * Endpoint: GET /orders/orders
+ */
+export const OrderAllGetAdmin = async () => {
+    try {
+        const response = await axios.get(`${UrlBackend}/orders/orders`, {
+            withCredentials: true,
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Order fetch error:", error.response?.data || error.message);
+        throw error;
+    }
+};
 
 /**
  * ⚙️ Update order status (Admin only)
