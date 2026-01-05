@@ -13,7 +13,6 @@ const Carousel = () => {
     if (!homebanner || !Array.isArray(homebanner)) return [];
     return homebanner.filter(banner => banner.active === true);
   }, [homebanner]);
-  console.log('Active Slides:', slides);
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % slides?.length);
@@ -85,10 +84,8 @@ const Carousel = () => {
               <img
                 src={slide?.images?.[0] || ""}
                 alt={slide?.title}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain md:object-cover"
               />
-              {/* Gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
 
               {/* Content overlay */}
               <div className="absolute inset-0 flex flex-col justify-end items-center text-white text-center p-6 md:p-8 lg:p-12">

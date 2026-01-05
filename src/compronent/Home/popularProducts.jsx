@@ -94,9 +94,11 @@ const PopularProducts = () => {
   }, [mergedData.products, activeCategory]);
 
   const filteredProducts = useMemo(() => {
-    return currentProducts.filter((p) =>
+    const filtered = currentProducts.filter((p) =>
       p.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
+    // Limit to 30 items for home screen
+    return filtered.slice(0, 30);
   }, [currentProducts, searchTerm]);
 
   const renderStars = (rating) => {
@@ -251,7 +253,7 @@ const PopularProducts = () => {
 
       {/* Product Grid */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6">
           {filteredProducts.map((product) => (
             <Link
               href={`/productdetails/${product.id}`}
@@ -262,7 +264,7 @@ const PopularProducts = () => {
                 <img
                   src={product.image}
                   alt={product.name}
-                  className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500"
+                  className="w-full h-40 sm:h-44 object-cover group-hover:scale-105 transition-transform duration-500"
                 />
 
                 {/* Badges */}
@@ -305,15 +307,15 @@ const PopularProducts = () => {
                 </div>
               </div>
 
-              <div className="p-4">
+              <div className="p-3">
                 <div>
-                  <h3 className="font-semibold text-gray-800 mb-1 group-hover:text-purple-600 transition-colors duration-300">
+                  <h3 className="font-semibold text-sm text-gray-800 mb-1 group-hover:text-purple-600 transition-colors duration-300 line-clamp-2">
                     {product.name}
                   </h3>
-                  <p className="text-sm text-gray-500 mb-2">{product.category}</p>
+                  <p className="text-xs text-gray-500 mb-2">{product.category}</p>
 
                   {/* Rating */}
-                  <div className="flex items-center gap-1 mb-3">
+                  <div className="flex items-center gap-1 mb-2">
                     <div className="flex items-center">
                       {renderStars(product.rating)}
                     </div>
@@ -323,12 +325,12 @@ const PopularProducts = () => {
 
                 <div>
                   {/* Price */}
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-lg font-bold text-red-600">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-base font-bold text-red-600">
                       ${product.price}
                     </span>
                     {product.originalPrice > product.price && (
-                      <span className="text-sm text-gray-400 line-through">
+                      <span className="text-xs text-gray-400 line-through">
                         ${product.originalPrice.toFixed(2)}
                       </span>
                     )}
@@ -340,10 +342,10 @@ const PopularProducts = () => {
                       e.preventDefault();
                       handleAddToCart(product);
                     }}
-                    className="w-full py-2 px-4 rounded font-semibold transition-all duration-300 text-sm bg-green-600 text-white hover:bg-green-700 transform hover:scale-105"
+                    className="w-full py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs bg-green-600 text-white hover:bg-green-700 transform hover:scale-105"
                   >
-                    <span className="flex items-center justify-center gap-2">
-                      <ShoppingCart className="w-4 h-4" />
+                    <span className="flex items-center justify-center gap-1">
+                      <ShoppingCart className="w-3 h-3" />
                       Add to Cart
                     </span>
                   </button>
