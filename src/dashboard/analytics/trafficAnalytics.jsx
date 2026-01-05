@@ -1,6 +1,29 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { Line, Pie } from "react-chartjs-2"
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js"
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend
+)
 
 const TrafficAnalyticsDashboard = () => {
   const [selectedTimeRange, setSelectedTimeRange] = useState("7d")
@@ -70,31 +93,21 @@ const TrafficAnalyticsDashboard = () => {
     return () => clearTimeout(timer)
   }, [selectedTimeRange])
 
-  // Format numbers
   const formatNumber = (num) => {
     if (num >= 1000000) return (num / 1000000).toFixed(1) + "M"
     if (num >= 1000) return (num / 1000).toFixed(1) + "K"
     return num.toString()
   }
 
-  // Format duration
   const formatDuration = (seconds) => {
     const minutes = Math.floor(seconds / 60)
     const remainingSeconds = seconds % 60
     return `${minutes}m ${remainingSeconds}s`
   }
 
-  // Loading component
-  const LoadingCard = () => (
-    <div className="glass-effect rounded-xl p-6 animate-pulse">
-      <div className="h-4 bg-muted rounded w-1/3 mb-4"></div>
-      <div className="h-8 bg-muted rounded w-2/3 mb-2"></div>
-      <div className="h-3 bg-muted rounded w-1/2"></div>
-    </div>
-  )
-
   return (
     <div className="min-h-screen relative overflow-hidden ">
+      {/* Background & Effects */}
       <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-purple-900/30 to-slate-900">
         <div className="absolute inset-0 bg-gradient-to-tr from-blue-900/20 via-transparent to-pink-900/20"></div>
         <div className="absolute top-0 left-0 w-full h-full">
@@ -118,8 +131,10 @@ const TrafficAnalyticsDashboard = () => {
         </div>
       </div>
 
+      {/* Dashboard Content */}
       <div className="relative z-10 p-4 md:p-6 lg:p-8">
         <div className="transition-all  duration-500 lg:ml-15 py-5 px-2 lg:px-9 space-y-6">
+          {/* Header */}
           <div className="animate-fade-in-up">
             <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 mb-6 shadow-2xl hover:bg-white/10 transition-all duration-500">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -149,6 +164,7 @@ const TrafficAnalyticsDashboard = () => {
             </div>
           </div>
 
+          {/* Metric Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 animate-slide-up-stagger">
             {isLoading ? (
               Array(6)
@@ -217,99 +233,105 @@ const TrafficAnalyticsDashboard = () => {
             )}
           </div>
 
+          {/* Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-slide-up">
-            {/* Enhanced Visitors Chart */}
-            <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl hover:bg-white/10 transition-all duration-500">
-              <h3 className="text-xl font-semibold mb-4 text-white">Visitors Trend</h3>
-              {isLoading ? (
-                <div className="h-64 bg-white/5 rounded animate-pulse"></div>
-              ) : (
-                <div className="h-64 relative">
-                  <svg className="w-full h-full" viewBox="0 0 400 200">
-                    <defs>
-                      <linearGradient id="visitorsGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="rgb(59, 130, 246)" stopOpacity="0.4" />
-                        <stop offset="100%" stopColor="rgb(147, 51, 234)" stopOpacity="0.1" />
-                      </linearGradient>
-                      <filter id="glow">
-                        <feGaussianBlur stdDeviation="3" result="coloredBlur" />
-                        <feMerge>
-                          <feMergeNode in="coloredBlur" />
-                          <feMergeNode in="SourceGraphic" />
-                        </feMerge>
-                      </filter>
-                    </defs>
+        <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-4 shadow-xl hover:bg-white/10 transition-all duration-500">
+    <h3 className="text-lg font-semibold mb-3 text-white text-center">Visitors Trend</h3>
+    {isLoading ? (
+      <div className="h-48 bg-white/5 rounded animate-pulse"></div>
+    ) : (
+      <Line
+        data={{
+          labels: chartData.map(d => d.date),
+          datasets: [
+            {
+              label: "Visitors",
+              data: chartData.map(d => d.visitors),
+              fill: true,
+              backgroundColor: "rgba(59, 130, 246, 0.2)",
+              borderColor: "rgb(59, 130, 246)",
+              tension: 0.4,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              borderWidth: 2,
+            },
+          ],
+        }}
+        options={{
+          responsive: true,
+          animation: {
+            x: { duration: 1200, easing: "easeOutQuart" },
+            y: { duration: 1200, easing: "easeOutQuart" },
+          },
+          plugins: {
+            legend: { labels: { color: "#fff", font: { size: 12 } } },
+            tooltip: { enabled: true },
+          },
+          scales: {
+            x: {
+              ticks: { color: "#fff", font: { size: 12 } },
+              grid: { color: "rgba(255,255,255,0.1)" },
+            },
+            y: {
+              ticks: { color: "#fff", font: { size: 12 } },
+              grid: { color: "rgba(255,255,255,0.1)" },
+            },
+          },
+        }}
+        className="h-40 w-full"
+      />
+    )}
+  </div>
 
-                    {/* Enhanced chart lines with glow effect */}
-                    <polyline
-                      fill="none"
-                      stroke="url(#visitorsGradient)"
-                      strokeWidth="4"
-                      points="50,150 100,120 150,100 200,110 250,80 300,60 350,40"
-                      className="animate-draw-line"
-                      filter="url(#glow)"
-                    />
+    {/* Pie Chart */}
+<div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-4 shadow-xl hover:bg-white/10 transition-all duration-500">
+  <h3 className="text-lg font-semibold mb-3 text-white text-center">Revenue Breakdown</h3>
+  {isLoading ? (
+    <div className="h-80 w-full bg-white/5 rounded animate-pulse"></div>
+  ) : (
+    <div className="h-80 w-full">
+      <Pie
+        data={{
+          labels: trafficSources.map(src => src.source),
+          datasets: [
+            {
+              label: "Revenue by Source",
+              data: trafficSources.map(src => src.visitors),
+              backgroundColor: [
+                "rgba(59, 130, 246, 0.7)",
+                "rgba(147, 51, 234, 0.7)",
+                "rgba(236, 72, 153, 0.7)",
+                "rgba(16, 185, 129, 0.7)",
+              ],
+              borderColor: "rgba(255,255,255,0.2)",
+              borderWidth: 2,
+              borderRadius: 8,
+              hoverOffset: 10, // slice hover motion
+            },
+          ],
+        }}
+        options={{
+          responsive: true,
+          maintainAspectRatio: false, // ✨ important for resizing
+          cutout: "30%", // donut style
+          plugins: {
+            legend: { position: "bottom", labels: { color: "#fff", boxWidth: 12, padding: 10 } },
+            tooltip: { enabled: true },
+          },
+          animation: {
+            animateRotate: true, // page load animation
+            animateScale: true,  // smooth scale
+          },
+        }}
+      />
+    </div>
+  )}
+</div>
 
-                    {/* Enhanced fill area */}
-                    <polygon
-                      fill="url(#visitorsGradient)"
-                      points="50,150 100,120 150,100 200,110 250,80 300,60 350,40 350,180 50,180"
-                      className="animate-fill-area"
-                    />
 
-                    {/* Enhanced data points with hover effects */}
-                    {chartData.map((point, index) => (
-                      <circle
-                        key={index}
-                        cx={50 + index * 50}
-                        cy={150 - point.visitors / 50}
-                        r="6"
-                        fill="rgb(59, 130, 246)"
-                        className="animate-pop-in hover:r-8 transition-all cursor-pointer drop-shadow-lg"
-                        style={{ animationDelay: `${index * 0.1 + 1}s` }}
-                        filter="url(#glow)"
-                      />
-                    ))}
-                  </svg>
-                </div>
-              )}
-            </div>
-
-            {/* Enhanced Revenue Chart */}
-            <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl hover:bg-white/10 transition-all duration-500">
-              <h3 className="text-xl font-semibold mb-4 text-white">Revenue Trend</h3>
-              {isLoading ? (
-                <div className="h-64 bg-white/5 rounded animate-pulse"></div>
-              ) : (
-                <div className="h-64 relative">
-                  <svg className="w-full h-full" viewBox="0 0 400 200">
-                    <defs>
-                      <linearGradient id="revenueGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="rgb(251, 146, 60)" stopOpacity="0.8" />
-                        <stop offset="100%" stopColor="rgb(239, 68, 68)" stopOpacity="0.3" />
-                      </linearGradient>
-                    </defs>
-
-                    {/* Enhanced revenue bars with gradient and glow */}
-                    {chartData.map((point, index) => (
-                      <rect
-                        key={index}
-                        x={40 + index * 45}
-                        y={180 - point.revenue / 50}
-                        width="30"
-                        height={point.revenue / 50}
-                        fill="url(#revenueGradient)"
-                        className="animate-grow-bar hover:opacity-80 transition-all cursor-pointer drop-shadow-lg"
-                        style={{ animationDelay: `${index * 0.1}s` }}
-                        rx="4"
-                      />
-                    ))}
-                  </svg>
-                </div>
-              )}
-            </div>
           </div>
 
+          
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-slide-up">
             {/* Enhanced Top Pages */}
             <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl hover:bg-white/10 transition-all duration-500">

@@ -1,37 +1,51 @@
 "use client";
-import React, { useState } from 'react';
-import { Upload, X, Plus, Star, Save, Eye, Package, Tag, DollarSign, BarChart3, Camera, MapPin } from 'lucide-react';
-import { ProductCreate, ProductNotification } from '@/src/hook/useProduct';
-import { useSelector } from 'react-redux';
-import toast from 'react-hot-toast';
-import socket from '@/src/confic/socket';
-import { useEffect } from 'react';
+import React, { useState } from "react";
+import {
+  Upload,
+  X,
+  Plus,
+  Star,
+  Save,
+  Eye,
+  Package,
+  Tag,
+  DollarSign,
+  BarChart3,
+  Camera,
+  MapPin,
+} from "lucide-react";
+import { ProductCreate, ProductNotification } from "@/src/hook/useProduct";
+import { useSelector } from "react-redux";
+import toast from "react-hot-toast";
+import socket from "@/src/confic/socket";
+import { useEffect } from "react";
 
 const AddProductComponent = () => {
   const [formData, setFormData] = useState({
-    productName: '',
-    description: '',
+    productName: "",
+    description: "",
     category: "",
     subCategory: "",
     featured: false,
-    brand: '',
+    brand: "",
     productWeight: [],
     productSize: [],
     color: [],
-    price: '',
-    productStock: '',
-    productRank: '',
-    discount: '',
+    price: "",
+    productStock: "",
+    productRank: "",
+    discount: "",
     ratings: 5,
     tags: [],
-    images: []
+    images: [],
   });
 
-  const [newTag, setNewTag] = useState('');
-  const [newColor, setNewColor] = useState('');
-  const [setsize, setsetsize] = useState('');
-  const [newWeight, setnewWeight] = useState('');
+  const [newTag, setNewTag] = useState("");
+  const [newColor, setNewColor] = useState("");
+  const [setsize, setsetsize] = useState("");
+  const [newWeight, setnewWeight] = useState("");
   const [dragOver, setDragOver] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   //  subcategory and category ..
   const allsubCategorydata = useSelector((state) => state.subcategory.allsubCategorydata);
@@ -60,39 +74,53 @@ const AddProductComponent = () => {
     };
   }, []);
 
-
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [name]:
-        type === 'checkbox'
+        type === "checkbox"
           ? checked
-          : (name === 'category' || name === 'subCategory'
-            ? [value]
-            : value)
+          : name === "category" || name === "subCategory"
+          ? [value]
+          : value,
     }));
   };
 
+  const filteredSubCategories = allsubCategorydata?.data?.filter((subCat) => {
+    // category object
+    if (typeof subCat.category === "object" && subCat.category?._id) {
+      return subCat.category._id === formData.category[0];
+    }
+
+    // category array
+    if (Array.isArray(subCat.category)) {
+      return subCat.category.includes(formData.category[0]);
+    }
+
+    // normal string
+    return subCat.category === formData.category[0];
+  });
+
   const handleImageUpload = (files) => {
-    const newImages = Array.from(files).map(file => ({
+    const newImages = Array.from(files).map((file) => ({
       id: Date.now() + Math.random(),
       file,
       url: URL.createObjectURL(file),
-      name: file.name
+      name: file.name,
     }));
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      images: [...prev.images, ...newImages]
+      images: [...prev.images, ...newImages],
     }));
   };
 
   const removeImage = (imageId) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      images: prev.images.filter(img => img.id !== imageId)
+      images: prev.images.filter((img) => img.id !== imageId),
     }));
   };
 
@@ -105,104 +133,110 @@ const AddProductComponent = () => {
 
   const addTag = () => {
     if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        tags: [...prev.tags, newTag.trim()]
+        tags: [...prev.tags, newTag.trim()],
       }));
-      setNewTag('');
+      setNewTag("");
     }
   };
 
   const addcolor = () => {
     if (newColor.trim() && !formData.color.includes(newColor.trim())) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        color: [...prev.color, newColor.trim()]
+        color: [...prev.color, newColor.trim()],
       }));
-      setNewColor('');
+      setNewColor("");
     }
   };
 
   const addsize = () => {
     if (setsize.trim() && !formData.productSize.includes(setsize.trim())) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        productSize: [...prev.productSize, setsize.trim()]
+        productSize: [...prev.productSize, setsize.trim()],
       }));
-      setsetsize('');
+      setsetsize("");
     }
   };
 
   const addweight = () => {
     if (newWeight.trim() && !formData.productWeight.includes(newWeight.trim())) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        productWeight: [...prev.productWeight, newWeight.trim()]
+        productWeight: [...prev.productWeight, newWeight.trim()],
       }));
-      setnewWeight('');
+      setnewWeight("");
     }
   };
 
   const removeTag = (tagToRemove) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove)
+      tags: prev.tags.filter((tag) => tag !== tagToRemove),
     }));
   };
 
   const removecolor = (colorToRemove) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      color: prev.color.filter(color => color !== colorToRemove)
+      color: prev.color.filter((color) => color !== colorToRemove),
     }));
   };
   const removesize = (sizeToRemove) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      productSize: prev.productSize.filter(size => size !== sizeToRemove)
+      productSize: prev.productSize.filter((size) => size !== sizeToRemove),
     }));
   };
   const removeweight = (weightToRemove) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      productWeight: prev.productWeight.filter(weight => weight !== weightToRemove)
+      productWeight: prev.productWeight.filter((weight) => weight !== weightToRemove),
     }));
   };
 
   const resetForm = () => {
     setFormData({
-      productName: '',
-      description: '',
-      category: '',
-      subCategory: '',
+      productName: "",
+      description: "",
+      category: "",
+      subCategory: "",
       featured: false,
-      brand: '',
+      brand: "",
       productWeight: [],
       productSize: [],
       color: [],
-      price: '',
-      productStock: '',
-      productRank: '',
-      discount: '',
+      price: "",
+      productStock: "",
+      productRank: "",
+      discount: "",
       ratings: 5,
       tags: [],
-      images: []
+      images: [],
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true); 
 
     try {
       const formDataToSend = new FormData();
 
       for (const key in formData) {
         if (key === "images") {
-          formData.images.forEach(img => formDataToSend.append("images", img.file));
+          formData.images.forEach((img) => formDataToSend.append("images", img.file));
         } else if (key === "category" || key === "subCategory") {
-          formData[key].forEach(id => formDataToSend.append(key, id));
-        } else if (key === "productSize" || key === "color" || key === "productWeight" || key === "tags") {
-          formData[key].forEach(item => formDataToSend.append(key, item));
+          formData[key].forEach((id) => formDataToSend.append(key, id));
+        } else if (
+          key === "productSize" ||
+          key === "color" ||
+          key === "productWeight" ||
+          key === "tags"
+        ) {
+          formData[key].forEach((item) => formDataToSend.append(key, item));
         } else {
           formDataToSend.append(key, formData[key]);
         }
@@ -212,28 +246,29 @@ const AddProductComponent = () => {
 
       if (response?.success) {
         toast.success("✅ Product added successfully!");
-        resetForm()
-        // 🧩 এখন notification পাঠাও
+        resetForm();
+
+        
         await ProductNotification({
           title: "New Product Added",
-          message: `product create is now live!`,
+          message: `Product is now live!`,
           type: "stock",
           referenceId: response.data._id,
           meta: { category: response.data.category },
         });
-
       } else {
         toast.error(response?.message || "Failed to add product");
       }
     } catch (error) {
       console.error("Error adding product:", error);
       toast.error("❌ Something went wrong! Please try again.");
+    } finally {
+      setIsLoading(false); 
     }
   };
 
-
   const handlePreview = () => {
-    alert('Preview functionality would show product preview here');
+    alert("Preview functionality would show product preview here");
   };
 
   return (
@@ -249,9 +284,7 @@ const AddProductComponent = () => {
               <div className="absolute bottom-6 left-6 w-1 h-1 bg-purple-400 rounded-full animate-pulse"></div>
               <div className="absolute top-1/2 right-1/3 w-1 h-1 bg-cyan-400 rounded-full animate-bounce"></div>
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
-              Add New Product
-            </h1>
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Add New Product</h1>
             <p className="text-blue-100">EasyShoppingMall Admin Dashboard</p>
           </div>
         </div>
@@ -313,50 +346,63 @@ const AddProductComponent = () => {
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* CATEGORY */}
               <div className="space-y-2">
                 <label className="text-white font-medium">Category</label>
                 <select
                   name="category"
-                  value={formData.category}
+                  value={formData.category[0] || ""}
                   onChange={handleInputChange}
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300"
                   required
                 >
-                  <option value="" className="bg-slate-800">Select Category</option>
-                  {allCategorydata && allCategorydata.data && allCategorydata.data.length > 0 ? (
-                    allCategorydata?.data?.map(cat => (
+                  <option value="" className="bg-slate-800">
+                    Select Category
+                  </option>
+
+                  {allCategorydata?.data?.length > 0 ? (
+                    allCategorydata.data.map((cat) => (
                       <option key={cat._id} value={cat._id} className="bg-slate-800">
                         {cat.name}
                       </option>
                     ))
                   ) : (
-                    <option disabled>No categories found</option>
+                    <option disabled className="bg-slate-800">
+                      No categories found
+                    </option>
                   )}
                 </select>
               </div>
 
+              {/* SUB CATEGORY */}
               <div className="space-y-2">
                 <label className="text-white font-medium">Sub Category</label>
                 <select
                   name="subCategory"
-                  value={formData.subCategory}
+                  value={formData.subCategory[0] || ""}
                   onChange={handleInputChange}
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300"
-                  disabled={!formData.category}
+                  disabled={!formData.category.length}
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300 disabled:opacity-50"
                 >
-                  <option value="" className="bg-slate-800">Select Sub Category</option>
-                  {allsubCategorydata && allsubCategorydata.data && allsubCategorydata.data.length > 0 ? (
-                    allsubCategorydata?.data?.map(cat => (
-                      <option key={cat._id} value={cat._id} className="bg-slate-800">
-                        {cat.name}
+                  <option value="" className="bg-slate-800">
+                    Select Sub Category
+                  </option>
+
+                  {filteredSubCategories?.length > 0 ? (
+                    filteredSubCategories.map((sub) => (
+                      <option key={sub._id} value={sub._id} className="bg-slate-800">
+                        {sub.name}
                       </option>
                     ))
                   ) : (
-                    <option disabled>No subcategories found</option>
+                    <option disabled className="bg-slate-800">
+                      No subcategories found
+                    </option>
                   )}
                 </select>
               </div>
 
+              {/* FEATURED */}
               <div className="space-y-2">
                 <label className="text-white font-medium">Featured Product</label>
                 <div className="flex items-center p-4 bg-white/10 border border-white/20 rounded-xl">
@@ -365,7 +411,7 @@ const AddProductComponent = () => {
                     name="featured"
                     checked={formData.featured}
                     onChange={handleInputChange}
-                    className="w-5 h-5 text-blue-600 bg-transparent border-white/30 rounded focus:ring-blue-500"
+                    className="w-5 h-5 text-green-600 bg-transparent border-white/30 rounded focus:ring-green-500"
                   />
                   <label className="ml-3 text-white">Mark as Featured</label>
                 </div>
@@ -376,8 +422,11 @@ const AddProductComponent = () => {
             <div className="mt-6 space-y-2">
               <label className="text-white font-medium">Product Tags</label>
               <div className="flex flex-wrap gap-2 mb-3">
-                {formData.tags.map(tag => (
-                  <span key={tag} className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-full text-sm flex items-center">
+                {formData.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-full text-sm flex items-center"
+                  >
                     {tag}
                     <button
                       type="button"
@@ -394,7 +443,7 @@ const AddProductComponent = () => {
                   type="text"
                   value={newTag}
                   onChange={(e) => setNewTag(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+                  onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
                   className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Add product tags"
                 />
@@ -417,15 +466,15 @@ const AddProductComponent = () => {
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-
-
               {/* add weight */}
               <div className="">
                 <label className="text-white font-medium">Product weight</label>
                 <div className="flex flex-wrap gap-2">
-                  {formData.productWeight.map(weight => (
-                    <span key={weight} className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-full text-sm flex items-center">
+                  {formData.productWeight.map((weight) => (
+                    <span
+                      key={weight}
+                      className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-full text-sm flex items-center"
+                    >
                       {weight}
                       <button
                         type="button"
@@ -442,7 +491,7 @@ const AddProductComponent = () => {
                     type="text"
                     value={newWeight}
                     onChange={(e) => setnewWeight(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addweight())}
+                    onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addweight())}
                     className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Add product color"
                   />
@@ -456,15 +505,15 @@ const AddProductComponent = () => {
                 </div>
               </div>
 
-
-
-
               {/* add size */}
               <div className="">
                 <label className="text-white font-medium">Product size</label>
                 <div className="flex flex-wrap gap-2">
-                  {formData.productSize.map(size => (
-                    <span key={size} className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-full text-sm flex items-center">
+                  {formData.productSize.map((size) => (
+                    <span
+                      key={size}
+                      className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-full text-sm flex items-center"
+                    >
                       {size}
                       <button
                         type="button"
@@ -481,7 +530,7 @@ const AddProductComponent = () => {
                     type="text"
                     value={setsize}
                     onChange={(e) => setsetsize(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addsize())}
+                    onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addsize())}
                     className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Add product color"
                   />
@@ -495,13 +544,15 @@ const AddProductComponent = () => {
                 </div>
               </div>
 
-
               {/* add color */}
               <div className="">
                 <label className="text-white font-medium">Product Color</label>
                 <div className="flex flex-wrap gap-2">
-                  {formData.color.map(color => (
-                    <span key={color} className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-full text-sm flex items-center">
+                  {formData.color.map((color) => (
+                    <span
+                      key={color}
+                      className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-full text-sm flex items-center"
+                    >
                       {color}
                       <button
                         type="button"
@@ -518,7 +569,7 @@ const AddProductComponent = () => {
                     type="text"
                     value={newColor}
                     onChange={(e) => setNewColor(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addcolor())}
+                    onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addcolor())}
                     className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Add product color"
                   />
@@ -531,8 +582,6 @@ const AddProductComponent = () => {
                   </button>
                 </div>
               </div>
-
-
             </div>
           </div>
 
@@ -607,15 +656,14 @@ const AddProductComponent = () => {
                   <button
                     key={star}
                     type="button"
-                    onClick={() => setFormData(prev => ({ ...prev, ratings: star }))}
+                    onClick={() => setFormData((prev) => ({ ...prev, ratings: star }))}
                     className="transition-all duration-200 hover:scale-110"
                   >
                     <Star
                       size={24}
-                      className={`${star <= formData.ratings
-                        ? 'text-yellow-400 fill-current'
-                        : 'text-gray-400'
-                        } transition-colors duration-200`}
+                      className={`${
+                        star <= formData.ratings ? "text-yellow-400 fill-current" : "text-gray-400"
+                      } transition-colors duration-200`}
                     />
                   </button>
                 ))}
@@ -633,10 +681,11 @@ const AddProductComponent = () => {
 
             {/* Drag & Drop Upload Area */}
             <div
-              className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 ${dragOver
-                ? 'border-blue-400 bg-blue-500/20'
-                : 'border-white/30 hover:border-white/50'
-                }`}
+              className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 ${
+                dragOver
+                  ? "border-blue-400 bg-blue-500/20"
+                  : "border-white/30 hover:border-white/50"
+              }`}
               onDrop={handleDrop}
               onDragOver={(e) => {
                 e.preventDefault();
@@ -645,9 +694,7 @@ const AddProductComponent = () => {
               onDragLeave={() => setDragOver(false)}
             >
               <Upload className="mx-auto mb-4 text-white/60" size={48} />
-              <p className="text-white mb-4 text-lg">
-                Drag & drop images here or click to browse
-              </p>
+              <p className="text-white mb-4 text-lg">Drag & drop images here or click to browse</p>
               <input
                 type="file"
                 multiple
@@ -667,7 +714,9 @@ const AddProductComponent = () => {
             {/* Image Preview */}
             {formData.images.length > 0 && (
               <div className="mt-6">
-                <h3 className="text-white font-medium mb-4">Uploaded Images ({formData.images.length})</h3>
+                <h3 className="text-white font-medium mb-4">
+                  Uploaded Images ({formData.images.length})
+                </h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {formData.images.map((image) => (
                     <div key={image.id} className="relative group">
@@ -708,10 +757,45 @@ const AddProductComponent = () => {
 
             <button
               type="submit"
-              className="px-8 py-4 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-xl hover:from-green-600 hover:to-blue-600 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105 shadow-lg"
+              disabled={isLoading}
+              className={`px-8 py-4 rounded-xl text-white flex items-center justify-center space-x-2 shadow-lg transition-all duration-300
+    ${
+      isLoading
+        ? "bg-gray-500 cursor-not-allowed"
+        : "bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 transform hover:scale-105"
+    }
+  `}
             >
-              <Save size={20} />
-              <span>Publish Product</span>
+              {isLoading ? (
+                <>
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                    />
+                  </svg>
+                  <span>Publishing...</span>
+                </>
+              ) : (
+                <>
+                  <Save size={20} />
+                  <span>Publish Product</span>
+                </>
+              )}
             </button>
           </div>
         </form>

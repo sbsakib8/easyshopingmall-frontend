@@ -52,7 +52,8 @@ const SalesReportDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showCalendar, setShowCalendar] = useState(false);
   const [calendarMonth, setCalendarMonth] = useState(new Date(2025, 11, 1)); // December 2025
-
+  const [currentPage, setCurrentPage] = useState(0)
+const skip = 30
   // Filter data
   const filteredData = useMemo(() => {
     return salesData.filter(item => {
@@ -70,7 +71,8 @@ const SalesReportDashboard = () => {
       return dateMatch && statusMatch && searchMatch;
     });
   }, [salesData, dateRange, filterStatus, searchTerm]);
-
+  let totalPage=Math.ceil(filteredData.length/skip)
+console.log(filteredData.length,totalPage)
   // Calculate statistics
   const stats = useMemo(() => {
     const completed = filteredData.filter(item => item.status === 'completed');
@@ -276,8 +278,8 @@ const SalesReportDashboard = () => {
               </button>
               
               {showCalendar && (
-                <div className="absolute top-full   mt-2 bg-slate-800 border border-slate-700 rounded-xl p-4 shadow-2xl z-50 min-w-[600px]">
-                  <div className="flex gap-8 ">
+                <div className="relative top-full mt-2 bg-slate-800 border border-slate-700 rounded-xl p-4 shadow-2xl z-50 lg:min-w-[600px]">
+                  <div className="flex flex-col md:flex-row gap-8 ">
                     {/* December 2025 */}
                     <div className="flex-1 ">
                       <div className="flex items-center justify-between mb-4">
@@ -453,7 +455,7 @@ const SalesReportDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredData.slice(0, 15).map((order) => (
+                {filteredData.slice((skip*currentPage),skip*(currentPage+1)).map((order) => (
                   <tr key={order.id} className="border-b border-slate-800 hover:bg-slate-800/50 transition-colors">
                     <td className="py-4 px-4 text-cyan-400 font-medium">{order.id}</td>
                     <td className="py-4 px-4 text-gray-300">{order.displayDate}</td>
@@ -476,6 +478,11 @@ const SalesReportDashboard = () => {
             </table>
           </div>
         </div>
+
+        {/* pagination buttons */}
+       <div className='flex justify-center flex-wrap mt-5 gap-y-3' >
+        {[...Array(totalPage)].map((page,i)=><button onClick={()=>setCurrentPage(i)} className={`px-4 py-1 rounded-sm mx-1 ${currentPage==i?'bg-[#00D3F2] ':'bg-white'}`}>{i}</button>)}
+       </div>
       </div>
     </div>
   );
