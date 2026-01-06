@@ -1,6 +1,30 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import {
+  Chart as ChartJS,
+  ArcElement, 
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+  Tooltip,
+  Legend,
+} from "chart.js";
+
+import { Line,Pie } from "react-chartjs-2";
+
+ChartJS.register(
+  ArcElement,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+  Tooltip,
+  Legend
+);
 
 // Mock data for customer analytics
 const mockCustomerData = {
@@ -53,6 +77,13 @@ const CustomerAnalyticsDashboard = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState("overview")
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+
+  const genderVisitors = {
+  women: 420,
+  men: 610,
+  children: 270,
+};
+
 
   useEffect(() => {
     // Simulate loading
@@ -317,55 +348,131 @@ const CustomerAnalyticsDashboard = () => {
               </div>
             </section>
 
-            {/* Customer Growth Chart */}
-            <section className="mb-16">
-              <div
-                className="p-8 bg-gradient-to-br from-white/10 via-white/5 to-transparent backdrop-blur-sm border border-white/20 rounded-3xl animate-slide-in-up shadow-2xl shadow-blue-500/10 overflow-scroll"
-                style={{ animationDelay: "700ms" }}
-              >
-                <h3 className="text-2xl font-bold text-white mb-8">Customer Growth Trend</h3>
-                <div className="flex items-end justify-between space-x-4 h-56 px-4">
-                  {mockCustomerData.customerGrowthData.map((data, index) => (
-                    <div key={data.month} className="flex flex-col items-center space-y-3">
-                      <div
-                        className="relative w-16 bg-white/5 rounded-t-2xl overflow-hidden backdrop-blur-sm"
-                        style={{ height: "180px" }}
-                      >
-                        <div
-                          className="absolute bottom-0 w-full bg-gradient-to-t from-emerald-500 via-emerald-400 to-emerald-300 rounded-t-2xl transition-all duration-1000 ease-out shadow-lg shadow-emerald-500/30"
-                          style={{
-                            height: `${(data.new / 1400) * 100}%`,
-                            animationDelay: `${800 + index * 100}ms`,
-                          }}
-                        />
-                        <div
-                          className="absolute bottom-0 w-full bg-gradient-to-t from-blue-600 via-blue-500 to-cyan-400 rounded-t-2xl transition-all duration-1000 ease-out shadow-lg shadow-blue-500/30"
-                          style={{
-                            height: `${(data.total / 3200) * 100}%`,
-                            animationDelay: `${900 + index * 100}ms`,
-                          }}
-                        />
-                      </div>
-                      <span className="text-sm text-gray-300 font-medium">{data.month}</span>
-                      <div className="text-center">
-                        <div className="text-sm font-bold text-white">{data.total.toLocaleString()}</div>
-                        <div className="text-xs text-emerald-400">{data.new} new</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="flex justify-center space-x-8 mt-8">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-4 h-4 bg-gradient-to-r from-blue-600 to-cyan-400 rounded-full shadow-lg shadow-blue-500/30"></div>
-                    <span className="text-gray-300 font-medium">Total Customers</span>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <div className="w-4 h-4 bg-gradient-to-r from-emerald-500 to-emerald-300 rounded-full shadow-lg shadow-emerald-500/30"></div>
-                    <span className="text-gray-300 font-medium">New Customers</span>
-                  </div>
-                </div>
-              </div>
-            </section>
+ <section className="mb-16">
+  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    {/* ================= LINE CHART ================= */}
+    <div
+      className="lg:col-span-2 p-6 bg-gradient-to-br from-white/10 via-white/5 to-transparent
+      backdrop-blur-sm border border-white/20 rounded-3xl animate-slide-in-up
+      shadow-2xl shadow-blue-500/10"
+      style={{ animationDelay: "700ms" }}
+    >
+      <h3 className="text-xl font-bold text-white mb-4">
+        Customer Growth Trend
+      </h3>
+
+      <div className="h-56 w-full">
+        <Line
+          data={{
+            labels: mockCustomerData.customerGrowthData.map(d => d.month),
+            datasets: [
+              {
+                label: "Total Customers",
+                data: mockCustomerData.customerGrowthData.map(d => d.total),
+                borderColor: "rgb(59,130,246)",
+                backgroundColor: "rgba(59,130,246,0.25)",
+                fill: true,
+                tension: 0.4,
+                borderWidth: 2,
+                pointRadius: 3,
+              },
+              {
+                label: "New Customers",
+                data: mockCustomerData.customerGrowthData.map(d => d.new),
+                borderColor: "rgb(16,185,129)",
+                backgroundColor: "rgba(16,185,129,0.25)",
+                fill: true,
+                tension: 0.4,
+                borderWidth: 2,
+                pointRadius: 3,
+              },
+            ],
+          }}
+          options={{
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: {
+              duration: 1400,
+              easing: "easeOutQuart",
+            },
+            plugins: {
+              legend: {
+                labels: {
+                  color: "#e5e7eb",
+                  font: { size: 12 },
+                },
+              },
+            },
+            scales: {
+              x: {
+                ticks: { color: "#cbd5f5" },
+                grid: { color: "rgba(255,255,255,0.08)" },
+              },
+              y: {
+                ticks: { color: "#cbd5f5" },
+                grid: { color: "rgba(255,255,255,0.08)" },
+              },
+            },
+          }}
+        />
+      </div>
+    </div>
+
+    {/* ================= PIE CHART ================= */}
+    <div
+      className="p-6 bg-gradient-to-br from-white/10 via-white/5 to-transparent
+      backdrop-blur-sm border border-white/20 rounded-3xl animate-slide-in-up
+      shadow-2xl shadow-pink-500/10 flex flex-col items-center justify-center"
+      style={{ animationDelay: "900ms" }}
+    >
+      <h3 className="text-lg font-bold text-white mb-4">
+        Visitor Demographics
+      </h3>
+
+      <div className="w-64 h-64">
+        <Pie
+          data={{
+            labels: ["Women", "Men", "Children"],
+            datasets: [
+              {
+                data: [
+                  genderVisitors.women,
+                  genderVisitors.men,
+                  genderVisitors.children,
+                ],
+                backgroundColor: [
+                  "rgba(236,72,153,0.8)",
+                  "rgba(59,130,246,0.8)",
+                  "rgba(16,185,129,0.8)",
+                ],
+                borderWidth: 0,
+              },
+            ],
+          }}
+          options={{
+            animation: {
+              animateRotate: true,
+              duration: 1400,
+              easing: "easeOutQuart",
+            },
+            plugins: {
+              legend: {
+                position: "bottom",
+                labels: {
+                  color: "#e5e7eb",
+                  boxWidth: 10,
+                  font: { size: 11 },
+                },
+              },
+            },
+          }}
+        />
+      </div>
+    </div>
+
+  </div>
+</section>
 
             {/* Top Customers */}
             <section>

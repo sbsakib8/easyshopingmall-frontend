@@ -55,7 +55,6 @@ const ReviewsPage = () => {
       try {
         const data = await getPendingReviews();
         setReviews(data);
-        
       } catch (err) {
         console.error("Failed to fetch reviews", err);
       }
@@ -376,9 +375,9 @@ const ReviewsPage = () => {
                 className="bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-lg p-6 hover:border-yellow-500 transition-all duration-300 hover:shadow-lg hover:shadow-yellow-500/20 animate-slide-up"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-y-5 lg:gap-x-6 items-center lg:items-start">
                   {/* Customer Info */}
-                  <div className="lg:col-span-3 flex items-center space-x-3">
+                  <div className="lg:col-span-3 flex items-center space-x-3 pr-0 lg:pr-4 ">
                     <img
                       src={review.userId.image || "/placeholder.svg"}
                       alt={review.customerName}
@@ -386,13 +385,13 @@ const ReviewsPage = () => {
                     />
                     <div>
                       <h3 className="font-semibold text-white">{review.userId.name}</h3>
-                      <p className="text-sm text-gray-400">{review.userId.email}</p>
+                      <p className="text-sm text-gray-400">mahmudulkarim545@gmail.com</p>
                     </div>
                   </div>
 
                   {/* Product & Rating */}
-                  <div className="lg:col-span-3">
-                    <h4 className="font-medium text-white mb-1">{review.productId}</h4>
+                  <div className="lg:col-span-3 lg:pl-6">
+                    <h4 className="font-medium text-white mb-1">Drop Shoulder T-Shirt</h4>
                     <div className="flex items-center space-x-2">
                       <div className="flex">{renderStars(review.rating)}</div>
                       <span className="text-sm text-gray-400">({review.rating}/5)</span>
@@ -400,17 +399,25 @@ const ReviewsPage = () => {
                   </div>
 
                   {/* Comment */}
-                  <div className="lg:col-span-4">
+                  <div className="lg:col-span-4 pr-0 lg:pr-2">
                     <p className="text-white text-sm leading-relaxed line-clamp-2">
                       {review.comment}
                     </p>
+
                     <div className="flex items-center space-x-4 mt-2">
-                      <span className="text-xs text-gray-400">{review.date}</span>
+                      <span className="text-xs text-gray-400">
+                        {new Date(review.createdAt).toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </span>
+
                       <span className="text-xs text-gray-400">👍 {review.helpful} helpful</span>
                     </div>
                   </div>
 
-                  {/* Status & Actions */}
+                  {/* Status & Actions*/}
                   <div className="lg:col-span-2 flex flex-col space-y-2">
                     <span
                       className={`${getStatusBadge(
@@ -453,18 +460,21 @@ const ReviewsPage = () => {
                         >
                           Approve
                         </button>
+
                         <button
                           onClick={() => handleStatusChange(review._id, "pending")}
                           className="block w-full text-left px-4 py-2 text-white hover:bg-yellow-600 transition-colors"
                         >
                           Mark Pending
                         </button>
+
                         <button
                           onClick={() => handleStatusChange(review._id, "rejected")}
                           className="block w-full text-left px-4 py-2 text-white hover:bg-red-600 transition-colors"
                         >
                           Reject
                         </button>
+
                         <button
                           onClick={() => handleDeleteReview(review._id)}
                           className="block w-full text-left px-4 py-2 text-white hover:bg-red-600 transition-colors"
@@ -492,74 +502,102 @@ const ReviewsPage = () => {
         {/* Detail Modal */}
         <Modal isOpen={isDetailModalOpen} onClose={() => setIsDetailModalOpen(false)}>
           {selectedReview && (
-            <div className="p-6">
-              <h2 className="text-xl font-semibold text-white mb-6">Review Details</h2>
-              <div className="space-y-4">
+            <div className="p-8 text-white">
+              {/* Header with Close Button */}
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-semibold">Review Details</h2>
+                <button
+                  onClick={() => setIsDetailModalOpen(false)}
+                  className="text-gray-400 hover:text-white transition-colors"
+                ></button>
+              </div>
+
+              <div className="space-y-6">
+                {/* Profile Section */}
                 <div className="flex items-center space-x-4">
-                  <img
-                    src={selectedReview.avatar || "/placeholder.svg"}
-                    alt={selectedReview.customerName}
-                    className="w-16 h-16 rounded-full border-2 border-yellow-500"
-                  />
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">
-                      {selectedReview.customerName}
-                    </h3>
-                    <p className="text-gray-400">{selectedReview.customerEmail}</p>
-                    <p className="text-sm text-gray-400">{selectedReview.date}</p>
+                  <div className="relative">
+                    <img
+                      src={selectedReview.userId.image || "/placeholder.svg"}
+                      alt={selectedReview.userId.name}
+                      className="w-16 h-16 rounded-full border-2 border-yellow-500 object-cover"
+                    />
+                    {/* Overlay text logic if image fails or for styling as seen in image */}
+                    {!selectedReview.userId.image && (
+                      <div className="absolute inset-0 flex items-center justify-center text-[35px] text-center px-1">
+                        {selectedReview.userId.name.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-col">
+                    <h3 className="text-xl font-bold">{selectedReview.userId.name}</h3>
+                    <p className="text-gray-400 text-sm">mahmudulkarim545@gmail.com</p>
+                    <p className="text-gray-500 text-xs mt-1">
+                      {new Date(selectedReview.createdAt).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </p>
                   </div>
                 </div>
 
+                {/* Product & Rating Section */}
                 <div>
-                  <h4 className="font-medium text-white mb-2">
-                    Product: {selectedReview.productName}
-                  </h4>
-                  <div className="flex items-center space-x-2 mb-4">
-                    <div className="flex">{renderStars(selectedReview.rating)}</div>
-                    <span className="text-gray-400">({selectedReview.rating}/5)</span>
+                  <p className="text-md mb-2">Product: T-Shirt</p>
+                  <div className="flex items-center space-x-2">
+                    <div className="flex text-yellow-500 text-lg">
+                      {renderStars(selectedReview.rating)}
+                    </div>
+                    <span className="text-gray-400 text-sm">({selectedReview.rating}/5)</span>
                   </div>
                 </div>
 
+                {/* Comment Section */}
                 <div>
-                  <h4 className="font-medium text-white mb-2">Review Comment:</h4>
-                  <p className="text-white bg-gray-700 p-4 rounded-lg">{selectedReview.comment}</p>
+                  <h4 className="text-sm font-medium mb-2">Review Comment:</h4>
+                  <div className="bg-[#2d3748] p-4 rounded-xl border border-gray-700">
+                    <p className="text-gray-200 leading-relaxed">{selectedReview.comment}</p>
+                  </div>
                 </div>
 
+                {/* Status & Helpful Count */}
                 <div className="flex items-center justify-between">
                   <span
                     className={`${getStatusBadge(
                       selectedReview.status
-                    )} px-3 py-1 rounded-full text-xs font-medium`}
+                    )} px-4 py-1 rounded-full text-sm font-medium`}
                   >
                     {selectedReview.status}
                   </span>
-                  <span className="text-sm text-gray-400">
-                    👍 {selectedReview.helpful} people found this helpful
+                  <span className="text-sm text-gray-400 flex items-center">
+                    <span className="mr-1">👍</span> {selectedReview.helpful} people found this
+                    helpful
                   </span>
                 </div>
 
-                <div className="flex space-x-2 pt-4">
+                {/* Action Buttons */}
+                <div className="flex flex-wrap gap-2 pt-4">
                   <button
                     onClick={() => handleStatusChange(selectedReview._id, "approved")}
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition-colors"
+                    className="bg-[#10b981] hover:bg-green-700 text-white font-medium px-6 py-2 rounded-md transition-all"
                   >
                     Approve
                   </button>
                   <button
                     onClick={() => handleStatusChange(selectedReview._id, "pending")}
-                    className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded transition-colors"
+                    className="bg-[#d97706] hover:bg-yellow-700 text-white font-medium px-6 py-2 rounded-md transition-all"
                   >
                     Pending
                   </button>
                   <button
                     onClick={() => handleStatusChange(selectedReview._id, "rejected")}
-                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition-colors"
+                    className="bg-[#ef4444] hover:bg-red-700 text-white font-medium px-6 py-2 rounded-md transition-all"
                   >
                     Reject
                   </button>
                   <button
                     onClick={() => handleDeleteReview(selectedReview._id)}
-                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition-colors"
+                    className="bg-red-600 hover:bg-red-800 text-white font-medium px-6 py-2 rounded-md transition-all"
                   >
                     Delete
                   </button>
