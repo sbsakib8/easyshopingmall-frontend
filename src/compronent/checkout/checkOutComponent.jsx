@@ -85,12 +85,15 @@ export default function CheckoutComponent() {
 
   // Create order helper
   const createOrder = async (override = {}) => {
-    const delivery_address = [
-      customerInfo.address,
-      customerInfo.area,
-      customerInfo.district,
-      customerInfo.division,
-    ].filter(Boolean).join(", ");
+    const delivery_address = {
+      address_line: customerInfo.address,
+      district: customerInfo.district,
+      division: customerInfo.division,
+      upazila_thana: customerInfo.area,
+      pincode: "", // Assuming empty as not present in customerInfo
+      country: "Bangladesh", // Assuming default
+      mobile: customerInfo.phone ? Number(customerInfo.phone) : null,
+    };
 
     // Determine payment_type based on selectedPayment or override
     let paymentType = "full";
