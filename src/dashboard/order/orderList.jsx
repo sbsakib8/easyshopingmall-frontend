@@ -519,10 +519,11 @@ const OrderManagement = () => {
             </div>
             
             <div className="p-6">
-              <div className="grid gap-6 grid-cols-1 xl:grid-cols-2">
+              <div className="grid gap-6 grid-cols-1 xl:grid-cols-3">
                 {paginatedOrders?.map((order, index) => {
                   const StatusIcon = statusIcons[order.status]
                   const isSelected = selectedOrders.has(order?.orderId)
+                  if(order?.order_status!=="pending")return 
                   return (
                     <div
                       key={order.orderId}
@@ -532,7 +533,7 @@ const OrderManagement = () => {
                     >
                       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
 
-                      <div className="p-6">
+                      <div className="px-3 py-6">
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex items-center gap-4">
                             <button
@@ -554,7 +555,7 @@ const OrderManagement = () => {
                             </div>
 
                             <div>
-                              <h3 className="text-xl font-bold text-white group-hover:text-blue-400 transition-colors duration-300">
+                              <h3 className="text-xs font-bold text-white group-hover:text-blue-400 transition-colors duration-300">
                                 {order.orderId}
                               </h3>
                               <div className="flex items-center gap-3 mt-1">
@@ -725,7 +726,7 @@ const OrderManagement = () => {
         )}
 
         {showModal && selectedOrder && (
-          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-40 p-4">
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-40 p-4 min-h-screen">
             <div className="bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden animate-in">
               <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 text-white">
                 <div className="flex items-center justify-between">
@@ -735,7 +736,7 @@ const OrderManagement = () => {
                   </div>
                   <button
                     onClick={() => setShowModal(false)}
-                    className="p-2 rounded-xl bg-white/20 hover:bg-white/30 transition-all duration-300"
+                    className="p-2 rounded-xl bg-white/20 hover:bg-white/30 transition-all duration-300 cursor-pointer hover:text-red-600"
                   >
                     <XCircle className="h-6 w-6" />
                   </button>
