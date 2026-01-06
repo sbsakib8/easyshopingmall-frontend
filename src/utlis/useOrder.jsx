@@ -39,7 +39,7 @@ export const OrderAllGet = async () => {
  */
 export const OrderAllGetAdmin = async () => {
     try {
-        const response = await axios.get(`${UrlBackend}/orders/orders`, {
+        const response = await axios.get(`${UrlBackend}/orders/admin/all`, {
             withCredentials: true,
         });
         return response.data;

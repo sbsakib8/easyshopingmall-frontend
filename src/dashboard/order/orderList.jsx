@@ -33,6 +33,7 @@ import {
   FilterIcon,
 } from "lucide-react"
 import { useGetAllOrders } from "@/src/utlis/useGetAllOrders"
+import { OrderUpdate } from "@/src/utlis/useOrder"
 
 const mockOrders = [
   {
@@ -178,7 +179,7 @@ const OrderManagement = () => {
   const [sortBy, setSortBy] = useState("orderDate")
   const [sortOrder, setSortOrder] = useState("desc")
   const [showFilters, setShowFilters] = useState(false)
-  const { allOrders, loading: ordersLoading  } = useGetAllOrders()
+  const { allOrders, loading: ordersLoading,refetch  } = useGetAllOrders()
   // console.log("allorders---->",allOrders)
 
   // const newmockOrders = allOrders?.map(order => (
@@ -216,7 +217,7 @@ const OrderManagement = () => {
         customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         order?.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
        customerEmail.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesStatus = statusFilter === "all" || order?.order_status === statusFilter
+      const matchesStatus =  order?.order_status === "pending"
       // const matchesPriority = priorityFilter === "all" || order.priority === priorityFilter
       return matchesSearch && matchesStatus 
     })
@@ -248,7 +249,7 @@ const OrderManagement = () => {
     const completed = allOrders?.filter((o) => o?.order_status === "completed")?.length
     const pending = allOrders?.filter((o) => o?.order_status === "pending")?.length
     const processing = allOrders?.filter((o) => o?.order_status === "processing")?.length
-    const revenue = allOrders?.filter((o) => o?.order_status === "completed")?.reduce((sum, o) => sum + o.total, 0)
+    const revenue = allOrders?.filter((o) => o?.order_status === "completed")?.reduce((sum, o) => sum + o.totalAmt, 0)
     const avgOrderValue = revenue / completed || 0
     return { total, completed, pending, processing, revenue, avgOrderValue }
   }, [allOrders])
@@ -286,8 +287,12 @@ const OrderManagement = () => {
 
   const handleStatusChange = async (orderId, newStatus) => {
     setIsLoading(true)
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    console.log(`Changing order ${orderId} status to ${newStatus}`)
+  const res = await OrderUpdate(orderId,newStatus)
+  
+  if(res.success){
+    setShowModal(false)
+    refetch()
+  }
     setIsLoading(false)
   }
 
@@ -523,7 +528,7 @@ const OrderManagement = () => {
                 {paginatedOrders?.map((order, index) => {
                   const StatusIcon = statusIcons[order.status]
                   const isSelected = selectedOrders.has(order?.orderId)
-                  if(order?.order_status!=="pending")return 
+                  // if(order?.order_status!=="pending")return 
                   return (
                     <div
                       key={order.orderId}
@@ -869,25 +874,25 @@ const OrderManagement = () => {
                       <h3 className="text-lg font-bold text-white mb-4">Quick Actions</h3>
                       <div className="grid grid-cols-2 gap-3">
                         <button
-                          onClick={() => handleStatusChange(selectedOrder?.orderId, "processing")}
+                          onClick={() => handleStatusChange(selectedOrder?._id, "processing")}
                           className="px-4 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 text-sm font-medium"
                         >
                           Mark Processing
                         </button>
                         <button
-                          onClick={() => handleStatusChange(selectedOrder.orderId, "shipped")}
+                          onClick={() => handleStatusChange(selectedOrder._id, "shipped")}
                           className="px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 text-sm font-medium"
                         >
                           Mark Shipped
                         </button>
                         <button
-                          onClick={() => handleStatusChange(selectedOrder.orderId, "completed")}
+                          onClick={() => handleStatusChange(selectedOrder._id, "completed")}
                           className="px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 text-sm font-medium"
                         >
                           Mark Completed
                         </button>
                         <button
-                          onClick={() => handleStatusChange(selectedOrder?.orderId, "cancelled")}
+                          onClick={() => handleStatusChange(selectedOrder?._id, "cancelled")}
                           className="px-4 py-3 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-xl hover:from-red-700 hover:to-rose-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 text-sm font-medium"
                         >
                           Cancel Order

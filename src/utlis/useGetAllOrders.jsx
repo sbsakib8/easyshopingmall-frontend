@@ -12,7 +12,7 @@ export const useGetAllOrders = () => {
     try {
       setLoading(true);
       const data = await OrderAllGetAdmin();
-      setAllOrders(data);
+      setAllOrders(data.data);
       setError(null);
     } catch (err) {
       setError(err);
