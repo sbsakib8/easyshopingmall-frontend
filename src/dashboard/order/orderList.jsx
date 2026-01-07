@@ -546,7 +546,7 @@ const OrderManagement = () => {
                       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
 
                       <div className="px-3 py-6">
-                        <div className="flex items-start justify-between mb-4">
+                        <div className="flex flex-col-reverse lg:flex-row gap-3 items-start justify-between mb-4">
                           <div className="flex items-center gap-4">
                             <button
                               onClick={(e) => {
@@ -562,8 +562,8 @@ const OrderManagement = () => {
                               )}
                             </button>
 
-                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg">
-                              <Package className="h-6 w-6" />
+                            <div className="w-12 h-12 rounded-sm lg:rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg px-3">
+                              <Package className="h-6 w-6 " />
                             </div>
                             <div>
                               <h3 className="text-xs font-bold text-white group-hover:text-blue-400 transition-colors duration-300">
@@ -614,7 +614,7 @@ const OrderManagement = () => {
                         </div>
 
                         <div className="grid grid-cols-2 gap-4 mb-4">
-                          <div className="text-center p-3 bg-gradient-to-br from-gray-700/50 to-gray-800/50 rounded-xl">
+                          <div className="text-center py-3 px-2 bg-gradient-to-br from-gray-700/50 to-gray-800/50 rounded-xl">
                             <div className="flex items-center justify-center gap-2 text-gray-400 text-sm mb-1">
                               <Calendar className="h-4 w-4" />
                               Date
@@ -624,12 +624,12 @@ const OrderManagement = () => {
                             </div>
                           </div>
 
-                          <div className="text-center p-3 bg-gradient-to-br from-gray-700/50 to-gray-800/50 rounded-xl">
-                            <div className="flex items-center justify-center gap-2 text-gray-400 text-sm mb-1">
+                          <div className="text-center py-3 px-2 bg-gradient-to-br from-gray-700/50 to-gray-800/50 rounded-xl">
+                            <div className="flex items-center justify-center  text-gray-400 text-sm mb-1">
                               <DollarSign className="h-4 w-4" />
                               Total
                             </div>
-                            <div className="text-2xl font-bold text-green-400">৳{order?.totalAmt.toFixed(2)}</div>
+                            <div className="text-xl lg:text-2xl font-bold text-green-400">৳{order?.totalAmt.toFixed(2)}</div>
                           </div>
                         </div>
 
