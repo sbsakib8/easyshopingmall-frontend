@@ -34,6 +34,7 @@ import {
 } from "lucide-react"
 import { useGetAllOrders } from "@/src/utlis/useGetAllOrders"
 import { OrderUpdate } from "@/src/utlis/useOrder"
+import DashboardLoader from "@/src/compronent/loading/DashboardLoader"
 
 const mockOrders = [
   {
@@ -372,7 +373,7 @@ const OrderManagement = () => {
             <div className="relative">
               <DollarSign className="h-8 w-8 mb-3 text-purple-400" />
               <p className="text-gray-400 text-sm">Revenue</p>
-              <p className="text-3xl font-bold text-white">৳ {stats?.revenue?.toFixed(0)}</p>
+              <p className="text-3xl font-bold text-white">৳{stats?.revenue?.toFixed(0)}</p>
             </div>
           </div>
 
@@ -720,14 +721,7 @@ const OrderManagement = () => {
         </div>
 
         {/* Loading Overlay */}
-        {isLoading && (
-          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-3xl p-8 flex flex-col items-center gap-4 shadow-2xl">
-              <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-              <p className="text-gray-300 font-medium">Processing...</p>
-            </div>
-          </div>
-        )}
+        {isLoading && <DashboardLoader/>}
 
         {showModal && selectedOrder && (
           <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-40 p-4 min-h-screen">
