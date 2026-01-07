@@ -180,6 +180,7 @@ const OrderManagement = () => {
   const [sortBy, setSortBy] = useState("orderDate")
   const [sortOrder, setSortOrder] = useState("desc")
   const [showFilters, setShowFilters] = useState(false)
+  const [confirmationModal, setConfirmationModal] = useState(false)
   const { allOrders, loading: ordersLoading, refetch } = useGetAllOrders()
   // console.log("allorders---->",allOrders)
 
@@ -292,6 +293,7 @@ const OrderManagement = () => {
 
     if (res.success) {
       setShowModal(false)
+      
       refetch()
     }
     setIsLoading(false)
@@ -303,6 +305,7 @@ const OrderManagement = () => {
 
     if (res.success) {
       setShowModal(false)
+      setConfirmationModal(false)
       refetch()
     }
     setIsLoading(false)
@@ -562,7 +565,6 @@ const OrderManagement = () => {
                             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg">
                               <Package className="h-6 w-6" />
                             </div>
-
                             <div>
                               <h3 className="text-xs font-bold text-white group-hover:text-blue-400 transition-colors duration-300">
                                 {order.orderId}
@@ -601,7 +603,8 @@ const OrderManagement = () => {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation()
-                                handleDeleteOrder(order?._id, "cancelled")
+                                setConfirmationModal(true)
+                                setSelectedOrder(order)
                               }}
                               className="p-2 rounded-xl bg-red-600 hover:bg-red-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
                             >
@@ -838,13 +841,12 @@ const OrderManagement = () => {
                       </h3>
                       <div className="space-y-3">
                         {selectedOrder?.products?.map((item, index) => (
-                          console.log("item--->", item.image[0]),
                           <div
                             key={index}
                             className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 rounded-xl p-2 shadow-sm border border-gray-700 hover:border-gray-600 transition-colors duration-300"
                           >
                             <div className="flex justify-between items-center">
-                              <img className="w-12 h-12 object-cover object-top rounded-sm" src={item.image[0]} alt="product photo" />
+                              <img className="w-12 h-12 object-cover object-top rounded-sm mr-1" src={item.image[0]} alt="product photo" />
                               <div>
                                 <h4 className=" text-sm text-white">{item.name}</h4>
                                 <p className="text-xs text-gray-400">Quantity: {item.quantity}</p>
@@ -932,7 +934,38 @@ const OrderManagement = () => {
           </button>
         </div>
       </div>
+{/* confirmation modal  */}
+{confirmationModal&&
+ <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-pink-500/30 max-w-md w-full p-6 animate-slideUp">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-3 bg-pink-500/20 rounded-full">
+                <Trash2 className="w-8 h-8 text-pink-500" />
+              </div>
+              <h2 className="text-2xl font-bold text-white">Delete Product</h2>
+            </div>
 
+            <p className="text-gray-300 mb-6">
+              Are you sure you want to delete this product? This action cannot be undone.
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                onClick={()=>handleDeleteOrder(selectedOrder._id,"cancelled")}
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-semibold rounded-lg transition-all transform hover:scale-105"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => setConfirmationModal(false)}
+                className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+}
       <style jsx>{`
         @keyframes animate-in {
           from {
