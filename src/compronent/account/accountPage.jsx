@@ -258,6 +258,7 @@ const AccountPage = () => {
         gender: profileData.gender || "",
       };
 
+      const response = await updateUserProfile(data._id, updateData);
 
       if (response.success || response.data) {
         // Update Redux store with new data
