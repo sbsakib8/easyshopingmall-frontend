@@ -180,7 +180,7 @@ const OrderManagement = () => {
   const [sortBy, setSortBy] = useState("orderDate")
   const [sortOrder, setSortOrder] = useState("desc")
   const [showFilters, setShowFilters] = useState(false)
-  const { allOrders, loading: ordersLoading,refetch  } = useGetAllOrders()
+  const { allOrders, loading: ordersLoading, refetch } = useGetAllOrders()
   // console.log("allorders---->",allOrders)
 
   // const newmockOrders = allOrders?.map(order => (
@@ -197,7 +197,7 @@ const OrderManagement = () => {
   //     trackingNumber: "TRK123456789",
   //   }
   // ))
-// console.log(mockOrders)
+  // console.log(mockOrders)
   const [notifications, setNotifications] = useState([
     { id: 1, message: "New order received from John Doe", type: "info", time: "2 min ago" },
     { id: 2, message: "Order ORD-003 has been shipped", type: "success", time: "5 min ago" },
@@ -210,15 +210,15 @@ const OrderManagement = () => {
   }, [])
 
   const filteredOrders = useMemo(() => {
-  
+
     const filtered = allOrders?.filter((order) => {
-       const customerName= order?.userId?.name || "user"
-       const customerEmail= order?.userId?.email || "user@damy.com"
+      const customerName = order?.userId?.name || "user"
+      const customerEmail = order?.userId?.email || "user@damy.com"
       const matchesSearch =
         customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         order?.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       customerEmail.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesStatus =  order?.order_status === "pending"
+        customerEmail.toLowerCase().includes(searchTerm.toLowerCase())
+      const matchesStatus = order?.order_status === "pending"
       // const matchesPriority = priorityFilter === "all" || order.priority === priorityFilter
       return matchesSearch && matchesStatus
     })
@@ -242,7 +242,7 @@ const OrderManagement = () => {
       }
     })
     return filtered
-  }, [searchTerm, statusFilter, sortBy, sortOrder,allOrders])
+  }, [searchTerm, statusFilter, sortBy, sortOrder, allOrders])
 
   // Calculate statistics
   const stats = useMemo(() => {
@@ -288,19 +288,23 @@ const OrderManagement = () => {
 
   const handleStatusChange = async (orderId, newStatus) => {
     setIsLoading(true)
-  const res = await OrderUpdate(orderId,newStatus)
-  
-  if(res.success){
-    setShowModal(false)
-    refetch()
-  }
+    const res = await OrderUpdate(orderId, newStatus)
+
+    if (res.success) {
+      setShowModal(false)
+      refetch()
+    }
     setIsLoading(false)
   }
 
-  const handleDeleteOrder = async (orderId) => {
+  const handleDeleteOrder = async (orderId, newStatus) => {
     setIsLoading(true)
-    await new Promise((resolve) => setTimeout(resolve, 800))
-    console.log(`Deleting order ${orderId}`)
+    const res = await OrderUpdate(orderId, newStatus)
+
+    if (res.success) {
+      setShowModal(false)
+      refetch()
+    }
     setIsLoading(false)
   }
 
@@ -308,7 +312,7 @@ const OrderManagement = () => {
     setSelectedOrder(order)
     setShowModal(true)
   }
-  if(ordersLoading)return <p>Loading...</p>
+  if (ordersLoading) return <DashboardLoader />
   // console.log("all orders ----->",allOrders)
   // console.log("filtered---->",filteredOrders)
   return (
@@ -405,7 +409,7 @@ const OrderManagement = () => {
                       className="w-full pl-12 pr-4 py-3 bg-gradient-to-r from-gray-700/50 to-gray-800/50 backdrop-blur-sm border border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 text-white placeholder-gray-400"
                     />
                   </div>
-                {/* status filter  */}
+                  {/* status filter  */}
                   {/* <div className="flex gap-3">
                     <select
                       value={statusFilter}
@@ -523,7 +527,7 @@ const OrderManagement = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="p-6">
               <div className="grid gap-6 grid-cols-1 xl:grid-cols-3">
                 {paginatedOrders?.map((order, index) => {
@@ -597,7 +601,7 @@ const OrderManagement = () => {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation()
-                                handleDeleteOrder(order?.orderId)
+                                handleDeleteOrder(order?._id, "cancelled")
                               }}
                               className="p-2 rounded-xl bg-red-600 hover:bg-red-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
                             >
@@ -696,8 +700,8 @@ const OrderManagement = () => {
                             key={page}
                             onClick={() => setCurrentPage(page)}
                             className={`w-10 h-10 rounded-xl transition-all duration-300 hover:scale-105 ${currentPage === page
-                                ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg"
-                                : "bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 text-white hover:border-gray-500"
+                              ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg"
+                              : "bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 text-white hover:border-gray-500"
                               }`}
                           >
                             {page}
@@ -721,7 +725,7 @@ const OrderManagement = () => {
         </div>
 
         {/* Loading Overlay */}
-        {isLoading && <DashboardLoader/>}
+        {isLoading && <DashboardLoader />}
 
         {showModal && selectedOrder && (
           <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-40 p-4 min-h-screen">
@@ -783,7 +787,7 @@ const OrderManagement = () => {
                             {new Date(selectedOrder.orderDate).toLocaleDateString()}
                           </span>
                         </div>
-                        
+
                         <div className="flex justify-between">
                           <span className="text-gray-400">Total Items:</span>
                           <span className="font-medium text-white">{selectedOrder.products.length}</span>
@@ -834,13 +838,13 @@ const OrderManagement = () => {
                       </h3>
                       <div className="space-y-3">
                         {selectedOrder?.products?.map((item, index) => (
-                          console.log("item--->",item.image[0]),
+                          console.log("item--->", item.image[0]),
                           <div
                             key={index}
                             className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 rounded-xl p-2 shadow-sm border border-gray-700 hover:border-gray-600 transition-colors duration-300"
                           >
                             <div className="flex justify-between items-center">
-                            <img className="w-12 h-12 object-cover object-top rounded-sm" src={item.image[0]} alt="product photo" />
+                              <img className="w-12 h-12 object-cover object-top rounded-sm" src={item.image[0]} alt="product photo" />
                               <div>
                                 <h4 className=" text-sm text-white">{item.name}</h4>
                                 <p className="text-xs text-gray-400">Quantity: {item.quantity}</p>
