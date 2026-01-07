@@ -21,6 +21,7 @@ import {
 } from "../../hook/useWishlist";
 import { useGetcategory } from "../../utlis/usecategory";
 import { useGetProduct } from "../../utlis/userProduct";
+import { useCategoryWithSubcategories } from "../../utlis/useCategoryWithSubcategories";
 
 // Helper function to determine if product is new or old
 const isProductNew = (createdDate) => {
@@ -41,11 +42,51 @@ const PopularProducts = () => {
   const { data: wishlistItems } = useSelector((state) => state?.wishlist?.data);
   const user = useSelector((state) => state.user.data);
 
-  const productParams = useMemo(() => ({ page: 1, limit: 100, search: "" }), []);
+  const productParams = useMemo(() => ({ page: 1, limit: 1000, search: "" }), []);
 
-  // ✅ Fetch data dynamically
+  // ✅ Fetch data dynamically (same as shop component)
   const { category, loading: categoryLoading } = useGetcategory();
   const { product, loading: productLoading, error } = useGetProduct(productParams);
+  
+  // ✅ Fetch categories and subcategories from API (same as shop)
+  const { categories: shopCategories, subcategories: shopSubcategories, loading: shopCategoriesLoading } = useCategoryWithSubcategories();
+
+  // ✅ Console log all products and their categories (from shop data)
+  useEffect(() => {
+    if (shopCategories && shopCategories.length > 0 && product) {
+      console.log('\n🛒 === SHOP DATA ===');
+      console.log('📦 All Categories from Shop API:', shopCategories);
+      console.log('📦 All Subcategories from Shop API:', shopSubcategories);
+      console.log('📦 Total Categories:', shopCategories.length);
+      console.log('📦 Total Subcategories:', shopSubcategories.length);
+      console.log('📦 Total Products:', product.length);
+      
+      // Show products by category
+      console.log('\n📊 Products grouped by Category:');
+      shopCategories.forEach(cat => {
+        const productsInCategory = product.filter(p => {
+          let categoryName = "";
+          if (Array.isArray(p.category) && p.category.length > 0) {
+            const pCat = p.category[0];
+            categoryName = (typeof pCat === 'string' ? pCat : pCat?.name) || "";
+          } else if (typeof p.category === 'object' && p.category?.name) {
+            categoryName = p.category.name || "";
+          } else if (typeof p.category === 'string') {
+            categoryName = p.category;
+          }
+          return categoryName.toLowerCase() === cat.name.toLowerCase();
+        });
+        
+        console.log(`\n📁 ${cat.name}`);
+        console.log(`   └─ ${productsInCategory.length} products`);
+        if (productsInCategory.length > 0) {
+          productsInCategory.forEach((prod, idx) => {
+            console.log(`      ${idx + 1}. ${prod.productName} - $${prod.price}`);
+          });
+        }
+      });
+    }
+  }, [shopCategories, shopSubcategories, product]);
 
   // ✅ Fetch wishlist once (for logged-in user)
   useEffect(() => {
@@ -58,13 +99,14 @@ const PopularProducts = () => {
 
 
 
-  const loading = categoryLoading || productLoading;
+  const loading = categoryLoading || productLoading || shopCategoriesLoading;
 
-  // 🧩 Merge structured dataset
+  // 🧩 Merge structured dataset using shop categories
   const mergedData = useMemo(() => {
-    if (!product || !category) return { products: [], categories: [] };
+    if (!product || !shopCategories) return { products: [], categories: [] };
 
-    const categories = category.map((c) => ({
+    // Use shop categories instead of old category data
+    const categories = shopCategories.map((c) => ({
       id: c.name?.toUpperCase(),
       name: c.name?.toUpperCase(),
       icon: c.icon || <Sparkles className="w-4 h-4" />,
@@ -111,26 +153,38 @@ const PopularProducts = () => {
     });
 
     return { products, categories };
-  }, [product, category]);
+  }, [product, shopCategories]);
 
   const currentProducts = useMemo(() => {
     if (activeCategory === "ALL") {
-      // When ALL is selected, get 5 products from each category
+      // When ALL is selected, get 5 products from each subcategory within each category
       const productsByCategory = {};
       
       mergedData.products.forEach(p => {
         if (!productsByCategory[p.category]) {
-          productsByCategory[p.category] = [];
+          productsByCategory[p.category] = {};
         }
-        productsByCategory[p.category].push(p);
+        
+        const subCatKey = p.subCategory || 'NO_SUBCATEGORY';
+        if (!productsByCategory[p.category][subCatKey]) {
+          productsByCategory[p.category][subCatKey] = [];
+        }
+        productsByCategory[p.category][subCatKey].push(p);
       });
 
-      // Take 5 products from each category
+      // Take 5 products from each subcategory within each category
       const result = [];
       Object.keys(productsByCategory).forEach(catName => {
-        const productsInCat = productsByCategory[catName];
-        result.push(...productsInCat.slice(0, 5));
+        const subcategories = productsByCategory[catName];
+        Object.keys(subcategories).forEach(subCatName => {
+          const productsInSubCat = subcategories[subCatName];
+          result.push(...productsInSubCat.slice(0, 5));
+        });
       });
+
+      // Debug: log categories and counts
+      console.log('ALL Categories - Products count:', result.length);
+      console.log('Categories:', Object.keys(productsByCategory));
 
       return result;
     }
@@ -162,8 +216,9 @@ const PopularProducts = () => {
     const filtered = currentProducts.filter((p) =>
       p.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    // Limit to 40 products for home page
-    return filtered.slice(0, 40);
+    // Limit to 100 products for home page to show all categories
+    console.log('Filtered products count:', filtered.length);
+    return filtered.slice(0, 100);
   }, [currentProducts, searchTerm]);
 
   const renderStars = (rating) => {
