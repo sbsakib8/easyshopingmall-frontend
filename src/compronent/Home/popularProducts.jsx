@@ -51,42 +51,7 @@ const PopularProducts = () => {
   // ✅ Fetch categories and subcategories from API (same as shop)
   const { categories: shopCategories, subcategories: shopSubcategories, loading: shopCategoriesLoading } = useCategoryWithSubcategories();
 
-  // ✅ Console log all products and their categories (from shop data)
-  useEffect(() => {
-    if (shopCategories && shopCategories.length > 0 && product) {
-      console.log('\n🛒 === SHOP DATA ===');
-      console.log('📦 All Categories from Shop API:', shopCategories);
-      console.log('📦 All Subcategories from Shop API:', shopSubcategories);
-      console.log('📦 Total Categories:', shopCategories.length);
-      console.log('📦 Total Subcategories:', shopSubcategories.length);
-      console.log('📦 Total Products:', product.length);
-      
-      // Show products by category
-      console.log('\n📊 Products grouped by Category:');
-      shopCategories.forEach(cat => {
-        const productsInCategory = product.filter(p => {
-          let categoryName = "";
-          if (Array.isArray(p.category) && p.category.length > 0) {
-            const pCat = p.category[0];
-            categoryName = (typeof pCat === 'string' ? pCat : pCat?.name) || "";
-          } else if (typeof p.category === 'object' && p.category?.name) {
-            categoryName = p.category.name || "";
-          } else if (typeof p.category === 'string') {
-            categoryName = p.category;
-          }
-          return categoryName.toLowerCase() === cat.name.toLowerCase();
-        });
-        
-        console.log(`\n📁 ${cat.name}`);
-        console.log(`   └─ ${productsInCategory.length} products`);
-        if (productsInCategory.length > 0) {
-          productsInCategory.forEach((prod, idx) => {
-            console.log(`      ${idx + 1}. ${prod.productName} - $${prod.price}`);
-          });
-        }
-      });
-    }
-  }, [shopCategories, shopSubcategories, product]);
+
 
   // ✅ Fetch wishlist once (for logged-in user)
   useEffect(() => {
