@@ -622,7 +622,7 @@ const OrderManagement = () => {
                               <DollarSign className="h-4 w-4" />
                               Total
                             </div>
-                            <div className="text-2xl font-bold text-green-400">${order?.totalAmt.toFixed(2)}</div>
+                            <div className="text-2xl font-bold text-green-400">৳{order?.totalAmt.toFixed(2)}</div>
                           </div>
                         </div>
 
@@ -827,24 +827,26 @@ const OrderManagement = () => {
 
                   {/* Order Items */}
                   <div className="space-y-4">
-                    <div className="bg-gradient-to-br from-gray-700/50 to-gray-800/50 rounded-2xl p-6 border border-gray-600">
+                    <div className="bg-gradient-to-br from-gray-700/50 to-gray-800/50 rounded-2xl p-3 border border-gray-600">
                       <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                         <ShoppingCart className="h-5 w-5 text-green-400" />
                         Order Items
                       </h3>
                       <div className="space-y-3">
                         {selectedOrder?.products?.map((item, index) => (
+                          console.log("item--->",item.image[0]),
                           <div
                             key={index}
-                            className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 rounded-xl p-4 shadow-sm border border-gray-700 hover:border-gray-600 transition-colors duration-300"
+                            className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 rounded-xl p-2 shadow-sm border border-gray-700 hover:border-gray-600 transition-colors duration-300"
                           >
                             <div className="flex justify-between items-center">
+                            <img className="w-12 h-12 object-cover object-top rounded-sm" src={item.image[0]} alt="product photo" />
                               <div>
-                                <h4 className="font-semibold text-white">{item.name}</h4>
-                                <p className="text-sm text-gray-400">Quantity: {item.quantity}</p>
+                                <h4 className=" text-sm text-white">{item.name}</h4>
+                                <p className="text-xs text-gray-400">Quantity: {item.quantity}</p>
                               </div>
                               <div className="text-right">
-                                <p className="text-lg font-bold text-green-400">${item.price.toFixed(2)}</p>
+                                <p className="text-lg font-bold text-green-400">৳{item.price.toFixed(2)}</p>
                                 <p className="text-sm text-gray-500">each</p>
                               </div>
                             </div>
@@ -856,7 +858,7 @@ const OrderManagement = () => {
                         <div className="flex justify-between items-center">
                           <span className="text-xl font-bold text-white">Total Amount:</span>
                           <span className="text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
-                            ${selectedOrder?.totalAmt.toFixed(2)}
+                            ৳{selectedOrder?.totalAmt.toFixed(2)}
                           </span>
                         </div>
                       </div>
