@@ -182,7 +182,7 @@ const OrderManagement = () => {
   const [showFilters, setShowFilters] = useState(false)
   const [confirmationModal, setConfirmationModal] = useState(false)
   const { allOrders, loading: ordersLoading, refetch } = useGetAllOrders()
-  // console.log("allorders---->",allOrders)
+  console.log("allorders---->",allOrders)
 
   // const newmockOrders = allOrders?.map(order => (
   //   {
@@ -768,11 +768,15 @@ const OrderManagement = () => {
                         </div>
                         <div className="flex items-center gap-3">
                           <Phone className="h-4 w-4 text-gray-400" />
-                          <span className="text-gray-300">{selectedOrder?.userId?.mobile}</span>
+                          <span className="text-gray-300">{selectedOrder?.delivery_address?.mobile}</span>
                         </div>
-                        <div className="flex items-start gap-3">
-                          <MapPin className="h-4 w-4 text-gray-400 mt-1" />
-                          <span className="text-gray-300">{selectedOrder?.delivery_address}</span>
+                        <div className="flex flex-col items-start gap-3">
+                          {/* <MapPin className="h-4 w-4 text-gray-400 mt-1" /> */}
+                          <h3 className="font-bold text-white">Address Line: <span className="text-gray-300 font-normal">{selectedOrder?.delivery_address?.address_line || "Bangladesh"}</span></h3>
+                          <h3 className="font-bold text-white">District: <span className="text-gray-300 font-normal">{selectedOrder?.delivery_address?.district || "Bangladesh"}</span></h3>
+                          <h3 className="font-bold text-white">Division: <span className="text-gray-300 font-normal">{selectedOrder?.delivery_address?.division || "Bangladesh"}</span></h3>
+                          <h3 className="font-bold text-white">Pincode: <span className="text-gray-300 font-normal">{selectedOrder?.delivery_address?.pincode || "Bangladesh"}</span></h3>
+                          <h3 className="font-bold text-white">Upazila Thana: <span className="text-gray-300 font-normal">{selectedOrder?.delivery_address?.upazila_thana || "Bangladesh"}</span></h3>
                         </div>
                       </div>
                     </div>
@@ -787,32 +791,32 @@ const OrderManagement = () => {
                         <div className="flex justify-between">
                           <span className="text-gray-400">Order Date:</span>
                           <span className="font-medium text-white">
-                            {new Date(selectedOrder.orderDate).toLocaleDateString()}
+                            {new Date(selectedOrder?.orderDate).toLocaleDateString()}
                           </span>
                         </div>
 
                         <div className="flex justify-between">
                           <span className="text-gray-400">Total Items:</span>
-                          <span className="font-medium text-white">{selectedOrder.products.length}</span>
+                          <span className="font-medium text-white">{selectedOrder?.products.length}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-gray-400">Status:</span>
                           <div className="flex items-center gap-2">
                             {(() => {
-                              const StatusIcon = statusIcons[selectedOrder.status]
+                              const StatusIcon = statusIcons[selectedOrder?.status]
                               return StatusIcon ? <StatusIcon className="h-4 w-4 text-white" /> : null
                             })()}
                             <span
                               className={`px-4 py-2 rounded-xl text-sm font-semibold ${statusColors[selectedOrder?.order_status]}`}
                             >
-                              {selectedOrder?.order_status.charAt(0).toUpperCase() + selectedOrder?.order_status.slice(1)}
+                              {selectedOrder?.order_status.charAt(0).toUpperCase() + selectedOrder?.order_status?.slice(1)}
                             </span>
                           </div>
                         </div>
                         {selectedOrder.trackingNumber && (
                           <div className="flex justify-between">
                             <span className="text-gray-400">Tracking:</span>
-                            <span className="font-medium text-white">{selectedOrder.trackingNumber}</span>
+                            <span className="font-medium text-white">{selectedOrder?.trackingNumber}</span>
                           </div>
                         )}
                         {selectedOrder.rating && (
@@ -822,7 +826,7 @@ const OrderManagement = () => {
                               {[...Array(5)].map((_, i) => (
                                 <Star
                                   key={i}
-                                  className={`h-4 w-4 ${i < selectedOrder.rating ? "text-yellow-400 fill-current" : "text-gray-600"}`}
+                                  className={`h-4 w-4 ${i < selectedOrder?.rating ? "text-yellow-400 fill-current" : "text-gray-600"}`}
                                 />
                               ))}
                             </div>
@@ -846,13 +850,13 @@ const OrderManagement = () => {
                             className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 rounded-xl p-2 shadow-sm border border-gray-700 hover:border-gray-600 transition-colors duration-300"
                           >
                             <div className="flex justify-between items-center">
-                              <img className="w-12 h-12 object-cover object-top rounded-sm mr-1" src={item.image[0]} alt="product photo" />
+                              <img className="w-12 h-12 object-cover object-top rounded-sm mr-1" src={item?.image[0]} alt="product photo" />
                               <div>
-                                <h4 className=" text-sm text-white">{item.name}</h4>
-                                <p className="text-xs text-gray-400">Quantity: {item.quantity}</p>
+                                <h4 className=" text-sm text-white">{item?.name}</h4>
+                                <p className="text-xs text-gray-400">Quantity: {item?.quantity}</p>
                               </div>
                               <div className="text-right">
-                                <p className="text-lg font-bold text-green-400">৳{item.price.toFixed(2)}</p>
+                                <p className="text-lg font-bold text-green-400">৳{item?.price.toFixed(2)}</p>
                                 <p className="text-sm text-gray-500">each</p>
                               </div>
                             </div>
@@ -881,13 +885,13 @@ const OrderManagement = () => {
                           Mark Processing
                         </button>
                         <button
-                          onClick={() => handleStatusChange(selectedOrder._id, "shipped")}
+                          onClick={() => handleStatusChange(selectedOrder?._id, "shipped")}
                           className="px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 text-sm font-medium"
                         >
                           Mark Shipped
                         </button>
                         <button
-                          onClick={() => handleStatusChange(selectedOrder._id, "completed")}
+                          onClick={() => handleStatusChange(selectedOrder?._id, "completed")}
                           className="px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 text-sm font-medium"
                         >
                           Mark Completed
