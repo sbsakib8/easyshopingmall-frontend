@@ -1,6 +1,6 @@
 "use client";
 
-import { OrderCreate, initPaymentSession, submitManualPayment } from "@/src/hook/useOrder";
+import { OrderCreate, initPaymentSession } from "@/src/hook/useOrder";
 import { MapPin, Shield, ShoppingCart, Star, Truck } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -40,7 +40,7 @@ export default function CheckoutComponent() {
 
 
   // subtotal
-  const subtotal = cartItems.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 0), 0);
+  const subtotal = cartItems.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 0), 0);
   const total = subtotal + deliveryCharge;
   console.log('cartItems', cartItems);
 
@@ -85,47 +85,31 @@ export default function CheckoutComponent() {
 
   // Create order helper
   const createOrder = async (override = {}) => {
-    const delivery_address = {
-      address_line: customerInfo.address,
-      district: customerInfo.district,
-      division: customerInfo.division,
-      upazila_thana: customerInfo.area,
-      pincode: "", // Assuming empty as not present in customerInfo
-      country: "Bangladesh", // Assuming default
-      mobile: customerInfo.phone ? Number(customerInfo.phone) : null,
-    };
-
-    // Determine payment_type based on selectedPayment or override
-    let paymentType = "full";
-    if (selectedPayment === 'ssl-delivery' || override.payDeliveryOnly) {
-      paymentType = "delivery";
-    }
+    const delivery_address = [
+      customerInfo.address,
+      customerInfo.area,
+      customerInfo.city,
+    ].filter(Boolean).join(", ");
 
     const payload = {
       userId: user._id,
-      products: cartItems.map(item => {
-        const product = item.productId || {};
-        const price = item.price ?? product.price ?? 0;
-        return {
-          productId: product._id || item.productId,
-          name: product.productName || item.name,
-          image: product.images || item.image,
-          quantity: item.quantity,
-          price: price,
-          totalPrice: (Number(price) || 0) * (Number(item.quantity) || 0),
-          size: item.size || null,
-          color: item.color || null,
-          weight: item.weight || null,
-        }
-      }),
+      products: cartItems.map(item => ({
+        productId: item.productId?._id || item.productId,
+        name: item.productId?.productName || item.name,
+        image: item.productId?.images || item.image,
+        quantity: item.quantity,
+        price: item.price,
+        size: item.size || null,
+        color: item.color || null,
+        weight: item.weight || null,
+      })),
 
       delivery_address,
       deliveryCharge,
       subTotalAmt: subtotal,
-      totalAmt: subtotal + deliveryCharge, // Total amount is always full order value
+      totalAmt: subtotal + deliveryCharge,
 
-      payment_method: override.payment_method || (selectedPayment === 'manual' ? 'manual' : 'sslcommerz'),
-      payment_type: paymentType, // Set payment_type here
+      payment_method: override.payment_method || "manual",
       payment_details: override.payment_details || undefined,
     };
 
@@ -135,11 +119,11 @@ export default function CheckoutComponent() {
 
   // One-click SSL (full or delivery-only)
   const handleProceedToPayment = async ({ payDeliveryOnly = false } = {}) => {
-    const { name, phone, email, address, division, district, area } = customerInfo;
+    const { name, phone, email, address, city, area } = customerInfo;
 
     // 1️⃣ Required fields
-    if (!name || !phone || !address || !division || !district || !area) {
-      toast.error("অনুগ্রহ করে সকল প্রয়োজনীয় তথ্য পূরণ করুন (ঠিকানা সহ)");
+    if (!name || !phone || !address) {
+      toast.error("অনুগ্রহ করে সকল প্রয়োজনীয় তথ্য পূরণ করুন");
       return;
     }
 
@@ -170,18 +154,30 @@ export default function CheckoutComponent() {
       return;
     }
 
+    // ✅ FIX: delivery_address DEFINE
+    const delivery_address = [address, area, city].filter(Boolean).join(", ");
+
+    if (!delivery_address) {
+      toast.error("ডেলিভারি ঠিকানা আবশ্যক");
+      return;
+    }
+
     try {
       setIsProcessing(true);
 
-      const paymentType = payDeliveryOnly ? "delivery" : "full";
-
-      // 1️⃣ Create order (manual / pending for now, will be updated by SSL)
-      const orderRes = await createOrder({
+      // 1️⃣ Create order (manual / pending)
+      const orderRes = await OrderCreate({
+        userId: user._id,
+        delivery_address,
+        products: cartItems,
         payment_method: "sslcommerz",
-        payment_type: paymentType,
+        payment_details: {
+          manualFor: payDeliveryOnly ? "delivery" : "full",
+        },
+        subTotalAmt: subtotal,
+        deliveryCharge,
+        totalAmt: payDeliveryOnly ? deliveryCharge : subtotal + deliveryCharge,
       });
-
-      console.log('Full orderRes after createOrder:', orderRes); // Added log
 
       const dbOrder = orderRes?.data;
       const dbOrderId = dbOrder?._id;
@@ -191,13 +187,24 @@ export default function CheckoutComponent() {
       }
 
       // 2️⃣ Init SSL payment
+      const amountToPay = payDeliveryOnly
+        ? deliveryCharge
+        : subtotal + deliveryCharge;
+
       const paymentRes = await initPaymentSession({
-        orderId: dbOrderId, // Send orderId
-        payment_type: paymentType, // Send payment_type
-        userId: user._id, // Explicitly send userId from frontend
+        dbOrderId,
+        user: {
+          name,
+          email,
+          phone,
+          address: delivery_address,
+        },
+        amount: amountToPay,
+        isPartialPayment: payDeliveryOnly,
       });
 
-      const gatewayUrl = paymentRes?.url;
+      const gatewayUrl =
+        paymentRes?.url || paymentRes?.GatewayPageURL;
 
       if (!gatewayUrl) {
         throw new Error("Payment গেটওয়ে URL পাওয়া যায়নি");
@@ -224,51 +231,43 @@ export default function CheckoutComponent() {
     try {
       setIsProcessing(true);
 
-      // 1️⃣ Validate required payment info
-      if (!paymentInfo.phoneNumber || !paymentInfo.transactionId) {
-        toast.error("অনুগ্রহ করে পেমেন্ট নম্বর এবং ট্রানজ্যাকশন আইডি উভয়ই দিন");
-        return;
-      }
-      if (!selectedManualMethod) {
-        toast.error("অনুগ্রহ করে একটি ম্যানুয়াল পেমেন্ট পদ্ধতি নির্বাচন করুন");
-        return;
-      }
+      // 1️⃣ Prepare delivery address
+      const delivery_address = [customerInfo.division, customerInfo.address, customerInfo.area, customerInfo.city]
+        .filter(Boolean)
+        .join(", ");
 
       // 2️⃣ Create order in DB with payment_status pending
-      // The createOrder helper already sets payment_method to "manual" and correct payment_type
-      const orderRes = await createOrder({
-        payment_method: "manual",
-        payDeliveryOnly: deliveryOnly, // Pass this to helper to set payment_type
+      const orderRes = await OrderCreate({
+        userId: user._id,
+        delivery_address,
+        products: cartItems,
+        paymentMethod: "manual",
+        paymentDetails: {
+          providerNumber: paymentInfo.phoneNumber,
+          transactionId: paymentInfo.transactionId,
+          manualFor: deliveryOnly ? "delivery" : "full",
+        },
+        subtotal,
+        total: subtotal + deliveryCharge,
+        deliveryCharge,
       });
 
       const order = orderRes?.data;
-      const dbOrderId = order?._id;
-
-      if (!dbOrderId) throw new Error("Order creation failed");
-
-
-      // 3️⃣ Submit manual payment details to update the order
-      const manualPaymentPayload = {
-        orderId: dbOrderId,
-        phoneNumber: paymentInfo.phoneNumber,
-        transactionId: paymentInfo.transactionId,
-        manualFor: deliveryOnly ? "delivery" : "full",
-      };
-      console.log("Submitting manual payment with payload:", manualPaymentPayload);
-      await submitManualPayment(manualPaymentPayload);
-
+      if (!order?._id) throw new Error("Order creation failed");
 
       // ✅ Show user a success toast, but note it's pending
       toast.success(
-        `ম্যানুয়াল পেমেন্ট জমা হয়েছে। অ্যাডমিনের কনফার্মেশনের অপেক্ষায় আছে।`
+        `ম্যানুয়াল পেমেন্ট জমা হয়েছে। অডমিনের কনফার্মেশনের অপেক্ষায় আছে।`
       );
 
-      // 4️⃣ Optionally, store order locally to show on frontend
+
+      // 3️⃣ Optionally, store order locally to show on frontend
       setCreatedOrder(order);
 
-      // 5️⃣ Clear cart and redirect
+      // 4️⃣ Clear cart (optional, depending on your logic)
       // dispatch(clearCart()); // if you have a redux action
-      window.location.href = '/';
+      window.location.href = '/account'
+
 
     } catch (err) {
       console.error("Manual payment error:", err);

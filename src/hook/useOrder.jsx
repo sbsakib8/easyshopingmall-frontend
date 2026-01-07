@@ -18,7 +18,7 @@ export const OrderCreate = async (formData) => {
 export const submitManualPayment = async (data) => {
     try {
         const response = await axios.post(
-            `${UrlBackend}/orders/manual-payment`,
+            `${UrlBackend}/order/manual-payment`,
             data,
             {
                 withCredentials: true,
@@ -40,7 +40,7 @@ export const submitManualPayment = async (data) => {
 // ✅ Initialize SSLCommerz payment session
 export const initPaymentSession = async (payload) => {
     try {
-        const response = await axios.post(`${UrlBackend}/payment/initiate`, payload, {
+        const response = await axios.post(`${UrlBackend}/payment/init`, payload, {
             withCredentials: true,
             headers: { "Content-Type": "application/json" },
         });

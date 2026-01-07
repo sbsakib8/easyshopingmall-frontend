@@ -219,7 +219,7 @@ const OrderManagement = () => {
        customerEmail.toLowerCase().includes(searchTerm.toLowerCase())
       const matchesStatus =  order?.order_status === "pending"
       // const matchesPriority = priorityFilter === "all" || order.priority === priorityFilter
-      return matchesSearch && matchesStatus 
+      return matchesSearch && matchesStatus
     })
     // Sort orders
     filtered?.sort((a, b) => {
@@ -372,7 +372,7 @@ const OrderManagement = () => {
             <div className="relative">
               <DollarSign className="h-8 w-8 mb-3 text-purple-400" />
               <p className="text-gray-400 text-sm">Revenue</p>
-              <p className="text-3xl font-bold text-white">${stats?.revenue?.toFixed(0)}</p>
+              <p className="text-3xl font-bold text-white">৳ {stats?.revenue?.toFixed(0)}</p>
             </div>
           </div>
 
@@ -381,7 +381,7 @@ const OrderManagement = () => {
             <div className="relative">
               <TrendingUp className="h-8 w-8 mb-3 text-indigo-400" />
               <p className="text-gray-400 text-sm">Avg Order</p>
-              <p className="text-3xl font-bold text-white">${stats.avgOrderValue.toFixed(0)}</p>
+              <p className="text-3xl font-bold text-white">৳{stats.avgOrderValue.toFixed(0)}</p>
             </div>
           </div>
         </div>
@@ -404,8 +404,8 @@ const OrderManagement = () => {
                       className="w-full pl-12 pr-4 py-3 bg-gradient-to-r from-gray-700/50 to-gray-800/50 backdrop-blur-sm border border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 text-white placeholder-gray-400"
                     />
                   </div>
-
-                  <div className="flex gap-3">
+                {/* status filter  */}
+                  {/* <div className="flex gap-3">
                     <select
                       value={statusFilter}
                       onChange={(e) => setStatusFilter(e.target.value)}
@@ -429,25 +429,25 @@ const OrderManagement = () => {
                       <option className="bg-[#1A2533]" value="medium">Medium Priority</option>
                       <option className="bg-[#1A2533]" value="low">Low Priority</option>
                     </select>
-                  </div>
+                  </div> */}
                 </div>
 
                 <div className="flex gap-3">
-                  <button
+                  {/* <button
                     onClick={() => setShowFilters(!showFilters)}
                     className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2 hover:scale-105"
                   >
                     <FilterIcon className="h-4 w-4" />
                     Filters
-                  </button>
-                  <button className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-2xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2 hover:scale-105">
+                  </button> */}
+                  {/* <button className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-2xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2 hover:scale-105">
                     <Download className="h-4 w-4" />
                     Export
-                  </button>
-                  <button className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2 hover:scale-105">
+                  </button> */}
+                  {/* <button className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2 hover:scale-105">
                     <Plus className="h-4 w-4" />
                     New Order
-                  </button>
+                  </button> */}
                 </div>
               </div>
 
@@ -474,13 +474,13 @@ const OrderManagement = () => {
 
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-2">
-                    <button
+                    {/* <button
                       onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
                       className="p-2 rounded-xl bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 text-white hover:border-gray-500 transition-all duration-300"
                     >
                       <ArrowUpDown className="h-4 w-4" />
-                    </button>
-                    <select
+                    </button> */}
+                    {/* <select
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value)}
                       className="px-3 py-2 bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 rounded-xl text-white text-sm"
@@ -489,7 +489,7 @@ const OrderManagement = () => {
                       <option className="bg-[#1A2533]" value="total">Amount</option>
                       <option className="bg-[#1A2533]" value="customerName">Customer</option>
                       <option className="bg-[#1A2533]" value="status">Status</option>
-                    </select>
+                    </select> */}
                   </div>
                 </div>
               </div>
@@ -528,7 +528,6 @@ const OrderManagement = () => {
                 {paginatedOrders?.map((order, index) => {
                   const StatusIcon = statusIcons[order.status]
                   const isSelected = selectedOrders.has(order?.orderId)
-                  // if(order?.order_status!=="pending")return 
                   return (
                     <div
                       key={order.orderId}
