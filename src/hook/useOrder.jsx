@@ -1,8 +1,22 @@
 import axios from "axios";
 import { UrlBackend } from "../confic/urlExport";
 
-// ✅ Create order from cart
-export const OrderCreate = async (formData) => {
+// ✅ Create manual payment order
+export const createManualPaymentOrder = async (formData) => {
+    try {
+        const response = await axios.post(`${UrlBackend}/orders/manual`, formData, {
+            withCredentials: true,
+            headers: { "Content-Type": "application/json" },
+        });
+        return response.data; // { success, data: { ...order } }
+    } catch (error) {
+        console.error("Manual order creation error:", error.response?.data || error.message);
+        throw error;
+    }
+};
+
+// ✅ Create SSL payment order
+export const createSslPaymentOrder = async (formData) => {
     try {
         const response = await axios.post(`${UrlBackend}/orders/create`, formData, {
             withCredentials: true,
@@ -10,7 +24,7 @@ export const OrderCreate = async (formData) => {
         });
         return response.data; // { success, data: { ...order } }
     } catch (error) {
-        console.error("Order creation error:", error.response?.data || error.message);
+        console.error("SSL order creation error:", error.response?.data || error.message);
         throw error;
     }
 };
