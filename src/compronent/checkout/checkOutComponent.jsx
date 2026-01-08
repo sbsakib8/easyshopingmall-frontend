@@ -132,7 +132,11 @@ export default function CheckoutComponent() {
       payment_details: {
         ...override.payment_details,
         ...(selectedPayment === 'manual' && override.manualPaymentMethod
-          ? { manual_payment_method: override.manualPaymentMethod }
+          ? {
+              manual_payment_method: override.manualPaymentMethod.method,
+              provider_number: override.manualPaymentMethod.provider_number,
+              transaction_id: override.manualPaymentMethod.transaction_id,
+            }
           : {}),
       },
     };
@@ -278,7 +282,11 @@ export default function CheckoutComponent() {
       const orderRes = await createOrder({
         payment_method: "manual",
         payDeliveryOnly: deliveryOnly, // Pass this to helper to set payment_type
-        manualPaymentMethod: selectedManualMethod, // Pass selected manual method
+        manualPaymentMethod: {
+          method: selectedManualMethod,
+          provider_number: paymentInfo.phoneNumber,
+          transaction_id: paymentInfo.transactionId,
+        }, // Pass selected manual method and details
       });
 
       const order = orderRes?.data;
