@@ -4,7 +4,7 @@ import { UrlBackend } from "../confic/urlExport";
 // ✅ Create order from cart
 export const OrderCreate = async (formData) => {
     try {
-        const response = await axios.post(`${UrlBackend}/orders/create`, formData, {
+        const response = await axios.post(`${UrlBackend}/orders/manual`, formData, {
             withCredentials: true,
             headers: { "Content-Type": "application/json" },
         });
