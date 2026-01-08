@@ -7,6 +7,8 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import LocationSelects from "../LocationSelects";
+import ManualPaymentForm from "./ManualPaymentForm"; // Import ManualPaymentForm
+
 
 export default function CheckoutComponent() {
   const user = useSelector((state) => state.user?.data);
@@ -26,14 +28,11 @@ export default function CheckoutComponent() {
     pincode: "", // Added pincode
   });
 
-  const [paymentInfo, setPaymentInfo] = useState({ phoneNumber: "", transactionId: "" });
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [deliveryCharge, setDeliveryCharge] = useState(60);
   const [selectedManualMethod, setSelectedManualMethod] = useState(null);
   const [createdOrder, setCreatedOrder] = useState(null);
+  const [manualOrderStep, setManualOrderStep] = useState('initial'); // 'initial', 'order_created', 'payment_submitted'
 
-
-  const isValidBDPhone = (phone) => /^01[3-9]\d{8}$/.test(phone); // BD phone format
+  // Removed paymentInfo state and handlePaymentInfoChange function.
   const isValidEmail = (email) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); // simple email regex
   const detectDhaka = (address, city, area) => {
@@ -222,8 +221,8 @@ export default function CheckoutComponent() {
   };
 
 
-  // Manual payment (full) or manual delivery payment
-  const handleManualSubmit = async ({ deliveryOnly = false }) => {
+  // Manual payment (full) or manual delivery payment - now only places the order
+  const handlePlaceManualOrder = async ({ payDeliveryOnly = false }) => {
     const { name, phone, email, address, division, district, area, pincode } = customerInfo;
 
     // 1️⃣ Required fields (copied from handleProceedToPayment)
@@ -257,31 +256,10 @@ export default function CheckoutComponent() {
     try {
       setIsProcessing(true);
 
-      // 1️⃣ Validate required payment info
-      if (!paymentInfo.phoneNumber || !paymentInfo.transactionId) {
-        toast.error("অনুগ্রহ করে পেমেন্ট নম্বর এবং ট্রানজ্যাকশন আইডি উভয়ই দিন");
-        return;
-      }
-      if (paymentInfo.transactionId.length < 6) { // Added specific length check
-        toast.error("ট্রানজ্যাকশন আইডি কমপক্ষে ৬ অক্ষরের হতে হবে");
-        return;
-      }
-      // Add phone number validation for manual payment
-      if (!isValidBDPhone(paymentInfo.phoneNumber)) {
-        toast.error("সঠিক বাংলাদেশি মোবাইল নম্বর দিন (01XXXXXXXXX) পেমেন্ট নম্বরের জন্য");
-        return;
-      }
-      if (!selectedManualMethod) {
-        toast.error("অনুগ্রহ করে একটি ম্যানুয়াল পেমেন্ট পদ্ধতি নির্বাচন করুন");
-        return;
-      }
-
-      // 2️⃣ Create order in DB with payment_status pending
-      // The createOrder helper already sets payment_method to "manual" and correct payment_type
+      // Create order in DB with payment_status pending
       const orderRes = await createOrder({
         payment_method: "manual",
-        payDeliveryOnly: deliveryOnly, // Pass this to helper to set payment_type
-        manualPaymentMethod: selectedManualMethod, // Pass selected manual method
+        payDeliveryOnly: payDeliveryOnly, // Pass this to helper to set payment_type
       });
 
       const order = orderRes?.data;
@@ -289,33 +267,14 @@ export default function CheckoutComponent() {
 
       if (!dbOrderId) throw new Error("Order creation failed");
 
-
-      // 3️⃣ Submit manual payment details to update the order
-      const manualPaymentPayload = {
-        orderId: dbOrderId,
-        phoneNumber: paymentInfo.phoneNumber,
-        transactionId: paymentInfo.transactionId,
-        manualFor: deliveryOnly ? "delivery" : "full",
-        manualMethod: selectedManualMethod, // Pass selected manual method
-      };
-      console.log("Submitting manual payment with payload:", manualPaymentPayload);
-      await submitManualPayment(manualPaymentPayload);
-
-
-      // ✅ Show user a success toast, but note it's pending
-      toast.success(
-        `ম্যানুয়াল পেমেন্ট জমা হয়েছে। অ্যাডমিনের কনফার্মেশনের অপেক্ষায় আছে।`
-      );
-
-      // 4️⃣ Optionally, store order locally to show on frontend
+      toast.success("অর্ডার তৈরি হয়েছে। এখন পেমেন্টের তথ্য জমা দিন।");
       setCreatedOrder(order);
+      setManualOrderStep('order_created');
 
-      // 5️⃣ Clear cart and redirect
-      // window.location.href = '/'; // Keep redirect for now, cart clear handled elsewhere
 
     } catch (err) {
-      console.error("Manual payment error:", err);
-      const msg = err?.response?.data?.message || err?.message || "ম্যানুয়াল পেমেন্ট ব্যর্থ হয়েছে";
+      console.error("Manual order creation error:", err);
+      const msg = err?.response?.data?.message || err?.message || "ম্যানুয়াল অর্ডার তৈরি ব্যর্থ হয়েছে";
       toast.error(msg);
     } finally {
       setIsProcessing(false);
@@ -474,7 +433,7 @@ export default function CheckoutComponent() {
 
                     {/* ================= Manual Payment ================= */}
                     <div
-                      className={`p-3 rounded-xl border cursor-pointer
+                      className={`manual-payment-section p-3 rounded-xl border cursor-pointer
         ${selectedPayment === 'manual'
                           ? 'border-blue-400 bg-blue-50'
                           : 'border-gray-200 bg-white'}
@@ -507,7 +466,7 @@ export default function CheckoutComponent() {
                       </div>
 
                       {/* Expanded Manual Section */}
-                      {selectedPayment === 'manual' && (
+                      {selectedPayment === 'manual' && manualOrderStep === 'initial' && (
                         <div
                           className="mt-4 space-y-3"
                           onClick={(e) => e.stopPropagation()} // 🔥 key fix
@@ -545,49 +504,69 @@ export default function CheckoutComponent() {
                             );
                           })}
 
-                          {/* Inputs */}
-                          <input
-                            type="text"
-                            placeholder="পেমেন্ট নম্বর (যেই নম্বর থেকে পেমেন্ট করেছেন)"
-                            value={paymentInfo.phoneNumber}
-                            onChange={(e) =>
-                              handlePaymentInfoChange('phoneNumber', e.target.value)
-                            }
-                            className="w-full px-3 py-2 border rounded-xl"
-                          />
-
-                          <input
-                            type="text"
-                            placeholder="ট্রানজ্যাকশন আইডি (Transaction ID)"
-                            value={paymentInfo.transactionId}
-                            onChange={(e) =>
-                              handlePaymentInfoChange('transactionId', e.target.value)
-                            }
-                            className="w-full px-3 py-2 border rounded-xl"
-                          />
-
-                          {/* Submit Buttons */}
-                          <div className="grid grid-cols-2 gap-2 pt-2">
+                          {/* Place Order Button */}
+                          <div className="pt-2">
                             <button
-                              onClick={() => handleManualSubmit({ deliveryOnly: false })}
+                              onClick={() => handlePlaceManualOrder({ payDeliveryOnly: false })} // Only full payment manual order for now
                               disabled={isProcessing || !selectedManualMethod}
-                              className="w-full bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white py-2 rounded-xl font-semibold disabled:opacity-60"
+                              className="w-full bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white py-3 rounded-xl font-semibold disabled:opacity-60"
                             >
-                              {isProcessing ? 'সাবমিট করা হচ্ছে...' : 'ম্যানুয়াল (Full) সাবমিট করুন'}
-                            </button>
-
-                            <button
-                              onClick={() => handleManualSubmit({ deliveryOnly: true })}
-                              disabled={isProcessing || !selectedManualMethod}
-                              className="w-full border border-gray-300 py-2 rounded-xl disabled:opacity-60"
-                            >
-                              {isProcessing
-                                ? 'সাবমিট করা হচ্ছে...'
-                                : `ম্যানুয়াল (Delivery ৳${deliveryCharge})`}
+                              {isProcessing ? 'অর্ডার তৈরি হচ্ছে...' : 'অর্ডার করুন (ম্যানুয়াল পেমেন্ট)'}
                             </button>
                           </div>
                         </div>
                       )}
+
+                      {selectedPayment === 'manual' && manualOrderStep === 'order_created' && createdOrder && (
+                        <div className="mt-4 space-y-3 p-4 bg-blue-50 rounded-xl border border-blue-200">
+                          <h3 className="font-bold text-blue-800 text-lg">ম্যানুয়াল পেমেন্ট নির্দেশাবলী</h3>
+                          <p className="text-sm text-blue-700">
+                            আপনার অর্ডার <strong>#{createdOrder._id?.substring(0, 8)}</strong> সফলভাবে তৈরি হয়েছে।
+                            অনুগ্রহ করে নিচের ধাপগুলো অনুসরণ করে পেমেন্ট সম্পন্ন করুন।
+                          </p>
+                          <p className="font-medium text-blue-700">
+                            মোট প্রদেয়: ৳{createdOrder.totalAmt.toLocaleString()}
+                          </p>
+
+                          {/* Render payment instructions based on selectedManualMethod */}
+                          {selectedManualMethod && (
+                            <div className="bg-blue-100 p-3 rounded-lg text-sm">
+                              <p>Send ৳{createdOrder.totalAmt.toLocaleString()} to:</p>
+                              {manualMethods.find(m => m.id === selectedManualMethod)?.name}:{' '}
+                              <strong>{manualMethods.find(m => m.id === selectedManualMethod)?.number}</strong>
+                              <p className="mt-1 text-xs text-blue-600">
+                                <i>(দয়া করে ব্যক্তিগত নম্বরে সেন্ড মানি করুন)</i>
+                              </p>
+                            </div>
+                          )}
+
+                          <p className="text-sm text-blue-700 mt-2">
+                            পেমেন্ট করার পর, নিচের ফর্মে ট্রানজ্যাকশন আইডি এবং আপনার মোবাইল নম্বর জমা দিন।
+                          </p>
+                          {/* ManualPaymentForm Component */}
+                          <ManualPaymentForm
+                            order={createdOrder}
+                            selectedManualMethod={selectedManualMethod}
+                            manualMethods={manualMethods}
+                            setManualOrderStep={setManualOrderStep}
+                          />
+                        </div>
+                      )}
+
+                      {selectedPayment === 'manual' && manualOrderStep === 'payment_submitted' && (
+                        <div className="mt-4 space-y-3 p-4 bg-green-50 rounded-xl border border-green-200 text-center">
+                          <h3 className="font-bold text-green-800 text-lg">পেমেন্ট জমা হয়েছে!</h3>
+                          <p className="text-sm text-green-700">
+                            আপনার পেমেন্টের তথ্য সফলভাবে জমা দেওয়া হয়েছে।
+                            অ্যাডমিনের কনফার্মেশনের জন্য অপেক্ষা করুন।
+                            অর্ডার ID: <strong>#{createdOrder?._id?.substring(0, 8)}</strong>
+                          </p>
+                          <Link href="/account/orders" className="inline-flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition mt-3">
+                            <ShoppingBag size={18} /> আমার অর্ডারগুলো দেখুন
+                          </Link>
+                        </div>
+                      )}
+
                     </div>
 
                     {/* ================= SSL Full ================= */}
@@ -674,7 +653,18 @@ export default function CheckoutComponent() {
 
                   <button onClick={() => { if (selectedPayment !== 'ssl-delivery') { setSelectedPayment('ssl-delivery'); return; } handleProceedToPayment({ payDeliveryOnly: true }); }} disabled={isProcessing} className="w-full border border-gray-300 py-3 rounded-xl font-semibold">{isProcessing ? 'প্রসেসিং হচ্ছে...' : `Pay Delivery Only (৳${deliveryCharge})`}</button>
 
-                  <button onClick={() => { if (selectedPayment !== 'manual') { setSelectedPayment('manual'); return; } const el = document.querySelector('input[placeholder="ট্রানজ্যাকশন আইডি (Transaction ID)"]'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }} className="w-full border border-gray-300 text-gray-700 py-3 rounded-xl font-semibold">Pay Manually (Bkash / Nagad)</button>
+                  <button onClick={() => {
+                    if (selectedPayment !== 'manual') {
+                      setSelectedPayment('manual');
+                      setManualOrderStep('initial'); // Reset step when selecting manual payment
+                    }
+                    const el = document.querySelector('.manual-payment-section'); // Add a class to the manual payment div
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }}
+                  disabled={isProcessing && selectedPayment === 'manual' && manualOrderStep !== 'initial'}
+                  className="w-full border border-gray-300 text-gray-700 py-3 rounded-xl font-semibold">
+                    Pay Manually (Bkash / Nagad)
+                  </button>
                 </div>
 
                 <div className="mt-4 text-center text-xs text-gray-500">অর্ডার কনফার্ম করার মাধ্যমে আপনি আমাদের <span className="text-blue-600 font-medium">শর্তাবলী</span> মেনে নিচ্ছেন</div>
