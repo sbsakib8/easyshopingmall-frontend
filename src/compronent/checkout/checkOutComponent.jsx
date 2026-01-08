@@ -129,16 +129,7 @@ export default function CheckoutComponent() {
 
       payment_method: override.payment_method || (selectedPayment === 'manual' ? 'manual' : 'sslcommerz'),
       payment_type: paymentType, // Set payment_type here
-      payment_details: {
-        ...override.payment_details,
-        ...(selectedPayment === 'manual' && override.manualPaymentMethod
-          ? {
-              manual_payment_method: override.manualPaymentMethod.method,
-              provider_number: override.manualPaymentMethod.provider_number,
-              transaction_id: override.manualPaymentMethod.transaction_id,
-            }
-          : {}),
-      },
+      payment_details: (override.payment_method === 'manual' || selectedPayment === 'manual') ? null : (override.payment_details || {}),
     };
 
     return OrderCreate(payload);
@@ -187,16 +178,6 @@ export default function CheckoutComponent() {
 
       const paymentType = payDeliveryOnly ? "delivery" : "full";
 
-      const delivery_address_for_payment_session = {
-        address_line: customerInfo.address,
-        district: customerInfo.district,
-        division: customerInfo.division,
-        upazila_thana: customerInfo.area,
-        pincode: customerInfo.pincode,
-        country: "Bangladesh",
-        mobile: customerInfo.phone ? Number(customerInfo.phone) : null,
-      };
-
       // 1️⃣ Create order (manual / pending for now, will be updated by SSL)
       const orderRes = await createOrder({
         payment_method: "sslcommerz",
@@ -217,7 +198,6 @@ export default function CheckoutComponent() {
         orderId: dbOrderId, // Send orderId
         payment_type: paymentType, // Send payment_type
         userId: user._id, // Explicitly send userId from frontend
-        delivery_address: delivery_address_for_payment_session, // Send delivery address
       });
 
       const gatewayUrl = paymentRes?.url;
@@ -231,7 +211,6 @@ export default function CheckoutComponent() {
 
     } catch (error) {
       console.error("SSLCommerz init error:", error);
-      console.error("Full error object:", JSON.stringify(error, null, 2)); // Added full error logging
       const msg =
         error?.response?.data?.message ||
         error?.message ||
@@ -245,7 +224,6 @@ export default function CheckoutComponent() {
 
   // Manual payment (full) or manual delivery payment
   const handleManualSubmit = async ({ deliveryOnly = false }) => {
-    setSelectedPayment('manual'); // Ensure selectedPayment is 'manual'
     const { name, phone, email, address, division, district, area, pincode } = customerInfo;
 
     // 1️⃣ Required fields (copied from handleProceedToPayment)
@@ -284,30 +262,30 @@ export default function CheckoutComponent() {
         toast.error("অনুগ্রহ করে পেমেন্ট নম্বর এবং ট্রানজ্যাকশন আইডি উভয়ই দিন");
         return;
       }
+      if (paymentInfo.transactionId.length < 6) { // Added specific length check
+        toast.error("ট্রানজ্যাকশন আইডি কমপক্ষে ৬ অক্ষরের হতে হবে");
+        return;
+      }
+      // Add phone number validation for manual payment
+      if (!isValidBDPhone(paymentInfo.phoneNumber)) {
+        toast.error("সঠিক বাংলাদেশি মোবাইল নম্বর দিন (01XXXXXXXXX) পেমেন্ট নম্বরের জন্য");
+        return;
+      }
       if (!selectedManualMethod) {
         toast.error("অনুগ্রহ করে একটি ম্যানুয়াল পেমেন্ট পদ্ধতি নির্বাচন করুন");
         return;
       }
-
-      console.log("paymentInfo:", paymentInfo); // Debug log for paymentInfo
 
       // 2️⃣ Create order in DB with payment_status pending
       // The createOrder helper already sets payment_method to "manual" and correct payment_type
       const orderRes = await createOrder({
         payment_method: "manual",
         payDeliveryOnly: deliveryOnly, // Pass this to helper to set payment_type
-        manualPaymentMethod: {
-          method: selectedManualMethod,
-          provider_number: paymentInfo.phoneNumber,
-          transaction_id: paymentInfo.transactionId,
-        }, // Pass selected manual method and details
+        manualPaymentMethod: selectedManualMethod, // Pass selected manual method
       });
 
       const order = orderRes?.data;
       const dbOrderId = order?._id;
-
-      console.log("orderRes:", orderRes); // Debug log for orderRes
-      console.log("dbOrderId:", dbOrderId); // Debug log for dbOrderId
 
       if (!dbOrderId) throw new Error("Order creation failed");
 
@@ -333,8 +311,7 @@ export default function CheckoutComponent() {
       setCreatedOrder(order);
 
       // 5️⃣ Clear cart and redirect
-      dispatch(cartClear()); // Clear cart after successful manual payment
-      window.location.href = '/';
+      // window.location.href = '/'; // Keep redirect for now, cart clear handled elsewhere
 
     } catch (err) {
       console.error("Manual payment error:", err);

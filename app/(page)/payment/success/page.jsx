@@ -2,8 +2,18 @@
 
 import { CheckCircle, ShoppingBag } from "lucide-react";
 import Link from "next/link";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { cartClear } from "@/src/redux/cartSlice";
+
 
 export default function PaymentSuccessPage() {
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        dispatch(cartClear());
+    }, [dispatch]);
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#f5f5f4] px-4">
             <div className="bg-white shadow-xl rounded-2xl p-8 max-w-md w-full text-center border border-gray-200">
