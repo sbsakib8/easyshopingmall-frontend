@@ -44,7 +44,7 @@ export default function CheckoutComponent() {
 
 
   // subtotal
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 0), 0);
+  const subtotal = cartItems.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 0), 0);
   const total = subtotal + deliveryCharge;
   console.log('cartItems', cartItems);
 
@@ -107,21 +107,26 @@ export default function CheckoutComponent() {
 
     const payload = {
       userId: user._id,
-      products: cartItems.map(item => ({
-        productId: item.productId?._id || item.productId,
-        name: item.productId?.productName || item.name,
-        image: item.productId?.images || item.image,
-        quantity: item.quantity,
-        price: item.price,
-        size: item.size || null,
-        color: item.color || null,
-        weight: item.weight || null,
-      })),
+      products: cartItems.map(item => {
+        const product = item.productId || {};
+        const price = item.price ?? product.price ?? 0;
+        return {
+          productId: product._id || item.productId,
+          name: product.productName || item.name,
+          image: product.images || item.image,
+          quantity: item.quantity,
+          price: price,
+          totalPrice: (Number(price) || 0) * (Number(item.quantity) || 0),
+          size: item.size || null,
+          color: item.color || null,
+          weight: item.weight || null,
+        }
+      }),
 
       delivery_address,
       deliveryCharge,
       subTotalAmt: subtotal,
-      totalAmt: subtotal + deliveryCharge,
+      totalAmt: subtotal + deliveryCharge, // Total amount is always full order value
 
       payment_method: override.payment_method || (selectedPayment === 'manual' ? 'manual' : 'sslcommerz'),
       payment_type: paymentType, // Set payment_type here
@@ -177,14 +182,6 @@ export default function CheckoutComponent() {
       return;
     }
 
-    // ✅ FIX: delivery_address DEFINE
-    const delivery_address = [address, area, city].filter(Boolean).join(", ");
-
-    if (!delivery_address) {
-      toast.error("ডেলিভারি ঠিকানা আবশ্যক");
-      return;
-    }
-
     try {
       setIsProcessing(true);
 
@@ -193,13 +190,9 @@ export default function CheckoutComponent() {
       // Create order (manual / pending for now, will be updated by SSL)
       const orderRes = await createOrder({
         payment_method: "sslcommerz",
-        payment_details: {
-          manualFor: payDeliveryOnly ? "delivery" : "full",
-        },
-        subTotalAmt: subtotal,
-        deliveryCharge,
-        totalAmt: payDeliveryOnly ? deliveryCharge : subtotal + deliveryCharge,
+        payment_type: paymentType,
       });
+
 
       const dbOrder = orderRes?.data;
       const dbOrderId = dbOrder?._id;
