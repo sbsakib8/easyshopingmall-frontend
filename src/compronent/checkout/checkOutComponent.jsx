@@ -216,6 +216,7 @@ export default function CheckoutComponent() {
 
     } catch (error) {
       console.error("SSLCommerz init error:", error);
+      console.error("Full error object:", JSON.stringify(error, null, 2)); // Added full error logging
       const msg =
         error?.response?.data?.message ||
         error?.message ||
