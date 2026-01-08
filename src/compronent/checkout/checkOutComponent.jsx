@@ -187,6 +187,16 @@ export default function CheckoutComponent() {
 
       const paymentType = payDeliveryOnly ? "delivery" : "full";
 
+      const delivery_address_for_payment_session = {
+        address_line: customerInfo.address,
+        district: customerInfo.district,
+        division: customerInfo.division,
+        upazila_thana: customerInfo.area,
+        pincode: customerInfo.pincode,
+        country: "Bangladesh",
+        mobile: customerInfo.phone ? Number(customerInfo.phone) : null,
+      };
+
       // 1️⃣ Create order (manual / pending for now, will be updated by SSL)
       const orderRes = await createOrder({
         payment_method: "sslcommerz",
@@ -207,6 +217,7 @@ export default function CheckoutComponent() {
         orderId: dbOrderId, // Send orderId
         payment_type: paymentType, // Send payment_type
         userId: user._id, // Explicitly send userId from frontend
+        delivery_address: delivery_address_for_payment_session, // Send delivery address
       });
 
       const gatewayUrl = paymentRes?.url;
