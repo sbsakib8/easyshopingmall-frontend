@@ -586,6 +586,7 @@ const AccountPage = () => {
                     </div>
                     <div className="space-y-4">
                       {orders.map((order, index) => {
+                        console.log("orders", order)
                         const firstProduct = order.products && order.products[0];
                         const image =
                           firstProduct?.image?.[0] ||
