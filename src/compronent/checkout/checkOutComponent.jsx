@@ -1,8 +1,8 @@
 "use client";
 
-import { createManualPaymentOrder, createSslPaymentOrder, initPaymentSession, submitManualPayment } from "@/src/hook/useOrder";
-import { cartClear } from "@/src/redux/cartSlice";
-import { MapPin, Shield, ShoppingCart, Star, Truck } from "lucide-react";
+import { createManualPaymentOrder, createSslPaymentOrder, initPaymentSession } from "@/src/hook/useOrder";
+import { MapPin, Shield, ShoppingBag, ShoppingCart, Star, Truck } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
@@ -671,8 +671,8 @@ export default function CheckoutComponent() {
                     const el = document.querySelector('.manual-payment-section'); // Add a class to the manual payment div
                     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                   }}
-                  disabled={isProcessing && selectedPayment === 'manual' && manualOrderStep !== 'initial'}
-                  className="w-full border border-gray-300 text-gray-700 py-3 rounded-xl font-semibold">
+                    disabled={isProcessing && selectedPayment === 'manual' && manualOrderStep !== 'initial'}
+                    className="w-full border border-gray-300 text-gray-700 py-3 rounded-xl font-semibold">
                     Pay Manually (Bkash / Nagad)
                   </button>
                 </div>
