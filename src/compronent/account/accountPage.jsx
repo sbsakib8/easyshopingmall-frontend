@@ -33,6 +33,12 @@ import OrderDetailsModal from "../productDetails/OrderDetailsModal";
 const AccountPage = () => {
   // user data fatch
   const data = useSelector((state) => state.user.data);
+  
+  // Get cart items from Redux store (same as header)
+  const { items: cartItems } = useSelector((state) => state.cart);
+  
+  // Calculate cart product count (same as header)
+  const cartCount = (cartItems || []).reduce((sum, item) => sum + (item.quantity || 1), 0);
 
   const [activeTab, setActiveTab] = useState("profile");
   const [isEditing, setIsEditing] = useState(false);
@@ -51,6 +57,15 @@ const AccountPage = () => {
 
   const [orders, setOrders] = useState([]);
   const { wishlist, loading: wishlistLoading } = useWishlist();
+  
+  // Console log cart product count
+  useEffect(() => {
+    console.log("=== CART PRODUCT COUNT FROM HEADER ===");
+    console.log("Total products in cart:", cartCount);
+    console.log("Cart items array:", cartItems);
+    console.log("Number of unique items:", cartItems?.length || 0);
+    console.log("======================================");
+  }, [cartCount, cartItems]);
 
   // derive addresses from user data if available
   const addresses =
@@ -243,48 +258,6 @@ const AccountPage = () => {
         gender: profileData.gender || "",
       };
 
-      console.log("=== BEFORE SENDING TO BACKEND ===");
-      console.log("Data being sent:", updateData);
-      console.log("Field check before sending:");
-      console.log("  name:", !!updateData.name, "=>", updateData.name);
-      console.log("  email:", !!updateData.email, "=>", updateData.email);
-      console.log("  mobile:", !!updateData.mobile, "=>", updateData.mobile);
-      console.log("  address_details:", !!updateData.address, "=>", updateData.address);
-      console.log("  dateOfBirth:", !!updateData.dateOfBirth, "=>", updateData.dateOfBirth);
-      console.log("  gender:", !!updateData.gender, "=>", updateData.gender);
-      console.log("================================");
-
-      // Call the update API
-      const response = await updateUserProfile(data._id, updateData);
-
-      console.log("=== AFTER RECEIVING FROM BACKEND ===");
-      console.log("Complete response:", response);
-      console.log("Response type:", typeof response);
-      console.log("Response.success:", response.success);
-      console.log("Response.data:", response.data);
-      console.log("Response.user:", response.user);
-      
-      const returnedUser = response.user || response.data || response;
-      console.log("\nReturned user object:", returnedUser);
-      console.log("\nField check after receiving:");
-      console.log("  name:", !!returnedUser?.name, "=>", returnedUser?.name);
-      console.log("  email:", !!returnedUser?.email, "=>", returnedUser?.email);
-      console.log("  mobile:", !!returnedUser?.mobile, "=>", returnedUser?.mobile);
-      console.log("  address_details:", !!returnedUser?.address_details, "=>", returnedUser?.address_details);
-      console.log("  dateOfBirth:", !!returnedUser?.dateOfBirth, "=>", returnedUser?.dateOfBirth);
-      console.log("  gender:", !!returnedUser?.gender, "=>", returnedUser?.gender);
-      
-      console.log("\n=== COMPARISON ===");
-      console.log("Sent address_details:", updateData.address_details);
-      console.log("Received address_details:", returnedUser?.address_details);
-      console.log("Match:", updateData.address_details === returnedUser?.address_details);
-      console.log("Sent dateOfBirth:", updateData.dateOfBirth);
-      console.log("Received dateOfBirth:", returnedUser?.dateOfBirth);
-      console.log("Match:", updateData.dateOfBirth === returnedUser?.dateOfBirth);
-      console.log("Sent gender:", updateData.gender);
-      console.log("Received gender:", returnedUser?.gender);
-      console.log("Match:", updateData.gender === returnedUser?.gender);
-      console.log("================================");
 
       if (response.success || response.data) {
         // Update Redux store with new data
@@ -431,12 +404,10 @@ const AccountPage = () => {
                 </nav>
                 <button
                   onClick={handleLogout}
-                  className="flex gap-2 mt-10 bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white p-3 px-20 md:px-18 rounded-lg cursor-pointer transition-transform duration-200 ease-in-out hover:scale-105"
+                  className="flex items-center justify-center gap-2 mt-6 w-full bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white py-3 px-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg"
                 >
-                  <span>
-                    <LogOut />
-                  </span>
-                  <span className="font-medium">LogOut</span>
+                  <LogOut className="w-5 h-5" />
+                  <span className="font-medium">Logout</span>
                 </button>
               </div>
             </div>
@@ -722,53 +693,160 @@ const AccountPage = () => {
                 {/* Addresses Tab */}
                 {activeTab === "addresses" && (
                   <div className="p-8">
-                    <div className="flex justify-between items-center mb-8">
-                      <div>
-                        <h2 className="text-2xl font-bold text-gray-900">Saved Addresses</h2>
-                        <p className="text-gray-600">Manage your delivery addresses</p>
-                      </div>
-                      <button className="flex items-center cursor-pointer space-x-2 bg-teal-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl font-medium transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1">
-                        <Plus className="w-4 h-4" />
-                        <span>Add Address</span>
-                      </button>
+                    <div className="mb-8">
+                      <h2 className="text-2xl font-bold text-gray-900">User Information</h2>
+                      <p className="text-gray-600">Complete user profile details</p>
                     </div>
 
-                    <div className="space-y-4">
-                      {addresses.map((address, index) => (
-                        <div
-                          key={address.id}
-                          className="border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-all duration-300 hover:border-blue-300"
-                          style={{
-                            animation: `slideIn 0.5s ease-out ${index * 0.1}s both`,
-                          }}
-                        >
-                          <div className="flex items-start justify-between">
-                            <div className="flex items-start space-x-4">
-                              <MapPin className="w-6 h-6 text-blue-500 mt-1" />
-                              <div>
-                                <div className="flex items-center space-x-2">
-                                  <h3 className="font-semibold text-gray-900">{address.type}</h3>
-                                  {address.isDefault && (
-                                    <span className="bg-green-100 text-green-600 text-xs px-2 py-1 rounded-full font-medium">
-                                      Default
-                                    </span>
-                                  )}
-                                </div>
-                                <p className="text-gray-600 mt-1">{address.address}</p>
+                    {data && (
+                      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                        {/* Profile Image at Top Center */}
+                        <div className="relative py-8 bg-gradient-to-b from-gray-50 to-white border-b border-gray-200">
+                          {/* Customer Status Badge - Top Right */}
+                          <div className="absolute top-4 right-4">
+                            <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full px-4 py-2 shadow-lg">
+                              <div className="flex items-center space-x-2">
+                                <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                </svg>
+                                <span className="text-white font-bold text-sm uppercase tracking-wider">
+                                  {data.customerstatus || 'Standard'}
+                                </span>
                               </div>
                             </div>
-                            <div className="flex space-x-2">
-                              <button className="p-2 text-gray-400 cursor-pointer hover:text-teal-600 hover:bg-blue-50 rounded-lg transition-all duration-300">
-                                <Edit3 className="w-4 h-4" />
-                              </button>
-                              <button className="p-2 text-gray-400 cursor-pointer hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-300">
-                                <Trash2 className="w-4 h-4" />
-                              </button>
+                          </div>
+
+                          {/* Profile Image Section */}
+                          <div className="flex flex-col items-center">
+                            <div className="relative">
+                              {data.image ? (
+                                <img 
+                                  src={data.image} 
+                                  alt="Profile" 
+                                  className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg" 
+                                />
+                              ) : (
+                                <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center border-4 border-white shadow-lg">
+                                  <User className="w-16 h-16 text-gray-400" />
+                                </div>
+                              )}
+                              {/* Cart Count Badge */}
+                              {Array.isArray(data.shopping_cart) && data.shopping_cart.length > 0 && (
+                                <div className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-sm shadow-lg border-2 border-white">
+                                  {data.shopping_cart.length}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Cart Info Text */}
+                            {Array.isArray(data.shopping_cart) && data.shopping_cart.length > 0 && (
+                              <p className="mt-3 text-sm text-gray-600 font-medium">
+                                {data.shopping_cart.length} {data.shopping_cart.length === 1 ? 'item' : 'items'} in cart
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="divide-y divide-gray-200">
+                          <div className="p-4 hover:bg-gray-50 transition-colors">
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600 font-medium">Name</span>
+                              <span className="text-gray-900">{data.name || 'N/A'}</span>
+                            </div>
+                          </div>
+                          
+                          <div className="p-4 hover:bg-gray-50 transition-colors">
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600 font-medium">Email</span>
+                              <span className="text-gray-900">{data.email || 'N/A'}</span>
+                            </div>
+                          </div>
+                          
+                          <div className="p-4 hover:bg-gray-50 transition-colors">
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600 font-medium">Mobile</span>
+                              <span className="text-gray-900">{data.mobile || 'N/A'}</span>
+                            </div>
+                          </div>
+                          
+                          <div className="p-4 hover:bg-gray-50 transition-colors">
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600 font-medium">Email Verified</span>
+                              <span className={`px-3 py-1 rounded-full text-sm font-medium ${data.verify_email ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                                {data.verify_email ? 'Verified' : 'Not Verified'}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <div className="p-4 hover:bg-gray-50 transition-colors">
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600 font-medium">Status</span>
+                              <span className={`px-3 py-1 rounded-full text-sm font-medium ${data.status === 'Active' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'}`}>
+                                {data.status || 'N/A'}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <div className="p-4 hover:bg-gray-50 transition-colors">
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600 font-medium">Customer Status</span>
+                              <span className="text-gray-900">{data.customerstatus || 'N/A'}</span>
+                            </div>
+                          </div>
+                          
+                          <div className="p-4 hover:bg-gray-50 transition-colors">
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600 font-medium">Address Details</span>
+                              <span className="text-gray-900">
+                                {Array.isArray(data.address_details) && data.address_details.length > 0 
+                                  ? `${data.address_details.length} address(es)` 
+                                  : 'No addresses'}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <div className="p-4 hover:bg-gray-50 transition-colors">
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600 font-medium">Shopping Cart</span>
+                              <span className="text-gray-900">
+                                {cartCount > 0 
+                                  ? `${cartCount} product(s)` 
+                                  : 'Empty'}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <div className="p-4 hover:bg-gray-50 transition-colors">
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600 font-medium">Order History</span>
+                              <span className="text-gray-900">
+                                {Array.isArray(data.orderHistory) && data.orderHistory.length > 0 
+                                  ? `${data.orderHistory.length} order(s)` 
+                                  : 'No orders'}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <div className="p-4 hover:bg-gray-50 transition-colors">
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600 font-medium">Role</span>
+                              <span className={`px-3 py-1 rounded-full text-sm font-medium ${data.role === 'ADMIN' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'}`}>
+                                {data.role || 'N/A'}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <div className="p-4 hover:bg-gray-50 transition-colors">
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600 font-medium">Member Since</span>
+                              <span className="text-gray-900">
+                                {data.createdAt ? new Date(data.createdAt).toLocaleDateString() : 'N/A'}
+                              </span>
                             </div>
                           </div>
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 )}
 

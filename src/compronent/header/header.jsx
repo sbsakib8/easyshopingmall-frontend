@@ -132,15 +132,6 @@ const Header = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  const handleSearch = (q) => {
-    const query = (q || searchQuery || "").trim();
-    if (query) {
-      router.push(`/shop?search=${encodeURIComponent(query)}`);
-    } else {
-      router.push("/shop");
-    }
-  };
-
   // Debounce input to avoid excessive work
   useEffect(() => {
     const t = setTimeout(() => {
@@ -155,7 +146,7 @@ const Header = () => {
       router.push(`/shop?search=${encodeURIComponent(debouncedSearch)}`);
     } else if (debouncedSearch === '' && searchQuery === '') {
       // When search is cleared, go to shop page without search params
-      router.push('/shop');
+      router.push('/');
     }
   }, [debouncedSearch, searchQuery, router]);
   // Show live results when user types at least 2 chars
