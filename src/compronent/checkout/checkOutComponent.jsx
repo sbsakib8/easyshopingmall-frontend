@@ -1,11 +1,11 @@
 "use client";
 
 import { OrderCreate, initPaymentSession, submitManualPayment } from "@/src/hook/useOrder";
+import { cartClear } from "@/src/redux/cartSlice";
 import { MapPin, Shield, ShoppingCart, Star, Truck } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
-import { clearCart } from "@/src/redux/cartSlice";
 import LocationSelects from "../LocationSelects";
 
 export default function CheckoutComponent() {
@@ -228,6 +228,36 @@ export default function CheckoutComponent() {
 
   // Manual payment (full) or manual delivery payment
   const handleManualSubmit = async ({ deliveryOnly = false }) => {
+    const { name, phone, email, address, division, district, area } = customerInfo;
+
+    // 1️⃣ Required fields (copied from handleProceedToPayment)
+    if (!name || !phone || !address || !division || !district || !area) {
+      toast.error("অনুগ্রহ করে সকল প্রয়োজনীয় তথ্য পূরণ করুন (ঠিকানা সহ)");
+      return;
+    }
+
+    // 2️⃣ Phone validation (copied from handleProceedToPayment)
+    if (!isValidBDPhone(phone)) {
+      toast.error("সঠিক বাংলাদেশি মোবাইল নম্বর দিন (01XXXXXXXXX)");
+      return;
+    }
+
+    // 3️⃣ Email validation (optional, copied from handleProceedToPayment)
+    if (email && !isValidEmail(email)) {
+      toast.error("সঠিক ইমেইল ঠিকানা দিন");
+      return;
+    }
+
+    if (!user?._id) {
+      toast.error("অনুগ্রহ করে প্রথমে লগইন করুন");
+      return;
+    }
+
+    if (!cartItems.length) {
+      toast.error("কার্ট খালি আছে");
+      return;
+    }
+
     try {
       setIsProcessing(true);
 
@@ -276,7 +306,7 @@ export default function CheckoutComponent() {
       setCreatedOrder(order);
 
       // 5️⃣ Clear cart and redirect
-      dispatch(clearCart()); // Clear cart after successful manual payment
+      dispatch(cartClear()); // Clear cart after successful manual payment
       window.location.href = '/';
 
     } catch (err) {
