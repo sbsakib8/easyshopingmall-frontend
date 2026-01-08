@@ -31,6 +31,8 @@ import {
   Square,
   ArrowUpDown,
   FilterIcon,
+  Check,
+  Copy,
 } from "lucide-react"
 import { useGetAllOrders } from "@/src/utlis/useGetAllOrders"
 import { OrderUpdate } from "@/src/utlis/useOrder"
@@ -180,9 +182,10 @@ const OrderManagement = () => {
   const [sortBy, setSortBy] = useState("orderDate")
   const [sortOrder, setSortOrder] = useState("desc")
   const [showFilters, setShowFilters] = useState(false)
+  const [copied, setCopied] = useState(false)
   const [confirmationModal, setConfirmationModal] = useState(false)
   const { allOrders, loading: ordersLoading, refetch } = useGetAllOrders()
-  console.log("allorders---->",allOrders)
+  // console.log("allorders---->",allOrders)
 
   // const newmockOrders = allOrders?.map(order => (
   //   {
@@ -293,7 +296,7 @@ const OrderManagement = () => {
 
     if (res.success) {
       setShowModal(false)
-      
+
       refetch()
     }
     setIsLoading(false)
@@ -315,9 +318,18 @@ const OrderManagement = () => {
     setSelectedOrder(order)
     setShowModal(true)
   }
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(selectedOrder?.orderId)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
+    } catch (err) {
+      console.error("Copy failed", err)
+    }
+  }
   if (ordersLoading) return <DashboardLoader />
   // console.log("all orders ----->",allOrders)
-  // console.log("filtered---->",filteredOrders)
+  console.log("filtered---->", filteredOrders)
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 p-6 overflow-hidden">
       <div className="transition-all duration-500 lg:ml-15 py-5 px-2 lg:px-9 mx-auto space-y-8">
@@ -737,7 +749,14 @@ const OrderManagement = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="text-2xl font-bold">Order Details</h2>
-                    <p className="text-blue-200">{selectedOrder?.orderId}</p>
+                    <p className="text-blue-200">{selectedOrder?.orderId} <button
+                      onClick={handleCopy}
+                      className="p-1.5 rounded-md bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 transition cursor-pointer"
+                      title="Copy Order ID"
+                    >
+                      {copied ? <Check size={16} /> : <Copy size={16} />}
+                    </button></p>
+                    <p className="text-blue-200"><span className="font-bold">Order Date:</span> {new Date(selectedOrder?.updatedAt).toLocaleDateString()}</p>
                   </div>
                   <button
                     onClick={() => setShowModal(false)}
@@ -772,11 +791,11 @@ const OrderManagement = () => {
                         </div>
                         <div className="flex flex-col items-start gap-3">
                           {/* <MapPin className="h-4 w-4 text-gray-400 mt-1" /> */}
-                          <h3 className="font-bold text-white">Address Line: <span className="text-gray-300 font-normal">{selectedOrder?.delivery_address?.address_line || "Bangladesh"}</span></h3>
-                          <h3 className="font-bold text-white">District: <span className="text-gray-300 font-normal">{selectedOrder?.delivery_address?.district || "Bangladesh"}</span></h3>
-                          <h3 className="font-bold text-white">Division: <span className="text-gray-300 font-normal">{selectedOrder?.delivery_address?.division || "Bangladesh"}</span></h3>
-                          <h3 className="font-bold text-white">Pincode: <span className="text-gray-300 font-normal">{selectedOrder?.delivery_address?.pincode || "Bangladesh"}</span></h3>
-                          <h3 className="font-bold text-white">Upazila Thana: <span className="text-gray-300 font-normal">{selectedOrder?.delivery_address?.upazila_thana || "Bangladesh"}</span></h3>
+                          <h3 className="font-bold text-white">Address Line: <span className="text-gray-300 font-normal">{selectedOrder?.delivery_address?.address_line || "null"}</span></h3>
+                          <h3 className="font-bold text-white">District: <span className="text-gray-300 font-normal">{selectedOrder?.delivery_address?.district || "null"}</span></h3>
+                          <h3 className="font-bold text-white">Division: <span className="text-gray-300 font-normal">{selectedOrder?.delivery_address?.division || "null"}</span></h3>
+                          <h3 className="font-bold text-white">Pincode: <span className="text-gray-300 font-normal">{selectedOrder?.delivery_address?.pincode || "null"}</span></h3>
+                          <h3 className="font-bold text-white">Upazila Thana: <span className="text-gray-300 font-normal">{selectedOrder?.delivery_address?.upazila_thana || "null"}</span></h3>
                         </div>
                       </div>
                     </div>
@@ -791,7 +810,7 @@ const OrderManagement = () => {
                         <div className="flex justify-between">
                           <span className="text-gray-400">Order Date:</span>
                           <span className="font-medium text-white">
-                            {new Date(selectedOrder?.orderDate).toLocaleDateString()}
+                            {new Date(selectedOrder?.updatedAt).toLocaleDateString()}
                           </span>
                         </div>
 
@@ -799,20 +818,46 @@ const OrderManagement = () => {
                           <span className="text-gray-400">Total Items:</span>
                           <span className="font-medium text-white">{selectedOrder?.products.length}</span>
                         </div>
+
                         <div className="flex justify-between items-center">
-                          <span className="text-gray-400">Status:</span>
+                          <span className="text-gray-400">Payment Status:</span>
                           <div className="flex items-center gap-2">
                             {(() => {
-                              const StatusIcon = statusIcons[selectedOrder?.status]
+                              const StatusIcon = statusIcons[selectedOrder?.payment_status]
                               return StatusIcon ? <StatusIcon className="h-4 w-4 text-white" /> : null
                             })()}
                             <span
-                              className={`px-4 py-2 rounded-xl text-sm font-semibold ${statusColors[selectedOrder?.order_status]}`}
+                              className={`px-4 py-2 rounded-xl text-sm font-semibold ${statusColors[selectedOrder?.payment_status]}`}
                             >
-                              {selectedOrder?.order_status.charAt(0).toUpperCase() + selectedOrder?.order_status?.slice(1)}
+                              {selectedOrder?.payment_status.charAt(0).toUpperCase() + selectedOrder?.payment_status?.slice(1)}
                             </span>
                           </div>
                         </div>
+
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Sub Total:</span>
+                          <span className="font-medium text-white">৳{selectedOrder?.subTotalAmt}</span>
+                        </div>
+
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Delivery Charge:</span>
+                          <span className="font-medium text-white">৳{selectedOrder?.deliveryCharge}</span>
+                        </div>
+
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Total:</span>
+                          <span className="font-medium text-white">৳{selectedOrder?.totalAmt}</span>
+                        </div>
+
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Amount Due:</span>
+                          <span className="font-medium text-white">৳{selectedOrder?.amount_due}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Amount Paid:</span>
+                          <span className="font-medium text-white">৳{selectedOrder?.amount_paid}</span>
+                        </div>
+
                         {selectedOrder.trackingNumber && (
                           <div className="flex justify-between">
                             <span className="text-gray-400">Tracking:</span>
@@ -938,9 +983,9 @@ const OrderManagement = () => {
           </button>
         </div>
       </div>
-{/* confirmation modal  */}
-{confirmationModal&&
- <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+      {/* confirmation modal  */}
+      {confirmationModal &&
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
           <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-pink-500/30 max-w-md w-full p-6 animate-slideUp">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-3 bg-pink-500/20 rounded-full">
@@ -955,7 +1000,7 @@ const OrderManagement = () => {
 
             <div className="flex gap-3">
               <button
-                onClick={()=>handleDeleteOrder(selectedOrder._id,"cancelled")}
+                onClick={() => handleDeleteOrder(selectedOrder._id, "cancelled")}
                 className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-semibold rounded-lg transition-all transform hover:scale-105"
               >
                 Delete
@@ -969,7 +1014,7 @@ const OrderManagement = () => {
             </div>
           </div>
         </div>
-}
+      }
       <style jsx>{`
         @keyframes animate-in {
           from {
