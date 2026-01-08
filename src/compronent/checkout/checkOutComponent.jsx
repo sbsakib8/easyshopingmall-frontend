@@ -288,6 +288,8 @@ export default function CheckoutComponent() {
         return;
       }
 
+      console.log("paymentInfo:", paymentInfo); // Debug log for paymentInfo
+
       // 2️⃣ Create order in DB with payment_status pending
       // The createOrder helper already sets payment_method to "manual" and correct payment_type
       const orderRes = await createOrder({
@@ -302,6 +304,9 @@ export default function CheckoutComponent() {
 
       const order = orderRes?.data;
       const dbOrderId = order?._id;
+
+      console.log("orderRes:", orderRes); // Debug log for orderRes
+      console.log("dbOrderId:", dbOrderId); // Debug log for dbOrderId
 
       if (!dbOrderId) throw new Error("Order creation failed");
 
