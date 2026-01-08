@@ -33,6 +33,7 @@ import {
   FilterIcon,
   Check,
   Copy,
+  LoaderIcon,
 } from "lucide-react"
 import { useGetAllOrders } from "@/src/utlis/useGetAllOrders"
 import { OrderUpdate } from "@/src/utlis/useOrder"
@@ -150,6 +151,7 @@ const statusColors = {
   processing: "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/25",
   shipped: "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/25",
   completed: "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/25",
+  paid: "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/25",
   cancelled: "bg-gradient-to-r from-red-500 to-rose-500 text-white shadow-lg shadow-red-500/25",
 }
 
@@ -329,7 +331,7 @@ const OrderManagement = () => {
   }
   if (ordersLoading) return <DashboardLoader />
   // console.log("all orders ----->",allOrders)
-  console.log("filtered---->", filteredOrders)
+  // console.log("filtered---->", filteredOrders)
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 p-6 overflow-hidden">
       <div className="transition-all duration-500 lg:ml-15 py-5 px-2 lg:px-9 mx-auto space-y-8">
@@ -358,7 +360,7 @@ const OrderManagement = () => {
         </div>
 
         <div
-          className={`grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6 transform transition-all duration-1000 delay-200 ${animateCards ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
+          className={`grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-6 transform transition-all duration-1000 delay-200 ${animateCards ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
         >
           <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
             <div className="absolute top-0 right-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
@@ -384,6 +386,14 @@ const OrderManagement = () => {
               <Clock className="h-8 w-8 mb-3 text-orange-400" />
               <p className="text-gray-400 text-sm">Pending</p>
               <p className="text-3xl font-bold text-white">{stats.pending}</p>
+            </div>
+          </div>
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-orange-500/10 rounded-full -translate-y-10 translate-x-10"></div>
+            <div className="relative">
+              <LoaderIcon className="h-8 w-8 mb-3 text-orange-400" />
+              <p className="text-gray-400 text-sm">Processing</p>
+              <p className="text-3xl font-bold text-white">{stats.processing}</p>
             </div>
           </div>
 
@@ -694,10 +704,10 @@ const OrderManagement = () => {
               {/* Pagination */}
               {totalPages > 1 && (
                 <div className="flex items-center justify-between pt-8 mt-8 border-t border-gray-700">
-                  <div className="text-sm text-gray-400">
+                  {/* <div className="text-sm text-gray-400">
                     Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, filteredOrders.length)} of{" "}
                     {filteredOrders.length} orders
-                  </div>
+                  </div> */}
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
@@ -850,6 +860,46 @@ const OrderManagement = () => {
                         </div>
 
                         <div className="flex justify-between">
+                          <span className="text-gray-400">Payment Method:</span>
+                          <span className="font-medium text-white">{selectedOrder?.payment_method}</span>
+                        </div>
+                        {/* payment manual  */}
+                        {
+                        selectedOrder?.payment_method==="manual"&&<>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Transaction Id:</span>
+                          <span className="font-medium text-white">{selectedOrder?.payment_details?.transactionId}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Manual For :</span>
+                          <span className="font-medium text-white">{selectedOrder?.payment_details?.manualFor || "null"} </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Provider Number:</span>
+                          <span className="font-medium text-white">{selectedOrder?.payment_details?.providerNumber ||"null"}</span>
+                        </div>
+                        </>
+                        }
+                        {/* payment ssl  */}
+                        {
+                        selectedOrder?.payment_method==="sslcommerz"&&<>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Transaction Id:</span>
+                          <span className="ml-2 text-xs text-white">{selectedOrder?.payment_details?.tran_id}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Transaction Date:</span>
+                          <span className="font-medium text-white">{new Date(selectedOrder?.payment_details?.tran_date).toLocaleDateString()}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Card Issuer:</span>
+                          <span className="font-medium text-white">{selectedOrder?.payment_details?.card_issuer}</span>
+                        </div>
+                        
+                        </>
+                        }
+                        
+                        <div className="flex justify-between">
                           <span className="text-gray-400">Amount Due:</span>
                           <span className="font-medium text-white">৳{selectedOrder?.amount_due}</span>
                         </div>
@@ -977,11 +1027,11 @@ const OrderManagement = () => {
           </div>
         )}
 
-        <div className="fixed bottom-8 right-8">
+        {/* <div className="fixed bottom-8 right-8">
           <button className="w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110 flex items-center justify-center group border border-blue-500/30">
             <Plus className="h-8 w-8 group-hover:rotate-90 transition-transform duration-300" />
           </button>
-        </div>
+        </div> */}
       </div>
       {/* confirmation modal  */}
       {confirmationModal &&
