@@ -4,11 +4,13 @@ import { OrderCreate, initPaymentSession, submitManualPayment } from "@/src/hook
 import { MapPin, Shield, ShoppingCart, Star, Truck } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { clearCart } from "@/src/redux/cartSlice";
 import LocationSelects from "../LocationSelects";
 
 export default function CheckoutComponent() {
   const user = useSelector((state) => state.user?.data);
+  const dispatch = useDispatch();
   const { items } = useSelector((state) => state.cart || {});
   const cartItems = items || [];
 
@@ -126,7 +128,12 @@ export default function CheckoutComponent() {
 
       payment_method: override.payment_method || (selectedPayment === 'manual' ? 'manual' : 'sslcommerz'),
       payment_type: paymentType, // Set payment_type here
-      payment_details: override.payment_details || undefined,
+      payment_details: {
+        ...override.payment_details,
+        ...(selectedPayment === 'manual' && override.manualPaymentMethod
+          ? { manual_payment_method: override.manualPaymentMethod }
+          : {}),
+      },
     };
 
     return OrderCreate(payload);
@@ -239,6 +246,7 @@ export default function CheckoutComponent() {
       const orderRes = await createOrder({
         payment_method: "manual",
         payDeliveryOnly: deliveryOnly, // Pass this to helper to set payment_type
+        manualPaymentMethod: selectedManualMethod, // Pass selected manual method
       });
 
       const order = orderRes?.data;
@@ -253,6 +261,7 @@ export default function CheckoutComponent() {
         phoneNumber: paymentInfo.phoneNumber,
         transactionId: paymentInfo.transactionId,
         manualFor: deliveryOnly ? "delivery" : "full",
+        manualMethod: selectedManualMethod, // Pass selected manual method
       };
       console.log("Submitting manual payment with payload:", manualPaymentPayload);
       await submitManualPayment(manualPaymentPayload);
@@ -267,7 +276,7 @@ export default function CheckoutComponent() {
       setCreatedOrder(order);
 
       // 5️⃣ Clear cart and redirect
-      // dispatch(clearCart()); // if you have a redux action
+      dispatch(clearCart()); // Clear cart after successful manual payment
       window.location.href = '/';
 
     } catch (err) {
