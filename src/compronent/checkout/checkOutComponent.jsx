@@ -1,6 +1,6 @@
 "use client";
 
-import { OrderCreate, initPaymentSession, submitManualPayment } from "@/src/hook/useOrder";
+import { createManualPaymentOrder, createSslPaymentOrder, initPaymentSession, submitManualPayment } from "@/src/hook/useOrder";
 import { cartClear } from "@/src/redux/cartSlice";
 import { MapPin, Shield, ShoppingCart, Star, Truck } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -133,7 +133,15 @@ export default function CheckoutComponent() {
       payment_details: (override.payment_method === 'manual' || selectedPayment === 'manual') ? null : (override.payment_details || {}),
     };
 
-    return OrderCreate(payload);
+    if (payload.payment_method === 'manual') {
+      return createManualPaymentOrder(payload);
+    } else if (payload.payment_method === 'sslcommerz') {
+      return createSslPaymentOrder(payload);
+    } else {
+      // Fallback or error, though the logic above should prevent this
+      console.error("Unknown payment method:", payload.payment_method);
+      throw new Error("Invalid payment method selected for order creation.");
+    }
   };
 
 
