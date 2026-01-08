@@ -23,6 +23,7 @@ export default function CheckoutComponent() {
     division: "",
     district: "",
     area: "",
+    pincode: "", // Added pincode
   });
 
   const [paymentInfo, setPaymentInfo] = useState({ phoneNumber: "", transactionId: "" });
@@ -92,7 +93,7 @@ export default function CheckoutComponent() {
       district: customerInfo.district,
       division: customerInfo.division,
       upazila_thana: customerInfo.area,
-      pincode: "", // Assuming empty as not present in customerInfo
+      pincode: customerInfo.pincode, // Use collected pincode
       country: "Bangladesh", // Assuming default
       mobile: customerInfo.phone ? Number(customerInfo.phone) : null,
     };
@@ -142,10 +143,10 @@ export default function CheckoutComponent() {
 
   // One-click SSL (full or delivery-only)
   const handleProceedToPayment = async ({ payDeliveryOnly = false } = {}) => {
-    const { name, phone, email, address, division, district, area } = customerInfo;
+    const { name, phone, email, address, division, district, area, pincode } = customerInfo;
 
     // 1️⃣ Required fields
-    if (!name || !phone || !address || !division || !district || !area) {
+    if (!name || !phone || !address || !division || !district || !area || !pincode) {
       toast.error("অনুগ্রহ করে সকল প্রয়োজনীয় তথ্য পূরণ করুন (ঠিকানা সহ)");
       return;
     }
@@ -228,10 +229,10 @@ export default function CheckoutComponent() {
 
   // Manual payment (full) or manual delivery payment
   const handleManualSubmit = async ({ deliveryOnly = false }) => {
-    const { name, phone, email, address, division, district, area } = customerInfo;
+    const { name, phone, email, address, division, district, area, pincode } = customerInfo;
 
     // 1️⃣ Required fields (copied from handleProceedToPayment)
-    if (!name || !phone || !address || !division || !district || !area) {
+    if (!name || !phone || !address || !division || !district || !area || !pincode) {
       toast.error("অনুগ্রহ করে সকল প্রয়োজনীয় তথ্য পূরণ করুন (ঠিকানা সহ)");
       return;
     }
@@ -406,6 +407,10 @@ export default function CheckoutComponent() {
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">সম্পূর্ণ ঠিকানা *</label>
                     <textarea value={customerInfo.address} onChange={(e) => handleInputChange("address", e.target.value)} placeholder="বাড়ি/ফ্ল্যাট নম্বর, রোড নম্বর, এলাকার নাম" className="w-full px-4 py-3 border rounded-xl bg-gray-50" rows={3} />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">পোস্ট কোড *</label>
+                    <input value={customerInfo.pincode} onChange={(e) => handleInputChange("pincode", e.target.value)} placeholder="পোস্ট কোড দিন" className="w-full px-4 py-3 border rounded-xl bg-gray-50" />
                   </div>
 
                 </div>
