@@ -31,8 +31,10 @@ export default function CheckoutComponent() {
   const [selectedManualMethod, setSelectedManualMethod] = useState(null);
   const [createdOrder, setCreatedOrder] = useState(null);
   const [manualOrderStep, setManualOrderStep] = useState('initial'); // 'initial', 'order_created', 'payment_submitted'
+  const [isProcessing, setIsProcessing] = useState(false); // Re-introduced
+  const [deliveryCharge, setDeliveryCharge] = useState(60); // Re-introduced
 
-  // Removed paymentInfo state and handlePaymentInfoChange function.
+  const isValidBDPhone = (phone) => /^01[3-9]\d{8}$/.test(phone); // BD phone format
   const isValidEmail = (email) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); // simple email regex
   const detectDhaka = (address, city, area) => {
