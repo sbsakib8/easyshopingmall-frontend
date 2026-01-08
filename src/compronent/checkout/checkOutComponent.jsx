@@ -245,6 +245,7 @@ export default function CheckoutComponent() {
 
   // Manual payment (full) or manual delivery payment
   const handleManualSubmit = async ({ deliveryOnly = false }) => {
+    setSelectedPayment('manual'); // Ensure selectedPayment is 'manual'
     const { name, phone, email, address, division, district, area, pincode } = customerInfo;
 
     // 1️⃣ Required fields (copied from handleProceedToPayment)
