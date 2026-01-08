@@ -2,10 +2,10 @@
 
 import { submitManualPayment } from "@/src/hook/useOrder";
 import { cartClear } from "@/src/redux/cartSlice";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
-import { useRouter } from "next/navigation";
 
 
 export default function ManualPaymentForm({ order, selectedManualMethod, manualMethods, setManualOrderStep }) {
@@ -61,9 +61,6 @@ export default function ManualPaymentForm({ order, selectedManualMethod, manualM
       // Clear cart and update step
       dispatch(cartClear());
       setManualOrderStep('payment_submitted');
-      // Optionally redirect or show a different UI
-      // router.push('/payment/manual-success'); // A dedicated page might be better for redirect
-
 
     } catch (err) {
       console.error("Manual payment submission error:", err);
@@ -117,9 +114,6 @@ export default function ManualPaymentForm({ order, selectedManualMethod, manualM
       >
         {isSubmitting ? 'জমা দেওয়া হচ্ছে...' : 'পেমেন্ট জমা দিন'}
       </button>
-
-      {/* Retry if submission fails (UI/UX rule) */}
-      {/* This can be implicitly handled by the user seeing the form again if toast.error happens */}
     </div>
   );
 }
