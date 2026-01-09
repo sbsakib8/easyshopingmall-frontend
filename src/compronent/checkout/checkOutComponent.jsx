@@ -203,7 +203,7 @@ export default function CheckoutComponent() {
 
       //  Init SSL payment
       const paymentRes = await initPaymentSession({
-        orderId: dbOrderId, /
+        orderId: dbOrderId,
         payment_type: paymentType,
         userId: user._id, 
       });
