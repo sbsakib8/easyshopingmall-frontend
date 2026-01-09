@@ -58,14 +58,7 @@ const AccountPage = () => {
   const [orders, setOrders] = useState([]);
   const { wishlist, loading: wishlistLoading } = useWishlist();
   
-  // Console log cart product count
-  useEffect(() => {
-    console.log("=== CART PRODUCT COUNT FROM HEADER ===");
-    console.log("Total products in cart:", cartCount);
-    console.log("Cart items array:", cartItems);
-    console.log("Number of unique items:", cartItems?.length || 0);
-    console.log("======================================");
-  }, [cartCount, cartItems]);
+
 
   // derive addresses from user data if available
   const addresses =
@@ -267,7 +260,7 @@ const AccountPage = () => {
           name: updateData.name,
           email: updateData.email,
           mobile: updateData.mobile,
-          address_details: updateData.address_details,
+          address_details: updateData.address,
           dateOfBirth: updateData.dateOfBirth,
           gender: updateData.gender,
         };
@@ -405,7 +398,7 @@ const AccountPage = () => {
                 </nav>
                 <button
                   onClick={handleLogout}
-                  className="flex items-center justify-center gap-2 mt-6 w-full bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white py-3 px-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                  className="flex items-center justify-center gap-2 mt-6 w-60 bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white py-3 px-2 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg"
                 >
                   <LogOut className="w-5 h-5" />
                   <span className="font-medium">Logout</span>
