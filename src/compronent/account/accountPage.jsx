@@ -309,7 +309,7 @@ const AccountPage = () => {
     try {
       // Check if DOB exists in the current data
       const oldDOB = data.date_of_birth;
-      const newDOB = profileData.dateOfBirth;
+      const newDOB = profileData.dateƒOfBirth;
       
       // Determine if DOB is being created or updated
       const isDOBNew = !oldDOB && newDOB;
@@ -340,7 +340,7 @@ const AccountPage = () => {
       let addressResponse;
       if (addressData._id) {
         // Update existing address
-        console.log("Updating address with ID:", addressData._id);
+        `console.log`("Updating address with ID:", addressData._id);
         addressResponse = await updateAddress({ _id: addressData._id, ...addressPayload });
       } else {
         // Create new address
@@ -940,23 +940,69 @@ const AccountPage = () => {
                           </div>
 
                           {/* Address Information */}
-                          {data.address_details && (
+                          {(addressData.address_line || addressData.district || addressData.division || data.address_details) && (
                             <div className="bg-white rounded-lg p-4 border border-emerald-100">
                               <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
                                 <MapPin className="w-4 h-4 text-emerald-600" />
                                 Address Information
                               </h4>
                               <div className="space-y-3 text-sm">
-                                <div>
-                                  <p className="text-gray-500 text-xs mb-1">Full Address</p>
-                                  <p className="text-gray-800 font-medium">
-                                    {typeof data.address_details === 'string' 
-                                      ? data.address_details 
-                                      : Array.isArray(data.address_details) && data.address_details.length > 0
-                                      ? data.address_details[0]
-                                      : "No address available"}
-                                  </p>
+                                {addressData.address_line && (
+                                  <div>
+                                    <p className="text-gray-500 text-xs mb-1">Address Line</p>
+                                    <p className="text-gray-800 font-medium">{addressData.address_line}</p>
+                                  </div>
+                                )}
+                                <div className="grid md:grid-cols-2 gap-3">
+                                  {addressData.upazila_thana && (
+                                    <div>
+                                      <p className="text-gray-500 text-xs mb-1">Upazila/Thana</p>
+                                      <p className="text-gray-800 font-medium">{addressData.upazila_thana}</p>
+                                    </div>
+                                  )}
+                                  {addressData.district && (
+                                    <div>
+                                      <p className="text-gray-500 text-xs mb-1">District</p>
+                                      <p className="text-gray-800 font-medium">{addressData.district}</p>
+                                    </div>
+                                  )}
+                                  {addressData.division && (
+                                    <div>
+                                      <p className="text-gray-500 text-xs mb-1">Division</p>
+                                      <p className="text-gray-800 font-medium">{addressData.division}</p>
+                                    </div>
+                                  )}
+                                  {addressData.pincode && (
+                                    <div>
+                                      <p className="text-gray-500 text-xs mb-1">Pincode</p>
+                                      <p className="text-gray-800 font-medium">{addressData.pincode}</p>
+                                    </div>
+                                  )}
+                                  {addressData.country && (
+                                    <div>
+                                      <p className="text-gray-500 text-xs mb-1">Country</p>
+                                      <p className="text-gray-800 font-medium">{addressData.country}</p>
+                                    </div>
+                                  )}
+                                  {addressData.mobile && (
+                                    <div>
+                                      <p className="text-gray-500 text-xs mb-1">Contact Number</p>
+                                      <p className="text-gray-800 font-medium">{addressData.mobile}</p>
+                                    </div>
+                                  )}
                                 </div>
+                                {!addressData.address_line && !addressData.district && data.address_details && (
+                                  <div>
+                                    <p className="text-gray-500 text-xs mb-1">Full Address</p>
+                                    <p className="text-gray-800 font-medium">
+                                      {typeof data.address_details === 'string' 
+                                        ? data.address_details 
+                                        : Array.isArray(data.address_details) && data.address_details.length > 0
+                                        ? data.address_details[0]
+                                        : "No address available"}
+                                    </p>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           )}
