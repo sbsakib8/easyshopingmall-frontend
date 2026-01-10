@@ -6,13 +6,13 @@ import {
   Sparkles,
   Star
 } from "lucide-react";
+import CustomLoader from '@/src/compronent/loading/CustomLoader';
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 
 // 🧠 Import your hooks
-import LoadingPage from "@/src/helper/loading/loadingPge";
 import { addToCartApi } from "../../hook/useCart";
 import {
   addToWishlistApi,
@@ -21,6 +21,7 @@ import {
 } from "../../hook/useWishlist";
 import { useGetcategory } from "../../utlis/usecategory";
 import { useGetProduct } from "../../utlis/userProduct";
+import { useCategoryWithSubcategories } from "../../utlis/useCategoryWithSubcategories";
 
 // Helper function to determine if product is new or old
 const isProductNew = (createdDate) => {
@@ -41,11 +42,16 @@ const PopularProducts = () => {
   const { data: wishlistItems } = useSelector((state) => state?.wishlist?.data);
   const user = useSelector((state) => state.user.data);
 
-  const productParams = useMemo(() => ({ page: 1, limit: 20, search: "" }), []);
+  const productParams = useMemo(() => ({ page: 1, limit: 1000, search: "" }), []);
 
-  // ✅ Fetch data dynamically
+  // ✅ Fetch data dynamically (same as shop component)
   const { category, loading: categoryLoading } = useGetcategory();
   const { product, loading: productLoading, error } = useGetProduct(productParams);
+  
+  // ✅ Fetch categories and subcategories from API (same as shop)
+  const { categories: shopCategories, subcategories: shopSubcategories, loading: shopCategoriesLoading } = useCategoryWithSubcategories();
+
+
 
   // ✅ Fetch wishlist once (for logged-in user)
   useEffect(() => {
@@ -58,47 +64,126 @@ const PopularProducts = () => {
 
 
 
-  const loading = categoryLoading || productLoading;
+  const loading = categoryLoading || productLoading || shopCategoriesLoading;
 
-  // 🧩 Merge structured dataset
+  // 🧩 Merge structured dataset using shop categories
   const mergedData = useMemo(() => {
-    if (!product || !category) return { products: [], categories: [] };
+    if (!product || !shopCategories) return { products: [], categories: [] };
 
-    const categories = category.map((c) => ({
+    // Use shop categories instead of old category data
+    const categories = shopCategories.map((c) => ({
       id: c.name?.toUpperCase(),
       name: c.name?.toUpperCase(),
       icon: c.icon || <Sparkles className="w-4 h-4" />,
       color: c.color || "from-slate-500 to-gray-600",
     }));
 
-    const products = product.map((p) => ({
-      id: p._id,
-      name: p.productName,
-      image: p.images?.[0] || "",
-      price: p.price,
-      originalPrice: p.oldPrice || p.price,
-      rating: p.ratings,
-      reviews: p.reviews,
-      category: p.category?.[0]?.name?.toUpperCase() || "GENERAL",
-      badge: p.tags?.[0] || "New",
-      isNew: isProductNew(p.createdAt || p.created_at || p.createdDate),
-      discount: p.discount || (p.oldPrice && p.price ? Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100) : 0),
-    }));
+    const products = product.map((p) => {
+      // Handle category - can be array or object
+      let categoryName = "GENERAL";
+      if (Array.isArray(p.category) && p.category.length > 0) {
+        const cat = p.category[0];
+        categoryName = (typeof cat === 'string' ? cat : cat?.name)?.toUpperCase() || "GENERAL";
+      } else if (typeof p.category === 'object' && p.category?.name) {
+        categoryName = p.category.name?.toUpperCase() || "GENERAL";
+      } else if (typeof p.category === 'string') {
+        categoryName = p.category.toUpperCase();
+      }
+
+      // Handle subcategory
+      let subCategoryName = null;
+      if (Array.isArray(p.subCategory) && p.subCategory.length > 0) {
+        const subCat = p.subCategory[0];
+        subCategoryName = (typeof subCat === 'string' ? subCat : subCat?.name)?.toUpperCase() || null;
+      } else if (typeof p.subCategory === 'object' && p.subCategory?.name) {
+        subCategoryName = p.subCategory.name?.toUpperCase() || null;
+      } else if (typeof p.subCategory === 'string') {
+        subCategoryName = p.subCategory.toUpperCase();
+      }
+
+      return {
+        id: p._id,
+        name: p.productName,
+        image: p.images?.[0] || "",
+        price: p.price,
+        originalPrice: p.oldPrice || p.price,
+        rating: p.ratings,
+        reviews: p.reviews,
+        category: categoryName,
+        subCategory: subCategoryName,
+        badge: p.tags?.[0] || "New",
+        isNew: isProductNew(p.createdAt || p.created_at || p.createdDate),
+        discount: p.discount || (p.oldPrice && p.price ? Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100) : 0),
+      };
+    });
 
     return { products, categories };
-  }, [product, category]);
+  }, [product, shopCategories]);
 
   const currentProducts = useMemo(() => {
-    if (activeCategory === "ALL") return mergedData.products;
-    return mergedData.products.filter((p) => p.category === activeCategory);
+    if (activeCategory === "ALL") {
+      // When ALL is selected, get 5 products from each subcategory within each category
+      const productsByCategory = {};
+      
+      mergedData.products.forEach(p => {
+        if (!productsByCategory[p.category]) {
+          productsByCategory[p.category] = {};
+        }
+        
+        const subCatKey = p.subCategory || 'NO_SUBCATEGORY';
+        if (!productsByCategory[p.category][subCatKey]) {
+          productsByCategory[p.category][subCatKey] = [];
+        }
+        productsByCategory[p.category][subCatKey].push(p);
+      });
+
+      // Take 5 products from each subcategory within each category
+      const result = [];
+      Object.keys(productsByCategory).forEach(catName => {
+        const subcategories = productsByCategory[catName];
+        Object.keys(subcategories).forEach(subCatName => {
+          const productsInSubCat = subcategories[subCatName];
+          result.push(...productsInSubCat.slice(0, 5));
+        });
+      });
+
+      // Debug: log categories and counts
+      console.log('ALL Categories - Products count:', result.length);
+      console.log('Categories:', Object.keys(productsByCategory));
+
+      return result;
+    }
+    
+    // When a specific category is selected, get 5 products from each subcategory
+    const categoryProducts = mergedData.products.filter((p) => p.category === activeCategory);
+    
+    // Group by subcategory
+    const productsBySubCategory = {};
+    categoryProducts.forEach(p => {
+      const subCatKey = p.subCategory || 'NO_SUBCATEGORY';
+      if (!productsBySubCategory[subCatKey]) {
+        productsBySubCategory[subCatKey] = [];
+      }
+      productsBySubCategory[subCatKey].push(p);
+    });
+
+    // Take 5 products from each subcategory
+    const result = [];
+    Object.keys(productsBySubCategory).forEach(subCatName => {
+      const productsInSubCat = productsBySubCategory[subCatName];
+      result.push(...productsInSubCat.slice(0, 5));
+    });
+
+    return result;
   }, [mergedData.products, activeCategory]);
 
   const filteredProducts = useMemo(() => {
     const filtered = currentProducts.filter((p) =>
       p.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    // Limit to 30 items for home screen
-    return filtered.slice(0, 30);
+    // Limit to 100 products for home page to show all categories
+    console.log('Filtered products count:', filtered.length);
+    return filtered.slice(0, 100);
   }, [currentProducts, searchTerm]);
 
   const renderStars = (rating) => {
@@ -185,7 +270,9 @@ const PopularProducts = () => {
 
   if (loading)
     return (
-      <LoadingPage />
+      <div className="min-h-screen flex items-center justify-center">
+        <CustomLoader size="large" message="Loading products..." />
+      </div>
     );
 
   if (error)

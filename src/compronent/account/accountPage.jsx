@@ -1,6 +1,6 @@
 "use client";
-import { Logout } from "@/src/hook/useAuth";
-import { clearUser } from "@/src/redux/userSlice";
+import { Logout, updateUserProfile } from "@/src/hook/useAuth";
+import { clearUser, userget } from "@/src/redux/userSlice";
 import AuthUserNothave from "@/src/utlis/AuthUserNothave";
 import { OrderAllGet } from "@/src/utlis/useOrder";
 import { useWishlist } from "@/src/utlis/useWishList";
@@ -33,11 +33,19 @@ import OrderDetailsModal from "../productDetails/OrderDetailsModal";
 const AccountPage = () => {
   // user data fatch
   const data = useSelector((state) => state.user.data);
-  console.log(data);
+  
+  // Get cart items from Redux store (same as header)
+  const { items: cartItems } = useSelector((state) => state.cart);
+  
+  // Calculate cart product count (same as header)
+  const cartCount = (cartItems || []).reduce((sum, item) => sum + (item.quantity || 1), 0);
 
   const [activeTab, setActiveTab] = useState("profile");
   const [isEditing, setIsEditing] = useState(false);
   const [showImageUpload, setShowImageUpload] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [profileData, setProfileData] = useState({
     name: data?.name,
     email: data?.email,
@@ -49,6 +57,15 @@ const AccountPage = () => {
 
   const [orders, setOrders] = useState([]);
   const { wishlist, loading: wishlistLoading } = useWishlist();
+  
+  // Console log cart product count
+  useEffect(() => {
+    console.log("=== CART PRODUCT COUNT FROM HEADER ===");
+    console.log("Total products in cart:", cartCount);
+    console.log("Cart items array:", cartItems);
+    console.log("Number of unique items:", cartItems?.length || 0);
+    console.log("======================================");
+  }, [cartCount, cartItems]);
 
   // derive addresses from user data if available
   const addresses =
@@ -101,6 +118,20 @@ const AccountPage = () => {
     };
   }, [data?._id]);
 
+  // Update profileData when user data loads
+  useEffect(() => {
+    if (data) {
+      setProfileData({
+        name: data.name || "",
+        email: data.email || "",
+        phone: data.mobile || "",
+        address: data.address_details || "",
+        dateOfBirth: data.dateOfBirth || "1995-05-15",
+        gender: data.gender || "Male",
+      });
+    }
+  }, [data]);
+
   const handleInputChange = (field, value) => {
     setProfileData((prev) => ({
       ...prev,
@@ -108,8 +139,153 @@ const AccountPage = () => {
     }));
   };
 
-  const handleSave = () => {
-    setIsEditing(false);
+  // Upload image to ImgBB
+  const uploadImageToImgBB = async (imageFile) => {
+    const formData = new FormData();
+    formData.append("image", imageFile);
+
+    try {
+      const response = await fetch(
+        `https://api.imgbb.com/1/upload?key=55d63e852df7bcf0393b2dedd1d8aaa9`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+      if (data.success) {
+        return data.data.url;
+      } else {
+        throw new Error("Failed to upload image to ImgBB");
+      }
+    } catch (error) {
+      console.error("ImgBB upload error:", error);
+      throw error;
+    }
+  };
+
+  // Handle image selection
+  const handleImageSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please select an image file");
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Image size should be less than 5MB");
+        return;
+      }
+
+      setSelectedImage(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Handle image upload and profile update
+  const handleImageUpload = async () => {
+    if (!selectedImage) {
+      toast.error("Please select an image first");
+      return;
+    }
+
+    if (!data?._id) {
+      toast.error("User ID not found");
+      return;
+    }
+
+    setUploadingImage(true);
+
+    try {
+      // Upload to ImgBB
+      const imageUrl = await uploadImageToImgBB(selectedImage);
+      
+      // Update profile with new image URL
+      const updateData = {
+        image: imageUrl,
+      };
+
+      const response = await updateUserProfile(data._id, updateData);
+
+      if (response.success || response.data) {
+        // Update Redux store with new image
+        const updatedUser = {
+          ...data,
+          image: imageUrl,
+        };
+        
+        dispatch(userget(updatedUser));
+
+        toast.success("Profile picture updated successfully!");
+        setShowImageUpload(false);
+        setSelectedImage(null);
+        setImagePreview(null);
+      } else {
+        toast.error(response.message || "Failed to update profile picture");
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      toast.error("Failed to upload image. Please try again.");
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!data?._id) {
+      toast.error("User ID not found");
+      return;
+    }
+
+    try {
+      // Prepare update data - send only address_details (not address)
+      const updateData = {
+        name: profileData.name || "",
+        email: profileData.email || "",
+        mobile: profileData.phone || "",
+        address: profileData.address || "",
+        dateOfBirth: profileData.dateOfBirth || "",
+        gender: profileData.gender || "",
+      };
+
+
+      if (response.success || response.data) {
+        // Update Redux store with new data
+        const updatedUser = {
+          ...data,
+          name: updateData.name,
+          email: updateData.email,
+          mobile: updateData.mobile,
+          address_details: updateData.address_details,
+          dateOfBirth: updateData.dateOfBirth,
+          gender: updateData.gender,
+        };
+        
+        dispatch(userget(updatedUser));
+
+        toast.success("Profile updated successfully!");
+        setIsEditing(false);
+      } else {
+        toast.error(response.message || "Failed to update profile");
+      }
+    } catch (error) {
+      console.error("=== Error updating profile ===");
+      console.error("Error object:", error);
+      console.error("Error response:", error.response);
+      console.error("Error response data:", error.response?.data);
+      const errorMessage = error.response?.data?.message || error.message || "Failed to update profile";
+      toast.error(errorMessage);
+    }
   };
 
   const getStatusColor = (status) => {
@@ -228,12 +404,10 @@ const AccountPage = () => {
                 </nav>
                 <button
                   onClick={handleLogout}
-                  className="flex gap-2 mt-10 bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white p-3 px-20 md:px-18 rounded-lg cursor-pointer transition-transform duration-200 ease-in-out hover:scale-105"
+                  className="flex items-center justify-center gap-2 mt-6 w-full bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white py-3 px-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg"
                 >
-                  <span>
-                    <LogOut />
-                  </span>
-                  <span className="font-medium">LogOut</span>
+                  <LogOut className="w-5 h-5" />
+                  <span className="font-medium">Logout</span>
                 </button>
               </div>
             </div>
@@ -271,9 +445,10 @@ const AccountPage = () => {
                           <User className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                           <input
                             type="text"
-                            value={profileData.name}
+                            value={profileData.name || ""}
                             onChange={(e) => handleInputChange("name", e.target.value)}
                             disabled={!isEditing}
+                            placeholder="Enter your full name"
                             className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
                               !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
                             }`}
@@ -287,9 +462,10 @@ const AccountPage = () => {
                           <Mail className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                           <input
                             type="email"
-                            value={profileData.email}
+                            value={profileData.email || ""}
                             onChange={(e) => handleInputChange("email", e.target.value)}
                             disabled={!isEditing}
+                            placeholder="Enter your email"
                             className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-teal-500 transition-all duration-300 ${
                               !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
                             }`}
@@ -303,9 +479,10 @@ const AccountPage = () => {
                           <Phone className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                           <input
                             type="tel"
-                            value={profileData.phone}
+                            value={profileData.phone || ""}
                             onChange={(e) => handleInputChange("phone", e.target.value)}
                             disabled={!isEditing}
+                            placeholder="Enter your phone number"
                             className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
                               !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
                             }`}
@@ -319,7 +496,7 @@ const AccountPage = () => {
                           <Calendar className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                           <input
                             type="date"
-                            value={profileData.dateOfBirth}
+                            value={profileData.dateOfBirth || ""}
                             onChange={(e) => handleInputChange("dateOfBirth", e.target.value)}
                             disabled={!isEditing}
                             className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-teal-500 transition-all duration-300 ${
@@ -329,15 +506,35 @@ const AccountPage = () => {
                         </div>
                       </div>
 
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Gender</label>
+                        <div className="relative">
+                          <User className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                          <select
+                            value={profileData.gender || "Male"}
+                            onChange={(e) => handleInputChange("gender", e.target.value)}
+                            disabled={!isEditing}
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-teal-500 transition-all duration-300 ${
+                              !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
+                            }`}
+                          >
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                          </select>
+                        </div>
+                      </div>
+
                       <div className="md:col-span-2 space-y-2">
                         <label className="text-sm font-medium text-gray-700">Address</label>
                         <div className="relative">
                           <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                           <textarea
-                            value={profileData.address}
+                            value={profileData.address || ""}
                             onChange={(e) => handleInputChange("address", e.target.value)}
                             disabled={!isEditing}
                             rows="3"
+                            placeholder="Enter your address"
                             className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 resize-none ${
                               !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
                             }`}
@@ -495,53 +692,160 @@ const AccountPage = () => {
                 {/* Addresses Tab */}
                 {activeTab === "addresses" && (
                   <div className="p-8">
-                    <div className="flex justify-between items-center mb-8">
-                      <div>
-                        <h2 className="text-2xl font-bold text-gray-900">Saved Addresses</h2>
-                        <p className="text-gray-600">Manage your delivery addresses</p>
-                      </div>
-                      <button className="flex items-center cursor-pointer space-x-2 bg-teal-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl font-medium transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1">
-                        <Plus className="w-4 h-4" />
-                        <span>Add Address</span>
-                      </button>
+                    <div className="mb-8">
+                      <h2 className="text-2xl font-bold text-gray-900">User Information</h2>
+                      <p className="text-gray-600">Complete user profile details</p>
                     </div>
 
-                    <div className="space-y-4">
-                      {addresses.map((address, index) => (
-                        <div
-                          key={address.id}
-                          className="border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-all duration-300 hover:border-blue-300"
-                          style={{
-                            animation: `slideIn 0.5s ease-out ${index * 0.1}s both`,
-                          }}
-                        >
-                          <div className="flex items-start justify-between">
-                            <div className="flex items-start space-x-4">
-                              <MapPin className="w-6 h-6 text-blue-500 mt-1" />
-                              <div>
-                                <div className="flex items-center space-x-2">
-                                  <h3 className="font-semibold text-gray-900">{address.type}</h3>
-                                  {address.isDefault && (
-                                    <span className="bg-green-100 text-green-600 text-xs px-2 py-1 rounded-full font-medium">
-                                      Default
-                                    </span>
-                                  )}
-                                </div>
-                                <p className="text-gray-600 mt-1">{address.address}</p>
+                    {data && (
+                      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                        {/* Profile Image at Top Center */}
+                        <div className="relative py-8 bg-gradient-to-b from-gray-50 to-white border-b border-gray-200">
+                          {/* Customer Status Badge - Top Right */}
+                          <div className="absolute top-4 right-4">
+                            <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full px-4 py-2 shadow-lg">
+                              <div className="flex items-center space-x-2">
+                                <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                </svg>
+                                <span className="text-white font-bold text-sm uppercase tracking-wider">
+                                  {data.customerstatus || 'Standard'}
+                                </span>
                               </div>
                             </div>
-                            <div className="flex space-x-2">
-                              <button className="p-2 text-gray-400 cursor-pointer hover:text-teal-600 hover:bg-blue-50 rounded-lg transition-all duration-300">
-                                <Edit3 className="w-4 h-4" />
-                              </button>
-                              <button className="p-2 text-gray-400 cursor-pointer hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-300">
-                                <Trash2 className="w-4 h-4" />
-                              </button>
+                          </div>
+
+                          {/* Profile Image Section */}
+                          <div className="flex flex-col items-center">
+                            <div className="relative">
+                              {data.image ? (
+                                <img 
+                                  src={data.image} 
+                                  alt="Profile" 
+                                  className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg" 
+                                />
+                              ) : (
+                                <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center border-4 border-white shadow-lg">
+                                  <User className="w-16 h-16 text-gray-400" />
+                                </div>
+                              )}
+                              {/* Cart Count Badge */}
+                              {Array.isArray(data.shopping_cart) && data.shopping_cart.length > 0 && (
+                                <div className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-sm shadow-lg border-2 border-white">
+                                  {data.shopping_cart.length}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Cart Info Text */}
+                            {Array.isArray(data.shopping_cart) && data.shopping_cart.length > 0 && (
+                              <p className="mt-3 text-sm text-gray-600 font-medium">
+                                {data.shopping_cart.length} {data.shopping_cart.length === 1 ? 'item' : 'items'} in cart
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="divide-y divide-gray-200">
+                          <div className="p-4 hover:bg-gray-50 transition-colors">
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600 font-medium">Name</span>
+                              <span className="text-gray-900">{data.name || 'N/A'}</span>
+                            </div>
+                          </div>
+                          
+                          <div className="p-4 hover:bg-gray-50 transition-colors">
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600 font-medium">Email</span>
+                              <span className="text-gray-900">{data.email || 'N/A'}</span>
+                            </div>
+                          </div>
+                          
+                          <div className="p-4 hover:bg-gray-50 transition-colors">
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600 font-medium">Mobile</span>
+                              <span className="text-gray-900">{data.mobile || 'N/A'}</span>
+                            </div>
+                          </div>
+                          
+                          <div className="p-4 hover:bg-gray-50 transition-colors">
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600 font-medium">Email Verified</span>
+                              <span className={`px-3 py-1 rounded-full text-sm font-medium ${data.verify_email ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                                {data.verify_email ? 'Verified' : 'Not Verified'}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <div className="p-4 hover:bg-gray-50 transition-colors">
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600 font-medium">Status</span>
+                              <span className={`px-3 py-1 rounded-full text-sm font-medium ${data.status === 'Active' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'}`}>
+                                {data.status || 'N/A'}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <div className="p-4 hover:bg-gray-50 transition-colors">
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600 font-medium">Customer Status</span>
+                              <span className="text-gray-900">{data.customerstatus || 'N/A'}</span>
+                            </div>
+                          </div>
+                          
+                          <div className="p-4 hover:bg-gray-50 transition-colors">
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600 font-medium">Address Details</span>
+                              <span className="text-gray-900">
+                                {Array.isArray(data.address_details) && data.address_details.length > 0 
+                                  ? `${data.address_details.length} address(es)` 
+                                  : 'No addresses'}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <div className="p-4 hover:bg-gray-50 transition-colors">
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600 font-medium">Shopping Cart</span>
+                              <span className="text-gray-900">
+                                {cartCount > 0 
+                                  ? `${cartCount} product(s)` 
+                                  : 'Empty'}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <div className="p-4 hover:bg-gray-50 transition-colors">
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600 font-medium">Order History</span>
+                              <span className="text-gray-900">
+                                {Array.isArray(data.orderHistory) && data.orderHistory.length > 0 
+                                  ? `${data.orderHistory.length} order(s)` 
+                                  : 'No orders'}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <div className="p-4 hover:bg-gray-50 transition-colors">
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600 font-medium">Role</span>
+                              <span className={`px-3 py-1 rounded-full text-sm font-medium ${data.role === 'ADMIN' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'}`}>
+                                {data.role || 'N/A'}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <div className="p-4 hover:bg-gray-50 transition-colors">
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600 font-medium">Member Since</span>
+                              <span className="text-gray-900">
+                                {data.createdAt ? new Date(data.createdAt).toLocaleDateString() : 'N/A'}
+                              </span>
                             </div>
                           </div>
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -638,6 +942,140 @@ const AccountPage = () => {
             }
           }
         `}</style>
+
+        {/* Image Upload Modal */}
+        {showImageUpload && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ backdropFilter: 'blur(8px)', backgroundColor: 'rgba(0, 0, 0, 0.3)' }}>
+            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 transform transition-all">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-bold text-gray-900">Update Profile Picture</h3>
+                <button
+                  onClick={() => {
+                    setShowImageUpload(false);
+                    setSelectedImage(null);
+                    setImagePreview(null);
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-300"
+                  disabled={uploadingImage}
+                >
+                  <X className="w-5 h-5 text-gray-600" />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {/* Image Preview */}
+                <div className="flex justify-center">
+                  <div className="relative">
+                    <div className="w-40 h-40 rounded-full overflow-hidden bg-gray-100 border-4 border-gray-200">
+                      {imagePreview ? (
+                        <img
+                          src={imagePreview}
+                          alt="Preview"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600">
+                          {data?.image ? (
+                            <img
+                              src={data.image}
+                              alt="Current"
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <User className="w-20 h-20 text-white" />
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <label
+                      htmlFor="image-upload"
+                      className="absolute bottom-2 right-2 bg-white rounded-full p-3 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer hover:scale-110"
+                    >
+                      <Camera className="w-5 h-5 text-gray-600" />
+                    </label>
+                    <input
+                      id="image-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageSelect}
+                      className="hidden"
+                      disabled={uploadingImage}
+                    />
+                  </div>
+                </div>
+
+                {/* File Info */}
+                {selectedImage && (
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center">
+                          <Camera className="w-5 h-5 text-teal-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">
+                            {selectedImage.name}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {(selectedImage.size / 1024).toFixed(2)} KB
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Upload Instructions */}
+                {!selectedImage && (
+                  <div className="text-center">
+                    <p className="text-sm text-gray-600">
+                      Click the camera icon to select an image
+                    </p>
+                    <p className="text-xs text-gray-500 mt-2">
+                      Supported formats: JPG, PNG, GIF (Max 5MB)
+                    </p>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex space-x-3">
+                  <button
+                    onClick={() => {
+                      setShowImageUpload(false);
+                      setSelectedImage(null);
+                      setImagePreview(null);
+                    }}
+                    className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-all duration-300"
+                    disabled={uploadingImage}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleImageUpload}
+                    disabled={!selectedImage || uploadingImage}
+                    className={`flex-1 px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center justify-center space-x-2 ${
+                      !selectedImage || uploadingImage
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white hover:shadow-lg hover:scale-105"
+                    }`}
+                  >
+                    {uploadingImage ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Uploading...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-5 h-5" />
+                        <span>Upload</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </AuthUserNothave>
   );
