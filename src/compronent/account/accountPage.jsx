@@ -340,7 +340,7 @@ const AccountPage = () => {
       let addressResponse;
       if (addressData._id) {
         // Update existing address
-        `console.log`("Updating address with ID:", addressData._id);
+        console.log("Updating address with ID:", addressData._id);
         addressResponse = await updateAddress({ _id: addressData._id, ...addressPayload });
       } else {
         // Create new address
