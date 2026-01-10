@@ -19,7 +19,7 @@ export const ProductCreate = async (formData,) => {
 // all product get 
 export const ProductAllGet = async (formData,) => {
   try {
-    console.log('📤 API Request - ProductAllGet called with:', formData);
+   
     const response = await axios.post(`${UrlBackend}/products/get`, formData, {
       withCredentials: true,
       headers: {
@@ -27,7 +27,7 @@ export const ProductAllGet = async (formData,) => {
       },
     });
     
-    console.log('📥 API Response - Full response.data:', response.data);
+
     
     // Extract products array from response
     const products = response.data?.products || response.data?.data || response.data || [];

@@ -1,5 +1,5 @@
 "use client";
-import { Logout, updateUserProfile } from "@/src/hook/useAuth";
+import { Logout, updateUserProfile, getAddress, createAddress, updateAddress } from "@/src/hook/useAuth";
 import { clearUser, userget } from "@/src/redux/userSlice";
 import AuthUserNothave from "@/src/utlis/AuthUserNothave";
 import { OrderAllGet } from "@/src/utlis/useOrder";
@@ -34,6 +34,8 @@ const AccountPage = () => {
   // user data fatch
   const data = useSelector((state) => state.user.data);
   
+  console.log("Profile Info Data:", data);
+  
   // Get cart items from Redux store (same as header)
   const { items: cartItems } = useSelector((state) => state.cart);
   
@@ -50,22 +52,25 @@ const AccountPage = () => {
     name: data?.name,
     email: data?.email,
     phone: data?.mobile,
-    address: data?.address_details,
     dateOfBirth: "1995-05-15",
     gender: "Male",
+  });
+
+  const [addressData, setAddressData] = useState({
+    _id: "",
+    address_line: "",
+    district: "",
+    division: "",
+    upazila_thana: "",
+    country: "Bangladesh",
+    pincode: "",
+    mobile: "",
   });
 
   const [orders, setOrders] = useState([]);
   const { wishlist, loading: wishlistLoading } = useWishlist();
   
-  // Console log cart product count
-  useEffect(() => {
-    console.log("=== CART PRODUCT COUNT FROM HEADER ===");
-    console.log("Total products in cart:", cartCount);
-    console.log("Cart items array:", cartItems);
-    console.log("Number of unique items:", cartItems?.length || 0);
-    console.log("======================================");
-  }, [cartCount, cartItems]);
+
 
   // derive addresses from user data if available
   const addresses =
@@ -118,17 +123,71 @@ const AccountPage = () => {
     };
   }, [data?._id]);
 
-  // Update profileData when user data loads
+  // Helper function to format date to yyyy-MM-dd
+  const formatDateForInput = (dateString) => {
+    if (!dateString) return "";
+    try {
+      const date = new Date(dateString);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    } catch (error) {
+      console.error("Date formatting error:", error);
+      return "";
+    }
+  };
+
+  // Update profileData and fetch address when user data loads
   useEffect(() => {
     if (data) {
       setProfileData({
         name: data.name || "",
         email: data.email || "",
         phone: data.mobile || "",
-        address: data.address_details || "",
-        dateOfBirth: data.dateOfBirth || "1995-05-15",
-        gender: data.gender || "Male",
+        dateOfBirth: formatDateForInput(data.date_of_birth),
+        gender: data.gender || "",
       });
+
+      console.log("Address Details from Redux:", data.address_details);
+
+      // Fetch addresses from API
+      const loadAddresses = async () => {
+        try {
+          const addressResponse = await getAddress();
+          console.log("Address API Response:", addressResponse);
+          
+          if (addressResponse.success && addressResponse.data) {
+            // Handle if data is an array or single object
+            const addresses = Array.isArray(addressResponse.data) 
+              ? addressResponse.data 
+              : [addressResponse.data];
+            
+            if (addresses.length > 0) {
+              const addr = addresses[0];
+              setAddressData({
+                _id: addr._id || "",
+                address_line: addr.address_line || "",
+                district: addr.district || "",
+                division: addr.division || "",
+                upazila_thana: addr.upazila_thana || "",
+                country: addr.country || "Bangladesh",
+                pincode: addr.pincode || "",
+                mobile: addr.mobile || data.mobile || "",
+              });
+            }
+          }
+        } catch (error) {
+          console.error("Failed to load addresses:", error);
+          // Set defaults with user's mobile
+          setAddressData(prev => ({
+            ...prev,
+            mobile: data.mobile || "",
+          }));
+        }
+      };
+
+      loadAddresses();
     }
   }, [data]);
 
@@ -248,35 +307,79 @@ const AccountPage = () => {
     }
 
     try {
-      // Prepare update data - send only address_details (not address)
-      const updateData = {
+      // Check if DOB exists in the current data
+      const oldDOB = data.date_of_birth;
+      const newDOB = profileData.dateƒOfBirth;
+      
+      // Determine if DOB is being created or updated
+      const isDOBNew = !oldDOB && newDOB;
+      const isDOBUpdated = oldDOB && newDOB && oldDOB !== newDOB;
+      
+      // Update user profile
+      const profileUpdateData = {
         name: profileData.name || "",
         email: profileData.email || "",
         mobile: profileData.phone || "",
-        address: profileData.address || "",
-        dateOfBirth: profileData.dateOfBirth || "",
+        date_of_birth: profileData.dateOfBirth || "",
         gender: profileData.gender || "",
       };
 
+      const profileResponse = await updateUserProfile(data._id, profileUpdateData);
 
-      if (response.success || response.data) {
+      // Create or update address
+      const addressPayload = {
+        address_line: addressData.address_line || "",
+        district: addressData.district || "",
+        division: addressData.division || "",
+        upazila_thana: addressData.upazila_thana || "",
+        country: addressData.country || "Bangladesh",
+        pincode: addressData.pincode || "",
+        mobile: addressData.mobile || profileData.phone || "",
+      };
+
+      let addressResponse;
+      if (addressData._id) {
+        // Update existing address
+        console.log("Updating address with ID:", addressData._id);
+        addressResponse = await updateAddress({ _id: addressData._id, ...addressPayload });
+      } else {
+        // Create new address
+        console.log("Creating new address");
+        addressResponse = await createAddress(addressPayload);
+      }
+
+      console.log("Address Response:", addressResponse);
+
+      if ((profileResponse.success || profileResponse.data) && (addressResponse.success || addressResponse.data)) {
+        // Log DOB status
+        if (isDOBNew) {
+          console.log("✅ DOB created successfully:", newDOB);
+        } else if (isDOBUpdated) {
+          console.log("✅ DOB updated successfully");
+          console.log("   Old DOB:", oldDOB);
+          console.log("   New DOB:", newDOB);
+        } else if (oldDOB && oldDOB === newDOB) {
+          console.log("ℹ️ DOB unchanged:", oldDOB);
+        } else if (!newDOB) {
+          console.log("ℹ️ No DOB provided");
+        }
+        
         // Update Redux store with new data
         const updatedUser = {
           ...data,
-          name: updateData.name,
-          email: updateData.email,
-          mobile: updateData.mobile,
-          address_details: updateData.address_details,
-          dateOfBirth: updateData.dateOfBirth,
-          gender: updateData.gender,
+          name: profileUpdateData.name,
+          email: profileUpdateData.email,
+          mobile: profileUpdateData.mobile,
+          date_of_birth: profileUpdateData.date_of_birth,
+          gender: profileUpdateData.gender,
         };
         
         dispatch(userget(updatedUser));
 
-        toast.success("Profile updated successfully!");
+        toast.success("Profile and address updated successfully!");
         setIsEditing(false);
       } else {
-        toast.error(response.message || "Failed to update profile");
+        toast.error(profileResponse.message || addressResponse.message || "Failed to update profile");
       }
     } catch (error) {
       console.error("=== Error updating profile ===");
@@ -526,16 +629,101 @@ const AccountPage = () => {
                       </div>
 
                       <div className="md:col-span-2 space-y-2">
-                        <label className="text-sm font-medium text-gray-700">Address</label>
+                        <label className="text-sm font-medium text-gray-700">Address Line</label>
                         <div className="relative">
                           <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                          <textarea
-                            value={profileData.address || ""}
-                            onChange={(e) => handleInputChange("address", e.target.value)}
+                          <input
+                            type="text"
+                            value={addressData.address_line || ""}
+                            onChange={(e) => setAddressData({...addressData, address_line: e.target.value})}
                             disabled={!isEditing}
-                            rows="3"
-                            placeholder="Enter your address"
-                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 resize-none ${
+                            placeholder="Street address, House/Building number"
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
+                              !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
+                            }`}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">District</label>
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                          <input
+                            type="text"
+                            value={addressData.district || ""}
+                            onChange={(e) => setAddressData({...addressData, district: e.target.value})}
+                            disabled={!isEditing}
+                            placeholder="Enter district"
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
+                              !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
+                            }`}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Division</label>
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                          <input
+                            type="text"
+                            value={addressData.division || ""}
+                            onChange={(e) => setAddressData({...addressData, division: e.target.value})}
+                            disabled={!isEditing}
+                            placeholder="Enter division"
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
+                              !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
+                            }`}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Upazila/Thana</label>
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                          <input
+                            type="text"
+                            value={addressData.upazila_thana || ""}
+                            onChange={(e) => setAddressData({...addressData, upazila_thana: e.target.value})}
+                            disabled={!isEditing}
+                            placeholder="Enter upazila or thana"
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
+                              !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
+                            }`}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Pincode</label>
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                          <input
+                            type="text"
+                            value={addressData.pincode || ""}
+                            onChange={(e) => setAddressData({...addressData, pincode: e.target.value})}
+                            disabled={!isEditing}
+                            placeholder="Enter pincode"
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
+                              !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
+                            }`}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Country</label>
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                          <input
+                            type="text"
+                            value={addressData.country || "Bangladesh"}
+                            onChange={(e) => setAddressData({...addressData, country: e.target.value})}
+                            disabled={!isEditing}
+                            placeholder="Enter country"
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
                               !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
                             }`}
                           />
@@ -691,156 +879,192 @@ const AccountPage = () => {
 
                 {/* Addresses Tab */}
                 {activeTab === "addresses" && (
-                  <div className="p-8">
-                    <div className="mb-8">
-                      <h2 className="text-2xl font-bold text-gray-900">User Information</h2>
-                      <p className="text-gray-600">Complete user profile details</p>
+                  <div className="p-4 md:p-8">
+                    <div className="mb-6 md:mb-8">
+                      <h2 className="text-xl md:text-2xl font-bold text-gray-900">Delivery Address</h2>
+                      <p className="text-sm md:text-base text-gray-600">Your saved delivery information</p>
                     </div>
 
                     {data && (
-                      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                        {/* Profile Image at Top Center */}
-                        <div className="relative py-8 bg-gradient-to-b from-gray-50 to-white border-b border-gray-200">
-                          {/* Customer Status Badge - Top Right */}
-                          <div className="absolute top-4 right-4">
-                            <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full px-4 py-2 shadow-lg">
-                              <div className="flex items-center space-x-2">
-                                <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                </svg>
-                                <span className="text-white font-bold text-sm uppercase tracking-wider">
-                                  {data.customerstatus || 'Standard'}
-                                </span>
+                      <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-5 md:p-6">
+                        <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                          <span className="w-1 h-5 bg-emerald-500 rounded"></span>
+                          Current Delivery Information
+                        </h3>
+                        
+                        <div className="space-y-4">
+                          {/* Profile Image Section */}
+                          <div className="bg-white rounded-lg p-4 border border-emerald-100">
+                            <div className="flex items-center gap-4">
+                              <div className="relative">
+                                {data.image ? (
+                                  <img 
+                                    src={data.image} 
+                                    alt="Profile" 
+                                    className="w-24 h-24 rounded-full object-cover border-4 border-emerald-200 shadow-lg" 
+                                  />
+                                ) : (
+                                  <div className="w-24 h-24 rounded-full bg-emerald-200 flex items-center justify-center border-4 border-emerald-300 shadow-lg">
+                                    <User className="w-12 h-12 text-emerald-600" />
+                                  </div>
+                                )}
+                              </div>
+                              <div>
+                                <p className="font-bold text-gray-900 text-xl">{data.name || "User"}</p>
+                                <p className="text-base text-gray-600">{data.email || ""}</p>
+                                {data.customerstatus && (
+                                  <span className="inline-block mt-1 px-3 py-1 rounded-full text-sm font-semibold bg-purple-100 text-purple-800 capitalize">
+                                    {data.customerstatus}
+                                  </span>
+                                )}
                               </div>
                             </div>
                           </div>
 
-                          {/* Profile Image Section */}
-                          <div className="flex flex-col items-center">
-                            <div className="relative">
-                              {data.image ? (
-                                <img 
-                                  src={data.image} 
-                                  alt="Profile" 
-                                  className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg" 
-                                />
-                              ) : (
-                                <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center border-4 border-white shadow-lg">
-                                  <User className="w-16 h-16 text-gray-400" />
+                          {/* Personal Information */}
+                          <div className="bg-white rounded-lg p-4 border border-emerald-100">
+                            <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                              <User className="w-4 h-4 text-emerald-600" />
+                              Personal Details
+                            </h4>
+                            <div className="grid md:grid-cols-2 gap-3 text-sm">
+                              <div>
+                                <p className="text-gray-500 text-xs mb-1">Full Name</p>
+                                <p className="text-gray-800 font-medium">{data.name || "N/A"}</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-500 text-xs mb-1">Contact Number</p>
+                                <p className="text-gray-800 font-medium">{data.mobile || "N/A"}</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Address Information */}
+                          {(addressData.address_line || addressData.district || addressData.division || data.address_details) && (
+                            <div className="bg-white rounded-lg p-4 border border-emerald-100">
+                              <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                <MapPin className="w-4 h-4 text-emerald-600" />
+                                Address Information
+                              </h4>
+                              <div className="space-y-3 text-sm">
+                                {addressData.address_line && (
+                                  <div>
+                                    <p className="text-gray-500 text-xs mb-1">Address Line</p>
+                                    <p className="text-gray-800 font-medium">{addressData.address_line}</p>
+                                  </div>
+                                )}
+                                <div className="grid md:grid-cols-2 gap-3">
+                                  {addressData.upazila_thana && (
+                                    <div>
+                                      <p className="text-gray-500 text-xs mb-1">Upazila/Thana</p>
+                                      <p className="text-gray-800 font-medium">{addressData.upazila_thana}</p>
+                                    </div>
+                                  )}
+                                  {addressData.district && (
+                                    <div>
+                                      <p className="text-gray-500 text-xs mb-1">District</p>
+                                      <p className="text-gray-800 font-medium">{addressData.district}</p>
+                                    </div>
+                                  )}
+                                  {addressData.division && (
+                                    <div>
+                                      <p className="text-gray-500 text-xs mb-1">Division</p>
+                                      <p className="text-gray-800 font-medium">{addressData.division}</p>
+                                    </div>
+                                  )}
+                                  {addressData.pincode && (
+                                    <div>
+                                      <p className="text-gray-500 text-xs mb-1">Pincode</p>
+                                      <p className="text-gray-800 font-medium">{addressData.pincode}</p>
+                                    </div>
+                                  )}
+                                  {addressData.country && (
+                                    <div>
+                                      <p className="text-gray-500 text-xs mb-1">Country</p>
+                                      <p className="text-gray-800 font-medium">{addressData.country}</p>
+                                    </div>
+                                  )}
+                                  {addressData.mobile && (
+                                    <div>
+                                      <p className="text-gray-500 text-xs mb-1">Contact Number</p>
+                                      <p className="text-gray-800 font-medium">{addressData.mobile}</p>
+                                    </div>
+                                  )}
+                                </div>
+                                {!addressData.address_line && !addressData.district && data.address_details && (
+                                  <div>
+                                    <p className="text-gray-500 text-xs mb-1">Full Address</p>
+                                    <p className="text-gray-800 font-medium">
+                                      {typeof data.address_details === 'string' 
+                                        ? data.address_details 
+                                        : Array.isArray(data.address_details) && data.address_details.length > 0
+                                        ? data.address_details[0]
+                                        : "No address available"}
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Additional Contact */}
+                          <div className="bg-white rounded-lg p-4 border border-emerald-100">
+                            <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                              <Mail className="w-4 h-4 text-emerald-600" />
+                              Email Address
+                            </h4>
+                            <div className="text-sm">
+                              <p className="text-gray-500 text-xs mb-1">Email</p>
+                              <p className="text-gray-800 font-medium">{data.email || "N/A"}</p>
+                            </div>
+                          </div>
+
+                          {/* Status Information */}
+                          <div className="bg-white rounded-lg p-4 border border-emerald-100">
+                            <h4 className="text-sm font-semibold text-gray-700 mb-3">Account Status</h4>
+                            <div className="flex flex-wrap gap-3">
+                              <div className="flex items-center gap-2">
+                                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                  data.verify_email 
+                                    ? 'bg-green-100 text-green-800' 
+                                    : 'bg-yellow-100 text-yellow-800'
+                                }`}>
+                                  {data.verify_email ? '✓ Email Verified' : '⚠ Email Not Verified'}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                  data.status === 'Active'
+                                    ? 'bg-green-100 text-green-800'
+                                    : 'bg-gray-100 text-gray-800'
+                                }`}>
+                                  {data.status || 'Inactive'}
+                                </span>
+                              </div>
+                              {data.customerstatus && (
+                                <div className="flex items-center gap-2">
+                                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800 capitalize">
+                                    {data.customerstatus}
+                                  </span>
                                 </div>
                               )}
-                              {/* Cart Count Badge */}
-                              {Array.isArray(data.shopping_cart) && data.shopping_cart.length > 0 && (
-                                <div className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-sm shadow-lg border-2 border-white">
-                                  {data.shopping_cart.length}
-                                </div>
-                              )}
                             </div>
+                          </div>
 
-                            {/* Cart Info Text */}
-                            {Array.isArray(data.shopping_cart) && data.shopping_cart.length > 0 && (
-                              <p className="mt-3 text-sm text-gray-600 font-medium">
-                                {data.shopping_cart.length} {data.shopping_cart.length === 1 ? 'item' : 'items'} in cart
-                              </p>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="divide-y divide-gray-200">
-                          <div className="p-4 hover:bg-gray-50 transition-colors">
-                            <div className="flex justify-between items-center">
-                              <span className="text-gray-600 font-medium">Name</span>
-                              <span className="text-gray-900">{data.name || 'N/A'}</span>
-                            </div>
-                          </div>
-                          
-                          <div className="p-4 hover:bg-gray-50 transition-colors">
-                            <div className="flex justify-between items-center">
-                              <span className="text-gray-600 font-medium">Email</span>
-                              <span className="text-gray-900">{data.email || 'N/A'}</span>
-                            </div>
-                          </div>
-                          
-                          <div className="p-4 hover:bg-gray-50 transition-colors">
-                            <div className="flex justify-between items-center">
-                              <span className="text-gray-600 font-medium">Mobile</span>
-                              <span className="text-gray-900">{data.mobile || 'N/A'}</span>
-                            </div>
-                          </div>
-                          
-                          <div className="p-4 hover:bg-gray-50 transition-colors">
-                            <div className="flex justify-between items-center">
-                              <span className="text-gray-600 font-medium">Email Verified</span>
-                              <span className={`px-3 py-1 rounded-full text-sm font-medium ${data.verify_email ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
-                                {data.verify_email ? 'Verified' : 'Not Verified'}
-                              </span>
-                            </div>
-                          </div>
-                          
-                          <div className="p-4 hover:bg-gray-50 transition-colors">
-                            <div className="flex justify-between items-center">
-                              <span className="text-gray-600 font-medium">Status</span>
-                              <span className={`px-3 py-1 rounded-full text-sm font-medium ${data.status === 'Active' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'}`}>
-                                {data.status || 'N/A'}
-                              </span>
-                            </div>
-                          </div>
-                          
-                          <div className="p-4 hover:bg-gray-50 transition-colors">
-                            <div className="flex justify-between items-center">
-                              <span className="text-gray-600 font-medium">Customer Status</span>
-                              <span className="text-gray-900">{data.customerstatus || 'N/A'}</span>
-                            </div>
-                          </div>
-                          
-                          <div className="p-4 hover:bg-gray-50 transition-colors">
-                            <div className="flex justify-between items-center">
-                              <span className="text-gray-600 font-medium">Address Details</span>
-                              <span className="text-gray-900">
-                                {Array.isArray(data.address_details) && data.address_details.length > 0 
-                                  ? `${data.address_details.length} address(es)` 
-                                  : 'No addresses'}
-                              </span>
-                            </div>
-                          </div>
-                          
-                          <div className="p-4 hover:bg-gray-50 transition-colors">
-                            <div className="flex justify-between items-center">
-                              <span className="text-gray-600 font-medium">Shopping Cart</span>
-                              <span className="text-gray-900">
-                                {cartCount > 0 
-                                  ? `${cartCount} product(s)` 
-                                  : 'Empty'}
-                              </span>
-                            </div>
-                          </div>
-                          
-                          <div className="p-4 hover:bg-gray-50 transition-colors">
-                            <div className="flex justify-between items-center">
-                              <span className="text-gray-600 font-medium">Order History</span>
-                              <span className="text-gray-900">
-                                {Array.isArray(data.orderHistory) && data.orderHistory.length > 0 
-                                  ? `${data.orderHistory.length} order(s)` 
-                                  : 'No orders'}
-                              </span>
-                            </div>
-                          </div>
-                          
-                          <div className="p-4 hover:bg-gray-50 transition-colors">
-                            <div className="flex justify-between items-center">
-                              <span className="text-gray-600 font-medium">Role</span>
-                              <span className={`px-3 py-1 rounded-full text-sm font-medium ${data.role === 'ADMIN' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'}`}>
-                                {data.role || 'N/A'}
-                              </span>
-                            </div>
-                          </div>
-                          
-                          <div className="p-4 hover:bg-gray-50 transition-colors">
-                            <div className="flex justify-between items-center">
-                              <span className="text-gray-600 font-medium">Member Since</span>
-                              <span className="text-gray-900">
-                                {data.createdAt ? new Date(data.createdAt).toLocaleDateString() : 'N/A'}
-                              </span>
+                          {/* Member Since */}
+                          <div className="bg-gradient-to-r from-emerald-100 to-teal-100 rounded-lg p-4 border border-emerald-200">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="text-gray-600 text-xs mb-1">Member Since</p>
+                                <p className="text-gray-800 font-bold">
+                                  {data.createdAt ? new Date(data.createdAt).toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                  }) : 'N/A'}
+                                </p>
+                              </div>
+                              <Calendar className="w-8 h-8 text-emerald-600 opacity-50" />
                             </div>
                           </div>
                         </div>

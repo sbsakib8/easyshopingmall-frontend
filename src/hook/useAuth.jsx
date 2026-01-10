@@ -144,6 +144,47 @@ export const updateUserProfile = async (id, formData) => {
   }
 }
 
+// get addresses
+export const getAddress = async () => {
+  try {
+    const response = await axios.get(`${UrlBackend}/address/get`, {
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Get Address error:", error.response?.data || error.message);
+    throw error;
+  }
+}
+
+// create address
+export const createAddress = async (addressData) => {
+  try {
+    const response = await axios.post(`${UrlBackend}/address/create`, addressData, {
+      withCredentials: true,
+      headers: { "Content-Type": "application/json" },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Create Address error:", error.response?.data || error.message);
+    throw error;
+  }
+}
+
+// update address
+export const updateAddress = async (addressData) => {
+  try {
+    const response = await axios.put(`${UrlBackend}/address/update`, addressData, {
+      withCredentials: true,
+      headers: { "Content-Type": "application/json" },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Update Address error:", error.response?.data || error.message);
+    throw error;
+  }
+}
+
 // delete user
 export const deleteUser = async (id) => {
   try {
