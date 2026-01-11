@@ -872,6 +872,10 @@ const OrderManagement = () => {
                         {
                         selectedOrder?.payment_method==="manual"&&<>
                         <div className="flex justify-between">
+                          <span className="text-gray-400">Provider Name:</span>
+                          <span className="font-medium text-white">{selectedOrder?.payment_details?.manual?.provider || "None"}</span>
+                        </div>
+                        <div className="flex justify-between">
                           <span className="text-gray-400">Transaction Id:</span>
                           <span className="font-medium text-white">{selectedOrder?.payment_details?.manual?.transactionId}</span>
                         </div>
