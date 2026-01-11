@@ -205,7 +205,8 @@ export default function CheckoutComponent() {
       const paymentRes = await initPaymentSession({
         orderId: dbOrderId,
         payment_type: paymentType,
-        userId: user._id, 
+        userId: user._id,
+        success_url: `${window.location.origin}/payment/success`,
       });
 
     const gatewayUrl = paymentRes?.url;
