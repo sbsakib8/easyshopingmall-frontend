@@ -1,5 +1,6 @@
-"use client"
-import { useState, useEffect } from "react"
+"use client";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   ShoppingCart,
   Package,
@@ -18,69 +19,256 @@ import {
   ArrowUp,
   Activity,
   Zap,
-} from "lucide-react"
+} from "lucide-react";
+import { getAllUser, getUserProfile } from "@/src/hook/useAuth";
+import { OrderAllGet } from "@/src/utlis/useOrder";
+import { ProductAllGet } from "@/src/hook/useProduct";
 
 const DashboardHome = () => {
-  const [currentTime, setCurrentTime] = useState(new Date())
+  const router = useRouter();
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [usersCount, setUsersCount] = useState(0);
+  const [userChange, setUserChange] = useState(0);
+  const [ordersCount, setOrdersCount] = useState(0);
+  const [orderChange, setOrderChange] = useState(0);
+  const [productsCount, setProductsCount] = useState(0);
+  const [productsChange, setProductsChange] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentTime(new Date())
-    }, 1000)
-    return () => clearInterval(timer)
-  }, [])
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await getUserProfile();
+
+        // ⚠️ backend structure অনুযায়ী adjust
+        setUser(res.user || res.data || res);
+      } catch (error) {
+        console.error("User not logged in");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  useEffect(() => {
+    const fetchUsersStats = async () => {
+      try {
+        const res = await getAllUser();
+        const users = res?.users || [];
+
+        const today = new Date();
+        const yesterday = new Date();
+        yesterday.setDate(today.getDate() - 1);
+
+        const totalUsers = users.length;
+
+        const yesterdayUsers = users.filter((u) => new Date(u.createdAt) <= yesterday).length;
+
+        let percentage = 0;
+        if (yesterdayUsers > 0) {
+          percentage = ((totalUsers - yesterdayUsers) / yesterdayUsers) * 100;
+        }
+
+        setUsersCount(totalUsers);
+        setUserChange(percentage.toFixed(1));
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchUsersStats();
+  }, []);
+
+  useEffect(() => {
+    const fetchOrdersStats = async () => {
+      try {
+        const res = await OrderAllGet(); // সব orders fetch
+        const orders = res.orders || []; // API অনুযায়ী adjust করো
+        const totalOrders = orders.length;
+
+        // Previous day orders count (optional, percentage change হিসাবের জন্য)
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        const yesterdayOrders = orders.filter(
+          (order) => new Date(order.createdAt) <= yesterday
+        ).length;
+
+        // percentage growth
+        let percentage = 0;
+        if (yesterdayOrders > 0) {
+          percentage = ((totalOrders - yesterdayOrders) / yesterdayOrders) * 100;
+        }
+
+        setOrdersCount(totalOrders);
+        setOrderChange(percentage.toFixed(1));
+      } catch (error) {
+        console.error("Fetch orders error:", error);
+      }
+    };
+
+    fetchOrdersStats();
+  }, []);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        // প্রথমে সব product fetch করো
+        const allProducts = [];
+        let page = 1;
+        let limit = 100; // একবারে কত fetch করবে, বেশি হলে slow হতে পারে
+        let totalFetched = 0;
+        let totalCount = 0;
+
+        do {
+          const res = await ProductAllGet({ page, limit });
+          const products = res.data || [];
+          allProducts.push(...products);
+
+          totalFetched += products.length;
+          totalCount = res.totalCount || totalFetched;
+
+          page++;
+        } while (totalFetched < totalCount); // যতক্ষণ সব product fetch হয়
+
+        // Total products
+        const totalProducts = allProducts.length;
+
+        // Calculate previous day products
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        const yesterdayProducts = allProducts.filter(
+          (p) => new Date(p.createdAt) < yesterday
+        ).length;
+
+        // Percentage growth
+        let percentage = 0;
+        if (yesterdayProducts > 0) {
+          percentage = ((totalProducts - yesterdayProducts) / yesterdayProducts) * 100;
+        }
+
+        setProductsCount(totalProducts);
+        setProductsChange(percentage.toFixed(1));
+      } catch (error) {
+        console.error("Fetch products error:", error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   const statsCards = [
     {
       title: "Total Users",
-      value: "7,174",
-      change: "+12.5%",
-      changeType: "positive",
+      value: usersCount,
+      change: `${userChange > 0 ? "+" : ""}${userChange}%`,
+      changeType: userChange >= 0 ? "positive" : "negative",
       icon: Users,
       gradient: "from-gray-900 via-gray-800 to-black",
       shadowColor: "shadow-gray-900/50",
     },
     {
       title: "Total Orders",
-      value: "356",
-      change: "+8.2%",
-      changeType: "positive",
+      value: ordersCount,
+      change: `${orderChange > 0 ? "+" : ""}${orderChange}%`,
+      changeType: orderChange >= 0 ? "positive" : "negative",
       icon: ShoppingCart,
       gradient: "from-slate-900 via-gray-900 to-black",
       shadowColor: "shadow-slate-900/50",
     },
     {
       title: "Total Products",
-      value: "104",
-      change: "+3.1%",
-      changeType: "positive",
-      icon: Package,
+      value: productsCount,
+      change: `${productsChange > 0 ? "+" : ""}${productsChange}%`,
+      changeType: productsChange >= 0 ? "positive" : "negative",
+      icon: Package, // তোমার icon import
       gradient: "from-zinc-900 via-slate-800 to-gray-900",
       shadowColor: "shadow-zinc-900/50",
     },
     {
       title: "Total Revenue",
-      value: "৳2,45,320",
-      change: "+15.3%",
+      value: "৳0,00,000",
+      change: "+0.00%",
       changeType: "positive",
       icon: DollarSign,
       gradient: "from-black via-gray-900 to-slate-800",
       shadowColor: "shadow-black/50",
     },
-  ]
+  ];
 
   const quickActions = [
-    { label: "Add Product", icon: Plus, gradient: "from-gray-800 to-black", description: "Create new product" },
-    { label: "View Orders", icon: Eye, gradient: "from-slate-800 to-gray-900", description: "Check recent orders" },
-    { label: "Analytics", icon: BarChart3, gradient: "from-zinc-800 to-slate-900", description: "View insights" },
-    { label: "Customers", icon: Users, gradient: "from-gray-900 to-black", description: "Manage customers" },
-    { label: "Settings", icon: Settings, gradient: "from-slate-900 to-zinc-900", description: "Configure system" },
-    { label: "Reports", icon: FileText, gradient: "from-black to-gray-800", description: "Generate reports" },
-  ]
+    {
+      label: "Add Product",
+      icon: Plus,
+      gradient: "from-gray-800 to-black",
+      description: "Create new product",
+      route: "/dashboard/products/addproduct",
+    },
+    {
+      label: "View Orders",
+      icon: Eye,
+      gradient: "from-slate-800 to-gray-900",
+      description: "Check recent orders",
+      route: "/dashboard/order/allorders",
+    },
+    {
+      label: "Analytics",
+      icon: BarChart3,
+      gradient: "from-zinc-800 to-slate-900",
+      description: "View insights",
+      route: "/dashboard/analytics/sales-report",
+    },
+    {
+      label: "Customers",
+      icon: Users,
+      gradient: "from-gray-900 to-black",
+      description: "Manage customers",
+      route: "/dashboard/customers/all-customers",
+    },
+    {
+      label: "Settings",
+      icon: Settings,
+      gradient: "from-slate-900 to-zinc-900",
+      description: "Configure system",
+      route: "/dashboard/settings/userupdate",
+    },
+    {
+      label: "Reports",
+      icon: FileText,
+      gradient: "from-black to-gray-800",
+      description: "Generate reports",
+      route: "/dashboard/analytics",
+    },
+  ];
 
   const recentOrders = [
-    { id: "#ORD-001", customer: "John Doe", amount: "৳1,299", status: "Completed", time: "2 hours ago", avatar: "JD" },
-    { id: "#ORD-002", customer: "Jane Smith", amount: "৳899", status: "Processing", time: "4 hours ago", avatar: "JS" },
+    {
+      id: "#ORD-001",
+      customer: "John Doe",
+      amount: "৳1,299",
+      status: "Completed",
+      time: "2 hours ago",
+      avatar: "JD",
+    },
+    {
+      id: "#ORD-002",
+      customer: "Jane Smith",
+      amount: "৳899",
+      status: "Processing",
+      time: "4 hours ago",
+      avatar: "JS",
+    },
     {
       id: "#ORD-003",
       customer: "Mike Johnson",
@@ -97,20 +285,18 @@ const DashboardHome = () => {
       time: "8 hours ago",
       avatar: "SW",
     },
-  ]
+  ];
 
   const topProducts = [
     { name: "Wireless Headphones", sales: "245 sold", price: "৳3,299", rating: 4.8, trend: "+15%" },
     { name: "Smart Watch", sales: "189 sold", price: "৳12,999", rating: 4.7, trend: "+12%" },
     { name: "Phone Case", sales: "156 sold", price: "৳599", rating: 4.9, trend: "+8%" },
     { name: "Bluetooth Speaker", sales: "134 sold", price: "৳2,199", rating: 4.6, trend: "+5%" },
-  ]
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 overflow-hidden">
-      <main
-        className={`transition-all  duration-500 lg:ml-15 py-5 px-2 lg:px-9`}
-      >
+      <main className={`transition-all  duration-500 lg:ml-15 py-5 px-2 lg:px-9`}>
         {/* Welcome Section */}
         <div className="mb-8 animate-fadeInDown">
           <div className="bg-gradient-to-r from-gray-900 via-black to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-2xl shadow-black/50 relative overflow-hidden backdrop-blur-xl border border-gray-800/50">
@@ -122,12 +308,17 @@ const DashboardHome = () => {
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h1 className="text-2xl sm:text-3xl font-bold mb-2 bg-gradient-to-r from-white via-gray-200 to-gray-300 bg-clip-text text-transparent">
-                    Welcome back, Sakib! 👋
+                    {loading ? "Loading..." : `Welcome back, ${user?.name || "Admin"}! 👋`}
                   </h1>
-                  <p className="text-gray-300 text-sm sm:text-base">Here's what's happening with your store today</p>
+
+                  <p className="text-gray-300 text-sm sm:text-base">
+                    Here's what's happening with your store today
+                  </p>
                 </div>
                 <div className="mt-4 sm:mt-0 text-right">
-                  <p className="text-lg font-semibold text-gray-200">{currentTime.toLocaleDateString("en-BD")}</p>
+                  <p className="text-lg font-semibold text-gray-200">
+                    {currentTime.toLocaleDateString("en-BD")}
+                  </p>
                   <p className="text-gray-400 text-sm">{currentTime.toLocaleTimeString("en-BD")}</p>
                 </div>
               </div>
@@ -190,7 +381,8 @@ const DashboardHome = () => {
             {quickActions.map((action, index) => (
               <button
                 key={action.label}
-                className="group relative bg-white/5 backdrop-blur-xl p-4 sm:p-6 rounded-2xl border border-gray-800/30 shadow-lg hover:shadow-2xl hover:shadow-black/40 transition-all duration-500 transform hover:-translate-y-3 hover:scale-105 animate-bounceIn overflow-hidden"
+                onClick={() => action.route && router.push(action.route)}
+                className="group relative bg-white/5 backdrop-blur-xl p-4 sm:p-6 rounded-2xl border border-gray-800/30 shadow-lg hover:shadow-2xl hover:shadow-black/40 transition-all duration-500 transform hover:-translate-y-3 hover:scale-105 animate-bounceIn overflow-hidden cursor-pointer"
                 style={{
                   animationDelay: `${(index + 6) * 100}ms`,
                 }}
@@ -252,10 +444,10 @@ const DashboardHome = () => {
                               order.status === "Completed"
                                 ? "bg-green-900/50 text-green-300 border border-green-800/50"
                                 : order.status === "Processing"
-                                  ? "bg-yellow-900/50 text-yellow-300 border border-yellow-800/50"
-                                  : order.status === "Shipped"
-                                    ? "bg-blue-900/50 text-blue-300 border border-blue-800/50"
-                                    : "bg-gray-800/50 text-gray-300 border border-gray-700/50"
+                                ? "bg-yellow-900/50 text-yellow-300 border border-yellow-800/50"
+                                : order.status === "Shipped"
+                                ? "bg-blue-900/50 text-blue-300 border border-blue-800/50"
+                                : "bg-gray-800/50 text-gray-300 border border-gray-700/50"
                             } backdrop-blur-sm`}
                           >
                             {order.status}
@@ -318,7 +510,9 @@ const DashboardHome = () => {
                           <p className="text-xs text-gray-400">{product.sales}</p>
                           <div className="flex items-center space-x-1">
                             <Star className="w-3 h-3 text-yellow-400 fill-current" />
-                            <span className="text-xs text-gray-300 font-medium">{product.rating}</span>
+                            <span className="text-xs text-gray-300 font-medium">
+                              {product.rating}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -402,12 +596,12 @@ const DashboardHome = () => {
                         activity.type === "order"
                           ? "bg-gradient-to-r from-gray-700 to-gray-800"
                           : activity.type === "product"
-                            ? "bg-gradient-to-r from-slate-700 to-slate-800"
-                            : activity.type === "user"
-                              ? "bg-gradient-to-r from-zinc-700 to-zinc-800"
-                              : activity.type === "payment"
-                                ? "bg-gradient-to-r from-gray-800 to-black"
-                                : "bg-gradient-to-r from-slate-800 to-gray-900"
+                          ? "bg-gradient-to-r from-slate-700 to-slate-800"
+                          : activity.type === "user"
+                          ? "bg-gradient-to-r from-zinc-700 to-zinc-800"
+                          : activity.type === "payment"
+                          ? "bg-gradient-to-r from-gray-800 to-black"
+                          : "bg-gradient-to-r from-slate-800 to-gray-900"
                       }`}
                     >
                       <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
@@ -446,7 +640,9 @@ const DashboardHome = () => {
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-4">
                 <Zap className="w-6 h-6" />
-                <span className="text-xs bg-white/10 px-2 py-1 rounded-full backdrop-blur-sm">Live</span>
+                <span className="text-xs bg-white/10 px-2 py-1 rounded-full backdrop-blur-sm">
+                  Live
+                </span>
               </div>
               <p className="text-2xl font-bold mb-1">98.5%</p>
               <p className="text-sm text-gray-300">Server Uptime</p>
@@ -458,7 +654,9 @@ const DashboardHome = () => {
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-4">
                 <Globe className="w-6 h-6" />
-                <span className="text-xs bg-white/10 px-2 py-1 rounded-full backdrop-blur-sm">+12%</span>
+                <span className="text-xs bg-white/10 px-2 py-1 rounded-full backdrop-blur-sm">
+                  +12%
+                </span>
               </div>
               <p className="text-2xl font-bold mb-1">1,432</p>
               <p className="text-sm text-gray-300">Active Visitors</p>
@@ -470,7 +668,9 @@ const DashboardHome = () => {
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-4">
                 <Star className="w-6 h-6" />
-                <span className="text-xs bg-white/10 px-2 py-1 rounded-full backdrop-blur-sm">Excellent</span>
+                <span className="text-xs bg-white/10 px-2 py-1 rounded-full backdrop-blur-sm">
+                  Excellent
+                </span>
               </div>
               <p className="text-2xl font-bold mb-1">4.8</p>
               <p className="text-sm text-gray-300">Avg. Rating</p>
@@ -490,7 +690,7 @@ const DashboardHome = () => {
             transform: translateY(0);
           }
         }
-        
+
         @keyframes slideInLeft {
           from {
             opacity: 0;
@@ -501,7 +701,7 @@ const DashboardHome = () => {
             transform: translateX(0);
           }
         }
-        
+
         @keyframes slideInRight {
           from {
             opacity: 0;
@@ -512,7 +712,7 @@ const DashboardHome = () => {
             transform: translateX(0);
           }
         }
-        
+
         @keyframes fadeIn {
           from {
             opacity: 0;
@@ -563,7 +763,8 @@ const DashboardHome = () => {
         }
 
         @keyframes float {
-          0%, 100% {
+          0%,
+          100% {
             transform: translateY(0px) rotate(0deg);
           }
           33% {
@@ -606,12 +807,12 @@ const DashboardHome = () => {
         .animate-bounceIn {
           animation-duration: 0.6s;
         }
-        
+
         .animate-fadeInDown,
         .animate-fadeInUp {
           animation-duration: 0.5s;
         }
-        
+
         .hover:scale-102:hover {
           transform: scale(1.02);
         }
@@ -627,26 +828,25 @@ const DashboardHome = () => {
         ::-webkit-scrollbar {
           width: 8px;
         }
-        
+
         ::-webkit-scrollbar-track {
           background: rgba(0, 0, 0, 0.3);
           border-radius: 4px;
         }
-        
+
         ::-webkit-scrollbar-thumb {
           background: linear-gradient(to bottom, #374151, #111827);
           border-radius: 4px;
-          box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
-        
+
         ::-webkit-scrollbar-thumb:hover {
           background: linear-gradient(to bottom, #4b5563, #1f2937);
         }
 
         /* Enhanced hover effects for dark theme */
         .hover-glow:hover {
-          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4),
-                      0 6px 12px rgba(55, 65, 81, 0.3);
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 6px 12px rgba(55, 65, 81, 0.3);
         }
 
         /* Updated gradient animations for black theme */
@@ -658,13 +858,25 @@ const DashboardHome = () => {
 
         /* Particle effects */
         @keyframes particle1 {
-          0% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 1; }
-          100% { transform: translateY(-100px) translateX(50px) rotate(180deg); opacity: 0; }
+          0% {
+            transform: translateY(0px) translateX(0px) rotate(0deg);
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(-100px) translateX(50px) rotate(180deg);
+            opacity: 0;
+          }
         }
 
         @keyframes particle2 {
-          0% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 1; }
-          100% { transform: translateY(-80px) translateX(-30px) rotate(-180deg); opacity: 0; }
+          0% {
+            transform: translateY(0px) translateX(0px) rotate(0deg);
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(-80px) translateX(-30px) rotate(-180deg);
+            opacity: 0;
+          }
         }
 
         .particle {
@@ -681,19 +893,19 @@ const DashboardHome = () => {
           .grid {
             gap: 1rem;
           }
-          
+
           .p-6 {
             padding: 1rem;
           }
-          
+
           .p-8 {
             padding: 1.5rem;
           }
-          
+
           .text-3xl {
             font-size: 1.5rem;
           }
-          
+
           .text-2xl {
             font-size: 1.25rem;
           }
@@ -710,13 +922,13 @@ const DashboardHome = () => {
         }
 
         .shimmer {
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
           background-size: 200px 100%;
           animation: shimmer 2s infinite;
         }
       `}</style>
     </div>
-  )
-}
+  );
+};
 
-export default DashboardHome
+export default DashboardHome;

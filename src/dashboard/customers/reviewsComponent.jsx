@@ -75,6 +75,7 @@ const ReviewsPage = () => {
       try {
         const data = await getPendingReviews();
         setReviews(data);
+        console.log("Fetched reviews:", data);
         setClientSide(true);
       } catch (err) {
         console.error("Failed to fetch reviews", err);
@@ -89,7 +90,7 @@ const ReviewsPage = () => {
       try {
         const reviews = await getAllReviews();
         setTotalReviews(reviews.length);
-        setApprovedReviews(reviews.filter((r) => r.status === "approved").length); 
+        setApprovedReviews(reviews.filter((r) => r.status === "approved").length);
       } catch (err) {
         console.error("Failed to fetch all reviews:", err);
       }
@@ -330,11 +331,17 @@ const ReviewsPage = () => {
                       <div className="grid grid-cols-1 lg:grid-cols-12 gap-y-5 lg:gap-x-6 items-start">
                         {/* Customer Info */}
                         <div className="lg:col-span-3 flex items-center gap-3">
-                          <img
-                            src={review.userId?.image || "/placeholder.svg"}
-                            alt={review.userId?.name}
-                            className="w-12 h-12 rounded-full border-2 border-yellow-500 object-cover"
-                          />
+                          {review.userId?.image ? (
+                            <img
+                              src={review.userId.image}
+                              alt={review.userId?.name || "User"}
+                              className="w-12 h-12 rounded-full border-2 border-yellow-500 object-cover"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 rounded-full border-2 border-yellow-500 bg-gray-600 flex items-center justify-center text-white font-bold text-lg">
+                              {review.userId?.name?.charAt(0).toUpperCase() || "U"}
+                            </div>
+                          )}
                           <div className="min-w-0">
                             <h3 className="font-semibold text-white truncate">
                               {review.userId?.name}
@@ -348,9 +355,9 @@ const ReviewsPage = () => {
                         {/* Product & Rating */}
                         <div className="lg:col-span-3">
                           <h4 className="font-medium text-white mb-1 truncate">
-                            {review.productId?.name || review.productId}{" "}
-                            {/* Replace with product name if available */}
+                            {review.productId?.productName || "Unknown Product"}
                           </h4>
+
                           <div className="flex items-center gap-2">
                             <div className="flex">{renderStars(review.rating)}</div>
                             <span className="text-xs text-gray-400">({review.rating}/5)</span>
@@ -479,15 +486,15 @@ const ReviewsPage = () => {
                 {/* Profile Section */}
                 <div className="flex items-center space-x-4">
                   <div className="relative">
-                    <img
-                      src={selectedReview.userId.image || "/placeholder.svg"}
-                      alt={selectedReview.userId.name}
-                      className="w-16 h-16 rounded-full border-2 border-yellow-500 object-cover"
-                    />
-                    {/* Overlay text logic if image fails or for styling as seen in image */}
-                    {!selectedReview.userId.image && (
-                      <div className="absolute inset-0 flex items-center justify-center text-[35px] text-center px-1">
-                        {selectedReview.userId.name.charAt(0).toUpperCase()}
+                    {selectedReview.userId?.image ? (
+                      <img
+                        src={selectedReview.userId.image}
+                        alt={selectedReview.userId?.name || "User"}
+                        className="w-12 h-12 rounded-full border-2 border-yellow-500 object-cover"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-full border-2 border-yellow-500 bg-gray-600 flex items-center justify-center text-white font-bold text-lg">
+                        {selectedReview.userId?.name?.charAt(0).toUpperCase() || "U"}
                       </div>
                     )}
                   </div>
