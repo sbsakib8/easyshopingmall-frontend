@@ -150,6 +150,7 @@ import DashboardLoader from "@/src/helper/loading/DashboardLoader"
 const statusColors = {
   pending: "bg-gradient-to-r from-yellow-400 to-orange-400 text-white shadow-lg shadow-yellow-500/25",
   processing: "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/25",
+  submitted: "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/25",
   shipped: "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/25",
   completed: "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/25",
   paid: "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/25",
@@ -368,7 +369,7 @@ const OrderManagement = () => {
             <div className="relative">
               <ShoppingCart className="h-8 w-8 mb-3 text-blue-400" />
               <p className="text-gray-400 text-sm">Total Orders</p>
-              <p className="text-3xl font-bold text-white">{stats.total}</p>
+              <p className="text-3xl font-bold text-white">{stats?.total}</p>
             </div>
           </div>
 
@@ -377,7 +378,7 @@ const OrderManagement = () => {
             <div className="relative">
               <CheckCircle className="h-8 w-8 mb-3 text-green-400" />
               <p className="text-gray-400 text-sm">Completed</p>
-              <p className="text-3xl font-bold text-white">{stats.completed}</p>
+              <p className="text-3xl font-bold text-white">{stats?.completed}</p>
             </div>
           </div>
 
@@ -386,7 +387,7 @@ const OrderManagement = () => {
             <div className="relative">
               <Clock className="h-8 w-8 mb-3 text-orange-400" />
               <p className="text-gray-400 text-sm">Pending</p>
-              <p className="text-3xl font-bold text-white">{stats.pending}</p>
+              <p className="text-3xl font-bold text-white">{stats?.pending}</p>
             </div>
           </div>
           <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
@@ -394,7 +395,7 @@ const OrderManagement = () => {
             <div className="relative">
               <LoaderIcon className="h-8 w-8 mb-3 text-orange-400" />
               <p className="text-gray-400 text-sm">Processing</p>
-              <p className="text-3xl font-bold text-white">{stats.processing}</p>
+              <p className="text-3xl font-bold text-white">{stats?.processing}</p>
             </div>
           </div>
 
@@ -412,7 +413,7 @@ const OrderManagement = () => {
             <div className="relative">
               <TrendingUp className="h-8 w-8 mb-3 text-indigo-400" />
               <p className="text-gray-400 text-sm">Avg Order</p>
-              <p className="text-3xl font-bold text-white">৳{stats.avgOrderValue.toFixed(0)}</p>
+              <p className="text-3xl font-bold text-white">৳{stats?.avgOrderValue.toFixed(0)}</p>
             </div>
           </div>
         </div>
@@ -484,9 +485,9 @@ const OrderManagement = () => {
 
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
-                  {selectedOrders.size > 0 && (
+                  {selectedOrders?.size > 0 && (
                     <div className="flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-2xl border border-blue-500/30">
-                      <span className="text-blue-300 text-sm font-medium">{selectedOrders.size} selected</span>
+                      <span className="text-blue-300 text-sm font-medium">{selectedOrders?.size} selected</span>
                       <button
                         onClick={() => handleBulkAction("delete")}
                         className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs transition-all duration-300"
@@ -557,11 +558,11 @@ const OrderManagement = () => {
             <div className="p-6">
               <div className="grid gap-6 grid-cols-1 xl:grid-cols-3">
                 {paginatedOrders?.map((order, index) => {
-                  const StatusIcon = statusIcons[order.status]
+                  const StatusIcon = statusIcons[order?.status]
                   const isSelected = selectedOrders.has(order?.orderId)
                   return (
                     <div
-                      key={order.orderId}
+                      key={order?.orderId}
                       className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800/50 to-gray-900/50 border ${isSelected ? "border-blue-500 shadow-lg shadow-blue-500/25" : "border-gray-700 hover:border-gray-600"} shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-[1.02] cursor-pointer transform ${animateCards ? "translate-x-0 opacity-100" : "translate-x-10 opacity-0"}`}
                       style={{ transitionDelay: `${index * 100}ms` }}
                       onClick={() => handleViewOrder(order)}
@@ -574,7 +575,7 @@ const OrderManagement = () => {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation()
-                                handleSelectOrder(order.orderId)
+                                handleSelectOrder(order?.orderId)
                               }}
                               className="p-1 rounded-lg hover:bg-gray-700 transition-colors duration-200"
                             >
@@ -590,7 +591,7 @@ const OrderManagement = () => {
                             </div>
                             <div>
                               <h3 className="text-xs font-bold text-white group-hover:text-blue-400 transition-colors duration-300">
-                                {order.orderId}
+                                {order?.orderId}
                               </h3>
                               <div className="flex items-center gap-3 mt-1">
                                 <span className="text-gray-300 font-medium">{order?.userId?.name}</span>
@@ -682,7 +683,7 @@ const OrderManagement = () => {
                           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400">
                             <div className="flex items-center gap-2">
                               <Mail className="h-4 w-4" />
-                              {order.customerEmail}
+                              {order?.customerEmail}
                             </div>
                             <div className="flex items-center gap-2">
                               <Package className="h-4 w-4" />
@@ -798,15 +799,18 @@ const OrderManagement = () => {
                         </div>
                         <div className="flex items-center gap-3">
                           <Phone className="h-4 w-4 text-gray-400" />
-                          <span className="text-gray-300">{selectedOrder?.delivery_address?.mobile}</span>
+                          <span className="text-gray-300">{selectedOrder?.payment_details?.manual?.senderNumber}</span>
                         </div>
                         <div className="flex flex-col items-start gap-3">
                           {/* <MapPin className="h-4 w-4 text-gray-400 mt-1" /> */}
-                          <h3 className="font-bold text-white">Address Line: <span className="text-gray-300 font-normal">{selectedOrder?.address?.address_line || "null"}</span></h3>
-                          <h3 className="font-bold text-white">District: <span className="text-gray-300 font-normal">{selectedOrder?.address?.district || "null"}</span></h3>
-                          <h3 className="font-bold text-white">Division: <span className="text-gray-300 font-normal">{selectedOrder?.address?.division || "null"}</span></h3>
-                          <h3 className="font-bold text-white">Pincode: <span className="text-gray-300 font-normal">{selectedOrder?.address?.pincode || "null"}</span></h3>
-                          <h3 className="font-bold text-white">Upazila Thana: <span className="text-gray-300 font-normal">{selectedOrder?.address?.upazila_thana || "null"}</span></h3>
+                          <h3 className="font-bold text-white">Address Line: <span className="text-gray-300 font-normal">{selectedOrder?.address?.address_line || "None"}</span></h3>
+                          {selectedOrder?.address?.district && <h3 className="font-bold text-white">District: <span className="text-gray-300 font-normal">{selectedOrder?.address?.district || "None"}</span></h3>}
+                          <h3 className="font-bold text-white">District: <span className="text-gray-300 font-normal">{selectedOrder?.address?.district || "None"}</span></h3>
+                          {selectedOrder?.address?.division && <h3 className="font-bold text-white">Division: <span className="text-gray-300 font-normal">{selectedOrder?.address?.division || "None"}</span></h3>}
+                          
+                          {selectedOrder?.address?.pincode && <h3 className="font-bold text-white">Pincode: <span className="text-gray-300 font-normal">{selectedOrder?.address?.pincode || "None"}</span></h3>}
+                          
+                          <h3 className="font-bold text-white">Upazila Thana: <span className="text-gray-300 font-normal">{selectedOrder?.address?.upazila_thana || "None"}</span></h3>
                         </div>
                       </div>
                     </div>
@@ -847,54 +851,56 @@ const OrderManagement = () => {
 
                         <div className="flex justify-between">
                           <span className="text-gray-400">Sub Total:</span>
-                          <span className="font-medium text-white">৳{selectedOrder?.subTotalAmt}</span>
+                          <span className="font-medium text-white">৳{selectedOrder?.subTotalAmt || "None"}</span>
                         </div>
 
                         <div className="flex justify-between">
                           <span className="text-gray-400">Delivery Charge:</span>
-                          <span className="font-medium text-white">৳{selectedOrder?.deliveryCharge}</span>
+                          <span className="font-medium text-white">৳{selectedOrder?.deliveryCharge || "None"}</span>
                         </div>
 
                         <div className="flex justify-between">
                           <span className="text-gray-400">Total:</span>
-                          <span className="font-medium text-white">৳{selectedOrder?.totalAmt}</span>
+                          <span className="font-medium text-white">৳{selectedOrder?.totalAmt || "None"}</span>
                         </div>
 
                         <div className="flex justify-between">
                           <span className="text-gray-400">Payment Method:</span>
-                          <span className="font-medium text-white">{selectedOrder?.payment_method}</span>
+                          <span className="font-medium text-white">{selectedOrder?.payment_method || "None"}</span>
                         </div>
                         {/* payment manual  */}
                         {
                         selectedOrder?.payment_method==="manual"&&<>
                         <div className="flex justify-between">
                           <span className="text-gray-400">Transaction Id:</span>
-                          <span className="font-medium text-white">{selectedOrder?.payment_details?.transactionId}</span>
+                          <span className="font-medium text-white">{selectedOrder?.payment_details?.manual?.transactionId}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-400">Manual For :</span>
-                          <span className="font-medium text-white">{selectedOrder?.payment_details?.manualFor || "null"} </span>
+                          <span className="text-gray-400">Paid For :</span>
+                          {selectedOrder?.payment_details?.manual?.paidFor && <span className="font-medium text-white">{selectedOrder?.payment_details?.manual?.paidFor || "None"} </span>}
+                          
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-400">Provider Number:</span>
-                          <span className="font-medium text-white">{selectedOrder?.payment_details?.providerNumber ||"null"}</span>
+                          <span className="font-medium text-white">{selectedOrder?.payment_details?.manual?.senderNumber ||"None"}</span>
                         </div>
                         </>
                         }
+
                         {/* payment ssl  */}
                         {
                         selectedOrder?.payment_method==="sslcommerz"&&<>
                         <div className="flex justify-between">
                           <span className="text-gray-400">Transaction Id:</span>
-                          <span className="ml-2 text-xs text-white">{selectedOrder?.payment_details?.tran_id}</span>
+                          <span className="ml-2 text-xs text-white">{selectedOrder?.payment_details?.tran_id || "None"}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-400">Transaction Date:</span>
-                          <span className="font-medium text-white">{new Date(selectedOrder?.payment_details?.tran_date).toLocaleDateString()}</span>
+                          <span className="font-medium text-white">{new Date(selectedOrder?.payment_details?.tran_date || "None").toLocaleDateString()}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-400">Card Issuer:</span>
-                          <span className="font-medium text-white">{selectedOrder?.payment_details?.card_issuer}</span>
+                          <span className="font-medium text-white">{selectedOrder?.payment_details?.card_issuer || "None"}</span>
                         </div>
                         
                         </>
@@ -909,13 +915,13 @@ const OrderManagement = () => {
                           <span className="font-medium text-white">৳{selectedOrder?.amount_paid}</span>
                         </div>
 
-                        {selectedOrder.trackingNumber && (
+                        {/* {selectedOrder.trackingNumber && (
                           <div className="flex justify-between">
                             <span className="text-gray-400">Tracking:</span>
                             <span className="font-medium text-white">{selectedOrder?.trackingNumber}</span>
                           </div>
-                        )}
-                        {selectedOrder.rating && (
+                        )} */}
+                        {selectedOrder?.rating && (
                           <div className="flex justify-between items-center">
                             <span className="text-gray-400">Rating:</span>
                             <div className="flex items-center gap-1">
@@ -1051,7 +1057,7 @@ const OrderManagement = () => {
 
             <div className="flex gap-3">
               <button
-                onClick={() => handleDeleteOrder(selectedOrder._id, "cancelled")}
+                onClick={() => handleDeleteOrder(selectedOrder?._id, "cancelled")}
                 className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-semibold rounded-lg transition-all transform hover:scale-105"
               >
                 Delete
