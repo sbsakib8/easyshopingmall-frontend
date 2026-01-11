@@ -147,9 +147,7 @@ const PopularProducts = () => {
         });
       });
 
-      // Debug: log categories and counts
-      console.log('ALL Categories - Products count:', result.length);
-      console.log('Categories:', Object.keys(productsByCategory));
+
 
       return result;
     }
@@ -182,7 +180,7 @@ const PopularProducts = () => {
       p.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
     // Limit to 100 products for home page to show all categories
-    console.log('Filtered products count:', filtered.length);
+
     return filtered.slice(0, 100);
   }, [currentProducts, searchTerm]);
 
