@@ -52,6 +52,22 @@ export const OrderAllGet = async () => {
 };
 
 /**
+ * 📦 Get all orders for (admin only)
+ * Endpoint: GET /orders/orders
+ */
+export const OrderAllGetAdmin = async () => {
+    try {
+        const response = await axios.get(`${UrlBackend}/orders/admin/all`, {
+            withCredentials: true,
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Order fetch error:", error.response?.data || error.message);
+        throw error;
+    }
+};
+
+/**
  * ⚙️ Update order status (Admin only)
  * Endpoint: PUT /orders/:id/status
  */
