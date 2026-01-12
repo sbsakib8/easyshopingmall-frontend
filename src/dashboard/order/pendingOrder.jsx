@@ -71,7 +71,7 @@ const PendingOrdersPage = () => {
     const [animateCards, setAnimateCards] = useState(false)
   const [confirmationModal, setConfirmationModal] = useState(false)
   const { allOrders, loading: ordersLoading, refetch } = useGetAllOrders()
-  const itemsPerPage = 12
+  const itemsPerPage = 2
   // console.log("allorders---->",allOrders)
 
   // Filter orders based on search term and filter
@@ -303,7 +303,7 @@ const PendingOrdersPage = () => {
                 {/* Order Header */}
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h3 className="font-bold text-white mb-1">{order?._id}</h3>
+                    <h3 className="font-bold text-white mb-1">{order?.orderId}</h3>
                     <p className="text-gray-400 text-sm">{formatDate(order?.updatedAt)}</p>
                   </div>
                   <div className={`px-3 py-1 text-sm ${statusColors[order?.order_status]} rounded-full text-yellow-300 font-medium`}>
