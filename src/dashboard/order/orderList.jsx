@@ -189,6 +189,7 @@ const OrderManagement = () => {
   const [copied, setCopied] = useState(false)
   const [confirmationModal, setConfirmationModal] = useState(false)
   const { allOrders, loading: ordersLoading, refetch } = useGetAllOrders()
+  const itemsPerPage = 12
   // console.log("allorders---->",allOrders)
 
   const [notifications, setNotifications] = useState([
@@ -196,7 +197,7 @@ const OrderManagement = () => {
     { id: 2, message: "Order ORD-003 has been shipped", type: "success", time: "5 min ago" },
     { id: 3, message: "Payment failed for order ORD-007", type: "error", time: "10 min ago" },
   ])
-  const itemsPerPage = 12
+  
 
   useEffect(() => {
     setAnimateCards(true)
