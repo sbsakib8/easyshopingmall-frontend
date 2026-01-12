@@ -1,7 +1,7 @@
 "use client"
 import { useGetAllOrders } from "@/src/utlis/useGetAllOrders"
 import { OrderUpdate } from "@/src/utlis/useOrder"
-import { ChevronLeft, ChevronRight, CircleX, Cross, ShoppingCart, Trash2, Truck } from "lucide-react"
+import { ChevronLeft, ChevronRight, CircleCheckBig, CircleX, Cross, ShoppingCart, Trash2, Truck } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 
 // const mockOrders = [
@@ -71,7 +71,7 @@ const PendingOrdersPage = () => {
     const [animateCards, setAnimateCards] = useState(false)
   const [confirmationModal, setConfirmationModal] = useState(false)
   const { allOrders, loading: ordersLoading, refetch } = useGetAllOrders()
-  const itemsPerPage = 2
+  const itemsPerPage = 12
   // console.log("allorders---->",allOrders)
 
   // Filter orders based on search term and filter
@@ -136,29 +136,30 @@ const PendingOrdersPage = () => {
   const startIndex = (currentPage - 1) * itemsPerPage
   const paginatedOrders = filteredOrders?.slice(startIndex, startIndex + itemsPerPage)
   // Handle order actions
-  const handleApproveOrder = async (orderId, status) => {
-    console.log(orderId, status)
-    const res = await OrderUpdate(orderId, status)
-    console.log(res)
-    if (res.success) {
-      refetch()
-    }
-  }
+  // const handleApproveOrder = async (orderId, status) => {
+  //   console.log(orderId, status)
+  //   const res = await OrderUpdate(orderId, status)
+  //   console.log(res)
+  //   if (res.success) {
+  //     refetch()
+  //   }
+  // }
 
-  const handleRejectOrder = async (orderId, status) => {
-    console.log(orderId, status)
-    const res = await OrderUpdate(orderId, status)
-    console.log(res)
-    if (res.success) {
-      refetch()
-    }
-  }
+  // const handleRejectOrder = async (orderId, status) => {
+  //   console.log(orderId, status)
+  //   const res = await OrderUpdate(orderId, status)
+  //   console.log(res)
+  //   if (res.success) {
+  //     refetch()
+  //   }
+  // }
   const handleStatusChange = async () => {
     console.log("confierm", selectedOrder?._id, status)
     const res = await OrderUpdate(selectedOrder?._id, status)
     console.log(res)
     if (res.success) {
       setConfirmationModal(false)
+      setShowModal(false)
       refetch()
 
     }
@@ -368,7 +369,11 @@ const PendingOrdersPage = () => {
                     Approve
                   </button>
                   <button
-                    onClick={() => handleRejectOrder(order._id, "cancelled")}
+                    onClick={() => {
+                      setStatus("cancelled")
+                      setSelectedOrder(order)
+                      setConfirmationModal(true)
+                    }}
                     className="flex-1 px-4 py-2 bg-red-600/20 border border-red-500/30 text-red-300 rounded-lg hover:bg-red-600/30 transition-colors duration-200 text-sm font-medium"
                   >
                     Reject
@@ -533,8 +538,10 @@ const PendingOrdersPage = () => {
               <div className="flex gap-3">
                 <button
                   onClick={() => {
-                    handleApproveOrder(selectedOrder?._id, "shipped")
-                    setShowModal(false)
+                   {
+                      setStatus("shipped")
+                      setConfirmationModal(true)
+                    }
                   }}
                   className="flex-1 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors duration-200"
                 >
@@ -542,9 +549,9 @@ const PendingOrdersPage = () => {
                 </button>
                 <button
                   onClick={() => {
-                    handleRejectOrder(selectedOrder._id, "cancelled")
-                    setShowModal(false)
-                  }}
+                      setStatus("cancelled")
+                      setConfirmationModal(true)
+                    }}
                   className="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors duration-200"
                 >
                   Reject Order
@@ -561,7 +568,9 @@ const PendingOrdersPage = () => {
           <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-pink-500/30 max-w-md w-full p-6 animate-slideUp">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-3 bg-pink-500/20 rounded-full">
-                <Trash2 className="w-8 h-8 text-pink-500" />
+              {status === "shipped" ? <CircleCheckBig className="w-8 h-8 text-green-500" /> : <Trash2 className="w-8 h-8 text-pink-500" />}
+                
+                
               </div>
               <h2 className="text-2xl font-bold text-white"> {status === "shipped" ? "Approve" : "Reject"} Product</h2>
             </div>
@@ -573,7 +582,7 @@ const PendingOrdersPage = () => {
             <div className="flex gap-3">
               <button
                 onClick={() => handleStatusChange()}
-                className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-semibold rounded-lg transition-all transform hover:scale-105"
+                className={`flex-1 px-6 py-3 ${status === "shipped" ? "bg-gradient-to-r from-green-500 to-green-500 hover:from-green-600 hover:to-green-600" : "bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600"}  text-white font-semibold rounded-lg transition-all transform hover:scale-105`}
               >
                 {status === "shipped" ? "Approve" : "Reject"}
               </button>
