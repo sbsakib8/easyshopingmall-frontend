@@ -51,3 +51,49 @@
   scrollbar-width: thin;
   scrollbar-color: #a855f7 #e5e7eb;
 }
+/* ===== Chart Animations ===== */
+
+@keyframes lineDraw {
+  from {
+    stroke-dasharray: 600;
+    stroke-dashoffset: 600;
+  }
+  to {
+    stroke-dasharray: 600;
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-line {
+  animation: lineDraw 1.8s ease-out forwards;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.8s ease-out forwards;
+}
+
+@keyframes donutRotate {
+  from {
+    transform: rotate(-90deg) scale(0.85);
+    opacity: 0;
+  }
+  to {
+    transform: rotate(0deg) scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-donut {
+  animation: donutRotate 1.2s ease-out forwards;
+}

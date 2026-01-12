@@ -1,6 +1,6 @@
 "use client";
-import { Logout } from "@/src/hook/useAuth";
-import { clearUser } from "@/src/redux/userSlice";
+import { Logout, updateUserProfile, getAddress, createAddress, updateAddress } from "@/src/hook/useAuth";
+import { clearUser, userget } from "@/src/redux/userSlice";
 import AuthUserNothave from "@/src/utlis/AuthUserNothave";
 import { OrderAllGet } from "@/src/utlis/useOrder";
 import { useWishlist } from "@/src/utlis/useWishList";
@@ -33,22 +33,44 @@ import OrderDetailsModal from "../productDetails/OrderDetailsModal";
 const AccountPage = () => {
   // user data fatch
   const data = useSelector((state) => state.user.data);
-  console.log(data);
+  
+  console.log("Profile Info Data:", data);
+  
+  // Get cart items from Redux store (same as header)
+  const { items: cartItems } = useSelector((state) => state.cart);
+  
+  // Calculate cart product count (same as header)
+  const cartCount = (cartItems || []).reduce((sum, item) => sum + (item.quantity || 1), 0);
 
   const [activeTab, setActiveTab] = useState("profile");
   const [isEditing, setIsEditing] = useState(false);
   const [showImageUpload, setShowImageUpload] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [profileData, setProfileData] = useState({
     name: data?.name,
     email: data?.email,
     phone: data?.mobile,
-    address: data?.address_details,
     dateOfBirth: "1995-05-15",
     gender: "Male",
   });
 
+  const [addressData, setAddressData] = useState({
+    _id: "",
+    address_line: "",
+    district: "",
+    division: "",
+    upazila_thana: "",
+    country: "Bangladesh",
+    pincode: "",
+    mobile: "",
+  });
+
   const [orders, setOrders] = useState([]);
   const { wishlist, loading: wishlistLoading } = useWishlist();
+  
+
 
   // derive addresses from user data if available
   const addresses =
@@ -101,6 +123,74 @@ const AccountPage = () => {
     };
   }, [data?._id]);
 
+  // Helper function to format date to yyyy-MM-dd
+  const formatDateForInput = (dateString) => {
+    if (!dateString) return "";
+    try {
+      const date = new Date(dateString);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    } catch (error) {
+      console.error("Date formatting error:", error);
+      return "";
+    }
+  };
+
+  // Update profileData and fetch address when user data loads
+  useEffect(() => {
+    if (data) {
+      setProfileData({
+        name: data.name || "",
+        email: data.email || "",
+        phone: data.mobile || "",
+        dateOfBirth: formatDateForInput(data.date_of_birth),
+        gender: data.gender || "",
+      });
+
+      console.log("Address Details from Redux:", data.address_details);
+
+      // Fetch addresses from API
+      const loadAddresses = async () => {
+        try {
+          const addressResponse = await getAddress();
+          console.log("Address API Response:", addressResponse);
+          
+          if (addressResponse.success && addressResponse.data) {
+            // Handle if data is an array or single object
+            const addresses = Array.isArray(addressResponse.data) 
+              ? addressResponse.data 
+              : [addressResponse.data];
+            
+            if (addresses.length > 0) {
+              const addr = addresses[0];
+              setAddressData({
+                _id: addr._id || "",
+                address_line: addr.address_line || "",
+                district: addr.district || "",
+                division: addr.division || "",
+                upazila_thana: addr.upazila_thana || "",
+                country: addr.country || "Bangladesh",
+                pincode: addr.pincode || "",
+                mobile: addr.mobile || data.mobile || "",
+              });
+            }
+          }
+        } catch (error) {
+          console.error("Failed to load addresses:", error);
+          // Set defaults with user's mobile
+          setAddressData(prev => ({
+            ...prev,
+            mobile: data.mobile || "",
+          }));
+        }
+      };
+
+      loadAddresses();
+    }
+  }, [data]);
+
   const handleInputChange = (field, value) => {
     setProfileData((prev) => ({
       ...prev,
@@ -108,8 +198,197 @@ const AccountPage = () => {
     }));
   };
 
-  const handleSave = () => {
-    setIsEditing(false);
+  // Upload image to ImgBB
+  const uploadImageToImgBB = async (imageFile) => {
+    const formData = new FormData();
+    formData.append("image", imageFile);
+
+    try {
+      const response = await fetch(
+        `https://api.imgbb.com/1/upload?key=55d63e852df7bcf0393b2dedd1d8aaa9`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+      if (data.success) {
+        return data.data.url;
+      } else {
+        throw new Error("Failed to upload image to ImgBB");
+      }
+    } catch (error) {
+      console.error("ImgBB upload error:", error);
+      throw error;
+    }
+  };
+
+  // Handle image selection
+  const handleImageSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please select an image file");
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Image size should be less than 5MB");
+        return;
+      }
+
+      setSelectedImage(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Handle image upload and profile update
+  const handleImageUpload = async () => {
+    if (!selectedImage) {
+      toast.error("Please select an image first");
+      return;
+    }
+
+    if (!data?._id) {
+      toast.error("User ID not found");
+      return;
+    }
+
+    setUploadingImage(true);
+
+    try {
+      // Upload to ImgBB
+      const imageUrl = await uploadImageToImgBB(selectedImage);
+      
+      // Update profile with new image URL
+      const updateData = {
+        image: imageUrl,
+      };
+
+      const response = await updateUserProfile(data._id, updateData);
+
+      if (response.success || response.data) {
+        // Update Redux store with new image
+        const updatedUser = {
+          ...data,
+          image: imageUrl,
+        };
+        
+        dispatch(userget(updatedUser));
+
+        toast.success("Profile picture updated successfully!");
+        setShowImageUpload(false);
+        setSelectedImage(null);
+        setImagePreview(null);
+      } else {
+        toast.error(response.message || "Failed to update profile picture");
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      toast.error("Failed to upload image. Please try again.");
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!data?._id) {
+      toast.error("User ID not found");
+      return;
+    }
+
+    try {
+      // Check if DOB exists in the current data
+      const oldDOB = data.date_of_birth;
+      const newDOB = profileData.dateƒOfBirth;
+      
+      // Determine if DOB is being created or updated
+      const isDOBNew = !oldDOB && newDOB;
+      const isDOBUpdated = oldDOB && newDOB && oldDOB !== newDOB;
+      
+      // Update user profile
+      const profileUpdateData = {
+        name: profileData.name || "",
+        email: profileData.email || "",
+        mobile: profileData.phone || "",
+        date_of_birth: profileData.dateOfBirth || "",
+        gender: profileData.gender || "",
+      };
+
+      const profileResponse = await updateUserProfile(data._id, profileUpdateData);
+
+      // Create or update address
+      const addressPayload = {
+        address_line: addressData.address_line || "",
+        district: addressData.district || "",
+        division: addressData.division || "",
+        upazila_thana: addressData.upazila_thana || "",
+        country: addressData.country || "Bangladesh",
+        pincode: addressData.pincode || "",
+        mobile: addressData.mobile || profileData.phone || "",
+      };
+
+      let addressResponse;
+      if (addressData._id) {
+        // Update existing address
+        console.log("Updating address with ID:", addressData._id);
+        addressResponse = await updateAddress({ _id: addressData._id, ...addressPayload });
+      } else {
+        // Create new address
+        console.log("Creating new address");
+        addressResponse = await createAddress(addressPayload);
+      }
+
+      console.log("Address Response:", addressResponse);
+
+      if ((profileResponse.success || profileResponse.data) && (addressResponse.success || addressResponse.data)) {
+        // Log DOB status
+        if (isDOBNew) {
+          console.log("✅ DOB created successfully:", newDOB);
+        } else if (isDOBUpdated) {
+          console.log("✅ DOB updated successfully");
+          console.log("   Old DOB:", oldDOB);
+          console.log("   New DOB:", newDOB);
+        } else if (oldDOB && oldDOB === newDOB) {
+          console.log("ℹ️ DOB unchanged:", oldDOB);
+        } else if (!newDOB) {
+          console.log("ℹ️ No DOB provided");
+        }
+        
+        // Update Redux store with new data
+        const updatedUser = {
+          ...data,
+          name: profileUpdateData.name,
+          email: profileUpdateData.email,
+          mobile: profileUpdateData.mobile,
+          date_of_birth: profileUpdateData.date_of_birth,
+          gender: profileUpdateData.gender,
+        };
+        
+        dispatch(userget(updatedUser));
+
+        toast.success("Profile and address updated successfully!");
+        setIsEditing(false);
+      } else {
+        toast.error(profileResponse.message || addressResponse.message || "Failed to update profile");
+      }
+    } catch (error) {
+      console.error("=== Error updating profile ===");
+      console.error("Error object:", error);
+      console.error("Error response:", error.response);
+      console.error("Error response data:", error.response?.data);
+      const errorMessage = error.response?.data?.message || error.message || "Failed to update profile";
+      toast.error(errorMessage);
+    }
   };
 
   const getStatusColor = (status) => {
@@ -228,12 +507,10 @@ const AccountPage = () => {
                 </nav>
                 <button
                   onClick={handleLogout}
-                  className="flex gap-2 mt-10 bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white p-3 px-20 md:px-18 rounded-lg cursor-pointer transition-transform duration-200 ease-in-out hover:scale-105"
+                  className="flex items-center justify-center gap-2 mt-6 w-full bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white py-3 px-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg"
                 >
-                  <span>
-                    <LogOut />
-                  </span>
-                  <span className="font-medium">LogOut</span>
+                  <LogOut className="w-5 h-5" />
+                  <span className="font-medium">Logout</span>
                 </button>
               </div>
             </div>
@@ -271,9 +548,10 @@ const AccountPage = () => {
                           <User className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                           <input
                             type="text"
-                            value={profileData.name}
+                            value={profileData.name || ""}
                             onChange={(e) => handleInputChange("name", e.target.value)}
                             disabled={!isEditing}
+                            placeholder="Enter your full name"
                             className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
                               !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
                             }`}
@@ -287,9 +565,10 @@ const AccountPage = () => {
                           <Mail className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                           <input
                             type="email"
-                            value={profileData.email}
+                            value={profileData.email || ""}
                             onChange={(e) => handleInputChange("email", e.target.value)}
                             disabled={!isEditing}
+                            placeholder="Enter your email"
                             className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-teal-500 transition-all duration-300 ${
                               !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
                             }`}
@@ -303,9 +582,10 @@ const AccountPage = () => {
                           <Phone className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                           <input
                             type="tel"
-                            value={profileData.phone}
+                            value={profileData.phone || ""}
                             onChange={(e) => handleInputChange("phone", e.target.value)}
                             disabled={!isEditing}
+                            placeholder="Enter your phone number"
                             className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
                               !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
                             }`}
@@ -319,7 +599,7 @@ const AccountPage = () => {
                           <Calendar className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                           <input
                             type="date"
-                            value={profileData.dateOfBirth}
+                            value={profileData.dateOfBirth || ""}
                             onChange={(e) => handleInputChange("dateOfBirth", e.target.value)}
                             disabled={!isEditing}
                             className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-teal-500 transition-all duration-300 ${
@@ -329,16 +609,121 @@ const AccountPage = () => {
                         </div>
                       </div>
 
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Gender</label>
+                        <div className="relative">
+                          <User className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                          <select
+                            value={profileData.gender || "Male"}
+                            onChange={(e) => handleInputChange("gender", e.target.value)}
+                            disabled={!isEditing}
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-teal-500 transition-all duration-300 ${
+                              !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
+                            }`}
+                          >
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                          </select>
+                        </div>
+                      </div>
+
                       <div className="md:col-span-2 space-y-2">
-                        <label className="text-sm font-medium text-gray-700">Address</label>
+                        <label className="text-sm font-medium text-gray-700">Address Line</label>
                         <div className="relative">
                           <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                          <textarea
-                            value={profileData.address}
-                            onChange={(e) => handleInputChange("address", e.target.value)}
+                          <input
+                            type="text"
+                            value={addressData.address_line || ""}
+                            onChange={(e) => setAddressData({...addressData, address_line: e.target.value})}
                             disabled={!isEditing}
-                            rows="3"
-                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 resize-none ${
+                            placeholder="Street address, House/Building number"
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
+                              !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
+                            }`}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">District</label>
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                          <input
+                            type="text"
+                            value={addressData.district || ""}
+                            onChange={(e) => setAddressData({...addressData, district: e.target.value})}
+                            disabled={!isEditing}
+                            placeholder="Enter district"
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
+                              !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
+                            }`}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Division</label>
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                          <input
+                            type="text"
+                            value={addressData.division || ""}
+                            onChange={(e) => setAddressData({...addressData, division: e.target.value})}
+                            disabled={!isEditing}
+                            placeholder="Enter division"
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
+                              !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
+                            }`}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Upazila/Thana</label>
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                          <input
+                            type="text"
+                            value={addressData.upazila_thana || ""}
+                            onChange={(e) => setAddressData({...addressData, upazila_thana: e.target.value})}
+                            disabled={!isEditing}
+                            placeholder="Enter upazila or thana"
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
+                              !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
+                            }`}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Pincode</label>
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                          <input
+                            type="text"
+                            value={addressData.pincode || ""}
+                            onChange={(e) => setAddressData({...addressData, pincode: e.target.value})}
+                            disabled={!isEditing}
+                            placeholder="Enter pincode"
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
+                              !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
+                            }`}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Country</label>
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                          <input
+                            type="text"
+                            value={addressData.country || "Bangladesh"}
+                            onChange={(e) => setAddressData({...addressData, country: e.target.value})}
+                            disabled={!isEditing}
+                            placeholder="Enter country"
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
                               !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
                             }`}
                           />
@@ -360,6 +745,7 @@ const AccountPage = () => {
                     </div>
                     <div className="space-y-4">
                       {orders.map((order, index) => {
+                        console.log("orders", order)
                         const firstProduct = order.products && order.products[0];
                         const image =
                           firstProduct?.image?.[0] ||
@@ -494,54 +880,185 @@ const AccountPage = () => {
 
                 {/* Addresses Tab */}
                 {activeTab === "addresses" && (
-                  <div className="p-8">
-                    <div className="flex justify-between items-center mb-8">
-                      <div>
-                        <h2 className="text-2xl font-bold text-gray-900">Saved Addresses</h2>
-                        <p className="text-gray-600">Manage your delivery addresses</p>
-                      </div>
-                      <button className="flex items-center cursor-pointer space-x-2 bg-teal-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl font-medium transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1">
-                        <Plus className="w-4 h-4" />
-                        <span>Add Address</span>
-                      </button>
+                  <div className="p-4 md:p-8">
+                    <div className="mb-6 md:mb-8">
+                      <h2 className="text-xl md:text-2xl font-bold text-gray-900">Delivery Address</h2>
+                      <p className="text-sm md:text-base text-gray-600">Your saved delivery information</p>
                     </div>
 
-                    <div className="space-y-4">
-                      {addresses.map((address, index) => (
-                        <div
-                          key={address.id}
-                          className="border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-all duration-300 hover:border-blue-300"
-                          style={{
-                            animation: `slideIn 0.5s ease-out ${index * 0.1}s both`,
-                          }}
-                        >
-                          <div className="flex items-start justify-between">
-                            <div className="flex items-start space-x-4">
-                              <MapPin className="w-6 h-6 text-blue-500 mt-1" />
+                    {data && (
+                      <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-5 md:p-6">
+                        <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                          <span className="w-1 h-5 bg-emerald-500 rounded"></span>
+                          Current Delivery Information
+                        </h3>
+                        
+                        <div className="space-y-4">
+                          {/* Profile Image Section */}
+                          <div className="bg-white rounded-lg p-4 border border-emerald-100">
+                            <div className="flex items-center gap-4">
+                              <div className="relative">
+                                {data.image ? (
+                                  <img 
+                                    src={data.image} 
+                                    alt="Profile" 
+                                    className="w-24 h-24 rounded-full object-cover border-4 border-emerald-200 shadow-lg" 
+                                  />
+                                ) : (
+                                  <div className="w-24 h-24 rounded-full bg-emerald-200 flex items-center justify-center border-4 border-emerald-300 shadow-lg">
+                                    <User className="w-12 h-12 text-emerald-600" />
+                                  </div>
+                                )}
+                              </div>
                               <div>
-                                <div className="flex items-center space-x-2">
-                                  <h3 className="font-semibold text-gray-900">{address.type}</h3>
-                                  {address.isDefault && (
-                                    <span className="bg-green-100 text-green-600 text-xs px-2 py-1 rounded-full font-medium">
-                                      Default
-                                    </span>
-                                  )}
-                                </div>
-                                <p className="text-gray-600 mt-1">{address.address}</p>
+                                <p className="font-bold text-gray-900 text-xl">{data.name || "User"}</p>
+                                <p className="text-base text-gray-600">{data.email || ""}</p>
+                                {data.customerstatus && (
+                                  <span className="inline-block mt-1 px-3 py-1 rounded-full text-sm font-semibold bg-purple-100 text-purple-800 capitalize">
+                                    {data.customerstatus}
+                                  </span>
+                                )}
                               </div>
                             </div>
-                            <div className="flex space-x-2">
-                              <button className="p-2 text-gray-400 cursor-pointer hover:text-teal-600 hover:bg-blue-50 rounded-lg transition-all duration-300">
-                                <Edit3 className="w-4 h-4" />
-                              </button>
-                              <button className="p-2 text-gray-400 cursor-pointer hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-300">
-                                <Trash2 className="w-4 h-4" />
-                              </button>
+                          </div>
+
+                          {/* Personal Information */}
+                          <div className="bg-white rounded-lg p-4 border border-emerald-100">
+                            <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                              <User className="w-4 h-4 text-emerald-600" />
+                              Personal Details
+                            </h4>
+                            <div className="grid md:grid-cols-2 gap-3 text-sm">
+                              <div>
+                                <p className="text-gray-500 text-xs mb-1">Full Name</p>
+                                <p className="text-gray-800 font-medium">{data.name || "N/A"}</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-500 text-xs mb-1">Contact Number</p>
+                                <p className="text-gray-800 font-medium">{data.mobile || "N/A"}</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Address Information */}
+                          {(addressData.address_line || addressData.district || addressData.division || data.address_details) && (
+                            <div className="bg-white rounded-lg p-4 border border-emerald-100">
+                              <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                <MapPin className="w-4 h-4 text-emerald-600" />
+                                Address Information
+                              </h4>
+                              <div className="space-y-3 text-sm">
+                                {addressData.address_line && (
+                                  <div>
+                                    <p className="text-gray-500 text-xs mb-1">Address Line</p>
+                                    <p className="text-gray-800 font-medium">{addressData.address_line}</p>
+                                  </div>
+                                )}
+                                <div className="grid md:grid-cols-2 gap-3">
+                                  {addressData.upazila_thana && (
+                                    <div>
+                                      <p className="text-gray-500 text-xs mb-1">Upazila/Thana</p>
+                                      <p className="text-gray-800 font-medium">{addressData.upazila_thana}</p>
+                                    </div>
+                                  )}
+                                  {addressData.district && (
+                                    <div>
+                                      <p className="text-gray-500 text-xs mb-1">District</p>
+                                      <p className="text-gray-800 font-medium">{addressData.district}</p>
+                                    </div>
+                                  )}
+                                  {addressData.division && (
+                                    <div>
+                                      <p className="text-gray-500 text-xs mb-1">Division</p>
+                                      <p className="text-gray-800 font-medium">{addressData.division}</p>
+                                    </div>
+                                  )}
+                                  {addressData.pincode && (
+                                    <div>
+                                      <p className="text-gray-500 text-xs mb-1">Pincode</p>
+                                      <p className="text-gray-800 font-medium">{addressData.pincode}</p>
+                                    </div>
+                                  )}
+                                  {addressData.country && (
+                                    <div>
+                                      <p className="text-gray-500 text-xs mb-1">Country</p>
+                                      <p className="text-gray-800 font-medium">{addressData.country}</p>
+                                    </div>
+                                  )}
+                                  {addressData.mobile && (
+                                    <div>
+                                      <p className="text-gray-500 text-xs mb-1">Contact Number</p>
+                                      <p className="text-gray-800 font-medium">{addressData.mobile}</p>
+                                    </div>
+                                  )}
+                                </div>
+                                {!addressData.address_line && !addressData.district && data.address_details && (
+                                  <div>
+                                    <p className="text-gray-500 text-xs mb-1">Full Address</p>
+                                    <p className="text-gray-800 font-medium">
+                                      {typeof data.address_details === 'string' 
+                                        ? data.address_details 
+                                        : Array.isArray(data.address_details) && data.address_details.length > 0
+                                        ? data.address_details[0]
+                                        : "No address available"}
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Additional Contact */}
+                          <div className="bg-white rounded-lg p-4 border border-emerald-100">
+                            <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                              <Mail className="w-4 h-4 text-emerald-600" />
+                              Email Address
+                            </h4>
+                            <div className="text-sm">
+                              <p className="text-gray-500 text-xs mb-1">Email</p>
+                              <p className="text-gray-800 font-medium">{data.email || "N/A"}</p>
+                            </div>
+                          </div>
+
+                          {/* Status Information */}
+                          <div className="bg-white rounded-lg p-4 border border-emerald-100">
+                            <h4 className="text-sm font-semibold text-gray-700 mb-3">Account Status</h4>
+                            <div className="flex flex-wrap gap-3">
+                              <div className="flex items-center gap-2">
+                                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                  data.verify_email 
+                                    ? 'bg-green-100 text-green-800' 
+                                    : 'bg-yellow-100 text-yellow-800'
+                                }`}>
+                                  {data.verify_email ? '✓ Email Verified' : '⚠ Email Not Verified'}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                             
+                              </div>
+                           
+                            </div>
+                          </div>
+
+                          {/* Member Since */}
+                          <div className="bg-gradient-to-r from-emerald-100 to-teal-100 rounded-lg p-4 border border-emerald-200">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="text-gray-600 text-xs mb-1">Member Since</p>
+                                <p className="text-gray-800 font-bold">
+                                  {data.createdAt ? new Date(data.createdAt).toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                  }) : 'N/A'}
+                                </p>
+                              </div>
+                              <Calendar className="w-8 h-8 text-emerald-600 opacity-50" />
                             </div>
                           </div>
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -638,6 +1155,140 @@ const AccountPage = () => {
             }
           }
         `}</style>
+
+        {/* Image Upload Modal */}
+        {showImageUpload && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ backdropFilter: 'blur(8px)', backgroundColor: 'rgba(0, 0, 0, 0.3)' }}>
+            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 transform transition-all">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-bold text-gray-900">Update Profile Picture</h3>
+                <button
+                  onClick={() => {
+                    setShowImageUpload(false);
+                    setSelectedImage(null);
+                    setImagePreview(null);
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-300"
+                  disabled={uploadingImage}
+                >
+                  <X className="w-5 h-5 text-gray-600" />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {/* Image Preview */}
+                <div className="flex justify-center">
+                  <div className="relative">
+                    <div className="w-40 h-40 rounded-full overflow-hidden bg-gray-100 border-4 border-gray-200">
+                      {imagePreview ? (
+                        <img
+                          src={imagePreview}
+                          alt="Preview"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600">
+                          {data?.image ? (
+                            <img
+                              src={data.image}
+                              alt="Current"
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <User className="w-20 h-20 text-white" />
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <label
+                      htmlFor="image-upload"
+                      className="absolute bottom-2 right-2 bg-white rounded-full p-3 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer hover:scale-110"
+                    >
+                      <Camera className="w-5 h-5 text-gray-600" />
+                    </label>
+                    <input
+                      id="image-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageSelect}
+                      className="hidden"
+                      disabled={uploadingImage}
+                    />
+                  </div>
+                </div>
+
+                {/* File Info */}
+                {selectedImage && (
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center">
+                          <Camera className="w-5 h-5 text-teal-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">
+                            {selectedImage.name}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {(selectedImage.size / 1024).toFixed(2)} KB
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Upload Instructions */}
+                {!selectedImage && (
+                  <div className="text-center">
+                    <p className="text-sm text-gray-600">
+                      Click the camera icon to select an image
+                    </p>
+                    <p className="text-xs text-gray-500 mt-2">
+                      Supported formats: JPG, PNG, GIF (Max 5MB)
+                    </p>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex space-x-3">
+                  <button
+                    onClick={() => {
+                      setShowImageUpload(false);
+                      setSelectedImage(null);
+                      setImagePreview(null);
+                    }}
+                    className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-all duration-300"
+                    disabled={uploadingImage}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleImageUpload}
+                    disabled={!selectedImage || uploadingImage}
+                    className={`flex-1 px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center justify-center space-x-2 ${
+                      !selectedImage || uploadingImage
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white hover:shadow-lg hover:scale-105"
+                    }`}
+                  >
+                    {uploadingImage ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Uploading...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-5 h-5" />
+                        <span>Upload</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </AuthUserNothave>
   );

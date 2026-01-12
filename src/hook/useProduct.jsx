@@ -19,7 +19,7 @@ export const ProductCreate = async (formData,) => {
 // all product get 
 export const ProductAllGet = async (formData,) => {
   try {
-    console.log('📤 API Request - ProductAllGet called with:', formData);
+   
     const response = await axios.post(`${UrlBackend}/products/get`, formData, {
       withCredentials: true,
       headers: {
@@ -27,7 +27,7 @@ export const ProductAllGet = async (formData,) => {
       },
     });
     
-    console.log('📥 API Response - Full response.data:', response.data);
+
     
     // Extract products array from response
     const products = response.data?.products || response.data?.data || response.data || [];
@@ -61,14 +61,6 @@ export const ProductAllGet = async (formData,) => {
         }
       });
     }
-    
-    console.log('🛍️ ProductAllGet API Response:');
-    console.log(`   Total Products: ${Array.isArray(products) ? products.length : 0}`);
-    console.log(`   Categories: ${categories.size}`, Array.from(categories));
-    console.log(`   SubCategories: ${subCategories.size}`, Array.from(subCategories));
-    console.log('   Response structure - has products?', !!response.data?.products);
-    console.log('   Response structure - has data?', !!response.data?.data);
-    console.log('   Response structure - keys:', Object.keys(response.data || {}));
     
     return response.data;
   } catch (error) {

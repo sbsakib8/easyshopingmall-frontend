@@ -13,7 +13,6 @@ const Carousel = () => {
     if (!homebanner || !Array.isArray(homebanner)) return [];
     return homebanner.filter(banner => banner.active === true);
   }, [homebanner]);
-  console.log('Active Slides:', slides);
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % slides?.length);
@@ -63,15 +62,15 @@ const Carousel = () => {
 
 
   return (
-    <div className="relative w-[98%]   mx-auto mt-6 group">
+    <div className="relative w-[98%]   mx-auto md:mt-2 group">
       {/* Main carousel container */}
       <div
-        className="relative h-[400px] md:h-[500px] lg:h-[600px] rounded-2xl overflow-hidden shadow-2xl"
+        className="relative h-[380px] md:h-[600px] rounded-2xl overflow-hidden shadow-2xl"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
         {/* Slides */}
-        <div className="relative w-full h-full">
+        <div className="relative w-full h-full ">
           {slides?.map((slide, index) => (
             <div
               key={slide._id}
@@ -85,13 +84,14 @@ const Carousel = () => {
               <img
                 src={slide?.images?.[0] || ""}
                 alt={slide?.title}
-                className="w-full h-full object-contain md:object-cover"
+                className="w-full h-full mt-[60px] md:mt-0 object-contain object-top md:object-cover md:object-center"
               />
+
 
               {/* Content overlay */}
               <div className="absolute inset-0 flex flex-col justify-end items-center text-white text-center p-6 md:p-8 lg:p-12">
                 <div className="max-w-4xl mx-auto transform translate-y-0 opacity-100 transition-all duration-700">
-                  <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4 leading-tight">
+                  <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4 leading-tight text-black md:text-white  md:bg-none px-4 py-2 rounded-lg md:px-0 md:py-0 md:rounded-none">
                     {slide?.title}
                   </h2>
                   <p className="text-sm md:text-lg lg:text-xl opacity-90 leading-relaxed">
@@ -139,7 +139,7 @@ const Carousel = () => {
       </div>
 
       {/* Dots indicator */}
-      <div className="flex justify-center mt-6 space-x-2">
+      <div className="flex justify-center mt-1 md:mt-6 space-x-2">
         {slides?.map((_, index) => (
           <button
             key={index}

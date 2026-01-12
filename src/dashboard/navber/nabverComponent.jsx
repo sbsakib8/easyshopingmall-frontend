@@ -1,7 +1,7 @@
-"use client"
-import NotificationDropdown from "@/src/helper/notification"
-import { useGetcategory } from "@/src/utlis/usecategory"
-import { useGetSubcategory } from "@/src/utlis/useSubcategory"
+"use client";
+import NotificationDropdown from "@/src/helper/notification";
+import { useGetcategory } from "@/src/utlis/usecategory";
+import { useGetSubcategory } from "@/src/utlis/useSubcategory";
 import {
   AppWindow,
   BarChart3,
@@ -28,42 +28,39 @@ import {
   TrendingUp,
   Truck,
   Users,
-} from "lucide-react"
-import Link from "next/link"
-import { useState } from "react"
-import { MdEmail } from "react-icons/md"
-import { useSelector } from "react-redux"
+} from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+import { MdEmail } from "react-icons/md";
+import { useSelector } from "react-redux";
 
 const DashboardNebver = ({ children }) => {
-  const [sidebarOpen, setSidebarOpen] = useState(true)
-  const [activeMenu, setActiveMenu] = useState("dashboard")
-  const [expandedMenus, setExpandedMenus] = useState({})
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [activeMenu, setActiveMenu] = useState("dashboard");
+  const [expandedMenus, setExpandedMenus] = useState({});
   const [isHovered, setIsHovered] = useState(false);
-  
 
   // admin user data get
   const data = useSelector((state) => state.user.data);
   // console.log('data', data);
 
+  // category get
+  const { category, loading, error } = useGetcategory();
+  // subcategory all get
+  const {} = useGetSubcategory();
 
-  // category get    
-  const { category, loading, error } = useGetcategory()
-  // subcategory all get 
-  const { } = useGetSubcategory()
-
-
-  const toggleSidebar = () => setSidebarOpen(!sidebarOpen)
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   const toggleSubmenu = (menuId) => {
     setExpandedMenus((prev) => ({
       ...prev,
       [menuId]: !prev[menuId],
-    }))
-  }
+    }));
+  };
   const makeFalse = () => {
-    setIsHovered(false)
-    setSidebarOpen(false)
-  }
+    setIsHovered(false);
+    setSidebarOpen(false);
+  };
   const menuItems = [
     {
       id: 1,
@@ -154,8 +151,8 @@ const DashboardNebver = ({ children }) => {
         { path: "/settings/securitysettings", id: 36, label: "Security", icon: Shield },
       ],
     },
-  ]
-  
+  ];
+
   return (
     <div className=" bg-gradient-to-br from-gray-900 via-black to-gray-800 ">
       {/* Top Navigation */}
@@ -184,19 +181,6 @@ const DashboardNebver = ({ children }) => {
               </Link>
             </div>
 
-            {/* Center - Search */}
-            <div className="hidden md:flex flex-1 max-w-lg mx-8">
-              <div className="relative w-full group">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-white transition-colors duration-300" />
-                <input
-                  type="text"
-                  placeholder="Search products, orders, customers..."
-                  className="w-full pl-12 pr-4 py-3 rounded-2xl border border-gray-700/50 bg-black/70 backdrop-blur-sm text-white placeholder-gray-400 focus:bg-black/90 focus:outline-none focus:ring-4 focus:ring-gray-600/30 focus:border-gray-600 shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-black/30 transition-all duration-300"
-                />
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-gray-800/20 to-black/20 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-              </div>
-            </div>
-
             {/* Right side */}
             <div className="flex items-center space-x-3">
               {/* Mobile search button */}
@@ -211,9 +195,17 @@ const DashboardNebver = ({ children }) => {
               <div className="flex items-center space-x-3 pl-4 border-l border-gray-700/60">
                 <div className="relative group">
                   <div className="w-10 h-10 bg-gradient-to-r from-gray-600 via-gray-700 to-gray-800 rounded-full flex items-center justify-center shadow-lg shadow-black/50 transform group-hover:scale-110 transition-all duration-300 border border-gray-600/50">
-                    {
-                      data?.image ? <img className=" w-9 h-9 rounded-full cursor-pointer" src={data?.image} alt="image" /> : <span className="text-white font-bold text-sm group-hover:animate-pulse">{data?.name?.slice(0, 2).toUpperCase()}</span>
-                    }
+                    {data?.image ? (
+                      <img
+                        className=" w-9 h-9 rounded-full cursor-pointer"
+                        src={data?.image}
+                        alt="image"
+                      />
+                    ) : (
+                      <span className="text-white font-bold text-sm group-hover:animate-pulse">
+                        {data?.name?.slice(0, 2).toUpperCase()}
+                      </span>
+                    )}
                   </div>
                   <div className="absolute -inset-1 bg-gradient-to-r from-gray-600 to-gray-800 rounded-full opacity-0 group-hover:opacity-30 blur transition-all duration-300"></div>
                 </div>
@@ -232,7 +224,9 @@ const DashboardNebver = ({ children }) => {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => makeFalse()}
         className={`fixed top-16 left-0 z-40 h-[calc(100vh-4rem)] transition-all duration-500 ease-out
-           ${sidebarOpen || isHovered ? "w-full md:w-72" : "w-0 md:w-20 "}  bg-black/95 backdrop-blur-xl border-r border-gray-800/50 shadow-2xl shadow-black/20 overflow-hidden`}
+           ${
+             sidebarOpen || isHovered ? "w-full md:w-72" : "w-0 md:w-20 "
+           }  bg-black/95 backdrop-blur-xl border-r border-gray-800/50 shadow-2xl shadow-black/20 overflow-hidden`}
       >
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-gray-900/20 via-black/20 to-gray-800/20 pointer-events-none"></div>
@@ -241,45 +235,61 @@ const DashboardNebver = ({ children }) => {
           <div className="flex-1 px-4 py-6 overflow-y-auto">
             <nav className="space-y-3">
               {menuItems.map((item, index) => (
-                <div key={item.id} className="animate-slideInLeft" style={{ animationDelay: `${index * 0.1}s` }}>
+                <div
+                  key={item.id}
+                  className="animate-slideInLeft"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
                   <button
                     onClick={() => {
-                    if(item.label==="Dashboard"){
-                      makeFalse()
-                    }
-                      setActiveMenu(item.id)
+                      if (item.label === "Dashboard") {
+                        makeFalse();
+                      }
+                      setActiveMenu(item.id);
                       if (item.submenu) {
-                        toggleSubmenu(item.id)
+                        toggleSubmenu(item.id);
                       }
                     }}
-                    className={`w-full flex items-center justify-between px-4 py-3 text-sm font-semibold rounded-2xl transition-all duration-300 group relative overflow-hidden ${activeMenu === item.id
-                      ? "bg-gradient-to-r from-gray-700 to-gray-900 text-white shadow-xl shadow-black/50 transform scale-105 border border-gray-600/50"
-                      : "text-gray-300 hover:bg-gradient-to-r hover:from-gray-800/50 hover:to-black/50 hover:shadow-lg hover:shadow-black/20 hover:scale-105 hover:text-white border border-transparent hover:border-gray-700/30"
-                      }`}
+                    className={`w-full flex items-center justify-between px-4 py-3 text-sm font-semibold rounded-2xl transition-all duration-300 group relative overflow-hidden ${
+                      activeMenu === item.id
+                        ? "bg-gradient-to-r from-gray-700 to-gray-900 text-white shadow-xl shadow-black/50 transform scale-105 border border-gray-600/50"
+                        : "text-gray-300 hover:bg-gradient-to-r hover:from-gray-800/50 hover:to-black/50 hover:shadow-lg hover:shadow-black/20 hover:scale-105 hover:text-white border border-transparent hover:border-gray-700/30"
+                    }`}
                   >
                     {/* Animated background */}
                     <div
-                      className={`absolute inset-0 bg-gradient-to-r from-gray-700/20 to-gray-900/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${activeMenu === item.id ? "opacity-30" : ""}`}
+                      className={`absolute inset-0 bg-gradient-to-r from-gray-700/20 to-gray-900/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
+                        activeMenu === item.id ? "opacity-30" : ""
+                      }`}
                     ></div>
 
-                    <Link onClick={toggleSidebar} href={`${item.path}`} className="flex items-center space-x-4 relative z-10">
+                    <Link
+                      onClick={toggleSidebar}
+                      href={`${item.path}`}
+                      className="flex items-center space-x-4 relative z-10"
+                    >
                       <div
-                        className={`p-2 rounded-xl transition-all duration-300 ${activeMenu === item.id
-                          ? "bg-white/10 shadow-lg backdrop-blur-sm"
-                          : "group-hover:bg-gray-700/30"
-                          }`}
+                        className={`p-2 rounded-xl transition-all duration-300 ${
+                          activeMenu === item.id
+                            ? "bg-white/10 shadow-lg backdrop-blur-sm"
+                            : "group-hover:bg-gray-700/30"
+                        }`}
                       >
                         <item.icon
-                          className={`w-5 h-5 transition-all duration-300 ${activeMenu === item.id
-                            ? "text-white scale-110"
-                            : "text-gray-400 group-hover:text-white group-hover:scale-110"
-                            }`}
+                          className={`w-5 h-5 transition-all duration-300 ${
+                            activeMenu === item.id
+                              ? "text-white scale-110"
+                              : "text-gray-400 group-hover:text-white group-hover:scale-110"
+                          }`}
                         />
                       </div>
                       {(sidebarOpen || isHovered) && (
                         <span
-                          className={`transition-all duration-300 ${sidebarOpen || isHovered ? "opacity-100 transform translate-x-0" : "opacity-0 transform translate-x-4"
-                            } font-medium`}
+                          className={`transition-all duration-300 ${
+                            sidebarOpen || isHovered
+                              ? "opacity-100 transform translate-x-0"
+                              : "opacity-0 transform translate-x-4"
+                          } font-medium`}
                         >
                           {item.label}
                         </span>
@@ -287,8 +297,9 @@ const DashboardNebver = ({ children }) => {
                     </Link>
                     {item.submenu && (sidebarOpen || isHovered) && (
                       <ChevronRight
-                        className={`w-5 h-5 transition-all duration-300 relative z-10 ${expandedMenus[item.id] ? "rotate-90 text-white" : "text-gray-500"
-                          } ${activeMenu === item.id ? "text-white" : ""}`}
+                        className={`w-5 h-5 transition-all duration-300 relative z-10 ${
+                          expandedMenus[item.id] ? "rotate-90 text-white" : "text-gray-500"
+                        } ${activeMenu === item.id ? "text-white" : ""}`}
                       />
                     )}
                   </button>
@@ -297,29 +308,33 @@ const DashboardNebver = ({ children }) => {
                   {item.submenu && (sidebarOpen || isHovered) && (
                     <div
                       onClick={toggleSidebar}
-                      className={`mt-3 ml-6 space-y-2 overflow-hidden transition-all duration-500 transform ${expandedMenus[item.id]
-                        ? "max-h-96 opacity-100 translate-y-0"
-                        : "max-h-0 opacity-0 -translate-y-4"
-                        }`}
+                      className={`mt-3 ml-6 space-y-2 overflow-hidden transition-all duration-500 transform ${
+                        expandedMenus[item.id]
+                          ? "max-h-96 opacity-100 translate-y-0"
+                          : "max-h-0 opacity-0 -translate-y-4"
+                      }`}
                     >
                       {item.submenu.map((subItem, subIndex) => (
                         <Link
                           href={`/dashboard/${subItem.path}`}
                           key={subItem.id}
                           onClick={() => {
-                            makeFalse()
-                            setActiveMenu(subItem.id)
+                            makeFalse();
+                            setActiveMenu(subItem.id);
                           }}
-                          className={` group flex items-center space-x-3 px-4 py-2.5 text-sm rounded-xl transition-all duration-300 transform hover:scale-105 ${activeMenu === subItem.id
-                            ? "bg-gradient-to-r from-gray-600 to-gray-800 text-white shadow-lg shadow-black/30 border border-gray-600/50"
-                            : "text-gray-400 hover:bg-gradient-to-r hover:from-gray-800/30 hover:to-black/30 hover:text-white hover:shadow-md border border-transparent hover:border-gray-700/20"
-                            } animate-slideInRight`}
+                          className={` group flex items-center space-x-3 px-4 py-2.5 text-sm rounded-xl transition-all duration-300 transform hover:scale-105 ${
+                            activeMenu === subItem.id
+                              ? "bg-gradient-to-r from-gray-600 to-gray-800 text-white shadow-lg shadow-black/30 border border-gray-600/50"
+                              : "text-gray-400 hover:bg-gradient-to-r hover:from-gray-800/30 hover:to-black/30 hover:text-white hover:shadow-md border border-transparent hover:border-gray-700/20"
+                          } animate-slideInRight`}
                           style={{ animationDelay: `${subIndex * 0.05}s` }}
                         >
                           <div
-
-                            className={`p-1.5 rounded-lg transition-all duration-300 ${activeMenu === subItem.id ? "bg-white/10 backdrop-blur-sm" : "group-hover:bg-gray-700/20"
-                              }`}
+                            className={`p-1.5 rounded-lg transition-all duration-300 ${
+                              activeMenu === subItem.id
+                                ? "bg-white/10 backdrop-blur-sm"
+                                : "group-hover:bg-gray-700/20"
+                            }`}
                           >
                             <subItem.icon className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" />
                           </div>
@@ -335,30 +350,30 @@ const DashboardNebver = ({ children }) => {
 
           {/* Sidebar Footer */}
           <div className="p-4 border-t border-gray-800/50">
-            {sidebarOpen || isHovered && (
-              <div className="relative p-4 rounded-2xl bg-gradient-to-r from-gray-800 via-gray-900 to-black shadow-xl shadow-black/50 transform hover:scale-105 transition-all duration-300 group overflow-hidden border border-gray-700/50">
-                {/* Animated background */}
-                <div className="absolute inset-0 bg-gradient-to-r from-gray-700 via-gray-800 to-gray-900 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            {sidebarOpen ||
+              (isHovered && (
+                <div className="relative p-4 rounded-2xl bg-gradient-to-r from-gray-800 via-gray-900 to-black shadow-xl shadow-black/50 transform hover:scale-105 transition-all duration-300 group overflow-hidden border border-gray-700/50">
+                  {/* Animated background */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-gray-700 via-gray-800 to-gray-900 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
-                <div className="flex items-center space-x-3 relative z-10">
-                  <div className="w-10 h-10 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg group-hover:animate-bounce border border-gray-600/30">
-                    <TrendingUp className="w-5 h-5 text-white" />
+                  <div className="flex items-center space-x-3 relative z-10">
+                    <div className="w-10 h-10 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg group-hover:animate-bounce border border-gray-600/30">
+                      <TrendingUp className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-white">EasyShoppingMall</p>
+                      <p className="text-xs text-gray-300">you can manage dashboard</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-bold text-white">EasyShoppingMall</p>
-                    <p className="text-xs text-gray-300">you can manage dashboard</p>
-                  </div>
+
+                  {/* Floating particles effect */}
+                  <div className="absolute top-2 right-2 w-2 h-2 bg-white/30 rounded-full animate-ping"></div>
+                  <div className="absolute bottom-3 right-4 w-1 h-1 bg-white/40 rounded-full animate-pulse"></div>
                 </div>
-
-                {/* Floating particles effect */}
-                <div className="absolute top-2 right-2 w-2 h-2 bg-white/30 rounded-full animate-ping"></div>
-                <div className="absolute bottom-3 right-4 w-1 h-1 bg-white/40 rounded-full animate-pulse"></div>
-              </div>
-            )}
+              ))}
           </div>
         </div>
       </aside>
-
 
       {/* Main Content */}
       <main
@@ -382,7 +397,7 @@ const DashboardNebver = ({ children }) => {
             transform: translateY(0);
           }
         }
-        
+
         @keyframes slideInLeft {
           from {
             opacity: 0;
@@ -393,7 +408,7 @@ const DashboardNebver = ({ children }) => {
             transform: translateX(0);
           }
         }
-        
+
         @keyframes slideInRight {
           from {
             opacity: 0;
@@ -404,7 +419,7 @@ const DashboardNebver = ({ children }) => {
             transform: translateX(0);
           }
         }
-        
+
         @keyframes fadeIn {
           from {
             opacity: 0;
@@ -415,7 +430,8 @@ const DashboardNebver = ({ children }) => {
         }
 
         @keyframes float {
-          0%, 100% {
+          0%,
+          100% {
             transform: translateY(0px);
           }
           50% {
@@ -445,18 +461,18 @@ const DashboardNebver = ({ children }) => {
         ::-webkit-scrollbar {
           width: 8px;
         }
-        
+
         ::-webkit-scrollbar-track {
           background: rgba(0, 0, 0, 0.3);
           border-radius: 4px;
         }
-        
+
         ::-webkit-scrollbar-thumb {
           background: linear-gradient(to bottom, #374151, #111827);
           border-radius: 4px;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
-        
+
         ::-webkit-scrollbar-thumb:hover {
           background: linear-gradient(to bottom, #4b5563, #1f2937);
         }
@@ -466,7 +482,7 @@ const DashboardNebver = ({ children }) => {
           .animate-slideInLeft {
             animation-duration: 0.4s;
           }
-          
+
           /* Added mobile-specific blur and spacing adjustments */
           .backdrop-blur-xl {
             backdrop-filter: blur(20px);
@@ -478,7 +494,7 @@ const DashboardNebver = ({ children }) => {
           .space-x-4 > * + * {
             margin-left: 0.75rem;
           }
-          
+
           .space-x-3 > * + * {
             margin-left: 0.5rem;
           }
@@ -515,9 +531,8 @@ const DashboardNebver = ({ children }) => {
 
         /* Updated hover glow effects for black theme */
         .glow-on-hover:hover {
-          box-shadow: 0 0 20px rgba(107, 114, 128, 0.5),
-                      0 0 40px rgba(75, 85, 99, 0.3),
-                      0 0 60px rgba(55, 65, 81, 0.2);
+          box-shadow: 0 0 20px rgba(107, 114, 128, 0.5), 0 0 40px rgba(75, 85, 99, 0.3),
+            0 0 60px rgba(55, 65, 81, 0.2);
         }
 
         /* Added enhanced blur effects */
@@ -530,14 +545,14 @@ const DashboardNebver = ({ children }) => {
           .text-xl {
             font-size: 1.125rem;
           }
-          
+
           .text-sm {
             font-size: 0.8rem;
           }
         }
       `}</style>
     </div>
-  )
-}
+  );
+};
 
-export default DashboardNebver
+export default DashboardNebver;
