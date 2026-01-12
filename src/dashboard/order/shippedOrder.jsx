@@ -86,7 +86,15 @@ import { useEffect, useMemo, useState } from "react"
 //     shippingMethod: "Standard Shipping",
 //   },
 // ]
-
+const statusColors = {
+  pending: "bg-gradient-to-r from-yellow-400 to-orange-400 text-white shadow-lg shadow-yellow-500/25",
+  processing: "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/25",
+  submitted: "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/25",
+  shipped: "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/25",
+  completed: "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/25",
+  paid: "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/25",
+  cancelled: "bg-gradient-to-r from-red-500 to-rose-500 text-white shadow-lg shadow-red-500/25",
+}
 const ShippedOrdersPage = () => {
   const [orders, setOrders] = useState(null)
   const [searchTerm, setSearchTerm] = useState("")
@@ -323,24 +331,24 @@ const ShippedOrdersPage = () => {
                 {/* Order Header */}
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h3 className="text-xl font-bold text-white mb-1">{order.id}</h3>
-                    <p className="text-gray-400 text-sm">Shipped: {formatDate(order.shippedDate)}</p>
+                    <h3 className="text-sm font-bold text-white mb-1">{order?.orderId}</h3>
+                    <p className="text-gray-400 text-sm">Shipped: {formatDate(order?.updatedAt)}</p>
                   </div>
                   <div
-                    className={`px-3 py-1 rounded-full text-xs font-medium ${order.status === "delivered"
-                      ? "bg-green-600/20 border border-green-500/30 text-green-300"
+                    className={`px-3 py-1 rounded-full text-xs font-medium ${order?.order_status === "shipped"
+                      ? "bg-orange-600/20 border border-orange-500/30 text-orange-300"
                       : "bg-blue-600/20 border border-blue-500/30 text-blue-300"
                       }`}
                   >
-                    {order.status === "delivered" ? "Delivered" : "In Transit"}
+                    {order?.order_status === "shipped" ? "Shipped" : "In Transit"}
                   </div>
                 </div>
 
                 {/* Customer Info */}
                 <div className="mb-4">
-                  <h4 className="text-white font-semibold mb-2">{order.customer}</h4>
-                  <p className="text-gray-400 text-sm mb-1">{order.email}</p>
-                  <p className="text-gray-400 text-sm">{order.phone}</p>
+                  <h4 className="text-white font-semibold mb-2">{order?.userId?.name || "none"}</h4>
+                  <p className="text-gray-400 text-sm mb-1">{order?.userId?.email || "demo@gmail.com"}</p>
+                  <p className="text-gray-400 text-sm">{order?.address?.mobile || "018XXXXXXXX"}</p>
                 </div>
 
                 {/* Tracking Info */}
@@ -365,14 +373,14 @@ const ShippedOrdersPage = () => {
 
                 {/* Order Items */}
                 <div className="mb-4">
-                  <h5 className="text-white font-medium mb-2">Items ({order?.products?.length})</h5>
-                  <div className="space-y-1">
-                    {order.products.slice(0, 2).map((item, index) => (
+                  <h5 className="text-white font-medium mb-2">Items ({order?.products.length})</h5>
+                  <div className="space-y-1 ">
+                    {order?.products.slice(0, 2).map((item, index) => (
                       <div key={index} className="flex justify-between text-sm">
                         <span className="text-gray-300">
                           {item.name} x{item.quantity}
                         </span>
-                        <span className="text-gray-400">${item.price}</span>
+                        <span className="text-gray-400">৳{item?.price}</span>
                       </div>
                     ))}
                     {order?.products.length > 2 && (
@@ -383,9 +391,13 @@ const ShippedOrdersPage = () => {
 
                 {/* Total */}
                 <div className="mb-6">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-white font-semibold">Delivery Charge:</span>
+                    <span className="text-green-400 font-bold text-lg">৳{order?.deliveryCharge}</span>
+                  </div>
                   <div className="flex justify-between items-center">
                     <span className="text-white font-semibold">Total:</span>
-                    <span className="text-green-400 font-bold text-lg">${order.totalAmt}</span>
+                    <span className="text-green-400 font-bold text-lg">৳{order.totalAmt}</span>
                   </div>
                 </div>
 
@@ -497,51 +509,55 @@ const ShippedOrdersPage = () => {
                 {/* Left Column */}
                 <div className="space-y-6">
                   {/* Order Info */}
-                  <div>
-                    <h3 className="text-lg font-semibold text-white mb-3">Order Information</h3>
-                    <div className="bg-gray-800/50 p-4 rounded-lg space-y-2">
-                      <p className="text-gray-300">
-                        <span className="text-gray-500">Order ID:</span> {selectedOrder.id}
-                      </p>
-                      <p className="text-gray-300">
-                        <span className="text-gray-500">Order Date:</span> {formatDate(selectedOrder.orderDate)}
-                      </p>
-                      <p className="text-gray-300">
-                        <span className="text-gray-500">Shipped Date:</span> {formatDate(selectedOrder.shippedDate)}
-                      </p>
-                      <p className="text-gray-300">
-                        <span className="text-gray-500">Status:</span>{" "}
-                        <span className={selectedOrder.status === "delivered" ? "text-green-400" : "text-blue-400"}>
-                          {selectedOrder.status === "delivered" ? "Delivered" : "In Transit"}
-                        </span>
-                      </p>
-                      <p className="text-gray-300">
-                        <span className="text-gray-500">Payment:</span> {selectedOrder.paymentMethod}
+                  <div className="grid md:grid-cols-1 gap-6 mb-6">
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-3">Order Information</h3>
+                  <div className="space-y-2">
+                    <p className="text-gray-300">
+                      <span className="text-gray-500">Order ID:</span> {selectedOrder?.orderId}
+                    </p>
+                    <p className="text-gray-300">
+                      <span className="text-gray-500">Date:</span> {formatDate(selectedOrder?.updatedAt)}
+                    </p>
+                    <div className="text-gray-300 flex gap-3">
+                      <span className="text-gray-500">Order Status:</span>{" "}
+                      <p className={`px-3 py-1 text-sm ${statusColors[selectedOrder?.order_status]} rounded-full text-yellow-300 font-medium`}>
+                        {selectedOrder?.order_status}
                       </p>
                     </div>
+                    <p className="text-gray-300">
+                      <span className="text-gray-500">Payment:</span> {selectedOrder?.payment_method}
+                    </p>
+                    <p className="text-gray-300">
+                      <span className="text-gray-500">Provider Name:</span> {selectedOrder?.payment_details?.manual?.provider}
+                    </p>
                   </div>
+                </div>
+
+                
+              </div>
 
                   {/* Customer Info */}
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-3">Customer Information</h3>
-                    <div className="bg-gray-800/50 p-4 rounded-lg space-y-2">
-                      <p className="text-gray-300">
-                        <span className="text-gray-500">Name:</span> {selectedOrder.customer}
-                      </p>
-                      <p className="text-gray-300">
-                        <span className="text-gray-500">Email:</span> {selectedOrder.email}
-                      </p>
-                      <p className="text-gray-300">
-                        <span className="text-gray-500">Phone:</span> {selectedOrder.phone}
-                      </p>
-                    </div>
+                  <h3 className="text-lg font-semibold text-white mb-3">Customer Information</h3>
+                  <div className="space-y-2">
+                    <p className="text-gray-300">
+                      <span className="text-gray-500">Name:</span> {selectedOrder?.userId?.email}
+                    </p>
+                    <p className="text-gray-300">
+                      <span className="text-gray-500">Email:</span> {selectedOrder?.userId?.name}
+                    </p>
+                    <p className="text-gray-300">
+                      <span className="text-gray-500">Phone:</span> {selectedOrder?.payment_method === "manual" ? selectedOrder?.payment_details?.manual?.senderNumber : selectedOrder?.address?.mobile}
+                    </p>
                   </div>
+                </div>
 
                   {/* Shipping Address */}
-                  <div>
-                    <h3 className="text-lg font-semibold text-white mb-3">Shipping Address</h3>
-                    <p className="text-gray-300 bg-gray-800/50 p-4 rounded-lg">{selectedOrder.shippingAddress}</p>
-                  </div>
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-white mb-3">Shipping Address</h3>
+                <p className="text-gray-300 bg-gray-800/50 p-3 rounded-lg">{selectedOrder?.address?.upazila_thana}, {selectedOrder?.address?.district}</p>
+              </div>
                 </div>
 
                 {/* Right Column */}
@@ -585,18 +601,25 @@ const ShippedOrdersPage = () => {
                     <div className="space-y-3">
                       {selectedOrder?.products?.map((item, index) => (
                         <div key={index} className="flex justify-between items-center bg-gray-800/50 p-3 rounded-lg">
-                          <div>
-                            <p className="text-white font-medium">{item.name}</p>
-                            <p className="text-gray-400 text-sm">Quantity: {item.quantity}</p>
+                          <div className="flex gap-2">
+                             <img className="w-12 h-12 rounded-sm" src={item?.image[0]} alt="" />
+                           <div>
+                          <p className="text-white font-medium">{item?.name}</p>
+                          <p className="text-gray-400 text-sm">Quantity: {item?.quantity}</p>
+                        </div>
                           </div>
-                          <p className="text-green-400 font-semibold">${item.price}</p>
+                      <p className="text-green-400 font-semibold">৳{item?.price}</p>
                         </div>
                       ))}
                     </div>
+                     <div className="flex justify-between items-center m-2">
+                  <span className="text-white font-semibold">Delivery Charge:</span>
+                  <span className="text-green-400 font-bold text-lg">৳{selectedOrder?.deliveryCharge}</span>
+                </div>
                     <div className="mt-4 pt-4 border-t border-gray-700">
                       <div className="flex justify-between items-center">
                         <span className="text-xl font-bold text-white">Total:</span>
-                        <span className="text-2xl font-bold text-green-400">${selectedOrder.total}</span>
+                        <span className="text-2xl font-bold text-green-400">৳{selectedOrder?.totalAmt}</span>
                       </div>
                     </div>
                   </div>
@@ -605,7 +628,7 @@ const ShippedOrdersPage = () => {
 
               {/* Modal Actions */}
               <div className="flex gap-3 mt-6 pt-6 border-t border-gray-700">
-                {selectedOrder.status === "shipped" && (
+                {selectedOrder.order_status === "shipped" && (
                   <button
                     onClick={() => {
                       handleMarkAsDelivered(selectedOrder.id)
