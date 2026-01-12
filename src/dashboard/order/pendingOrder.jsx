@@ -1,6 +1,7 @@
 "use client"
 import { useGetAllOrders } from "@/src/utlis/useGetAllOrders"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { OrderUpdate } from "@/src/utlis/useOrder"
+import { ChevronLeft, ChevronRight, Trash2 } from "lucide-react"
 import { useMemo, useState } from "react"
 
 // const mockOrders = [
@@ -66,6 +67,8 @@ const PendingOrdersPage = () => {
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [showModal, setShowModal] = useState(false)
   const [filterBy, setFilterBy] = useState("all")
+  const [status, setStatus] = useState('')
+  const [confirmationModal, setConfirmationModal] = useState(false)
   const { allOrders, loading: ordersLoading, refetch } = useGetAllOrders()
   const itemsPerPage = 2
   // console.log("allorders---->",allOrders)
@@ -120,14 +123,33 @@ const PendingOrdersPage = () => {
   const startIndex = (currentPage - 1) * itemsPerPage
   const paginatedOrders = filteredOrders?.slice(startIndex, startIndex + itemsPerPage)
   // Handle order actions
-  const handleApproveOrder = (orderId) => {
-    setOrders(orders.map((order) => (order.id === orderId ? { ...order, status: "approved" } : order)))
+  const handleApproveOrder = async (orderId, status) => {
+    console.log(orderId, status)
+    const res = await OrderUpdate(orderId, status)
+    console.log(res)
+    if (res.success) {
+      refetch()
+    }
   }
 
-  const handleRejectOrder = (orderId) => {
-    setOrders(orders.map((order) => (order.id === orderId ? { ...order, status: "rejected" } : order)))
+  const handleRejectOrder = async (orderId, status) => {
+    console.log(orderId, status)
+    const res = await OrderUpdate(orderId, status)
+    console.log(res)
+    if (res.success) {
+      refetch()
+    }
   }
+  const handleStatusChange = async() => {
+    console.log("confierm",selectedOrder?._id, status)
+     const res = await OrderUpdate(selectedOrder?._id, status)
+    console.log(res)
+    if (res.success) {
+      setConfirmationModal(false)
+      refetch()
 
+    }
+  }
   const handleViewDetails = (order) => {
     setSelectedOrder(order)
     setShowModal(true)
@@ -145,7 +167,8 @@ const PendingOrdersPage = () => {
 
   if (ordersLoading) return <p>Loading...</p>
   // console.log("allorders---->",allOrders)
-  console.log("filterorders---->", filteredOrders)
+  // console.log("filterorders---->", filteredOrders)
+  console.log("status---->", status)
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 relative overflow-hidden">
       {/* Animated Background Elements */}
@@ -278,7 +301,7 @@ const PendingOrdersPage = () => {
                     <span className="text-white font-semibold">Total:</span>
                     <span className="text-green-400 font-bold text-lg">৳{order?.totalAmt}</span>
                   </div>
-                  
+
                   <p className="text-gray-400 text-sm">Payment: {order?.payment_method}</p>
                 </div>
 
@@ -291,13 +314,17 @@ const PendingOrdersPage = () => {
                     View Details
                   </button>
                   <button
-                    onClick={() => handleApproveOrder(order.id)}
+                    onClick={() => {
+                      setStatus("shipped")
+                      setSelectedOrder(order)
+                      setConfirmationModal(true)
+                    }}
                     className="flex-1 px-4 py-2 bg-green-600/20 border border-green-500/30 text-green-300 rounded-lg hover:bg-green-600/30 transition-colors duration-200 text-sm font-medium"
                   >
                     Approve
                   </button>
                   <button
-                    onClick={() => handleRejectOrder(order.id)}
+                    onClick={() => handleRejectOrder(order._id, "cancelled")}
                     className="flex-1 px-4 py-2 bg-red-600/20 border border-red-500/30 text-red-300 rounded-lg hover:bg-red-600/30 transition-colors duration-200 text-sm font-medium"
                   >
                     Reject
@@ -398,8 +425,8 @@ const PendingOrdersPage = () => {
                     <div className="text-gray-300 flex gap-3">
                       <span className="text-gray-500">Order Status:</span>{" "}
                       <p className={`px-3 py-1 text-sm ${statusColors[selectedOrder?.order_status]} rounded-full text-yellow-300 font-medium`}>
-                    {selectedOrder?.order_status}
-                  </p>
+                        {selectedOrder?.order_status}
+                      </p>
                     </div>
                     <p className="text-gray-300">
                       <span className="text-gray-500">Payment:</span> {selectedOrder?.payment_method}
@@ -417,7 +444,7 @@ const PendingOrdersPage = () => {
                       <span className="text-gray-500">Email:</span> {selectedOrder?.userId?.name}
                     </p>
                     <p className="text-gray-300">
-                      <span className="text-gray-500">Phone:</span> {selectedOrder?.payment_method==="manual"? selectedOrder?.payment_details?.manual?.senderNumber: selectedOrder?.address?.mobile}
+                      <span className="text-gray-500">Phone:</span> {selectedOrder?.payment_method === "manual" ? selectedOrder?.payment_details?.manual?.senderNumber : selectedOrder?.address?.mobile}
                     </p>
                   </div>
                 </div>
@@ -439,7 +466,7 @@ const PendingOrdersPage = () => {
                         <img className="w-12 h-12 rounded-sm" src={item?.image[0]} alt="" />
                         <div>
                           <p className="text-white font-medium">{item?.name}</p>
-                        <p className="text-gray-400 text-sm">Quantity: {item?.quantity}</p>
+                          <p className="text-gray-400 text-sm">Quantity: {item?.quantity}</p>
                         </div>
                       </div>
                       <p className="text-green-400 font-semibold">৳{item?.price}</p>
@@ -447,9 +474,9 @@ const PendingOrdersPage = () => {
                   ))}
                 </div>
                 <div className="flex justify-between items-center m-2">
-                    <span className="text-white font-semibold">Delivery Charge:</span>
-                    <span className="text-green-400 font-bold text-lg">৳{selectedOrder?.deliveryCharge}</span>
-                  </div>
+                  <span className="text-white font-semibold">Delivery Charge:</span>
+                  <span className="text-green-400 font-bold text-lg">৳{selectedOrder?.deliveryCharge}</span>
+                </div>
                 <div className="mt-4 pt-4 border-t border-gray-700">
                   <div className="flex justify-between items-center">
                     <span className="text-xl font-bold text-white">Total:</span>
@@ -462,7 +489,7 @@ const PendingOrdersPage = () => {
               <div className="flex gap-3">
                 <button
                   onClick={() => {
-                    handleApproveOrder(selectedOrder?._id)
+                    handleApproveOrder(selectedOrder?._id, "shipped")
                     setShowModal(false)
                   }}
                   className="flex-1 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors duration-200"
@@ -471,7 +498,7 @@ const PendingOrdersPage = () => {
                 </button>
                 <button
                   onClick={() => {
-                    handleRejectOrder(selectedOrder.id)
+                    handleRejectOrder(selectedOrder._id, "cancelled")
                     setShowModal(false)
                   }}
                   className="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors duration-200"
@@ -484,6 +511,42 @@ const PendingOrdersPage = () => {
         )}
 
       </div>
+      {/* confirmation modal  */}
+      {confirmationModal &&
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-pink-500/30 max-w-md w-full p-6 animate-slideUp">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-3 bg-pink-500/20 rounded-full">
+                <Trash2 className="w-8 h-8 text-pink-500" />
+              </div>
+              <h2 className="text-2xl font-bold text-white"> {status==="shipped"?"Approve":"Reject"} Product</h2>
+            </div>
+
+            <p className="text-gray-300 mb-6">
+              Are you sure you want to delete this product? This action cannot be undone.
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => handleStatusChange()}
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-semibold rounded-lg transition-all transform hover:scale-105"
+              >
+               {status==="shipped"?"Approve":"Reject"}
+              </button>
+              <button
+                onClick={() => {
+                  setStatus("")
+                  setSelectedOrder(null)
+                  setConfirmationModal(false)
+                }}
+                className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      }
       <style jsx>{`
         @keyframes spin-slow {
           from {
