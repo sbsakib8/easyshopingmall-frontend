@@ -21,7 +21,7 @@ import {
   Zap,
 } from "lucide-react";
 import { getAllUser, getUserProfile } from "@/src/hook/useAuth";
-import { OrderAllGet } from "@/src/utlis/useOrder";
+import { OrderAllAdminGet } from "@/src/utlis/useOrder";
 import { ProductAllGet } from "@/src/hook/useProduct";
 
 const DashboardHome = () => {
@@ -34,7 +34,7 @@ const DashboardHome = () => {
   const [ordersCount, setOrdersCount] = useState(0);
   const [orderChange, setOrderChange] = useState(0);
   const [productsCount, setProductsCount] = useState(0);
-  const [productsChange, setProductsChange] = useState(0);
+  const [productsChange, setProductsChange] = useState("0.0");
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -48,7 +48,6 @@ const DashboardHome = () => {
       try {
         const res = await getUserProfile();
 
-        // ⚠️ backend structure অনুযায়ী adjust
         setUser(res.user || res.data || res);
       } catch (error) {
         console.error("User not logged in");
@@ -92,19 +91,24 @@ const DashboardHome = () => {
   useEffect(() => {
     const fetchOrdersStats = async () => {
       try {
-        const res = await OrderAllGet(); // সব orders fetch
-        const orders = res.orders || []; // API অনুযায়ী adjust করো
+        const res = await OrderAllAdminGet();
+        const orders = res.orders || res.data || [];
+
         const totalOrders = orders.length;
 
-        // Previous day orders count (optional, percentage change হিসাবের জন্য)
+        const today = new Date();
         const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
+        yesterday.setDate(today.getDate() - 1);
+
+        const toDateOnly = (dateStr) => {
+          const d = new Date(dateStr);
+          return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        };
 
         const yesterdayOrders = orders.filter(
-          (order) => new Date(order.createdAt) <= yesterday
+          (order) => toDateOnly(order.createdAt).getTime() === yesterday.getTime()
         ).length;
 
-        // percentage growth
         let percentage = 0;
         if (yesterdayOrders > 0) {
           percentage = ((totalOrders - yesterdayOrders) / yesterdayOrders) * 100;
@@ -123,10 +127,9 @@ const DashboardHome = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        // প্রথমে সব product fetch করো
         const allProducts = [];
         let page = 1;
-        let limit = 100; // একবারে কত fetch করবে, বেশি হলে slow হতে পারে
+        let limit = 100;
         let totalFetched = 0;
         let totalCount = 0;
 
@@ -139,12 +142,10 @@ const DashboardHome = () => {
           totalCount = res.totalCount || totalFetched;
 
           page++;
-        } while (totalFetched < totalCount); // যতক্ষণ সব product fetch হয়
+        } while (totalFetched < totalCount);
 
-        // Total products
         const totalProducts = allProducts.length;
 
-        // Calculate previous day products
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
 
@@ -152,7 +153,6 @@ const DashboardHome = () => {
           (p) => new Date(p.createdAt) < yesterday
         ).length;
 
-        // Percentage growth
         let percentage = 0;
         if (yesterdayProducts > 0) {
           percentage = ((totalProducts - yesterdayProducts) / yesterdayProducts) * 100;
@@ -181,8 +181,8 @@ const DashboardHome = () => {
     {
       title: "Total Orders",
       value: ordersCount,
-      change: `${orderChange > 0 ? "+" : ""}${orderChange}%`,
-      changeType: orderChange >= 0 ? "positive" : "negative",
+      change: `${orderChange}%`,
+      changeType: Number(orderChange) >= 0 ? "positive" : "negative",
       icon: ShoppingCart,
       gradient: "from-slate-900 via-gray-900 to-black",
       shadowColor: "shadow-slate-900/50",
@@ -192,7 +192,7 @@ const DashboardHome = () => {
       value: productsCount,
       change: `${productsChange > 0 ? "+" : ""}${productsChange}%`,
       changeType: productsChange >= 0 ? "positive" : "negative",
-      icon: Package, // তোমার icon import
+      icon: Package,
       gradient: "from-zinc-900 via-slate-800 to-gray-900",
       shadowColor: "shadow-zinc-900/50",
     },
