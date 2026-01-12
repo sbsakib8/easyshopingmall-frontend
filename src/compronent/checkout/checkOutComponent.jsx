@@ -1,13 +1,13 @@
 "use client";
 
-import { createManualPaymentOrder, createSslPaymentOrder, initPaymentSession } from "@/src/hook/useOrder";
+import { createManualPaymentOrder, createSslPaymentOrder, initPaymentSession, submitManualPayment } from "@/src/hook/useOrder";
 import { MapPin, Shield, ShoppingBag, ShoppingCart, Star, Truck } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import LocationSelects from "../LocationSelects";
-import ManualPaymentForm from "./ManualPaymentForm";
+
 
 
 export default function CheckoutComponent() {
@@ -33,6 +33,7 @@ export default function CheckoutComponent() {
   const [manualOrderStep, setManualOrderStep] = useState('initial');
   const [isProcessing, setIsProcessing] = useState(false);
   const [deliveryCharge, setDeliveryCharge] = useState(60);
+  const [manualPaymentInfo, setManualPaymentInfo] = useState({ senderNumber: "", transactionId: "" });
 
   const isValidBDPhone = (phone) => /^01[3-9]\d{8}$/.test(phone);
   const isValidEmail = (email) =>
@@ -83,9 +84,7 @@ export default function CheckoutComponent() {
     setCustomerInfo((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handlePaymentInfoChange = (field, value) => {
-    setPaymentInfo((prev) => ({ ...prev, [field]: value }));
-  };
+
 
   // Create order helper
   const createOrder = async (override = {}) => {
@@ -231,25 +230,49 @@ export default function CheckoutComponent() {
 };
 
 
-// Manual payment (full) or manual delivery payment - now only places the order
-const handlePlaceManualOrder = async ({ payDeliveryOnly = false }) => {
-  const { name, phone, email, address, division, district, area, pincode } = customerInfo;
 
-  // 1️⃣ Required fields (copied from handleProceedToPayment)
+
+const handleManualPaymentInfoChange = (field, value) => {
+  setManualPaymentInfo((prev) => ({ ...prev, [field]: value }));
+};
+
+const handleManualOrderAndPaymentSubmission = async ({ payDeliveryOnly = false }) => {
+  const { name, phone, email, address, division, district, area, pincode } = customerInfo;
+  const { senderNumber, transactionId } = manualPaymentInfo;
+
+  // 1️⃣ Required fields for customer info
   if (!name || !phone || !address || !division || !district || !area || !pincode) {
     toast.error("অনুগ্রহ করে সকল প্রয়োজনীয় তথ্য পূরণ করুন (ঠিকানা সহ)");
     return;
   }
 
-  // 2️⃣ Phone validation (copied from handleProceedToPayment)
+  // 2️⃣ Phone validation for customer
   if (!isValidBDPhone(phone)) {
     toast.error("সঠিক বাংলাদেশি মোবাইল নম্বর দিন (01XXXXXXXXX)");
     return;
   }
 
-  // 3️⃣ Email validation (optional, copied from handleProceedToPayment)
+  // 3️⃣ Email validation (optional)
   if (email && !isValidEmail(email)) {
     toast.error("সঠিক ইমেইল ঠিকানা দিন");
+    return;
+  }
+
+  // 4️⃣ Required fields for manual payment
+  if (!selectedManualMethod) {
+    toast.error("অনুগ্রহ করে একটি ম্যানুয়াল পেমেন্ট পদ্ধতি নির্বাচন করুন");
+    return;
+  }
+  if (!senderNumber || !transactionId) {
+    toast.error("অনুগ্রহ করে পেমেন্ট নম্বর এবং ট্রানজ্যাকশন আইডি উভয়ই দিন");
+    return;
+  }
+  if (transactionId.length < 6) {
+    toast.error("ট্রানজ্যাকশন আইডি কমপক্ষে ৬ অক্ষরের হতে হবে");
+    return;
+  }
+  if (!isValidBDPhone(senderNumber)) {
+    toast.error("সঠিক বাংলাদেশি মোবাইল নম্বর দিন (01XXXXXXXXX) পেমেন্ট নম্বরের জন্য");
     return;
   }
 
@@ -266,25 +289,49 @@ const handlePlaceManualOrder = async ({ payDeliveryOnly = false }) => {
   try {
     setIsProcessing(true);
 
-    // Create order in DB with payment_status pending
+    // 1. Create order
     const orderRes = await createOrder({
       payment_method: "manual",
-      payDeliveryOnly: payDeliveryOnly, // Pass this to helper to set payment_type
+      payDeliveryOnly: payDeliveryOnly,
+      // Passing manual payment details here to be stored with the order if backend supports
+      payment_details: {
+        provider: selectedManualMethod,
+        senderNumber: senderNumber,
+        transactionId: transactionId,
+      }
     });
 
     const order = orderRes?.data;
     const dbOrderId = order?._id;
 
-    if (!dbOrderId) throw new Error("Order creation failed");
+    if (!dbOrderId) {
+      throw new Error("Order তৈরি করতে সমস্যা হয়েছে (ID পাওয়া যায়নি)");
+    }
 
-    toast.success("অর্ডার তৈরি হয়েছে। এখন পেমেন্টের তথ্য জমা দিন।");
-    setCreatedOrder(order);
-    setManualOrderStep('order_created');
-
-
+          // 2. Submit manual payment details
+          const paymentSubmissionRes = await submitManualPayment({
+            orderId: dbOrderId,
+            provider: selectedManualMethod,
+            senderNumber: senderNumber,
+            transactionId: transactionId,
+            paidFor: payDeliveryOnly ? "delivery" : "full",
+          });
+    
+          toast.success("অর্ডার এবং পেমেন্ট সফলভাবে জমা হয়েছে!");
+    
+          // Clear cart and update step
+          dispatch(cartClear());
+          // Update createdOrder with potentially more accurate information from payment submission
+          // Specifically, override payment_type based on what was *actually paid for*
+          setCreatedOrder({
+            ...order,
+            payment_type: paymentSubmissionRes.order?.payment_details?.manual?.paidFor || order.payment_type,
+            payment_status: paymentSubmissionRes.order?.payment_status || order.payment_status,
+          });
+          setManualOrderStep('payment_submitted');
   } catch (err) {
-    console.error("Manual order creation error:", err);
-    const msg = err?.response?.data?.message || err?.message || "ম্যানুয়াল অর্ডার তৈরি ব্যর্থ হয়েছে";
+    console.error("Manual order and payment submission error:", err);
+    const msg = err?.response?.data?.message || err?.message || "ম্যানুয়াল অর্ডার ও পেমেন্ট জমা দিতে ব্যর্থ হয়েছে";
     toast.error(msg);
   } finally {
     setIsProcessing(false);
@@ -305,6 +352,16 @@ const manualMethods = [
     id: "nagad",
     name: "Nagad Personal",
     number: "01626420774",
+  },
+  {
+    id: "rocket",
+    name: "Rocket Personal",
+    number: "017XXXXXXXX",
+  },
+  {
+    id: "upay",
+    name: "Upay Personal",
+    number: "019XXXXXXXX",
   },
 ];
 
@@ -514,14 +571,42 @@ return (
                           );
                         })}
 
-                        {/* Place Order Button */}
-                        <div className="pt-2">
+                        {/* Input fields for manual payment details */}
+                        <div className="pt-2 space-y-3">
+                          <input
+                            type="text"
+                            placeholder="আপনার মোবাইল নম্বর (যেই নম্বর থেকে পেমেন্ট করেছেন)"
+                            value={manualPaymentInfo.senderNumber}
+                            onChange={(e) => handleManualPaymentInfoChange('senderNumber', e.target.value)}
+                            className="w-full px-3 py-2 border rounded-xl"
+                            disabled={isProcessing}
+                          />
+
+                          <input
+                            type="text"
+                            placeholder="ট্রানজ্যাকশন আইডি (Transaction ID)"
+                            value={manualPaymentInfo.transactionId}
+                            onChange={(e) => handleManualPaymentInfoChange('transactionId', e.target.value)}
+                            className="w-full px-3 py-2 border rounded-xl"
+                            disabled={isProcessing}
+                          />
+                        </div>
+
+                        {/* New Payment Buttons */}
+                        <div className="flex gap-2 pt-2">
                           <button
-                            onClick={() => handlePlaceManualOrder({ payDeliveryOnly: false })} // Only full payment manual order for now
+                            onClick={() => handleManualOrderAndPaymentSubmission({ payDeliveryOnly: true })}
                             disabled={isProcessing || !selectedManualMethod}
-                            className="w-full bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white py-3 rounded-xl font-semibold disabled:opacity-60"
+                            className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-semibold disabled:opacity-60"
                           >
-                            {isProcessing ? 'অর্ডার তৈরি হচ্ছে...' : 'অর্ডার করুন (ম্যানুয়াল পেমেন্ট)'}
+                            {isProcessing ? 'প্রসেসিং হচ্ছে...' : `ডেলিভারি চার্জ দিন ৳${deliveryCharge}`}
+                          </button>
+                          <button
+                            onClick={() => handleManualOrderAndPaymentSubmission({ payDeliveryOnly: false })}
+                            disabled={isProcessing || !selectedManualMethod}
+                            className="flex-1 bg-green-600 text-white py-3 rounded-xl font-semibold disabled:opacity-60"
+                          >
+                            {isProcessing ? 'প্রসেসিং হচ্ছে...' : `সম্পূর্ণ পেমেন্ট দিন ৳${(subtotal + deliveryCharge).toLocaleString()}`}
                           </button>
                         </div>
                       </div>
@@ -553,13 +638,14 @@ return (
                         <p className="text-sm text-blue-700 mt-2">
                           পেমেন্ট করার পর, নিচের ফর্মে ট্রানজ্যাকশন আইডি এবং আপনার মোবাইল নম্বর জমা দিন।
                         </p>
-                        {/* ManualPaymentForm Component */}
-                        <ManualPaymentForm
+                        {/* ManualPaymentForm Component - This section is now likely redundant if payments are submitted upfront.
+                            I am keeping it here for now, but its rendering conditions should prevent it from showing. */}
+                        {/* <ManualPaymentForm
                           order={createdOrder}
                           selectedManualMethod={selectedManualMethod}
                           manualMethods={manualMethods}
                           setManualOrderStep={setManualOrderStep}
-                        />
+                        /> */}
                       </div>
                     )}
 
@@ -671,7 +757,7 @@ return (
                   const el = document.querySelector('.manual-payment-section'); // Add a class to the manual payment div
                   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }}
-                  disabled={isProcessing && selectedPayment === 'manual' && manualOrderStep !== 'initial'}
+                  disabled={isProcessing}
                   className="w-full border border-gray-300 text-gray-700 py-3 rounded-xl font-semibold">
                   Pay Manually (Bkash / Nagad)
                 </button>
