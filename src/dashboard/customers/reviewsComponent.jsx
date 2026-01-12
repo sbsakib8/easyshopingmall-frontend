@@ -1,6 +1,12 @@
 "use client";
 
-import { approveReview, getPendingReviews, rejectReview } from "@/src/hook/useReview";
+import {
+  approveReview,
+  getAllReviews,
+  rejectReview,
+  deleteReview,
+  getPendingReviews,
+} from "@/src/hook/useReview";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -18,26 +24,42 @@ const ReviewsPage = () => {
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [showActionDropdown, setShowActionDropdown] = useState(null);
   const [clientSide, setClientSide] = useState(false);
+  const [totalReviews, setTotalReviews] = useState(0);
+  const [approvedReviews, setApprovedReviews] = useState(0);
+  const [refresh, setRefresh] = useState(false);
 
   // Filter and sort reviews
   const filteredReviews = clientSide
     ? reviews
         .filter((review) => {
+          const term = searchTerm.toLowerCase();
+
           const matchesSearch =
-            review.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            review.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            review.comment.toLowerCase().includes(searchTerm.toLowerCase());
+            review.userId?.name?.toLowerCase().includes(term) ||
+            review.userId?.email?.toLowerCase().includes(term) ||
+            review.comment?.toLowerCase().includes(term) ||
+            review.status?.toLowerCase().includes(term);
+
           const matchesStatus = filterStatus === "all" || review.status === filterStatus;
-          const matchesRating = filterRating === "all" || review.rating.toString() === filterRating;
+
+          const matchesRating =
+            filterRating === "all" || review.rating?.toString() === filterRating;
+
           return matchesSearch && matchesStatus && matchesRating;
         })
         .sort((a, b) => {
-          let aValue = a[sortBy];
-          let bValue = b[sortBy];
+          let aValue;
+          let bValue;
 
           if (sortBy === "date") {
-            aValue = new Date(aValue).getTime();
-            bValue = new Date(bValue).getTime();
+            aValue = new Date(a.createdAt).getTime();
+            bValue = new Date(b.createdAt).getTime();
+          } else if (sortBy === "rating") {
+            aValue = a.rating;
+            bValue = b.rating;
+          } else {
+            aValue = a[sortBy];
+            bValue = b[sortBy];
           }
 
           return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
@@ -45,9 +67,7 @@ const ReviewsPage = () => {
     : reviews;
 
   // Calculate statistics
-  const totalReviews = reviews.length;
   const averageRating = reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews;
-  const approvedReviews = reviews.filter((r) => r.status === "approved").length;
   const pendingReviews = reviews.filter((r) => r.status === "pending").length;
   // All Pending Review
   useEffect(() => {
@@ -55,12 +75,28 @@ const ReviewsPage = () => {
       try {
         const data = await getPendingReviews();
         setReviews(data);
+        console.log("Fetched reviews:", data);
+        setClientSide(true);
       } catch (err) {
         console.error("Failed to fetch reviews", err);
       }
     };
 
     fetchReviews();
+  }, [refresh]);
+
+  useEffect(() => {
+    const fetchTotalReviews = async () => {
+      try {
+        const reviews = await getAllReviews();
+        setTotalReviews(reviews.length);
+        setApprovedReviews(reviews.filter((r) => r.status === "approved").length);
+      } catch (err) {
+        console.error("Failed to fetch all reviews:", err);
+      }
+    };
+
+    fetchTotalReviews();
   }, []);
 
   // Handle review status change
@@ -73,16 +109,16 @@ const ReviewsPage = () => {
         await rejectReview(_id);
         toast.error("Review rejected");
       } else if (newStatus === "pending") {
-        // backend support optional
         toast("Review set to pending");
       }
 
-      // Update local state
       setReviews((prev) => prev.map((r) => (r._id === _id ? { ...r, status: newStatus } : r)));
 
       setSelectedReview((prev) =>
         prev && prev._id === _id ? { ...prev, status: newStatus } : prev
       );
+
+      setRefresh((prev) => !prev);
     } catch (err) {
       console.error("Review status error:", err.response?.data || err.message);
       toast.error(err.response?.data?.message || "Failed to update review");
@@ -92,11 +128,16 @@ const ReviewsPage = () => {
   // Handle review deletion
   const handleDeleteReview = async (_id) => {
     try {
-      await rejectReview(_id);
+      await deleteReview(_id);
+
       setReviews((prev) => prev.filter((r) => r._id !== _id));
+
       setSelectedReview(null);
       setIsDetailModalOpen(false);
-      toast.success("Review deleted");
+
+      setRefresh((prev) => !prev);
+
+      toast.success("Review deleted successfully");
     } catch (err) {
       console.error("Delete review error:", err.response?.data || err.message);
       toast.error("Failed to delete review");
@@ -220,273 +261,202 @@ const ReviewsPage = () => {
           {/* Filters and Search */}
           <div className="bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-lg p-6 animate-slide-up">
             <h2 className="text-xl font-semibold text-white mb-4">Filter & Search Reviews</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+
+            <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
+              {/* Search Input - Left */}
               <input
                 type="text"
                 placeholder="Search reviews..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                className="w-full md:w-1/2 bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500"
               />
 
-              <Dropdown
-                isOpen={showStatusDropdown}
-                onClose={() => setShowStatusDropdown(false)}
-                trigger={
+              {/* Rating Dropdown - Right */}
+              <div className="w-full md:w-1/3">
+                <Dropdown
+                  isOpen={showRatingDropdown}
+                  onClose={() => setShowRatingDropdown(false)}
+                  trigger={
+                    <button
+                      onClick={() => setShowRatingDropdown(!showRatingDropdown)}
+                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white hover:bg-gray-600 transition-colors flex items-center justify-between"
+                    >
+                      Rating: {filterRating === "all" ? "All" : `${filterRating} Stars`}
+                      <span>▼</span>
+                    </button>
+                  }
+                >
                   <button
-                    onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-                    className="bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white hover:bg-gray-600 transition-colors flex items-center justify-between"
-                  >
-                    Status: {filterStatus === "all" ? "All" : filterStatus}
-                    <span className="ml-2">▼</span>
-                  </button>
-                }
-              >
-                <button
-                  onClick={() => {
-                    setFilterStatus("all");
-                    setShowStatusDropdown(false);
-                  }}
-                  className="block w-full text-left px-4 py-2 text-white hover:bg-gray-700 transition-colors"
-                >
-                  All
-                </button>
-                <button
-                  onClick={() => {
-                    setFilterStatus("approved");
-                    setShowStatusDropdown(false);
-                  }}
-                  className="block w-full text-left px-4 py-2 text-white hover:bg-gray-700 transition-colors"
-                >
-                  Approved
-                </button>
-                <button
-                  onClick={() => {
-                    setFilterStatus("pending");
-                    setShowStatusDropdown(false);
-                  }}
-                  className="block w-full text-left px-4 py-2 text-white hover:bg-gray-700 transition-colors"
-                >
-                  Pending
-                </button>
-                <button
-                  onClick={() => {
-                    setFilterStatus("rejected");
-                    setShowStatusDropdown(false);
-                  }}
-                  className="block w-full text-left px-4 py-2 text-white hover:bg-gray-700 transition-colors"
-                >
-                  Rejected
-                </button>
-              </Dropdown>
-
-              <Dropdown
-                isOpen={showRatingDropdown}
-                onClose={() => setShowRatingDropdown(false)}
-                trigger={
-                  <button
-                    onClick={() => setShowRatingDropdown(!showRatingDropdown)}
-                    className="bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white hover:bg-gray-600 transition-colors flex items-center justify-between"
-                  >
-                    Rating: {filterRating === "all" ? "All" : `${filterRating} Stars`}
-                    <span className="ml-2">▼</span>
-                  </button>
-                }
-              >
-                <button
-                  onClick={() => {
-                    setFilterRating("all");
-                    setShowRatingDropdown(false);
-                  }}
-                  className="block w-full text-left px-4 py-2 text-white hover:bg-gray-700 transition-colors"
-                >
-                  All Ratings
-                </button>
-                {[5, 4, 3, 2, 1].map((rating) => (
-                  <button
-                    key={rating}
                     onClick={() => {
-                      setFilterRating(rating.toString());
+                      setFilterRating("all");
                       setShowRatingDropdown(false);
                     }}
-                    className="block w-full text-left px-4 py-2 text-white hover:bg-gray-700 transition-colors"
+                    className="block w-full text-left px-4 py-2 text-white hover:bg-gray-700"
                   >
-                    {rating} Stars
+                    All Ratings
                   </button>
-                ))}
-              </Dropdown>
 
-              <Dropdown
-                isOpen={showSortDropdown}
-                onClose={() => setShowSortDropdown(false)}
-                trigger={
-                  <button
-                    onClick={() => setShowSortDropdown(!showSortDropdown)}
-                    className="bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white hover:bg-gray-600 transition-colors flex items-center justify-between"
-                  >
-                    Sort: {sortBy}
-                    <span className="ml-2">▼</span>
-                  </button>
-                }
-              >
-                <button
-                  onClick={() => {
-                    setSortBy("date");
-                    setShowSortDropdown(false);
-                  }}
-                  className="block w-full text-left px-4 py-2 text-white hover:bg-gray-700 transition-colors"
-                >
-                  Date
-                </button>
-                <button
-                  onClick={() => {
-                    setSortBy("rating");
-                    setShowSortDropdown(false);
-                  }}
-                  className="block w-full text-left px-4 py-2 text-white hover:bg-gray-700 transition-colors"
-                >
-                  Rating
-                </button>
-                <button
-                  onClick={() => {
-                    setSortBy("helpful");
-                    setShowSortDropdown(false);
-                  }}
-                  className="block w-full text-left px-4 py-2 text-white hover:bg-gray-700 transition-colors"
-                >
-                  Helpful
-                </button>
-              </Dropdown>
-
-              <button
-                onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
-                className="bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white hover:bg-gray-600 transition-colors"
-              >
-                {sortOrder === "asc" ? "↑ Ascending" : "↓ Descending"}
-              </button>
+                  {[5, 4, 3, 2, 1].map((rating) => (
+                    <button
+                      key={rating}
+                      onClick={() => {
+                        setFilterRating(rating.toString());
+                        setShowRatingDropdown(false);
+                      }}
+                      className="block w-full text-left px-4 py-2 text-white hover:bg-gray-700"
+                    >
+                      {rating} Stars
+                    </button>
+                  ))}
+                </Dropdown>
+              </div>
             </div>
           </div>
 
           {/* Reviews List */}
           <div className="space-y-4 animate-fade-in">
-            {filteredReviews.map((review, index) => (
-              <div
-                key={review._id}
-                className="bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-lg p-6 hover:border-yellow-500 transition-all duration-300 hover:shadow-lg hover:shadow-yellow-500/20 animate-slide-up"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-y-5 lg:gap-x-6 items-center lg:items-start">
-                  {/* Customer Info */}
-                  <div className="lg:col-span-3 flex items-center space-x-3 pr-0 lg:pr-4 ">
-                    <img
-                      src={review.userId.image || "/placeholder.svg"}
-                      alt={review.customerName}
-                      className="w-12 h-12 rounded-full border-2 border-yellow-500"
-                    />
-                    <div>
-                      <h3 className="font-semibold text-white">{review.userId.name}</h3>
-                      <p className="text-sm text-gray-400">mahmudulkarim545@gmail.com</p>
-                    </div>
-                  </div>
-
-                  {/* Product & Rating */}
-                  <div className="lg:col-span-3 lg:pl-6">
-                    <h4 className="font-medium text-white mb-1">Drop Shoulder T-Shirt</h4>
-                    <div className="flex items-center space-x-2">
-                      <div className="flex">{renderStars(review.rating)}</div>
-                      <span className="text-sm text-gray-400">({review.rating}/5)</span>
-                    </div>
-                  </div>
-
-                  {/* Comment */}
-                  <div className="lg:col-span-4 pr-0 lg:pr-2">
-                    <p className="text-white text-sm leading-relaxed line-clamp-2">
-                      {review.comment}
-                    </p>
-
-                    <div className="flex items-center space-x-4 mt-2">
-                      <span className="text-xs text-gray-400">
-                        {new Date(review.createdAt).toLocaleDateString("en-GB", {
-                          day: "2-digit",
-                          month: "short",
-                          year: "numeric",
-                        })}
-                      </span>
-
-                      <span className="text-xs text-gray-400">👍 {review.helpful} helpful</span>
-                    </div>
-                  </div>
-
-                  {/* Status & Actions*/}
-                  <div className="lg:col-span-2 flex flex-col space-y-2">
-                    <span
-                      className={`${getStatusBadge(
-                        review.status
-                      )} px-3 py-1 rounded-full text-xs font-medium w-fit`}
+            {filteredReviews.length === 0 ? (
+              <p className="text-gray-400 text-center mt-6">No reviews found</p>
+            ) : (
+              filteredReviews.map(
+                (review, index) => (
+                  console.log("review data", review),
+                  (
+                    <div
+                      key={review._id}
+                      className="bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-lg p-6 hover:border-yellow-500 transition-all duration-300 hover:shadow-lg hover:shadow-yellow-500/20 animate-slide-up"
+                      style={{ animationDelay: `${index * 0.1}s` }}
                     >
-                      {review.status}
-                    </span>
+                      <div className="grid grid-cols-1 lg:grid-cols-12 gap-y-5 lg:gap-x-6 items-start">
+                        {/* Customer Info */}
+                        <div className="lg:col-span-3 flex items-center gap-3">
+                          {review.userId?.image ? (
+                            <img
+                              src={review.userId.image}
+                              alt={review.userId?.name || "User"}
+                              className="w-12 h-12 rounded-full border-2 border-yellow-500 object-cover"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 rounded-full border-2 border-yellow-500 bg-gray-600 flex items-center justify-center text-white font-bold text-lg">
+                              {review.userId?.name?.charAt(0).toUpperCase() || "U"}
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <h3 className="font-semibold text-white truncate">
+                              {review.userId?.name}
+                            </h3>
+                            <p className="text-sm text-gray-400">
+                              {review.userId?.email || "No Email"}
+                            </p>
+                          </div>
+                        </div>
 
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        onClick={() => {
-                          setSelectedReview(review);
-                          setIsDetailModalOpen(true);
-                        }}
-                        className="bg-gray-700 border border-gray-600 rounded px-3 py-1 text-sm text-white hover:bg-gray-600 transition-colors"
-                      >
-                        View
-                      </button>
+                        {/* Product & Rating */}
+                        <div className="lg:col-span-3">
+                          <h4 className="font-medium text-white mb-1 truncate">
+                            {review.productId?.productName || "Unknown Product"}
+                          </h4>
 
-                      <Dropdown
-                        isOpen={showActionDropdown === review._id}
-                        onClose={() => setShowActionDropdown(null)}
-                        trigger={
-                          <button
-                            onClick={() =>
-                              setShowActionDropdown(
-                                showActionDropdown === review._id ? null : review._id
-                              )
-                            }
-                            className="bg-gray-700 border border-gray-600 rounded px-3 py-1 text-sm text-white hover:bg-gray-600 transition-colors"
+                          <div className="flex items-center gap-2">
+                            <div className="flex">{renderStars(review.rating)}</div>
+                            <span className="text-xs text-gray-400">({review.rating}/5)</span>
+                          </div>
+                        </div>
+
+                        {/* Comment */}
+                        <div className="lg:col-span-4">
+                          <p className="text-white text-sm leading-relaxed line-clamp-2">
+                            {review.comment}
+                          </p>
+                          <div className="flex flex-wrap items-center gap-4 mt-2 text-xs text-gray-400">
+                            <span>
+                              {new Date(review.createdAt).toLocaleDateString("en-GB", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                              })}
+                            </span>
+                            <span>👍 {review.helpful || 0} helpful</span>
+                          </div>
+                        </div>
+
+                        {/* Status & Actions */}
+                        <div className="lg:col-span-2 flex flex-col gap-3 items-start lg:items-end">
+                          <span
+                            className={`${getStatusBadge(
+                              review.status
+                            )} px-3 py-1 rounded-full text-xs font-semibold capitalize`}
                           >
-                            Actions
-                          </button>
-                        }
-                      >
-                        <button
-                          onClick={() => handleStatusChange(review._id, "approved")}
-                          className="block w-full text-left px-4 py-2 text-white hover:bg-green-600 transition-colors"
-                        >
-                          Approve
-                        </button>
+                            {review.status}
+                          </span>
 
-                        <button
-                          onClick={() => handleStatusChange(review._id, "pending")}
-                          className="block w-full text-left px-4 py-2 text-white hover:bg-yellow-600 transition-colors"
-                        >
-                          Mark Pending
-                        </button>
+                          <div className="flex flex-wrap gap-2">
+                            <button
+                              onClick={() => {
+                                setSelectedReview(review);
+                                setIsDetailModalOpen(true);
+                              }}
+                              className="bg-slate-700 border border-slate-600 rounded-md px-3 py-1.5 text-sm text-white hover:bg-slate-600 transition"
+                            >
+                              View
+                            </button>
 
-                        <button
-                          onClick={() => handleStatusChange(review._id, "rejected")}
-                          className="block w-full text-left px-4 py-2 text-white hover:bg-red-600 transition-colors"
-                        >
-                          Reject
-                        </button>
-
-                        <button
-                          onClick={() => handleDeleteReview(review._id)}
-                          className="block w-full text-left px-4 py-2 text-white hover:bg-red-600 transition-colors"
-                        >
-                          Delete
-                        </button>
-                      </Dropdown>
+                            <Dropdown
+                              isOpen={showActionDropdown === review._id}
+                              onClose={() => setShowActionDropdown(null)}
+                              trigger={
+                                <button
+                                  onClick={() =>
+                                    setShowActionDropdown(
+                                      showActionDropdown === review._id ? null : review._id
+                                    )
+                                  }
+                                  className="bg-slate-700 border border-slate-600 rounded-md px-3 py-1.5 text-sm text-white hover:bg-slate-600 transition"
+                                >
+                                  Actions
+                                </button>
+                              }
+                            >
+                              {review.status !== "approved" && (
+                                <button
+                                  onClick={() => handleStatusChange(review._id, "approved")}
+                                  className="block w-full text-left px-4 py-2 text-sm text-white hover:bg-green-600"
+                                >
+                                  Approve
+                                </button>
+                              )}
+                              {review.status !== "pending" && (
+                                <button
+                                  onClick={() => handleStatusChange(review._id, "pending")}
+                                  className="block w-full text-left px-4 py-2 text-sm text-white hover:bg-yellow-600"
+                                >
+                                  Mark Pending
+                                </button>
+                              )}
+                              {review.status !== "rejected" && (
+                                <button
+                                  onClick={() => handleStatusChange(review._id, "rejected")}
+                                  className="block w-full text-left px-4 py-2 text-sm text-white hover:bg-red-600"
+                                >
+                                  Reject
+                                </button>
+                              )}
+                              <button
+                                onClick={() => handleDeleteReview(review._id)}
+                                className="block w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-red-600 hover:text-white"
+                              >
+                                Delete
+                              </button>
+                            </Dropdown>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              </div>
-            ))}
+                  )
+                )
+              )
+            )}
           </div>
 
           {/* Empty State */}
@@ -516,21 +486,23 @@ const ReviewsPage = () => {
                 {/* Profile Section */}
                 <div className="flex items-center space-x-4">
                   <div className="relative">
-                    <img
-                      src={selectedReview.userId.image || "/placeholder.svg"}
-                      alt={selectedReview.userId.name}
-                      className="w-16 h-16 rounded-full border-2 border-yellow-500 object-cover"
-                    />
-                    {/* Overlay text logic if image fails or for styling as seen in image */}
-                    {!selectedReview.userId.image && (
-                      <div className="absolute inset-0 flex items-center justify-center text-[35px] text-center px-1">
-                        {selectedReview.userId.name.charAt(0).toUpperCase()}
+                    {selectedReview.userId?.image ? (
+                      <img
+                        src={selectedReview.userId.image}
+                        alt={selectedReview.userId?.name || "User"}
+                        className="w-12 h-12 rounded-full border-2 border-yellow-500 object-cover"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-full border-2 border-yellow-500 bg-gray-600 flex items-center justify-center text-white font-bold text-lg">
+                        {selectedReview.userId?.name?.charAt(0).toUpperCase() || "U"}
                       </div>
                     )}
                   </div>
                   <div className="flex flex-col">
                     <h3 className="text-xl font-bold">{selectedReview.userId.name}</h3>
-                    <p className="text-gray-400 text-sm">mahmudulkarim545@gmail.com</p>
+                    <p className="text-gray-400 text-sm">
+                      {selectedReview.userId.email || "No Email"}
+                    </p>
                     <p className="text-gray-500 text-xs mt-1">
                       {new Date(selectedReview.createdAt).toLocaleDateString("en-GB", {
                         day: "2-digit",
