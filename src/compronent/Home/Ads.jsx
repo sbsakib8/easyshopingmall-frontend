@@ -94,7 +94,7 @@ function Ads() {
      <div className="relative">
        {/* Left Side Ad - Absolutely positioned */}
        {visibleLeftAds.length > 0 && (
-         <div className="hidden lg:block absolute left-0 top-[-100px] z-10">
+         <div className="hidden lg:block absolute left-2 top-[-100px] z-10">
            <div className="space-y-3">
              {visibleLeftAds.map((ad, index) => (
                <div key={ad._id || index} className="relative bg-white shadow-lg rounded-lg p-2 border-2 border-gray-300">
@@ -108,10 +108,10 @@ function Ads() {
                  >
                    ×
                  </button>
-                 <div className="w-[140px]">
+                 <div className="w-[120px]">
                    <Image
                      src={ad.images[0]}
-                     width={140}
+                     width={120}
                      height={200}
                      alt={ad.title || "Left Advertisement"}
                      className="object-cover rounded cursor-pointer hover:scale-105 transition-transform"
@@ -124,7 +124,7 @@ function Ads() {
        )}
 
        {/* Center Ads Grid - Always centered */}
-       <div className="container mx-auto max-w-8xl px-3">
+       <div className="container mx-auto max-w-8xl px-4">
          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 px-3">
            {activeAds.map((item) => (
              <div key={item._id} className="flex justify-center">
@@ -144,7 +144,7 @@ function Ads() {
 
        {/* Right Side Ad - Absolutely positioned */}
        {visibleRightAds.length > 0 && (
-         <div className="hidden lg:block absolute right-0 top-[-100] z-10">
+         <div className="hidden lg:block absolute right-2  top-[-100] z-10">
            <div className="space-y-3">
              {visibleRightAds.map((ad, index) => (
                <div key={ad._id || index} className="relative bg-white shadow-lg rounded-lg p-2 border-2 border-gray-300">
@@ -158,10 +158,10 @@ function Ads() {
                  >
                    ×
                  </button>
-                 <div className="w-[140px]">
+                 <div className="w-[120px]">
                    <Image
                      src={ad.images[0]}
-                     width={140}
+                     width={120}
                      height={200}
                      alt={ad.title || "Right Advertisement"}
                      className="object-cover rounded cursor-pointer hover:scale-105 transition-transform"
