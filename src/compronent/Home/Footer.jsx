@@ -94,7 +94,7 @@ function Footer() {
 
             <div className=" flex flex-col md:flex-row justify-between items-center mt-3">
                 <div>
-                    <p className=" text-center text-wrap text-gray-500 text-[16px] my-4">© 2023 EasyShoppingMall. All rights reserved.</p>
+                    <p className=" text-center text-wrap text-gray-500 text-[16px] my-4">© 2026 EasyShoppingMall. All rights reserved.</p>
                 </div>
 
                 <div className="flex justify-between items-center gap-4">

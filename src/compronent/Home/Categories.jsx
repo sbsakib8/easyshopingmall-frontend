@@ -5,18 +5,6 @@ import Link from "next/link";
 import { useGetcategory } from "@/src/utlis/usecategory";
 import { HomeBannerAllGet } from "@/src/hook/useHomeBanner";
 
-const categoridata = [
-  { id: 1, name: "Electronics", image: "https://images.unsplash.com/photo-1498049794561-7780e7231661?auto=format&fit=crop&w=300&q=80", items: "1,234", trending: true },
-  { id: 2, name: "Fashion", image: "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=300&q=80", items: "892", trending: false },
-  { id: 3, name: "Home & Garden", image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=300&q=80", items: "567", trending: true },
-  { id: 4, name: "Sports", image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=300&q=80", items: "423", trending: false },
-  { id: 5, name: "Books", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80", items: "789", trending: false },
-  { id: 6, name: "Beauty", image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=300&q=80", items: "1,012", trending: true },
-  { id: 7, name: "Automotive", image: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=300&q=80", items: "334", trending: false },
-  { id: 8, name: "Technology", image: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=300&q=80", items: "1,456", trending: true },
-  { id: 9, name: "Food & Drinks", image: "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&w=300&q=80", items: "678", trending: false },
-  { id: 10, name: "Travel", image: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=300&q=80", items: "445", trending: true }
-];
 
 function Categories() {
   const { category, loading, error } = useGetcategory(); 
