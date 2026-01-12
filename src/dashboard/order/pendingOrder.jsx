@@ -396,7 +396,7 @@ const PendingOrdersPage = () => {
                       <span className="text-gray-500">Date:</span> {formatDate(selectedOrder?.updatedAt)}
                     </p>
                     <div className="text-gray-300 flex gap-3">
-                      <span className="text-gray-500">Status:</span>{" "}
+                      <span className="text-gray-500">Order Status:</span>{" "}
                       <p className={`px-3 py-1 text-sm ${statusColors[selectedOrder?.order_status]} rounded-full text-yellow-300 font-medium`}>
                     {selectedOrder?.order_status}
                   </p>
@@ -426,7 +426,7 @@ const PendingOrdersPage = () => {
               {/* Shipping Address */}
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-white mb-3">Shipping Address</h3>
-                <p className="text-gray-300 bg-gray-800/50 p-3 rounded-lg">{selectedOrder.shippingAddress}</p>
+                <p className="text-gray-300 bg-gray-800/50 p-3 rounded-lg">{selectedOrder?.address?.upazila_thana}, {selectedOrder?.address?.district}</p>
               </div>
 
               {/* Order Items */}
@@ -435,18 +435,25 @@ const PendingOrdersPage = () => {
                 <div className="space-y-3">
                   {selectedOrder?.products.map((item, index) => (
                     <div key={index} className="flex justify-between items-center bg-gray-800/50 p-3 rounded-lg">
-                      <div>
-                        <p className="text-white font-medium">{item.name}</p>
-                        <p className="text-gray-400 text-sm">Quantity: {item.quantity}</p>
+                      <div className="flex gap-2">
+                        <img className="w-12 h-12 rounded-sm" src={item?.image[0]} alt="" />
+                        <div>
+                          <p className="text-white font-medium">{item?.name}</p>
+                        <p className="text-gray-400 text-sm">Quantity: {item?.quantity}</p>
+                        </div>
                       </div>
-                      <p className="text-green-400 font-semibold">${item.price}</p>
+                      <p className="text-green-400 font-semibold">৳{item?.price}</p>
                     </div>
                   ))}
                 </div>
+                <div className="flex justify-between items-center m-2">
+                    <span className="text-white font-semibold">Delivery Charge:</span>
+                    <span className="text-green-400 font-bold text-lg">৳{selectedOrder?.deliveryCharge}</span>
+                  </div>
                 <div className="mt-4 pt-4 border-t border-gray-700">
                   <div className="flex justify-between items-center">
                     <span className="text-xl font-bold text-white">Total:</span>
-                    <span className="text-2xl font-bold text-green-400">${selectedOrder.totalAmt}</span>
+                    <span className="text-2xl font-bold text-green-400">৳{selectedOrder?.totalAmt}</span>
                   </div>
                 </div>
               </div>
@@ -455,7 +462,7 @@ const PendingOrdersPage = () => {
               <div className="flex gap-3">
                 <button
                   onClick={() => {
-                    handleApproveOrder(selectedOrder.id)
+                    handleApproveOrder(selectedOrder?._id)
                     setShowModal(false)
                   }}
                   className="flex-1 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors duration-200"
