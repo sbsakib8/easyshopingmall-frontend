@@ -835,16 +835,16 @@ const OrderManagement = () => {
                         </div>
 
                         <div className="flex justify-between items-center">
-                          <span className="text-gray-400">Payment Status:</span>
+                          <span className="text-gray-400">Order Status:</span>
                           <div className="flex items-center gap-2">
                             {(() => {
-                              const StatusIcon = statusIcons[selectedOrder?.payment_status]
+                              const StatusIcon = statusIcons[selectedOrder?.order_status]
                               return StatusIcon ? <StatusIcon className="h-4 w-4 text-white" /> : null
                             })()}
                             <span
-                              className={`px-4 py-2 rounded-xl text-sm font-semibold ${statusColors[selectedOrder?.payment_status]}`}
+                              className={`px-4 py-2 rounded-xl text-sm font-semibold ${statusColors[selectedOrder?.order_status]}`}
                             >
-                              {selectedOrder?.payment_status.charAt(0).toUpperCase() + selectedOrder?.payment_status?.slice(1)}
+                              {selectedOrder?.order_status.charAt(0).toUpperCase() + selectedOrder?.order_status?.slice(1)}
                             </span>
                           </div>
                         </div>
