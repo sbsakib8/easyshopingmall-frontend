@@ -1,71 +1,109 @@
 "use client"
-import { useState } from "react"
+import { useGetAllOrders } from "@/src/utlis/useGetAllOrders"
+import { useMemo, useState } from "react"
 
-const mockOrders = [
-  {
-    id: "ORD-001",
-    customer: "John Doe",
-    email: "john@example.com",
-    phone: "+1234567890",
-    items: [
-      { name: "Wireless Headphones", quantity: 2, price: 99.99 },
-      { name: "Phone Case", quantity: 1, price: 19.99 },
-    ],
-    total: 219.97,
-    orderDate: "2024-01-15T10:30:00Z",
-    shippingAddress: "123 Main St, New York, NY 10001",
-    paymentMethod: "Credit Card",
-    status: "pending",
-  },
-  {
-    id: "ORD-002",
-    customer: "Jane Smith",
-    email: "jane@example.com",
-    phone: "+1987654321",
-    items: [
-      { name: "Laptop Stand", quantity: 1, price: 79.99 },
-      { name: "USB Cable", quantity: 3, price: 12.99 },
-    ],
-    total: 118.96,
-    orderDate: "2024-01-15T14:20:00Z",
-    shippingAddress: "456 Oak Ave, Los Angeles, CA 90210",
-    paymentMethod: "PayPal",
-    status: "pending",
-  },
-  {
-    id: "ORD-003",
-    customer: "Mike Johnson",
-    email: "mike@example.com",
-    phone: "+1122334455",
-    items: [
-      { name: "Gaming Mouse", quantity: 1, price: 59.99 },
-      { name: "Mousepad", quantity: 1, price: 24.99 },
-    ],
-    total: 84.98,
-    orderDate: "2024-01-16T09:15:00Z",
-    shippingAddress: "789 Pine St, Chicago, IL 60601",
-    paymentMethod: "Credit Card",
-    status: "pending",
-  },
-]
+// const mockOrders = [
+//   {
+//     id: "ORD-001",
+//     customer: "John Doe",
+//     email: "john@example.com",
+//     phone: "+1234567890",
+//     items: [
+//       { name: "Wireless Headphones", quantity: 2, price: 99.99 },
+//       { name: "Phone Case", quantity: 1, price: 19.99 },
+//     ],
+//     total: 219.97,
+//     orderDate: "2024-01-15T10:30:00Z",
+//     shippingAddress: "123 Main St, New York, NY 10001",
+//     paymentMethod: "Credit Card",
+//     status: "pending",
+//   },
+//   {
+//     id: "ORD-002",
+//     customer: "Jane Smith",
+//     email: "jane@example.com",
+//     phone: "+1987654321",
+//     items: [
+//       { name: "Laptop Stand", quantity: 1, price: 79.99 },
+//       { name: "USB Cable", quantity: 3, price: 12.99 },
+//     ],
+//     total: 118.96,
+//     orderDate: "2024-01-15T14:20:00Z",
+//     shippingAddress: "456 Oak Ave, Los Angeles, CA 90210",
+//     paymentMethod: "PayPal",
+//     status: "pending",
+//   },
+//   {
+//     id: "ORD-003",
+//     customer: "Mike Johnson",
+//     email: "mike@example.com",
+//     phone: "+1122334455",
+//     items: [
+//       { name: "Gaming Mouse", quantity: 1, price: 59.99 },
+//       { name: "Mousepad", quantity: 1, price: 24.99 },
+//     ],
+//     total: 84.98,
+//     orderDate: "2024-01-16T09:15:00Z",
+//     shippingAddress: "789 Pine St, Chicago, IL 60601",
+//     paymentMethod: "Credit Card",
+//     status: "pending",
+//   },
+// ]
 
  const PendingOrdersPage=() =>{
-  const [orders, setOrders] = useState(mockOrders)
+  const [orders, setOrders] = useState(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [showModal, setShowModal] = useState(false)
   const [filterBy, setFilterBy] = useState("all")
+    const { allOrders, loading: ordersLoading, refetch } = useGetAllOrders()
+    // console.log("allorders---->",allOrders)
 
   // Filter orders based on search term and filter
-  const filteredOrders = orders.filter((order) => {
-    const matchesSearch =
-      order.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.email.toLowerCase().includes(searchTerm.toLowerCase())
+  // const filteredOrders = orders.filter((order) => {
+  //   const matchesSearch =
+  //     order.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     order.email.toLowerCase().includes(searchTerm.toLowerCase())
 
-    if (filterBy === "all") return matchesSearch
-    return matchesSearch && order.paymentMethod.toLowerCase() === filterBy.toLowerCase()
-  })
+  //   if (filterBy === "all") return matchesSearch
+  //   return matchesSearch && order.paymentMethod.toLowerCase() === filterBy.toLowerCase()
+  // })
+  const filteredOrders = useMemo(() => {
+  
+      const filtered = allOrders?.filter((order) => {
+        const customerName = order?.userId?.name || "user"
+        const customerEmail = order?.userId?.email || "user@damy.com"
+        const matchesSearch =
+          customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          order?.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          customerEmail.toLowerCase().includes(searchTerm.toLowerCase())
+        const matchesStatus = order?.order_status === "processing"
+        // const matchesPriority = priorityFilter === "all" || order.priority === priorityFilter
+        return matchesSearch && matchesStatus
+      })
+      // Sort orders
+      // filtered?.sort((a, b) => {
+      //   let aValue = a[sortBy]
+      //   let bValue = b[sortBy]
+  
+      //   if (sortBy === "orderDate") {
+      //     aValue = new Date(aValue)
+      //     bValue = new Date(bValue)
+      //   } else if (sortBy === "total") {
+      //     aValue = Number.parseFloat(aValue)
+      //     bValue = Number.parseFloat(bValue)
+      //   }
+  
+      //   if (sortOrder === "asc") {
+      //     return aValue > bValue ? 1 : -1
+      //   } else {
+      //     return aValue < bValue ? 1 : -1
+      //   }
+      // })
+      return filtered
+    }, [searchTerm,allOrders])
+  
 
   // Handle order actions
   const handleApproveOrder = (orderId) => {
@@ -91,6 +129,9 @@ const mockOrders = [
     })
   }
 
+if(ordersLoading)return <p>Loading...</p>
+// console.log("allorders---->",allOrders)
+console.log("filterorders---->",filteredOrders)
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 relative overflow-hidden">
       {/* Animated Background Elements */}
@@ -154,7 +195,7 @@ const mockOrders = [
           </div>
 
           <div className="flex gap-3">
-            <select
+            {/* <select
               value={filterBy}
               onChange={(e) => setFilterBy(e.target.value)}
               className="px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500 backdrop-blur-sm"
@@ -162,7 +203,7 @@ const mockOrders = [
               <option value="all">All Payment Methods</option>
               <option value="credit card">Credit Card</option>
               <option value="paypal">PayPal</option>
-            </select>
+            </select> */}
 
             <div className="px-4 py-3 bg-blue-600/20 border border-blue-500/30 rounded-xl text-blue-300 font-medium backdrop-blur-sm">
               {filteredOrders.length} Orders
@@ -197,9 +238,9 @@ const mockOrders = [
 
               {/* Order Items */}
               <div className="mb-4">
-                <h5 className="text-white font-medium mb-2">Items ({order.items.length})</h5>
+                <h5 className="text-white font-medium mb-2">Items ({order?.products.length})</h5>
                 <div className="space-y-1">
-                  {order.items.slice(0, 2).map((item, index) => (
+                  {order?.products.slice(0, 2).map((item, index) => (
                     <div key={index} className="flex justify-between text-sm">
                       <span className="text-gray-300">
                         {item.name} x{item.quantity}
@@ -207,8 +248,8 @@ const mockOrders = [
                       <span className="text-gray-400">${item.price}</span>
                     </div>
                   ))}
-                  {order.items.length > 2 && (
-                    <p className="text-gray-500 text-xs">+{order.items.length - 2} more items</p>
+                  {order?.products.length > 2 && (
+                    <p className="text-gray-500 text-xs">+{order?.products.length - 2} more items</p>
                   )}
                 </div>
               </div>

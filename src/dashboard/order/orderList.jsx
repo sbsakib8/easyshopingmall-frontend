@@ -191,21 +191,6 @@ const OrderManagement = () => {
   const { allOrders, loading: ordersLoading, refetch } = useGetAllOrders()
   // console.log("allorders---->",allOrders)
 
-  // const newmockOrders = allOrders?.map(order => (
-  //   {
-  //     id: order?.orderId,
-  //     customerName: order?.userId?.name,
-  //     customerEmail: order?.userId?.email,
-  //     orderDate: order?.products[0]?.productId?.createdAt,
-  //     status: order?.order_status,
-  //     total: order?.totalAmt,
-  //     priority: "high",
-  //     rating: order?.products[0]?.productId?.ratings,
-  //     items: order?.products[0]?.quantity,
-  //     trackingNumber: "TRK123456789",
-  //   }
-  // ))
-  // console.log(mockOrders)
   const [notifications, setNotifications] = useState([
     { id: 1, message: "New order received from John Doe", type: "info", time: "2 min ago" },
     { id: 2, message: "Order ORD-003 has been shipped", type: "success", time: "5 min ago" },
@@ -799,7 +784,7 @@ const OrderManagement = () => {
                         </div>
                         <div className="flex items-center gap-3">
                           <Phone className="h-4 w-4 text-gray-400" />
-                          <span className="text-gray-300">{selectedOrder?.payment_details?.manual?.senderNumber}</span>
+                          <span className="text-gray-300">{selectedOrder?.payment_details?.manual?.senderNumber || "018XXXXXXXX"}</span>
                         </div>
                         <div className="flex flex-col items-start gap-3">
                           {/* <MapPin className="h-4 w-4 text-gray-400 mt-1" /> */}
