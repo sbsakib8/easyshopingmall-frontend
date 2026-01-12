@@ -1,8 +1,8 @@
 "use client"
 import { useGetAllOrders } from "@/src/utlis/useGetAllOrders"
 import { OrderUpdate } from "@/src/utlis/useOrder"
-import { ChevronLeft, ChevronRight, Trash2 } from "lucide-react"
-import { useMemo, useState } from "react"
+import { ChevronLeft, ChevronRight, CircleX, Cross, ShoppingCart, Trash2, Truck } from "lucide-react"
+import { useEffect, useMemo, useState } from "react"
 
 // const mockOrders = [
 //   {
@@ -68,6 +68,7 @@ const PendingOrdersPage = () => {
   const [showModal, setShowModal] = useState(false)
   const [filterBy, setFilterBy] = useState("all")
   const [status, setStatus] = useState('')
+    const [animateCards, setAnimateCards] = useState(false)
   const [confirmationModal, setConfirmationModal] = useState(false)
   const { allOrders, loading: ordersLoading, refetch } = useGetAllOrders()
   const itemsPerPage = 2
@@ -83,6 +84,9 @@ const PendingOrdersPage = () => {
   //   if (filterBy === "all") return matchesSearch
   //   return matchesSearch && order.paymentMethod.toLowerCase() === filterBy.toLowerCase()
   // })
+   useEffect(() => {
+      setAnimateCards(true)
+    }, [])
   const filteredOrders = useMemo(() => {
 
     const filtered = allOrders?.filter((order) => {
@@ -118,6 +122,15 @@ const PendingOrdersPage = () => {
     return filtered
   }, [searchTerm, allOrders])
 
+  // Calculate statistics
+  const stats = useMemo(() => {
+    const total = allOrders?.length
+    const cancelled = allOrders?.filter((o) => o?.order_status === "cancelled")?.length
+    const shipped = allOrders?.filter((o) => o?.order_status === "shipped")?.length
+
+    return { total, shipped, cancelled }
+  }, [allOrders])
+
   // Pagination
   const totalPages = Math.ceil(filteredOrders?.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
@@ -140,9 +153,9 @@ const PendingOrdersPage = () => {
       refetch()
     }
   }
-  const handleStatusChange = async() => {
-    console.log("confierm",selectedOrder?._id, status)
-     const res = await OrderUpdate(selectedOrder?._id, status)
+  const handleStatusChange = async () => {
+    console.log("confierm", selectedOrder?._id, status)
+    const res = await OrderUpdate(selectedOrder?._id, status)
     console.log(res)
     if (res.success) {
       setConfirmationModal(false)
@@ -205,6 +218,37 @@ const PendingOrdersPage = () => {
             </div>
           </div>
 
+          {/* over view section  */}
+          <div
+            className={`grid grid-cols-1 md:grid-cols-3 gap-6 transform transition-all duration-1000 delay-200 ${animateCards ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"} mb-8`}
+          >
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+              <div className="absolute top-0 right-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
+              <div className="relative">
+                <ShoppingCart className="h-8 w-8 mb-3 text-blue-400" />
+                <p className="text-gray-400 text-sm">Total Orders</p>
+                <p className="text-3xl font-bold text-white">{stats?.total}</p>
+              </div>
+            </div>
+
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/10 rounded-full -translate-y-10 translate-x-10"></div>
+              <div className="relative">
+                <CircleX className="h-8 w-8 mb-3 text-red-400" />
+                <p className="text-gray-400 text-sm">Cancelled</p>
+                <p className="text-3xl font-bold text-white">{stats?.cancelled}</p>
+              </div>
+            </div>
+
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-orange-500/10 rounded-full -translate-y-10 translate-x-10"></div>
+              <div className="relative">
+                <Truck className="h-8 w-8 mb-3 text-orange-400" />
+                <p className="text-gray-400 text-sm">Shipped</p>
+                <p className="text-3xl font-bold text-white">{stats?.shipped}</p>
+              </div>
+            </div>
+          </div>
 
           {/* Search and Filter Bar */}
           <div className="mb-6 flex flex-col md:flex-row gap-4 items-center justify-between">
@@ -519,7 +563,7 @@ const PendingOrdersPage = () => {
               <div className="p-3 bg-pink-500/20 rounded-full">
                 <Trash2 className="w-8 h-8 text-pink-500" />
               </div>
-              <h2 className="text-2xl font-bold text-white"> {status==="shipped"?"Approve":"Reject"} Product</h2>
+              <h2 className="text-2xl font-bold text-white"> {status === "shipped" ? "Approve" : "Reject"} Product</h2>
             </div>
 
             <p className="text-gray-300 mb-6">
@@ -531,7 +575,7 @@ const PendingOrdersPage = () => {
                 onClick={() => handleStatusChange()}
                 className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-semibold rounded-lg transition-all transform hover:scale-105"
               >
-               {status==="shipped"?"Approve":"Reject"}
+                {status === "shipped" ? "Approve" : "Reject"}
               </button>
               <button
                 onClick={() => {
