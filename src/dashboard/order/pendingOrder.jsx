@@ -181,8 +181,8 @@ const PendingOrdersPage = () => {
 
   if (ordersLoading) return <p>Loading...</p>
   // console.log("allorders---->",allOrders)
-  // console.log("filterorders---->", filteredOrders)
-  console.log("status---->", status)
+  console.log("filterorders---->", filteredOrders)
+  // console.log("status---->", status)
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 relative overflow-hidden">
       {/* Animated Background Elements */}
@@ -347,7 +347,7 @@ const PendingOrdersPage = () => {
                     <span className="text-green-400 font-bold text-lg">৳{order?.totalAmt}</span>
                   </div>
 
-                  <p className="text-gray-400 text-sm">Payment: {order?.payment_method}</p>
+                  <p className="text-white font-bold text-sm flex justify-between">Payment Method: <span className="text-gray-400 font-semibold">{order?.payment_method}</span> </p>
                 </div>
 
                 {/* Action Buttons */}
@@ -479,6 +479,9 @@ const PendingOrdersPage = () => {
                     </div>
                     <p className="text-gray-300">
                       <span className="text-gray-500">Payment:</span> {selectedOrder?.payment_method}
+                    </p>
+                    <p className="text-gray-300">
+                      <span className="text-gray-500">Provider Name:</span> {selectedOrder?.payment_details?.manual?.provider}
                     </p>
                   </div>
                 </div>
