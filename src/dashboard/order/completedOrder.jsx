@@ -29,7 +29,7 @@ const CompletedOrdersPage = () => {
 
     // Filter orders based on search term and filters
     const filteredOrders = useMemo(() => {
-            const filtered = allOrders?.filter((order) => {
+        const filtered = allOrders?.filter((order) => {
             const customerName = order?.userId?.name || "user"
             const customerEmail = order?.userId?.email || "user@damy.com"
             const matchesSearch =
@@ -230,7 +230,7 @@ const CompletedOrdersPage = () => {
                                         className=" w-2/3 px-3 py-2 bg-blue-600/20 border border-blue-500/30 text-blue-300 rounded-lg hover:bg-blue-600/30 transition-colors duration-200 text-sm font-medium cursor-pointer absolute bottom-3"
                                     >
                                         Details
-                                    </button>                       
+                                    </button>
                                 </div>
                             </div>
                         ))}
@@ -326,7 +326,7 @@ const CompletedOrdersPage = () => {
 
                                 {/* Right Column */}
                                 <div className="space-y-6">
-                                   
+
                                     {/* Order Items */}
                                     <div>
                                         <h3 className="text-lg font-semibold text-white mb-3">Order Items</h3>
@@ -334,13 +334,18 @@ const CompletedOrdersPage = () => {
                                             {selectedOrder?.products?.map((item, index) => (
                                                 <div key={index} className="flex justify-between items-center bg-gray-800/50 p-3 rounded-lg">
                                                     <div className="flex gap-2">
-                                                        <img className="w-12 h-12 rounded-sm" src={item?.image[0]} alt="" />
+                                                        <img className="w-15 h-15 rounded-sm object-cover" src={item?.image[0]} alt="" />
                                                         <div>
                                                             <p className="text-white font-medium">{item?.name}</p>
                                                             <p className="text-gray-400 text-sm">Quantity: {item?.quantity}</p>
+                                                            <p className="text-gray-400 text-sm">Color: {item?.color || "none"}</p>
+                                                            <p className="text-gray-400 text-sm">Size: {item?.size || "none"}</p>
                                                         </div>
                                                     </div>
-                                                    <p className="text-green-400 font-semibold">৳{item?.price}</p>
+                                                    <div className="text-right">
+                                                        <p className="text-lg font-bold text-green-400">৳{item?.price.toFixed(2)}</p>
+                                                        <p className="text-sm text-gray-500">each</p>
+                                                    </div>
                                                 </div>
                                             ))}
                                         </div>

@@ -70,11 +70,11 @@ const ShippedOrdersPage = () => {
   // Calculate statistics
   const stats = useMemo(() => {
     const total = allOrders?.length
-     const completed = allOrders?.filter((o) => o?.order_status === "completed")?.length
+    const completed = allOrders?.filter((o) => o?.order_status === "completed")?.length
     const cancelled = allOrders?.filter((o) => o?.order_status === "cancelled")?.length
     const shipped = allOrders?.filter((o) => o?.order_status === "shipped")?.length
 
-    return { total, shipped, cancelled,completed }
+    return { total, shipped, cancelled, completed }
   }, [allOrders])
 
   // Pagination
@@ -125,7 +125,7 @@ const ShippedOrdersPage = () => {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
     return diffDays
   }
-  if (ordersLoading) return <DashboardLoader/>
+  if (ordersLoading) return <DashboardLoader />
   // console.log("allorders---->",allOrders)
   // console.log("filterorders---->", filteredOrders)
   // console.log("status---->", status)
@@ -196,14 +196,14 @@ const ShippedOrdersPage = () => {
                 <p className="text-3xl font-bold text-white">{stats?.shipped || 0}</p>
               </div>
             </div>
-              <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/10 rounded-full -translate-y-10 translate-x-10"></div>
-            <div className="relative">
-              <CheckCircle className="h-8 w-8 mb-3 text-green-400" />
-              <p className="text-gray-400 text-sm">Completed</p>
-              <p className="text-3xl font-bold text-white">{stats?.completed || 0}</p>
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/10 rounded-full -translate-y-10 translate-x-10"></div>
+              <div className="relative">
+                <CheckCircle className="h-8 w-8 mb-3 text-green-400" />
+                <p className="text-gray-400 text-sm">Completed</p>
+                <p className="text-3xl font-bold text-white">{stats?.completed || 0}</p>
+              </div>
             </div>
-          </div>
           </div>
           <div className="mb-6 flex flex-col lg:flex-row gap-4 items-center justify-between">
             <div className="relative flex-1 max-w-md">
@@ -316,9 +316,9 @@ const ShippedOrdersPage = () => {
                   {order.order_status === "shipped" && (
                     <button
                       onClick={() => {
-                      setStatus("completed")
-                      setSelectedOrder(order)
-                      setConfirmationModal(true)
+                        setStatus("completed")
+                        setSelectedOrder(order)
+                        setConfirmationModal(true)
                       }}
                       className="flex-1 px-3 py-2 bg-green-600/20 border border-green-500/30 text-green-300 rounded-lg hover:bg-green-600/30 transition-colors duration-200 text-sm font-medium cursor-pointer"
                     >
@@ -412,54 +412,54 @@ const ShippedOrdersPage = () => {
                 <div className="space-y-6">
                   {/* Order Info */}
                   <div className="grid md:grid-cols-1 gap-6 mb-6">
-                <div>
-                  <h3 className="text-lg font-semibold text-white mb-3">Order Information</h3>
-                  <div className="space-y-2">
-                    <p className="text-gray-300">
-                      <span className="text-gray-500">Order ID:</span> {selectedOrder?.orderId}
-                    </p>
-                    <p className="text-gray-300">
-                      <span className="text-gray-500">Date:</span> {formatDate(selectedOrder?.updatedAt)}
-                    </p>
-                    <div className="text-gray-300 flex gap-3">
-                      <span className="text-gray-500">Order Status:</span>{" "}
-                      <p className={`px-3 py-1 text-sm ${statusColors[selectedOrder?.order_status]} rounded-full text-yellow-300 font-medium`}>
-                        {selectedOrder?.order_status}
-                      </p>
+                    <div>
+                      <h3 className="text-lg font-semibold text-white mb-3">Order Information</h3>
+                      <div className="space-y-2">
+                        <p className="text-gray-300">
+                          <span className="text-gray-500">Order ID:</span> {selectedOrder?.orderId}
+                        </p>
+                        <p className="text-gray-300">
+                          <span className="text-gray-500">Date:</span> {formatDate(selectedOrder?.updatedAt)}
+                        </p>
+                        <div className="text-gray-300 flex gap-3">
+                          <span className="text-gray-500">Order Status:</span>{" "}
+                          <p className={`px-3 py-1 text-sm ${statusColors[selectedOrder?.order_status]} rounded-full text-yellow-300 font-medium`}>
+                            {selectedOrder?.order_status}
+                          </p>
+                        </div>
+                        <p className="text-gray-300">
+                          <span className="text-gray-500">Payment:</span> {selectedOrder?.payment_method}
+                        </p>
+                        <p className="text-gray-300">
+                          <span className="text-gray-500">Provider Name:</span> {selectedOrder?.payment_details?.manual?.provider}
+                        </p>
+                      </div>
                     </div>
-                    <p className="text-gray-300">
-                      <span className="text-gray-500">Payment:</span> {selectedOrder?.payment_method}
-                    </p>
-                    <p className="text-gray-300">
-                      <span className="text-gray-500">Provider Name:</span> {selectedOrder?.payment_details?.manual?.provider}
-                    </p>
-                  </div>
-                </div>
 
-                
-              </div>
+
+                  </div>
 
                   {/* Customer Info */}
                   <div>
-                  <h3 className="text-lg font-semibold text-white mb-3">Customer Information</h3>
-                  <div className="space-y-2">
-                    <p className="text-gray-300">
-                      <span className="text-gray-500">Name:</span> {selectedOrder?.userId?.email}
-                    </p>
-                    <p className="text-gray-300">
-                      <span className="text-gray-500">Email:</span> {selectedOrder?.userId?.name}
-                    </p>
-                    <p className="text-gray-300">
-                      <span className="text-gray-500">Phone:</span> {selectedOrder?.payment_method === "manual" ? selectedOrder?.payment_details?.manual?.senderNumber : selectedOrder?.address?.mobile}
-                    </p>
+                    <h3 className="text-lg font-semibold text-white mb-3">Customer Information</h3>
+                    <div className="space-y-2">
+                      <p className="text-gray-300">
+                        <span className="text-gray-500">Name:</span> {selectedOrder?.userId?.email}
+                      </p>
+                      <p className="text-gray-300">
+                        <span className="text-gray-500">Email:</span> {selectedOrder?.userId?.name}
+                      </p>
+                      <p className="text-gray-300">
+                        <span className="text-gray-500">Phone:</span> {selectedOrder?.payment_method === "manual" ? selectedOrder?.payment_details?.manual?.senderNumber : selectedOrder?.address?.mobile}
+                      </p>
+                    </div>
                   </div>
-                </div>
 
                   {/* Shipping Address */}
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold text-white mb-3">Shipping Address</h3>
-                <p className="text-gray-300 bg-gray-800/50 p-3 rounded-lg">{selectedOrder?.address?.upazila_thana}, {selectedOrder?.address?.district}</p>
-              </div>
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold text-white mb-3">Shipping Address</h3>
+                    <p className="text-gray-300 bg-gray-800/50 p-3 rounded-lg">{selectedOrder?.address?.upazila_thana}, {selectedOrder?.address?.district}</p>
+                  </div>
                 </div>
 
                 {/* Right Column */}
@@ -504,20 +504,25 @@ const ShippedOrdersPage = () => {
                       {selectedOrder?.products?.map((item, index) => (
                         <div key={index} className="flex justify-between items-center bg-gray-800/50 p-3 rounded-lg">
                           <div className="flex gap-2">
-                             <img className="w-12 h-12 rounded-sm" src={item?.image[0]} alt="" />
-                           <div>
-                          <p className="text-white font-medium">{item?.name}</p>
-                          <p className="text-gray-400 text-sm">Quantity: {item?.quantity}</p>
-                        </div>
+                            <img className="w-15 h-15 rounded-sm object-cover" src={item?.image[0]} alt="" />
+                            <div>
+                              <p className="text-white font-medium">{item?.name}</p>
+                              <p className="text-gray-400 text-sm">Quantity: {item?.quantity}</p>
+                              <p className="text-gray-400 text-sm">Color: {item?.color || "none"}</p>
+                              <p className="text-gray-400 text-sm">Size: {item?.size || "none"}</p>
+                            </div>
                           </div>
-                      <p className="text-green-400 font-semibold">৳{item?.price}</p>
+                          <div className="text-right">
+                            <p className="text-lg font-bold text-green-400">৳{item?.price.toFixed(2)}</p>
+                            <p className="text-sm text-gray-500">each</p>
+                          </div>
                         </div>
                       ))}
                     </div>
-                     <div className="flex justify-between items-center m-2">
-                  <span className="text-white font-semibold">Delivery Charge:</span>
-                  <span className="text-green-400 font-bold text-lg">৳{selectedOrder?.deliveryCharge}</span>
-                </div>
+                    <div className="flex justify-between items-center m-2">
+                      <span className="text-white font-semibold">Delivery Charge:</span>
+                      <span className="text-green-400 font-bold text-lg">৳{selectedOrder?.deliveryCharge}</span>
+                    </div>
                     <div className="mt-4 pt-4 border-t border-gray-700">
                       <div className="flex justify-between items-center">
                         <span className="text-xl font-bold text-white">Total:</span>
@@ -533,10 +538,10 @@ const ShippedOrdersPage = () => {
                 {selectedOrder.order_status === "shipped" && (
                   <button
                     onClick={() => {
-                      
+
                       setStatus("completed")
                       setConfirmationModal(true)
-                    
+
                     }}
                     className="flex-1 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors duration-200 cursor-pointer"
                   >
@@ -545,27 +550,27 @@ const ShippedOrdersPage = () => {
                 )}
                 <button
                   onClick={() => {
-                      setStatus("cancelled")
-                      setConfirmationModal(true)
-                    }}
+                    setStatus("cancelled")
+                    setConfirmationModal(true)
+                  }}
                   className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white rounded-lg font-medium transition-colors duration-200 cursor-pointer"
                 >
-                 Cancel Order
+                  Cancel Order
                 </button>
               </div>
             </div>
           </div>
         )}
       </div>
-       {/* confirmation modal  */}
+      {/* confirmation modal  */}
       {confirmationModal &&
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
           <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-pink-500/30 max-w-md w-full p-6 animate-slideUp">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-3 bg-pink-500/20 rounded-full">
-              {status === "completed" ? <CircleCheckBig className="w-8 h-8 text-green-500" /> : <Trash2 className="w-8 h-8 text-pink-500" />}
-                
-                
+                {status === "completed" ? <CircleCheckBig className="w-8 h-8 text-green-500" /> : <Trash2 className="w-8 h-8 text-pink-500" />}
+
+
               </div>
               <h2 className="text-2xl font-bold text-white"> {status === "cancelled" ? "Cancelled" : "Delivered"} Product</h2>
             </div>
@@ -579,7 +584,7 @@ const ShippedOrdersPage = () => {
                 onClick={() => handleStatusChange()}
                 className={`flex-1 px-6 py-3 ${status === "completed" ? "bg-gradient-to-r from-green-500 to-green-500 hover:from-green-600 hover:to-green-600" : "bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600"}  text-white font-semibold rounded-lg transition-all transform hover:scale-105 cursor-pointer`}
               >
-                {status === "cancelled" ? "Confirmed" : "Delivered"} 
+                {status === "cancelled" ? "Confirmed" : "Delivered"}
               </button>
               <button
                 onClick={() => {

@@ -272,14 +272,14 @@ const PendingOrdersPage = () => {
             </select> */}
 
               <div className="px-4 py-3 bg-blue-600/20 border border-blue-500/30 rounded-xl text-blue-300 font-medium backdrop-blur-sm">
-                {filteredOrders.length} Orders
+                {filteredOrders?.length} Orders
               </div>
             </div>
           </div>
 
           {/* Orders Grid */}
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {paginatedOrders.map((order) => (
+            {paginatedOrders?.map((order) => (
               <div
                 key={order.id}
                 className="bg-gray-800/30 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-6 hover:bg-gray-800/50 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/10"
@@ -433,16 +433,17 @@ const PendingOrdersPage = () => {
         {/* Order Details Modal */}
         {showModal && selectedOrder && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div className="bg-gray-900/95 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="bg-gray-900/95 backdrop-blur-sm border border-gray-900 rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto ">
               {/* Modal Header */}
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-white">Order Details</h2>
-                <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-white transition-colors">
+               <div className="flex justify-end  items-center sticky -top-2 right-0">
+                <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-red-400 transition-colors cursor-pointer bg-red-500/40 rounded-2xl p-1">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
+              <h2 className="text-2xl font-bold text-white mb-6">Order Details</h2>
+             
 
               {/* Order Info */}
               <div className="grid md:grid-cols-2 gap-6 mb-6">
@@ -499,13 +500,18 @@ const PendingOrdersPage = () => {
                   {selectedOrder?.products.map((item, index) => (
                     <div key={index} className="flex justify-between items-center bg-gray-800/50 p-3 rounded-lg">
                       <div className="flex gap-2">
-                        <img className="w-12 h-12 rounded-sm" src={item?.image[0]} alt="" />
+                        <img className="w-15 h-15 rounded-sm object-cover" src={item?.image[0]} alt="" />
                         <div>
                           <p className="text-white font-medium">{item?.name}</p>
                           <p className="text-gray-400 text-sm">Quantity: {item?.quantity}</p>
+                          <p className="text-gray-400 text-sm">Color: {item?.color ||"none"}</p>
+                          <p className="text-gray-400 text-sm">Size: {item?.size || "none"}</p>
                         </div>
                       </div>
-                      <p className="text-green-400 font-semibold">৳{item?.price}</p>
+                      <div className="text-right">
+                                <p className="text-lg font-bold text-green-400">৳{item?.price.toFixed(2)}</p>
+                                <p className="text-sm text-gray-500">each</p>
+                              </div>
                     </div>
                   ))}
                 </div>

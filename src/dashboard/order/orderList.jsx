@@ -197,7 +197,7 @@ const OrderManagement = () => {
     { id: 2, message: "Order ORD-003 has been shipped", type: "success", time: "5 min ago" },
     { id: 3, message: "Payment failed for order ORD-007", type: "error", time: "10 min ago" },
   ])
-  
+
 
   useEffect(() => {
     setAnimateCards(true)
@@ -793,9 +793,9 @@ const OrderManagement = () => {
                           {selectedOrder?.address?.district && <h3 className="font-bold text-white">District: <span className="text-gray-300 font-normal">{selectedOrder?.address?.district || "None"}</span></h3>}
                           <h3 className="font-bold text-white">District: <span className="text-gray-300 font-normal">{selectedOrder?.address?.district || "None"}</span></h3>
                           {selectedOrder?.address?.division && <h3 className="font-bold text-white">Division: <span className="text-gray-300 font-normal">{selectedOrder?.address?.division || "None"}</span></h3>}
-                          
+
                           {selectedOrder?.address?.pincode && <h3 className="font-bold text-white">Pincode: <span className="text-gray-300 font-normal">{selectedOrder?.address?.pincode || "None"}</span></h3>}
-                          
+
                           <h3 className="font-bold text-white">Upazila Thana: <span className="text-gray-300 font-normal">{selectedOrder?.address?.upazila_thana || "None"}</span></h3>
                         </div>
                       </div>
@@ -856,46 +856,46 @@ const OrderManagement = () => {
                         </div>
                         {/* payment manual  */}
                         {
-                        selectedOrder?.payment_method==="manual"&&<>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Provider Name:</span>
-                          <span className="font-medium text-white">{selectedOrder?.payment_details?.manual?.provider || "None"}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Transaction Id:</span>
-                          <span className="font-medium text-white">{selectedOrder?.payment_details?.manual?.transactionId}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Paid For :</span>
-                          {selectedOrder?.payment_details?.manual?.paidFor && <span className="font-medium text-white">{selectedOrder?.payment_details?.manual?.paidFor || "None"} </span>}
-                          
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Provider Number:</span>
-                          <span className="font-medium text-white">{selectedOrder?.payment_details?.manual?.senderNumber ||"None"}</span>
-                        </div>
-                        </>
+                          selectedOrder?.payment_method === "manual" && <>
+                            <div className="flex justify-between">
+                              <span className="text-gray-400">Provider Name:</span>
+                              <span className="font-medium text-white">{selectedOrder?.payment_details?.manual?.provider || "None"}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-400">Transaction Id:</span>
+                              <span className="font-medium text-white">{selectedOrder?.payment_details?.manual?.transactionId}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-400">Paid For :</span>
+                              {selectedOrder?.payment_details?.manual?.paidFor && <span className="font-medium text-white">{selectedOrder?.payment_details?.manual?.paidFor || "None"} </span>}
+
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-400">Provider Number:</span>
+                              <span className="font-medium text-white">{selectedOrder?.payment_details?.manual?.senderNumber || "None"}</span>
+                            </div>
+                          </>
                         }
 
                         {/* payment ssl  */}
                         {
-                        selectedOrder?.payment_method==="sslcommerz"&&<>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Transaction Id:</span>
-                          <span className="ml-2 text-xs text-white">{selectedOrder?.payment_details?.tran_id || "None"}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Transaction Date:</span>
-                          <span className="font-medium text-white">{new Date(selectedOrder?.payment_details?.tran_date || "None").toLocaleDateString()}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Card Issuer:</span>
-                          <span className="font-medium text-white">{selectedOrder?.payment_details?.card_issuer || "None"}</span>
-                        </div>
-                        
-                        </>
+                          selectedOrder?.payment_method === "sslcommerz" && <>
+                            <div className="flex justify-between">
+                              <span className="text-gray-400">Transaction Id:</span>
+                              <span className="ml-2 text-xs text-white">{selectedOrder?.payment_details?.tran_id || "None"}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-400">Transaction Date:</span>
+                              <span className="font-medium text-white">{new Date(selectedOrder?.payment_details?.tran_date || "None").toLocaleDateString()}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-400">Card Issuer:</span>
+                              <span className="font-medium text-white">{selectedOrder?.payment_details?.card_issuer || "None"}</span>
+                            </div>
+
+                          </>
                         }
-                        
+
                         <div className="flex justify-between">
                           <span className="text-gray-400">Amount Due:</span>
                           <span className="font-medium text-white">৳{selectedOrder?.amount_due}</span>
@@ -942,10 +942,14 @@ const OrderManagement = () => {
                             className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 rounded-xl p-2 shadow-sm border border-gray-700 hover:border-gray-600 transition-colors duration-300"
                           >
                             <div className="flex justify-between items-center">
-                              <img className="w-12 h-12 object-cover object-top rounded-sm mr-1" src={item?.image[0]} alt="product photo" />
-                              <div>
-                                <h4 className=" text-sm text-white">{item?.name}</h4>
-                                <p className="text-xs text-gray-400">Quantity: {item?.quantity}</p>
+                              <div className="flex ">
+                                <img className="w-15 h-15 object-cover object-top rounded-sm mr-1" src={item?.image[0]} alt="product photo" />
+                                <div>
+                                  <h4 className=" text-xs text-white">{item?.name}</h4>
+                                  <p className="text-xs text-gray-400">Quantity: {item?.quantity}</p>
+                                  <p className="text-gray-400 text-xs">Color: {item?.color || "none"}</p>
+                                  <p className="text-gray-400 text-xs">Size: {item?.size || "none"}</p>
+                                </div>
                               </div>
                               <div className="text-right">
                                 <p className="text-lg font-bold text-green-400">৳{item?.price.toFixed(2)}</p>
