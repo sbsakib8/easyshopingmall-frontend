@@ -387,9 +387,9 @@ const Header = () => {
             </Link>
           </div>
         </div>
-      <div className="bg-gradient-to-r from-amber-400 via-yellow-400 to-orange-400 py-2 overflow-hidden border-y border-yellow-500/30 hidden sm:block">
-        <marquee behavior="scroll" direction="left" scrollamount="8" className="text-sm font-semibold text-gray-800">
-          🔥 Flash Sale: Up to 70% OFF on Selected Items! ⚡ Free Shipping on Orders Over $50 🎁 Buy 2 Get 1 Free 💎 New Arrivals Live! 🌟 Extra 20% OFF Code: SAVE20 🚀 Same Day Delivery Available
+      <div className="py-2 overflow-hidden hidden sm:block bg-gradient-to-r from-amber-400 via-yellow-400 to-orange-400">
+        <marquee behavior="scroll" direction="left" scrollamount="8" loop="infinite" className="text-sm font-semibold text-gray-800">
+          🔥 Flash Sale: Up to 70% OFF on Selected Items! ⚡ Free Shipping on Orders Over $50 | 🎁 Buy 2 Get 1 Free | 💎 New Arrivals Exclusive Collection | 🌟 Extra 20% OFF with Code: SAVE20 | 🚀 Same Day Delivery
         </marquee>
       </div>
       </div>

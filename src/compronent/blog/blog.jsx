@@ -282,7 +282,7 @@ if(loading || CatLoading) return <LoadingPage></LoadingPage>
             <input
               type="email"
               placeholder="আপনার ইমেইল ঠিকানা"
-              className="flex-1 px-6 py-3 rounded-full text-gray-800 focus:outline-none focus:ring-2 focus:ring-white/50"
+              className="flex-1 px-6 py-3 rounded-full bg-white border-1 text-gray-800 focus:outline-none focus:ring-2 focus:ring-white/50"
             />
             <button onClick={handleSubscribe} className="bg-white cursor-pointer text-teal-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transform hover:scale-105 transition-all duration-300">
               {subscribe ? 'subscribed' : 'subscribe'}
