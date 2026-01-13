@@ -296,7 +296,8 @@ const ShippedOrdersPage = () => {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex gap-2">
+                <div className="py-6 ">
+                  <div className="flex gap-2 absolute bottom-3 left-2 right-2">
                   <button
                     onClick={() => handleViewDetails(order)}
                     className="flex-1 px-3 py-2 bg-blue-600/20 border border-blue-500/30 text-blue-300 rounded-lg hover:bg-blue-600/30 transition-colors duration-200 text-sm font-medium cursor-pointer"
@@ -325,6 +326,7 @@ const ShippedOrdersPage = () => {
                       Delivered
                     </button>
                   )}
+                </div>
                 </div>
               </div>
             ))}
