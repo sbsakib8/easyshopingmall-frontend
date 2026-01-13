@@ -39,114 +39,6 @@ import { useGetAllOrders } from "@/src/utlis/useGetAllOrders"
 import { OrderUpdate } from "@/src/utlis/useOrder"
 import DashboardLoader from "@/src/helper/loading/DashboardLoader"
 
-
-// const mockOrders = [
-//   {
-//     id: "ORD-001",
-//     customerName: "John Doe",
-//     customerEmail: "john@example.com",
-//     customerPhone: "+1 234 567 8900",
-//     orderDate: "2024-01-15",
-//     status: "completed",
-//     total: 299.99,
-//     priority: "high",
-//     rating: 5,
-//     items: [
-//       { name: "Wireless Headphones", quantity: 1, price: 199.99 },
-//       { name: "Phone Case", quantity: 2, price: 50.0 },
-//     ],
-//     shippingAddress: "123 Main St, New York, NY 10001",
-//     trackingNumber: "TRK123456789",
-//     estimatedDelivery: "2024-01-20",
-//   },
-//   {
-//     id: "ORD-002",
-//     customerName: "Jane Smith",
-//     customerEmail: "jane@example.com",
-//     customerPhone: "+1 234 567 8901",
-//     orderDate: "2024-01-14",
-//     status: "pending",
-//     total: 149.99,
-//     priority: "medium",
-//     rating: null,
-//     items: [{ name: "Bluetooth Speaker", quantity: 1, price: 149.99 }],
-//     shippingAddress: "456 Oak Ave, Los Angeles, CA 90210",
-//     trackingNumber: null,
-//     estimatedDelivery: "2024-01-22",
-//   },
-//   {
-//     id: "ORD-003",
-//     customerName: "Mike Johnson",
-//     customerEmail: "mike@example.com",
-//     customerPhone: "+1 234 567 8902",
-//     orderDate: "2024-01-13",
-//     status: "shipped",
-//     total: 599.99,
-//     priority: "high",
-//     rating: 4,
-//     items: [
-//       { name: "Laptop Stand", quantity: 1, price: 99.99 },
-//       { name: "Wireless Mouse", quantity: 1, price: 79.99 },
-//       { name: "Keyboard", quantity: 1, price: 420.01 },
-//     ],
-//     shippingAddress: "789 Pine St, Chicago, IL 60601",
-//     trackingNumber: "TRK987654321",
-//     estimatedDelivery: "2024-01-18",
-//   },
-//   {
-//     id: "ORD-004",
-//     customerName: "Sarah Wilson",
-//     customerEmail: "sarah@example.com",
-//     customerPhone: "+1 234 567 8903",
-//     orderDate: "2024-01-12",
-//     status: "cancelled",
-//     total: 89.99,
-//     priority: "low",
-//     rating: 2,
-//     items: [{ name: "USB Cable", quantity: 3, price: 29.99 }],
-//     shippingAddress: "321 Elm St, Miami, FL 33101",
-//     trackingNumber: null,
-//     estimatedDelivery: null,
-//   },
-//   {
-//     id: "ORD-005",
-//     customerName: "David Brown",
-//     customerEmail: "david@example.com",
-//     customerPhone: "+1 234 567 8904",
-//     orderDate: "2024-01-11",
-//     status: "processing",
-//     total: 1299.99,
-//     priority: "high",
-//     rating: null,
-//     items: [
-//       { name: "Gaming Monitor", quantity: 1, price: 899.99 },
-//       { name: "HDMI Cable", quantity: 2, price: 200.0 },
-//     ],
-//     shippingAddress: "654 Maple Dr, Seattle, WA 98101",
-//     trackingNumber: "TRK456789123",
-//     estimatedDelivery: "2024-01-25",
-//   },
-//   {
-//     id: "ORD-006",
-//     customerName: "Emily Chen",
-//     customerEmail: "emily@example.com",
-//     customerPhone: "+1 234 567 8905",
-//     orderDate: "2024-01-10",
-//     status: "completed",
-//     total: 749.99,
-//     priority: "medium",
-//     rating: 5,
-//     items: [
-//       { name: "Smartwatch", quantity: 1, price: 399.99 },
-//       { name: "Watch Band", quantity: 1, price: 49.99 },
-//       { name: "Wireless Charger", quantity: 1, price: 299.99 },
-//     ],
-//     shippingAddress: "987 Cedar Ln, Austin, TX 78701",
-//     trackingNumber: "TRK789123456",
-//     estimatedDelivery: "2024-01-16",
-//   },
-// ]
-
 const statusColors = {
   pending: "bg-gradient-to-r from-yellow-400 to-orange-400 text-white shadow-lg shadow-yellow-500/25",
   processing: "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/25",
@@ -175,7 +67,6 @@ const OrderManagement = () => {
 
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
-  // const [priorityFilter, setPriorityFilter] = useState("all")
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [showModal, setShowModal] = useState(false)
@@ -190,14 +81,13 @@ const OrderManagement = () => {
   const [confirmationModal, setConfirmationModal] = useState(false)
   const { allOrders, loading: ordersLoading, refetch } = useGetAllOrders()
   const itemsPerPage = 12
-  // console.log("allorders---->",allOrders)
 
   const [notifications, setNotifications] = useState([
     { id: 1, message: "New order received from John Doe", type: "info", time: "2 min ago" },
     { id: 2, message: "Order ORD-003 has been shipped", type: "success", time: "5 min ago" },
     { id: 3, message: "Payment failed for order ORD-007", type: "error", time: "10 min ago" },
   ])
-  
+
 
   useEffect(() => {
     setAnimateCards(true)
@@ -213,7 +103,6 @@ const OrderManagement = () => {
         order?.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
         customerEmail.toLowerCase().includes(searchTerm.toLowerCase())
       const matchesStatus = order?.order_status === "pending"
-      // const matchesPriority = priorityFilter === "all" || order.priority === priorityFilter
       return matchesSearch && matchesStatus
     })
     // Sort orders
@@ -318,8 +207,7 @@ const OrderManagement = () => {
     }
   }
   if (ordersLoading) return <DashboardLoader />
-  // console.log("all orders ----->",allOrders)
-  console.log("filtered---->", filteredOrders)
+ 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 p-6 overflow-hidden">
       <div className="transition-all duration-500 lg:ml-15 py-5 px-2 lg:px-9 mx-auto space-y-8">
@@ -421,52 +309,10 @@ const OrderManagement = () => {
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="w-full pl-12 pr-4 py-3 bg-gradient-to-r from-gray-700/50 to-gray-800/50 backdrop-blur-sm border border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 text-white placeholder-gray-400"
                     />
-                  </div>
-                  {/* status filter  */}
-                  {/* <div className="flex gap-3">
-                    <select
-                      value={statusFilter}
-                      onChange={(e) => setStatusFilter(e.target.value)}
-                      className="px-4 py-3 bg-gradient-to-r from-gray-700/50 to-gray-800/50 backdrop-blur-sm border border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 text-white"
-                    >
-                      <option className="bg-[#1A2533]" value="all">All Status</option>
-                      <option className="bg-[#1A2533]" value="pending">Pending</option>
-                      <option className="bg-[#1A2533]" value="processing">Processing</option>
-                      <option className="bg-[#1A2533]" value="shipped">Shipped</option>
-                      <option className="bg-[#1A2533]" value="completed">Completed</option>
-                      <option className="bg-[#1A2533]" value="cancelled">Cancelled</option>
-                    </select>
-
-                    <select
-                      value={"priorityFilter"}
-                      onChange={(e) => "setPriorityFilter(e.target.value)"}
-                      className="px-4 py-3 bg-gradient-to-r from-gray-700/50 to-gray-800/50 backdrop-blur-sm border border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 text-white"
-                    >
-                      <option className="bg-[#1A2533]" value="all">All Priority</option>
-                      <option className="bg-[#1A2533]" value="high">High Priority</option>
-                      <option className="bg-[#1A2533]" value="medium">Medium Priority</option>
-                      <option className="bg-[#1A2533]" value="low">Low Priority</option>
-                    </select>
-                  </div> */}
+                  </div>       
+                 
                 </div>
-
-                <div className="flex gap-3">
-                  {/* <button
-                    onClick={() => setShowFilters(!showFilters)}
-                    className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2 hover:scale-105"
-                  >
-                    <FilterIcon className="h-4 w-4" />
-                    Filters
-                  </button> */}
-                  {/* <button className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-2xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2 hover:scale-105">
-                    <Download className="h-4 w-4" />
-                    Export
-                  </button> */}
-                  {/* <button className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2 hover:scale-105">
-                    <Plus className="h-4 w-4" />
-                    New Order
-                  </button> */}
-                </div>
+              
               </div>
 
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -488,28 +334,7 @@ const OrderManagement = () => {
                       </button>
                     </div>
                   )}
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2">
-                    {/* <button
-                      onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
-                      className="p-2 rounded-xl bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 text-white hover:border-gray-500 transition-all duration-300"
-                    >
-                      <ArrowUpDown className="h-4 w-4" />
-                    </button> */}
-                    {/* <select
-                      value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value)}
-                      className="px-3 py-2 bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 rounded-xl text-white text-sm"
-                    >
-                      <option className="bg-[#1A2533]" value="orderDate">Date</option>
-                      <option className="bg-[#1A2533]" value="total">Amount</option>
-                      <option className="bg-[#1A2533]" value="customerName">Customer</option>
-                      <option className="bg-[#1A2533]" value="status">Status</option>
-                    </select> */}
-                  </div>
-                </div>
+                </div>  
               </div>
             </div>
           </div>
@@ -600,16 +425,6 @@ const OrderManagement = () => {
                             >
                               <Eye className="h-4 w-4" />
                             </button>
-
-                            {/* <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                              }}
-                              className="p-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </button> */}
-
                             <button
                               onClick={(e) => {
                                 e.stopPropagation()
@@ -675,12 +490,7 @@ const OrderManagement = () => {
                               <Package className="h-4 w-4" />
                               {order?.products.length} item{order?.products.length > 1 ? "s" : ""}
                             </div>
-                            {/* {order.trackingNumber && (
-                              <div className="flex items-center gap-2">
-                                <Truck className="h-4 w-4" />
-                                {order.trackingNumber}
-                              </div>
-                            )} */}
+                            
                           </div>
                         </div>
                       </div>
@@ -793,9 +603,9 @@ const OrderManagement = () => {
                           {selectedOrder?.address?.district && <h3 className="font-bold text-white">District: <span className="text-gray-300 font-normal">{selectedOrder?.address?.district || "None"}</span></h3>}
                           <h3 className="font-bold text-white">District: <span className="text-gray-300 font-normal">{selectedOrder?.address?.district || "None"}</span></h3>
                           {selectedOrder?.address?.division && <h3 className="font-bold text-white">Division: <span className="text-gray-300 font-normal">{selectedOrder?.address?.division || "None"}</span></h3>}
-                          
+
                           {selectedOrder?.address?.pincode && <h3 className="font-bold text-white">Pincode: <span className="text-gray-300 font-normal">{selectedOrder?.address?.pincode || "None"}</span></h3>}
-                          
+
                           <h3 className="font-bold text-white">Upazila Thana: <span className="text-gray-300 font-normal">{selectedOrder?.address?.upazila_thana || "None"}</span></h3>
                         </div>
                       </div>
@@ -856,46 +666,46 @@ const OrderManagement = () => {
                         </div>
                         {/* payment manual  */}
                         {
-                        selectedOrder?.payment_method==="manual"&&<>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Provider Name:</span>
-                          <span className="font-medium text-white">{selectedOrder?.payment_details?.manual?.provider || "None"}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Transaction Id:</span>
-                          <span className="font-medium text-white">{selectedOrder?.payment_details?.manual?.transactionId}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Paid For :</span>
-                          {selectedOrder?.payment_details?.manual?.paidFor && <span className="font-medium text-white">{selectedOrder?.payment_details?.manual?.paidFor || "None"} </span>}
-                          
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Provider Number:</span>
-                          <span className="font-medium text-white">{selectedOrder?.payment_details?.manual?.senderNumber ||"None"}</span>
-                        </div>
-                        </>
+                          selectedOrder?.payment_method === "manual" && <>
+                            <div className="flex justify-between">
+                              <span className="text-gray-400">Provider Name:</span>
+                              <span className="font-medium text-white">{selectedOrder?.payment_details?.manual?.provider || "None"}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-400">Transaction Id:</span>
+                              <span className="font-medium text-white">{selectedOrder?.payment_details?.manual?.transactionId}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-400">Paid For :</span>
+                              {selectedOrder?.payment_details?.manual?.paidFor && <span className="font-medium text-white">{selectedOrder?.payment_details?.manual?.paidFor || "None"} </span>}
+
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-400">Provider Number:</span>
+                              <span className="font-medium text-white">{selectedOrder?.payment_details?.manual?.senderNumber || "None"}</span>
+                            </div>
+                          </>
                         }
 
                         {/* payment ssl  */}
                         {
-                        selectedOrder?.payment_method==="sslcommerz"&&<>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Transaction Id:</span>
-                          <span className="ml-2 text-xs text-white">{selectedOrder?.payment_details?.tran_id || "None"}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Transaction Date:</span>
-                          <span className="font-medium text-white">{new Date(selectedOrder?.payment_details?.tran_date || "None").toLocaleDateString()}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Card Issuer:</span>
-                          <span className="font-medium text-white">{selectedOrder?.payment_details?.card_issuer || "None"}</span>
-                        </div>
-                        
-                        </>
+                          selectedOrder?.payment_method === "sslcommerz" && <>
+                            <div className="flex justify-between">
+                              <span className="text-gray-400">Transaction Id:</span>
+                              <span className="ml-2 text-xs text-white">{selectedOrder?.payment_details?.tran_id || "None"}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-400">Transaction Date:</span>
+                              <span className="font-medium text-white">{new Date(selectedOrder?.payment_details?.tran_date || "None").toLocaleDateString()}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-400">Card Issuer:</span>
+                              <span className="font-medium text-white">{selectedOrder?.payment_details?.card_issuer || "None"}</span>
+                            </div>
+
+                          </>
                         }
-                        
+
                         <div className="flex justify-between">
                           <span className="text-gray-400">Amount Due:</span>
                           <span className="font-medium text-white">৳{selectedOrder?.amount_due}</span>
@@ -904,13 +714,7 @@ const OrderManagement = () => {
                           <span className="text-gray-400">Amount Paid:</span>
                           <span className="font-medium text-white">৳{selectedOrder?.amount_paid}</span>
                         </div>
-
-                        {/* {selectedOrder.trackingNumber && (
-                          <div className="flex justify-between">
-                            <span className="text-gray-400">Tracking:</span>
-                            <span className="font-medium text-white">{selectedOrder?.trackingNumber}</span>
-                          </div>
-                        )} */}
+    
                         {selectedOrder?.rating && (
                           <div className="flex justify-between items-center">
                             <span className="text-gray-400">Rating:</span>
@@ -942,10 +746,14 @@ const OrderManagement = () => {
                             className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 rounded-xl p-2 shadow-sm border border-gray-700 hover:border-gray-600 transition-colors duration-300"
                           >
                             <div className="flex justify-between items-center">
-                              <img className="w-12 h-12 object-cover object-top rounded-sm mr-1" src={item?.image[0]} alt="product photo" />
-                              <div>
-                                <h4 className=" text-sm text-white">{item?.name}</h4>
-                                <p className="text-xs text-gray-400">Quantity: {item?.quantity}</p>
+                              <div className="flex ">
+                                <img className="w-15 h-15 object-cover object-top rounded-sm mr-1" src={item?.image[0]} alt="product photo" />
+                                <div>
+                                  <h4 className=" text-xs text-white">{item?.name}</h4>
+                                  <p className="text-xs text-gray-400">Quantity: {item?.quantity}</p>
+                                  <p className="text-gray-400 text-xs">Color: {item?.color || "none"}</p>
+                                  <p className="text-gray-400 text-xs">Size: {item?.size || "none"}</p>
+                                </div>
                               </div>
                               <div className="text-right">
                                 <p className="text-lg font-bold text-green-400">৳{item?.price.toFixed(2)}</p>
@@ -1024,11 +832,6 @@ const OrderManagement = () => {
           </div>
         )}
 
-        {/* <div className="fixed bottom-8 right-8">
-          <button className="w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110 flex items-center justify-center group border border-blue-500/30">
-            <Plus className="h-8 w-8 group-hover:rotate-90 transition-transform duration-300" />
-          </button>
-        </div> */}
       </div>
       {/* confirmation modal  */}
       {confirmationModal &&
