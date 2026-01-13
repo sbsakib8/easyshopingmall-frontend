@@ -381,22 +381,22 @@ const ShoppingCartComponent = () => {
                               });
 
                               // Call API to sync with Redux
-                              toggleWishlist(item.productId);
+                              toggleWishlist(item?.productId);
                             }}
                             className={`p-2 rounded-lg transition-all duration-300 
-      ${localWishlist.has(item.productId)
+      ${localWishlist.has(item?.productId)
                                 ? "text-red-500 bg-red-100"
                                 : "text-gray-400 hover:text-red-500 hover:bg-red-50"
                               }`}
                           >
                             <Heart
                               className="w-5 h-5"
-                              fill={localWishlist.has(item.productId) ? "red" : "none"}
+                              fill={localWishlist.has(item?.productId) ? "red" : "none"}
                             />
                           </button>
 
                           <button
-                            onClick={() => removeItem(item.productId)}
+                            onClick={() => removeItem(item?.productId)}
                             className="p-2 text-gray-400 cursor-pointer hover:text-red-500 hover:bg-red-50 rounded-lg transition-all duration-300"
                           >
                             <Trash2 className="w-5 h-5" />
