@@ -68,10 +68,10 @@ const PendingOrdersPage = () => {
   const [showModal, setShowModal] = useState(false)
   const [filterBy, setFilterBy] = useState("all")
   const [status, setStatus] = useState('')
-    const [animateCards, setAnimateCards] = useState(false)
+  const [animateCards, setAnimateCards] = useState(false)
   const [confirmationModal, setConfirmationModal] = useState(false)
   const { allOrders, loading: ordersLoading, refetch } = useGetAllOrders()
-  const itemsPerPage = 2
+  const itemsPerPage = 12
   // console.log("allorders---->",allOrders)
 
   // Filter orders based on search term and filter
@@ -136,23 +136,7 @@ const PendingOrdersPage = () => {
   const startIndex = (currentPage - 1) * itemsPerPage
   const paginatedOrders = filteredOrders?.slice(startIndex, startIndex + itemsPerPage)
   // Handle order actions
-  // const handleApproveOrder = async (orderId, status) => {
-  //   console.log(orderId, status)
-  //   const res = await OrderUpdate(orderId, status)
-  //   console.log(res)
-  //   if (res.success) {
-  //     refetch()
-  //   }
-  // }
-
-  // const handleRejectOrder = async (orderId, status) => {
-  //   console.log(orderId, status)
-  //   const res = await OrderUpdate(orderId, status)
-  //   console.log(res)
-  //   if (res.success) {
-  //     refetch()
-  //   }
-  // }
+ 
   const handleStatusChange = async () => {
     console.log("confierm", selectedOrder?._id, status)
     const res = await OrderUpdate(selectedOrder?._id, status)

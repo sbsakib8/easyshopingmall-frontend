@@ -1,91 +1,11 @@
 "use client"
 
+import DashboardLoader from "@/src/helper/loading/DashboardLoader"
 import { useGetAllOrders } from "@/src/utlis/useGetAllOrders"
-import { CheckCircle, ChevronLeft, ChevronRight, CircleX, ShoppingCart, Truck } from "lucide-react"
+import { OrderUpdate } from "@/src/utlis/useOrder"
+import { CheckCircle, ChevronLeft, ChevronRight, CircleCheckBig, CircleX, ShoppingCart, Trash2, Truck } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 
-// const mockOrders = [
-//   {
-//     id: "ORD-001",
-//     customer: "John Doe",
-//     email: "john@example.com",
-//     phone: "+1234567890",
-//     items: [
-//       { name: "Wireless Headphones", quantity: 2, price: 99.99 },
-//       { name: "Phone Case", quantity: 1, price: 19.99 },
-//     ],
-//     total: 219.97,
-//     orderDate: "2024-01-10T10:30:00Z",
-//     shippedDate: "2024-01-12T14:20:00Z",
-//     estimatedDelivery: "2024-01-18T18:00:00Z",
-//     shippingAddress: "123 Main St, New York, NY 10001",
-//     paymentMethod: "Credit Card",
-//     status: "shipped",
-//     trackingNumber: "TRK123456789",
-//     carrier: "FedEx",
-//     shippingMethod: "Express Delivery",
-//   },
-//   {
-//     id: "ORD-002",
-//     customer: "Jane Smith",
-//     email: "jane@example.com",
-//     phone: "+1987654321",
-//     items: [
-//       { name: "Laptop Stand", quantity: 1, price: 79.99 },
-//       { name: "USB Cable", quantity: 3, price: 12.99 },
-//     ],
-//     total: 118.96,
-//     orderDate: "2024-01-11T14:20:00Z",
-//     shippedDate: "2024-01-13T09:15:00Z",
-//     estimatedDelivery: "2024-01-19T17:30:00Z",
-//     shippingAddress: "456 Oak Ave, Los Angeles, CA 90210",
-//     paymentMethod: "PayPal",
-//     status: "shipped",
-//     trackingNumber: "TRK987654321",
-//     carrier: "UPS",
-//     shippingMethod: "Standard Shipping",
-//   },
-//   {
-//     id: "ORD-003",
-//     customer: "Mike Johnson",
-//     email: "mike@example.com",
-//     phone: "+1122334455",
-//     items: [
-//       { name: "Gaming Mouse", quantity: 1, price: 59.99 },
-//       { name: "Mousepad", quantity: 1, price: 24.99 },
-//     ],
-//     total: 84.98,
-//     orderDate: "2024-01-12T09:15:00Z",
-//     shippedDate: "2024-01-14T11:45:00Z",
-//     estimatedDelivery: "2024-01-20T16:00:00Z",
-//     shippingAddress: "789 Pine St, Chicago, IL 60601",
-//     paymentMethod: "Credit Card",
-//     status: "shipped",
-//     trackingNumber: "TRK456789123",
-//     carrier: "DHL",
-//     shippingMethod: "Express Delivery",
-//   },
-//   {
-//     id: "ORD-004",
-//     customer: "Sarah Wilson",
-//     email: "sarah@example.com",
-//     phone: "+1555666777",
-//     items: [
-//       { name: "Bluetooth Speaker", quantity: 1, price: 129.99 },
-//       { name: "Power Bank", quantity: 2, price: 39.99 },
-//     ],
-//     total: 209.97,
-//     orderDate: "2024-01-13T16:30:00Z",
-//     shippedDate: "2024-01-15T08:20:00Z",
-//     estimatedDelivery: "2024-01-21T14:30:00Z",
-//     shippingAddress: "321 Elm St, Miami, FL 33101",
-//     paymentMethod: "Credit Card",
-//     status: "delivered",
-//     trackingNumber: "TRK789123456",
-//     carrier: "FedEx",
-//     shippingMethod: "Standard Shipping",
-//   },
-// ]
 const statusColors = {
   pending: "bg-gradient-to-r from-yellow-400 to-orange-400 text-white shadow-lg shadow-yellow-500/25",
   processing: "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/25",
@@ -104,7 +24,9 @@ const ShippedOrdersPage = () => {
   const [filterBy, setFilterBy] = useState("all")
   const [animateCards, setAnimateCards] = useState(false)
   const [statusFilter, setStatusFilter] = useState("all")
-  const itemsPerPage = 2
+  const [status, setStatus] = useState('')
+  const [confirmationModal, setConfirmationModal] = useState(false)
+  const itemsPerPage = 12
   const { allOrders, loading: ordersLoading, refetch } = useGetAllOrders()
 
   useEffect(() => {
@@ -152,7 +74,7 @@ const ShippedOrdersPage = () => {
     const cancelled = allOrders?.filter((o) => o?.order_status === "cancelled")?.length
     const shipped = allOrders?.filter((o) => o?.order_status === "shipped")?.length
 
-    return { total, shipped, cancelled }
+    return { total, shipped, cancelled,completed }
   }, [allOrders])
 
   // Pagination
@@ -160,14 +82,26 @@ const ShippedOrdersPage = () => {
   const startIndex = (currentPage - 1) * itemsPerPage
   const paginatedOrders = filteredOrders?.slice(startIndex, startIndex + itemsPerPage)
 
-  const handleMarkAsDelivered = (orderId) => {
-    setOrders(orders.map((order) => (order.id === orderId ? { ...order, status: "delivered" } : order)))
+  const handleStatusChange = async () => {
+    console.log("confierm", selectedOrder?._id, status)
+    const res = await OrderUpdate(selectedOrder?._id, status)
+    console.log(res)
+    if (res.success) {
+      setConfirmationModal(false)
+      setShowModal(false)
+      refetch()
+
+    }
   }
 
-  const handleTrackOrder = (trackingNumber, carrier) => {
-    // Simulate opening tracking page
-    alert(`Tracking order with ${carrier}: ${trackingNumber}`)
-  }
+  // const handleMarkAsDelivered = (orderId) => {
+  //   setOrders(orders.map((order) => (order.id === orderId ? { ...order, status: "delivered" } : order)))
+  // }
+
+  // const handleTrackOrder = (trackingNumber, carrier) => {
+  //   // Simulate opening tracking page
+  //   alert(`Tracking order with ${carrier}: ${trackingNumber}`)
+  // }
 
   const handleViewDetails = (order) => {
     setSelectedOrder(order)
@@ -191,9 +125,9 @@ const ShippedOrdersPage = () => {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
     return diffDays
   }
-  if (ordersLoading) return <p>Loading...</p>
+  if (ordersLoading) return <DashboardLoader/>
   // console.log("allorders---->",allOrders)
-  console.log("filterorders---->", filteredOrders)
+  // console.log("filterorders---->", filteredOrders)
   // console.log("status---->", status)
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 relative overflow-hidden">
@@ -296,25 +230,6 @@ const ShippedOrdersPage = () => {
             </div>
 
             <div className="flex flex-wrap gap-3">
-              {/* <select
-              value={filterBy}
-              onChange={(e) => setFilterBy(e.target.value)}
-              className="px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-green-500 backdrop-blur-sm"
-            >
-              <option value="all">All Payment Methods</option>
-              <option value="credit card">Credit Card</option>
-              <option value="paypal">PayPal</option>
-            </select> */}
-
-              {/* <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-green-500 backdrop-blur-sm"
-            >
-              <option value="all">All Status</option>
-              <option value="shipped">Shipped</option>
-              <option value="delivered">Delivered</option>
-            </select> */}
 
               <div className="px-4 py-3 bg-green-600/20 border border-green-500/30 rounded-xl text-green-300 font-medium backdrop-blur-sm">
                 {filteredOrders.length} Orders
@@ -350,27 +265,6 @@ const ShippedOrdersPage = () => {
                   <p className="text-gray-400 text-sm mb-1">{order?.userId?.email || "demo@gmail.com"}</p>
                   <p className="text-gray-400 text-sm">{order?.address?.mobile || "018XXXXXXXX"}</p>
                 </div>
-
-                {/* Tracking Info */}
-                <div className="mb-4 bg-gray-900/50 p-3 rounded-lg">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-gray-300 text-sm font-medium">Tracking:</span>
-                    <span className="text-blue-400 text-sm font-mono">{order.trackingNumber}</span>
-                  </div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-gray-300 text-sm">Carrier:</span>
-                    <span className="text-gray-400 text-sm">{order.carrier}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-300 text-sm">Est. Delivery:</span>
-                    <span className="text-green-400 text-sm">
-                      {order.status === "delivered"
-                        ? "Delivered"
-                        : `${getDaysUntilDelivery(order.estimatedDelivery)} days`}
-                    </span>
-                  </div>
-                </div>
-
                 {/* Order Items */}
                 <div className="mb-4">
                   <h5 className="text-white font-medium mb-2">Items ({order?.products.length})</h5>
@@ -405,20 +299,28 @@ const ShippedOrdersPage = () => {
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleViewDetails(order)}
-                    className="flex-1 px-3 py-2 bg-blue-600/20 border border-blue-500/30 text-blue-300 rounded-lg hover:bg-blue-600/30 transition-colors duration-200 text-sm font-medium"
+                    className="flex-1 px-3 py-2 bg-blue-600/20 border border-blue-500/30 text-blue-300 rounded-lg hover:bg-blue-600/30 transition-colors duration-200 text-sm font-medium cursor-pointer"
                   >
                     Details
                   </button>
                   <button
-                    onClick={() => handleTrackOrder(order.trackingNumber, order.carrier)}
-                    className="flex-1 px-3 py-2 bg-red-600/20 border border-red-500/30 text-red-300 rounded-lg hover:bg-purple-600/30 transition-colors duration-200 text-sm font-medium"
+                    onClick={() => {
+                      setStatus("cancelled")
+                      setSelectedOrder(order)
+                      setConfirmationModal(true)
+                    }}
+                    className="flex-1 px-3 py-2 bg-red-600/20 border border-red-500/30 text-red-300 rounded-lg hover:bg-purple-600/30 transition-colors duration-200 text-sm font-medium cursor-pointer"
                   >
                     Cancel
                   </button>
                   {order.order_status === "shipped" && (
                     <button
-                      onClick={() => handleMarkAsDelivered(order.id)}
-                      className="flex-1 px-3 py-2 bg-green-600/20 border border-green-500/30 text-green-300 rounded-lg hover:bg-green-600/30 transition-colors duration-200 text-sm font-medium"
+                      onClick={() => {
+                      setStatus("completed")
+                      setSelectedOrder(order)
+                      setConfirmationModal(true)
+                      }}
+                      className="flex-1 px-3 py-2 bg-green-600/20 border border-green-500/30 text-green-300 rounded-lg hover:bg-green-600/30 transition-colors duration-200 text-sm font-medium cursor-pointer"
                     >
                       Delivered
                     </button>
@@ -563,7 +465,7 @@ const ShippedOrdersPage = () => {
                 {/* Right Column */}
                 <div className="space-y-6">
                   {/* Tracking Information */}
-                  <div>
+                  {/* <div>
                     <h3 className="text-lg font-semibold text-white mb-3">Tracking Information</h3>
                     <div className="bg-gray-800/50 p-4 rounded-lg space-y-3">
                       <div className="flex justify-between items-center">
@@ -593,7 +495,7 @@ const ShippedOrdersPage = () => {
                         Track Package
                       </button>
                     </div>
-                  </div>
+                  </div> */}
 
                   {/* Order Items */}
                   <div>
@@ -627,29 +529,72 @@ const ShippedOrdersPage = () => {
               </div>
 
               {/* Modal Actions */}
-              <div className="flex gap-3 mt-6 pt-6 border-t border-gray-700">
+              <div className="flex gap-3 mt-6 pt-6 border-t border-gray-700 ">
                 {selectedOrder.order_status === "shipped" && (
                   <button
                     onClick={() => {
-                      handleMarkAsDelivered(selectedOrder.id)
-                      setShowModal(false)
+                      
+                      setStatus("completed")
+                      setConfirmationModal(true)
+                    
                     }}
-                    className="flex-1 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors duration-200"
+                    className="flex-1 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors duration-200 cursor-pointer"
                   >
                     Mark as Delivered
                   </button>
                 )}
                 <button
-                  onClick={() => handleTrackOrder(selectedOrder.trackingNumber, selectedOrder.carrier)}
-                  className="flex-1 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors duration-200"
+                  onClick={() => {
+                      setStatus("cancelled")
+                      setConfirmationModal(true)
+                    }}
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white rounded-lg font-medium transition-colors duration-200 cursor-pointer"
                 >
-                  Track Package
+                 Cancel Order
                 </button>
               </div>
             </div>
           </div>
         )}
       </div>
+       {/* confirmation modal  */}
+      {confirmationModal &&
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-pink-500/30 max-w-md w-full p-6 animate-slideUp">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-3 bg-pink-500/20 rounded-full">
+              {status === "completed" ? <CircleCheckBig className="w-8 h-8 text-green-500" /> : <Trash2 className="w-8 h-8 text-pink-500" />}
+                
+                
+              </div>
+              <h2 className="text-2xl font-bold text-white"> {status === "cancelled" ? "Cancelled" : "Delivered"} Product</h2>
+            </div>
+
+            <p className="text-gray-300 mb-6">
+              Are you sure you want to delete this product? This action cannot be undone.
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => handleStatusChange()}
+                className={`flex-1 px-6 py-3 ${status === "completed" ? "bg-gradient-to-r from-green-500 to-green-500 hover:from-green-600 hover:to-green-600" : "bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600"}  text-white font-semibold rounded-lg transition-all transform hover:scale-105 cursor-pointer`}
+              >
+                {status === "cancelled" ? "Confirmed" : "Delivered"} 
+              </button>
+              <button
+                onClick={() => {
+                  setStatus("")
+                  setSelectedOrder(null)
+                  setConfirmationModal(false)
+                }}
+                className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      }
       <style jsx>{`
         @keyframes spin-slow {
           from {
