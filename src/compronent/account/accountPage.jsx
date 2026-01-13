@@ -745,6 +745,7 @@ const AccountPage = () => {
                     </div>
                     <div className="space-y-4">
                       {orders.map((order, index) => {
+                        console.log("orders", order)
                         const firstProduct = order.products && order.products[0];
                         const image =
                           firstProduct?.image?.[0] ||
@@ -1033,21 +1034,9 @@ const AccountPage = () => {
                                 </span>
                               </div>
                               <div className="flex items-center gap-2">
-                                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                                  data.status === 'Active'
-                                    ? 'bg-green-100 text-green-800'
-                                    : 'bg-gray-100 text-gray-800'
-                                }`}>
-                                  {data.status || 'Inactive'}
-                                </span>
+                             
                               </div>
-                              {data.customerstatus && (
-                                <div className="flex items-center gap-2">
-                                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800 capitalize">
-                                    {data.customerstatus}
-                                  </span>
-                                </div>
-                              )}
+                           
                             </div>
                           </div>
 

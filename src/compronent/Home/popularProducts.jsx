@@ -354,13 +354,9 @@ const PopularProducts = () => {
 
                 {/* Badges */}
                 <div className="absolute top-3 left-3 space-y-1">
-                  {product.isNew ? (
+                  {product.isNew && (
                     <span className="bg-green-500 text-white px-2 py-1 rounded text-xs font-bold">
                       NEW
-                    </span>
-                  ) : (
-                    <span className="bg-gray-500 text-white px-2 py-1 rounded text-xs font-bold">
-                      OLD
                     </span>
                   )}
                   {product.discount > 0 && (

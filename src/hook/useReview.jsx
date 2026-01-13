@@ -15,6 +15,20 @@ export const submitReview = async (productId, reviewData) => {
   }
 };
 
+// 6️⃣ Get all reviews (admin - approved + pending + rejected)
+export const getAllReviews = async () => {
+  try {
+    const response = await axios.get(`${UrlBackend}/review/admin/all`, {
+      withCredentials: true,
+    });
+    return response.data.reviews || [];
+  } catch (error) {
+    console.error("Get All Reviews Error:", error.response?.data || error.message);
+    return [];
+  }
+};
+
+
 // 2️⃣ Get all approved reviews for a product
 export const getApprovedReviews = async (productId) => {
   try {
@@ -67,6 +81,23 @@ export const rejectReview = async (reviewId) => {
     return response.data;
   } catch (error) {
     console.error("Reject Review Error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+// 7️⃣ Delete review (user – own review / admin)
+export const deleteReview = async (reviewId) => {
+  try {
+    const response = await axios.delete(
+      `${UrlBackend}/review/${reviewId}`,
+      {
+        withCredentials: true,
+      }
+    );
+    console.log("Review deleted:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Delete Review Error:", error.response?.data || error.message);
     throw error;
   }
 };
