@@ -179,8 +179,16 @@ if(loading || CatLoading) return <LoadingPage></LoadingPage>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredPosts.map((post, index) => (
-              <div key={post._id} className={`bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transform hover:scale-105 transition-all duration-500 cursor-pointer ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-                }`} style={{ transitionDelay: `${index * 200}ms` }}>
+              <div 
+                key={post._id} 
+                onClick={() => {
+                  setSelectedPost(post)
+                  setShowModal(true)
+                }} 
+                className={`bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transform hover:scale-105 transition-all duration-500 cursor-pointer ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+                }`} 
+                style={{ transitionDelay: `${index * 200}ms` }}
+              >
                 <div className="relative overflow-hidden">
                   <img
                     src={post?.image}
@@ -202,12 +210,9 @@ if(loading || CatLoading) return <LoadingPage></LoadingPage>
                     {post?.readTime}
                   </div>
 
-                  <button onClick={()=> {
-                    setSelectedPost(post)
-                    setShowModal(true)
-                    }} className="text-xl font-bold text-gray-800 mb-3 hover:text-teal-600 transition-colors line-clamp-2">
+                  <h3 className="text-xl font-bold text-gray-800 mb-3 hover:text-teal-600 transition-colors line-clamp-2">
                     {post.title}
-                  </button>
+                  </h3>
                
                   <p className="text-gray-600 mb-4 leading-relaxed line-clamp-3">
                     {post.excerpt}
@@ -220,11 +225,21 @@ if(loading || CatLoading) return <LoadingPage></LoadingPage>
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <button className="flex items-center gap-1 text-gray-500 hover:text-red-500 transition-colors">
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                        className="flex items-center gap-1 text-gray-500 hover:text-red-500 transition-colors"
+                      >
                         <Heart className="w-4 h-4" />
                         {post.likes}
                       </button>
-                      <button className="flex items-center gap-1 text-gray-500 hover:text-teal-500 transition-colors">
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                        className="flex items-center gap-1 text-gray-500 hover:text-teal-500 transition-colors"
+                      >
                         <MessageCircle className="w-4 h-4" />
                         {post.comments}
                       </button>

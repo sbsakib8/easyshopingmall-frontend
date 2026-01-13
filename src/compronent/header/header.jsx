@@ -379,7 +379,7 @@ const Header = () => {
             </div> */}
 
             <Link
-              href="Trackorder"
+              href="/account?tab=orders"
               className="text-gray-600 hover:text-emerald-600 transition-all duration-300 hover:scale-105 relative group font-medium text-xs sm:text-sm"
             >
               Track Order
@@ -387,7 +387,14 @@ const Header = () => {
             </Link>
           </div>
         </div>
+      <div className="bg-gradient-to-r from-amber-400 via-yellow-400 to-orange-400 py-2 overflow-hidden border-y border-yellow-500/30 hidden sm:block">
+        <marquee behavior="scroll" direction="left" scrollamount="8" className="text-sm font-semibold text-gray-800">
+          🔥 Flash Sale: Up to 70% OFF on Selected Items! ⚡ Free Shipping on Orders Over $50 🎁 Buy 2 Get 1 Free 💎 New Arrivals Live! 🌟 Extra 20% OFF Code: SAVE20 🚀 Same Day Delivery Available
+        </marquee>
       </div>
+      </div>
+
+      {/* Marquee Banner */}
 
       {/* Main Header */}
       <header
