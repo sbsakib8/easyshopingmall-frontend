@@ -9,7 +9,7 @@ import ChatBoot from './ChatBoot'
 function Hero() {
   return (
     <div>
-      <div className=' py-1 lg:mt-28  h-[500px] sm:h-[600px] lg:h-[750px] bg-[#F3F4F6]  '>
+      <div className=' py-1 lg:mt-28  h-[350px] sm:h-[600px] lg:h-[750px] bg-[#F3F4F6]  '>
         <Carousels />
       </div>
 

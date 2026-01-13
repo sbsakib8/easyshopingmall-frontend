@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import CustomLoader from '@/src/compronent/loading/CustomLoader';
 
+
 const ProductDetails = () => {
   const params = useParams();
   const router = useRouter();
@@ -458,7 +459,7 @@ const ProductDetails = () => {
                   ))}
                 </div>
                 <span className="text-gray-600">
-                  {product.rating} ({product.reviews} reviews)
+                  {product.rating} ({reviewList.length || product?.reviews || 0} reviews)
                 </span>
               </div>
             </div>
@@ -655,7 +656,7 @@ const ProductDetails = () => {
           <div className="mt-8">
             {activeTab === "description" && (
               <div className="prose max-w-none">
-                <p className="text-gray-600 text-lg leading-relaxed mb-6">
+                <p className="text-gray-600 text-lg leading-relaxed mb-6 break-words overflow-wrap-anywhere whitespace-pre-line">
                   {product?.description || "No description available"}
                 </p>
 
