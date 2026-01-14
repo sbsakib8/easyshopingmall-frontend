@@ -399,15 +399,15 @@ const ShippedOrdersPage = () => {
         {showModal && selectedOrder && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div className="bg-gray-900/95 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-              {/* Modal Header */}
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-white">Shipped Order Details</h2>
-                <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-white transition-colors">
+             {/* Modal Header */}
+               <div className="flex justify-end  items-center sticky -top-2 right-0">
+                <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-red-400 transition-colors cursor-pointer bg-red-500/40 rounded-2xl p-1">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
+              <h2 className="text-2xl font-bold text-white mb-6">Shipping Order Details</h2>
 
               <div className="grid lg:grid-cols-2 gap-6">
                 {/* Left Column */}
@@ -466,39 +466,6 @@ const ShippedOrdersPage = () => {
 
                 {/* Right Column */}
                 <div className="space-y-6">
-                  {/* Tracking Information */}
-                  {/* <div>
-                    <h3 className="text-lg font-semibold text-white mb-3">Tracking Information</h3>
-                    <div className="bg-gray-800/50 p-4 rounded-lg space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-500">Tracking Number:</span>
-                        <span className="text-blue-400 font-mono">{selectedOrder.trackingNumber}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-500">Carrier:</span>
-                        <span className="text-gray-300">{selectedOrder.carrier}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-500">Shipping Method:</span>
-                        <span className="text-gray-300">{selectedOrder.shippingMethod}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-500">Est. Delivery:</span>
-                        <span className="text-green-400">
-                          {selectedOrder.status === "delivered"
-                            ? "Delivered"
-                            : formatDate(selectedOrder.estimatedDelivery)}
-                        </span>
-                      </div>
-                      <button
-                        onClick={() => handleTrackOrder(selectedOrder.trackingNumber, selectedOrder.carrier)}
-                        className="w-full mt-3 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors duration-200"
-                      >
-                        Track Package
-                      </button>
-                    </div>
-                  </div> */}
-
                   {/* Order Items */}
                   <div>
                     <h3 className="text-lg font-semibold text-white mb-3">Order Items</h3>
