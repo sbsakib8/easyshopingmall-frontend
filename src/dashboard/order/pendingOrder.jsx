@@ -1,56 +1,10 @@
 "use client"
+import DashboardLoader from "@/src/helper/loading/DashboardLoader"
 import { useGetAllOrders } from "@/src/utlis/useGetAllOrders"
 import { OrderUpdate } from "@/src/utlis/useOrder"
 import { ChevronLeft, ChevronRight, CircleCheckBig, CircleX, Cross, ShoppingCart, Trash2, Truck } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 
-// const mockOrders = [
-//   {
-//     id: "ORD-001",
-//     customer: "John Doe",
-//     email: "john@example.com",
-//     phone: "+1234567890",
-//     items: [
-//       { name: "Wireless Headphones", quantity: 2, price: 99.99 },
-//       { name: "Phone Case", quantity: 1, price: 19.99 },
-//     ],
-//     total: 219.97,
-//     orderDate: "2024-01-15T10:30:00Z",
-//     shippingAddress: "123 Main St, New York, NY 10001",
-//     paymentMethod: "Credit Card",
-//     status: "pending",
-//   },
-//   {
-//     id: "ORD-002",
-//     customer: "Jane Smith",
-//     email: "jane@example.com",
-//     phone: "+1987654321",
-//     items: [
-//       { name: "Laptop Stand", quantity: 1, price: 79.99 },
-//       { name: "USB Cable", quantity: 3, price: 12.99 },
-//     ],
-//     total: 118.96,
-//     orderDate: "2024-01-15T14:20:00Z",
-//     shippingAddress: "456 Oak Ave, Los Angeles, CA 90210",
-//     paymentMethod: "PayPal",
-//     status: "pending",
-//   },
-//   {
-//     id: "ORD-003",
-//     customer: "Mike Johnson",
-//     email: "mike@example.com",
-//     phone: "+1122334455",
-//     items: [
-//       { name: "Gaming Mouse", quantity: 1, price: 59.99 },
-//       { name: "Mousepad", quantity: 1, price: 24.99 },
-//     ],
-//     total: 84.98,
-//     orderDate: "2024-01-16T09:15:00Z",
-//     shippingAddress: "789 Pine St, Chicago, IL 60601",
-//     paymentMethod: "Credit Card",
-//     status: "pending",
-//   },
-// ]
 const statusColors = {
   pending: "bg-gradient-to-r from-yellow-400 to-orange-400 text-white shadow-lg shadow-yellow-500/25",
   processing: "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/25",
@@ -61,29 +15,16 @@ const statusColors = {
   cancelled: "bg-gradient-to-r from-red-500 to-rose-500 text-white shadow-lg shadow-red-500/25",
 }
 const PendingOrdersPage = () => {
-  const [orders, setOrders] = useState(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [showModal, setShowModal] = useState(false)
-  const [filterBy, setFilterBy] = useState("all")
   const [status, setStatus] = useState('')
-    const [animateCards, setAnimateCards] = useState(false)
+  const [animateCards, setAnimateCards] = useState(false)
   const [confirmationModal, setConfirmationModal] = useState(false)
   const { allOrders, loading: ordersLoading, refetch } = useGetAllOrders()
-  const itemsPerPage = 2
-  // console.log("allorders---->",allOrders)
-
-  // Filter orders based on search term and filter
-  // const filteredOrders = orders.filter((order) => {
-  //   const matchesSearch =
-  //     order.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //     order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //     order.email.toLowerCase().includes(searchTerm.toLowerCase())
-
-  //   if (filterBy === "all") return matchesSearch
-  //   return matchesSearch && order.paymentMethod.toLowerCase() === filterBy.toLowerCase()
-  // })
+  const itemsPerPage = 12
+ 
    useEffect(() => {
       setAnimateCards(true)
     }, [])
@@ -97,28 +38,8 @@ const PendingOrdersPage = () => {
         order?.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
         customerEmail.toLowerCase().includes(searchTerm.toLowerCase())
       const matchesStatus = order?.order_status === "processing"
-      // const matchesPriority = priorityFilter === "all" || order.priority === priorityFilter
       return matchesSearch && matchesStatus
     })
-    // Sort orders
-    // filtered?.sort((a, b) => {
-    //   let aValue = a[sortBy]
-    //   let bValue = b[sortBy]
-
-    //   if (sortBy === "orderDate") {
-    //     aValue = new Date(aValue)
-    //     bValue = new Date(bValue)
-    //   } else if (sortBy === "total") {
-    //     aValue = Number.parseFloat(aValue)
-    //     bValue = Number.parseFloat(bValue)
-    //   }
-
-    //   if (sortOrder === "asc") {
-    //     return aValue > bValue ? 1 : -1
-    //   } else {
-    //     return aValue < bValue ? 1 : -1
-    //   }
-    // })
     return filtered
   }, [searchTerm, allOrders])
 
@@ -136,23 +57,7 @@ const PendingOrdersPage = () => {
   const startIndex = (currentPage - 1) * itemsPerPage
   const paginatedOrders = filteredOrders?.slice(startIndex, startIndex + itemsPerPage)
   // Handle order actions
-  // const handleApproveOrder = async (orderId, status) => {
-  //   console.log(orderId, status)
-  //   const res = await OrderUpdate(orderId, status)
-  //   console.log(res)
-  //   if (res.success) {
-  //     refetch()
-  //   }
-  // }
-
-  // const handleRejectOrder = async (orderId, status) => {
-  //   console.log(orderId, status)
-  //   const res = await OrderUpdate(orderId, status)
-  //   console.log(res)
-  //   if (res.success) {
-  //     refetch()
-  //   }
-  // }
+ 
   const handleStatusChange = async () => {
     console.log("confierm", selectedOrder?._id, status)
     const res = await OrderUpdate(selectedOrder?._id, status)
@@ -179,10 +84,7 @@ const PendingOrdersPage = () => {
     })
   }
 
-  if (ordersLoading) return <p>Loading...</p>
-  // console.log("allorders---->",allOrders)
-  console.log("filterorders---->", filteredOrders)
-  // console.log("status---->", status)
+  if (ordersLoading) return <DashboardLoader/>
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 relative overflow-hidden">
       {/* Animated Background Elements */}
@@ -277,28 +179,18 @@ const PendingOrdersPage = () => {
             </div>
 
             <div className="flex gap-3">
-              {/* <select
-              value={filterBy}
-              onChange={(e) => setFilterBy(e.target.value)}
-              className="px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500 backdrop-blur-sm"
-            >
-              <option value="all">All Payment Methods</option>
-              <option value="credit card">Credit Card</option>
-              <option value="paypal">PayPal</option>
-            </select> */}
-
               <div className="px-4 py-3 bg-blue-600/20 border border-blue-500/30 rounded-xl text-blue-300 font-medium backdrop-blur-sm">
-                {filteredOrders.length} Orders
+                {filteredOrders?.length} Orders
               </div>
             </div>
           </div>
 
           {/* Orders Grid */}
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {paginatedOrders.map((order) => (
+            {paginatedOrders?.map((order) => (
               <div
                 key={order.id}
-                className="bg-gray-800/30 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-6 hover:bg-gray-800/50 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/10"
+                className="bg-gray-800/30 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-4 hover:bg-gray-800/50 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/10 relative"
               >
                 {/* Order Header */}
                 <div className="flex justify-between items-start mb-4">
@@ -351,10 +243,11 @@ const PendingOrdersPage = () => {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex gap-2">
+                <div className="py-6 ">
+                  <div className="flex gap-2 absolute bottom-3 left-2 right-2">
                   <button
                     onClick={() => handleViewDetails(order)}
-                    className="flex-1 px-4 py-2 bg-blue-600/20 border border-blue-500/30 text-blue-300 rounded-lg hover:bg-blue-600/30 transition-colors duration-200 text-sm font-medium"
+                    className="flex-1 px-4 py-2 bg-blue-600/20 border border-blue-500/30 text-blue-300 rounded-lg hover:bg-blue-600/30 transition-colors duration-200 text-sm font-medium cursor-pointer"
                   >
                     View Details
                   </button>
@@ -364,7 +257,7 @@ const PendingOrdersPage = () => {
                       setSelectedOrder(order)
                       setConfirmationModal(true)
                     }}
-                    className="flex-1 px-4 py-2 bg-green-600/20 border border-green-500/30 text-green-300 rounded-lg hover:bg-green-600/30 transition-colors duration-200 text-sm font-medium"
+                    className="flex-1 px-4 py-2 bg-green-600/20 border border-green-500/30 text-green-300 rounded-lg hover:bg-green-600/30 transition-colors duration-200 text-sm font-medium cursor-pointer"
                   >
                     Approve
                   </button>
@@ -374,10 +267,11 @@ const PendingOrdersPage = () => {
                       setSelectedOrder(order)
                       setConfirmationModal(true)
                     }}
-                    className="flex-1 px-4 py-2 bg-red-600/20 border border-red-500/30 text-red-300 rounded-lg hover:bg-red-600/30 transition-colors duration-200 text-sm font-medium"
+                    className="flex-1 px-4 py-2 bg-red-600/20 border border-red-500/30 text-red-300 rounded-lg hover:bg-red-600/30 transition-colors duration-200 text-sm font-medium cursor-pointer"
                   >
                     Reject
                   </button>
+                </div>
                 </div>
               </div>
             ))}
@@ -449,16 +343,16 @@ const PendingOrdersPage = () => {
         {/* Order Details Modal */}
         {showModal && selectedOrder && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div className="bg-gray-900/95 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="bg-gray-900/95 backdrop-blur-sm border border-gray-900 rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto ">
               {/* Modal Header */}
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-white">Order Details</h2>
-                <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-white transition-colors">
+               <div className="flex justify-end  items-center sticky -top-2 right-0">
+                <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-red-400 transition-colors cursor-pointer bg-red-500/40 rounded-2xl p-1">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
+              <h2 className="text-2xl font-bold text-white mb-6">Order Details</h2>
 
               {/* Order Info */}
               <div className="grid md:grid-cols-2 gap-6 mb-6">
@@ -515,13 +409,18 @@ const PendingOrdersPage = () => {
                   {selectedOrder?.products.map((item, index) => (
                     <div key={index} className="flex justify-between items-center bg-gray-800/50 p-3 rounded-lg">
                       <div className="flex gap-2">
-                        <img className="w-12 h-12 rounded-sm" src={item?.image[0]} alt="" />
+                        <img className="w-15 h-15 rounded-sm object-cover" src={item?.image[0]} alt="" />
                         <div>
                           <p className="text-white font-medium">{item?.name}</p>
                           <p className="text-gray-400 text-sm">Quantity: {item?.quantity}</p>
+                          <p className="text-gray-400 text-sm">Color: {item?.color ||"none"}</p>
+                          <p className="text-gray-400 text-sm">Size: {item?.size || "none"}</p>
                         </div>
                       </div>
-                      <p className="text-green-400 font-semibold">৳{item?.price}</p>
+                      <div className="text-right">
+                                <p className="text-lg font-bold text-green-400">৳{item?.price.toFixed(2)}</p>
+                                <p className="text-sm text-gray-500">each</p>
+                              </div>
                     </div>
                   ))}
                 </div>
@@ -571,9 +470,7 @@ const PendingOrdersPage = () => {
           <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-pink-500/30 max-w-md w-full p-6 animate-slideUp">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-3 bg-pink-500/20 rounded-full">
-              {status === "shipped" ? <CircleCheckBig className="w-8 h-8 text-green-500" /> : <Trash2 className="w-8 h-8 text-pink-500" />}
-                
-                
+              {status === "shipped" ? <CircleCheckBig className="w-8 h-8 text-green-500" /> : <Trash2 className="w-8 h-8 text-pink-500" />}      
               </div>
               <h2 className="text-2xl font-bold text-white"> {status === "shipped" ? "Approve" : "Reject"} Product</h2>
             </div>

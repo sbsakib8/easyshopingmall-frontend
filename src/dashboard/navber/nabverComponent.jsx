@@ -6,6 +6,7 @@ import {
   AppWindow,
   BarChart3,
   BookImage,
+  CheckCircle,
   ChevronRight,
   Clock,
   DollarSign,
@@ -90,6 +91,7 @@ const DashboardNebver = ({ children }) => {
         { path: "/order/allorders", id: 16, label: "All Orders", icon: ShoppingCart },
         { path: "/order/pending-orders", id: 17, label: "Pending Orders", icon: Clock },
         { path: "/order/shipped-orders", id: 18, label: "Shipped Orders", icon: Truck },
+        { path: "/order/completed-orders", id: 19, label: "Completed Orders", icon: CheckCircle },
       ],
     },
     {

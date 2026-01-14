@@ -24,7 +24,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
@@ -42,7 +42,10 @@ const AccountPage = () => {
   // Calculate cart product count (same as header)
   const cartCount = (cartItems || []).reduce((sum, item) => sum + (item.quantity || 1), 0);
 
-  const [activeTab, setActiveTab] = useState("profile");
+  const searchParams = useSearchParams();
+  const tabFromUrl = searchParams.get('tab');
+  
+  const [activeTab, setActiveTab] = useState(tabFromUrl || "profile");
   const [isEditing, setIsEditing] = useState(false);
   const [showImageUpload, setShowImageUpload] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -97,6 +100,12 @@ const AccountPage = () => {
   const closeModal = () => {
     setSelectedOrder(null);
   };
+
+  useEffect(() => {
+    if (tabFromUrl) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [tabFromUrl]);
 
   // fetch user orders when user is available
   useEffect(() => {
@@ -353,15 +362,15 @@ const AccountPage = () => {
       if ((profileResponse.success || profileResponse.data) && (addressResponse.success || addressResponse.data)) {
         // Log DOB status
         if (isDOBNew) {
-          console.log("✅ DOB created successfully:", newDOB);
+          // console.log("✅ DOB created successfully:", newDOB);
         } else if (isDOBUpdated) {
-          console.log("✅ DOB updated successfully");
-          console.log("   Old DOB:", oldDOB);
-          console.log("   New DOB:", newDOB);
+          // console.log("✅ DOB updated successfully");
+          // console.log("   Old DOB:", oldDOB);
+          // console.log("   New DOB:", newDOB);
         } else if (oldDOB && oldDOB === newDOB) {
-          console.log("ℹ️ DOB unchanged:", oldDOB);
+          // console.log("ℹ️ DOB unchanged:", oldDOB);
         } else if (!newDOB) {
-          console.log("ℹ️ No DOB provided");
+          // console.log("ℹ️ No DOB provided");
         }
         
         // Update Redux store with new data
@@ -502,7 +511,6 @@ const AccountPage = () => {
                     count={wishlist?.length || 0}
                   />
                   <TabButton id="addresses" icon={MapPin} label="Addresses" />
-                  <TabButton id="payments" icon={CreditCard} label="Payment Methods" />
                   <TabButton id="settings" icon={Settings} label="Settings" />
                 </nav>
                 <button
@@ -1062,29 +1070,7 @@ const AccountPage = () => {
                   </div>
                 )}
 
-                {/* Payment Methods Tab */}
-                {activeTab === "payments" && (
-                  <div className="p-8">
-                    <div className="flex justify-between items-center mb-8">
-                      <div>
-                        <h2 className="text-2xl font-bold text-gray-900">Payment Methods</h2>
-                        <p className="text-gray-600">Manage your payment options</p>
-                      </div>
-                      <button className="flex cursor-pointer items-center space-x-2 bg-teal-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl font-medium transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1">
-                        <Plus className="w-4 h-4" />
-                        <span>Add Card</span>
-                      </button>
-                    </div>
-
-                    <div className="text-center py-12">
-                      <CreditCard className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">
-                        No payment methods added
-                      </h3>
-                      <p className="text-gray-500">Add a payment method to make checkout faster</p>
-                    </div>
-                  </div>
-                )}
+              
 
                 {/* Settings Tab */}
                 {activeTab === "settings" && (
@@ -1124,7 +1110,10 @@ const AccountPage = () => {
                       <div className="border border-gray-200 rounded-xl p-6">
                         <h3 className="font-semibold text-gray-900 mb-4">Security</h3>
                         <div className="space-y-3">
-                          <button className="w-full text-left p-3 hover:bg-gray-50 rounded-lg transition-colors duration-300">
+                          <button 
+                            onClick={() => router.push('/forgotpassword')}
+                            className="w-full text-left p-3 hover:bg-gray-50 rounded-lg transition-colors duration-300"
+                          >
                             Change Password
                           </button>
                           <button className="w-full text-left p-3 hover:bg-gray-50 rounded-lg transition-colors duration-300">
