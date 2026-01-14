@@ -461,6 +461,31 @@ const ShopPage = () => {
   const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct)
   const totalPages = Math.ceil(products.length / productsPerPage)
 
+  // Calculate which page numbers to show
+  const getPageNumbers = () => {
+    const pages = [];
+    
+    if (currentPage <= 5) {
+      // Show pages 1-5 when on pages 1-5
+      for (let i = 1; i <= Math.min(5, totalPages); i++) {
+        pages.push(i);
+      }
+    } else {
+      // When current page > 5, shift the range
+      // Start from (currentPage - 4) to show 5 pages with current page at position 5
+      const startPage = currentPage - 4;
+      for (let i = startPage; i <= Math.min(startPage + 4, totalPages); i++) {
+        pages.push(i);
+      }
+    }
+    
+    return pages;
+  };
+
+  const pageNumbers = getPageNumbers();
+  const showStartDots = currentPage > 5;
+  const showEndDots = pageNumbers.length > 0 && pageNumbers[pageNumbers.length - 1] < totalPages;
+
   // Use API categories if available, otherwise fall back to product categories
   const categories = apiCategories.length > 0 
     ? ["all", ...apiCategories.map(cat => cat.name)]
@@ -773,10 +798,8 @@ const ShopPage = () => {
 
                       {/* Badges */}
                       <div className="absolute top-3 left-3 space-y-1">
-                        {product.isNew ? (
+                        {product.isNew && (
                           <span className="bg-green-500 text-white px-2 py-1 rounded text-xs font-bold">NEW</span>
-                        ) : (
-                          <span className="bg-gray-500 text-white px-2 py-1 rounded text-xs font-bold">OLD</span>
                         )}
                         {product.discount > 0 && (
                           <span className="bg-yellow-500 text-white px-2 py-1 rounded text-xs font-bold">
@@ -876,32 +899,70 @@ const ShopPage = () => {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex justify-center items-center space-x-2 mt-12">
+              <div className="flex justify-center items-center space-x-2 mt-12 flex-wrap gap-2">
+                {/* Previous Button */}
                 <button
                   onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1}
-                  className="px-4 py-2 rounded-lg bg-white border border-gray-300 disabled:opacity-50 hover:bg-purple-50 transition-colors duration-300"
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${
+                    currentPage === 1
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      : "bg-purple-500 text-white hover:bg-purple-600"
+                  }`}
                 >
                   Previous
                 </button>
 
-                {[...Array(totalPages)].map((_, i) => (
+                {/* First Page + Dots (if needed) */}
+                {showStartDots && (
+                  <>
+                    <button
+                      onClick={() => setCurrentPage(1)}
+                      className="px-4 py-2 rounded-lg font-medium bg-white border border-gray-300 hover:bg-purple-50 transition-colors duration-300"
+                    >
+                      1
+                    </button>
+                    <span className="px-2 text-gray-500 font-bold">...</span>
+                  </>
+                )}
+
+                {/* Page Numbers */}
+                {pageNumbers.map((page) => (
                   <button
-                    key={i + 1}
-                    onClick={() => setCurrentPage(i + 1)}
-                    className={`px-4 py-2 rounded-lg transition-all duration-300 ${currentPage === i + 1
-                      ? "bg-purple-500 text-white transform scale-110"
-                      : "bg-white border border-gray-300 hover:bg-purple-50"
-                      }`}
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
+                      currentPage === page
+                        ? "bg-purple-500 text-white transform scale-110"
+                        : "bg-white border border-gray-300 hover:bg-purple-50"
+                    }`}
                   >
-                    {i + 1}
+                    {page}
                   </button>
                 ))}
 
+                {/* End Dots + Last Page (if needed) */}
+                {showEndDots && (
+                  <>
+                    <span className="px-2 text-gray-500 font-bold">...</span>
+                    <button
+                      onClick={() => setCurrentPage(totalPages)}
+                      className="px-4 py-2 rounded-lg font-medium bg-white border border-gray-300 hover:bg-purple-50 transition-colors duration-300"
+                    >
+                      {totalPages}
+                    </button>
+                  </>
+                )}
+
+                {/* Next Button */}
                 <button
                   onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                   disabled={currentPage === totalPages}
-                  className="px-4 py-2 rounded-lg bg-white border border-gray-300 disabled:opacity-50 hover:bg-purple-50 transition-colors duration-300"
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${
+                    currentPage === totalPages
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      : "bg-purple-500 text-white hover:bg-purple-600"
+                  }`}
                 >
                   Next
                 </button>
