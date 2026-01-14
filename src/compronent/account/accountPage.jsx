@@ -34,7 +34,7 @@ const AccountPage = () => {
   // user data fatch
   const data = useSelector((state) => state.user.data);
   
-  console.log("Profile Info Data:", data);
+  // console.log("Profile Info Data:", data);
   
   // Get cart items from Redux store (same as header)
   const { items: cartItems } = useSelector((state) => state.cart);
@@ -158,13 +158,13 @@ const AccountPage = () => {
         gender: data.gender || "",
       });
 
-      console.log("Address Details from Redux:", data.address_details);
+      // console.log("Address Details from Redux:", data.address_details);
 
       // Fetch addresses from API
       const loadAddresses = async () => {
         try {
           const addressResponse = await getAddress();
-          console.log("Address API Response:", addressResponse);
+          // console.log("Address API Response:", addressResponse);
           
           if (addressResponse.success && addressResponse.data) {
             // Handle if data is an array or single object
@@ -349,15 +349,15 @@ const AccountPage = () => {
       let addressResponse;
       if (addressData._id) {
         // Update existing address
-        console.log("Updating address with ID:", addressData._id);
+        // console.log("Updating address with ID:", addressData._id);
         addressResponse = await updateAddress({ _id: addressData._id, ...addressPayload });
       } else {
         // Create new address
-        console.log("Creating new address");
+        // console.log("Creating new address");
         addressResponse = await createAddress(addressPayload);
       }
 
-      console.log("Address Response:", addressResponse);
+      // console.log("Address Response:", addressResponse);
 
       if ((profileResponse.success || profileResponse.data) && (addressResponse.success || addressResponse.data)) {
         // Log DOB status
