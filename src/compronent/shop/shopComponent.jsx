@@ -635,7 +635,7 @@ const ShopPage = () => {
                   />
                   <div className="text-center">
                     <span className="text-sm text-gray-600">
-                      Price: ${priceRange[0]} — ${priceRange[1]}
+                      Price: Tk {priceRange[0]} — Tk {priceRange[1]}
                     </span>
                   </div>
                 </div>
@@ -861,10 +861,10 @@ const ShopPage = () => {
                       <div>
                         {/* Price */}
                         <div className="flex items-center gap-2 mb-2">
-                          <span className="text-base font-bold text-red-600">${product.price}</span>
+                          <span className="text-base font-bold text-red-600">Tk {product.price}</span>
                           {product.originalPrice > product.price && (
                             <span className="text-xs text-gray-400 line-through">
-                              ${product.originalPrice.toFixed(2)}
+                              Tk {product.originalPrice.toFixed(2)}
                             </span>
                           )}
                         </div>

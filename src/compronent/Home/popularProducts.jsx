@@ -408,11 +408,11 @@ const PopularProducts = () => {
                   {/* Price */}
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-base font-bold text-red-600">
-                      ${product.price}
+                      Tk {product.price}
                     </span>
                     {product.originalPrice > product.price && (
                       <span className="text-xs text-gray-400 line-through">
-                        ${product.originalPrice.toFixed(2)}
+                        Tk {product.originalPrice.toFixed(2)}
                       </span>
                     )}
                   </div>
