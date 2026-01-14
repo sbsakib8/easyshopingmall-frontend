@@ -4,13 +4,22 @@ import { UrlBackend } from "../confic/urlExport";
 // 1️⃣ Submit a new review (status: pending)
 export const submitReview = async (productId, reviewData) => {
   try {
+    
     const response = await axios.post(`${UrlBackend}/review/${productId}`, reviewData, {
       withCredentials: true,
+      headers: { 
+        "Content-Type": "application/json"
+      },
     });
-    console.log("Review submitted:", response.data);
+
     return response.data;
   } catch (error) {
-    console.error("Submit Review Error:", error.response?.data || error.message);
+    console.error("=== Submit Review Error ===");
+    console.error("Status:", error.response?.status);
+    console.error("Status Text:", error.response?.statusText);
+    console.error("Error Data:", error.response?.data);
+    console.error("Error Message:", error.message);
+    console.error("Full Error:", error);
     throw error;
   }
 };
