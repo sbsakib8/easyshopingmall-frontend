@@ -32,16 +32,23 @@ const ProductDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [spin, setSpin] = useState(false)
   const Router = useRouter();
   // data
   const [page, setPage] = useState(1);
+// useEffect(() => {
+//  setTimeout(() => {
+//   setSpin(false)
+//  }, 1000);
+// }, [spin])
+
   const formData = useMemo(
     () => ({
       page,
       limit: 10,
       search: "",
     }),
-    []
+    [page]
   );
 
   // product get
@@ -55,8 +62,10 @@ const ProductDashboard = () => {
   useEffect(() => {
     if (product) {
       setProducts(product);
+      
     }
   }, [product, allCategorydata, allsubCategorydata]);
+  // console.log("allCategorydata---->",allCategorydata)
   // Calculate statistics
   const totalProducts = product?.length || 0;
   const totalCategories = allCategorydata?.data.length || 0;
@@ -120,8 +129,11 @@ const ProductDashboard = () => {
   };
 
   // refetch
-  const reFreshData = () => {
-    refetch();
+  const reFreshData = async() => {
+    setSpin(true)
+    setPage(page+1)
+   await refetch();
+   setSpin(false)
   };
 
   //  action function click handle
@@ -176,7 +188,8 @@ const ProductDashboard = () => {
   const updateEditField = (field, value) => {
     setEditModal({ ...editModal, [field]: value });
   };
-
+// if(loading)return <p>Loading...</p>
+// console.log(loading)
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 relative overflow-hidden">
       {/* Animated Background Elements */}
@@ -252,7 +265,7 @@ const ProductDashboard = () => {
             },
             {
               title: "Total Sales",
-              value: "৳2,45,320",
+              value: "৳00000",
               change: "+15.3%",
               icon: DollarSign,
               gradient: "from-amber-500 via-orange-500 to-red-500",
@@ -308,9 +321,9 @@ const ProductDashboard = () => {
                   <h2 className="text-xl sm:text-2xl font-bold text-white">
                     Best Selling Products
                   </h2>
-                  <p className="text-sm text-gray-400">
+                  {/* <p className="text-sm text-gray-400">
                     Showing {filteredProducts?.length} of {totalProducts} products
-                  </p>
+                  </p> */}
                 </div>
               </div>
 
@@ -378,10 +391,10 @@ const ProductDashboard = () => {
                   <span className="hidden sm:inline">Export</span>
                 </button>
                 <button
-                  onClick={reFreshData}
-                  className="flex items-center space-x-2 px-4 py-3 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-600/50 text-gray-300 hover:text-white rounded-xl transition-all duration-300 transform hover:scale-105"
+                  onClick={()=>reFreshData()}
+                  className="flex items-center space-x-2 px-4 py-3 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-600/50 text-gray-300 hover:text-white rounded-xl transition-all duration-300 transform hover:scale-105 cursor-pointer"
                 >
-                  <RefreshCw className="w-4 h-4" />
+                  <RefreshCw className={`w-4 h-4 ${spin?'animate-spin':''}`} />
                   <span className="hidden sm:inline">Refresh</span>
                 </button>
               </div>
@@ -636,7 +649,7 @@ const ProductDashboard = () => {
         </div>
 
         {/* Performance Metrics */}
-        <div
+        {/* <div
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mt-8 animate-fadeInUp"
           style={{ animationDelay: "1s" }}
         >
@@ -688,10 +701,10 @@ const ProductDashboard = () => {
               </div>
             </div>
           ))}
-        </div>
+        </div> */}
 
         {/* Footer */}
-        <div className="mt-12 text-center animate-fadeInUp" style={{ animationDelay: "1.2s" }}>
+        {/* <div className="mt-12 text-center animate-fadeInUp" style={{ animationDelay: "1.2s" }}>
           <div className="inline-flex items-center space-x-2 text-gray-400 text-sm">
             <Activity className="w-4 h-4" />
             <span>
@@ -700,7 +713,7 @@ const ProductDashboard = () => {
             <span>•</span>
             <span>Last updated: {currentTime.toLocaleString("en-BD")}</span>
           </div>
-        </div>
+        </div> */}
       </div>
       {/* View Modal */}
       {viewModal && (

@@ -43,7 +43,7 @@ const InventoryDashboard = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [selectedTab, setSelectedTab] = useState('products');
-  const [lowStockThreshold, setLowStockThreshold] = useState(10);
+  const [lowStockThreshold, setLowStockThreshold] = useState(1);
 
   //  action function click handle 
   const [viewModal, setViewModal] = useState(null);
@@ -150,12 +150,12 @@ const InventoryDashboard = () => {
     return sorted;
   }, [products, searchTerm, selectedCategory, sortBy]);
 
-
+console.log("products --->",products)
   const stats = useMemo(() => {
     const totalProducts = products.length;
-    const lowStockProducts = products.filter(p => p.productName <= lowStockThreshold && p.productStock > 0).length;
-    const outOfStockProducts = products.filter(p => p.productStock === 0).length;
-    const totalValue = products.reduce((sum, p) => sum + (p.price * p.stock), 0);
+    const lowStockProducts = products.filter(p => p?.productStock <= 1).length;
+    const outOfStockProducts = products.filter(p => p?.productStock === 0).length;
+    const totalValue = products.reduce((sum, p) => sum + (p?.price * p?.productStock), 0);
 
     return {
       totalProducts,
