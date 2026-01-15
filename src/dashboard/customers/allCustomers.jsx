@@ -296,14 +296,16 @@ const AllCustomersPage = () => {
                           <div className="lg:col-span-4 flex items-center gap-3">
                             {/* Avatar or First Letter */}
                             <div className="w-12 h-12 rounded-full border-2 border-gray-600 flex items-center justify-center bg-gray-800 text-white font-bold text-lg overflow-hidden">
-                              {customer.avatar?.trim() ? (
+                              {customer?.avatar?.trim() ? (
                                 <img
-                                  src={customer.avatar}
-                                  alt={customer.name || "User"}
+                                  src={customer?.avatar}
+                                  alt={customer?.name?.charAt(0).toUpperCase() || "U"}
                                   className="w-full h-full object-cover"
                                 />
                               ) : (
-                                customer.name?.charAt(0).toUpperCase() || "U"
+                                <div className="w-12 h-12 rounded-full border-2 border-yellow-500 bg-gray-600 flex items-center justify-center text-white font-bold text-lg">
+                              {customer?.name?.charAt(0).toUpperCase() || "U"}
+                            </div>
                               )}
                             </div>
 

@@ -334,7 +334,7 @@ const ReviewsPage = () => {
                           {review.userId?.image ? (
                             <img
                               src={review.userId.image}
-                              alt={review.userId?.name || "User"}
+                              alt={review.userId?.name?.charAt(0).toUpperCase() || "U"}
                               className="w-12 h-12 rounded-full border-2 border-yellow-500 object-cover"
                             />
                           ) : (
@@ -359,25 +359,25 @@ const ReviewsPage = () => {
                           </h4>
 
                           <div className="flex items-center gap-2">
-                            <div className="flex">{renderStars(review.rating)}</div>
-                            <span className="text-xs text-gray-400">({review.rating}/5)</span>
+                            <div className="flex">{renderStars(review?.rating)}</div>
+                            <span className="text-xs text-gray-400">({review?.rating}/5)</span>
                           </div>
                         </div>
 
                         {/* Comment */}
                         <div className="lg:col-span-4">
                           <p className="text-white text-sm leading-relaxed line-clamp-2">
-                            {review.comment}
+                            {review?.comment}
                           </p>
                           <div className="flex flex-wrap items-center gap-4 mt-2 text-xs text-gray-400">
                             <span>
-                              {new Date(review.createdAt).toLocaleDateString("en-GB", {
+                              {new Date(review?.createdAt).toLocaleDateString("en-GB", {
                                 day: "2-digit",
                                 month: "short",
                                 year: "numeric",
                               })}
                             </span>
-                            <span>👍 {review.helpful || 0} helpful</span>
+                            <span>👍 {review?.helpful || 0} helpful</span>
                           </div>
                         </div>
 
@@ -385,10 +385,10 @@ const ReviewsPage = () => {
                         <div className="lg:col-span-2 flex flex-col gap-3 items-start lg:items-end">
                           <span
                             className={`${getStatusBadge(
-                              review.status
+                              review?.status
                             )} px-3 py-1 rounded-full text-xs font-semibold capitalize`}
                           >
-                            {review.status}
+                            {review?.status}
                           </span>
 
                           <div className="flex flex-wrap gap-2">

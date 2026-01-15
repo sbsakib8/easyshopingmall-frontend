@@ -23,6 +23,7 @@ import {
 import { getAllUser, getUserProfile } from "@/src/hook/useAuth";
 import { OrderAllAdminGet } from "@/src/utlis/useOrder";
 import { ProductAllGet } from "@/src/hook/useProduct";
+import useGetRevenue from "@/src/utlis/useGetRevenue";
 
 const DashboardHome = () => {
   const router = useRouter();
@@ -35,6 +36,7 @@ const DashboardHome = () => {
   const [orderChange, setOrderChange] = useState(0);
   const [productsCount, setProductsCount] = useState(0);
   const [productsChange, setProductsChange] = useState("0.0");
+  const {totalRevenue} = useGetRevenue()
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -198,7 +200,7 @@ const DashboardHome = () => {
     },
     {
       title: "Total Revenue",
-      value: "৳0,00,000",
+      value: totalRevenue,
       change: "+0.00%",
       changeType: "positive",
       icon: DollarSign,
