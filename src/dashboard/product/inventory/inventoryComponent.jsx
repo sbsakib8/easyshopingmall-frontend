@@ -249,7 +249,7 @@ useEffect(() => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 relative overflow-hidden">
       {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden hidden lg:block">
         <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-blue-500/10 to-transparent rounded-full animate-pulse"></div>
         <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-tl from-purple-500/10 to-transparent rounded-full animate-pulse delay-700"></div>
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-cyan-500/5 to-blue-500/5 rounded-full animate-bounce delay-1000"></div>
@@ -282,20 +282,8 @@ useEffect(() => {
           </div>
 
           {/* Enhanced Stats Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
-            <div className="group relative overflow-hidden bg-gradient-to-br from-blue-500 via-cyan-500 to-teal-500 p-6 rounded-3xl shadow-2xl hover:shadow-cyan-500/25 transition-all duration-500 hover:scale-105 hover:-rotate-1">
-              <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
-              <div className="relative z-10">
-                <div className="flex items-center justify-between mb-4">
-                  <Package className="w-8 h-8 text-white/90 group-hover:scale-110 transition-transform duration-300" />
-                  <div className="text-4xl animate-bounce delay-200">📦</div>
-                </div>
-                <div className="text-3xl font-black text-white mb-1">{stats.totalProducts}</div>
-                <div className="text-blue-100 font-medium">Total Products</div>
-                <div className="mt-2 text-xs text-blue-200">+12% from last month</div>
-              </div>
-            </div>
-
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8">
+          
             <div className="group relative overflow-hidden bg-gradient-to-br from-emerald-500 via-green-500 to-teal-500 p-6 rounded-3xl shadow-2xl hover:shadow-emerald-500/25 transition-all duration-500 hover:scale-105 hover:rotate-1">
               <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
               <div className="relative z-10">
@@ -322,18 +310,31 @@ useEffect(() => {
               </div>
             </div>
 
-            <div className="group relative overflow-hidden bg-gradient-to-br from-rose-500 via-pink-500 to-purple-500 p-6 rounded-3xl shadow-2xl hover:shadow-rose-500/25 transition-all duration-500 hover:scale-105 hover:rotate-1">
+             <div className="group relative overflow-hidden bg-gradient-to-br from-red-500 via-red-400 to-red-600 p-6 rounded-3xl shadow-2xl hover:shadow-cyan-500/25 transition-all duration-500 hover:scale-105 hover:-rotate-1">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-4">
+                  <Package className="w-8 h-8 text-white/90 group-hover:scale-110 transition-transform duration-300" />
+                  <div className="text-4xl animate-bounce delay-200">📦</div>
+                </div>
+                <div className="text-3xl font-black text-white mb-1">{stats?.outOfStockProducts}</div>
+                <div className="text-blue-100 font-medium">Out Of Stock </div>
+                <div className="mt-2 text-xs text-blue-200">+12% from last month</div>
+              </div>
+            </div>
+
+            {/* <div className="group relative overflow-hidden bg-gradient-to-br from-rose-500 via-pink-500 to-purple-500 p-6 rounded-3xl shadow-2xl hover:shadow-rose-500/25 transition-all duration-500 hover:scale-105 hover:rotate-1">
               <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
               <div className="relative z-10">
                 <div className="flex items-center justify-between mb-4">
                   <TrendingDown className="w-8 h-8 text-white/90 group-hover:scale-110 transition-transform duration-300" />
                   <div className="text-4xl animate-bounce delay-500">💰</div>
                 </div>
-                <div className="text-3xl font-black text-white mb-1">${stats.totalValue.toLocaleString()}</div>
+                <div className="text-3xl font-black text-white mb-1">৳{stats.totalValue.toLocaleString()}</div>
                 <div className="text-rose-100 font-medium">Total Value</div>
                 <div className="mt-2 text-xs text-rose-200">Inventory worth</div>
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Navigation Tabs */}
