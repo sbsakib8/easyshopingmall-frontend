@@ -325,7 +325,7 @@ const AllCustomersPage = () => {
                             </div>
                             <div className="flex items-center gap-2 text-sm text-gray-400">
                               <MapPin className="w-3 h-3" />
-                              {customer.address.split(",")[0]}
+                              {customer?.address.address_line|| "none"}
                             </div>
                           </div>
 
@@ -333,7 +333,7 @@ const AllCustomersPage = () => {
                           <div className="lg:col-span-2">
                             <div className="flex items-center gap-2 text-sm text-gray-300 mb-1">
                               <ShoppingBag className="w-3 h-3" />
-                              {customer.totalOrders} orders
+                              {customer?.totalOrders} orders
                             </div>
                           </div>
 
