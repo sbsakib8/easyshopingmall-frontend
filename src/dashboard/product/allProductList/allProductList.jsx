@@ -28,6 +28,7 @@ import { UrlFrontend } from "@/src/confic/urlExport";
 import toast from "react-hot-toast";
 import { ProductDelete, ProductUpdate } from "@/src/hook/useProduct";
 
+
 const ProductDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -36,12 +37,6 @@ const ProductDashboard = () => {
   const Router = useRouter();
   // data
   const [page, setPage] = useState(1);
-// useEffect(() => {
-//  setTimeout(() => {
-//   setSpin(false)
-//  }, 1000);
-// }, [spin])
-
   const formData = useMemo(
     () => ({
       page,
@@ -53,6 +48,7 @@ const ProductDashboard = () => {
 
   // product get
   const { product, loading, error, refetch } = useGetProduct(formData);
+  console.log(product)
   const allCategorydata = useSelector((state) => state.category.allCategorydata);
   const allsubCategorydata = useSelector((state) => state.subcategory.allsubCategorydata);
 
@@ -430,7 +426,7 @@ const ProductDashboard = () => {
 
           {/* Table Body */}
           <div className="divide-y divide-gray-700/30 max-h-96 lg:max-h-none overflow-y-auto">
-            {filteredProducts?.map((product, index) => (
+            {filteredProducts?.sort((a,b)=>a?.productStock-b?.productStock)?.map((product, index) => (
               <div
                 key={index}
                 className="group px-4 sm:px-6 py-4 hover:bg-gradient-to-r hover:from-gray-800/50 hover:to-gray-700/50 transition-all duration-500 transform hover:scale-[1.02] animate-fadeInUp"
