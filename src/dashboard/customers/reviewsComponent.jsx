@@ -334,7 +334,7 @@ const ReviewsPage = () => {
                           {review.userId?.image ? (
                             <img
                               src={review.userId.image}
-                              alt={review.userId?.name || "User"}
+                              alt={review.userId?.name?.charAt(0).toUpperCase() || "U"}
                               className="w-12 h-12 rounded-full border-2 border-yellow-500 object-cover"
                             />
                           ) : (
