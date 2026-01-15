@@ -2,12 +2,13 @@
 
 import { createManualPaymentOrder, createSslPaymentOrder, submitManualPayment } from "@/src/hook/useOrder";
 import { cartClear } from "@/src/redux/cartSlice";
-import { Copy, MapPin, Shield, ShoppingBag, ShoppingCart, Star, Truck } from "lucide-react";
+import { AlertTriangle, Copy, MapPin, Shield, ShoppingBag, ShoppingCart, Star, Truck } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import LocationSelects from "../LocationSelects";
+
 
 
 
@@ -34,7 +35,9 @@ export default function CheckoutComponent() {
   const [manualOrderStep, setManualOrderStep] = useState('initial');
   const [isProcessing, setIsProcessing] = useState(false);
   const [deliveryCharge, setDeliveryCharge] = useState(60);
-  const [manualPaymentInfo, setManualPaymentInfo] = useState({ senderNumber: "", transactionId: "" });
+  const [manualPaymentInfo, setManualPaymentInfo] = useState({ senderNumber: "", transactionId: "" })
+  const [usedTransactionIds, setUsedTransactionIds] = useState([]);
+  ;
 
   const isValidBDPhone = (phone) => /^01[3-9]\d{8}$/.test(phone);
   const isValidEmail = (email) =>
@@ -72,6 +75,12 @@ export default function CheckoutComponent() {
     }
   }, [customerInfo.district]);
 
+
+  useEffect(() => {
+    if (manualPaymentInfo.transactionId && usedTransactionIds.includes(manualPaymentInfo.transactionId)) {
+      toast.error("এই ট্রানজ্যাকশন আইডি ইতিমধ্যেই ব্যবহার হয়েছে!");
+    }
+  }, [manualPaymentInfo.transactionId]);
 
   const handleDistrictChange = (district) => {
     setSelectedDistrict(district);
@@ -243,39 +252,46 @@ export default function CheckoutComponent() {
     const { name, phone, email, address, division, district, area, pincode } = customerInfo;
     const { senderNumber, transactionId } = manualPaymentInfo;
 
-    // 1️⃣ Required fields for customer info
+    // 1️⃣ Required fields
     if (!name || !phone || !address || !division || !district || !area) {
       toast.error("অনুগ্রহ করে সকল প্রয়োজনীয় তথ্য পূরণ করুন (ঠিকানা সহ)");
       return;
     }
 
-    // 2️⃣ Phone validation for customer
     if (!isValidBDPhone(phone)) {
       toast.error("সঠিক বাংলাদেশি মোবাইল নম্বর দিন (01XXXXXXXXX)");
       return;
     }
 
-    // 3️⃣ Email validation (optional)
     if (email && !isValidEmail(email)) {
       toast.error("সঠিক ইমেইল ঠিকানা দিন");
       return;
     }
 
-    // 4️⃣ Required fields for manual payment
     if (!selectedManualMethod) {
       toast.error("অনুগ্রহ করে একটি ম্যানুয়াল পেমেন্ট পদ্ধতি নির্বাচন করুন");
       return;
     }
+
+    // 2️⃣ Manual payment validation
     if (!senderNumber || !transactionId) {
       toast.error("অনুগ্রহ করে পেমেন্ট নম্বর এবং ট্রানজ্যাকশন আইডি উভয়ই দিন");
       return;
     }
+
     if (transactionId.length < 6) {
       toast.error("ট্রানজ্যাকশন আইডি কমপক্ষে ৬ অক্ষরের হতে হবে");
       return;
     }
+
     if (!isValidBDPhone(senderNumber)) {
       toast.error("সঠিক বাংলাদেশি মোবাইল নম্বর দিন (01XXXXXXXXX) পেমেন্ট নম্বরের জন্য");
+      return;
+    }
+
+    // 3️⃣ Check for duplicate transaction ID
+    if (usedTransactionIds.includes(transactionId)) {
+      toast.error("এই ট্রানজ্যাকশন আইডি ইতিমধ্যেই ব্যবহার হয়েছে!");
       return;
     }
 
@@ -292,18 +308,51 @@ export default function CheckoutComponent() {
     try {
       setIsProcessing(true);
 
-      // 1. Create order
-      const orderRes = await createOrder({
-        payment_method: "manual",
-        payDeliveryOnly: payDeliveryOnly,
-        // Passing manual payment details here to be stored with the order if backend supports
-        payment_details: {
-          provider: selectedManualMethod,
-          senderNumber: senderNumber,
-          transactionId: transactionId,
-        }
+      // 4️⃣ Build payload for backend
+      const delivery_address = {
+        address_line: address,
+        district,
+        division,
+        upazila_thana: area,
+        pincode: pincode || 0,
+        country: "Bangladesh",
+        mobile: Number(phone),
+      };
+
+      const productsPayload = cartItems.map(item => {
+        const product = item.productId || {};
+        const price = item.price ?? product.price ?? 0;
+        return {
+          productId: product._id || item.productId,
+          name: product.productName || item.name,
+          image: product.images || item.image,
+          quantity: item.quantity,
+          price: price,
+          totalPrice: (Number(price) || 0) * (Number(item.quantity) || 0),
+          size: item.size || null,
+          color: item.color || null,
+          weight: item.weight || null,
+        };
       });
 
+      const payload = {
+        userId: user._id,
+        products: productsPayload,
+        delivery_address,
+        deliveryCharge,
+        subTotalAmt: subtotal,
+        totalAmt: subtotal + deliveryCharge,
+        payment_method: "manual",
+        payment_type: payDeliveryOnly ? "delivery" : "full",
+        payment_details: {
+          provider: selectedManualMethod,
+          senderNumber,
+          transactionId,
+        },
+      };
+
+      // 5️⃣ Send order creation request
+      const orderRes = await createManualPaymentOrder(payload);
       const order = orderRes?.data;
       const dbOrderId = order?._id;
 
@@ -311,27 +360,28 @@ export default function CheckoutComponent() {
         throw new Error("Order তৈরি করতে সমস্যা হয়েছে (ID পাওয়া যায়নি)");
       }
 
-      // 2. Submit manual payment details
+      // 6️⃣ Submit manual payment
       const paymentSubmissionRes = await submitManualPayment({
         orderId: dbOrderId,
         provider: selectedManualMethod,
-        senderNumber: senderNumber,
-        transactionId: transactionId,
+        senderNumber,
+        transactionId,
         paidFor: payDeliveryOnly ? "delivery" : "full",
       });
 
+      setUsedTransactionIds(prev => [...prev, transactionId]);
+
       toast.success("অর্ডার এবং পেমেন্ট সফলভাবে জমা হয়েছে!");
 
-      // Clear cart and update step
+      // 7️⃣ Clear cart and update state
       dispatch(cartClear());
-      // Update createdOrder with potentially more accurate information from payment submission
-      // Specifically, override payment_type based on what was *actually paid for*
       setCreatedOrder({
         ...order,
         payment_type: paymentSubmissionRes.order?.payment_details?.manual?.paidFor || order.payment_type,
         payment_status: paymentSubmissionRes.order?.payment_status || order.payment_status,
       });
       setManualOrderStep('payment_submitted');
+
     } catch (err) {
       console.error("Manual order and payment submission error:", err);
       const msg = err?.response?.data?.message || err?.message || "ম্যানুয়াল অর্ডার ও পেমেন্ট জমা দিতে ব্যর্থ হয়েছে";
@@ -340,6 +390,7 @@ export default function CheckoutComponent() {
       setIsProcessing(false);
     }
   };
+
 
   const copyOrderId = () => {
     if (!createdOrder?.orderId) return;
@@ -603,6 +654,16 @@ export default function CheckoutComponent() {
                               className="w-full px-3 py-2 border rounded-xl"
                               disabled={isProcessing}
                             />
+
+                            {/* ⚠️ Transaction ID Warning */}
+                            <div className="flex items-start gap-2 mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
+                              <AlertTriangle className="w-4 h-4 text-yellow-600 mt-0.5" />
+                              <p className="text-xs text-yellow-700 leading-snug">
+                                <strong>সতর্কতা:</strong> একবার ব্যবহৃত ট্রানজ্যাকশন আইডি আবার ব্যবহার করবেন না।
+                                ভুল বা ডুপ্লিকেট ট্রানজ্যাকশন আইডি দিলে আপনার অর্ডার বাতিল হতে পারে।
+                              </p>
+                            </div>
+
                           </div>
 
                           {/* New Payment Buttons */}
