@@ -458,7 +458,7 @@ useEffect(() => {
                     return (
                       <div
                         key={product?._id}
-                        className="group relative bg-white/15 backdrop-blur-xl border border-white/20 rounded-3xl p-6 hover:bg-white/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 hover:shadow-2xl hover:shadow-cyan-500/20"
+                        className="group relative bg-white/15 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:bg-white/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 hover:shadow-2xl hover:shadow-cyan-500/20"
                         style={{
                           animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`
                         }}
@@ -472,7 +472,7 @@ useEffect(() => {
 
                         <div className="flex items-start justify-between mb-4">
                           <div className="text-5xl group-hover:scale-110 transition-transform duration-300">
-                            {product?.images ? <img src={product.images[0]} alt={product.productName} className="w-16 h-16 object-cover rounded-xl" /> : "📦"}
+                            {product?.images ? <img src={product.images[0]} alt={product.productName} className="w-16 h-16 object-cover rounded-lg" /> : "📦"}
                           </div>
                           <div className="relative">
                             <button className="p-2 text-white/70 hover:text-white hover:bg-white/20 rounded-xl transition-all duration-200 hover:scale-110">
@@ -486,7 +486,7 @@ useEffect(() => {
                             <h3 className="font-bold text-white text-lg leading-tight mb-2 group-hover:text-cyan-300 transition-colors">
                               {product?.productName}
                             </h3>
-                            <div className="flex items-center justify-between">
+                            <div className="flex flex-col gap-2">
                               <span className="px-3 py-1 bg-white/20 text-white/90 rounded-full text-xs font-medium">
                                 {product?.category[0]?.name}
                               </span>
@@ -495,7 +495,7 @@ useEffect(() => {
                           </div>
 
                           <div className="flex items-center justify-between">
-                            <span className="text-2xl font-black text-white">${product?.price}</span>
+                            <span className="text-2xl font-black text-white">৳{product?.price}</span>
                             <span className={`flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-bold ${stockStatus.status === 'In Stock' ? 'bg-green-500/20 text-green-300' :
                               stockStatus.status === 'Low Stock' ? 'bg-yellow-500/20 text-yellow-300' :
                                 'bg-red-500/20 text-red-300'
@@ -525,18 +525,18 @@ useEffect(() => {
                           <div className="flex space-x-2 pt-2">
                             <button
                               onClick={() => handleEdit(product)}
-                              className="flex-1 flex items-center justify-center space-x-1 py-2 bg-blue-500/20 text-blue-300 rounded-xl hover:bg-blue-500/30 transition-all duration-200 hover:scale-105 font-medium"
+                              className="flex-1 flex items-center justify-center space-x-1 py-2 bg-blue-500/20 text-blue-300 rounded-xl hover:bg-blue-500/30 transition-all duration-200 hover:scale-105 font-medium cursor-pointer"
                             >
                               <Edit className="w-4 h-4" />
                               <span className="hidden sm:inline">Edit</span>
                             </button>
-                            <button onClick={() => handleView(product)} className="flex-1 flex items-center justify-center space-x-1 py-2 bg-emerald-500/20 text-emerald-300 rounded-xl hover:bg-emerald-500/30 transition-all duration-200 hover:scale-105 font-medium">
+                            <button onClick={() => handleView(product)} className="flex-1 flex items-center justify-center space-x-1 py-2 bg-emerald-500/20 text-emerald-300 rounded-xl hover:bg-emerald-500/30 transition-all duration-200 hover:scale-105 font-medium cursor-pointer">
                               <Eye className="w-4 h-4" />
                               <span className="hidden sm:inline">View</span>
                             </button>
                             <button
                               onClick={() => handleDelete(product?._id)}
-                              className="flex-1 flex items-center justify-center space-x-1 py-2 bg-red-500/20 text-red-300 rounded-xl hover:bg-red-500/30 transition-all duration-200 hover:scale-105 font-medium"
+                              className="flex-1 flex items-center justify-center space-x-1 py-2 bg-red-500/20 text-red-300 rounded-xl hover:bg-red-500/30 transition-all duration-200 hover:scale-105 font-medium cursor-pointer"
                             >
                               <Trash2 className="w-4 h-4" />
                               <span className="hidden sm:inline">Delete</span>

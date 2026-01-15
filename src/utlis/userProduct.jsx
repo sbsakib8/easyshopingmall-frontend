@@ -6,6 +6,7 @@ import { ProductAllGet } from "../hook/useProduct";
 // ✅ Custom hook
 export const useGetProduct = (formData) => {
   const [product, setProduct] = useState(null);
+  const [totalCount, setTotalCount] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const dispatch = useDispatch();
@@ -14,7 +15,8 @@ export const useGetProduct = (formData) => {
     try {
       setLoading(true);
       const data = await ProductAllGet(formData);
-      setProduct(data.data);
+      setProduct(data?.data);
+      setTotalCount(data?.totalCount)
       setError(null);
     } catch (err) {
       setError(err);
@@ -27,5 +29,5 @@ export const useGetProduct = (formData) => {
     fetchProduct();
   }, [fetchProduct]);
 
-  return { product, loading, error, refetch: fetchProduct };
+  return { product,totalCount, loading, error, refetch: fetchProduct };
 };

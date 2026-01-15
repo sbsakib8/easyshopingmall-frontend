@@ -49,8 +49,8 @@ const ProductDashboard = () => {
   );
 
   // product get
-  const { product, loading, error, refetch } = useGetProduct(formData);
-  // console.log(product)
+  const { product,totalCount, loading, error, refetch } = useGetProduct(formData);
+  console.log("totalCount--->",totalCount)
   const allCategorydata = useSelector((state) => state.category.allCategorydata);
   const allsubCategorydata = useSelector((state) => state.subcategory.allsubCategorydata);
 
@@ -250,7 +250,7 @@ const ProductDashboard = () => {
           {[
             {
               title: "Total Products",
-              value: totalProducts,
+              value: totalCount,
               change: "+12.5%",
               icon: Package,
               gradient: "from-emerald-500 via-teal-500 to-cyan-500",
