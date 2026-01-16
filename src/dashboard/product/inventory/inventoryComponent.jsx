@@ -43,7 +43,7 @@ const InventoryDashboard = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [selectedTab, setSelectedTab] = useState('products');
-  const [lowStockThreshold, setLowStockThreshold] = useState(10);
+  const [lowStockThreshold, setLowStockThreshold] = useState(1);
 
   //  action function click handle 
   const [viewModal, setViewModal] = useState(null);
@@ -150,12 +150,12 @@ const InventoryDashboard = () => {
     return sorted;
   }, [products, searchTerm, selectedCategory, sortBy]);
 
-
+console.log("products --->",products)
   const stats = useMemo(() => {
     const totalProducts = products.length;
-    const lowStockProducts = products.filter(p => p.productName <= lowStockThreshold && p.productStock > 0).length;
-    const outOfStockProducts = products.filter(p => p.productStock === 0).length;
-    const totalValue = products.reduce((sum, p) => sum + (p.price * p.stock), 0);
+    const lowStockProducts = products.filter(p => p?.productStock <= 1).length;
+    const outOfStockProducts = products.filter(p => p?.productStock === 0).length;
+    const totalValue = products.reduce((sum, p) => sum + (p?.price * p?.productStock), 0);
 
     return {
       totalProducts,
@@ -249,7 +249,7 @@ useEffect(() => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 relative overflow-hidden">
       {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden hidden lg:block">
         <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-blue-500/10 to-transparent rounded-full animate-pulse"></div>
         <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-tl from-purple-500/10 to-transparent rounded-full animate-pulse delay-700"></div>
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-cyan-500/5 to-blue-500/5 rounded-full animate-bounce delay-1000"></div>
@@ -282,20 +282,8 @@ useEffect(() => {
           </div>
 
           {/* Enhanced Stats Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
-            <div className="group relative overflow-hidden bg-gradient-to-br from-blue-500 via-cyan-500 to-teal-500 p-6 rounded-3xl shadow-2xl hover:shadow-cyan-500/25 transition-all duration-500 hover:scale-105 hover:-rotate-1">
-              <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
-              <div className="relative z-10">
-                <div className="flex items-center justify-between mb-4">
-                  <Package className="w-8 h-8 text-white/90 group-hover:scale-110 transition-transform duration-300" />
-                  <div className="text-4xl animate-bounce delay-200">📦</div>
-                </div>
-                <div className="text-3xl font-black text-white mb-1">{stats.totalProducts}</div>
-                <div className="text-blue-100 font-medium">Total Products</div>
-                <div className="mt-2 text-xs text-blue-200">+12% from last month</div>
-              </div>
-            </div>
-
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8">
+          
             <div className="group relative overflow-hidden bg-gradient-to-br from-emerald-500 via-green-500 to-teal-500 p-6 rounded-3xl shadow-2xl hover:shadow-emerald-500/25 transition-all duration-500 hover:scale-105 hover:rotate-1">
               <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
               <div className="relative z-10">
@@ -322,18 +310,31 @@ useEffect(() => {
               </div>
             </div>
 
-            <div className="group relative overflow-hidden bg-gradient-to-br from-rose-500 via-pink-500 to-purple-500 p-6 rounded-3xl shadow-2xl hover:shadow-rose-500/25 transition-all duration-500 hover:scale-105 hover:rotate-1">
+             <div className="group relative overflow-hidden bg-gradient-to-br from-red-500 via-red-400 to-red-600 p-6 rounded-3xl shadow-2xl hover:shadow-cyan-500/25 transition-all duration-500 hover:scale-105 hover:-rotate-1">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-4">
+                  <Package className="w-8 h-8 text-white/90 group-hover:scale-110 transition-transform duration-300" />
+                  <div className="text-4xl animate-bounce delay-200">📦</div>
+                </div>
+                <div className="text-3xl font-black text-white mb-1">{stats?.outOfStockProducts}</div>
+                <div className="text-blue-100 font-medium">Out Of Stock </div>
+                <div className="mt-2 text-xs text-blue-200">+12% from last month</div>
+              </div>
+            </div>
+
+            {/* <div className="group relative overflow-hidden bg-gradient-to-br from-rose-500 via-pink-500 to-purple-500 p-6 rounded-3xl shadow-2xl hover:shadow-rose-500/25 transition-all duration-500 hover:scale-105 hover:rotate-1">
               <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
               <div className="relative z-10">
                 <div className="flex items-center justify-between mb-4">
                   <TrendingDown className="w-8 h-8 text-white/90 group-hover:scale-110 transition-transform duration-300" />
                   <div className="text-4xl animate-bounce delay-500">💰</div>
                 </div>
-                <div className="text-3xl font-black text-white mb-1">${stats.totalValue.toLocaleString()}</div>
+                <div className="text-3xl font-black text-white mb-1">৳{stats.totalValue.toLocaleString()}</div>
                 <div className="text-rose-100 font-medium">Total Value</div>
                 <div className="mt-2 text-xs text-rose-200">Inventory worth</div>
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Navigation Tabs */}
@@ -457,7 +458,7 @@ useEffect(() => {
                     return (
                       <div
                         key={product?._id}
-                        className="group relative bg-white/15 backdrop-blur-xl border border-white/20 rounded-3xl p-6 hover:bg-white/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 hover:shadow-2xl hover:shadow-cyan-500/20"
+                        className="group relative bg-white/15 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:bg-white/20 transition-all duration-500 hover:scale-105 hover:-translate-y-2 hover:shadow-2xl hover:shadow-cyan-500/20"
                         style={{
                           animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`
                         }}
@@ -471,7 +472,7 @@ useEffect(() => {
 
                         <div className="flex items-start justify-between mb-4">
                           <div className="text-5xl group-hover:scale-110 transition-transform duration-300">
-                            {product?.images ? <img src={product.images[0]} alt={product.productName} className="w-16 h-16 object-cover rounded-xl" /> : "📦"}
+                            {product?.images ? <img src={product.images[0]} alt={product.productName} className="w-16 h-16 object-cover rounded-lg" /> : "📦"}
                           </div>
                           <div className="relative">
                             <button className="p-2 text-white/70 hover:text-white hover:bg-white/20 rounded-xl transition-all duration-200 hover:scale-110">
@@ -485,7 +486,7 @@ useEffect(() => {
                             <h3 className="font-bold text-white text-lg leading-tight mb-2 group-hover:text-cyan-300 transition-colors">
                               {product?.productName}
                             </h3>
-                            <div className="flex items-center justify-between">
+                            <div className="flex flex-col gap-2">
                               <span className="px-3 py-1 bg-white/20 text-white/90 rounded-full text-xs font-medium">
                                 {product?.category[0]?.name}
                               </span>
@@ -494,7 +495,7 @@ useEffect(() => {
                           </div>
 
                           <div className="flex items-center justify-between">
-                            <span className="text-2xl font-black text-white">${product?.price}</span>
+                            <span className="text-2xl font-black text-white">৳{product?.price}</span>
                             <span className={`flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-bold ${stockStatus.status === 'In Stock' ? 'bg-green-500/20 text-green-300' :
                               stockStatus.status === 'Low Stock' ? 'bg-yellow-500/20 text-yellow-300' :
                                 'bg-red-500/20 text-red-300'
@@ -524,18 +525,18 @@ useEffect(() => {
                           <div className="flex space-x-2 pt-2">
                             <button
                               onClick={() => handleEdit(product)}
-                              className="flex-1 flex items-center justify-center space-x-1 py-2 bg-blue-500/20 text-blue-300 rounded-xl hover:bg-blue-500/30 transition-all duration-200 hover:scale-105 font-medium"
+                              className="flex-1 flex items-center justify-center space-x-1 py-2 bg-blue-500/20 text-blue-300 rounded-xl hover:bg-blue-500/30 transition-all duration-200 hover:scale-105 font-medium cursor-pointer"
                             >
                               <Edit className="w-4 h-4" />
                               <span className="hidden sm:inline">Edit</span>
                             </button>
-                            <button onClick={() => handleView(product)} className="flex-1 flex items-center justify-center space-x-1 py-2 bg-emerald-500/20 text-emerald-300 rounded-xl hover:bg-emerald-500/30 transition-all duration-200 hover:scale-105 font-medium">
+                            <button onClick={() => handleView(product)} className="flex-1 flex items-center justify-center space-x-1 py-2 bg-emerald-500/20 text-emerald-300 rounded-xl hover:bg-emerald-500/30 transition-all duration-200 hover:scale-105 font-medium cursor-pointer">
                               <Eye className="w-4 h-4" />
                               <span className="hidden sm:inline">View</span>
                             </button>
                             <button
                               onClick={() => handleDelete(product?._id)}
-                              className="flex-1 flex items-center justify-center space-x-1 py-2 bg-red-500/20 text-red-300 rounded-xl hover:bg-red-500/30 transition-all duration-200 hover:scale-105 font-medium"
+                              className="flex-1 flex items-center justify-center space-x-1 py-2 bg-red-500/20 text-red-300 rounded-xl hover:bg-red-500/30 transition-all duration-200 hover:scale-105 font-medium cursor-pointer"
                             >
                               <Trash2 className="w-4 h-4" />
                               <span className="hidden sm:inline">Delete</span>

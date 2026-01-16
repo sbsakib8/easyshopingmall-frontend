@@ -65,7 +65,7 @@ const Carousel = () => {
     <div className="relative w-[98%]   mx-auto md:mt-2 group">
       {/* Main carousel container */}
       <div
-        className="relative h-[380px] md:h-[600px] rounded-2xl overflow-hidden shadow-2xl"
+        className="relative h-[350px] md:h-[600px] rounded-2xl overflow-hidden shadow-2xl"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
@@ -84,17 +84,17 @@ const Carousel = () => {
               <img
                 src={slide?.images?.[0] || ""}
                 alt={slide?.title}
-                className="w-full h-full mt-[60px] md:mt-0 object-contain object-top md:object-cover md:object-center"
+                className="w-full h-full mt-[30px] md:mt-0 object-contain object-top md:object-cover md:object-center"
               />
 
 
               {/* Content overlay */}
               <div className="absolute inset-0 flex flex-col justify-end items-center text-white text-center p-6 md:p-8 lg:p-12">
                 <div className="max-w-4xl mx-auto transform translate-y-0 opacity-100 transition-all duration-700">
-                  <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4 leading-tight text-black md:text-white  md:bg-none px-4 py-2 rounded-lg md:px-0 md:py-0 md:rounded-none">
+                  <h2 className="hidden md:block text-2xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4 leading-tight text-white px-4 py-2 rounded-lg md:px-0 md:py-0 md:rounded-none">
                     {slide?.title}
                   </h2>
-                  <p className="text-sm md:text-lg lg:text-xl opacity-90 leading-relaxed">
+                  <p className="hidden md:block text-sm md:text-lg lg:text-xl opacity-90 leading-relaxed">
                     {slide?.Description || slide?.description || ''}
                   </p>
                 </div>
@@ -133,13 +133,13 @@ const Carousel = () => {
         </button>
 
         {/* Progress indicator */}
-        <div className="absolute top-4 right-4 bg-black/30 backdrop-blur-sm rounded-full px-3 py-1 text-white text-sm">
+        <div className="hidden md:block absolute top-4 right-4 bg-black/30 backdrop-blur-sm rounded-full px-3 py-1 text-white text-sm">
           {currentSlide + 1} / {slides?.length}
         </div>
       </div>
 
       {/* Dots indicator */}
-      <div className="flex justify-center mt-1 md:mt-6 space-x-2">
+      <div className="hidden md:flex justify-center mt-1 md:mt-6 space-x-2">
         {slides?.map((_, index) => (
           <button
             key={index}

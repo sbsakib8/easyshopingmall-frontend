@@ -1,13 +1,14 @@
 "use client";
 
-import { createManualPaymentOrder, createSslPaymentOrder, initPaymentSession, submitManualPayment } from "@/src/hook/useOrder";
+import { createManualPaymentOrder, createSslPaymentOrder, submitManualPayment } from "@/src/hook/useOrder";
 import { cartClear } from "@/src/redux/cartSlice";
-import { MapPin, Shield, ShoppingBag, ShoppingCart, Star, Truck } from "lucide-react";
+import { AlertTriangle, Copy, MapPin, Shield, ShoppingBag, ShoppingCart, Star, Truck } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import LocationSelects from "../LocationSelects";
+
 
 
 
@@ -34,7 +35,9 @@ export default function CheckoutComponent() {
   const [manualOrderStep, setManualOrderStep] = useState('initial');
   const [isProcessing, setIsProcessing] = useState(false);
   const [deliveryCharge, setDeliveryCharge] = useState(60);
-  const [manualPaymentInfo, setManualPaymentInfo] = useState({ senderNumber: "", transactionId: "" });
+  const [manualPaymentInfo, setManualPaymentInfo] = useState({ senderNumber: "", transactionId: "" })
+  const [usedTransactionIds, setUsedTransactionIds] = useState([]);
+  ;
 
   const isValidBDPhone = (phone) => /^01[3-9]\d{8}$/.test(phone);
   const isValidEmail = (email) =>
@@ -66,12 +69,18 @@ export default function CheckoutComponent() {
     ];
 
     if (dhakaDistricts.includes(customerInfo.district)) {
-      setDeliveryCharge(60);
+      setDeliveryCharge(80);
     } else if (customerInfo.district) {
-      setDeliveryCharge(120);
+      setDeliveryCharge(130);
     }
   }, [customerInfo.district]);
 
+
+  useEffect(() => {
+    if (manualPaymentInfo.transactionId && usedTransactionIds.includes(manualPaymentInfo.transactionId)) {
+      toast.error("এই ট্রানজ্যাকশন আইডি ইতিমধ্যেই ব্যবহার হয়েছে!");
+    }
+  }, [manualPaymentInfo.transactionId]);
 
   const handleDistrictChange = (district) => {
     setSelectedDistrict(district);
@@ -94,7 +103,7 @@ export default function CheckoutComponent() {
       district: customerInfo.district,
       division: customerInfo.division,
       upazila_thana: customerInfo.area,
-      pincode: customerInfo.pincode, // Use collected pincode
+      pincode: customerInfo?.pincode || 0, // Use collected pincode
       country: "Bangladesh", // Assuming default
       mobile: customerInfo.phone ? Number(customerInfo.phone) : null,
     };
@@ -146,90 +155,92 @@ export default function CheckoutComponent() {
 
 
   // One-click SSL (full or delivery-only)
-  const handleProceedToPayment = async ({ payDeliveryOnly = false } = {}) => {
-    const { name, phone, email, address, division, district, area, pincode } = customerInfo;
+  // const handleProceedToPayment = async ({ payDeliveryOnly = false } = {}) => {
+  //   const { name, phone, email, address, division, district, area, pincode } = customerInfo;
 
-    // 1️⃣ Required fields
-    if (!name || !phone || !address || !division || !district || !area || !pincode) {
-      toast.error("অনুগ্রহ করে সকল প্রয়োজনীয় তথ্য পূরণ করুন (ঠিকানা সহ)");
-      return;
-    }
+  //   // 1️⃣ Required fields
+  //   if (!name || !phone || !address || !division || !district || !area || !pincode) {
+  //     toast.error("অনুগ্রহ করে সকল প্রয়োজনীয় তথ্য পূরণ করুন (ঠিকানা সহ)");
+  //     return;
+  //   }
 
-    // 2️⃣ Phone validation
-    if (!isValidBDPhone(phone)) {
-      toast.error("সঠিক বাংলাদেশি মোবাইল নম্বর দিন (01XXXXXXXXX)");
-      return;
-    }
+  //   // 2️⃣ Phone validation
+  //   if (!isValidBDPhone(phone)) {
+  //     toast.error("সঠিক বাংলাদেশি মোবাইল নম্বর দিন (01XXXXXXXXX)");
+  //     return;
+  //   }
 
-    // 3️⃣ Email validation (optional)
-    if (email && !isValidEmail(email)) {
-      toast.error("সঠিক ইমেইল ঠিকানা দিন");
-      return;
-    }
+  //   // 3️⃣ Email validation (optional)
+  //   if (email && !isValidEmail(email)) {
+  //     toast.error("সঠিক ইমেইল ঠিকানা দিন");
+  //     return;
+  //   }
 
-    if (!selectedPayment) {
-      toast.error("অনুগ্রহ করে একটি পেমেন্ট মেথড নির্বাচন করুন");
-      return;
-    }
+  //   if (!selectedPayment) {
+  //     toast.error("অনুগ্রহ করে একটি পেমেন্ট মেথড নির্বাচন করুন");
+  //     return;
+  //   }
 
-    if (!user?._id) {
-      toast.error("অনুগ্রহ করে প্রথমে লগইন করুন");
-      return;
-    }
+  //   if (!user?._id) {
+  //     toast.error("অনুগ্রহ করে প্রথমে লগইন করুন");
+  //     return;
+  //   }
 
-    if (!cartItems.length) {
-      toast.error("কার্ট খালি আছে");
-      return;
-    }
+  //   if (!cartItems.length) {
+  //     toast.error("কার্ট খালি আছে");
+  //     return;
+  //   }
 
-    try {
-      setIsProcessing(true);
+  //   try {
+  //     setIsProcessing(true);
 
-      const paymentType = payDeliveryOnly ? "delivery" : "full";
+  //     const paymentType = payDeliveryOnly ? "delivery" : "full";
 
-      // Create order (manual / pending for now, will be updated by SSL)
-      const orderRes = await createOrder({
-        payment_method: "sslcommerz",
-        payment_type: paymentType,
-      });
+  //     // Create order (manual / pending for now, will be updated by SSL)
+  //     const orderRes = await createOrder({
+  //       payment_method: "sslcommerz",
+  //       payment_type: paymentType,
+  //     });
 
 
-      const dbOrder = orderRes?.data;
-      const dbOrderId = dbOrder?._id;
+  //     const dbOrder = orderRes?.data;
+  //     const dbOrderId = dbOrder?._id;
 
-      if (!dbOrderId) {
-        throw new Error("Order তৈরি করতে সমস্যা হয়েছে (ID পাওয়া যায়নি)");
-      }
+  //     if (!dbOrderId) {
+  //       throw new Error("Order তৈরি করতে সমস্যা হয়েছে (ID পাওয়া যায়নি)");
+  //     }
 
-      //  Init SSL payment
-      const paymentRes = await initPaymentSession({
-        orderId: dbOrderId,
-        payment_type: paymentType,
-        userId: user._id,
-        success_url: `${window.location.origin}/payment/success`,
-      });
+  //     //  Init SSL payment
+  //     const paymentRes = await initPaymentSession({
+  //       orderId: dbOrderId,
+  //       payment_type: paymentType,
+  //       userId: user._id,
+  //       success_url: `${window.location.origin}/payment/success`,
+  //     });
 
-      const gatewayUrl = paymentRes?.url;
+  //     const gatewayUrl = paymentRes?.url;
 
-      if (!gatewayUrl) {
-        throw new Error("Payment গেটওয়ে URL পাওয়া যায়নি");
-      }
+  //     if (!gatewayUrl) {
+  //       throw new Error("Payment গেটওয়ে URL পাওয়া যায়নি");
+  //     }
 
-      toast.success("আপনাকে পেমেন্ট পেইজে পাঠানো হচ্ছে...");
-      window.location.href = gatewayUrl;
+  //     toast.success("আপনাকে পেমেন্ট পেইজে পাঠানো হচ্ছে...");
+  //     window.location.href = gatewayUrl;
 
-    } catch (error) {
-      console.error("SSLCommerz init error:", error);
-      const msg =
-        error?.response?.data?.message ||
-        error?.message ||
-        "পেমেন্ট শুরু করতে সমস্যা হয়েছে, পরে আবার চেষ্টা করুন।";
-      toast.error(msg);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
+  //   } catch (error) {
+  //     console.error("SSLCommerz init error:", error);
+  //     const msg =
+  //       error?.response?.data?.message ||
+  //       error?.message ||
+  //       "পেমেন্ট শুরু করতে সমস্যা হয়েছে, পরে আবার চেষ্টা করুন।";
+  //     toast.error(msg);
+  //   } finally {
+  //     setIsProcessing(false);
+  //   }
+  // };
 
+  // console.log('cart', { createdOrder.or }
+  // );
 
 
 
@@ -241,39 +252,46 @@ export default function CheckoutComponent() {
     const { name, phone, email, address, division, district, area, pincode } = customerInfo;
     const { senderNumber, transactionId } = manualPaymentInfo;
 
-    // 1️⃣ Required fields for customer info
-    if (!name || !phone || !address || !division || !district || !area || !pincode) {
+    // 1️⃣ Required fields
+    if (!name || !phone || !address || !division || !district || !area) {
       toast.error("অনুগ্রহ করে সকল প্রয়োজনীয় তথ্য পূরণ করুন (ঠিকানা সহ)");
       return;
     }
 
-    // 2️⃣ Phone validation for customer
     if (!isValidBDPhone(phone)) {
       toast.error("সঠিক বাংলাদেশি মোবাইল নম্বর দিন (01XXXXXXXXX)");
       return;
     }
 
-    // 3️⃣ Email validation (optional)
     if (email && !isValidEmail(email)) {
       toast.error("সঠিক ইমেইল ঠিকানা দিন");
       return;
     }
 
-    // 4️⃣ Required fields for manual payment
     if (!selectedManualMethod) {
       toast.error("অনুগ্রহ করে একটি ম্যানুয়াল পেমেন্ট পদ্ধতি নির্বাচন করুন");
       return;
     }
+
+    // 2️⃣ Manual payment validation
     if (!senderNumber || !transactionId) {
       toast.error("অনুগ্রহ করে পেমেন্ট নম্বর এবং ট্রানজ্যাকশন আইডি উভয়ই দিন");
       return;
     }
+
     if (transactionId.length < 6) {
       toast.error("ট্রানজ্যাকশন আইডি কমপক্ষে ৬ অক্ষরের হতে হবে");
       return;
     }
+
     if (!isValidBDPhone(senderNumber)) {
       toast.error("সঠিক বাংলাদেশি মোবাইল নম্বর দিন (01XXXXXXXXX) পেমেন্ট নম্বরের জন্য");
+      return;
+    }
+
+    // 3️⃣ Check for duplicate transaction ID
+    if (usedTransactionIds.includes(transactionId)) {
+      toast.error("এই ট্রানজ্যাকশন আইডি ইতিমধ্যেই ব্যবহার হয়েছে!");
       return;
     }
 
@@ -290,18 +308,51 @@ export default function CheckoutComponent() {
     try {
       setIsProcessing(true);
 
-      // 1. Create order
-      const orderRes = await createOrder({
-        payment_method: "manual",
-        payDeliveryOnly: payDeliveryOnly,
-        // Passing manual payment details here to be stored with the order if backend supports
-        payment_details: {
-          provider: selectedManualMethod,
-          senderNumber: senderNumber,
-          transactionId: transactionId,
-        }
+      // 4️⃣ Build payload for backend
+      const delivery_address = {
+        address_line: address,
+        district,
+        division,
+        upazila_thana: area,
+        pincode: pincode || 0,
+        country: "Bangladesh",
+        mobile: Number(phone),
+      };
+
+      const productsPayload = cartItems.map(item => {
+        const product = item.productId || {};
+        const price = item.price ?? product.price ?? 0;
+        return {
+          productId: product._id || item.productId,
+          name: product.productName || item.name,
+          image: product.images || item.image,
+          quantity: item.quantity,
+          price: price,
+          totalPrice: (Number(price) || 0) * (Number(item.quantity) || 0),
+          size: item.size || null,
+          color: item.color || null,
+          weight: item.weight || null,
+        };
       });
 
+      const payload = {
+        userId: user._id,
+        products: productsPayload,
+        delivery_address,
+        deliveryCharge,
+        subTotalAmt: subtotal,
+        totalAmt: subtotal + deliveryCharge,
+        payment_method: "manual",
+        payment_type: payDeliveryOnly ? "delivery" : "full",
+        payment_details: {
+          provider: selectedManualMethod,
+          senderNumber,
+          transactionId,
+        },
+      };
+
+      // 5️⃣ Send order creation request
+      const orderRes = await createManualPaymentOrder(payload);
       const order = orderRes?.data;
       const dbOrderId = order?._id;
 
@@ -309,27 +360,28 @@ export default function CheckoutComponent() {
         throw new Error("Order তৈরি করতে সমস্যা হয়েছে (ID পাওয়া যায়নি)");
       }
 
-      // 2. Submit manual payment details
+      // 6️⃣ Submit manual payment
       const paymentSubmissionRes = await submitManualPayment({
         orderId: dbOrderId,
         provider: selectedManualMethod,
-        senderNumber: senderNumber,
-        transactionId: transactionId,
+        senderNumber,
+        transactionId,
         paidFor: payDeliveryOnly ? "delivery" : "full",
       });
 
+      setUsedTransactionIds(prev => [...prev, transactionId]);
+
       toast.success("অর্ডার এবং পেমেন্ট সফলভাবে জমা হয়েছে!");
 
-      // Clear cart and update step
+      // 7️⃣ Clear cart and update state
       dispatch(cartClear());
-      // Update createdOrder with potentially more accurate information from payment submission
-      // Specifically, override payment_type based on what was *actually paid for*
       setCreatedOrder({
         ...order,
         payment_type: paymentSubmissionRes.order?.payment_details?.manual?.paidFor || order.payment_type,
         payment_status: paymentSubmissionRes.order?.payment_status || order.payment_status,
       });
       setManualOrderStep('payment_submitted');
+
     } catch (err) {
       console.error("Manual order and payment submission error:", err);
       const msg = err?.response?.data?.message || err?.message || "ম্যানুয়াল অর্ডার ও পেমেন্ট জমা দিতে ব্যর্থ হয়েছে";
@@ -339,6 +391,17 @@ export default function CheckoutComponent() {
     }
   };
 
+
+  const copyOrderId = () => {
+    if (!createdOrder?.orderId) return;
+    navigator.clipboard.writeText(createdOrder.orderId)
+      .then(() => {
+        toast.success("Order ID copied to clipboard!");
+      })
+      .catch(() => {
+        toast.error("Failed to copy Order ID");
+      });
+  };
 
 
 
@@ -440,7 +503,7 @@ export default function CheckoutComponent() {
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">পোস্ট কোড *</label>
-                    <input value={customerInfo.pincode} onChange={(e) => handleInputChange("pincode", e.target.value)} placeholder="পোস্ট কোড দিন" className="w-full px-4 py-3 border rounded-xl bg-gray-50" />
+                    <input value={customerInfo?.pincode} onChange={(e) => handleInputChange("pincode", e.target.value)} placeholder="পোস্ট কোড দিন" className="w-full px-4 py-3 border rounded-xl bg-gray-50" />
                   </div>
 
                 </div>
@@ -591,6 +654,16 @@ export default function CheckoutComponent() {
                               className="w-full px-3 py-2 border rounded-xl"
                               disabled={isProcessing}
                             />
+
+                            {/* ⚠️ Transaction ID Warning */}
+                            <div className="flex items-start gap-2 mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
+                              <AlertTriangle className="w-4 h-4 text-yellow-600 mt-0.5" />
+                              <p className="text-xs text-yellow-700 leading-snug">
+                                <strong>সতর্কতা:</strong> একবার ব্যবহৃত ট্রানজ্যাকশন আইডি আবার ব্যবহার করবেন না।
+                                ভুল বা ডুপ্লিকেট ট্রানজ্যাকশন আইডি দিলে আপনার অর্ডার বাতিল হতে পারে।
+                              </p>
+                            </div>
+
                           </div>
 
                           {/* New Payment Buttons */}
@@ -617,7 +690,8 @@ export default function CheckoutComponent() {
                         <div className="mt-4 space-y-3 p-4 bg-blue-50 rounded-xl border border-blue-200">
                           <h3 className="font-bold text-blue-800 text-lg">ম্যানুয়াল পেমেন্ট নির্দেশাবলী</h3>
                           <p className="text-sm text-blue-700">
-                            আপনার অর্ডার <strong>#{createdOrder._id?.substring(0, 8)}</strong> সফলভাবে তৈরি হয়েছে।
+                            আপনার অর্ডার <strong>#{createdOrder?.orderId}
+                            </strong> সফলভাবে তৈরি হয়েছে।
                             অনুগ্রহ করে নিচের ধাপগুলো অনুসরণ করে পেমেন্ট সম্পন্ন করুন।
                           </p>
                           <p className="font-medium text-blue-700">
@@ -654,20 +728,35 @@ export default function CheckoutComponent() {
                         <div className="mt-4 space-y-3 p-4 bg-green-50 rounded-xl border border-green-200 text-center">
                           <h3 className="font-bold text-green-800 text-lg">পেমেন্ট জমা হয়েছে!</h3>
                           <p className="text-sm text-green-700">
-                            আপনার পেমেন্টের তথ্য সফলভাবে জমা দেওয়া হয়েছে।
-                            অ্যাডমিনের কনফার্মেশনের জন্য অপেক্ষা করুন।
-                            অর্ডার ID: <strong>#{createdOrder?._id?.substring(0, 8)}</strong>
+                            আপনার পেমেন্টের তথ্য সফলভাবে জমা দেওয়া হয়েছে। অ্যাডমিনের কনফার্মেশনের জন্য অপেক্ষা করুন।
                           </p>
-                          <Link href="/account" className="inline-flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition mt-3">
+
+                          {/* Order ID with copy icon */}
+                          <div className="mt-4 flex items-center justify-center space-x-2">
+                            <span className="font-medium text-gray-900">Order ID:</span>
+                            <span className="font-semibold text-blue-600">{createdOrder?.orderId.substring(0, 8)}</span>
+                            <Copy
+                              size={24}
+                              className="cursor-pointer text-gray-500 hover:text-gray-700"
+                              onClick={copyOrderId}
+                            />
+                          </div>
+
+                          <Link
+                            href="/account"
+                            className="inline-flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition mt-3"
+                          >
                             <ShoppingBag size={18} /> আমার অর্ডারগুলো দেখুন
                           </Link>
                         </div>
                       )}
 
+
+
                     </div>
 
                     {/* ================= SSL Full ================= */}
-                    <label
+                    {/* <label
                       disabled
                       className={`flex items-center p-3 rounded-xl border cursor-pointer
         ${selectedPayment === 'ssl'
@@ -698,10 +787,10 @@ export default function CheckoutComponent() {
                           ৳{(subtotal + deliveryCharge).toLocaleString()}
                         </div>
                       </div>
-                    </label>
+                    </label> */}
 
                     {/* ================= SSL Delivery ================= */}
-                    <label
+                    {/* <label
                       disabled
                       className={`flex items-center p-3 rounded-xl border cursor-pointer
         ${selectedPayment === 'ssl-delivery'
@@ -732,7 +821,7 @@ export default function CheckoutComponent() {
                           ৳{deliveryCharge}
                         </div>
                       </div>
-                    </label>
+                    </label> */}
 
                   </div>
                 </div>
@@ -745,12 +834,12 @@ export default function CheckoutComponent() {
 
                 {/* Action Buttons */}
                 <div className="space-y-3">
-                  <button onClick={() => {
+                  {/* <button onClick={() => {
                     if (selectedPayment !== 'ssl') { setSelectedPayment('ssl'); return; }
                     handleProceedToPayment({ payDeliveryOnly: false });
                   }} disabled={isProcessing} className="w-full bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white py-3 rounded-xl font-semibold disabled:opacity-60">{isProcessing ? 'প্রসেসিং হচ্ছে...' : 'One-Click SSL — Full'}</button>
 
-                  <button onClick={() => { if (selectedPayment !== 'ssl-delivery') { setSelectedPayment('ssl-delivery'); return; } handleProceedToPayment({ payDeliveryOnly: true }); }} disabled={isProcessing} className="w-full border border-gray-300 py-3 rounded-xl font-semibold">{isProcessing ? 'প্রসেসিং হচ্ছে...' : `Pay Delivery Only (৳${deliveryCharge})`}</button>
+                  <button onClick={() => { if (selectedPayment !== 'ssl-delivery') { setSelectedPayment('ssl-delivery'); return; } handleProceedToPayment({ payDeliveryOnly: true }); }} disabled={isProcessing} className="w-full border border-gray-300 py-3 rounded-xl font-semibold">{isProcessing ? 'প্রসেসিং হচ্ছে...' : `Pay Delivery Only (৳${deliveryCharge})`}</button> */}
 
                   <button onClick={() => {
                     if (selectedPayment !== 'manual') {

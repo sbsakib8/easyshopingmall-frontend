@@ -27,11 +27,15 @@ import { useRouter } from "next/navigation";
 import { UrlFrontend } from "@/src/confic/urlExport";
 import toast from "react-hot-toast";
 import { ProductDelete, ProductUpdate } from "@/src/hook/useProduct";
+import { useGetAllOrders } from "@/src/utlis/useGetAllOrders";
+import useGetRevenue from "@/src/utlis/useGetRevenue";
+
 
 const ProductDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [spin, setSpin] = useState(false)
   const Router = useRouter();
   // data
   const [page, setPage] = useState(1);
@@ -41,11 +45,12 @@ const ProductDashboard = () => {
       limit: 10,
       search: "",
     }),
-    []
+    [page]
   );
 
   // product get
-  const { product, loading, error, refetch } = useGetProduct(formData);
+  const { product,totalCount, loading, error, refetch } = useGetProduct(formData);
+  console.log("totalCount--->",totalCount)
   const allCategorydata = useSelector((state) => state.category.allCategorydata);
   const allsubCategorydata = useSelector((state) => state.subcategory.allsubCategorydata);
 
@@ -55,8 +60,10 @@ const ProductDashboard = () => {
   useEffect(() => {
     if (product) {
       setProducts(product);
+      
     }
   }, [product, allCategorydata, allsubCategorydata]);
+  // console.log("allCategorydata---->",allCategorydata)
   // Calculate statistics
   const totalProducts = product?.length || 0;
   const totalCategories = allCategorydata?.data.length || 0;
@@ -120,8 +127,11 @@ const ProductDashboard = () => {
   };
 
   // refetch
-  const reFreshData = () => {
-    refetch();
+  const reFreshData = async() => {
+    setSpin(true)
+    setPage(page+1)
+   await refetch();
+   setSpin(false)
   };
 
   //  action function click handle
@@ -177,6 +187,18 @@ const ProductDashboard = () => {
     setEditModal({ ...editModal, [field]: value });
   };
 
+// toal sale calculation 
+//  const { allOrders, loading: ordersLoading } = useGetAllOrders()
+//  const completedOrders = allOrders?.filter(order => order.order_status==="completed")
+//  const toalIncome = completedOrders?.reduce((sum,o)=>sum+o.totalAmt,0)
+ const {totalRevenue,loading:revenueLoading} = useGetRevenue()
+//  console.log("allOrders--->",allOrders)
+//  console.log("completedOrders--->",completedOrders)
+//  console.log("toalIncome--->",toalIncome)
+//  console.log("totalRevenue--->",totalRevenue)
+
+// if(loading)return <p>Loading...</p>
+// console.log(loading)
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 relative overflow-hidden">
       {/* Animated Background Elements */}
@@ -228,7 +250,7 @@ const ProductDashboard = () => {
           {[
             {
               title: "Total Products",
-              value: totalProducts,
+              value: totalCount,
               change: "+12.5%",
               icon: Package,
               gradient: "from-emerald-500 via-teal-500 to-cyan-500",
@@ -252,7 +274,7 @@ const ProductDashboard = () => {
             },
             {
               title: "Total Sales",
-              value: "৳2,45,320",
+              value: totalRevenue,
               change: "+15.3%",
               icon: DollarSign,
               gradient: "from-amber-500 via-orange-500 to-red-500",
@@ -260,31 +282,31 @@ const ProductDashboard = () => {
             },
           ].map((card, index) => (
             <div
-              key={card.title}
-              className={`group relative bg-gradient-to-br ${card.bgGradient} backdrop-blur-xl p-6 rounded-3xl border border-gray-700/30 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 hover:scale-105 animate-slideUp overflow-hidden`}
+              key={card?.title}
+              className={`group relative bg-gradient-to-br ${card?.bgGradient} backdrop-blur-xl p-6 rounded-3xl border border-gray-700/30 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 hover:scale-105 animate-slideUp overflow-hidden`}
               style={{ animationDelay: `${index * 150}ms` }}
             >
               <div
-                className={`absolute inset-0 bg-gradient-to-r ${card.gradient} opacity-0 group-hover:opacity-10 rounded-3xl transition-opacity duration-500`}
+                className={`absolute inset-0 bg-gradient-to-r ${card?.gradient} opacity-0 group-hover:opacity-10 rounded-3xl transition-opacity duration-500`}
               ></div>
 
               <div className="relative z-10">
                 <div className="flex items-center justify-between mb-4">
                   <div
-                    className={`p-3 rounded-2xl bg-gradient-to-r ${card.gradient} shadow-lg group-hover:scale-110 group-hover:rotate-12 transition-all duration-500`}
+                    className={`p-3 rounded-2xl bg-gradient-to-r ${card?.gradient} shadow-lg group-hover:scale-110 group-hover:rotate-12 transition-all duration-500`}
                   >
                     <card.icon className="w-6 h-6 text-white" />
                   </div>
                   <div className="flex items-center space-x-1 text-green-400">
                     <ArrowUp className="w-4 h-4 animate-bounce" />
-                    <span className="text-sm font-bold">{card.change}</span>
+                    <span className="text-sm font-bold">{card?.change}</span>
                   </div>
                 </div>
 
                 <div>
-                  <p className="text-sm font-medium text-gray-400 mb-2">{card.title}</p>
+                  <p className="text-sm font-medium text-gray-400 mb-2">{card?.title}</p>
                   <p className="text-3xl font-bold text-white mb-1 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:bg-clip-text group-hover:from-blue-400 group-hover:to-purple-400 transition-all duration-500">
-                    {card.value}
+                    {card?.value}
                   </p>
                   <p className="text-xs text-gray-500">vs last month</p>
                 </div>
@@ -308,9 +330,9 @@ const ProductDashboard = () => {
                   <h2 className="text-xl sm:text-2xl font-bold text-white">
                     Best Selling Products
                   </h2>
-                  <p className="text-sm text-gray-400">
+                  {/* <p className="text-sm text-gray-400">
                     Showing {filteredProducts?.length} of {totalProducts} products
-                  </p>
+                  </p> */}
                 </div>
               </div>
 
@@ -378,10 +400,10 @@ const ProductDashboard = () => {
                   <span className="hidden sm:inline">Export</span>
                 </button>
                 <button
-                  onClick={reFreshData}
-                  className="flex items-center space-x-2 px-4 py-3 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-600/50 text-gray-300 hover:text-white rounded-xl transition-all duration-300 transform hover:scale-105"
+                  onClick={()=>reFreshData()}
+                  className="flex items-center space-x-2 px-4 py-3 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-600/50 text-gray-300 hover:text-white rounded-xl transition-all duration-300 transform hover:scale-105 cursor-pointer"
                 >
-                  <RefreshCw className="w-4 h-4" />
+                  <RefreshCw className={`w-4 h-4 ${spin?'animate-spin':''}`} />
                   <span className="hidden sm:inline">Refresh</span>
                 </button>
               </div>
@@ -417,7 +439,7 @@ const ProductDashboard = () => {
 
           {/* Table Body */}
           <div className="divide-y divide-gray-700/30 max-h-96 lg:max-h-none overflow-y-auto">
-            {filteredProducts?.map((product, index) => (
+            {filteredProducts?.sort((a,b)=>a?.productStock-b?.productStock)?.map((product, index) => (
               <div
                 key={index}
                 className="group px-4 sm:px-6 py-4 hover:bg-gradient-to-r hover:from-gray-800/50 hover:to-gray-700/50 transition-all duration-500 transform hover:scale-[1.02] animate-fadeInUp"
@@ -636,7 +658,7 @@ const ProductDashboard = () => {
         </div>
 
         {/* Performance Metrics */}
-        <div
+        {/* <div
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mt-8 animate-fadeInUp"
           style={{ animationDelay: "1s" }}
         >
@@ -688,10 +710,10 @@ const ProductDashboard = () => {
               </div>
             </div>
           ))}
-        </div>
+        </div> */}
 
         {/* Footer */}
-        <div className="mt-12 text-center animate-fadeInUp" style={{ animationDelay: "1.2s" }}>
+        {/* <div className="mt-12 text-center animate-fadeInUp" style={{ animationDelay: "1.2s" }}>
           <div className="inline-flex items-center space-x-2 text-gray-400 text-sm">
             <Activity className="w-4 h-4" />
             <span>
@@ -700,7 +722,7 @@ const ProductDashboard = () => {
             <span>•</span>
             <span>Last updated: {currentTime.toLocaleString("en-BD")}</span>
           </div>
-        </div>
+        </div> */}
       </div>
       {/* View Modal */}
       {viewModal && (

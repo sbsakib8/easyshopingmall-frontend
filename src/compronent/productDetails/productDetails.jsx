@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import CustomLoader from '@/src/compronent/loading/CustomLoader';
 
+
 const ProductDetails = () => {
   const params = useParams();
   const router = useRouter();
@@ -56,13 +57,39 @@ const ProductDetails = () => {
   console.log("product", allProductsData);
 
   const handleSubmitReview = async () => {
+    // Check if user is logged in
+    console.log("=== Review Submission Check ===");
+    console.log("User object:", user);
+    
+    // Handle both _id (normal login) and id (Google login)
+    const userId = user?._id || user?.id;
+    console.log("User ID:", userId);
+    
+    if (!userId) {
+      toast.error("Please sign in to submit a review");
+      return;
+    }
+
     if (!reviewRating || !reviewText) {
       toast.error("Rating & comment required");
       return;
     }
 
+    // Use params.id instead of product?.id to ensure we have the correct ID
+    const productId = params?.id || product?.id;
+    
+    // console.log("Product ID from params:", params?.id);
+    // console.log("Product ID from product:", product?.id);
+    // console.log("Final Product ID:", productId);
+    
+    if (!productId) {
+      toast.error("Product ID not found");
+      return;
+    }
+
     try {
-      await submitReview(product?.id, {
+      await submitReview(productId, {
+        userId: userId,
         rating: reviewRating,
         comment: reviewText,
         status: "pending",
@@ -73,8 +100,16 @@ const ProductDetails = () => {
       setReviewRating(0);
       setReviewText("");
       setShowReviewForm(false);
+      
+      // Refresh reviews list
+      const data = await getApprovedReviews(productId);
+      setReviewList(data);
     } catch (error) {
-      toast.error("Failed to submit review");
+      console.error("=== Review Submission Failed ===");
+      console.error("Error object:", error);
+      const errorMessage = error?.response?.data?.message || error?.message || "Failed to submit review";
+      console.error("Error message to display:", errorMessage);
+      toast.error(errorMessage);
     }
   };
 
@@ -458,7 +493,7 @@ const ProductDetails = () => {
                   ))}
                 </div>
                 <span className="text-gray-600">
-                  {product.rating} ({product.reviews} reviews)
+                  {product.rating} ({reviewList.length || product?.reviews || 0} reviews)
                 </span>
               </div>
             </div>
@@ -655,7 +690,7 @@ const ProductDetails = () => {
           <div className="mt-8">
             {activeTab === "description" && (
               <div className="prose max-w-none">
-                <p className="text-gray-600 text-lg leading-relaxed mb-6">
+                <p className="text-gray-600 text-lg leading-relaxed mb-6 break-words overflow-wrap-anywhere whitespace-pre-line">
                   {product?.description || "No description available"}
                 </p>
 

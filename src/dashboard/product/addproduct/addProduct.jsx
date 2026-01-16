@@ -801,7 +801,7 @@ const AddProductComponent = () => {
         </form>
 
         {/* Quick Stats */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-gradient-to-r from-blue-500/20 to-cyan-500/20 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
             <div className="flex items-center justify-between">
               <div>
@@ -831,7 +831,7 @@ const AddProductComponent = () => {
               <Star className="text-pink-400" size={32} />
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );
