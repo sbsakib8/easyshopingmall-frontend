@@ -14,6 +14,7 @@ import LocationSelects from "../LocationSelects";
 
 export default function CheckoutComponent() {
   const user = useSelector((state) => state.user?.data);
+  const [showGuideVideo, setShowGuideVideo] = useState(false)
   const dispatch = useDispatch();
   const { items } = useSelector((state) => state.cart || {});
   const cartItems = items || [];
@@ -450,6 +451,23 @@ export default function CheckoutComponent() {
           </div>
         </div>
       </div>
+      <div className="w-full px-5 flex justify-center items-center mt-8 gap-2 ">
+        <button onClick={() => setShowGuideVideo(!showGuideVideo)} className="bg-orange-300 px-3 py-2 rounded-2xl cursor-pointer">সম্পূর্ণ অর্ডার গাইডলাইন এখানে দেখুন</button>
+
+      </div>
+      {/* guide video  */}
+      {showGuideVideo && <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn ">
+        <iframe
+          width="560"
+          height="315"
+          src="https://www.youtube.com/embed/XhMLiC7QLns"
+          title="Order guide video"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen>
+        </iframe>
+        <button onClick={()=>setShowGuideVideo(!showGuideVideo)} className="text-xl bg-red-400 py-1 px-3 rounded-full absolute top-10 right-10 cursor-pointer">X</button>
+      </div>}
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid lg:grid-cols-3 gap-8">
@@ -642,7 +660,7 @@ export default function CheckoutComponent() {
                               placeholder="আপনার মোবাইল নম্বর (যেই নম্বর থেকে পেমেন্ট করেছেন)"
                               value={manualPaymentInfo.senderNumber}
                               onChange={(e) => handleManualPaymentInfoChange('senderNumber', e.target.value)}
-                              className="w-full px-3 py-2 border rounded-xl"
+                              className="w-full px-3 py-3 border rounded-xl text-xs"
                               disabled={isProcessing}
                             />
 
@@ -651,7 +669,7 @@ export default function CheckoutComponent() {
                               placeholder="ট্রানজ্যাকশন আইডি (Transaction ID)"
                               value={manualPaymentInfo.transactionId}
                               onChange={(e) => handleManualPaymentInfoChange('transactionId', e.target.value)}
-                              className="w-full px-3 py-2 border rounded-xl"
+                              className="w-full px-3 py-3 border rounded-xl text-xs"
                               disabled={isProcessing}
                             />
 
