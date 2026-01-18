@@ -315,14 +315,14 @@ const ShoppingCartComponent = () => {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 row-span-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Cart Items */}
             <div className="lg:col-span-2  space-y-4">
               {cartItems?.map((item, index) => (
                 // <Link className=' space-y-10' key={item.id}>
                 <div
                   key={item.productId}
-                  className="bg-white mt-10 cursor-pointer rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300"
+                  className="bg-white cursor-pointer rounded-2xl shadow-lg py-6 px-3 hover:shadow-xl transition-all duration-300"
                   style={{
                     animation: `slideIn 0.5s ease-out ${index * 0.1}s both`
                   }}
@@ -635,8 +635,6 @@ const ShoppingCartComponent = () => {
                 </div>
               </div>
             )}
-
-
           </div>
         )}
       </div>
