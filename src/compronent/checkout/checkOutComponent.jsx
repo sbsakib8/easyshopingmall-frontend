@@ -452,8 +452,8 @@ export default function CheckoutComponent() {
         </div>
       </div>
       <div className="w-full px-5 flex justify-center items-center mt-8 gap-2 ">
-        <button onClick={() => setShowGuideVideo(!showGuideVideo)} className="bg-orange-300 px-3 py-2 rounded-2xl cursor-pointer">সম্পূর্ণ অর্ডার গাইডলাইন এখানে দেখুন</button>
-
+        <button  className="text-sm bg-orange-300 px-3 py-2 rounded-2xl">সম্পূর্ণ অর্ডার গাইডলাইন এখানে দেখুন</button>
+      <img  onClick={() => setShowGuideVideo(!showGuideVideo)}src="https://cdn-icons-png.freepik.com/256/13983/13983898.png?semt=ais_white_label" className="w-10 h-10 cursor-pointer" alt="" />
       </div>
       {/* guide video  */}
       {showGuideVideo && <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn ">

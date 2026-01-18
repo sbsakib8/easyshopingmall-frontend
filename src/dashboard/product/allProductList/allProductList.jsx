@@ -439,7 +439,7 @@ const ProductDashboard = () => {
 
           {/* Table Body */}
           <div className="divide-y divide-gray-700/30 max-h-96 lg:max-h-none overflow-y-auto">
-            {filteredProducts?.sort((a,b)=>a?.productStock-b?.productStock)?.map((product, index) => (
+            {filteredProducts?.slice(0,20)?.sort((a,b)=>a?.productStock-b?.productStock)?.map((product, index) => (
               <div
                 key={index}
                 className="group px-4 sm:px-6 py-4 hover:bg-gradient-to-r hover:from-gray-800/50 hover:to-gray-700/50 transition-all duration-500 transform hover:scale-[1.02] animate-fadeInUp"
