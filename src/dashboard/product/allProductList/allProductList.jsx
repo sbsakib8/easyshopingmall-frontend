@@ -42,7 +42,7 @@ const ProductDashboard = () => {
   const formData = useMemo(
     () => ({
       page,
-      limit: 10,
+      limit: 5000,
       search: "",
     }),
     [page]
