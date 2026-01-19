@@ -587,13 +587,13 @@ const ShopPage = () => {
           </div>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col lg:flex-row gap-8 ">
           {/* Sidebar Filters */}
           <div className="lg:w-80 space-y-6">
             {/* Filter Toggle for Mobile */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="lg:hidden w-full flex items-center justify-between bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+              className="lg:hidden w-full flex items-center justify-between bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 border"
             >
               <span className="font-semibold flex items-center gap-2">
                 <SlidersHorizontal className="w-5 h-5" />
@@ -644,8 +644,8 @@ const ShopPage = () => {
               </div>
 
               {/* Product Categories */}
-              <div onClick={()=>setShowCategory(!showCategory)} className="bg-white p-6 rounded-lg shadow-md">
-                  <h3  className="flex justify-between font-bold text-lg mb-4 text-gray-800 ">Product Categories <span className={`${showCategory?"":"rotate-180"} lg:hidden`}><ArrowUp/></span> </h3>
+              <div onClick={()=>setShowCategory(!showCategory)} className="bg-white px-6 rounded-lg shadow-md border border-gray-200">
+                  <h3  className="flex justify-between font-bold items-center text-lg mb-4 text-gray-800 border lg:border-none mt-3 p-2 rounded-xl">Product Categories <span className={`${showCategory?"":"rotate-180"} lg:hidden`}><ArrowUp/></span> </h3>
                 <div className={`space-y-2 ${categories.length > 4 ? 'max-h-64 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-purple-500 scrollbar-track-gray-200' : ''}`}>
                   {categories.map((category) => (
                     <label
