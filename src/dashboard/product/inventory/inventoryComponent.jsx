@@ -16,7 +16,7 @@ const InventoryDashboard = () => {
   const [page, setPage] = useState(1);
   const formData = useMemo(() => ({
     page,
-    limit: 10,
+    limit: 5000,
     search: ""
   }), []);
 
@@ -451,7 +451,7 @@ useEffect(() => {
               {/* Products Display */}
               {viewMode === 'grid' ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {filteredProducts.map((product, index) => {
+                  {filteredProducts?.slice(0,20).map((product, index) => {
                     const stockStatus = getStockStatus(product);
                     const stockPercentage = Math.min((product?.productStock / (lowStockThreshold * 2)) * 100, 100);
 
