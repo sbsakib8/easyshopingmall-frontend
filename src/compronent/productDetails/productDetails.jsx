@@ -426,13 +426,13 @@ const ProductDetails = () => {
 
             <div className='flex gap-3'>
               <div className={`relative overflow-hidden rounded-lg transition-all duration-300 `}>
-                {!product.video_link && <>
+                {product?.video_link && <>
                   <img
                     src={product?.images[0] || []}
                     alt={`${product?.name} `}
                     className="w-20 h-20 object-cover"
                   />
-                  <img onClick={() => setshowVideo(true)} src="https://cdn-icons-png.freepik.com/256/13983/13983898.png?semt=ais_white_label" alt="" className="w-10 h-10 object-cover absolute  top-5 right-5 cursor-pointer" />
+                  <img onClick={() => setshowVideo(true)} src={product?.video_link} alt="" className="w-10 h-10 object-cover absolute  top-5 right-5 cursor-pointer" />
 
                   {/* details video  */}
                 {showVideo && <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn ">
