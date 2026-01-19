@@ -10,6 +10,7 @@ import { getApprovedReviews, submitReview } from "@/src/hook/useReview";
 import { decreaseProductQuantity, increaseProductQuantity } from "@/src/hook/useUpdateProduct";
 import { addToWishlistApi, removeFromWishlistApi } from "@/src/hook/useWishlist";
 import { useGetProduct } from "@/src/utlis/userProduct";
+import ReactPlayer from 'react-player'
 import {
   ChevronRight,
   Heart,
@@ -422,19 +423,37 @@ const ProductDetails = () => {
               </button>
             </div>
             {/* details video section  */}
+
             <div className='flex gap-3'>
               <div className={`relative overflow-hidden rounded-lg transition-all duration-300 `}>
-                <img
-                  src={product?.images[0] || []}
-                  alt={`${product?.name} `}
-                  className="w-20 h-20 object-cover"
-                />
-                <img onClick={() => setshowVideo(true)} src="https://cdn-icons-png.freepik.com/256/13983/13983898.png?semt=ais_white_label" alt="" className="w-10 h-10 object-cover absolute  top-5 right-5 cursor-pointer" />
-                {/* details video  */}
+                {!product.video_link && <>
+                  <img
+                    src={product?.images[0] || []}
+                    alt={`${product?.name} `}
+                    className="w-20 h-20 object-cover"
+                  />
+                  <img onClick={() => setshowVideo(true)} src="https://cdn-icons-png.freepik.com/256/13983/13983898.png?semt=ais_white_label" alt="" className="w-10 h-10 object-cover absolute  top-5 right-5 cursor-pointer" />
+
+                  {/* details video  */}
                 {showVideo && <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn ">
-                  <iframe width="560" height="315" src="https://www.youtube.com/embed/-TajKJR_paU?si=EfgDGZFpp4g0mGd_" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                  <ReactPlayer
+                    controls
+                    light={<img
+                      src={product?.images[0] || []}
+                      alt={`${product?.name} `}
+                      className=" w-96 h-96 rounded-xl md:rounded-2xl"
+                    />}
+                    playIcon={<img className='w-12 h-12 absolute rounded-full' src={"https://cdn-icons-png.freepik.com/256/13983/13983898.png?semt=ais_white_label"} />}
+                    width={660}
+                    height={315}
+                    volume={0.5}
+                    playing={true}
+                    src={product?.video_link||"https://youtube.com/shorts/axcw2w7pKkk?si=-doija2AmzPRa_4v"}
+                  />
                   <button onClick={() => setshowVideo(!showVideo)} className="text-xl bg-red-400 py-1 px-3 rounded-full absolute top-10 right-10 cursor-pointer">X</button>
                 </div>}
+                </>}
+                
               </div>
 
               {/* Thumbnail Images */}

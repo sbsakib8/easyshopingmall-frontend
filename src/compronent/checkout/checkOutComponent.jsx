@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import LocationSelects from "../LocationSelects";
-
+import ReactPlayer from 'react-player'
 
 
 
@@ -452,21 +452,26 @@ export default function CheckoutComponent() {
         </div>
       </div>
       <div className="w-full px-5 flex justify-center items-center mt-8 gap-2 ">
-        <button  className="text-sm bg-orange-300 px-3 py-2 rounded-2xl">সম্পূর্ণ অর্ডার গাইডলাইন এখানে দেখুন</button>
-      <img  onClick={() => setShowGuideVideo(!showGuideVideo)}src="https://cdn-icons-png.freepik.com/256/13983/13983898.png?semt=ais_white_label" className="w-10 h-10 cursor-pointer" alt="" />
+        <button className="text-sm bg-orange-300 px-3 py-2 rounded-2xl">সম্পূর্ণ অর্ডার গাইডলাইন এখানে দেখুন</button>
+        <img onClick={() => setShowGuideVideo(!showGuideVideo)} src="https://cdn-icons-png.freepik.com/256/13983/13983898.png?semt=ais_white_label" className="w-10 h-10 cursor-pointer" alt="" />
       </div>
       {/* guide video  */}
       {showGuideVideo && <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn ">
-        <iframe
-          width="560"
-          height="315"
-          src="https://www.youtube.com/embed/XhMLiC7QLns"
-          title="Order guide video"
-          frameborder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowfullscreen>
-        </iframe>
-        <button onClick={()=>setShowGuideVideo(!showGuideVideo)} className="text-xl bg-red-400 py-1 px-3 rounded-full absolute top-10 right-10 cursor-pointer">X</button>
+        <ReactPlayer
+          controls
+          light={<img
+            src={"https://i.ytimg.com/vi/W2paMfruQ9E/hqdefault.jpg?sqp=-oaymwFBCNACELwBSFryq4qpAzMIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB8AEB-AH-CYAC0AWKAgwIABABGBEgcihEMA8=&rs=AOn4CLDdu1fUa6vCag_bXVZ84066LrfDrA"}
+            alt={`thumbnel `}
+            className=" w-96 h-96  rounded-xl md:rounded-2xl"
+          />}
+          playIcon={<img className='w-12 h-12 absolute rounded-full' src={"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRT7dAm2xeRPWO5PJWhJnhfUeG3Syl3ws8wnw&s"} />}
+          width={660}
+          height={315}
+          volume={0.5}
+          playing={true}
+          src="https://www.youtube.com/watch?v=W2paMfruQ9E"
+        />
+        <button onClick={() => setShowGuideVideo(!showGuideVideo)} className="text-xl bg-red-400 py-1 px-3 rounded-full absolute top-10 right-10 cursor-pointer">X</button>
       </div>}
 
       <div className="max-w-7xl mx-auto px-4 py-8">
