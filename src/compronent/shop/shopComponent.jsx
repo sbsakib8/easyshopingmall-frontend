@@ -5,7 +5,7 @@ import { useGetProduct } from "@/src/utlis/userProduct"
 import { useSearchProduct } from "@/src/utlis/useSearchProduct"
 import { useWishlist } from "@/src/utlis/useWishList"
 import { useCategoryWithSubcategories } from "@/src/utlis/useCategoryWithSubcategories"
-import { ChevronDown, Filter, Grid, Heart, List, Search, ShoppingCart, SlidersHorizontal, Star } from "lucide-react"
+import { ArrowUp, ChevronDown, Filter, Grid, Heart, List, Search, ShoppingCart, SlidersHorizontal, Star, X } from "lucide-react"
 import CustomLoader from '@/src/compronent/loading/CustomLoader'
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
@@ -81,6 +81,8 @@ const ShopPage = () => {
   const [priceRange, setPriceRange] = useState([0, 300])
   const [ratingFilter, setRatingFilter] = useState(0)
   const [showFilters, setShowFilters] = useState(false)
+  const [showCategory, setShowCategory] = useState(false)
+  const [showSubCategory, setShowSubCategory] = useState(false)
   const [cartOpen, setCartOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const productsPerPage = 30
@@ -642,13 +644,13 @@ const ShopPage = () => {
               </div>
 
               {/* Product Categories */}
-              <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="font-bold text-lg mb-4 text-gray-800">Product Categories</h3>
+              <div onClick={()=>setShowCategory(!showCategory)} className="bg-white p-6 rounded-lg shadow-md">
+                  <h3  className="flex justify-between font-bold text-lg mb-4 text-gray-800 ">Product Categories <span className={`${showCategory?"":"rotate-180"} lg:hidden`}><ArrowUp/></span> </h3>
                 <div className={`space-y-2 ${categories.length > 4 ? 'max-h-64 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-purple-500 scrollbar-track-gray-200' : ''}`}>
                   {categories.map((category) => (
                     <label
                       key={category}
-                      className="flex items-center space-x-2 hover:bg-gray-50 p-2 rounded cursor-pointer"
+                      className={` items-center space-x-2 hover:bg-gray-50 p-2 rounded cursor-pointer ${showCategory?"flex":"hidden"} lg:flex`}
                     >
                       <input
                         type="radio"
@@ -657,6 +659,8 @@ const ShopPage = () => {
                         onChange={() => {
                           setFilterCategory(category)
                           setFilterSubCategory("all")
+                          setShowSubCategory(true)
+                          setShowCategory(false)
                         }}
                         className="text-purple-600 focus:ring-purple-500"
                       />
@@ -670,8 +674,12 @@ const ShopPage = () => {
 
               {/* Subcategories */}
               {subCategories.length > 1 && (
-                <div className="bg-white p-6 rounded-lg shadow-md">
-                  <h3 className="font-bold text-lg mb-4 text-gray-800">Subcategories</h3>
+                <div className={`bg-white p-6 rounded-lg shadow-md ${showSubCategory & !showCategory?"block":"hidden"} lg:block`}>
+                  <h3 className="font-bold text-lg mb-4 text-gray-800 flex justify-between ">Subcategories 
+                    <span className="lg:hidden">
+                   <X onClick={()=>setShowSubCategory(false)} size={30}/> 
+                    </span> 
+                   </h3>
                   <div className={`space-y-2 ${subCategories.length > 4 ? 'max-h-64 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-purple-500 scrollbar-track-gray-200' : ''}`}>
                     {subCategories.map((subcat) => (
                       <label
