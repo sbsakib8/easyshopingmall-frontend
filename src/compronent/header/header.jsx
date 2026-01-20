@@ -86,7 +86,7 @@ const Header = () => {
     navItems.push({ name: "Dashboard", href: "/dashboard" });
   }
 
-// Scroll effect
+  // Scroll effect
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -188,9 +188,8 @@ const Header = () => {
     return [...Array(5)].map((_, i) => (
       <Star
         key={i}
-        className={`w-3 h-3 ${
-          i < Math.floor(rating) ? "text-yellow-400 fill-current" : "text-gray-300"
-        }`}
+        className={`w-3 h-3 ${i < Math.floor(rating) ? "text-yellow-400 fill-current" : "text-gray-300"
+          }`}
       />
     ));
   };
@@ -236,9 +235,8 @@ const Header = () => {
   return (
     <>
       <div
-        className={`bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 text-white text-xs sm:text-sm py-2 sm:py-3 px-2 sm:px-4 relative overflow-hidden transition-all duration-300 ${
-          isScrolled ? "h-0 py-0 opacity-0" : "h-auto lg:h-[60px]"
-        } hidden sm:block`}
+        className={`bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 text-white text-xs sm:text-sm py-2 sm:py-3 px-2 sm:px-4 relative overflow-hidden transition-all duration-300 ${isScrolled ? "h-0 py-0 opacity-0" : "h-auto lg:h-[60px]"
+          } hidden sm:block`}
       >
         {/* Animated background particles */}
         <div className="absolute inset-0 opacity-20">
@@ -297,9 +295,8 @@ const Header = () => {
 
       {/* Secondary Top Bar */}
       <div
-        className={`bg-gradient-to-r from-slate-50 to-gray-100 border-b border-gray-200/80 text-xs sm:text-sm py-2 sm:py-3 px-2 sm:px-4 backdrop-blur-sm transition-all duration-300 ${
-          isScrolled ? "h-0 py-0 opacity-0" : "h-auto sm:h-[50px] lg:h-[80px]"
-        } hidden sm:block`}
+        className={`bg-gradient-to-r from-slate-50 to-gray-100 border-b border-gray-200/80 text-xs sm:text-sm py-2 sm:py-3 px-2 sm:px-4 backdrop-blur-sm transition-all duration-300 ${isScrolled ? "h-0 py-0 opacity-0" : "h-auto sm:h-[50px] lg:h-[80px]"
+          } hidden sm:block`}
       >
         <div className="px-2 sm:px-5 lg:px-32 mx-auto flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
           <div className="flex flex-wrap items-center justify-center sm:justify-start space-x-2 sm:space-x-4 lg:space-x-6 mb-2 sm:mb-0">
@@ -387,20 +384,21 @@ const Header = () => {
             </Link>
           </div>
         </div>
-      <div className="py-2 overflow-hidden hidden sm:block bg-gradient-to-r from-amber-400 via-yellow-400 to-orange-400">
-        <marquee behavior="scroll" direction="left" scrollamount="8" loop="infinite" className="text-sm font-semibold text-gray-800">
-          🔥 Flash Sale: Up to 70% OFF on Selected Items! ⚡ Free Shipping on Orders Over $50 | 🎁 Buy 2 Get 1 Free | 💎 New Arrivals Exclusive Collection | 🌟 Extra 20% OFF with Code: SAVE20 | 🚀 Same Day Delivery
-        </marquee>
-      </div>
+        <div className="py-2 overflow-hidden hidden sm:block bg-gradient-to-r from-amber-400 via-yellow-400 to-orange-400">
+          <marquee behavior="scroll" direction="left" scrollamount="8" loop="infinite" className="text-sm font-semibold text-gray-800">
+            🔥 EasyShoppingMallBD-তে স্বাগতম!
+            সাশ্রয়ী দামে মানসম্মত পণ্য | সীমিত সময়ের অফার 🎁 | আজই অর্ডার করুন 🚚  || 🛍️ কেন EasyShoppingMallBD?
+            কারণ এখানে আছে মানসম্মত পণ্য, সাশ্রয়ী দাম আর নিশ্চিন্ত শপিংয়ের নিশ্চয়তা 💚
+          </marquee>
+        </div>
       </div>
 
       {/* Marquee Banner */}
 
       {/* Main Header */}
       <header
-        className={`bg-white/95 backdrop-blur-md shadow-lg sticky top-0 z-40 border-b border-gray-200/50 transition-all duration-300 ${
-          isScrolled ? "h-16 sm:h-20" : "h-20 sm:h-24 lg:h-[100px]"
-        }`}
+        className={`bg-white/95 backdrop-blur-md shadow-lg sticky top-0 z-40 border-b border-gray-200/50 transition-all duration-300 ${isScrolled ? "h-16 sm:h-20" : "h-20 sm:h-24 lg:h-[100px]"
+          }`}
       >
         <div className="mx-auto px-2 sm:px-4 lg:px-32">
           <div className="flex items-center justify-between py-2 sm:py-3 lg:py-4">
@@ -409,9 +407,8 @@ const Header = () => {
               <div className="flex items-center space-x-2 sm:space-x-3 group cursor-pointer">
                 <div className="relative">
                   <div
-                    className={`w-6 h-6 sm:w-10 sm:h-10 lg:w-12 lg:h-12  from-emerald-500 via-green-500 to-teal-500 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 ${
-                      isScrolled ? "animate-pulse" : ""
-                    }`}
+                    className={`w-6 h-6 sm:w-10 sm:h-10 lg:w-12 lg:h-12  from-emerald-500 via-green-500 to-teal-500 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 ${isScrolled ? "animate-pulse" : ""
+                      }`}
                   >
                     {/* <div className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 bg-white rounded-lg sm:rounded-xl flex items-center justify-center transform group-hover:rotate-12 transition-transform duration-300">
                       <div className="w-3 h-3 sm:w-3.5 sm:h-3.5 lg:w-4 lg:h-4 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-md sm:rounded-lg"></div>
@@ -453,9 +450,8 @@ const Header = () => {
                     <span className="font-semibold text-sm lg:text-base">Categories</span>
                     <ChevronDown
                       size={14}
-                      className={`transition-transform duration-300 ${
-                        isCategoriesOpen ? "rotate-180" : ""
-                      }`}
+                      className={`transition-transform duration-300 ${isCategoriesOpen ? "rotate-180" : ""
+                        }`}
                     />
                   </button>
                   {/* Categories Dropdown Container */}
@@ -477,61 +473,59 @@ const Header = () => {
                           </div>
                         ) : (
                           menuCategories.map((category) => {
-                          const activeSub = category.subcategories.find(
-                            (sub) => pathname === `/shop?category=${encodeURIComponent(sub)}`
-                          );
-                          const isActiveCategory = hoveredCategoryId === category.id || activeSub;
+                            const activeSub = category.subcategories.find(
+                              (sub) => pathname === `/shop?category=${encodeURIComponent(sub)}`
+                            );
+                            const isActiveCategory = hoveredCategoryId === category.id || activeSub;
 
-                          return (
-                            <div
-                              key={category.id}
-                              className="static" 
-                              onMouseEnter={() => setHoveredCategoryId(category.id)}
-                              onMouseLeave={() => setHoveredCategoryId(null)}
-                            >
-                              <button
-                                className={`flex items-center space-x-3 w-full px-6 py-4 transition-all duration-300 ${
-                                  isActiveCategory
-                                    ? "bg-emerald-50 text-emerald-700"
-                                    : "hover:bg-emerald-50 text-gray-700"
-                                }`}
-                              >
-                                <span className="text-xl">{category.icon}</span>
-                                <span className="font-semibold">{category.name}</span>
-                                <ChevronDown
-                                  size={14}
-                                  className="ml-auto -rotate-90 text-gray-400"
-                                />
-                              </button>
-
-                              
+                            return (
                               <div
-                                className={`absolute left-full top-0 ml-[2px] w-64 bg-white border border-gray-100 rounded-2xl shadow-2xl transition-all duration-300 ease-out z-[60] 
-                  ${
-                    isActiveCategory
-                      ? "opacity-100 visible translate-x-0"
-                      : "opacity-0 invisible -translate-x-4"
-                  }`}
+                                key={category.id}
+                                className="static"
+                                onMouseEnter={() => setHoveredCategoryId(category.id)}
+                                onMouseLeave={() => setHoveredCategoryId(null)}
                               >
-                                <div className="bg-gray-50/50 p-4 border-b rounded-t-2xl">
-                                  <h4 className="font-bold text-gray-800">{category.name}</h4>
-                                </div>
+                                <button
+                                  className={`flex items-center space-x-3 w-full px-6 py-4 transition-all duration-300 ${isActiveCategory
+                                      ? "bg-emerald-50 text-emerald-700"
+                                      : "hover:bg-emerald-50 text-gray-700"
+                                    }`}
+                                >
+                                  <span className="text-xl">{category.icon}</span>
+                                  <span className="font-semibold">{category.name}</span>
+                                  <ChevronDown
+                                    size={14}
+                                    className="ml-auto -rotate-90 text-gray-400"
+                                  />
+                                </button>
 
-                                <div className="py-2">
-                                  {category.subcategories.map((sub) => (
-                                    <Link
-                                      key={sub}
-                                      href={`/shop?category=${encodeURIComponent(sub)}`}
-                                      className="block px-6 py-3 text-gray-600 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 font-medium"
-                                    >
-                                      {sub}
-                                    </Link>
-                                  ))}
+
+                                <div
+                                  className={`absolute left-full top-0 ml-[2px] w-64 bg-white border border-gray-100 rounded-2xl shadow-2xl transition-all duration-300 ease-out z-[60] 
+                  ${isActiveCategory
+                                      ? "opacity-100 visible translate-x-0"
+                                      : "opacity-0 invisible -translate-x-4"
+                                    }`}
+                                >
+                                  <div className="bg-gray-50/50 p-4 border-b rounded-t-2xl">
+                                    <h4 className="font-bold text-gray-800">{category.name}</h4>
+                                  </div>
+
+                                  <div className="py-2">
+                                    {category.subcategories.map((sub) => (
+                                      <Link
+                                        key={sub}
+                                        href={`/shop?category=${encodeURIComponent(sub)}`}
+                                        className="block px-6 py-3 text-gray-600 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 font-medium"
+                                      >
+                                        {sub}
+                                      </Link>
+                                    ))}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          );
-                        })
+                            );
+                          })
                         )}
                       </div>
                     </div>
@@ -699,7 +693,7 @@ const Header = () => {
             <nav className="px-2 sm:px-4 py-3 sm:py-4 space-y-1 sm:space-y-2 max-h-96 overflow-visible">
               {navItems.map((item, index) => (
                 <Link
-                onClick={toggleMobileMenu}
+                  onClick={toggleMobileMenu}
                   key={index}
                   href={item.href}
                   className="flex items-center justify-between py-3 sm:py-4 px-3 sm:px-4 text-gray-700 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 hover:text-emerald-600 rounded-lg sm:rounded-xl transition-all duration-300 font-medium shadow-sm"
@@ -722,9 +716,8 @@ const Header = () => {
                   <span className="text-sm font-semibold">Categories</span>
                   <ChevronDown
                     size={16}
-                    className={`transition-transform duration-300 ${
-                      isCategoriesOpen ? "rotate-180" : ""
-                    }`}
+                    className={`transition-transform duration-300 ${isCategoriesOpen ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
 
@@ -750,9 +743,8 @@ const Header = () => {
 
                             <ChevronDown
                               size={14}
-                              className={`transition-transform duration-300 ${
-                                isOpen ? "rotate-180" : ""
-                              }`}
+                              className={`transition-transform duration-300 ${isOpen ? "rotate-180" : ""
+                                }`}
                             />
                           </button>
 
