@@ -10,6 +10,7 @@ import { getApprovedReviews, submitReview } from "@/src/hook/useReview";
 import { decreaseProductQuantity, increaseProductQuantity } from "@/src/hook/useUpdateProduct";
 import { addToWishlistApi, removeFromWishlistApi } from "@/src/hook/useWishlist";
 import { useGetProduct } from "@/src/utlis/userProduct";
+import ReactPlayer from 'react-player'
 import {
   ChevronRight,
   Heart,
@@ -38,7 +39,7 @@ const ProductDetails = () => {
   const [error, setError] = useState(null);
   const [product, setProduct] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
-
+  const [showVideo, setshowVideo] = useState(false)
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState(null);
   const [selectedColor, setSelectedColor] = useState(null);
@@ -60,11 +61,11 @@ const ProductDetails = () => {
     // Check if user is logged in
     console.log("=== Review Submission Check ===");
     console.log("User object:", user);
-    
+
     // Handle both _id (normal login) and id (Google login)
     const userId = user?._id || user?.id;
     console.log("User ID:", userId);
-    
+
     if (!userId) {
       toast.error("Please sign in to submit a review");
       return;
@@ -77,11 +78,11 @@ const ProductDetails = () => {
 
     // Use params.id instead of product?.id to ensure we have the correct ID
     const productId = params?.id || product?.id;
-    
+
     // console.log("Product ID from params:", params?.id);
     // console.log("Product ID from product:", product?.id);
     // console.log("Final Product ID:", productId);
-    
+
     if (!productId) {
       toast.error("Product ID not found");
       return;
@@ -100,7 +101,7 @@ const ProductDetails = () => {
       setReviewRating(0);
       setReviewText("");
       setShowReviewForm(false);
-      
+
       // Refresh reviews list
       const data = await getApprovedReviews(productId);
       setReviewList(data);
@@ -119,7 +120,7 @@ const ProductDetails = () => {
         setLoading(true);
         const data = await getApprovedReviews(params?.id);
         setReviewList(data);
-        
+
         const approveData = data.filter((review) => review.status === "approved");
         console.log(approveData);
       } catch (err) {
@@ -139,7 +140,7 @@ const ProductDetails = () => {
       try {
         setLoading(true);
         const data = await getProductDetailsApi(params.id);
-        
+
         if (data) {
           // Normalize product data - handle all API fields
           const normalized = {
@@ -164,8 +165,8 @@ const ProductDetails = () => {
             sizes: Array.isArray(data.productSize)
               ? data.productSize
               : typeof data.productSize === "string"
-              ? data.productSize.split(",").map((s) => s.trim())
-              : [],
+                ? data.productSize.split(",").map((s) => s.trim())
+                : [],
             sku: data.sku || "",
             rank: Number(data.productRank ?? 0) || 0,
             featured: data.featured || false,
@@ -220,9 +221,9 @@ const ProductDetails = () => {
       .filter(
         (p) =>
           p.subCategory ===
-            (typeof product.subCategory === "string"
-              ? product.subCategory
-              : product.subCategory?.name) && p.id !== product.id
+          (typeof product.subCategory === "string"
+            ? product.subCategory
+            : product.subCategory?.name) && p.id !== product.id
       )
       .slice(0, 6);
 
@@ -397,7 +398,7 @@ const ProductDetails = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Image Gallery */}
           <div className="space-y-4">
-            <div className="relative overflow-hidden rounded-2xl bg-white shadow-2xl group">
+            <div className="relative overflow-hidden rounded-2xl bg-white shadow-2xl  group">
               <Image
                 width={1200}
                 height={1400}
@@ -413,35 +414,67 @@ const ProductDetails = () => {
               )}
               <button
                 onClick={handleWishlist}
-                className={`absolute top-4 right-4 p-2 rounded-full transition-all duration-300 ${
-                  isWishlisted
-                    ? "bg-red-500 text-white scale-110"
-                    : "bg-white/80 text-gray-600 hover:bg-red-500 hover:text-white"
-                }`}
+                className={`absolute top-4 right-4 p-2 rounded-full transition-all duration-300 ${isWishlisted
+                  ? "bg-red-500 text-white scale-110"
+                  : "bg-white/80 text-gray-600 hover:bg-red-500 hover:text-white"
+                  }`}
               >
                 <Heart className={`w-5 h-5 ${isWishlisted ? "fill-current" : ""}`} />
               </button>
             </div>
+            {/* details video section  */}
 
-            {/* Thumbnail Images */}
-            <div className="grid grid-cols-4 gap-3">
-              {(product?.images || []).map((image, index) => (
-                <button
-                  key={index}
-                  onClick={() => setSelectedImage(index)}
-                  className={`relative overflow-hidden rounded-lg transition-all duration-300 ${
-                    selectedImage === index
+            <div className='flex gap-3'>
+              <div className={`relative overflow-hidden rounded-lg transition-all duration-300 `}>
+                {product?.video_link && <>
+                  <img
+                    src={product?.images[0] || []}
+                    alt={`${product?.name} `}
+                    className="w-20 h-20 object-cover"
+                  />
+                  <img onClick={() => setshowVideo(true)} src={product?.video_link} alt="" className="w-10 h-10 object-cover absolute  top-5 right-5 cursor-pointer" />
+
+                  {/* details video  */}
+                {showVideo && <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn ">
+                  <ReactPlayer
+                    controls
+                    light={<img
+                      src={product?.images[0] || []}
+                      alt={`${product?.name} `}
+                      className=" w-96 h-96 rounded-xl md:rounded-2xl"
+                    />}
+                    playIcon={<img className='w-12 h-12 absolute rounded-full' src={"https://cdn-icons-png.freepik.com/256/13983/13983898.png?semt=ais_white_label"} />}
+                    width={660}
+                    height={315}
+                    volume={0.5}
+                    playing={true}
+                    src={product?.video_link||"https://youtube.com/shorts/axcw2w7pKkk?si=-doija2AmzPRa_4v"}
+                  />
+                  <button onClick={() => setshowVideo(!showVideo)} className="text-xl bg-red-400 py-1 px-3 rounded-full absolute top-10 right-10 cursor-pointer">X</button>
+                </div>}
+                </>}
+                
+              </div>
+
+              {/* Thumbnail Images */}
+              <div className="grid grid-cols-4 gap-3">
+                {(product?.images || []).map((image, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedImage(index)}
+                    className={`relative overflow-hidden rounded-lg transition-all duration-300 ${selectedImage === index
                       ? "ring-4 ring-blue-500 shadow-lg scale-105"
                       : "hover:scale-105 hover:shadow-md"
-                  }`}
-                >
-                  <img
-                    src={image}
-                    alt={`${product.name} ${index + 1}`}
-                    className="w-full h-20 object-cover"
-                  />
-                </button>
-              ))}
+                      }`}
+                  >
+                    <img
+                      src={image}
+                      alt={`${product.name} ${index + 1}`}
+                      className="w-full h-20 object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -484,11 +517,10 @@ const ProductDetails = () => {
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className={`w-5 h-5 ${
-                        i < Math.floor(product.rating)
-                          ? "text-yellow-400 fill-current"
-                          : "text-gray-300"
-                      }`}
+                      className={`w-5 h-5 ${i < Math.floor(product.rating)
+                        ? "text-yellow-400 fill-current"
+                        : "text-gray-300"
+                        }`}
                     />
                   ))}
                 </div>
@@ -534,14 +566,13 @@ const ProductDetails = () => {
                     <button
                       key={index}
                       onClick={() => setSelectedColor(color)}
-                      className={`w-10 h-10 rounded-full border-2 transition-all duration-300 ${
-                        selectedColor === color
-                          ? "ring-4 ring-blue-300 scale-110"
-                          : "hover:scale-110"
-                      }`}
+                      className={`w-10 h-10 rounded-full border transition-all duration-300  ${selectedColor === color
+                        ? "ring-4 ring-blue-300 scale-110"
+                        : "hover:scale-110"
+                        }`}
                       style={{
                         backgroundColor: color,
-                        borderColor: color || color,
+                        borderColor: 'black',
                       }}
                     />
                   ))}
@@ -553,7 +584,7 @@ const ProductDetails = () => {
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">Sizes</h3>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-1">
+                <div className="flex flex-wrap gap-2">
                   {product.sizes.map((size) => {
                     const isActive = selectedSize === size;
 
@@ -566,11 +597,10 @@ const ProductDetails = () => {
               h-8
               px-3 rounded-full font-semibold
               transition-all duration-300 border
-              ${
-                isActive
-                  ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white border-transparent shadow-md scale-105"
-                  : "bg-white text-gray-800 border-gray-300 hover:border-blue-400 hover:scale-105"
-              }
+              ${isActive
+                            ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white border-transparent shadow-md scale-105"
+                            : "bg-white text-gray-800 border-gray-300 hover:border-blue-400 hover:scale-105"
+                          }
             `}
                       >
                         {size}
@@ -621,22 +651,21 @@ const ProductDetails = () => {
               <button
                 onClick={handleAddToCart}
                 disabled={product?.stock === 0}
-                className={`w-full py-4 rounded-xl font-semibold text-lg flex items-center justify-center space-x-2 transition-all duration-300 ${
-                  product?.stock === 0
-                    ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                    : "bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white hover:shadow-lg hover:scale-105"
-                }`}
+                className={`w-full py-4 rounded-xl font-semibold text-lg flex items-center justify-center space-x-2 transition-all duration-300 ${product?.stock === 0
+                  ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                  : "bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white hover:shadow-lg hover:scale-102 cursor-pointer"
+                  }`}
               >
-                <ShoppingCart className="w-5 h-5" />
+                <ShoppingCart className="w-5 h-5 " />
                 <span>{product?.stock === 0 ? "Out of Stock" : "Add to Cart"}</span>
               </button>
 
               <div className="grid grid-cols-2 gap-4">
-                <button className="bg-gradient-to-r from-emerald-500 to-green-500 text-white py-3 rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2">
+                <button className="bg-gradient-to-r from-emerald-500 to-green-500 text-white py-3 rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2 cursor-pointer">
                   <Zap className="w-5 h-5" />
                   <span>Buy Now</span>
                 </button>
-                <button className="border-2 border-gray-300 text-gray-700 py-3 rounded-xl font-semibold hover:border-blue-300 hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2">
+                <button className="border-2 border-gray-300 text-gray-700 py-3 rounded-xl font-semibold hover:border-blue-300 hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2 cursor-pointer">
                   <Share2 className="w-5 h-5" />
                   <span>Share</span>
                 </button>
@@ -675,11 +704,10 @@ const ProductDetails = () => {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm capitalize transition-all duration-300 ${
-                    activeTab === tab
-                      ? "border-blue-500 text-blue-600"
-                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                  }`}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm capitalize transition-all duration-300 ${activeTab === tab
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                    }`}
                 >
                   {tab}
                 </button>
@@ -750,9 +778,8 @@ const ProductDetails = () => {
                 <div className="flex justify-between items-center py-3 border-b border-gray-100">
                   <span className="font-medium text-gray-900">Stock Available:</span>
                   <span
-                    className={`font-semibold ${
-                      product?.stock > 0 ? "text-green-600" : "text-red-600"
-                    }`}
+                    className={`font-semibold ${product?.stock > 0 ? "text-green-600" : "text-red-600"
+                      }`}
                   >
                     {product?.stock} items
                   </span>
@@ -772,9 +799,8 @@ const ProductDetails = () => {
                 <div className="flex justify-between items-center py-3 border-b border-gray-100">
                   <span className="font-medium text-gray-900">Status:</span>
                   <span
-                    className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                      product?.publish ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-                    }`}
+                    className={`px-3 py-1 rounded-full text-sm font-semibold ${product?.publish ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                      }`}
                   >
                     {product?.publish ? "Published" : "Unpublished"}
                   </span>
@@ -782,9 +808,8 @@ const ProductDetails = () => {
                 <div className="flex justify-between items-center py-3 border-b border-gray-100">
                   <span className="font-medium text-gray-900">Featured:</span>
                   <span
-                    className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                      product?.featured ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-700"
-                    }`}
+                    className={`px-3 py-1 rounded-full text-sm font-semibold ${product?.featured ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-700"
+                      }`}
                   >
                     {product?.featured ? "Yes" : "No"}
                   </span>
@@ -845,11 +870,10 @@ const ProductDetails = () => {
                         <Star
                           key={star}
                           onClick={() => setReviewRating(star)}
-                          className={`w-8 h-8 cursor-pointer transition ${
-                            star <= reviewRating
-                              ? "text-yellow-400 fill-current scale-110"
-                              : "text-gray-300"
-                          }`}
+                          className={`w-8 h-8 cursor-pointer transition ${star <= reviewRating
+                            ? "text-yellow-400 fill-current scale-110"
+                            : "text-gray-300"
+                            }`}
                         />
                       ))}
                     </div>
@@ -896,9 +920,8 @@ const ProductDetails = () => {
                           {[...Array(5)].map((_, i) => (
                             <Star
                               key={i}
-                              className={`w-4 h-4 ${
-                                i < review.rating ? "text-yellow-400 fill-current" : "text-gray-300"
-                              }`}
+                              className={`w-4 h-4 ${i < review.rating ? "text-yellow-400 fill-current" : "text-gray-300"
+                                }`}
                             />
                           ))}
                         </div>
@@ -948,11 +971,10 @@ const ProductDetails = () => {
                         {[...Array(5)].map((_, i) => (
                           <Star
                             key={i}
-                            className={`w-3 h-3 ${
-                              i < Math.floor(relProduct.rating)
-                                ? "fill-yellow-400 text-yellow-400"
-                                : "text-gray-300"
-                            }`}
+                            className={`w-3 h-3 ${i < Math.floor(relProduct.rating)
+                              ? "fill-yellow-400 text-yellow-400"
+                              : "text-gray-300"
+                              }`}
                           />
                         ))}
                       </div>

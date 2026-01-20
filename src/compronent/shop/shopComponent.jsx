@@ -5,12 +5,13 @@ import { useGetProduct } from "@/src/utlis/userProduct"
 import { useSearchProduct } from "@/src/utlis/useSearchProduct"
 import { useWishlist } from "@/src/utlis/useWishList"
 import { useCategoryWithSubcategories } from "@/src/utlis/useCategoryWithSubcategories"
-import { ChevronDown, Filter, Grid, Heart, List, Search, ShoppingCart, SlidersHorizontal, Star } from "lucide-react"
+import { ArrowUp, ChevronDown, Edit, Filter, Grid, Heart, List, Search, ShoppingCart, SlidersHorizontal, Star, Trash2, X } from "lucide-react"
 import CustomLoader from '@/src/compronent/loading/CustomLoader'
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 import toast from "react-hot-toast"
 import { useDispatch, useSelector } from "react-redux"
+import { ProductDelete, ProductUpdate } from "@/src/hook/useProduct"
 
 // Helper function to determine if product is new or old
 const isProductNew = (createdDate) => {
@@ -23,10 +24,11 @@ const isProductNew = (createdDate) => {
 
 const ShopPage = () => {
   const router = useRouter()
-
+const [deleteModal, setDeleteModal] = useState(null)
+ const [editModal, setEditModal] = useState(null);
   // Request all products without pagination limit
   const productParams = useMemo(() => ({ limit: 1000 }), [])
-  const { product, loading, error, refetch } = useGetProduct(productParams)
+  const { product, loading, error, refetch:productRefetch } = useGetProduct(productParams)
 
   const [allProducts, setAllProducts] = useState([])
   const [products, setProducts] = useState([])
@@ -61,7 +63,7 @@ const ShopPage = () => {
   }, [reduxCart])
   const user = useSelector((state) => state.user.data)
   const { wishlist } = useWishlist()
-  
+
   // Fetch categories and subcategories from API
   const { categories: apiCategories, subcategories: apiSubcategories, loading: categoriesLoading } = useCategoryWithSubcategories()
 
@@ -81,6 +83,8 @@ const ShopPage = () => {
   const [priceRange, setPriceRange] = useState([0, 300])
   const [ratingFilter, setRatingFilter] = useState(0)
   const [showFilters, setShowFilters] = useState(false)
+  const [showCategory, setShowCategory] = useState(false)
+  const [showSubCategory, setShowSubCategory] = useState(false)
   const [cartOpen, setCartOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const productsPerPage = 30
@@ -180,38 +184,38 @@ const ShopPage = () => {
           }
         })
 
-      setAllProducts(normalized)
-      setProducts(normalized)
-      
-      try {
-        const prices = normalized.map((p) => Number(p.price) || 0).filter((n) => !Number.isNaN(n))
-        if (prices.length > 0) {
-          const actualMin = Math.min(...prices)
-          const actualMax = Math.max(...prices)
-          if (priceRange[0] === 0 && priceRange[1] === 300) {
-            setPriceRange([Math.floor(actualMin), Math.ceil(actualMax)])
-          }
-        }
-      } catch (e) { }
-    } else {
-      // No search active - clear any previous search results
-      // and let the regular product loading below handle it
-    }
-    
-    // Only return early if we're actively searching
-    if (urlSearch) {
-      return;
-    }
-  }
+        setAllProducts(normalized)
+        setProducts(normalized)
 
-  // API may return different shapes:
-  // - { products: [...] }
-  // - array (already product.data set by hook)
-  // - { data: [...] }
-  
-  const list = product?.products ?? product?.data ?? product ?? []
-  
-  if (Array.isArray(list) && list.length > 0) {
+        try {
+          const prices = normalized.map((p) => Number(p.price) || 0).filter((n) => !Number.isNaN(n))
+          if (prices.length > 0) {
+            const actualMin = Math.min(...prices)
+            const actualMax = Math.max(...prices)
+            if (priceRange[0] === 0 && priceRange[1] === 300) {
+              setPriceRange([Math.floor(actualMin), Math.ceil(actualMax)])
+            }
+          }
+        } catch (e) { }
+      } else {
+        // No search active - clear any previous search results
+        // and let the regular product loading below handle it
+      }
+
+      // Only return early if we're actively searching
+      if (urlSearch) {
+        return;
+      }
+    }
+
+    // API may return different shapes:
+    // - { products: [...] }
+    // - array (already product.data set by hook)
+    // - { data: [...] }
+
+    const list = product?.products ?? product?.data ?? product ?? []
+
+    if (Array.isArray(list) && list.length > 0) {
       const normalized = list.map((p) => {
         // normalize category to a string (API may return object or array)
         let categoryVal = "uncategorized"
@@ -256,10 +260,10 @@ const ShopPage = () => {
           tags: p.tags || [],
         }
       })
-      
+
       setAllProducts(normalized)
       setProducts(normalized)
-      
+
       // If user hasn't changed the price range (default [0,300]),
       // expand it to cover actual product prices so items >300 aren't hidden.
       try {
@@ -289,7 +293,7 @@ const ShopPage = () => {
     if (!filtered.length) return [];
 
     const searchLower = searchTerm.toLowerCase();
-    
+
     // Optimized search filter - single pass through products
     if (searchTerm) {
       filtered = filtered.filter((product) => {
@@ -298,14 +302,14 @@ const ShopPage = () => {
         if (product.brand?.toLowerCase().includes(searchLower)) return true;
         if (product.category?.toLowerCase().includes(searchLower)) return true;
         if (product.subCategory?.toLowerCase().includes(searchLower)) return true;
-        
+
         // Check tags only if other fields don't match
         if (product.tags?.length) {
           for (let i = 0; i < product.tags.length; i++) {
             if (product.tags[i]?.toLowerCase().includes(searchLower)) return true;
           }
         }
-        
+
         return false;
       });
     }
@@ -314,26 +318,26 @@ const ShopPage = () => {
     filtered = filtered.filter((product) => {
       // Category filter
       if (filterCategory !== "all" && product.category !== filterCategory) return false;
-      
+
       // Subcategory filter
-      if (filterSubCategory !== "all" && 
-          product.subCategory !== filterSubCategory && 
-          product.category !== filterSubCategory) return false;
-      
+      if (filterSubCategory !== "all" &&
+        product.subCategory !== filterSubCategory &&
+        product.category !== filterSubCategory) return false;
+
       // Brand filter
       if (filterBrand !== "all" && product.brand !== filterBrand) return false;
-      
+
       // Gender filter
-      if (filterGender !== "all" && 
-          product.gender !== filterGender && 
-          product.gender !== "unisex") return false;
-      
+      if (filterGender !== "all" &&
+        product.gender !== filterGender &&
+        product.gender !== "unisex") return false;
+
       // Price range filter
       if (product.price < priceRange[0] || product.price > priceRange[1]) return false;
-      
+
       // Rating filter
       if (ratingFilter > 0 && product.rating < ratingFilter) return false;
-      
+
       return true;
     });
 
@@ -464,7 +468,7 @@ const ShopPage = () => {
   // Calculate which page numbers to show
   const getPageNumbers = () => {
     const pages = [];
-    
+
     if (currentPage <= 5) {
       // Show pages 1-5 when on pages 1-5
       for (let i = 1; i <= Math.min(5, totalPages); i++) {
@@ -478,7 +482,7 @@ const ShopPage = () => {
         pages.push(i);
       }
     }
-    
+
     return pages;
   };
 
@@ -487,23 +491,23 @@ const ShopPage = () => {
   const showEndDots = pageNumbers.length > 0 && pageNumbers[pageNumbers.length - 1] < totalPages;
 
   // Use API categories if available, otherwise fall back to product categories
-  const categories = apiCategories.length > 0 
+  const categories = apiCategories.length > 0
     ? ["all", ...apiCategories.map(cat => cat.name)]
     : ["all", ...Array.from(new Set(allProducts.map((p) => p.category)))]
-  
+
   const subCategories = apiSubcategories.length > 0
     ? (filterCategory === "all"
-        ? ["all", ...apiSubcategories.map(sub => sub.name)]
-        : ["all", ...apiSubcategories
-            .filter(sub => {
-              const category = apiCategories.find(cat => cat.id === sub.categoryId || cat.id === sub.categoryId?._id)
-              return category?.name === filterCategory
-            })
-            .map(sub => sub.name)])
+      ? ["all", ...apiSubcategories.map(sub => sub.name)]
+      : ["all", ...apiSubcategories
+        .filter(sub => {
+          const category = apiCategories.find(cat => cat.id === sub.categoryId || cat.id === sub.categoryId?._id)
+          return category?.name === filterCategory
+        })
+        .map(sub => sub.name)])
     : (filterCategory === "all"
-        ? ["all", ...Array.from(new Set(allProducts.map((p) => p.subCategory)))]
-        : ["all", ...Array.from(new Set(allProducts.filter((p) => p.category === filterCategory).map((p) => p.subCategory)))])
-  
+      ? ["all", ...Array.from(new Set(allProducts.map((p) => p.subCategory)))]
+      : ["all", ...Array.from(new Set(allProducts.filter((p) => p.category === filterCategory).map((p) => p.subCategory)))])
+
   const brands = ["all", ...Array.from(new Set(allProducts.map((p) => p.brand)))]
   const genders = ["all", "men", "women", "unisex"]
 
@@ -518,7 +522,48 @@ const ShopPage = () => {
     // Clear URL search params as well
     router.push('/shop')
   }
+// handle delete functionality 
+const confirmDelete = async () => {
+  
+    try {
+      if (!deleteModal) return;
+      await ProductDelete(deleteModal.id);
+      setDeleteModal(null);
+      productRefetch()
+      toast.success("Product deleted successfully");
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response?.data?.message || "Something went wrong");
+    }
+  };
+ const [load, setLoad] = useState(false);
+  // handle edit functionality 
+const handleEdit =(p)=>{
+  const selectedProudct = product.find(item=>item._id==p.id)
+  setEditModal(selectedProudct)
 
+}
+
+  const saveEdit = async () => {
+      setLoad(true);
+      try {
+        const res = await ProductUpdate(editModal);
+        if (res.success) {
+          toast.success("Product updated successfully!");
+          productRefetch()
+          setEditModal(null);
+        } else {
+          toast.error(res.message);
+        }
+      } catch (error) {
+        toast.error("Error updating product");
+      } finally {
+        setLoad(false);
+      }
+    };
+    const updateEditField = (field, value) => {
+    setEditModal({ ...editModal, [field]: value });
+  };
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -585,13 +630,13 @@ const ShopPage = () => {
           </div>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col lg:flex-row gap-8 ">
           {/* Sidebar Filters */}
           <div className="lg:w-80 space-y-6">
             {/* Filter Toggle for Mobile */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="lg:hidden w-full flex items-center justify-between bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+              className="lg:hidden w-full flex items-center justify-between bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 border"
             >
               <span className="font-semibold flex items-center gap-2">
                 <SlidersHorizontal className="w-5 h-5" />
@@ -642,13 +687,13 @@ const ShopPage = () => {
               </div>
 
               {/* Product Categories */}
-              <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="font-bold text-lg mb-4 text-gray-800">Product Categories</h3>
+              <div onClick={() => setShowCategory(!showCategory)} className="bg-white px-6 rounded-lg shadow-md border border-gray-200">
+                <h3 className="flex justify-between font-bold items-center text-lg mb-4 text-gray-800 border lg:border-none mt-3 p-2 rounded-xl">Product Categories <span className={`${showCategory ? "" : "rotate-180"} lg:hidden`}><ArrowUp /></span> </h3>
                 <div className={`space-y-2 ${categories.length > 4 ? 'max-h-64 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-purple-500 scrollbar-track-gray-200' : ''}`}>
                   {categories.map((category) => (
                     <label
                       key={category}
-                      className="flex items-center space-x-2 hover:bg-gray-50 p-2 rounded cursor-pointer"
+                      className={` items-center space-x-2 hover:bg-gray-50 p-2 rounded cursor-pointer ${showCategory ? "flex" : "hidden"} lg:flex`}
                     >
                       <input
                         type="radio"
@@ -657,6 +702,8 @@ const ShopPage = () => {
                         onChange={() => {
                           setFilterCategory(category)
                           setFilterSubCategory("all")
+                          setShowSubCategory(true)
+                          setShowCategory(false)
                         }}
                         className="text-purple-600 focus:ring-purple-500"
                       />
@@ -670,8 +717,12 @@ const ShopPage = () => {
 
               {/* Subcategories */}
               {subCategories.length > 1 && (
-                <div className="bg-white p-6 rounded-lg shadow-md">
-                  <h3 className="font-bold text-lg mb-4 text-gray-800">Subcategories</h3>
+                <div className={`bg-white p-6 rounded-lg shadow-md ${showSubCategory & !showCategory ? "block" : "hidden"} lg:block`}>
+                  <h3 className="font-bold text-lg mb-4 text-gray-800 flex justify-between ">Subcategories
+                    <span className="lg:hidden">
+                      <X onClick={() => setShowSubCategory(false)} size={30} />
+                    </span>
+                  </h3>
                   <div className={`space-y-2 ${subCategories.length > 4 ? 'max-h-64 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-purple-500 scrollbar-track-gray-200' : ''}`}>
                     {subCategories.map((subcat) => (
                       <label
@@ -849,7 +900,7 @@ const ShopPage = () => {
                             {[...Array(5)].map((_, i) => (
                               <Star
                                 key={i}
-                                className={`w-3 h-3 sm:w-4 sm:h-4 ${i < Math.floor(product.rating) ? "text-yellow-400 fill-current" : "text-gray-300"
+                                className={`w-3 h-3 sm:w-4 sm:h-4 ${i < Math.floor(product.rating) ? "text-yellow-400 fill-current" : "text-black"
                                   }`}
                               />
                             ))}
@@ -870,7 +921,7 @@ const ShopPage = () => {
                         </div>
 
                         {/* Add to Cart */}
-                        <button
+                        {user?.role !== "ADMIN" ? <button
                           onClick={(e) => {
                             e.stopPropagation()
                             addToCart(product)
@@ -889,7 +940,51 @@ const ShopPage = () => {
                           ) : (
                             "Out of Stock"
                           )}
-                        </button>
+                        </button> : <div className="flex justify-around">
+                          {/* add to cart button  */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              addToCart(product)
+                            }}
+                            disabled={!product.inStock}
+                            className={` py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs ${product.inStock
+                              ? "bg-green-600 text-white hover:bg-green-700 transform hover:scale-105"
+                              : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                              }`}
+                          >
+                            {product.inStock ? (
+                              <span className="flex items-center justify-center gap-1">
+                                <ShoppingCart className="w-3 h-3" />
+
+                              </span>
+                            ) : (
+                              "Out of Stock"
+                            )}
+
+                          </button>
+                          {/* edit button  */}
+                          <button
+                             onClick={(e) => {
+                               e.stopPropagation()
+                              handleEdit(product)
+                            }}
+                            className="p-2 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-emerald-500/25"
+                          >
+                            <Edit size={16} />
+                          </button>
+                          {/* delete button  */}
+                          <button
+                            onClick={(e) => {
+                               e.stopPropagation()
+                              setDeleteModal(product)
+                            }}
+                            className="p-2 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-400 hover:to-pink-400 text-white rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-red-500/25 cursor-pointer"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>}
+
                       </div>
                     </div>
                   </div>
@@ -904,11 +999,10 @@ const ShopPage = () => {
                 <button
                   onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${
-                    currentPage === 1
-                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                      : "bg-purple-500 text-white hover:bg-purple-600"
-                  }`}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${currentPage === 1
+                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                    : "bg-purple-500 text-white hover:bg-purple-600"
+                    }`}
                 >
                   Previous
                 </button>
@@ -931,11 +1025,10 @@ const ShopPage = () => {
                   <button
                     key={page}
                     onClick={() => setCurrentPage(page)}
-                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
-                      currentPage === page
-                        ? "bg-purple-500 text-white transform scale-110"
-                        : "bg-white border border-gray-300 hover:bg-purple-50"
-                    }`}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${currentPage === page
+                      ? "bg-purple-500 text-white transform scale-110"
+                      : "bg-white border border-gray-300 hover:bg-purple-50"
+                      }`}
                   >
                     {page}
                   </button>
@@ -958,11 +1051,10 @@ const ShopPage = () => {
                 <button
                   onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                   disabled={currentPage === totalPages}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${
-                    currentPage === totalPages
-                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                      : "bg-purple-500 text-white hover:bg-purple-600"
-                  }`}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${currentPage === totalPages
+                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                    : "bg-purple-500 text-white hover:bg-purple-600"
+                    }`}
                 >
                   Next
                 </button>
@@ -971,6 +1063,216 @@ const ShopPage = () => {
           </div>
         </div>
       </div>
+
+{/* Edit Modal */}
+      {editModal && (
+        (
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+            <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-emerald-500/30 max-w-3xl w-full max-h-[90vh] overflow-y-auto animate-slideUp">
+              <div className="sticky top-0 bg-gradient-to-r from-emerald-600 to-teal-600 p-6 flex justify-between items-center z-10">
+                <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                  <Edit className="w-6 h-6" />
+                  Edit Product
+                </h2>
+                <button
+                  onClick={() => setEditModal(null)}
+                  className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                >
+                  <X className="w-6 h-6 text-white cursor-pointer" />
+                </button>
+              </div>
+
+              <div className="p-6 bg-white/90 text-black">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
+                  <div>
+                    <label className="block  text-sm font-semibold mb-2">
+                      Product Name
+                    </label>
+                    <input
+                      type="text"
+                      value={editModal?.productName}
+                      onChange={(e) => updateEditField("productName", e.target.value)}
+                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg  focus:outline-none focus:border-emerald-500 transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-black text-sm font-semibold mb-2">SKU</label>
+                    <input
+                      type="text"
+                      value={editModal?.sku}
+                      onChange={(e) => updateEditField("sku", e.target.value)}
+                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-black text-sm font-semibold mb-2">Brand</label>
+                    <input
+                      type="text"
+                      value={editModal?.brand}
+                      onChange={(e) => updateEditField("brand", e.target.value)}
+                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-black text-sm font-semibold mb-2">Price</label>
+                    <input
+                      type="number"
+                      value={editModal?.price}
+                      onChange={(e) => updateEditField("price", Number(e.target.value))}
+                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-black text-sm font-semibold mb-2">
+                      Discount (%)
+                    </label>
+                    <input
+                      type="number"
+                      value={editModal?.discount}
+                      onChange={(e) => updateEditField("discount", Number(e.target.value))}
+                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-black text-sm font-semibold mb-2">Stock</label>
+                    <input
+                      type="number"
+                      value={editModal?.productStock}
+                      onChange={(e) => updateEditField("productStock", Number(e.target.value))}
+                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-black text-sm font-semibold mb-2">Rating</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      max="5"
+                      value={editModal?.ratings}
+                      onChange={(e) => updateEditField("ratings", Number(e.target.value))}
+                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-black text-sm font-semibold mb-2">
+                      Product Size
+                    </label>
+                    <input
+                      type="text"
+                      value={editModal?.productSize?.join(", ") || ""}
+                      onChange={(e) =>
+                        updateEditField(
+                          "productSize",
+                          e.target.value.split(",").map((s) => s.trim())
+                        )
+                      }
+                      placeholder="M, L, XL"
+                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-black text-sm font-semibold mb-2">
+                      Product Color
+                    </label>
+                    <input
+                      type="text"
+                      value={editModal?.color?.join(", ") || ""}
+                      onChange={(e) =>
+                        updateEditField(
+                          "color",
+                          e.target.value.split(",").map((c) => c.trim())
+                        )
+                      }
+                      placeholder="Black, Brown, Red"
+                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-black text-sm font-semibold mb-2">
+                      Retail Price(৳)
+                    </label>
+                    <input
+                      type="number"
+                      value={editModal?.productRank || ""}
+                      onChange={(e) => updateEditField("productRank", Number(e.target.value))}
+                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-black text-sm font-semibold mb-2">
+                      Description
+                    </label>
+                    <textarea
+                      value={editModal?.description}
+                      onChange={(e) => updateEditField("description", e.target.value)}
+                      rows="3"
+                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors resize-none"
+                    ></textarea>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 mt-6">
+                  <button
+                     onClick={saveEdit}
+                    className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold rounded-lg transition-all transform hover:scale-105"
+                  >
+                    {load ? "Saving..." : "Save Changes"}
+                  </button>
+                  <button
+                    onClick={() => setEditModal(null)}
+                    className="flex-1 px-6 py-3 bg-white text-black font-semibold rounded-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+
+      {/* Delete Confirmation Modal */}
+            {deleteModal && (
+              <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+                <div className="bg-white/70 rounded-2xl border border-pink-500/30 max-w-md w-full p-6 animate-slideUp text-black">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-3 bg-pink-500/20 rounded-full">
+                      <Trash2 className="w-8 h-8 text-pink-500" />
+                    </div>
+                    <h2 className="text-2xl font-bold ">Delete Product</h2>
+                  </div>
+      
+                  <p className=" mb-6">
+                    Are you sure you want to delete this product? This action cannot be undone.
+                  </p>
+      
+                  <div className="flex gap-3">
+                    <button
+                       onClick={confirmDelete}
+                      className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-semibold rounded-lg transition-all transform hover:scale-105 cursor-pointer"
+                    >
+                      Delete
+                    </button>
+                    <button
+                      onClick={() => setDeleteModal(null)}
+                      className="flex-1 px-6 py-3 bg-slate-200 hover:bg-slate-600 hover:text-white font-semibold rounded-lg transition-colors cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
       {/* Custom Styles */}
       <style jsx>{`
