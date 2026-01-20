@@ -51,7 +51,7 @@ export default function LocationSelects({ customerInfo, setCustomerInfo }) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Division */}
                     <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">বিভাগ</label>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">বিভাগ *</label>
                         <select
                             value={selectedDivision}
                             onChange={(e) => handleDivisionChange(e.target.value)}
@@ -64,7 +64,7 @@ export default function LocationSelects({ customerInfo, setCustomerInfo }) {
 
                     {/* District */}
                     <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">জেলা</label>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">জেলা *</label>
                         <select
                             value={selectedDistrict}
                             onChange={(e) => handleDistrictChange(e.target.value)}
@@ -78,7 +78,7 @@ export default function LocationSelects({ customerInfo, setCustomerInfo }) {
 
                     {/* Upazila */}
                     <div className="md:col-span-2">
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">উপজেলা / থানা</label>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">উপজেলা / থানা *</label>
                         <select
                             value={customerInfo.area}
                             onChange={(e) => handleUpazilaChange(e.target.value)}

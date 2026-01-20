@@ -13,7 +13,7 @@ const AboutPage = () => {
   const stats = [
     { icon: Users, number: "50,000+", label: "Happy Customers" },
     { icon: ShoppingBag, number: "100,000+", label: "Products" },
-    { icon: Award, number: "2025", label: "Year" },
+    { icon: Award, number: "1 Years", label: "Experience" },
     { icon: Star, number: "4.9", label: "Rating" }
   ];
 
@@ -95,7 +95,7 @@ const AboutPage = () => {
               <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-8">আমাদের সম্পর্কে</h2>
               <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed">
                 <p className="mb-6 text-lg">
-                  ২০১৯ সাল থেকে EasyShoppingMall বাংলাদেশের মানুষের কাছে গুণগত পণ্য সাশ্রয়ী মূল্যে পৌঁছে দেওয়ার 
+                  ২০২৫ সাল থেকে EasyShoppingMall বাংলাদেশের মানুষের কাছে গুণগত পণ্য সাশ্রয়ী মূল্যে পৌঁছে দেওয়ার 
                   লক্ষ্যে কাজ করে যাচ্ছে। আমাদের স্বপ্ন হলো প্রতিটি বাংলাদেশী পরিবারের কাছে সহজ ও নিরাপদ 
                   অনলাইন শপিং সুবিধা পৌঁছে দেওয়া।
                 </p>

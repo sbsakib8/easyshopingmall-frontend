@@ -525,7 +525,7 @@ export default function CheckoutComponent() {
                     <textarea value={customerInfo.address} onChange={(e) => handleInputChange("address", e.target.value)} placeholder="বাড়ি/ফ্ল্যাট নম্বর, রোড নম্বর, এলাকার নাম" className="w-full px-4 py-3 border rounded-xl bg-gray-50" rows={3} />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">পোস্ট কোড *</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">পোস্ট কোড </label>
                     <input value={customerInfo?.pincode} onChange={(e) => handleInputChange("pincode", e.target.value)} placeholder="পোস্ট কোড দিন" className="w-full px-4 py-3 border rounded-xl bg-gray-50" />
                   </div>
 

@@ -65,12 +65,12 @@ function Footer() {
                     <div>
                         <p className=" text-[16px] my-3 text-gray-500 hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'about'}>About</Link></p>
                         <p className=" text-[16px] my-3 text-gray-500 hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'Delivery'}>Delivery Information</Link></p>
-                        <p className=" text-[16px] my-3 text-gray-500 hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'about'}>Privacy Policy</Link></p>
-                        <p className=" text-[16px] my-3 text-gray-500 hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'about'}>Terms & Conditions</Link></p>
-                        <p className=" text-[16px] my-3 text-gray-500 hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'about'}>Contact Us</Link></p>
-                        <p className=" text-[16px] my-3 text-gray-500 hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'about'}>Support Center
+                        <p className=" text-[16px] my-3 text-gray-500 hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'/'}>Privacy Policy</Link></p>
+                        <p className=" text-[16px] my-3 text-gray-500 hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'/'}>Terms & Conditions</Link></p>
+                        <p className=" text-[16px] my-3 text-gray-500 hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'contact'}>Contact Us</Link></p>
+                        <p className=" text-[16px] my-3 text-gray-500 hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'/'}>Support Center
                         </Link></p>
-                        <p className=" text-[16px] my-3 text-gray-500 hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'about'}>Careers</Link></p>
+                        <p className=" text-[16px] my-3 text-gray-500 hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'/'}>Careers</Link></p>
                     </div>
                 </div>
 
@@ -79,12 +79,12 @@ function Footer() {
                     <div>
                         <p className=" text-[16px] my-3 text-gray-500 hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'about'}>About</Link></p>
                         <p className=" text-[16px] my-3 text-gray-500 hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'Delivery'}>Delivery Information</Link></p>
-                        <p className=" text-[16px] my-3 text-gray-500 hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'about'}>Privacy Policy</Link></p>
-                        <p className=" text-[16px] my-3 text-gray-500 hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'about'}>Terms & Conditions</Link></p>
-                        <p className=" text-[16px] my-3 text-gray-500 hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'about'}>Contact Us</Link></p>
-                        <p className=" text-[16px] my-3 text-gray-500 hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'about'}>Support Center
+                        <p className=" text-[16px] my-3 text-gray-500 hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'/'}>Privacy Policy</Link></p>
+                        <p className=" text-[16px] my-3 text-gray-500 hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'/'}>Terms & Conditions</Link></p>
+                        <p className=" text-[16px] my-3 text-gray-500 hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'contact'}>Contact Us</Link></p>
+                        <p className=" text-[16px] my-3 text-gray-500 hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'/'}>Support Center
                         </Link></p>
-                        <p className=" text-[16px] my-3 text-gray-500 hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'about'}>Careers</Link></p>
+                        <p className=" text-[16px] my-3 text-gray-500 hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'/'}>Careers</Link></p>
                     </div>
                 </div>
 
