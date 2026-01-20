@@ -566,13 +566,13 @@ const ProductDetails = () => {
                     <button
                       key={index}
                       onClick={() => setSelectedColor(color)}
-                      className={`w-10 h-10 rounded-full border-2 transition-all duration-300 ${selectedColor === color
+                      className={`w-10 h-10 rounded-full border transition-all duration-300  ${selectedColor === color
                         ? "ring-4 ring-blue-300 scale-110"
                         : "hover:scale-110"
                         }`}
                       style={{
                         backgroundColor: color,
-                        borderColor: color || color,
+                        borderColor: 'black',
                       }}
                     />
                   ))}

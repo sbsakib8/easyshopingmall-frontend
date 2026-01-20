@@ -11,8 +11,8 @@ const AboutPage = () => {
   }, []);
 
   const stats = [
-    { icon: Users, number: "50,000+", label: "Happy Customers" },
-    { icon: ShoppingBag, number: "100,000+", label: "Products" },
+    { icon: Users, number: "1,000+", label: "Happy Customers" },
+    { icon: ShoppingBag, number: "5000", label: "Products" },
     { icon: Award, number: "1 Years", label: "Experience" },
     { icon: Star, number: "4.9", label: "Rating" }
   ];

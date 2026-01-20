@@ -11,7 +11,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 import toast from "react-hot-toast"
 import { useDispatch, useSelector } from "react-redux"
-import { ProductDelete } from "@/src/hook/useProduct"
+import { ProductDelete, ProductUpdate } from "@/src/hook/useProduct"
 
 // Helper function to determine if product is new or old
 const isProductNew = (createdDate) => {
@@ -25,9 +25,10 @@ const isProductNew = (createdDate) => {
 const ShopPage = () => {
   const router = useRouter()
 const [deleteModal, setDeleteModal] = useState(null)
+ const [editModal, setEditModal] = useState(null);
   // Request all products without pagination limit
   const productParams = useMemo(() => ({ limit: 1000 }), [])
-  const { product, loading, error, refetch:prouductRefetch } = useGetProduct(productParams)
+  const { product, loading, error, refetch:productRefetch } = useGetProduct(productParams)
 
   const [allProducts, setAllProducts] = useState([])
   const [products, setProducts] = useState([])
@@ -528,12 +529,40 @@ const confirmDelete = async () => {
       if (!deleteModal) return;
       await ProductDelete(deleteModal.id);
       setDeleteModal(null);
-      prouductRefetch()
+      productRefetch()
       toast.success("Product deleted successfully");
     } catch (error) {
       console.log(error);
       toast.error(error.response?.data?.message || "Something went wrong");
     }
+  };
+ const [load, setLoad] = useState(false);
+  // handle edit functionality 
+const handleEdit =(p)=>{
+  const selectedProudct = product.find(item=>item._id==p.id)
+  setEditModal(selectedProudct)
+
+}
+
+  const saveEdit = async () => {
+      setLoad(true);
+      try {
+        const res = await ProductUpdate(editModal);
+        if (res.success) {
+          toast.success("Product updated successfully!");
+          productRefetch()
+          setEditModal(null);
+        } else {
+          toast.error(res.message);
+        }
+      } catch (error) {
+        toast.error("Error updating product");
+      } finally {
+        setLoad(false);
+      }
+    };
+    const updateEditField = (field, value) => {
+    setEditModal({ ...editModal, [field]: value });
   };
   return (
     <div className="min-h-screen bg-gray-50">
@@ -871,7 +900,7 @@ const confirmDelete = async () => {
                             {[...Array(5)].map((_, i) => (
                               <Star
                                 key={i}
-                                className={`w-3 h-3 sm:w-4 sm:h-4 ${i < Math.floor(product.rating) ? "text-yellow-400 fill-current" : "text-gray-300"
+                                className={`w-3 h-3 sm:w-4 sm:h-4 ${i < Math.floor(product.rating) ? "text-yellow-400 fill-current" : "text-black"
                                   }`}
                               />
                             ))}
@@ -936,7 +965,10 @@ const confirmDelete = async () => {
                           </button>
                           {/* edit button  */}
                           <button
-                            onClick={() => handleEdit(product)}
+                             onClick={(e) => {
+                               e.stopPropagation()
+                              handleEdit(product)
+                            }}
                             className="p-2 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-emerald-500/25"
                           >
                             <Edit size={16} />
@@ -1031,6 +1063,183 @@ const confirmDelete = async () => {
           </div>
         </div>
       </div>
+
+{/* Edit Modal */}
+      {editModal && (
+        (
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+            <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-emerald-500/30 max-w-3xl w-full max-h-[90vh] overflow-y-auto animate-slideUp">
+              <div className="sticky top-0 bg-gradient-to-r from-emerald-600 to-teal-600 p-6 flex justify-between items-center z-10">
+                <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                  <Edit className="w-6 h-6" />
+                  Edit Product
+                </h2>
+                <button
+                  onClick={() => setEditModal(null)}
+                  className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                >
+                  <X className="w-6 h-6 text-white cursor-pointer" />
+                </button>
+              </div>
+
+              <div className="p-6 bg-white/90 text-black">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
+                  <div>
+                    <label className="block  text-sm font-semibold mb-2">
+                      Product Name
+                    </label>
+                    <input
+                      type="text"
+                      value={editModal?.productName}
+                      onChange={(e) => updateEditField("productName", e.target.value)}
+                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg  focus:outline-none focus:border-emerald-500 transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-black text-sm font-semibold mb-2">SKU</label>
+                    <input
+                      type="text"
+                      value={editModal?.sku}
+                      onChange={(e) => updateEditField("sku", e.target.value)}
+                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-black text-sm font-semibold mb-2">Brand</label>
+                    <input
+                      type="text"
+                      value={editModal?.brand}
+                      onChange={(e) => updateEditField("brand", e.target.value)}
+                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-black text-sm font-semibold mb-2">Price</label>
+                    <input
+                      type="number"
+                      value={editModal?.price}
+                      onChange={(e) => updateEditField("price", Number(e.target.value))}
+                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-black text-sm font-semibold mb-2">
+                      Discount (%)
+                    </label>
+                    <input
+                      type="number"
+                      value={editModal?.discount}
+                      onChange={(e) => updateEditField("discount", Number(e.target.value))}
+                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-black text-sm font-semibold mb-2">Stock</label>
+                    <input
+                      type="number"
+                      value={editModal?.productStock}
+                      onChange={(e) => updateEditField("productStock", Number(e.target.value))}
+                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-black text-sm font-semibold mb-2">Rating</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      max="5"
+                      value={editModal?.ratings}
+                      onChange={(e) => updateEditField("ratings", Number(e.target.value))}
+                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-black text-sm font-semibold mb-2">
+                      Product Size
+                    </label>
+                    <input
+                      type="text"
+                      value={editModal?.productSize?.join(", ") || ""}
+                      onChange={(e) =>
+                        updateEditField(
+                          "productSize",
+                          e.target.value.split(",").map((s) => s.trim())
+                        )
+                      }
+                      placeholder="M, L, XL"
+                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-black text-sm font-semibold mb-2">
+                      Product Color
+                    </label>
+                    <input
+                      type="text"
+                      value={editModal?.color?.join(", ") || ""}
+                      onChange={(e) =>
+                        updateEditField(
+                          "color",
+                          e.target.value.split(",").map((c) => c.trim())
+                        )
+                      }
+                      placeholder="Black, Brown, Red"
+                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-black text-sm font-semibold mb-2">
+                      Retail Price(৳)
+                    </label>
+                    <input
+                      type="number"
+                      value={editModal?.productRank || ""}
+                      onChange={(e) => updateEditField("productRank", Number(e.target.value))}
+                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-black text-sm font-semibold mb-2">
+                      Description
+                    </label>
+                    <textarea
+                      value={editModal?.description}
+                      onChange={(e) => updateEditField("description", e.target.value)}
+                      rows="3"
+                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors resize-none"
+                    ></textarea>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 mt-6">
+                  <button
+                     onClick={saveEdit}
+                    className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold rounded-lg transition-all transform hover:scale-105"
+                  >
+                    {load ? "Saving..." : "Save Changes"}
+                  </button>
+                  <button
+                    onClick={() => setEditModal(null)}
+                    className="flex-1 px-6 py-3 bg-white text-black font-semibold rounded-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
 
       {/* Delete Confirmation Modal */}
             {deleteModal && (
