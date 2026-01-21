@@ -54,7 +54,7 @@ const Header = () => {
   // Countdown timer state (will be driven by website info)
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const { data: siteInfo, loading: siteLoading } = useWebsiteInfo();
-  console.log(siteInfo)
+  // console.log(siteInfo)
   // Fetch categories + subcategories from hook
   const {
     categories,
