@@ -54,6 +54,7 @@ const Header = () => {
   // Countdown timer state (will be driven by website info)
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const { data: siteInfo, loading: siteLoading } = useWebsiteInfo();
+  console.log(siteInfo)
   // Fetch categories + subcategories from hook
   const {
     categories,
@@ -386,9 +387,7 @@ const Header = () => {
         </div>
         <div className="py-2 overflow-hidden hidden sm:block bg-gradient-to-r from-amber-400 via-yellow-400 to-orange-400">
           <marquee behavior="scroll" direction="left" scrollamount="8" loop="infinite" className="text-sm font-semibold text-gray-800">
-            🔥 EasyShoppingMallBD-তে স্বাগতম!
-            সাশ্রয়ী দামে মানসম্মত পণ্য | সীমিত সময়ের অফার 🎁 | আজই অর্ডার করুন 🚚  || 🛍️ কেন EasyShoppingMallBD?
-            কারণ এখানে আছে মানসম্মত পণ্য, সাশ্রয়ী দাম আর নিশ্চিন্ত শপিংয়ের নিশ্চয়তা 💚
+            {siteInfo?.discountTitle}
           </marquee>
         </div>
       </div>

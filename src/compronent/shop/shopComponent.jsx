@@ -860,7 +860,7 @@ const handleEdit =(p)=>{
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="absolute top-3 right-3 space-y-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="absolute top-3 right-3 space-y-2  opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <button
                           onClick={(e) => {
                             e.stopPropagation()
@@ -869,7 +869,7 @@ const handleEdit =(p)=>{
                           className={`p-2 rounded-lg transition-all duration-300
                             ${wishlist.some((item) => item.id === product.id)
                               ? "text-red-500 bg-red-100"
-                              : "text-gray-400 hover:text-red-500 hover:bg-red-50"
+                              : "text-gray-400 bg-white hover:text-red-500 hover:bg-red-50"
                             }`}
                         >
                           <Heart
@@ -955,7 +955,7 @@ const handleEdit =(p)=>{
                           >
                             {product.inStock ? (
                               <span className="flex items-center justify-center gap-1">
-                                <ShoppingCart className="w-3 h-3" />
+                                <ShoppingCart size={16} />
 
                               </span>
                             ) : (
