@@ -14,7 +14,7 @@ const WishlistComponent = () => {
   const [sortBy, setSortBy] = useState("newest");
   const [filterBy, setFilterBy] = useState("all");
   const [animatingItems, setAnimatingItems] = useState(new Set());
-  console.log("wishlistItems:", wishlistItems);
+  // console.log("wishlistItems:", wishlistItems);
 
 
   useEffect(() => {
@@ -43,7 +43,7 @@ const WishlistComponent = () => {
         button.classList.remove("animate-pulse");
       }, 600);
     }
-    console.log("Added to cart:", item.name);
+    // console.log("Added to cart:", item.name);
   };
 
   const sortedAndFilteredItems = () => {

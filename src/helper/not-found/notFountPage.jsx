@@ -12,7 +12,7 @@ const PageNotFound = () => {
   }, []);
 
   const handleGoHome = () => {
-    console.log('Navigating to home...');
+    // console.log('Navigating to home...');
   };
 
   const handleGoBack = () => {
@@ -22,7 +22,7 @@ const PageNotFound = () => {
   const handleSearch = (e) => {
     if (e) e.preventDefault();
     if (searchQuery.trim()) {
-      console.log('Searching for:', searchQuery);
+      // console.log('Searching for:', searchQuery);
     }
   };
 

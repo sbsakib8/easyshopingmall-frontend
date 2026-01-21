@@ -50,7 +50,7 @@ const ProductDashboard = () => {
 
   // product get
   const { product,totalCount, loading, error, refetch } = useGetProduct(formData);
-  console.log("totalCount--->",totalCount)
+  // console.log("totalCount--->",totalCount)
   const allCategorydata = useSelector((state) => state.category.allCategorydata);
   const allsubCategorydata = useSelector((state) => state.subcategory.allsubCategorydata);
 
