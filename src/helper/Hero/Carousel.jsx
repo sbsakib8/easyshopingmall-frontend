@@ -62,10 +62,10 @@ const Carousel = () => {
 
 
   return (
-    <div className="relative h-[100%] lg:h-[80%] w-[98%] mx-auto  ">
+    <div className="relative h-[200px] sm:h-[400px] lg:h-[600px] w-[98%] mx-auto  ">
       {/* Main carousel container */}
       <div
-        className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl"
+        className="relative w-full h-full rounded-sm lg:rounded-2xl overflow-hidden shadow-2xl"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
@@ -84,7 +84,7 @@ const Carousel = () => {
               <img
                 src={slide?.images?.[0] || ""}
                 alt={slide?.title}
-                className="w-full h-full  object-cover object-top md:object-cover md:object-center"
+                className="w-full h-full "
               />
 
 
@@ -139,7 +139,7 @@ const Carousel = () => {
       </div>
 
       {/* Dots indicator */}
-      <div className="hidden md:flex justify-center mt-1 md:mt-6 space-x-2">
+      <div className="hidden lg:flex justify-center mt-1 md:mt-6 space-x-2">
         {slides?.map((_, index) => (
           <button
             key={index}
@@ -167,7 +167,7 @@ const Carousel = () => {
             <img
               src={slide?.images || slide?.image}
               alt={slide?.title}
-              className="w-16 h-10 object-cover"
+              className="w-16 h-10 "
             />
           </button>
         ))}
