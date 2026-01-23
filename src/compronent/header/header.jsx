@@ -5,7 +5,7 @@ import { getWishlistApi } from "@/src/hook/useWishlist";
 import { useCategoryWithSubcategories } from "@/src/utlis/useCategoryWithSubcategories";
 import { useGetProduct } from "@/src/utlis/userProduct";
 import useWebsiteInfo from "@/src/utlis/useWebsiteInfo";
-import { ChevronDown, Heart, Menu, Search, ShoppingCart, Star, User, X, Zap } from "lucide-react";
+import { Camera, ChevronDown, Heart, Menu, Search, ShoppingCart, Star, User, X, Zap } from "lucide-react";
 import CustomLoader from '@/src/compronent/loading/CustomLoader';
 import Image from "next/image";
 import Link from "next/link";
@@ -33,6 +33,7 @@ const Header = () => {
   const [currency, setCurrency] = useState("USD");
   const [isScrolled, setIsScrolled] = useState(false);
   const [openMobileCategory, setOpenMobileCategory] = useState(null);
+  const [imageSearch, setImageSearch] = useState(false)
   const pathname = usePathname();
 
   useEffect(() => {
@@ -486,8 +487,8 @@ const Header = () => {
                               >
                                 <button
                                   className={`flex items-center space-x-3 w-full px-6 py-4 transition-all duration-300 ${isActiveCategory
-                                      ? "bg-emerald-50 text-emerald-700"
-                                      : "hover:bg-emerald-50 text-gray-700"
+                                    ? "bg-emerald-50 text-emerald-700"
+                                    : "hover:bg-emerald-50 text-gray-700"
                                     }`}
                                 >
                                   <span className="text-xl">{category.icon}</span>
@@ -544,7 +545,20 @@ const Header = () => {
                     }}
                     className="w-full pl-12 lg:pl-14 pr-4 lg:pr-6 py-3 lg:py-4 bg-transparent focus:outline-none text-gray-700 placeholder-gray-500 font-medium"
                   />
+                  <button onClick={() => setImageSearch(!imageSearch)} className="w-12 cursor-pointer" >
+                    <Camera />
+                  </button>
+                  {/* image searche dropdown */}
+                  {imageSearch ? <div className="flex flex-col justify-center items-center min-w-96 min-h-60 absolute top-15 left-0 bg-amber-50 rounded-2xl shadow-2xl shadow-black-100 z-50">
+
+                    <p className="my-4 text-green-600 font-semibold">Search Product with Image</p>
+                    <div className="max-w-2/3 min-h-30 border-3 border-dotted border-green-300 bg-green-100 flex justify-center items-center">
+                      <input className="max-w-2/3 max-h-60 cursor-pointer bg-gray-200 py-1 rounded-2xl px-2" type="file" accept="image/*" />
+                    </div>
+                  </div> : ""}
+
                 </div>
+
               </div>
             </div>
 
@@ -655,11 +669,25 @@ const Header = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2 sm:py-3 bg-transparent focus:outline-none text-gray-700 placeholder-gray-500 font-medium text-sm sm:text-base"
                 />
+                <button onClick={() => {
+                  router.push("/shop")
+                  setImageSearch(!imageSearch)
+                  }} className="w-12 cursor-pointer" >
+                  <Camera />
+                </button>
+
               </div>
             </div>
           </div>
         </div>
-
+        {/* image searche dropdown */}
+        {imageSearch ? <div className="flex flex-col lg:hidden justify-center items-center absolute inset-0  bg-white  shadow-2xl shadow-black-100 z-999 sm:w-80 mx-auto min-h-52 mt-25 rounded-sm">
+          <button onClick={() =>{ setImageSearch(!imageSearch)}} className="absolute top-2 right-5 text-2xl" >X</button>
+          <p className="my-4 text-green-600 font-semibold">Search Product with Image</p>
+          <div className="max-w-2/3 min-h-30 border-3 border-dotted border-green-300 bg-green-100 flex justify-center items-center">
+            <input className="max-w-2/3 max-h-60 cursor-pointer bg-gray-200 py-1 rounded-2xl px-2" type="file" accept="image/*" />
+          </div>
+        </div> : ""}
         {/* Enhanced Navigation Menu - Responsive */}
         <div className="bg-gradient-to-r from-slate-50 via-white to-slate-50 border-t border-gray-200/60 backdrop-blur-sm">
           <div className="container mx-auto px-2 sm:px-4 hidden lg:block">

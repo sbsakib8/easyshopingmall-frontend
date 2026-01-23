@@ -55,7 +55,7 @@ const ProductDetails = () => {
   // Fetch all products for related products
   const productParams = useMemo(() => ({}), []);
   const { product: allProductsData } = useGetProduct(productParams);
-  console.log("product", allProductsData);
+  // console.log("product", allProductsData);
 
   const handleSubmitReview = async () => {
     // Check if user is logged in
@@ -122,7 +122,7 @@ const ProductDetails = () => {
         setReviewList(data);
 
         const approveData = data.filter((review) => review.status === "approved");
-        console.log(approveData);
+        // console.log(approveData);
       } catch (err) {
         console.error(err);
       } finally {
