@@ -545,6 +545,7 @@ const handleEdit =(p)=>{
 }
 
   const saveEdit = async () => {
+    // console.log("editModal-->",editModal)
       setLoad(true);
       try {
         const res = await ProductUpdate(editModal);
@@ -1207,6 +1208,17 @@ const handleEdit =(p)=>{
                       onChange={(e) => updateEditField("productRank", Number(e.target.value))}
                       className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
                     />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-black text-sm font-semibold mb-2">
+                      Video Link
+                    </label>
+                    <input
+                      value={editModal?.video_link || "https://youtube.com/shorts/example_video"}
+                      onChange={(e) => updateEditField("video_link", e.target.value)}
+                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors resize-none"
+                    ></input>
                   </div>
 
                   <div className="md:col-span-2">
