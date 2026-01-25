@@ -40,7 +40,7 @@ const AddSubcategoriesComponent = () => {
   
 
 
-  console.log(categories);
+  // console.log(categories);
   // categori get 
  useEffect(() => {
     if (allCategorydata?.data) {

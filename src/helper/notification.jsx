@@ -28,7 +28,7 @@ const NotificationDropdown = () => {
     socket.on("connect", () => console.log("🟢 Socket connected:", socket.id));
 
     socket.on("notification:new", (notif) => {
-      console.log("📩 New notification:", notif);
+      // console.log("📩 New notification:", notif);
       setTimeout(() => {
         setNotifications((prev) => [notif, ...prev]);
       }, 500);

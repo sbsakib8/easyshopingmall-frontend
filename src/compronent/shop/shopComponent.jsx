@@ -545,6 +545,7 @@ const handleEdit =(p)=>{
 }
 
   const saveEdit = async () => {
+    // console.log("editModal-->",editModal)
       setLoad(true);
       try {
         const res = await ProductUpdate(editModal);
@@ -860,7 +861,7 @@ const handleEdit =(p)=>{
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="absolute top-3 right-3 space-y-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="absolute top-3 right-3 space-y-2  opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <button
                           onClick={(e) => {
                             e.stopPropagation()
@@ -869,7 +870,7 @@ const handleEdit =(p)=>{
                           className={`p-2 rounded-lg transition-all duration-300
                             ${wishlist.some((item) => item.id === product.id)
                               ? "text-red-500 bg-red-100"
-                              : "text-gray-400 hover:text-red-500 hover:bg-red-50"
+                              : "text-gray-400 bg-white hover:text-red-500 hover:bg-red-50"
                             }`}
                         >
                           <Heart
@@ -955,7 +956,7 @@ const handleEdit =(p)=>{
                           >
                             {product.inStock ? (
                               <span className="flex items-center justify-center gap-1">
-                                <ShoppingCart className="w-3 h-3" />
+                                <ShoppingCart size={16} />
 
                               </span>
                             ) : (
@@ -1207,6 +1208,17 @@ const handleEdit =(p)=>{
                       onChange={(e) => updateEditField("productRank", Number(e.target.value))}
                       className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
                     />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-black text-sm font-semibold mb-2">
+                      Video Link
+                    </label>
+                    <input
+                      value={editModal?.video_link || "https://youtube.com/shorts/example_video"}
+                      onChange={(e) => updateEditField("video_link", e.target.value)}
+                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors resize-none"
+                    ></input>
                   </div>
 
                   <div className="md:col-span-2">

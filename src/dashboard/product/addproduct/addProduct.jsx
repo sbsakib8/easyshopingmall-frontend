@@ -57,12 +57,12 @@ const AddProductComponent = () => {
   useEffect(() => {
     // socket connect হলে
     socket.on("connect", () => {
-      console.log("🟢 Socket connected:", socket.id);
+      // console.log("🟢 Socket connected:", socket.id);
     });
 
     // নতুন notification এলে
     socket.on("notification:new", (notif) => {
-      console.log("📩 New notification:", notif);
+      // console.log("📩 New notification:", notif);
       setNotifications((prev) => [notif, ...prev]);
       toast.success(` ${notif.title}: ${notif.message}`);
     });

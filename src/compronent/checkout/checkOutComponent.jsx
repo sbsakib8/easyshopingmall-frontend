@@ -460,7 +460,7 @@ export default function CheckoutComponent() {
         <ReactPlayer
           controls
           light={<img
-            src={"https://i.ytimg.com/vi/W2paMfruQ9E/hqdefault.jpg?sqp=-oaymwFBCNACELwBSFryq4qpAzMIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB8AEB-AH-CYAC0AWKAgwIABABGBEgcihEMA8=&rs=AOn4CLDdu1fUa6vCag_bXVZ84066LrfDrA"}
+            src={"https://i.ytimg.com/an_webp/_qETiv0aTdA/mqdefault_6s.webp?du=3000&sqp=CIDM0ssG&rs=AOn4CLCd6PMqw4bF-HaBL9maPfYjGibYEg"}
             alt={`thumbnel `}
             className=" w-96 h-96  rounded-xl md:rounded-2xl"
           />}
@@ -469,7 +469,7 @@ export default function CheckoutComponent() {
           height={315}
           volume={0.5}
           playing={true}
-          src="https://www.youtube.com/watch?v=W2paMfruQ9E"
+          src="https://youtu.be/_qETiv0aTdA?feature=shared"
         />
         <button onClick={() => setShowGuideVideo(!showGuideVideo)} className="text-xl bg-red-400 py-1 px-3 rounded-full absolute top-10 right-10 cursor-pointer">X</button>
       </div>}

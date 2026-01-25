@@ -61,7 +61,7 @@ const PendingOrdersPage = () => {
   const handleStatusChange = async () => {
     console.log("confierm", selectedOrder?._id, status)
     const res = await OrderUpdate(selectedOrder?._id, status)
-    console.log(res)
+    // console.log(res)
     if (res.success) {
       setConfirmationModal(false)
       setShowModal(false)

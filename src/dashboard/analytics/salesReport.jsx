@@ -80,7 +80,7 @@ const skip = 30
     });
   }, [salesData, dateRange, filterStatus, searchTerm]);
   let totalPage=Math.ceil(filteredData.length/skip)
-console.log(filteredData.length,totalPage)
+// console.log(filteredData.length,totalPage)
   // Calculate statistics
   const stats = useMemo(() => {
     const completed = filteredData.filter(item => item.status === 'completed');

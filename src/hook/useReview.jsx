@@ -70,7 +70,7 @@ export const approveReview = async (reviewId) => {
       {},
       { withCredentials: true }
     );
-    console.log("Review approved:", response.data);
+    // console.log("Review approved:", response.data);
     return response.data;
   } catch (error) {
     console.error("Approve Review Error:", error.response?.data || error.message);
@@ -86,7 +86,7 @@ export const rejectReview = async (reviewId) => {
       {},
       { withCredentials: true }
     );
-    console.log("Review rejected:", response.data);
+    // console.log("Review rejected:", response.data);
     return response.data;
   } catch (error) {
     console.error("Reject Review Error:", error.response?.data || error.message);
@@ -103,7 +103,7 @@ export const deleteReview = async (reviewId) => {
         withCredentials: true,
       }
     );
-    console.log("Review deleted:", response.data);
+    // console.log("Review deleted:", response.data);
     return response.data;
   } catch (error) {
     console.error("Delete Review Error:", error.response?.data || error.message);
