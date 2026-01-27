@@ -35,9 +35,9 @@ const CompletedOrdersPage = () => {
             const matchesSearch =
                 customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 order?.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                customerEmail.toLowerCase().includes(searchTerm.toLowerCase())
-            const matchesStatus = order?.order_status === "completed"
-            return matchesSearch && matchesStatus
+                customerEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                order?.payment_details?.manual?.senderNumber == searchTerm
+            return matchesSearch
         })
         return filtered
     }, [searchTerm, allOrders])
@@ -180,10 +180,10 @@ const CompletedOrdersPage = () => {
                                         <h3 className="text-sm font-bold text-white mb-1">{order?.orderId}</h3>
                                         <p className="text-gray-400 text-sm">Delivered: <span className="text-white">{formatDate(order?.updatedAt)}</span> </p>
                                     </div>
-                                    <div
-                                        className={`px-3 py-1 rounded-full text-xs font-medium bg-green-600/20 border border-green-500/30 text-green-300`}
-                                    >
-                                        Completed
+                                    <div className="text-gray-300 flex gap-3">
+                                        <p className={`px-3 py-1 text-sm ${statusColors[order?.order_status]} rounded-full text-yellow-300 font-medium`}>
+                                            {order?.order_status}
+                                        </p>
                                     </div>
                                 </div>
 
@@ -296,6 +296,14 @@ const CompletedOrdersPage = () => {
                                                 <p className="text-gray-300">
                                                     <span className="text-gray-500">Provider Name:</span> {selectedOrder?.payment_details?.manual?.provider}
                                                 </p>
+                                                <div className="flex gap-2">
+                                                    <span className="text-gray-400">Amount Due:</span>
+                                                    <span className="font-medium text-white">৳{selectedOrder?.amount_due}</span>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <span className="text-gray-400">Amount Paid:</span>
+                                                    <span className="font-medium text-white">৳{selectedOrder?.amount_paid}</span>
+                                                </div>
                                             </div>
                                         </div>
 

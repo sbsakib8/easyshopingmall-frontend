@@ -14,7 +14,7 @@ const SalesReportDashboard = () => {
     const data = [];
     const products = ['Laptop Elite', 'Gaming Console', 'Smart Watch', 'Wireless Headphones', 'Tablet Pro', '4K Camera', 'Smart Speaker', 'Monitor Ultra'];
     const customers = ['John Doe', 'Tom Brown', 'Sarah Williams', 'Jane Smith', 'Lisa Davis', 'Mike Johnson', 'Emma Wilson', 'David Lee'];
-    
+
     // Generate data for November and December 2025
     for (let day = 1; day <= 30; day++) {
       const numOrders = Math.floor(Math.random() * 5) + 2;
@@ -29,7 +29,7 @@ const SalesReportDashboard = () => {
         let status = 'pending';
         if (random < statusWeights[2]) status = 'cancelled';
         else if (random < statusWeights[1] + statusWeights[2]) status = 'completed';
-        
+
         data.push({
           id: orderId,
           date: date.toISOString().split('T')[0],
@@ -46,7 +46,7 @@ const SalesReportDashboard = () => {
         });
       }
     }
-    
+
     return data.sort((a, b) => b.timestamp - a.timestamp);
   };
 
@@ -58,11 +58,12 @@ const SalesReportDashboard = () => {
   const [showCalendar, setShowCalendar] = useState(false);
   const [calendarMonth, setCalendarMonth] = useState(new Date(2025, 11, 1)); // December 2025
   const [currentPage, setCurrentPage] = useState(0)
-  const{totalRevenue} = useGetRevenue()
-  const { allOrders,loading } = useGetAllOrders()
-   const { email, loading:emailLoading } = useGetEmail();
-const skip = 30
+  const [totalRevenue, setTotalRevenue] = useState()
+  const { allOrders, loading } = useGetAllOrders()
+  const { email, loading: emailLoading } = useGetEmail();
+  const skip = 30
   // Filter data
+  // console.log("filterStatus---->", filterStatus)
   const filteredData = useMemo(() => {
     return allOrders?.filter(item => {
       const itemDate = new Date(item.updatedAt);
@@ -75,34 +76,55 @@ const skip = 30
       //   item.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       //   item.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
       //   item.product.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      return dateMatch && statusMatch ;
+
+      return dateMatch && statusMatch;
     });
-  }, [salesData, dateRange, filterStatus, searchTerm,allOrders]);
-  let totalPage=Math.ceil(filteredData?.length/skip)
-console.log(filteredData)
+  }, [salesData, dateRange, filterStatus, searchTerm, allOrders]);
+  let totalPage = Math.ceil(filteredData?.length / skip)
+  // console.log(filteredData)
 
   // Calculate statistics
   const stats = useMemo(() => {
-    const completed = filteredData?.filter(item => item.status === 'completed');
-    const cancelled = allOrders?.filter(item => item?.order_status === 'cancelled');
-    const totalRevenue = completed?.reduce((sum, item) => sum + item.amount, 0);
+    const completed = filteredData?.filter(item => item.order_status === 'completed');
+    const cancelled = filteredData?.filter(item => item?.order_status === 'cancelled');
+    const pending = filteredData?.filter(item => item?.order_status === 'pending');
+    if (pending?.length>0 && filterStatus !== "all") {
+      const revenue = pending?.reduce((sum, item) => sum + item?.totalAmt, 0);
+      setTotalRevenue(revenue)
+
+    } else if (cancelled?.length>0 && filterStatus !== "all") {
+      const revenue = cancelled?.reduce((sum, item) => sum + item?.totalAmt, 0);
+      setTotalRevenue(revenue)
+
+    } else if (completed?.length>0 || filterStatus == "all") {
+      const revenue = completed?.reduce((sum, item) => sum + item?.totalAmt, 0);
+      setTotalRevenue(revenue)
+    }else{
+      setTotalRevenue(0)
+    }
+
+
     const totalOrders = filteredData?.length;
     const conversionRate = totalOrders > 0 ? (completed.length / totalOrders) * 100 : 0;
-    
-    return { 
-      totalRevenue, 
-      totalOrders, 
+
+    return {
+      totalRevenue,
+      totalOrders,
       conversionRate: conversionRate.toFixed(2),
-      cancelledOrders: cancelled?.length 
+      cancelledOrders: cancelled?.length
     };
-  }, [filteredData,allOrders]);
-// console.log("filteredData ---->",filteredData)
+  }, [filteredData, allOrders, totalRevenue,filterStatus]);
+  // console.log("filteredData ---->",filteredData)
   // Daily analytics data for charts
   const dailyData = useMemo(() => {
     const dailyMap = {};
     filteredData?.forEach(item => {
-      const day = item.updatedAt.split('T')[0];
+   const madeDate = new Date(item.updatedAt).toLocaleDateString("en-US", {
+  month: "short",
+  day: "2-digit",
+});
+
+      const day =madeDate ;
       if (!dailyMap[day]) {
         dailyMap[day] = { date: day, sales: 0, orders: 0, cancelled: 0 };
       }
@@ -110,7 +132,7 @@ console.log(filteredData)
         dailyMap[day].sales += item.totalAmt;
         dailyMap[day].orders += 1;
       } else if (item.order_status === 'cancelled') {
-        dailyMap[day].cancelled += 1;
+        dailyMap[day].cancelled += 1; 
       }
     });
     return Object.values(dailyMap);
@@ -124,7 +146,7 @@ console.log(filteredData)
     const lastDay = new Date(year, month + 1, 0);
     const daysInMonth = lastDay.getDate();
     const startingDayOfWeek = firstDay.getDay();
-    
+
     const days = [];
     for (let i = 0; i < startingDayOfWeek; i++) {
       days.push(null);
@@ -144,17 +166,17 @@ console.log(filteredData)
   };
 
   const handleDateClick = (day) => {
-    
+
     if (!day) return;
     const clickedDate = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), day);
-    
+
     const dateStr = clickedDate.toISOString().split('T')[0];
-    
+
     if (!dateRange.start || (dateRange.start && dateRange.end)) {
       setDateRange({ start: dateStr, end: '' });
-     
+
     } else {
-      
+
       if (new Date(dateStr) < new Date(dateRange.start)) {
         setDateRange({ start: dateStr, end: dateRange.start });
       } else {
@@ -176,8 +198,8 @@ console.log(filteredData)
   const changeMonth = (direction) => {
     setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + direction, 1));
   };
-  // console.log("dailyData ---->",dailyData)
-if(loading || emailLoading)return<DashboardLoader/>
+  // console.log("dailyData ---->", dailyData)
+  if (loading || emailLoading) return <DashboardLoader />
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4 md:p-8 overflow-hidden ml-20">
       <div className="max-w-[1600px] mx-auto">
@@ -192,22 +214,20 @@ if(loading || emailLoading)return<DashboardLoader/>
           <div className="flex gap-2">
             <button
               onClick={() => setChartType('line')}
-              className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${
-                chartType === 'line' 
-                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/50' 
+              className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${chartType === 'line'
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/50'
                   : 'bg-slate-800 text-gray-400 hover:bg-slate-700'
-              }`}
+                }`}
             >
               <TrendingUp size={18} />
               Line
             </button>
             <button
               onClick={() => setChartType('bar')}
-              className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${
-                chartType === 'bar' 
-                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/50' 
+              className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${chartType === 'bar'
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/50'
                   : 'bg-slate-800 text-gray-400 hover:bg-slate-700'
-              }`}
+                }`}
             >
               <BarChart size={18} />
               Bar
@@ -240,7 +260,7 @@ if(loading || emailLoading)return<DashboardLoader/>
                   <ShoppingCart className="text-cyan-400" size={20} />
                 </div>
               </div>
-              <h3 className="text-3xl font-bold text-white mb-2">{allOrders?.length}</h3>
+              <h3 className="text-3xl font-bold text-white mb-2">{filteredData?.length}</h3>
               <p className="text-green-400 text-sm">↑ +8.2% from last month</p>
             </div>
           </div>
@@ -281,7 +301,7 @@ if(loading || emailLoading)return<DashboardLoader/>
               <Filter size={20} />
               <span className="font-semibold">Filters:</span>
             </div>
-            
+
             <div className="relative z-[9999]">
               <button
                 onClick={() => setShowCalendar(!showCalendar)}
@@ -290,7 +310,7 @@ if(loading || emailLoading)return<DashboardLoader/>
                 <Calendar size={18} />
                 <span>{formatDateRange()}</span>
               </button>
-              
+
               {showCalendar && (
                 <div className="relative top-full mt-2 bg-slate-800 border border-slate-700 rounded-xl p-4 shadow-2xl z-50 lg:min-w-[600px]">
                   <div className="flex flex-col md:flex-row gap-8 ">
@@ -318,18 +338,17 @@ if(loading || emailLoading)return<DashboardLoader/>
                             key={idx}
                             onClick={() => handleDateClick(day)}
                             disabled={!day}
-                            className={`p-2 text-sm rounded-lg transition-colors ${
-                              !day ? 'invisible' : 
-                              isDateInRange(day) ? 'bg-cyan-500 text-white' :
-                              'bg-slate-700 text-gray-300 hover:bg-slate-600'
-                            }`}
+                            className={`p-2 text-sm rounded-lg transition-colors ${!day ? 'invisible' :
+                                isDateInRange(day) ? 'bg-cyan-500 text-white' :
+                                  'bg-slate-700 text-gray-300 hover:bg-slate-600'
+                              }`}
                           >
                             {day}
                           </button>
                         ))}
                       </div>
                     </div>
-                    
+
                     {/* January 2026 */}
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-4">
@@ -365,9 +384,8 @@ if(loading || emailLoading)return<DashboardLoader/>
                               }
                             }}
                             disabled={!day}
-                            className={`p-2 text-sm rounded-lg transition-colors ${
-                              !day ? 'invisible' : 'bg-slate-700 text-gray-300 hover:bg-slate-600'
-                            }`}
+                            className={`p-2 text-sm rounded-lg transition-colors ${!day ? 'invisible' : 'bg-slate-700 text-gray-300 hover:bg-slate-600'
+                              }`}
                           >
                             {day}
                           </button>
@@ -454,7 +472,7 @@ if(loading || emailLoading)return<DashboardLoader/>
               />
             </div>
           </div>
-          
+
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
@@ -469,20 +487,19 @@ if(loading || emailLoading)return<DashboardLoader/>
                 </tr>
               </thead>
               <tbody>
-                {filteredData.slice((skip*currentPage),skip*(currentPage+1)).map((order) => (
+                {filteredData.slice((skip * currentPage), skip * (currentPage + 1)).map((order) => (
                   <tr key={order?.orderId} className="border-b border-slate-800 hover:bg-slate-800/50 transition-colors">
                     <td className="py-4 px-4 text-cyan-400 font-medium">{order?.orderId}</td>
                     <td className="py-4 px-4 text-gray-300">{new Date(order?.updatedAt).toDateString()}</td>
                     <td className="py-4 px-4 text-white">{order?.userId?.name}</td>
-                    <td className="py-4 px-4 text-white">{order?.product}</td>
+                    <td className="py-4 px-4 text-white">{order?.products[0]?.productId?.productName}</td>
                     <td className="py-4 px-4 text-gray-300">{order?.products[0]?.quantity}</td>
                     <td className="py-4 px-4 text-white font-semibold">${order?.totalAmt}</td>
                     <td className="py-4 px-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        order.order_status === 'completed' ? 'bg-green-500/20 text-green-400' :
-                        order.order_status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
-                        'bg-red-500/20 text-red-400'
-                      }`}>
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${order.order_status === 'completed' ? 'bg-green-500/20 text-green-400' :
+                          order.order_status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
+                            'bg-red-500/20 text-red-400'
+                        }`}>
                         {order.order_status}
                       </span>
                     </td>
@@ -494,9 +511,9 @@ if(loading || emailLoading)return<DashboardLoader/>
         </div>
 
         {/* pagination buttons */}
-       <div className='flex justify-center flex-wrap mt-5 gap-y-3' >
-        {[...Array(totalPage)].map((page,i)=><button onClick={()=>setCurrentPage(i)} className={`px-4 py-1 rounded-sm mx-1 ${currentPage==i?'bg-[#00D3F2] ':'bg-white'}`}>{i}</button>)}
-       </div>
+        <div className='flex justify-center flex-wrap mt-5 gap-y-3' >
+          {[...Array(totalPage)].map((page, i) => <button onClick={() => setCurrentPage(i)} className={`px-4 py-1 rounded-sm mx-1 ${currentPage == i ? 'bg-[#00D3F2] ' : 'bg-white'}`}>{i}</button>)}
+        </div>
       </div>
     </div>
   );
