@@ -545,14 +545,18 @@ const Header = () => {
                     }}
                     className="w-full pl-12 lg:pl-14 pr-4 lg:pr-6 py-3 lg:py-4 bg-transparent focus:outline-none text-gray-700 placeholder-gray-500 font-medium"
                   />
-                  <button onClick={() => setImageSearch(!imageSearch)} className="w-12 cursor-pointer" >
+                  <button onClick={() => {
+                    router.push(`/shop`)
+                    setImageSearch(!imageSearch)
+                    }} className="w-12 cursor-pointer" >
                     <Camera />
                   </button>
                   {/* image searche dropdown */}
-                  {imageSearch ? <div className="flex flex-col justify-center items-center min-w-96 min-h-60 absolute top-15 left-0 bg-amber-50 rounded-2xl shadow-2xl shadow-black-100 z-50">
+                  {imageSearch ? <div className="hidden sm:flex flex-col  justify-center items-center min-w-96 min-h-60 absolute top-15 left-0 bg-amber-50 rounded-2xl shadow-2xl shadow-black-100 z-50">
 
                     <p className="my-4 text-green-600 font-semibold">Search Product with Image</p>
-                    <div className="max-w-2/3 min-h-30 border-3 border-dotted border-green-300 bg-green-100 flex justify-center items-center">
+                    <div className="max-w-2/3 min-h-30 border-3 border-dotted border-green-300 bg-green-100 flex flex-col gap-2 justify-center items-center">
+                    <p className="text-red-400">(JPG and PNG file only)</p>
                       <input className="max-w-2/3 max-h-60 cursor-pointer bg-gray-200 py-1 rounded-2xl px-2" type="file" accept="image/*" />
                     </div>
                   </div> : ""}
@@ -684,7 +688,8 @@ const Header = () => {
         {imageSearch ? <div className="flex flex-col lg:hidden justify-center items-center absolute inset-0  bg-white  shadow-2xl shadow-black-100 z-999 sm:w-80 mx-auto min-h-52 mt-25 rounded-sm">
           <button onClick={() =>{ setImageSearch(!imageSearch)}} className="absolute top-2 right-5 text-2xl" >X</button>
           <p className="my-4 text-green-600 font-semibold">Search Product with Image</p>
-          <div className="max-w-2/3 min-h-30 border-3 border-dotted border-green-300 bg-green-100 flex justify-center items-center">
+          <div className="max-w-2/3 min-h-30 border-3 border-dotted border-green-300 bg-green-100 flex flex-col justify-center items-center gap-2">
+          <p className="text-red-400">(JPG and PNG file only)</p>
             <input className="max-w-2/3 max-h-60 cursor-pointer bg-gray-200 py-1 rounded-2xl px-2" type="file" accept="image/*" />
           </div>
         </div> : ""}

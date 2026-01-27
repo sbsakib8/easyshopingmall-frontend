@@ -460,7 +460,7 @@ export default function CheckoutComponent() {
         <ReactPlayer
           controls
           light={<img
-            src={"https://i.ytimg.com/an_webp/_qETiv0aTdA/mqdefault_6s.webp?du=3000&sqp=CIDM0ssG&rs=AOn4CLCd6PMqw4bF-HaBL9maPfYjGibYEg"}
+            src={"https://i.ibb.co.com/bj9sxtv0/Screenshot-2026-01-26-at-4-23-43-PM.png"}
             alt={`thumbnel `}
             className=" w-96 h-96  rounded-xl md:rounded-2xl"
           />}

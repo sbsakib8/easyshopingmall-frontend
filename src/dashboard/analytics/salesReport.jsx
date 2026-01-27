@@ -52,7 +52,7 @@ const SalesReportDashboard = () => {
 
   const [salesData] = useState(generateSalesData());
   const [chartType, setChartType] = useState('line');
-  const [dateRange, setDateRange] = useState({ start: '2025-11-02', end: '2025-11-10' });
+  const [dateRange, setDateRange] = useState({ start: '2025-11-02', end: '2026-11-10' });
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [showCalendar, setShowCalendar] = useState(false);
@@ -60,33 +60,34 @@ const SalesReportDashboard = () => {
   const [currentPage, setCurrentPage] = useState(0)
   const{totalRevenue} = useGetRevenue()
   const { allOrders,loading } = useGetAllOrders()
-   const { email, loading:emailLoading, error, refetch } = useGetEmail();
+   const { email, loading:emailLoading } = useGetEmail();
 const skip = 30
   // Filter data
   const filteredData = useMemo(() => {
-    return salesData.filter(item => {
-      const itemDate = new Date(item.date);
+    return allOrders?.filter(item => {
+      const itemDate = new Date(item.updatedAt);
       const startDate = new Date(dateRange.start);
       const endDate = new Date(dateRange.end);
-      
+      // console.log("ItemDate",itemDate,  "startDate",startDate, "endDate",endDate)
       const dateMatch = itemDate >= startDate && itemDate <= endDate;
-      const statusMatch = filterStatus === 'all' || item.status === filterStatus;
-      const searchMatch = !searchTerm || 
-        item.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.product.toLowerCase().includes(searchTerm.toLowerCase());
+      const statusMatch = filterStatus === 'all' || item.order_status === filterStatus;
+      // const searchMatch = !searchTerm || 
+      //   item.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      //   item.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      //   item.product.toLowerCase().includes(searchTerm.toLowerCase());
       
-      return dateMatch && statusMatch && searchMatch;
+      return dateMatch && statusMatch ;
     });
-  }, [salesData, dateRange, filterStatus, searchTerm]);
-  let totalPage=Math.ceil(filteredData.length/skip)
-// console.log(filteredData.length,totalPage)
+  }, [salesData, dateRange, filterStatus, searchTerm,allOrders]);
+  let totalPage=Math.ceil(filteredData?.length/skip)
+console.log(filteredData)
+
   // Calculate statistics
   const stats = useMemo(() => {
-    const completed = filteredData.filter(item => item.status === 'completed');
+    const completed = filteredData?.filter(item => item.status === 'completed');
     const cancelled = allOrders?.filter(item => item?.order_status === 'cancelled');
-    const totalRevenue = completed.reduce((sum, item) => sum + item.amount, 0);
-    const totalOrders = filteredData.length;
+    const totalRevenue = completed?.reduce((sum, item) => sum + item.amount, 0);
+    const totalOrders = filteredData?.length;
     const conversionRate = totalOrders > 0 ? (completed.length / totalOrders) * 100 : 0;
     
     return { 
@@ -96,19 +97,19 @@ const skip = 30
       cancelledOrders: cancelled?.length 
     };
   }, [filteredData,allOrders]);
-
+// console.log("filteredData ---->",filteredData)
   // Daily analytics data for charts
   const dailyData = useMemo(() => {
     const dailyMap = {};
-    filteredData.forEach(item => {
-      const day = item.displayDate.split(',')[0];
+    filteredData?.forEach(item => {
+      const day = item.updatedAt.split('T')[0];
       if (!dailyMap[day]) {
         dailyMap[day] = { date: day, sales: 0, orders: 0, cancelled: 0 };
       }
-      if (item.status === 'completed') {
-        dailyMap[day].sales += item.amount;
+      if (item.order_status === 'completed') {
+        dailyMap[day].sales += item.totalAmt;
         dailyMap[day].orders += 1;
-      } else if (item.status === 'cancelled') {
+      } else if (item.order_status === 'cancelled') {
         dailyMap[day].cancelled += 1;
       }
     });
@@ -143,13 +144,17 @@ const skip = 30
   };
 
   const handleDateClick = (day) => {
+    
     if (!day) return;
     const clickedDate = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), day);
+    
     const dateStr = clickedDate.toISOString().split('T')[0];
     
     if (!dateRange.start || (dateRange.start && dateRange.end)) {
       setDateRange({ start: dateStr, end: '' });
+     
     } else {
+      
       if (new Date(dateStr) < new Date(dateRange.start)) {
         setDateRange({ start: dateStr, end: dateRange.start });
       } else {
@@ -171,6 +176,7 @@ const skip = 30
   const changeMonth = (direction) => {
     setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + direction, 1));
   };
+  // console.log("dailyData ---->",dailyData)
 if(loading || emailLoading)return<DashboardLoader/>
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4 md:p-8 overflow-hidden ml-20">
@@ -464,20 +470,20 @@ if(loading || emailLoading)return<DashboardLoader/>
               </thead>
               <tbody>
                 {filteredData.slice((skip*currentPage),skip*(currentPage+1)).map((order) => (
-                  <tr key={order.id} className="border-b border-slate-800 hover:bg-slate-800/50 transition-colors">
-                    <td className="py-4 px-4 text-cyan-400 font-medium">{order.id}</td>
-                    <td className="py-4 px-4 text-gray-300">{order.displayDate}</td>
-                    <td className="py-4 px-4 text-white">{order.customer}</td>
-                    <td className="py-4 px-4 text-white">{order.product}</td>
-                    <td className="py-4 px-4 text-gray-300">{order.quantity}</td>
-                    <td className="py-4 px-4 text-white font-semibold">${order.amount.toLocaleString()}</td>
+                  <tr key={order?.orderId} className="border-b border-slate-800 hover:bg-slate-800/50 transition-colors">
+                    <td className="py-4 px-4 text-cyan-400 font-medium">{order?.orderId}</td>
+                    <td className="py-4 px-4 text-gray-300">{new Date(order?.updatedAt).toDateString()}</td>
+                    <td className="py-4 px-4 text-white">{order?.userId?.name}</td>
+                    <td className="py-4 px-4 text-white">{order?.product}</td>
+                    <td className="py-4 px-4 text-gray-300">{order?.products[0]?.quantity}</td>
+                    <td className="py-4 px-4 text-white font-semibold">${order?.totalAmt}</td>
                     <td className="py-4 px-4">
                       <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        order.status === 'completed' ? 'bg-green-500/20 text-green-400' :
-                        order.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
+                        order.order_status === 'completed' ? 'bg-green-500/20 text-green-400' :
+                        order.order_status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
                         'bg-red-500/20 text-red-400'
                       }`}>
-                        {order.status}
+                        {order.order_status}
                       </span>
                     </td>
                   </tr>
