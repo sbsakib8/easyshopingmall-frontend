@@ -36,7 +36,7 @@ const CompletedOrdersPage = () => {
                 customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 order?.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 customerEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                order?.payment_details?.manual?.senderNumber == searchTerm
+               order?.payment_details?.manual?.senderNumber.includes(searchTerm) 
             return matchesSearch
         })
         return filtered

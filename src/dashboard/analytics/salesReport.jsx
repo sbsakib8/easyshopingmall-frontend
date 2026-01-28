@@ -2,55 +2,11 @@
 import React, { useState, useMemo } from 'react';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { TrendingUp, DollarSign, ShoppingCart, XCircle, Calendar, Filter, Download, Search, ChevronLeft, ChevronRight } from 'lucide-react';
-import useGetRevenue from '@/src/utlis/useGetRevenue';
 import { useGetAllOrders } from '@/src/utlis/useGetAllOrders';
-import allorder from '@/app/(dashboard)/dashboard/order/allorders/page';
 import DashboardLoader from '@/src/helper/loading/DashboardLoader';
 import { useGetEmail } from '@/src/utlis/content/useEmail';
 
 const SalesReportDashboard = () => {
-  // Generate realistic sales data
-  const generateSalesData = () => {
-    const data = [];
-    const products = ['Laptop Elite', 'Gaming Console', 'Smart Watch', 'Wireless Headphones', 'Tablet Pro', '4K Camera', 'Smart Speaker', 'Monitor Ultra'];
-    const customers = ['John Doe', 'Tom Brown', 'Sarah Williams', 'Jane Smith', 'Lisa Davis', 'Mike Johnson', 'Emma Wilson', 'David Lee'];
-
-    // Generate data for November and December 2025
-    for (let day = 1; day <= 30; day++) {
-      const numOrders = Math.floor(Math.random() * 5) + 2;
-      for (let i = 0; i < numOrders; i++) {
-        const orderId = `ORD-${1000 + data.length}`;
-        const date = new Date(2025, 10, day); // November 2025
-        const quantity = Math.floor(Math.random() * 5) + 1;
-        const price = Math.floor(Math.random() * 1000) + 200;
-        const statuses = ['pending', 'completed', 'cancelled'];
-        const statusWeights = [0.5, 0.4, 0.1];
-        const random = Math.random();
-        let status = 'pending';
-        if (random < statusWeights[2]) status = 'cancelled';
-        else if (random < statusWeights[1] + statusWeights[2]) status = 'completed';
-
-        data.push({
-          id: orderId,
-          date: date.toISOString().split('T')[0],
-          displayDate: `Nov ${day}, 2025`,
-          customer: customers[Math.floor(Math.random() * customers.length)],
-          product: products[Math.floor(Math.random() * products.length)],
-          quantity,
-          price,
-          amount: price * quantity,
-          status,
-          month: 'Nov',
-          day: day,
-          timestamp: date.getTime()
-        });
-      }
-    }
-
-    return data.sort((a, b) => b.timestamp - a.timestamp);
-  };
-
-  const [salesData] = useState(generateSalesData());
   const [chartType, setChartType] = useState('line');
   const [dateRange, setDateRange] = useState({ start: '2025-11-02', end: '2026-11-10' });
   const [filterStatus, setFilterStatus] = useState('all');
@@ -63,43 +19,56 @@ const SalesReportDashboard = () => {
   const { email, loading: emailLoading } = useGetEmail();
   const skip = 30
   // Filter data
-  // console.log("filterStatus---->", filterStatus)
   const filteredData = useMemo(() => {
     return allOrders?.filter(item => {
       const itemDate = new Date(item.updatedAt);
       const startDate = new Date(dateRange.start);
       const endDate = new Date(dateRange.end);
-      // console.log("ItemDate",itemDate,  "startDate",startDate, "endDate",endDate)
       const dateMatch = itemDate >= startDate && itemDate <= endDate;
       const statusMatch = filterStatus === 'all' || item.order_status === filterStatus;
-      // const searchMatch = !searchTerm || 
-      //   item.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      //   item.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      //   item.product.toLowerCase().includes(searchTerm.toLowerCase());
-
       return dateMatch && statusMatch;
     });
-  }, [salesData, dateRange, filterStatus, searchTerm, allOrders]);
+  }, [ dateRange, filterStatus, searchTerm, allOrders]);
   let totalPage = Math.ceil(filteredData?.length / skip)
-  // console.log(filteredData)
+
+  // Search data
+  const searchData = useMemo(() => {
+    return allOrders?.filter(item => {
+      const matchesSearch =
+        item?.userId?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item?.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item?.userId?.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item?.payment_details?.manual?.senderNumber.includes(searchTerm) 
+      return matchesSearch;
+    });
+  }, [searchTerm, allOrders]);
+
+  // sorting by order status 
+  const orderPriority = ["pending", "completed", "cancelled"];
+  const sortedData = searchData?.sort((a, b) => {
+    return (
+      orderPriority.indexOf(a.order_status) -
+      orderPriority.indexOf(b.order_status)
+    );
+  });
 
   // Calculate statistics
   const stats = useMemo(() => {
     const completed = filteredData?.filter(item => item.order_status === 'completed');
     const cancelled = filteredData?.filter(item => item?.order_status === 'cancelled');
     const pending = filteredData?.filter(item => item?.order_status === 'pending');
-    if (pending?.length>0 && filterStatus !== "all") {
+    if (pending?.length > 0 && filterStatus !== "all") {
       const revenue = pending?.reduce((sum, item) => sum + item?.totalAmt, 0);
       setTotalRevenue(revenue)
 
-    } else if (cancelled?.length>0 && filterStatus !== "all") {
+    } else if (cancelled?.length > 0 && filterStatus !== "all") {
       const revenue = cancelled?.reduce((sum, item) => sum + item?.totalAmt, 0);
       setTotalRevenue(revenue)
 
-    } else if (completed?.length>0 || filterStatus == "all") {
+    } else if (completed?.length > 0 || filterStatus == "all") {
       const revenue = completed?.reduce((sum, item) => sum + item?.totalAmt, 0);
       setTotalRevenue(revenue)
-    }else{
+    } else {
       setTotalRevenue(0)
     }
 
@@ -113,18 +82,18 @@ const SalesReportDashboard = () => {
       conversionRate: conversionRate.toFixed(2),
       cancelledOrders: cancelled?.length
     };
-  }, [filteredData, allOrders, totalRevenue,filterStatus]);
-  // console.log("filteredData ---->",filteredData)
+  }, [filteredData, allOrders, totalRevenue, filterStatus]);
+
   // Daily analytics data for charts
   const dailyData = useMemo(() => {
     const dailyMap = {};
     filteredData?.forEach(item => {
-   const madeDate = new Date(item.updatedAt).toLocaleDateString("en-US", {
-  month: "short",
-  day: "2-digit",
-});
+      const madeDate = new Date(item.updatedAt).toLocaleDateString("en-US", {
+        month: "short",
+        day: "2-digit",
+      });
 
-      const day =madeDate ;
+      const day = madeDate;
       if (!dailyMap[day]) {
         dailyMap[day] = { date: day, sales: 0, orders: 0, cancelled: 0 };
       }
@@ -132,7 +101,7 @@ const SalesReportDashboard = () => {
         dailyMap[day].sales += item.totalAmt;
         dailyMap[day].orders += 1;
       } else if (item.order_status === 'cancelled') {
-        dailyMap[day].cancelled += 1; 
+        dailyMap[day].cancelled += 1;
       }
     });
     return Object.values(dailyMap);
@@ -215,8 +184,8 @@ const SalesReportDashboard = () => {
             <button
               onClick={() => setChartType('line')}
               className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${chartType === 'line'
-                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/50'
-                  : 'bg-slate-800 text-gray-400 hover:bg-slate-700'
+                ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/50'
+                : 'bg-slate-800 text-gray-400 hover:bg-slate-700'
                 }`}
             >
               <TrendingUp size={18} />
@@ -225,8 +194,8 @@ const SalesReportDashboard = () => {
             <button
               onClick={() => setChartType('bar')}
               className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${chartType === 'bar'
-                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/50'
-                  : 'bg-slate-800 text-gray-400 hover:bg-slate-700'
+                ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/50'
+                : 'bg-slate-800 text-gray-400 hover:bg-slate-700'
                 }`}
             >
               <BarChart size={18} />
@@ -339,8 +308,8 @@ const SalesReportDashboard = () => {
                             onClick={() => handleDateClick(day)}
                             disabled={!day}
                             className={`p-2 text-sm rounded-lg transition-colors ${!day ? 'invisible' :
-                                isDateInRange(day) ? 'bg-cyan-500 text-white' :
-                                  'bg-slate-700 text-gray-300 hover:bg-slate-600'
+                              isDateInRange(day) ? 'bg-cyan-500 text-white' :
+                                'bg-slate-700 text-gray-300 hover:bg-slate-600'
                               }`}
                           >
                             {day}
@@ -487,7 +456,7 @@ const SalesReportDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredData.slice((skip * currentPage), skip * (currentPage + 1)).map((order) => (
+                {sortedData?.slice((skip * currentPage), skip * (currentPage + 1)).map((order) => (
                   <tr key={order?.orderId} className="border-b border-slate-800 hover:bg-slate-800/50 transition-colors">
                     <td className="py-4 px-4 text-cyan-400 font-medium">{order?.orderId}</td>
                     <td className="py-4 px-4 text-gray-300">{new Date(order?.updatedAt).toDateString()}</td>
@@ -497,8 +466,8 @@ const SalesReportDashboard = () => {
                     <td className="py-4 px-4 text-white font-semibold">${order?.totalAmt}</td>
                     <td className="py-4 px-4">
                       <span className={`px-3 py-1 rounded-full text-xs font-semibold ${order.order_status === 'completed' ? 'bg-green-500/20 text-green-400' :
-                          order.order_status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
-                            'bg-red-500/20 text-red-400'
+                        order.order_status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
+                          'bg-red-500/20 text-red-400'
                         }`}>
                         {order.order_status}
                       </span>
