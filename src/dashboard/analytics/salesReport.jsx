@@ -8,7 +8,7 @@ import { useGetEmail } from '@/src/utlis/content/useEmail';
 
 const SalesReportDashboard = () => {
   const [chartType, setChartType] = useState('line');
-  const [dateRange, setDateRange] = useState({ start: '2025-11-02', end: '2026-11-10' });
+
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [showCalendar, setShowCalendar] = useState(false);
@@ -17,7 +17,25 @@ const SalesReportDashboard = () => {
   const [totalRevenue, setTotalRevenue] = useState()
   const { allOrders, loading } = useGetAllOrders()
   const { email, loading: emailLoading } = useGetEmail();
+  const [dateRange, setDateRange] = useState({ start: '2025-11-02', end:  '2026-02-10' });
   const skip = 30
+
+const getFormattedDate = (daysAgo) => {
+  const date = new Date();
+  date.setDate(date.getDate() - daysAgo);
+
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0'); 
+  const year = date.getFullYear();
+
+  return `${day}-${month}-${year}`;
+};
+
+const pastDate = getFormattedDate(30);
+const today = getFormattedDate(0);
+console.log("pastDate--->:", pastDate,"today--->",today);
+
+
   // Filter data
   const filteredData = useMemo(() => {
     return allOrders?.filter(item => {
@@ -38,7 +56,7 @@ const SalesReportDashboard = () => {
         item?.userId?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item?.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item?.userId?.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item?.payment_details?.manual?.senderNumber.includes(searchTerm) 
+        item?.address?.mobile==searchTerm 
       return matchesSearch;
     });
   }, [searchTerm, allOrders]);
@@ -95,13 +113,15 @@ const SalesReportDashboard = () => {
 
       const day = madeDate;
       if (!dailyMap[day]) {
-        dailyMap[day] = { date: day, sales: 0, orders: 0, cancelled: 0 };
+        dailyMap[day] = { date: day, sales: 0, orders: 0, cancelled: 0,pending:0 };
       }
       if (item.order_status === 'completed') {
         dailyMap[day].sales += item.totalAmt;
         dailyMap[day].orders += 1;
       } else if (item.order_status === 'cancelled') {
         dailyMap[day].cancelled += 1;
+      }else if (item.order_status === 'pending') {
+        dailyMap[day].pending += 1;
       }
     });
     return Object.values(dailyMap);
@@ -404,6 +424,7 @@ const SalesReportDashboard = () => {
                 <Line type="monotone" dataKey="sales" stroke="#06b6d4" strokeWidth={2} dot={{ fill: '#06b6d4', r: 4 }} name="Sales" />
                 <Line type="monotone" dataKey="orders" stroke="#a855f7" strokeWidth={2} dot={{ fill: '#a855f7', r: 4 }} name="Orders" />
                 <Line type="monotone" dataKey="cancelled" stroke="#ef4444" strokeWidth={2} dot={{ fill: '#ef4444', r: 4 }} name="Cancelled" />
+                <Line type="monotone" dataKey="pending" stroke="#E67E22" strokeWidth={2} dot={{ fill: '#E67E22', r: 4 }} name="Pending" />
               </LineChart>
             ) : (
               <BarChart data={dailyData}>
@@ -415,9 +436,10 @@ const SalesReportDashboard = () => {
                   labelStyle={{ color: '#fff' }}
                 />
                 <Legend />
-                <Bar dataKey="sales" fill="#06b6d4" radius={[4, 4, 0, 0]} name="Sales" />
+           
                 <Bar dataKey="orders" fill="#a855f7" radius={[4, 4, 0, 0]} name="Orders" />
                 <Bar dataKey="cancelled" fill="#ef4444" radius={[4, 4, 0, 0]} name="Cancelled" />
+                <Bar dataKey="pending" fill="#E67E22" radius={[4, 4, 0, 0]} name="Pending" />
               </BarChart>
             )}
           </ResponsiveContainer>
