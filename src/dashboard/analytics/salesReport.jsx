@@ -17,24 +17,23 @@ const SalesReportDashboard = () => {
   const [totalRevenue, setTotalRevenue] = useState()
   const { allOrders, loading } = useGetAllOrders()
   const { email, loading: emailLoading } = useGetEmail();
-  const [dateRange, setDateRange] = useState({ start: '2025-11-02', end:  '2026-02-10' });
+
   const skip = 30
 
-const getFormattedDate = (daysAgo) => {
-  const date = new Date();
-  date.setDate(date.getDate() - daysAgo);
-
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0'); 
-  const year = date.getFullYear();
-
-  return `${day}-${month}-${year}`;
-};
-
-const pastDate = getFormattedDate(30);
-const today = getFormattedDate(0);
-console.log("pastDate--->:", pastDate,"today--->",today);
-
+  const getISODateStart = (daysAgo = 0) => {
+    const date = new Date();
+    date.setDate(date.getDate() - daysAgo);
+    return date.toISOString().split("T")[0]; // YYYY-MM-DD
+  };
+  const getISODateEnd = (daysAgo = 0) => {
+    const date = new Date();
+    date.setDate(date.getDate() + daysAgo);
+    return date.toISOString().split("T")[0]; // YYYY-MM-DD
+  };
+  const [dateRange, setDateRange] = useState(() => ({
+    start: getISODateStart(20), // 20 days ago
+    end: getISODateEnd(10),    // 10 days after
+  }));
 
   // Filter data
   const filteredData = useMemo(() => {
@@ -46,9 +45,8 @@ console.log("pastDate--->:", pastDate,"today--->",today);
       const statusMatch = filterStatus === 'all' || item.order_status === filterStatus;
       return dateMatch && statusMatch;
     });
-  }, [ dateRange, filterStatus, searchTerm, allOrders]);
+  }, [dateRange, filterStatus, searchTerm, allOrders]);
   let totalPage = Math.ceil(filteredData?.length / skip)
-
   // Search data
   const searchData = useMemo(() => {
     return allOrders?.filter(item => {
@@ -56,7 +54,7 @@ console.log("pastDate--->:", pastDate,"today--->",today);
         item?.userId?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item?.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item?.userId?.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item?.address?.mobile==searchTerm 
+        item?.address?.mobile == searchTerm
       return matchesSearch;
     });
   }, [searchTerm, allOrders]);
@@ -113,14 +111,14 @@ console.log("pastDate--->:", pastDate,"today--->",today);
 
       const day = madeDate;
       if (!dailyMap[day]) {
-        dailyMap[day] = { date: day, sales: 0, orders: 0, cancelled: 0,pending:0 };
+        dailyMap[day] = { date: day, sales: 0, orders: 0, cancelled: 0, pending: 0 };
       }
       if (item.order_status === 'completed') {
         dailyMap[day].sales += item.totalAmt;
         dailyMap[day].orders += 1;
       } else if (item.order_status === 'cancelled') {
         dailyMap[day].cancelled += 1;
-      }else if (item.order_status === 'pending') {
+      } else if (item.order_status === 'pending') {
         dailyMap[day].pending += 1;
       }
     });
@@ -188,7 +186,7 @@ console.log("pastDate--->:", pastDate,"today--->",today);
     setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + direction, 1));
   };
   // console.log("dailyData ---->", dailyData)
-  if (loading || emailLoading) return <DashboardLoader />
+  if (loading || emailLoading || !dateRange) return <DashboardLoader />
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4 md:p-8 overflow-hidden ml-20">
       <div className="max-w-[1600px] mx-auto">
@@ -421,10 +419,11 @@ console.log("pastDate--->:", pastDate,"today--->",today);
                   labelStyle={{ color: '#fff' }}
                 />
                 <Legend />
-                <Line type="monotone" dataKey="sales" stroke="#06b6d4" strokeWidth={2} dot={{ fill: '#06b6d4', r: 4 }} name="Sales" />
+                
                 <Line type="monotone" dataKey="orders" stroke="#a855f7" strokeWidth={2} dot={{ fill: '#a855f7', r: 4 }} name="Orders" />
                 <Line type="monotone" dataKey="cancelled" stroke="#ef4444" strokeWidth={2} dot={{ fill: '#ef4444', r: 4 }} name="Cancelled" />
                 <Line type="monotone" dataKey="pending" stroke="#E67E22" strokeWidth={2} dot={{ fill: '#E67E22', r: 4 }} name="Pending" />
+                <Line type="monotone" dataKey="sales" stroke="#06b6d4" strokeWidth={2} dot={{ fill: '#06b6d4', r: 4 }} name="Sales" />
               </LineChart>
             ) : (
               <BarChart data={dailyData}>
@@ -436,7 +435,7 @@ console.log("pastDate--->:", pastDate,"today--->",today);
                   labelStyle={{ color: '#fff' }}
                 />
                 <Legend />
-           
+
                 <Bar dataKey="orders" fill="#a855f7" radius={[4, 4, 0, 0]} name="Orders" />
                 <Bar dataKey="cancelled" fill="#ef4444" radius={[4, 4, 0, 0]} name="Cancelled" />
                 <Bar dataKey="pending" fill="#E67E22" radius={[4, 4, 0, 0]} name="Pending" />
