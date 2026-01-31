@@ -60,11 +60,11 @@ const ProductDetails = () => {
   const handleSubmitReview = async () => {
     // Check if user is logged in
     console.log("=== Review Submission Check ===");
-    console.log("User object:", user);
+    
 
     // Handle both _id (normal login) and id (Google login)
     const userId = user?._id || user?.id;
-    console.log("User ID:", userId);
+   
 
     if (!userId) {
       toast.error("Please sign in to submit a review");
