@@ -3,7 +3,7 @@ import { UrlBackend } from "../confic/urlExport";
 import { categoryGet } from "../redux/categorySlice";
 
 // catagory add
-export const CategoryCreate = async (formData, ) => {
+export const CategoryCreate = async (formData,) => {
   try {
     const response = await axios.post(`${UrlBackend}/categories/create`, formData, {
       withCredentials: true,
@@ -11,25 +11,26 @@ export const CategoryCreate = async (formData, ) => {
         "Content-Type": "multipart/form-data",
       },
     });
-    return response.data; 
+    return response.data;
   } catch (error) {
     console.error("Registration error:", error.response?.data || error.message);
-    throw error; 
+    throw error;
   }
 };
 
 // catagory ALL GET
-export const CategoryAllGet = async (dispatch ) => {
+export const CategoryAllGet = async (dispatch) => {
   try {
-    const response = await axios.get(`${UrlBackend}/categories`,  {
+    const response = await axios.get(`${UrlBackend}/categories`, {
       withCredentials: true,
     });
-    dispatch(categoryGet(response.data))
-    return response.data; 
-   
+    if (dispatch) {
+      dispatch(categoryGet(response.data));
+    }
+    return response.data;
   } catch (error) {
-    console.error("Registration error:", error.response?.data || error.message);
-    throw error; 
+    console.error("Category fetch error:", error.response?.data || error.message);
+    throw error;
   }
 };
 
@@ -38,10 +39,10 @@ export const CategoryAllGet = async (dispatch ) => {
 export const CategoryUploade = async (formData, categoryId) => {
   try {
     const response = await axios.put(
-      `${UrlBackend}/categories/${categoryId}`, 
-      formData, 
+      `${UrlBackend}/categories/${categoryId}`,
+      formData,
       {
-        withCredentials: true, 
+        withCredentials: true,
       }
     );
     return response.data;
@@ -55,9 +56,9 @@ export const CategoryUploade = async (formData, categoryId) => {
 export const CategoryDelete = async (categoryId) => {
   try {
     const response = await axios.delete(
-      `${UrlBackend}/categories/${categoryId}`, 
+      `${UrlBackend}/categories/${categoryId}`,
       {
-        withCredentials: true, 
+        withCredentials: true,
       }
     );
     return response.data;
