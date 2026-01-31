@@ -236,7 +236,7 @@ const OrderManagement = () => {
         </div>
 
         <div
-          className={`grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-6 transform transition-all duration-1000 delay-200 ${animateCards ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
+          className={`grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6 transform transition-all duration-1000 delay-200 ${animateCards ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
         >
           <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
             <div className="absolute top-0 right-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
@@ -279,15 +279,6 @@ const OrderManagement = () => {
               <DollarSign className="h-8 w-8 mb-3 text-purple-400" />
               <p className="text-gray-400 text-sm">Revenue</p>
               <p className="text-3xl font-bold text-white">৳{stats?.revenue?.toFixed(0)}</p>
-            </div>
-          </div>
-
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-indigo-500/10 rounded-full -translate-y-10 translate-x-10"></div>
-            <div className="relative">
-              <TrendingUp className="h-8 w-8 mb-3 text-indigo-400" />
-              <p className="text-gray-400 text-sm">Avg Order</p>
-              <p className="text-3xl font-bold text-white">৳{stats?.avgOrderValue.toFixed(0)}</p>
             </div>
           </div>
         </div>

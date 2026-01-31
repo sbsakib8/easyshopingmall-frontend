@@ -56,7 +56,7 @@ function Signup() {
   const provider = new GoogleAuthProvider();
   const result = await signInWithPopup(auth, provider);
   const user = result.user;
-  console.log("user", user.reloadUserInfo);
+  // console.log("user", user.reloadUserInfo);
   try {
     await googleSignIn({
       name: user.reloadUserInfo.displayName, 

@@ -51,7 +51,7 @@ export default function ManualPaymentForm({ order, selectedManualMethod, manualM
         paidFor: order.payment_type || "full", // Use order's payment_type, default to full
       };
 
-      console.log("Submitting manual payment with payload:", manualPaymentPayload);
+      // console.log("Submitting manual payment with payload:", manualPaymentPayload);
       await submitManualPayment(manualPaymentPayload);
 
       toast.success(

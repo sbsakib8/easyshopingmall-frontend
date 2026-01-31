@@ -28,7 +28,7 @@ const NotificationDropdown = () => {
     socket.on("connect", () => console.log("🟢 Socket connected:", socket.id));
 
     socket.on("notification:new", (notif) => {
-      console.log("📩 New notification:", notif);
+      // console.log("📩 New notification:", notif);
       setTimeout(() => {
         setNotifications((prev) => [notif, ...prev]);
       }, 500);
@@ -139,7 +139,7 @@ const handleDelete = async (id) => {
       {/* Dropdown */}
       {isOpen && (
         <div
-          className="absolute right-0 mt-3 w-80 bg-gray-900 border border-gray-700 
+          className="absolute -right-20 lg:right-0 mt-3 w-80 bg-gray-900 border border-gray-700 
         rounded-xl shadow-xl p-3 animate-fadeIn z-50"
         >
           <div className="flex justify-between items-center py-2 px-1">

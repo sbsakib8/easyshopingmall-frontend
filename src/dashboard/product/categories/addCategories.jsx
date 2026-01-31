@@ -928,6 +928,7 @@ const AddCategoriesComponent = () => {
           {/* Table Body */}
           <div className="divide-y divide-white/10">
             {categories.map((category, index) => (
+              console.log("category---->",category),
               <div
                 key={category._id}
                 className="px-6 py-4 hover:bg-white/5 transition-all duration-300 transform hover:scale-[1.01] group"

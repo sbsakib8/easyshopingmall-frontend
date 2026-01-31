@@ -2,6 +2,11 @@
 import React, { useState, useMemo } from 'react';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { TrendingUp, DollarSign, ShoppingCart, XCircle, Calendar, Filter, Download, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import useGetRevenue from '@/src/utlis/useGetRevenue';
+import { useGetAllOrders } from '@/src/utlis/useGetAllOrders';
+import allorder from '@/app/(dashboard)/dashboard/order/allorders/page';
+import DashboardLoader from '@/src/helper/loading/DashboardLoader';
+import { useGetEmail } from '@/src/utlis/content/useEmail';
 
 const SalesReportDashboard = () => {
   // Generate realistic sales data
@@ -53,6 +58,9 @@ const SalesReportDashboard = () => {
   const [showCalendar, setShowCalendar] = useState(false);
   const [calendarMonth, setCalendarMonth] = useState(new Date(2025, 11, 1)); // December 2025
   const [currentPage, setCurrentPage] = useState(0)
+  const{totalRevenue} = useGetRevenue()
+  const { allOrders,loading } = useGetAllOrders()
+   const { email, loading:emailLoading, error, refetch } = useGetEmail();
 const skip = 30
   // Filter data
   const filteredData = useMemo(() => {
@@ -72,11 +80,11 @@ const skip = 30
     });
   }, [salesData, dateRange, filterStatus, searchTerm]);
   let totalPage=Math.ceil(filteredData.length/skip)
-console.log(filteredData.length,totalPage)
+// console.log(filteredData.length,totalPage)
   // Calculate statistics
   const stats = useMemo(() => {
     const completed = filteredData.filter(item => item.status === 'completed');
-    const cancelled = filteredData.filter(item => item.status === 'cancelled');
+    const cancelled = allOrders?.filter(item => item?.order_status === 'cancelled');
     const totalRevenue = completed.reduce((sum, item) => sum + item.amount, 0);
     const totalOrders = filteredData.length;
     const conversionRate = totalOrders > 0 ? (completed.length / totalOrders) * 100 : 0;
@@ -85,9 +93,9 @@ console.log(filteredData.length,totalPage)
       totalRevenue, 
       totalOrders, 
       conversionRate: conversionRate.toFixed(2),
-      cancelledOrders: cancelled.length 
+      cancelledOrders: cancelled?.length 
     };
-  }, [filteredData]);
+  }, [filteredData,allOrders]);
 
   // Daily analytics data for charts
   const dailyData = useMemo(() => {
@@ -163,9 +171,9 @@ console.log(filteredData.length,totalPage)
   const changeMonth = (direction) => {
     setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + direction, 1));
   };
-
+if(loading || emailLoading)return<DashboardLoader/>
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4 md:p-8 overflow-hidden ">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4 md:p-8 overflow-hidden ml-20">
       <div className="max-w-[1600px] mx-auto">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
@@ -212,7 +220,7 @@ console.log(filteredData.length,totalPage)
                   <DollarSign className="text-white" size={20} />
                 </div>
               </div>
-              <h3 className="text-3xl font-bold text-white mb-2">${stats.totalRevenue.toLocaleString()}</h3>
+              <h3 className="text-3xl font-bold text-white mb-2">৳{totalRevenue}</h3>
               <p className="text-green-200 text-sm">↑ +10.5% from last month</p>
             </div>
           </div>
@@ -226,7 +234,7 @@ console.log(filteredData.length,totalPage)
                   <ShoppingCart className="text-cyan-400" size={20} />
                 </div>
               </div>
-              <h3 className="text-3xl font-bold text-white mb-2">{stats.totalOrders.toLocaleString()}</h3>
+              <h3 className="text-3xl font-bold text-white mb-2">{allOrders?.length}</h3>
               <p className="text-green-400 text-sm">↑ +8.2% from last month</p>
             </div>
           </div>
@@ -240,7 +248,7 @@ console.log(filteredData.length,totalPage)
                   <TrendingUp className="text-white" size={20} />
                 </div>
               </div>
-              <h3 className="text-3xl font-bold text-white mb-2">{stats.conversionRate}%</h3>
+              <h3 className="text-3xl font-bold text-white mb-2">{email.length}%</h3>
               <p className="text-green-200 text-sm">↑ +2.1% from last month</p>
             </div>
           </div>

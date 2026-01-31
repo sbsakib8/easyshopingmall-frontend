@@ -9,12 +9,13 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import LocationSelects from "../LocationSelects";
-
+import ReactPlayer from 'react-player'
 
 
 
 export default function CheckoutComponent() {
   const user = useSelector((state) => state.user?.data);
+  const [showGuideVideo, setShowGuideVideo] = useState(false)
   const dispatch = useDispatch();
   const { items } = useSelector((state) => state.cart || {});
   const cartItems = items || [];
@@ -466,6 +467,28 @@ export default function CheckoutComponent() {
           </div>
         </div>
       </div>
+      <div className="w-full px-5 flex justify-center items-center mt-8 gap-2 ">
+        <button className="text-sm bg-orange-300 px-3 py-2 rounded-2xl">সম্পূর্ণ অর্ডার গাইডলাইন এখানে দেখুন</button>
+        <img onClick={() => setShowGuideVideo(!showGuideVideo)} src="https://cdn-icons-png.freepik.com/256/13983/13983898.png?semt=ais_white_label" className="w-10 h-10 cursor-pointer" alt="" />
+      </div>
+      {/* guide video  */}
+      {showGuideVideo && <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn ">
+        <ReactPlayer
+          controls
+          light={<img
+            src={"https://i.ytimg.com/an_webp/_qETiv0aTdA/mqdefault_6s.webp?du=3000&sqp=CIDM0ssG&rs=AOn4CLCd6PMqw4bF-HaBL9maPfYjGibYEg"}
+            alt={`thumbnel `}
+            className=" w-96 h-96  rounded-xl md:rounded-2xl"
+          />}
+          playIcon={<img className='w-12 h-12 absolute rounded-full' src={"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRT7dAm2xeRPWO5PJWhJnhfUeG3Syl3ws8wnw&s"} />}
+          width={660}
+          height={315}
+          volume={0.5}
+          playing={true}
+          src="https://youtu.be/_qETiv0aTdA?feature=shared"
+        />
+        <button onClick={() => setShowGuideVideo(!showGuideVideo)} className="text-xl bg-red-400 py-1 px-3 rounded-full absolute top-10 right-10 cursor-pointer">X</button>
+      </div>}
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid lg:grid-cols-3 gap-8">
@@ -518,7 +541,7 @@ export default function CheckoutComponent() {
                     <textarea value={customerInfo.address} onChange={(e) => handleInputChange("address", e.target.value)} placeholder="বাড়ি/ফ্ল্যাট নম্বর, রোড নম্বর, এলাকার নাম" className="w-full px-4 py-3 border rounded-xl bg-gray-50" rows={3} />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">পোস্ট কোড *</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">পোস্ট কোড </label>
                     <input value={customerInfo?.pincode} onChange={(e) => handleInputChange("pincode", e.target.value)} placeholder="পোস্ট কোড দিন" className="w-full px-4 py-3 border rounded-xl bg-gray-50" />
                   </div>
 
@@ -658,7 +681,7 @@ export default function CheckoutComponent() {
                               placeholder="আপনার মোবাইল নম্বর (যেই নম্বর থেকে পেমেন্ট করেছেন)"
                               value={manualPaymentInfo.senderNumber}
                               onChange={(e) => handleManualPaymentInfoChange('senderNumber', e.target.value)}
-                              className="w-full px-3 py-2 border rounded-xl"
+                              className="w-full px-3 py-3 border rounded-xl text-xs"
                               disabled={isProcessing}
                             />
 
@@ -667,7 +690,7 @@ export default function CheckoutComponent() {
                               placeholder="ট্রানজ্যাকশন আইডি (Transaction ID)"
                               value={manualPaymentInfo.transactionId}
                               onChange={(e) => handleManualPaymentInfoChange('transactionId', e.target.value)}
-                              className="w-full px-3 py-2 border rounded-xl"
+                              className="w-full px-3 py-3 border rounded-xl text-xs"
                               disabled={isProcessing}
                             />
 

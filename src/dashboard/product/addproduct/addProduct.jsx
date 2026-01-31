@@ -57,12 +57,12 @@ const AddProductComponent = () => {
   useEffect(() => {
     // socket connect হলে
     socket.on("connect", () => {
-      console.log("🟢 Socket connected:", socket.id);
+      // console.log("🟢 Socket connected:", socket.id);
     });
 
     // নতুন notification এলে
     socket.on("notification:new", (notif) => {
-      console.log("📩 New notification:", notif);
+      // console.log("📩 New notification:", notif);
       setNotifications((prev) => [notif, ...prev]);
       toast.success(` ${notif.title}: ${notif.message}`);
     });
@@ -305,7 +305,7 @@ const AddProductComponent = () => {
                   name="productName"
                   value={formData.productName}
                   onChange={handleInputChange}
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 mt-1"
                   placeholder="Enter product name"
                   required
                 />
@@ -318,7 +318,7 @@ const AddProductComponent = () => {
                   name="brand"
                   value={formData.brand}
                   onChange={handleInputChange}
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 mt-1"
                   placeholder="Enter brand name"
                 />
               </div>
@@ -330,7 +330,7 @@ const AddProductComponent = () => {
                   value={formData.description}
                   onChange={handleInputChange}
                   rows="4"
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 resize-none"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 resize-none mt-1"
                   placeholder="Enter detailed product description"
                   required
                 />
@@ -353,7 +353,7 @@ const AddProductComponent = () => {
                   name="category"
                   value={formData.category[0] || ""}
                   onChange={handleInputChange}
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300 mt-1"
                   required
                 >
                   <option value="" className="bg-slate-800">
@@ -382,7 +382,7 @@ const AddProductComponent = () => {
                   value={formData.subCategory[0] || ""}
                   onChange={handleInputChange}
                   disabled={!formData.category.length}
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300 disabled:opacity-50"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300 disabled:opacity-50 mt-1"
                 >
                   <option value="" className="bg-slate-800">
                     Select Sub Category
@@ -405,7 +405,7 @@ const AddProductComponent = () => {
               {/* FEATURED */}
               <div className="space-y-2">
                 <label className="text-white font-medium">Featured Product</label>
-                <div className="flex items-center p-4 bg-white/10 border border-white/20 rounded-xl">
+                <div className="flex items-center p-4 bg-white/10 border border-white/20 rounded-xl mt-1">
                   <input
                     type="checkbox"
                     name="featured"
@@ -486,14 +486,14 @@ const AddProductComponent = () => {
                     </span>
                   ))}
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 mt-1">
                   <input
                     type="text"
                     value={newWeight}
                     onChange={(e) => setnewWeight(e.target.value)}
                     onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addweight())}
-                    className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Add product color"
+                    className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 "
+                    placeholder="Add product weight"
                   />
                   <button
                     type="button"
@@ -525,14 +525,14 @@ const AddProductComponent = () => {
                     </span>
                   ))}
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 mt-1">
                   <input
                     type="text"
                     value={setsize}
                     onChange={(e) => setsetsize(e.target.value)}
                     onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addsize())}
                     className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Add product color"
+                    placeholder="Add product size"
                   />
                   <button
                     type="button"
@@ -564,7 +564,7 @@ const AddProductComponent = () => {
                     </span>
                   ))}
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 mt-1">
                   <input
                     type="text"
                     value={newColor}
@@ -594,14 +594,14 @@ const AddProductComponent = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="space-y-2">
-                <label className="text-white font-medium">Price ($)</label>
+                <label className="text-white font-medium ">Price (৳)</label>
                 <input
                   type="number"
                   name="price"
                   value={formData.price}
                   onChange={handleInputChange}
                   step="0.01"
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 mt-1"
                   placeholder="0.00"
                   required
                 />
@@ -614,7 +614,7 @@ const AddProductComponent = () => {
                   name="productStock"
                   value={formData.productStock}
                   onChange={handleInputChange}
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 mt-1"
                   placeholder="Available quantity"
                   required
                 />
@@ -629,7 +629,7 @@ const AddProductComponent = () => {
                   onChange={handleInputChange}
                   min="0"
                   max="100"
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 mt-1"
                   placeholder="0"
                 />
               </div>
@@ -642,7 +642,7 @@ const AddProductComponent = () => {
                   value={formData.productRank}
                   onChange={handleInputChange}
                   min="1"
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 mt-1"
                   placeholder="Product ranking"
                 />
               </div>
@@ -801,7 +801,7 @@ const AddProductComponent = () => {
         </form>
 
         {/* Quick Stats */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-gradient-to-r from-blue-500/20 to-cyan-500/20 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
             <div className="flex items-center justify-between">
               <div>
@@ -831,7 +831,7 @@ const AddProductComponent = () => {
               <Star className="text-pink-400" size={32} />
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

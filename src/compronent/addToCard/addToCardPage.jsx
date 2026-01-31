@@ -322,7 +322,7 @@ const ShoppingCartComponent = () => {
                 // <Link className=' space-y-10' key={item.id}>
                 <div
                   key={item.productId}
-                  className="bg-white mt-10 cursor-pointer rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300"
+                  className="bg-white cursor-pointer rounded-2xl shadow-lg py-6 px-3 hover:shadow-xl transition-all duration-300"
                   style={{
                     animation: `slideIn 0.5s ease-out ${index * 0.1}s both`
                   }}
@@ -445,52 +445,10 @@ const ShoppingCartComponent = () => {
                 // </Link>
               ))}
 
-              {/* Suggested Items */}
-              {/* Add-to-cart wise suggestions */}
-              {suggestedItems.length > 0 && (
-                <div className="bg-white rounded-2xl shadow-lg p-6 mt-8">
-                  <h3 className="font-semibold text-lg text-gray-900 mb-4 flex items-center">
-                    <Gift className="w-5 h-5 mr-2 text-purple-600" />
-                    You might also like
-                  </h3>
-
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {suggestedItems.slice(0, 8).map((item) => (
-                      <div
-                        key={item._id}
-                        className="border border-gray-200 rounded-xl p-3 hover:shadow-lg transition-all duration-300 group"
-                      >
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="w-full h-20 object-cover rounded-lg mb-2"
-                        />
-
-                        <h4 className="text-sm font-medium text-gray-900 mb-1 group-hover:text-teal-600">
-                          {item.name}
-                        </h4>
-
-                        <p className="text-xs text-gray-500 mb-2">
-                          Category: {item.category?.name}
-                        </p>
-
-                        <button
-                          onClick={() => handleAddToCart(item)}
-                          className="w-full bg-teal-600 text-white text-xs py-1.5 rounded-lg hover:bg-teal-700 transition"
-                        >
-                          Add to Cart
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
 
             </div>
-
             {/* Order Summary */}
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1 row-span-2">
               <div className="bg-white rounded-2xl shadow-lg p-6 sticky top-6">
                 <h3 className="font-semibold text-lg text-gray-900 mb-6">Order Summary</h3>
 
@@ -637,6 +595,46 @@ const ShoppingCartComponent = () => {
                 </button>
               </div>
             </div>
+            {/* Suggested Items */}
+            {/* Add-to-cart wise suggestions */}
+            {suggestedItems.length > 0 && (
+              <div className="lg:col-span-2 bg-white rounded-2xl shadow-lg p-6 mt-8">
+                <h3 className="font-semibold text-lg text-gray-900 mb-4 flex items-center">
+                  <Gift className="w-5 h-5 mr-2 text-purple-600" />
+                  You might also like
+                </h3>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {suggestedItems.slice(0, 8).map((item) => (
+                    <div
+                      key={item._id}
+                      className="border border-gray-200 rounded-xl p-3 hover:shadow-lg transition-all duration-300 group"
+                    >
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-full h-20 object-cover rounded-lg mb-2"
+                      />
+
+                      <h4 className="text-sm font-medium text-gray-900 mb-1 group-hover:text-teal-600">
+                        {item.name}
+                      </h4>
+
+                      <p className="text-xs text-gray-500 mb-2">
+                        Category: {item.category?.name}
+                      </p>
+
+                      <button
+                        onClick={() => handleAddToCart(item)}
+                        className="w-full bg-teal-600 text-white text-xs py-1.5 rounded-lg hover:bg-teal-700 transition"
+                      >
+                        Add to Cart
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

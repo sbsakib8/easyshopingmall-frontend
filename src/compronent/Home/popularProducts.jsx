@@ -1,5 +1,7 @@
 "use client";
 import {
+  ArrowDown,
+  ArrowUp,
   Heart,
   Search,
   ShoppingCart,
@@ -35,6 +37,7 @@ const isProductNew = (createdDate) => {
 const PopularProducts = () => {
   const [activeCategory, setActiveCategory] = useState("ALL");
   const [searchTerm, setSearchTerm] = useState("");
+  const [showCategories, setShowCategories] = useState(false);
   const [localWishlist, setLocalWishlist] = useState(new Set());
 
 
@@ -309,7 +312,21 @@ const PopularProducts = () => {
           </div>
 
           {/* Categories */}
-          <div className="flex overflow-x-auto scrollbar-hide flex-wrap justify-center gap-2 sm:gap-3 animate-[fadeInUp_0.8s_ease-out]">
+          <div className="flex justify-center">
+           <button
+              onClick={() => setShowCategories(!showCategories)}
+              className={`flex sm:hidden items-center space-x-2 px-4 py-2 sm:py-3 rounded-full font-medium transition-all duration-300 ${activeCategory === "ALL"
+                ? "bg-gradient-to-r from-gray-700 to-gray-900 text-white shadow-lg"
+                : "bg-white/70 text-gray-700 hover:bg-white/90 border border-gray-200"
+                } mb-5 md:mb-0 gap-2`}
+            >
+              {showCategories?"Hide":"Show"} Categories
+              {showCategories?<ArrowUp color="white"/>:<ArrowDown color="white"/>}
+             
+            </button>
+            </div>
+            
+         <div className={` ${showCategories?"flex":"hidden"} sm:flex flex-col sm:flex-row sm:flex-wrap overflow-x-auto pt-20 sm:pt-0 justify-center gap-2 sm:gap-3 animate-[fadeInUp_0.8s_ease-out] max-h-60 sm:max-h-full scroll-auto `}>
             <button
               onClick={() => setActiveCategory("ALL")}
               className={`flex items-center space-x-2 px-4 py-2 sm:py-3 rounded-full font-medium transition-all duration-300 ${activeCategory === "ALL"
@@ -408,11 +425,11 @@ const PopularProducts = () => {
                   {/* Price */}
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-base font-bold text-red-600">
-                      ${product.price}
+                      Tk {product.price}
                     </span>
                     {product.originalPrice > product.price && (
                       <span className="text-xs text-gray-400 line-through">
-                        ${product.originalPrice.toFixed(2)}
+                        Tk {product.originalPrice.toFixed(2)}
                       </span>
                     )}
                   </div>
