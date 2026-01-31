@@ -2,34 +2,35 @@ import axios from "axios";
 import { UrlBackend } from "../confic/urlExport";
 import { subcategoryGet } from "../redux/subcategorySlice";
 // subcatagory add
-export const SubCategoryCreate = async (formData, ) => {
+export const SubCategoryCreate = async (formData,) => {
   try {
     const response = await axios.post(`${UrlBackend}/subcategories/create`, formData, {
       withCredentials: true,
-       headers: { "Content-Type": "multipart/form-data" },
+      headers: { "Content-Type": "multipart/form-data" },
     });
-    return response.data; 
+    return response.data;
   } catch (error) {
     console.error("Registration error:", error.response?.data || error.message);
-    throw error; 
+    throw error;
   }
 };
 
 // subcatagory ALL GET
-export const SubCategoryAllGet = async (dispatch ) => {
+export const SubCategoryAllGet = async (dispatch) => {
   try {
-    const response = await axios.get(`${UrlBackend}/subcategories`,  {
+    const response = await axios.get(`${UrlBackend}/subcategories`, {
       withCredentials: true,
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
-    dispatch(subcategoryGet(response.data))
-    return response.data; 
-   
+    if (dispatch) {
+      dispatch(subcategoryGet(response.data));
+    }
+    return response.data;
   } catch (error) {
-    console.error("Registration error:", error.response?.data || error.message);
-    throw error; 
+    console.error("SubCategory fetch error:", error.response?.data || error.message);
+    throw error;
   }
 };
 
@@ -37,10 +38,10 @@ export const SubCategoryAllGet = async (dispatch ) => {
 export const SubCategoryGetOne = async (formData, subcategoryId) => {
   try {
     const response = await axios.get(
-      `${UrlBackend}/subcategories/${subcategoryId}`, 
-      formData, 
+      `${UrlBackend}/subcategories/${subcategoryId}`,
+      formData,
       {
-        withCredentials: true, 
+        withCredentials: true,
       }
     );
     return response.data;
@@ -54,10 +55,10 @@ export const SubCategoryGetOne = async (formData, subcategoryId) => {
 export const SubCategoryUploade = async (formData, subcategoryId) => {
   try {
     const response = await axios.put(
-      `${UrlBackend}/subcategories/${subcategoryId}`, 
-      formData, 
+      `${UrlBackend}/subcategories/${subcategoryId}`,
+      formData,
       {
-        withCredentials: true, 
+        withCredentials: true,
       }
     );
     return response.data;
@@ -71,9 +72,9 @@ export const SubCategoryUploade = async (formData, subcategoryId) => {
 export const SubCategoryDelete = async (subcategoryId) => {
   try {
     const response = await axios.delete(
-      `${UrlBackend}/subcategories/${subcategoryId}`, 
+      `${UrlBackend}/subcategories/${subcategoryId}`,
       {
-        withCredentials: true, 
+        withCredentials: true,
       }
     );
     return response.data;

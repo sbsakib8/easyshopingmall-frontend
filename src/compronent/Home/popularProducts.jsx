@@ -34,7 +34,7 @@ const isProductNew = (createdDate) => {
   return created > monthAgo;
 };
 
-const PopularProducts = () => {
+const PopularProducts = ({ initialData }) => {
   const [activeCategory, setActiveCategory] = useState("ALL");
   const [searchTerm, setSearchTerm] = useState("");
   const [showCategories, setShowCategories] = useState(false);
@@ -48,11 +48,23 @@ const PopularProducts = () => {
   const productParams = useMemo(() => ({ page: 1, limit: 1000, search: "" }), []);
 
   // ✅ Fetch data dynamically (same as shop component)
-  const { category, loading: categoryLoading } = useGetcategory();
-  const { product, loading: productLoading, error } = useGetProduct(productParams);
-  
+  const { category: apiCategory, loading: categoryLoading } = useGetcategory();
+  const { product: apiProduct, loading: productLoading, error } = useGetProduct(productParams);
+
   // ✅ Fetch categories and subcategories from API (same as shop)
-  const { categories: shopCategories, subcategories: shopSubcategories, loading: shopCategoriesLoading } = useCategoryWithSubcategories();
+  const { categories: shopCategoriesApi, subcategories: shopSubcategoriesApi, loading: shopCategoriesLoading } = useCategoryWithSubcategories();
+
+  const [category, setCategory] = useState(initialData?.categories || null);
+  const [product, setProduct] = useState(initialData?.products || null);
+  const [shopCategories, setShopCategories] = useState(initialData?.categories || null);
+  const [shopSubcategories, setShopSubcategories] = useState(initialData?.subcategories || null);
+
+  useEffect(() => {
+    if (apiCategory) setCategory(apiCategory);
+    if (apiProduct) setProduct(apiProduct);
+    if (shopCategoriesApi) setShopCategories(shopCategoriesApi);
+    if (shopSubcategoriesApi) setShopSubcategories(shopSubcategoriesApi);
+  }, [apiCategory, apiProduct, shopCategoriesApi, shopSubcategoriesApi]);
 
 
 
@@ -67,7 +79,7 @@ const PopularProducts = () => {
 
 
 
-  const loading = categoryLoading || productLoading || shopCategoriesLoading;
+  const loading = !initialData && (categoryLoading || productLoading || shopCategoriesLoading);
 
   // 🧩 Merge structured dataset using shop categories
   const mergedData = useMemo(() => {
@@ -127,12 +139,12 @@ const PopularProducts = () => {
     if (activeCategory === "ALL") {
       // When ALL is selected, get 5 products from each subcategory within each category
       const productsByCategory = {};
-      
+
       mergedData.products.forEach(p => {
         if (!productsByCategory[p.category]) {
           productsByCategory[p.category] = {};
         }
-        
+
         const subCatKey = p.subCategory || 'NO_SUBCATEGORY';
         if (!productsByCategory[p.category][subCatKey]) {
           productsByCategory[p.category][subCatKey] = [];
@@ -154,10 +166,10 @@ const PopularProducts = () => {
 
       return result;
     }
-    
+
     // When a specific category is selected, get 5 products from each subcategory
     const categoryProducts = mergedData.products.filter((p) => p.category === activeCategory);
-    
+
     // Group by subcategory
     const productsBySubCategory = {};
     categoryProducts.forEach(p => {
@@ -313,20 +325,20 @@ const PopularProducts = () => {
 
           {/* Categories */}
           <div className="flex justify-center">
-           <button
+            <button
               onClick={() => setShowCategories(!showCategories)}
               className={`flex sm:hidden items-center space-x-2 px-4 py-2 sm:py-3 rounded-full font-medium transition-all duration-300 ${activeCategory === "ALL"
                 ? "bg-gradient-to-r from-gray-700 to-gray-900 text-white shadow-lg"
                 : "bg-white/70 text-gray-700 hover:bg-white/90 border border-gray-200"
                 } mb-5 md:mb-0 gap-2`}
             >
-              {showCategories?"Hide":"Show"} Categories
-              {showCategories?<ArrowUp color="white"/>:<ArrowDown color="white"/>}
-             
+              {showCategories ? "Hide" : "Show"} Categories
+              {showCategories ? <ArrowUp color="white" /> : <ArrowDown color="white" />}
+
             </button>
-            </div>
-            
-         <div className={` ${showCategories?"flex":"hidden"} sm:flex flex-col sm:flex-row sm:flex-wrap overflow-x-auto pt-20 sm:pt-0 justify-center gap-2 sm:gap-3 animate-[fadeInUp_0.8s_ease-out] max-h-60 sm:max-h-full scroll-auto `}>
+          </div>
+
+          <div className={` ${showCategories ? "flex" : "hidden"} sm:flex flex-col sm:flex-row sm:flex-wrap overflow-x-auto pt-20 sm:pt-0 justify-center gap-2 sm:gap-3 animate-[fadeInUp_0.8s_ease-out] max-h-60 sm:max-h-full scroll-auto `}>
             <button
               onClick={() => setActiveCategory("ALL")}
               className={`flex items-center space-x-2 px-4 py-2 sm:py-3 rounded-full font-medium transition-all duration-300 ${activeCategory === "ALL"
