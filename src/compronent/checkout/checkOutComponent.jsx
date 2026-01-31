@@ -1,6 +1,7 @@
 "use client";
 
 import { createManualPaymentOrder, createSslPaymentOrder, submitManualPayment } from "@/src/hook/useOrder";
+import { ProductNotification } from "@/src/hook/useProduct";
 import { cartClear } from "@/src/redux/cartSlice";
 import { AlertTriangle, Copy, MapPin, Shield, ShoppingBag, ShoppingCart, Star, Truck } from "lucide-react";
 import Link from "next/link";
@@ -373,6 +374,21 @@ export default function CheckoutComponent() {
       setUsedTransactionIds(prev => [...prev, transactionId]);
 
       toast.success("অর্ডার এবং পেমেন্ট সফলভাবে জমা হয়েছে!");
+      if (orderRes) {
+        // toast.success("✅ Product added successfully!");
+        // resetForm();
+
+
+        await ProductNotification({
+          title: "New Order Added",
+          message: `Order is now live!`,
+          type: "Order",
+          referenceId: orderRes.data._id,
+          // meta: { category: response.data.category },
+        });
+      } else {
+        toast.error(response?.message || "Failed to add product");
+      }
 
       // 7️⃣ Clear cart and update state
       dispatch(cartClear());

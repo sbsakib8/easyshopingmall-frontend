@@ -3,10 +3,25 @@ import { useGetHomeBanner } from '@/src/utlis/useHomeBanner';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import React from 'react';
 
-const Carousel = () => {
-  const { homebanner, loading, error, refetch } = useGetHomeBanner();
+const Carousel = ({ initialData }) => {
+  const { homebanner: apiBanners, loading: apiLoading, error, refetch } = useGetHomeBanner();
+  const [homebanner, setHomeBanner] = React.useState(initialData || null);
+  const [loading, setLoading] = React.useState(!initialData);
   const [currentSlide, setCurrentSlide] = React.useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = React.useState(true);
+
+  React.useEffect(() => {
+    if (apiBanners) {
+      setHomeBanner(apiBanners);
+      setLoading(false);
+    }
+  }, [apiBanners]);
+
+  React.useEffect(() => {
+    if (apiLoading && !initialData) {
+      setLoading(true);
+    }
+  }, [apiLoading, initialData]);
 
   // Filter only active banners from API
   const slides = React.useMemo(() => {

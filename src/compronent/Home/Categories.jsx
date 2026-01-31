@@ -6,11 +6,21 @@ import { useGetcategory } from "@/src/utlis/usecategory";
 import { HomeBannerAllGet } from "@/src/hook/useHomeBanner";
 
 
-function Categories() {
-  const { category, loading, error } = useGetcategory(); 
+function Categories({ initialData }) {
+  const { category: apiCategory, loading: apiLoading, error } = useGetcategory();
+  const [category, setCategory] = useState(initialData || null);
+  const [loading, setLoading] = useState(!initialData);
   const [paused, setPaused] = useState(false);
+
+  React.useEffect(() => {
+    if (apiCategory) {
+      setCategory(apiCategory);
+      setLoading(false);
+    }
+  }, [apiCategory]);
+
   const loopData = [...(category || []), ...(category || [])];
-  
+
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
@@ -60,8 +70,8 @@ function Categories() {
                     <Star
                       key={i}
                       className={`w-3 h-3 ${i < 4
-                          ? "fill-yellow-400 text-yellow-400"
-                          : "text-gray-300"
+                        ? "fill-yellow-400 text-yellow-400"
+                        : "text-gray-300"
                         }`}
                     />
                   ))}
