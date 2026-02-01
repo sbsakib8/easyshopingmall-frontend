@@ -29,17 +29,6 @@ function Ads({ initialData }) {
   }, [apiAds, apiLeft, apiRight]);
 
 
-  // Debug logs
-  console.log('=== LEFT BANNER DATA ===');
-  console.log('leftbanner:', leftbanner);
-  console.log('leftLoading:', leftLoadingApi); // Changed from leftLoading
-  console.log('leftError:', leftError);
-  console.log('=== RIGHT BANNER DATA ===');
-  console.log('rightbanner:', rightbanner);
-  console.log('rightLoading:', rightLoadingApi); // Changed from rightLoading
-  console.log('rightError:', rightError);
-
-
   if (loading && !initialData) return null;
 
 

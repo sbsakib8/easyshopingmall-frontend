@@ -1,35 +1,31 @@
 "use client";
-import React, { useState, useMemo, useEffect } from "react";
-import {
-  Search,
-  Package,
-  Tag,
-  Grid,
-  Eye,
-  Edit,
-  Trash2,
-  Star,
-  Plus,
-  Download,
-  RefreshCw,
-  X,
-  TrendingUp,
-  ArrowUp,
-  MoreVertical,
-  DollarSign,
-  Activity,
-  Zap,
-  Globe,
-} from "lucide-react";
-import { useGetProduct } from "@/src/utlis/userProduct";
-import { useSelector } from "react-redux";
-import { useRouter } from "next/navigation";
 import { UrlFrontend } from "@/src/confic/urlExport";
-import toast from "react-hot-toast";
 import { ProductDelete, ProductUpdate } from "@/src/hook/useProduct";
-import { useGetAllOrders } from "@/src/utlis/useGetAllOrders";
 import useGetRevenue from "@/src/utlis/useGetRevenue";
-
+import { useGetProduct } from "@/src/utlis/userProduct";
+import {
+  Activity,
+  ArrowUp,
+  DollarSign,
+  Download,
+  Edit,
+  Eye,
+  Grid,
+  MoreVertical,
+  Package,
+  Plus,
+  RefreshCw,
+  Search,
+  Star,
+  Tag,
+  Trash2,
+  X
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
+import * as XLSX from "xlsx";
 
 const ProductDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -116,13 +112,23 @@ const ProductDashboard = () => {
 
   //  handleExport
   const handleExport = () => {
-    const dataStr = JSON.stringify(products, null, 2);
-    const dataBlob = new Blob([dataStr], { type: "application/json" });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "products-export.json";
-    link.click();
+    const wb = XLSX.utils.book_new()
+    const ws = XLSX.utils.json_to_sheet(products)
+    ws["!cols"] = [
+      { wch: 10 },
+      { wch: 10 },
+      { wch: 40 },
+      { wch: 40 },
+    ]
+    XLSX.utils.book_append_sheet(wb, ws, "MyProducts")
+    XLSX.writeFile(wb, "productsData.xlsx")
+    // const dataStr = JSON.stringify(products, null, 2);
+    // const dataBlob = new Blob([dataStr], { type: "application/json" });
+    // const url = URL.createObjectURL(dataBlob);
+    // const link = document.createElement("a");
+    // link.href = url;
+    // link.download = "products-export.json";
+    // link.click();
   };
 
   // refetch
