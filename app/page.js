@@ -10,6 +10,11 @@ import { SubCategoryAllGet } from "@/src/hook/useSubcategory";
 // Disable static optimization for this page to ensure fresh data using your hooks
 export const dynamic = 'force-dynamic';
 
+export const metadata = {
+  title: "Home - Best Online Shopping Experience in BD",
+  description: "Welcome to EasyShoppingMallBD, your trusted partner for premium online shopping in Bangladesh. Quality products, secured payments, and lightning-fast delivery.",
+};
+
 async function getHomeData() {
   try {
     const [banners, categories, productsResponse, centerAds, leftAds, rightAds, subCategories] = await Promise.all([

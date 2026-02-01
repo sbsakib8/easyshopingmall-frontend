@@ -25,19 +25,85 @@ import {
   Truck,
   Zap,
 } from "lucide-react";
-import CustomLoader from '@/src/compronent/loading/CustomLoader';
+import Skeleton from '@/src/compronent/loading/Skeleton';
+
+const ProductDetailsSkeleton = () => (
+  <div className="min-h-screen lg:mt-30 lg:py-10 bg-gray-50">
+    <div className="container mx-auto px-4 py-8">
+      {/* Breadcrumb Skeleton */}
+      <div className="flex items-center space-x-2 mb-8">
+        <Skeleton className="h-4 w-20" />
+        <div className="h-4 w-4 bg-gray-200" />
+        <Skeleton className="h-4 w-32" />
+        <div className="h-4 w-4 bg-gray-200" />
+        <Skeleton className="h-4 w-40" />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        {/* Image Gallery Skeleton */}
+        <div className="space-y-4">
+          <Skeleton className="w-full aspect-[4/5] rounded-2xl" />
+          <div className="grid grid-cols-4 gap-3">
+            {[...Array(4)].map((_, i) => (
+              <Skeleton key={i} className="h-20 w-full rounded-lg" />
+            ))}
+          </div>
+        </div>
+
+        {/* Info Skeleton */}
+        <div className="space-y-6">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-10 w-3/4" />
+          <div className="flex gap-2">
+            {[...Array(5)].map((_, i) => (
+              <Skeleton key={i} variant="circle" className="h-5 w-5" />
+            ))}
+          </div>
+          <div className="flex items-center gap-4">
+            <Skeleton className="h-12 w-32" />
+            <Skeleton className="h-8 w-24" />
+          </div>
+          <div className="space-y-3">
+            <Skeleton className="h-6 w-20" />
+            <div className="flex gap-3">
+              {[...Array(4)].map((_, i) => (
+                <Skeleton key={i} variant="circle" className="h-10 w-10" />
+              ))}
+            </div>
+          </div>
+          <div className="space-y-3">
+            <Skeleton className="h-6 w-20" />
+            <div className="flex gap-2">
+              {[...Array(5)].map((_, i) => (
+                <Skeleton key={i} className="h-8 w-16 rounded-full" />
+              ))}
+            </div>
+          </div>
+          <div className="space-y-4 pt-6">
+            <Skeleton className="h-14 w-full rounded-xl" />
+            <div className="grid grid-cols-2 gap-4">
+              <Skeleton className="h-12 w-full rounded-xl" />
+              <Skeleton className="h-12 w-full rounded-xl" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
 
 
-const ProductDetails = () => {
+const ProductDetails = ({ initialProduct, productId: propProductId }) => {
   const params = useParams();
   const router = useRouter();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.data);
   const { data: wishlist } = useSelector((state) => state.wishlist);
   const cartItems = useSelector((state) => state.cart.items || []);
-  const [loading, setLoading] = useState(true);
+
+  const [product, setProduct] = useState(initialProduct || null);
+  const [loading, setLoading] = useState(!initialProduct);
   const [error, setError] = useState(null);
-  const [product, setProduct] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [showVideo, setshowVideo] = useState(false)
   const [selectedImage, setSelectedImage] = useState(0);
@@ -137,9 +203,18 @@ const ProductDetails = () => {
   // Fetch product details
   useEffect(() => {
     const fetchProduct = async () => {
+      const productId = propProductId || params.id;
+      if (!productId) return;
+
+      // If we have initialProduct and it matches the current ID, don't refetch
+      if (initialProduct && (initialProduct._id === productId || initialProduct.id === productId)) {
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
-        const data = await getProductDetailsApi(params.id);
+        const data = await getProductDetailsApi(productId);
 
         if (data) {
           // Normalize product data - handle all API fields
@@ -153,7 +228,7 @@ const ProductDetails = () => {
             rating: Number(data?.ratings),
             reviews: Number(data.reviews ?? 0) || 0,
             images: data.images || ["/banner/img/placeholder.png"],
-            video_link: data.video_link ,
+            video_link: data.video_link,
             sizes: data.productSize ? [data.productSize] : data.sizes || [],
             colors: Array.isArray(data.color) ? data.color : data.colors || [],
             stock: Number(data.productStock ?? data.stock ?? 0) || 0,
@@ -186,8 +261,9 @@ const ProductDetails = () => {
         setLoading(false);
       }
     };
-    if (params.id) fetchProduct();
-  }, [params.id]);
+    const productId = propProductId || params.id;
+    if (productId) fetchProduct();
+  }, [params.id, propProductId, initialProduct]);
 
   // Filter related products from same subcategory
   useEffect(() => {
@@ -339,11 +415,7 @@ const ProductDetails = () => {
   const cleanedSizes = rawSizes.split(",").map((s) => s.trim());
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <CustomLoader size="large" message="Loading product details..." />
-      </div>
-    );
+    return <ProductDetailsSkeleton />;
   }
 
   if (error || !product) {
@@ -436,25 +508,25 @@ const ProductDetails = () => {
                   <img onClick={() => setshowVideo(true)} src={"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRT7dAm2xeRPWO5PJWhJnhfUeG3Syl3ws8wnw&s"} alt="" className="w-10 h-10 absolute  top-5 right-5 cursor-pointer rounded-full" />
 
                   {/* details video  */}
-                {showVideo && <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn ">
-                  <ReactPlayer
-                    controls
-                    light={<img
-                      src={product?.images[0] || []}
-                      alt={`${product?.name} `}
-                      className=" w-96 h-96 rounded-xl md:rounded-2xl"
-                    />}
-                    playIcon={<img className='w-12 h-12 absolute rounded-full' src={"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRT7dAm2xeRPWO5PJWhJnhfUeG3Syl3ws8wnw&s"} />}
-                    width={660}
-                    height={315}
-                    volume={0.5}
-                    playing={true}
-                    src={product?.video_link}
-                  />
-                  <button onClick={() => setshowVideo(!showVideo)} className="text-xl bg-red-400 py-1 px-3 rounded-full absolute top-10 right-10 cursor-pointer">X</button>
-                </div>}
+                  {showVideo && <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn ">
+                    <ReactPlayer
+                      controls
+                      light={<img
+                        src={product?.images[0] || []}
+                        alt={`${product?.name} `}
+                        className=" w-96 h-96 rounded-xl md:rounded-2xl"
+                      />}
+                      playIcon={<img className='w-12 h-12 absolute rounded-full' src={"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRT7dAm2xeRPWO5PJWhJnhfUeG3Syl3ws8wnw&s"} />}
+                      width={660}
+                      height={315}
+                      volume={0.5}
+                      playing={true}
+                      src={product?.video_link}
+                    />
+                    <button onClick={() => setshowVideo(!showVideo)} className="text-xl bg-red-400 py-1 px-3 rounded-full absolute top-10 right-10 cursor-pointer">X</button>
+                  </div>}
                 </>}
-                
+
               </div>
 
               {/* Thumbnail Images */}

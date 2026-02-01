@@ -2,16 +2,16 @@
 import { addToCartApi, getCartApi, removeCartItemApi, updateCartItemApi } from "@/src/hook/useCart"
 import { addToWishlistApi, removeFromWishlistApi } from "@/src/hook/useWishlist"
 import { useGetProduct } from "@/src/utlis/userProduct"
-import { useSearchProduct } from "@/src/utlis/useSearchProduct"
 import { useWishlist } from "@/src/utlis/useWishList"
 import { useCategoryWithSubcategories } from "@/src/utlis/useCategoryWithSubcategories"
 import { ArrowUp, ChevronDown, Edit, Filter, Grid, Heart, List, Search, ShoppingCart, SlidersHorizontal, Star, Trash2, X } from "lucide-react"
-import CustomLoader from '@/src/compronent/loading/CustomLoader'
+import { CardSkeleton } from '@/src/compronent/loading/Skeleton'
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 import toast from "react-hot-toast"
-import { useDispatch, useSelector } from "react-redux"
 import { ProductDelete, ProductUpdate } from "@/src/hook/useProduct"
+import { useDispatch, useSelector } from "react-redux"
 
 // Helper function to determine if product is new or old
 const isProductNew = (createdDate) => {
@@ -22,22 +22,75 @@ const isProductNew = (createdDate) => {
   return created > monthAgo
 }
 
-const ShopPage = () => {
+import {
+  setSearchTerm,
+  setDebouncedSearch,
+  setFilterCategory,
+  setFilterSubCategory,
+  setFilterBrand,
+  setFilterGender,
+  setPriceRange,
+  setRatingFilter,
+  setSortBy,
+  setCurrentPage,
+  setViewMode,
+  toggleFilters,
+  resetFilters,
+  syncFromUrl
+} from "@/src/redux/shopSlice"
+
+const ShopPage = ({ initialData, queryParams }) => {
   const router = useRouter()
-const [deleteModal, setDeleteModal] = useState(null)
- const [editModal, setEditModal] = useState(null);
-  // Request all products without pagination limit
-  const productParams = useMemo(() => ({ limit: 1000 }), [])
-  const { product, loading, error, refetch:productRefetch } = useGetProduct(productParams)
+  const searchParams = useSearchParams()
 
-  const [allProducts, setAllProducts] = useState([])
-  const [products, setProducts] = useState([])
+  // Redux state
   const dispatch = useDispatch()
+  const shopState = useSelector((state) => state.shop)
+  const {
+    searchTerm,
+    debouncedSearchTerm,
+    filterCategory,
+    filterSubCategory,
+    filterBrand,
+    filterGender,
+    priceRange,
+    ratingFilter,
+    sortBy,
+    currentPage,
+    viewMode,
+    showFilters
+  } = shopState
 
-  // Redux-backed cart & wishlist
+  const urlSearch = searchParams?.get("search") || ""
+  const urlCategory = searchParams?.get("category") || ""
+  const urlSubCategory = searchParams?.get("subcategory") || ""
+
+  const [deleteModal, setDeleteModal] = useState(null)
+  const [editModal, setEditModal] = useState(null)
+  const [apiCategoriesState, setApiCategoriesState] = useState(initialData?.categories || [])
+  const [apiSubcategoriesState, setApiSubcategoriesState] = useState(initialData?.subcategories || [])
+
+  const [showCategory, setShowCategory] = useState(false)
+  const [showSubCategory, setShowSubCategory] = useState(false)
+  const [cartOpen, setCartOpen] = useState(false)
+  const productsPerPage = 30
+
+  const user = useSelector((state) => state.user.data)
   const reduxCart = useSelector((state) => state.cart.items || [])
+  const { wishlist } = useWishlist()
+
+  // Sync initial URL params to Redux
+  useEffect(() => {
+    dispatch(syncFromUrl({
+      search: urlSearch,
+      category: urlCategory,
+      subcategory: urlSubCategory,
+      sortBy: searchParams?.get("sortBy") || "name"
+    }))
+  }, [])
+
   // Normalize redux cart items for UI
-  const cart = useMemo(() => {
+  const normalizedCart = useMemo(() => {
     return (reduxCart || []).map((item) => {
       if (item?.productId) {
         const prod = item.productId
@@ -61,11 +114,72 @@ const [deleteModal, setDeleteModal] = useState(null)
       }
     })
   }, [reduxCart])
-  const user = useSelector((state) => state.user.data)
-  const { wishlist } = useWishlist()
+
+  // Map URL names to IDs for backend filtering
+  const currentCategoryId = useMemo(() => {
+    if (!filterCategory || filterCategory === "all") return null;
+    const cat = apiCategoriesState.find(c =>
+      c.name?.toLowerCase() === filterCategory.toLowerCase() ||
+      c.slug?.toLowerCase() === filterCategory.toLowerCase()
+    );
+    return cat?.id || cat?._id || null;
+  }, [filterCategory, apiCategoriesState]);
+
+  const currentSubCategoryId = useMemo(() => {
+    if (!filterSubCategory || filterSubCategory === "all") return null;
+    const sub = apiSubcategoriesState.find(s =>
+      s.name?.toLowerCase() === filterSubCategory.toLowerCase() ||
+      s.slug?.toLowerCase() === filterSubCategory.toLowerCase()
+    );
+    return sub?.id || sub?._id || null;
+  }, [filterSubCategory, apiSubcategoriesState]);
+
+  // Debounced price range to prevent too many API calls
+  const [debouncedPriceRange, setDebouncedPriceRange] = useState(priceRange);
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedPriceRange(priceRange);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [priceRange]);
+
+  // Unified product fetching params - RESTORED Server-side filtering with high limit
+  const productParams = useMemo(() => ({
+    limit: 1000,
+    search: debouncedSearchTerm,
+    categoryId: currentCategoryId || "all",
+    subCategoryId: currentSubCategoryId || "all",
+    sortBy: sortBy,
+    minPrice: debouncedPriceRange[0],
+    maxPrice: debouncedPriceRange[1],
+    brand: filterBrand,
+    rating: ratingFilter,
+    gender: filterGender
+  }), [
+    debouncedSearchTerm,
+    currentCategoryId,
+    currentSubCategoryId,
+    sortBy,
+    debouncedPriceRange,
+    filterBrand,
+    ratingFilter,
+    filterGender
+  ]);
+
+  const { product: apiProduct, totalCount: apiTotalCount, loading: productLoading, error: apiError, refetch: productRefetch } = useGetProduct(productParams)
+  const searchLoading = productLoading && !!debouncedSearchTerm;
+
+  const [allProducts, setAllProducts] = useState([])
+  const [products, setProducts] = useState([])
+  const [totalProducts, setTotalProducts] = useState(0)
 
   // Fetch categories and subcategories from API
   const { categories: apiCategories, subcategories: apiSubcategories, loading: categoriesLoading } = useCategoryWithSubcategories()
+
+  useEffect(() => {
+    if (apiCategories?.length) setApiCategoriesState(apiCategories)
+    if (apiSubcategories?.length) setApiSubcategoriesState(apiSubcategories)
+  }, [apiCategories, apiSubcategories])
 
   // Load cart for logged-in user
   useEffect(() => {
@@ -73,229 +187,96 @@ const [deleteModal, setDeleteModal] = useState(null)
       getCartApi(user._id, dispatch)
     }
   }, [user, dispatch])
-  const [viewMode, setViewMode] = useState("grid")
-  const [sortBy, setSortBy] = useState("name")
-  const [filterCategory, setFilterCategory] = useState("all")
-  const [filterSubCategory, setFilterSubCategory] = useState("all")
-  const [filterBrand, setFilterBrand] = useState("all")
-  const [filterGender, setFilterGender] = useState("all")
-  const [searchTerm, setSearchTerm] = useState("")
-  const [priceRange, setPriceRange] = useState([0, 300])
-  const [ratingFilter, setRatingFilter] = useState(0)
-  const [showFilters, setShowFilters] = useState(false)
-  const [showCategory, setShowCategory] = useState(false)
-  const [showSubCategory, setShowSubCategory] = useState(false)
-  const [cartOpen, setCartOpen] = useState(false)
-  const [currentPage, setCurrentPage] = useState(1)
-  const productsPerPage = 30
 
-  const searchParams = useSearchParams()
-  const urlSearch = searchParams?.get("search") || ""
-  const urlCategory = searchParams?.get("category") || ""
-  const urlSubCategory = searchParams?.get("subcategory") || ""
-
-  // when user navigates with ?search=..., call server-side search
-  const {
-    data: searchData,
-    loading: searchLoading,
-    error: searchError,
-    refetch: refetchSearch,
-  } = useSearchProduct({ search: urlSearch, page: currentPage, limit: 200 })
-
-  // keep the local search input in sync with URL search param
+  // Debounce search term
   useEffect(() => {
-    if (urlSearch) setSearchTerm(urlSearch)
-    else setSearchTerm("")
-  }, [urlSearch])
+    const timer = setTimeout(() => {
+      dispatch(setDebouncedSearch(searchTerm))
+    }, 500)
 
+    return () => clearTimeout(timer)
+  }, [searchTerm, dispatch])
+
+  // Sync Redux state with URL
   useEffect(() => {
-    if (urlSubCategory) {
-      // If subcategory is in URL, set it as the filter
-      setFilterSubCategory(urlSubCategory)
-      setFilterCategory("all") // Reset category when filtering by subcategory
-    } else if (urlCategory) {
-      // The header passes subcategory names like "saree" as ?category=saree
-      const existingCategories = Array.from(new Set(allProducts.map((p) => p.category)))
-      const existingSubCategories = Array.from(new Set(allProducts.map((p) => p.subCategory)))
+    const params = new URLSearchParams(searchParams.toString())
+    let changed = false
 
-      if (existingSubCategories.includes(urlCategory)) {
-        // It's a subcategory name, so filter by subcategory
-        setFilterSubCategory(urlCategory)
-        setFilterCategory("all")
-      } else if (existingCategories.includes(urlCategory)) {
-        // It's a category name
-        setFilterCategory(urlCategory)
-        setFilterSubCategory("all")
-      } else {
-        // Not found, reset filters
-        setFilterCategory("all")
-        setFilterSubCategory("all")
-      }
-    }
-  }, [urlCategory, urlSubCategory, allProducts])
-
-  // Filter and search products
-  useEffect(() => {
-    // If there's a search query param, prefer server-side search results
-    if (urlSearch) {
-      const list = searchData?.products ?? searchData?.data ?? searchData ?? []
-      if (Array.isArray(list) && list.length > 0) {
-        const normalized = list.map((p) => {
-          // normalize category to a string (API may return object or array)
-          let categoryVal = "uncategorized"
-          if (Array.isArray(p.category) && p.category.length > 0) {
-            const c0 = p.category[0]
-            categoryVal = typeof c0 === "string" ? c0 : c0?.name || String(c0)
-          } else if (p.category && typeof p.category === "object") {
-            categoryVal = p.category.name || String(p.category)
-          } else if (p.category) {
-            categoryVal = String(p.category)
-          }
-
-          // normalize subCategory
-          let subCategoryVal = "general"
-          if (Array.isArray(p.subCategory) && p.subCategory.length > 0) {
-            const s0 = p.subCategory[0]
-            subCategoryVal = typeof s0 === "string" ? s0 : s0?.name || String(s0)
-          } else if (p.subCategory && typeof p.subCategory === "object") {
-            subCategoryVal = p.subCategory.name || String(p.subCategory)
-          } else if (p.subCategory) {
-            subCategoryVal = String(p.subCategory)
-          }
-
-          return {
-            id: p._id || p.id || (p._id?.toString && p._id.toString()) || String(p.id || ""),
-            name: p.name || p.productName || p.title || "Untitled",
-            price: Number(p.price ?? p.sell_price ?? p.sellingPrice ?? p.amount ?? 0) || 0,
-            originalPrice: Number(p.originalPrice ?? p.mrp ?? p.price ?? p.sell_price) || Number(p.price ?? 0) || 0,
-            category: categoryVal,
-            subCategory: subCategoryVal,
-            brand: p.brand || p.manufacturer || "Brand",
-            size: p.size || p.sizes || p.productSize || [],
-            color: p.color || p.colors || p.color || [],
-            rating: Number(p.rating ?? p.ratings) || 4,
-            reviews: Number(p.reviews ?? 0) || 0,
-            image: p.image || p.images?.[0] || "/banner/img/placeholder.png",
-            inStock: (typeof p.stock !== "undefined" ? p.stock : (p.productStock ?? p.quantity ?? p.qty ?? 0)) > 0,
-            isNew: isProductNew(p.createdAt || p.created_at || p.createdDate),
-            discount: Number(p.discount) || Number(p.offerPercent) || 0,
-            gender: p.gender || "unisex",
-            tags: p.tags || [],
-          }
-        })
-
-        setAllProducts(normalized)
-        setProducts(normalized)
-
-        try {
-          const prices = normalized.map((p) => Number(p.price) || 0).filter((n) => !Number.isNaN(n))
-          if (prices.length > 0) {
-            const actualMin = Math.min(...prices)
-            const actualMax = Math.max(...prices)
-            if (priceRange[0] === 0 && priceRange[1] === 300) {
-              setPriceRange([Math.floor(actualMin), Math.ceil(actualMax)])
-            }
-          }
-        } catch (e) { }
-      } else {
-        // No search active - clear any previous search results
-        // and let the regular product loading below handle it
-      }
-
-      // Only return early if we're actively searching
-      if (urlSearch) {
-        return;
-      }
+    if (debouncedSearchTerm !== urlSearch) {
+      if (debouncedSearchTerm) params.set("search", debouncedSearchTerm)
+      else params.delete("search")
+      changed = true
     }
 
-    // API may return different shapes:
-    // - { products: [...] }
-    // - array (already product.data set by hook)
-    // - { data: [...] }
+    if (filterCategory !== (urlCategory || "all")) {
+      if (filterCategory && filterCategory !== "all") params.set("category", filterCategory)
+      else params.delete("category")
+      changed = true
+    }
 
-    const list = product?.products ?? product?.data ?? product ?? []
+    if (filterSubCategory !== (urlSubCategory || "all")) {
+      if (filterSubCategory && filterSubCategory !== "all") params.set("subcategory", filterSubCategory)
+      else params.delete("subcategory")
+      changed = true
+    }
 
-    if (Array.isArray(list) && list.length > 0) {
-      const normalized = list.map((p) => {
-        // normalize category to a string (API may return object or array)
-        let categoryVal = "uncategorized"
-        if (Array.isArray(p.category) && p.category.length > 0) {
-          const c0 = p.category[0]
-          categoryVal = typeof c0 === "string" ? c0 : c0?.name || String(c0)
-        } else if (p.category && typeof p.category === "object") {
-          categoryVal = p.category.name || String(p.category)
-        } else if (p.category) {
-          categoryVal = String(p.category)
-        }
+    if (changed) {
+      router.push(`/shop?${params.toString()}`)
+    }
+  }, [debouncedSearchTerm, filterCategory, filterSubCategory, router, urlSearch, urlCategory, urlSubCategory, searchParams])
 
-        // normalize subCategory
-        let subCategoryVal = "general"
-        if (Array.isArray(p.subCategory) && p.subCategory.length > 0) {
-          const s0 = p.subCategory[0]
-          subCategoryVal = typeof s0 === "string" ? s0 : s0?.name || String(s0)
-        } else if (p.subCategory && typeof p.subCategory === "object") {
-          subCategoryVal = p.subCategory.name || String(p.subCategory)
-        } else if (p.subCategory) {
-          subCategoryVal = String(p.subCategory)
-        }
+  // Process apiProduct data
+  useEffect(() => {
+    if (apiProduct) {
+      const list = Array.isArray(apiProduct) ? apiProduct : (apiProduct.products || apiProduct.data || []);
+      const normalized = list.map((p) => ({
+        id: p._id || p.id || String(p._id || ""),
+        name: p.productName || p.name || "",
+        price: Number(p.price) || 0,
+        originalPrice: Number(p.originalPrice || p.price * 1.2) || 0,
+        discount: p.discount || 0,
+        image: p.images?.[0] || p.image || "/banner/img/placeholder.png",
+        rating: p.ratings || 0,
+        reviews: p.reviews?.length || 0,
+        category: p.category?.[0]?.name || p.category || "",
+        subCategory: p.subCategory?.[0]?.name || p.subCategory || "",
+        brand: p.brand || "",
+        gender: p.gender || "unisex",
+        isNew: isProductNew(p.createdAt),
+        inStock: (Number(p.productStock) || Number(p.quantity) || Number(p.stock) || 0) > 0,
+        tags: p.tags || [],
+        createdAt: p.createdAt
+      }));
+      setAllProducts(normalized);
+      setProducts(normalized);
+      setTotalProducts(apiTotalCount || normalized.length);
 
-        return {
-          id: p._id || p.id || (p._id?.toString && p._id.toString()) || String(p.id || ""),
-          name: p.name || p.productName || p.title || "Untitled",
-          price: Number(p.price ?? p.sell_price ?? p.sellingPrice ?? p.amount ?? 0) || 0,
-          originalPrice: Number(p.originalPrice ?? p.mrp ?? p.price ?? p.sell_price) || Number(p.price ?? 0) || 0,
-          category: categoryVal,
-          subCategory: subCategoryVal,
-          brand: p.brand || p.manufacturer || "Brand",
-          size: p.size || p.sizes || p.productSize || [],
-          color: p.color || p.colors || p.color || [],
-          rating: Number(p.rating ?? p.ratings) || 4,
-          reviews: Number(p.reviews ?? 0) || 0,
-          image: p.image || p.images?.[0] || "/banner/img/placeholder.png",
-          inStock: (typeof p.stock !== "undefined" ? p.stock : (p.productStock ?? p.quantity ?? p.qty ?? 0)) > 0,
-          tags: p.tags || [],
-          isNew: isProductNew(p.createdAt || p.created_at || p.createdDate),
-          discount: Number(p.discount) || Number(p.offerPercent) || 0,
-          gender: p.gender || "unisex",
-          tags: p.tags || [],
-        }
-      })
-
-      setAllProducts(normalized)
-      setProducts(normalized)
-
-      // If user hasn't changed the price range (default [0,300]),
-      // expand it to cover actual product prices so items >300 aren't hidden.
+      // Auto-adjust price range based on actual products
       try {
-        const prices = normalized.map((p) => Number(p.price) || 0).filter((n) => !Number.isNaN(n))
+        const prices = normalized.map(p => p.price);
         if (prices.length > 0) {
-          const actualMin = Math.min(...prices)
-          const actualMax = Math.max(...prices)
-          // only update if current range is the initial default
-          if (priceRange[0] === 0 && priceRange[1] === 300) {
-            setPriceRange([Math.floor(actualMin), Math.ceil(actualMax)])
+          const actualMax = Math.max(...prices);
+          // If the max price in our data exceeds our current range, update the range
+          if (actualMax > priceRange[1]) {
+            dispatch(setPriceRange([priceRange[0], Math.ceil(actualMax)]));
           }
         }
       } catch (e) {
-        // ignore
+        console.error("Price range adjustment error", e);
       }
     } else {
-      setAllProducts([])
-      setProducts([])
+      setAllProducts([]);
+      setTotalProducts(0);
     }
-  }, [product, urlSearch, searchData])
+  }, [apiProduct, apiTotalCount]);
 
-  // Optimized filtering using useMemo for better performance
   const filteredProducts = useMemo(() => {
     let filtered = allProducts;
 
-    // Early return if no products
-    if (!filtered.length) return [];
+    const searchLower = debouncedSearchTerm.toLowerCase();
 
-    const searchLower = searchTerm.toLowerCase();
-
-    // Optimized search filter - single pass through products
-    if (searchTerm) {
+    // optimized search filter - single pass through products
+    if (debouncedSearchTerm) {
       filtered = filtered.filter((product) => {
         // Early return on first match for better performance
         if (product.name?.toLowerCase().includes(searchLower)) return true;
@@ -316,21 +297,25 @@ const [deleteModal, setDeleteModal] = useState(null)
 
     // Combine multiple filters in single pass
     filtered = filtered.filter((product) => {
-      // Category filter
-      if (filterCategory !== "all" && product.category !== filterCategory) return false;
+      // Category filter - case insensitive
+      if (filterCategory !== "all" &&
+        product.category?.toLowerCase() !== filterCategory?.toLowerCase()) return false;
 
-      // Subcategory filter
-      if (filterSubCategory !== "all" &&
-        product.subCategory !== filterSubCategory &&
-        product.category !== filterSubCategory) return false;
+      // Subcategory filter - case insensitive
+      if (filterSubCategory !== "all") {
+        const subMatch = product.subCategory?.toLowerCase() === filterSubCategory?.toLowerCase();
+        const catMatch = product.category?.toLowerCase() === filterSubCategory?.toLowerCase();
+        if (!subMatch && !catMatch) return false;
+      }
 
-      // Brand filter
-      if (filterBrand !== "all" && product.brand !== filterBrand) return false;
+      // Brand filter - case insensitive
+      if (filterBrand !== "all" &&
+        product.brand?.toLowerCase() !== filterBrand?.toLowerCase()) return false;
 
-      // Gender filter
+      // Gender filter - case insensitive
       if (filterGender !== "all" &&
-        product.gender !== filterGender &&
-        product.gender !== "unisex") return false;
+        product.gender?.toLowerCase() !== filterGender?.toLowerCase() &&
+        product.gender?.toLowerCase() !== "unisex") return false;
 
       // Price range filter
       if (product.price < priceRange[0] || product.price > priceRange[1]) return false;
@@ -341,8 +326,8 @@ const [deleteModal, setDeleteModal] = useState(null)
       return true;
     });
 
-    // Sort products
-    filtered.sort((a, b) => {
+    // Sort products (Create a copy to avoid mutation)
+    const sorted = [...filtered].sort((a, b) => {
       switch (sortBy) {
         case "price-low":
           return a.price - b.price
@@ -351,18 +336,19 @@ const [deleteModal, setDeleteModal] = useState(null)
         case "rating":
           return b.rating - a.rating
         case "newest":
-          return b.isNew - a.isNew
+        case "name": // "Sort By Latest"
+          return new Date(b.createdAt) - new Date(a.createdAt)
         case "discount":
           return b.discount - a.discount
         default:
-          return a.name.localeCompare(b.name)
+          return (a.name || "").localeCompare(b.name || "")
       }
     })
 
-    return filtered;
+    return sorted;
   }, [
     allProducts,
-    searchTerm,
+    debouncedSearchTerm,
     filterCategory,
     filterSubCategory,
     filterBrand,
@@ -375,8 +361,14 @@ const [deleteModal, setDeleteModal] = useState(null)
   // Update products and reset pagination when filters change
   useEffect(() => {
     setProducts(filteredProducts);
-    setCurrentPage(1);
-  }, [filteredProducts]);
+    dispatch(setCurrentPage(1));
+  }, [filteredProducts, dispatch]);
+
+  // Pagination
+  const indexOfLastProduct = currentPage * productsPerPage
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage
+  const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct)
+  const totalPages = Math.ceil(products.length / productsPerPage)
 
   // Add to cart (uses API + redux)
   const addToCart = async (product) => {
@@ -457,13 +449,8 @@ const [deleteModal, setDeleteModal] = useState(null)
   }
 
   // Calculate cart total
-  const cartTotal = cart.reduce((total, item) => total + item.price * item.quantity, 0)
+  const cartTotal = normalizedCart.reduce((total, item) => total + item.price * item.quantity, 0)
 
-  // Pagination
-  const indexOfLastProduct = currentPage * productsPerPage
-  const indexOfFirstProduct = indexOfLastProduct - productsPerPage
-  const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct)
-  const totalPages = Math.ceil(products.length / productsPerPage)
 
   // Calculate which page numbers to show
   const getPageNumbers = () => {
@@ -491,16 +478,16 @@ const [deleteModal, setDeleteModal] = useState(null)
   const showEndDots = pageNumbers.length > 0 && pageNumbers[pageNumbers.length - 1] < totalPages;
 
   // Use API categories if available, otherwise fall back to product categories
-  const categories = apiCategories.length > 0
-    ? ["all", ...apiCategories.map(cat => cat.name)]
+  const categories = apiCategoriesState.length > 0
+    ? ["all", ...apiCategoriesState.map(cat => cat.name)]
     : ["all", ...Array.from(new Set(allProducts.map((p) => p.category)))]
 
-  const subCategories = apiSubcategories.length > 0
+  const subCategories = apiSubcategoriesState.length > 0
     ? (filterCategory === "all"
-      ? ["all", ...apiSubcategories.map(sub => sub.name)]
-      : ["all", ...apiSubcategories
+      ? ["all", ...apiSubcategoriesState.map(sub => sub.name)]
+      : ["all", ...apiSubcategoriesState
         .filter(sub => {
-          const category = apiCategories.find(cat => cat.id === sub.categoryId || cat.id === sub.categoryId?._id)
+          const category = apiCategoriesState.find(cat => cat.id === sub.categoryId || cat.id === sub.categoryId?._id)
           return category?.name === filterCategory
         })
         .map(sub => sub.name)])
@@ -512,19 +499,13 @@ const [deleteModal, setDeleteModal] = useState(null)
   const genders = ["all", "men", "women", "unisex"]
 
   const clearFilters = () => {
-    setFilterCategory("all")
-    setFilterSubCategory("all")
-    setFilterBrand("all")
-    setFilterGender("all")
-    setPriceRange([0, 300])
-    setRatingFilter(0)
-    setSearchTerm("")
-    // Clear URL search params as well
+    dispatch(resetFilters())
+    // Clear URL params
     router.push('/shop')
   }
-// handle delete functionality 
-const confirmDelete = async () => {
-  
+  // handle delete functionality 
+  const confirmDelete = async () => {
+
     try {
       if (!deleteModal) return;
       await ProductDelete(deleteModal.id);
@@ -536,33 +517,33 @@ const confirmDelete = async () => {
       toast.error(error.response?.data?.message || "Something went wrong");
     }
   };
- const [load, setLoad] = useState(false);
+  const [load, setLoad] = useState(false);
   // handle edit functionality 
-const handleEdit =(p)=>{
-  const selectedProudct = product.find(item=>item._id==p.id)
-  setEditModal(selectedProudct)
+  const handleEdit = (p) => {
+    const selectedProudct = product.find(item => item._id == p.id)
+    setEditModal(selectedProudct)
 
-}
+  }
 
   const saveEdit = async () => {
     // console.log("editModal-->",editModal)
-      setLoad(true);
-      try {
-        const res = await ProductUpdate(editModal);
-        if (res.success) {
-          toast.success("Product updated successfully!");
-          productRefetch()
-          setEditModal(null);
-        } else {
-          toast.error(res.message);
-        }
-      } catch (error) {
-        toast.error("Error updating product");
-      } finally {
-        setLoad(false);
+    setLoad(true);
+    try {
+      const res = await ProductUpdate(editModal);
+      if (res.success) {
+        toast.success("Product updated successfully!");
+        productRefetch()
+        setEditModal(null);
+      } else {
+        toast.error(res.message);
       }
-    };
-    const updateEditField = (field, value) => {
+    } catch (error) {
+      toast.error("Error updating product");
+    } finally {
+      setLoad(false);
+    }
+  };
+  const updateEditField = (field, value) => {
     setEditModal({ ...editModal, [field]: value });
   };
   return (
@@ -576,7 +557,7 @@ const handleEdit =(p)=>{
               type="text"
               placeholder="Search products, categories, brands, tags..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => dispatch(setSearchTerm(e.target.value))}
               className="pl-10 pr-4 py-3 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
           </div>
@@ -597,7 +578,7 @@ const handleEdit =(p)=>{
               <div className="relative">
                 <select
                   value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
+                  onChange={(e) => dispatch(setSortBy(e.target.value))}
                   className="appearance-none border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-purple-500 bg-white"
                 >
                   <option value="name">Sort By Latest</option>
@@ -613,14 +594,14 @@ const handleEdit =(p)=>{
               {/* View Mode */}
               <div className="flex border border-gray-300 rounded-lg overflow-hidden">
                 <button
-                  onClick={() => setViewMode("grid")}
+                  onClick={() => dispatch(setViewMode("grid"))}
                   className={`p-2 transition-colors duration-300 ${viewMode === "grid" ? "bg-purple-500 text-white" : "bg-white text-gray-600 hover:bg-gray-50"
                     }`}
                 >
                   <Grid className="w-5 h-5" />
                 </button>
                 <button
-                  onClick={() => setViewMode("list")}
+                  onClick={() => dispatch(setViewMode("list"))}
                   className={`p-2 transition-colors duration-300 ${viewMode === "list" ? "bg-purple-500 text-white" : "bg-white text-gray-600 hover:bg-gray-50"
                     }`}
                 >
@@ -659,24 +640,24 @@ const handleEdit =(p)=>{
                     <input
                       type="number"
                       value={priceRange[0]}
-                      onChange={(e) => setPriceRange([Number.parseInt(e.target.value) || 0, priceRange[1]])}
+                      onChange={(e) => dispatch(setPriceRange([Number.parseInt(e.target.value) || 0, priceRange[1]]))}
                       className="w-20 px-2 py-1 border border-gray-300 rounded text-center"
                       placeholder="0"
                     />
                     <input
                       type="number"
                       value={priceRange[1]}
-                      onChange={(e) => setPriceRange([priceRange[0], Number.parseInt(e.target.value) || 300])}
+                      onChange={(e) => dispatch(setPriceRange([priceRange[0], Number.parseInt(e.target.value) || 10000]))}
                       className="w-20 px-2 py-1 border border-gray-300 rounded text-center"
-                      placeholder="300"
+                      placeholder="10000"
                     />
                   </div>
                   <input
                     type="range"
                     min="0"
-                    max="300"
+                    max="100000"
                     value={priceRange[1]}
-                    onChange={(e) => setPriceRange([priceRange[0], Number.parseInt(e.target.value)])}
+                    onChange={(e) => dispatch(setPriceRange([priceRange[0], Number.parseInt(e.target.value)]))}
                     className="w-full accent-purple-600"
                   />
                   <div className="text-center">
@@ -688,28 +669,35 @@ const handleEdit =(p)=>{
               </div>
 
               {/* Product Categories */}
-              <div onClick={() => setShowCategory(!showCategory)} className="bg-white px-6 rounded-lg shadow-md border border-gray-200">
-                <h3 className="flex justify-between font-bold items-center text-lg mb-4 text-gray-800 border lg:border-none mt-3 p-2 rounded-xl">Product Categories <span className={`${showCategory ? "" : "rotate-180"} lg:hidden`}><ArrowUp /></span> </h3>
-                <div className={`space-y-2 ${categories.length > 4 ? 'max-h-64 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-purple-500 scrollbar-track-gray-200' : ''}`}>
+              <div className="bg-white rounded-lg shadow-md border border-gray-100 overflow-hidden">
+                <button
+                  onClick={() => setShowCategory(!showCategory)}
+                  className="w-full flex justify-between items-center p-4 bg-gray-50/50 hover:bg-gray-100 transition-colors duration-300"
+                >
+                  <span className="font-bold text-gray-800">Categories</span>
+                  <ArrowUp className={`w-4 h-4 transition-transform duration-300 ${showCategory ? "" : "rotate-180"}`} />
+                </button>
+                <div className={`p-4 space-y-2 ${showCategory ? "block" : "hidden lg:block"} ${categories.length > 6 ? 'max-h-64 overflow-y-auto' : ''}`}>
                   {categories.map((category) => (
                     <label
                       key={category}
-                      className={` items-center space-x-2 hover:bg-gray-50 p-2 rounded cursor-pointer ${showCategory ? "flex" : "hidden"} lg:flex`}
+                      className="flex items-center space-x-3 p-2 rounded-lg hover:bg-purple-50 cursor-pointer transition-colors group"
                     >
                       <input
                         type="radio"
                         name="category"
-                        checked={filterCategory === category}
+                        checked={(filterCategory || "all").toLowerCase() === category.toLowerCase()}
                         onChange={() => {
-                          setFilterCategory(category)
-                          setFilterSubCategory("all")
-                          setShowSubCategory(true)
-                          setShowCategory(false)
+                          dispatch(setFilterCategory(category))
+                          if (window.innerWidth < 1024) setShowCategory(false)
                         }}
-                        className="text-purple-600 focus:ring-purple-500"
+                        className="w-4 h-4 text-purple-600 focus:ring-purple-500 border-gray-300"
                       />
-                      <span className="capitalize text-gray-700">
-                        {category === "all" ? "All Categories" : category.replace("-", " ")}
+                      <span className={`text-sm capitalize transition-colors ${(filterCategory || "all").toLowerCase() === category.toLowerCase()
+                        ? "text-purple-600 font-bold"
+                        : "text-gray-600 group-hover:text-purple-600"
+                        }`}>
+                        {category === "all" ? "All Categories" : category.replace(/-/g, " ")}
                       </span>
                     </label>
                   ))}
@@ -718,27 +706,35 @@ const handleEdit =(p)=>{
 
               {/* Subcategories */}
               {subCategories.length > 1 && (
-                <div className={`bg-white p-6 rounded-lg shadow-md ${showSubCategory & !showCategory ? "block" : "hidden"} lg:block`}>
-                  <h3 className="font-bold text-lg mb-4 text-gray-800 flex justify-between ">Subcategories
-                    <span className="lg:hidden">
-                      <X onClick={() => setShowSubCategory(false)} size={30} />
-                    </span>
-                  </h3>
-                  <div className={`space-y-2 ${subCategories.length > 4 ? 'max-h-64 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-purple-500 scrollbar-track-gray-200' : ''}`}>
+                <div className="bg-white rounded-lg shadow-md border border-gray-100 overflow-hidden">
+                  <button
+                    onClick={() => setShowSubCategory(!showSubCategory)}
+                    className="w-full flex justify-between items-center p-4 bg-gray-50/50 hover:bg-gray-100 transition-colors duration-300"
+                  >
+                    <span className="font-bold text-gray-800">Subcategories</span>
+                    <ArrowUp className={`w-4 h-4 transition-transform duration-300 ${showSubCategory ? "" : "rotate-180"}`} />
+                  </button>
+                  <div className={`p-4 space-y-2 ${showSubCategory ? "block" : "hidden lg:block"} ${subCategories.length > 6 ? 'max-h-64 overflow-y-auto' : ''}`}>
                     {subCategories.map((subcat) => (
                       <label
                         key={subcat}
-                        className="flex items-center space-x-2 hover:bg-gray-50 p-2 rounded cursor-pointer"
+                        className="flex items-center space-x-3 p-2 rounded-lg hover:bg-purple-50 cursor-pointer transition-colors group"
                       >
                         <input
                           type="radio"
                           name="subcategory"
-                          checked={filterSubCategory === subcat}
-                          onChange={() => setFilterSubCategory(subcat)}
-                          className="text-purple-600 focus:ring-purple-500"
+                          checked={(filterSubCategory || "all").toLowerCase() === subcat.toLowerCase()}
+                          onChange={() => {
+                            dispatch(setFilterSubCategory(subcat))
+                            if (window.innerWidth < 1024) setShowSubCategory(false)
+                          }}
+                          className="w-4 h-4 text-purple-600 focus:ring-purple-500 border-gray-300"
                         />
-                        <span className="capitalize text-gray-700">
-                          {subcat === "all" ? "All Subcategories" : subcat.replace("-", " ")}
+                        <span className={`text-sm capitalize transition-colors ${(filterSubCategory || "all").toLowerCase() === subcat.toLowerCase()
+                          ? "text-purple-600 font-bold"
+                          : "text-gray-600 group-hover:text-purple-600"
+                          }`}>
+                          {subcat === "all" ? "All Subcategories" : subcat.replace(/-/g, " ")}
                         </span>
                       </label>
                     ))}
@@ -758,7 +754,7 @@ const handleEdit =(p)=>{
                       <input
                         type="checkbox"
                         checked={filterBrand === brand}
-                        onChange={() => setFilterBrand(filterBrand === brand ? "all" : brand)}
+                        onChange={() => dispatch(setFilterBrand(filterBrand === brand ? "all" : brand))}
                         className="text-purple-600 focus:ring-purple-500"
                       />
                       <span className="text-gray-700">{brand === "all" ? "All Brands" : brand}</span>
@@ -780,7 +776,7 @@ const handleEdit =(p)=>{
                         type="radio"
                         name="rating"
                         checked={ratingFilter === rating}
-                        onChange={() => setRatingFilter(ratingFilter === rating ? 0 : rating)}
+                        onChange={() => dispatch(setRatingFilter(ratingFilter === rating ? 0 : rating))}
                         className="text-purple-600 focus:ring-purple-500"
                       />
                       <div className="flex items-center space-x-1">
@@ -802,14 +798,16 @@ const handleEdit =(p)=>{
           {/* Products Grid */}
           <div className="flex-1">
             {/* Loading State */}
-            {(loading || searchLoading) && (
-              <div className="flex items-center justify-center py-20">
-                <CustomLoader size="large" message="Loading products..." />
+            {(productLoading || searchLoading) && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
+                {[...Array(10)].map((_, i) => (
+                  <CardSkeleton key={i} />
+                ))}
               </div>
             )}
 
             {/* No Products Found */}
-            {!loading && !searchLoading && products.length === 0 && (
+            {!productLoading && !searchLoading && products.length === 0 && (
               <div className="text-center py-12">
                 <div className="text-gray-400 mb-4">
                   <Search className="w-16 h-16 mx-auto" />
@@ -826,7 +824,7 @@ const handleEdit =(p)=>{
             )}
 
             {/* Products */}
-            {!loading && !searchLoading && products.length > 0 && (
+            {!productLoading && !searchLoading && products.length > 0 && (
               <div
                 className={`${viewMode === "grid"
                   ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6"
@@ -834,9 +832,9 @@ const handleEdit =(p)=>{
                   }`}
               >
                 {currentProducts.map((product, index) => (
-                  <div
+                  <Link
+                    href={`/productdetails/${product.id}`}
                     key={product.id}
-                    onClick={() => router.push(`/productdetails/${product.id}`)}
                     className={`group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 cursor-pointer ${viewMode === "list" ? "flex" : ""
                       }`}
                   >
@@ -853,6 +851,12 @@ const handleEdit =(p)=>{
                         {product.isNew && (
                           <span className="bg-green-500 text-white px-2 py-1 rounded text-xs font-bold">NEW</span>
                         )}
+                        {product.tags?.includes('hot') && (
+                          <span className="bg-red-600 text-white px-2 py-1 rounded text-xs font-bold shadow-lg shadow-red-500/20">HOT</span>
+                        )}
+                        {product.tags?.includes('cold') && (
+                          <span className="bg-blue-600 text-white px-2 py-1 rounded text-xs font-bold shadow-lg shadow-blue-500/20">COLD</span>
+                        )}
                         {product.discount > 0 && (
                           <span className="bg-yellow-500 text-white px-2 py-1 rounded text-xs font-bold">
                             {product.discount}% OFF
@@ -864,6 +868,7 @@ const handleEdit =(p)=>{
                       <div className="absolute top-3 right-3 space-y-2  opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <button
                           onClick={(e) => {
+                            e.preventDefault()
                             e.stopPropagation()
                             toggleWishlist(product)
                           }}
@@ -893,7 +898,7 @@ const handleEdit =(p)=>{
                         <h3 className="font-semibold text-sm text-gray-800 mb-1 group-hover:text-purple-600 transition-colors duration-300 line-clamp-2">
                           {product.name}
                         </h3>
-                        <p className="text-xs text-gray-500 mb-2">{product.brand}</p>
+                        <p className="text-xs text-gray-500 mb-2">{product.category}</p>
 
                         {/* Rating */}
                         <div className="flex items-center gap-1 mb-2">
@@ -901,7 +906,7 @@ const handleEdit =(p)=>{
                             {[...Array(5)].map((_, i) => (
                               <Star
                                 key={i}
-                                className={`w-3 h-3 sm:w-4 sm:h-4 ${i < Math.floor(product.rating) ? "text-yellow-400 fill-current" : "text-black"
+                                className={`w-3 h-3 sm:w-4 sm:h-4 ${i < Math.floor(product.rating) ? "text-yellow-400 fill-current" : "text-gray-300"
                                   }`}
                               />
                             ))}
@@ -921,14 +926,15 @@ const handleEdit =(p)=>{
                           )}
                         </div>
 
-                        {/* Add to Cart */}
-                        {user?.role !== "ADMIN" ? <button
+                        {/* Standard Add to Cart (Everyone sees this) */}
+                        <button
                           onClick={(e) => {
+                            e.preventDefault()
                             e.stopPropagation()
                             addToCart(product)
                           }}
                           disabled={!product.inStock}
-                          className={`w-full py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs ${product.inStock
+                          className={`w-full py-1.5 px-2 mb-2 rounded font-medium transition-all duration-300 text-xs ${product.inStock
                             ? "bg-green-600 text-white hover:bg-green-700 transform hover:scale-105"
                             : "bg-gray-300 text-gray-500 cursor-not-allowed"
                             }`}
@@ -941,54 +947,36 @@ const handleEdit =(p)=>{
                           ) : (
                             "Out of Stock"
                           )}
-                        </button> : <div className="flex justify-around">
-                          {/* add to cart button  */}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              addToCart(product)
-                            }}
-                            disabled={!product.inStock}
-                            className={` py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs ${product.inStock
-                              ? "bg-green-600 text-white hover:bg-green-700 transform hover:scale-105"
-                              : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                              }`}
-                          >
-                            {product.inStock ? (
-                              <span className="flex items-center justify-center gap-1">
-                                <ShoppingCart size={16} />
+                        </button>
 
-                              </span>
-                            ) : (
-                              "Out of Stock"
-                            )}
-
-                          </button>
-                          {/* edit button  */}
-                          <button
-                             onClick={(e) => {
-                               e.stopPropagation()
-                              handleEdit(product)
-                            }}
-                            className="p-2 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-emerald-500/25"
-                          >
-                            <Edit size={16} />
-                          </button>
-                          {/* delete button  */}
-                          <button
-                            onClick={(e) => {
-                               e.stopPropagation()
-                              setDeleteModal(product)
-                            }}
-                            className="p-2 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-400 hover:to-pink-400 text-white rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-red-500/25 cursor-pointer"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>}
-
+                        {/* Admin Controls (Only Admin sees these additional tools) */}
+                        {user?.role === "ADMIN" && (
+                          <div className="flex justify-between gap-2 mt-1">
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                handleEdit(product)
+                              }}
+                              className="flex-1 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded text-[10px] transition-colors flex items-center justify-center gap-1"
+                            >
+                              <Edit size={10} /> Edit
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                setDeleteModal(product)
+                              }}
+                              className="flex-1 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-[10px] transition-colors flex items-center justify-center gap-1"
+                            >
+                              <Trash2 size={10} /> Delete
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             )}
@@ -998,7 +986,7 @@ const handleEdit =(p)=>{
               <div className="flex justify-center items-center space-x-2 mt-12 flex-wrap gap-2">
                 {/* Previous Button */}
                 <button
-                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  onClick={() => dispatch(setCurrentPage(Math.max(1, currentPage - 1)))}
                   disabled={currentPage === 1}
                   className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${currentPage === 1
                     ? "bg-gray-100 text-gray-400 cursor-not-allowed"
@@ -1012,7 +1000,7 @@ const handleEdit =(p)=>{
                 {showStartDots && (
                   <>
                     <button
-                      onClick={() => setCurrentPage(1)}
+                      onClick={() => dispatch(setCurrentPage(1))}
                       className="px-4 py-2 rounded-lg font-medium bg-white border border-gray-300 hover:bg-purple-50 transition-colors duration-300"
                     >
                       1
@@ -1025,7 +1013,7 @@ const handleEdit =(p)=>{
                 {pageNumbers.map((page) => (
                   <button
                     key={page}
-                    onClick={() => setCurrentPage(page)}
+                    onClick={() => dispatch(setCurrentPage(page))}
                     className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${currentPage === page
                       ? "bg-purple-500 text-white transform scale-110"
                       : "bg-white border border-gray-300 hover:bg-purple-50"
@@ -1040,7 +1028,7 @@ const handleEdit =(p)=>{
                   <>
                     <span className="px-2 text-gray-500 font-bold">...</span>
                     <button
-                      onClick={() => setCurrentPage(totalPages)}
+                      onClick={() => dispatch(setCurrentPage(totalPages))}
                       className="px-4 py-2 rounded-lg font-medium bg-white border border-gray-300 hover:bg-purple-50 transition-colors duration-300"
                     >
                       {totalPages}
@@ -1050,7 +1038,7 @@ const handleEdit =(p)=>{
 
                 {/* Next Button */}
                 <button
-                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  onClick={() => dispatch(setCurrentPage(Math.min(totalPages, currentPage + 1)))}
                   disabled={currentPage === totalPages}
                   className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${currentPage === totalPages
                     ? "bg-gray-100 text-gray-400 cursor-not-allowed"
@@ -1065,226 +1053,223 @@ const handleEdit =(p)=>{
         </div>
       </div>
 
-{/* Edit Modal */}
+      {/* Edit Modal */}
       {editModal && (
-        (
-          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
-            <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-emerald-500/30 max-w-3xl w-full max-h-[90vh] overflow-y-auto animate-slideUp">
-              <div className="sticky top-0 bg-gradient-to-r from-emerald-600 to-teal-600 p-6 flex justify-between items-center z-10">
-                <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                  <Edit className="w-6 h-6" />
-                  Edit Product
-                </h2>
-                <button
-                  onClick={() => setEditModal(null)}
-                  className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-                >
-                  <X className="w-6 h-6 text-white cursor-pointer" />
-                </button>
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-emerald-500/30 max-w-3xl w-full max-h-[90vh] overflow-y-auto animate-slideUp">
+            <div className="sticky top-0 bg-gradient-to-r from-emerald-600 to-teal-600 p-6 flex justify-between items-center z-10">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                <Edit className="w-6 h-6" />
+                Edit Product
+              </h2>
+              <button
+                onClick={() => setEditModal(null)}
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <X className="w-6 h-6 text-white cursor-pointer" />
+              </button>
+            </div>
+
+            <div className="p-6 bg-white/90 text-black">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
+                <div>
+                  <label className="block  text-sm font-semibold mb-2">
+                    Product Name
+                  </label>
+                  <input
+                    type="text"
+                    value={editModal?.productName}
+                    onChange={(e) => updateEditField("productName", e.target.value)}
+                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg  focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-black text-sm font-semibold mb-2">SKU</label>
+                  <input
+                    type="text"
+                    value={editModal?.sku}
+                    onChange={(e) => updateEditField("sku", e.target.value)}
+                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-black text-sm font-semibold mb-2">Brand</label>
+                  <input
+                    type="text"
+                    value={editModal?.brand}
+                    onChange={(e) => updateEditField("brand", e.target.value)}
+                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-black text-sm font-semibold mb-2">Price</label>
+                  <input
+                    type="number"
+                    value={editModal?.price}
+                    onChange={(e) => updateEditField("price", Number(e.target.value))}
+                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-black text-sm font-semibold mb-2">
+                    Discount (%)
+                  </label>
+                  <input
+                    type="number"
+                    value={editModal?.discount}
+                    onChange={(e) => updateEditField("discount", Number(e.target.value))}
+                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-black text-sm font-semibold mb-2">Stock</label>
+                  <input
+                    type="number"
+                    value={editModal?.productStock}
+                    onChange={(e) => updateEditField("productStock", Number(e.target.value))}
+                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-black text-sm font-semibold mb-2">Rating</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="5"
+                    value={editModal?.ratings}
+                    onChange={(e) => updateEditField("ratings", Number(e.target.value))}
+                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-black text-sm font-semibold mb-2">
+                    Product Size
+                  </label>
+                  <input
+                    type="text"
+                    value={editModal?.productSize?.join(", ") || ""}
+                    onChange={(e) =>
+                      updateEditField(
+                        "productSize",
+                        e.target.value.split(",").map((s) => s.trim())
+                      )
+                    }
+                    placeholder="M, L, XL"
+                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-black text-sm font-semibold mb-2">
+                    Product Color
+                  </label>
+                  <input
+                    type="text"
+                    value={editModal?.color?.join(", ") || ""}
+                    onChange={(e) =>
+                      updateEditField(
+                        "color",
+                        e.target.value.split(",").map((c) => c.trim())
+                      )
+                    }
+                    placeholder="Black, Brown, Red"
+                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-black text-sm font-semibold mb-2">
+                    Retail Price(৳)
+                  </label>
+                  <input
+                    type="number"
+                    value={editModal?.productRank || ""}
+                    onChange={(e) => updateEditField("productRank", Number(e.target.value))}
+                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-black text-sm font-semibold mb-2">
+                    Video Link
+                  </label>
+                  <input
+                    value={editModal?.video_link}
+                    onChange={(e) => updateEditField("video_link", e.target.value)}
+                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors resize-none"
+                  ></input>
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-black text-sm font-semibold mb-2">
+                    Description
+                  </label>
+                  <textarea
+                    value={editModal?.description}
+                    onChange={(e) => updateEditField("description", e.target.value)}
+                    rows="3"
+                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors resize-none"
+                  ></textarea>
+                </div>
               </div>
 
-              <div className="p-6 bg-white/90 text-black">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
-                  <div>
-                    <label className="block  text-sm font-semibold mb-2">
-                      Product Name
-                    </label>
-                    <input
-                      type="text"
-                      value={editModal?.productName}
-                      onChange={(e) => updateEditField("productName", e.target.value)}
-                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg  focus:outline-none focus:border-emerald-500 transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-black text-sm font-semibold mb-2">SKU</label>
-                    <input
-                      type="text"
-                      value={editModal?.sku}
-                      onChange={(e) => updateEditField("sku", e.target.value)}
-                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-black text-sm font-semibold mb-2">Brand</label>
-                    <input
-                      type="text"
-                      value={editModal?.brand}
-                      onChange={(e) => updateEditField("brand", e.target.value)}
-                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-black text-sm font-semibold mb-2">Price</label>
-                    <input
-                      type="number"
-                      value={editModal?.price}
-                      onChange={(e) => updateEditField("price", Number(e.target.value))}
-                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-black text-sm font-semibold mb-2">
-                      Discount (%)
-                    </label>
-                    <input
-                      type="number"
-                      value={editModal?.discount}
-                      onChange={(e) => updateEditField("discount", Number(e.target.value))}
-                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-black text-sm font-semibold mb-2">Stock</label>
-                    <input
-                      type="number"
-                      value={editModal?.productStock}
-                      onChange={(e) => updateEditField("productStock", Number(e.target.value))}
-                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-black text-sm font-semibold mb-2">Rating</label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      min="0"
-                      max="5"
-                      value={editModal?.ratings}
-                      onChange={(e) => updateEditField("ratings", Number(e.target.value))}
-                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-black text-sm font-semibold mb-2">
-                      Product Size
-                    </label>
-                    <input
-                      type="text"
-                      value={editModal?.productSize?.join(", ") || ""}
-                      onChange={(e) =>
-                        updateEditField(
-                          "productSize",
-                          e.target.value.split(",").map((s) => s.trim())
-                        )
-                      }
-                      placeholder="M, L, XL"
-                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-black text-sm font-semibold mb-2">
-                      Product Color
-                    </label>
-                    <input
-                      type="text"
-                      value={editModal?.color?.join(", ") || ""}
-                      onChange={(e) =>
-                        updateEditField(
-                          "color",
-                          e.target.value.split(",").map((c) => c.trim())
-                        )
-                      }
-                      placeholder="Black, Brown, Red"
-                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-black text-sm font-semibold mb-2">
-                      Retail Price(৳)
-                    </label>
-                    <input
-                      type="number"
-                      value={editModal?.productRank || ""}
-                      onChange={(e) => updateEditField("productRank", Number(e.target.value))}
-                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                    />
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-black text-sm font-semibold mb-2">
-                      Video Link
-                    </label>
-                    <input
-                      value={editModal?.video_link || "https://youtube.com/shorts/example_video"}
-                      onChange={(e) => updateEditField("video_link", e.target.value)}
-                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors resize-none"
-                    ></input>
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-black text-sm font-semibold mb-2">
-                      Description
-                    </label>
-                    <textarea
-                      value={editModal?.description}
-                      onChange={(e) => updateEditField("description", e.target.value)}
-                      rows="3"
-                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors resize-none"
-                    ></textarea>
-                  </div>
-                </div>
-
-                <div className="flex gap-3 mt-6">
-                  <button
-                     onClick={saveEdit}
-                    className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold rounded-lg transition-all transform hover:scale-105"
-                  >
-                    {load ? "Saving..." : "Save Changes"}
-                  </button>
-                  <button
-                    onClick={() => setEditModal(null)}
-                    className="flex-1 px-6 py-3 bg-white text-black font-semibold rounded-lg transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </div>
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={saveEdit}
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold rounded-lg transition-all transform hover:scale-105"
+                >
+                  {load ? "Saving..." : "Save Changes"}
+                </button>
+                <button
+                  onClick={() => setEditModal(null)}
+                  className="flex-1 px-6 py-3 bg-white text-black font-semibold rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
               </div>
             </div>
           </div>
-        ))}
-
-      {/* Delete Confirmation Modal */}
-            {deleteModal && (
-              <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
-                <div className="bg-white/70 rounded-2xl border border-pink-500/30 max-w-md w-full p-6 animate-slideUp text-black">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-3 bg-pink-500/20 rounded-full">
-                      <Trash2 className="w-8 h-8 text-pink-500" />
-                    </div>
-                    <h2 className="text-2xl font-bold ">Delete Product</h2>
-                  </div>
-      
-                  <p className=" mb-6">
-                    Are you sure you want to delete this product? This action cannot be undone.
-                  </p>
-      
-                  <div className="flex gap-3">
-                    <button
-                       onClick={confirmDelete}
-                      className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-semibold rounded-lg transition-all transform hover:scale-105 cursor-pointer"
-                    >
-                      Delete
-                    </button>
-                    <button
-                      onClick={() => setDeleteModal(null)}
-                      className="flex-1 px-6 py-3 bg-slate-200 hover:bg-slate-600 hover:text-white font-semibold rounded-lg transition-colors cursor-pointer"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
+        </div>
+      )} {/* Delete Confirmation Modal */}
+      {deleteModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+          <div className="bg-white/70 rounded-2xl border border-pink-500/30 max-w-md w-full p-6 animate-slideUp text-black">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-3 bg-pink-500/20 rounded-full">
+                <Trash2 className="w-8 h-8 text-pink-500" />
               </div>
-            )}
+              <h2 className="text-2xl font-bold ">Delete Product</h2>
+            </div>
+
+            <p className=" mb-6">
+              Are you sure you want to delete this product? This action cannot be undone.
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                onClick={confirmDelete}
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-semibold rounded-lg transition-all transform hover:scale-105 cursor-pointer"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => setDeleteModal(null)}
+                className="flex-1 px-6 py-3 bg-slate-200 hover:bg-slate-600 hover:text-white font-semibold rounded-lg transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Custom Styles */}
       <style jsx>{`
