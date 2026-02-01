@@ -6,18 +6,18 @@ import PopularProducts from './popularProducts'
 import ChatBoot from './ChatBoot'
 
 
-function Hero() {
+function Hero({ initialData }) {
   return (
     <div>
       <div className=' py-1 mt-10 lg:mt-30  h-[200px] sm:h-[400px] lg:h-[720px] bg-[#F3F4F6]  '>
-        <Carousels />
+        <Carousels initialData={initialData?.banners} />
       </div>
 
-     <div className='mt-5'>
-       <Categories />
-     </div>
-      <Ads />
-      <PopularProducts />
+      <div className='mt-5'>
+        <Categories initialData={initialData?.categories} />
+      </div>
+      <Ads initialData={initialData?.ads} />
+      <PopularProducts initialData={initialData} />
       <ChatBoot></ChatBoot>
     </div>
 
