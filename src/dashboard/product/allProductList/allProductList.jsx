@@ -29,7 +29,7 @@ import toast from "react-hot-toast";
 import { ProductDelete, ProductUpdate } from "@/src/hook/useProduct";
 import { useGetAllOrders } from "@/src/utlis/useGetAllOrders";
 import useGetRevenue from "@/src/utlis/useGetRevenue";
-
+import * as XLSX from "xlsx"
 
 const ProductDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -49,7 +49,7 @@ const ProductDashboard = () => {
   );
 
   // product get
-  const { product,totalCount, loading, error, refetch } = useGetProduct(formData);
+  const { product,totalCount,refetch } = useGetProduct(formData);
   // console.log("totalCount--->",totalCount)
   const allCategorydata = useSelector((state) => state.category.allCategorydata);
   const allsubCategorydata = useSelector((state) => state.subcategory.allsubCategorydata);
@@ -117,13 +117,23 @@ const ProductDashboard = () => {
 
   //  handleExport
   const handleExport = () => {
-    const dataStr = JSON.stringify(products, null, 2);
-    const dataBlob = new Blob([dataStr], { type: "application/json" });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "products-export.json";
-    link.click();
+    const wb = XLSX.utils.book_new()
+    const ws = XLSX.utils.json_to_sheet(products)
+    ws["!cols"] = [
+    { wch: 10 },
+    { wch: 10 },
+    { wch: 40 },
+    { wch: 40 },
+  ]
+    XLSX.utils.book_append_sheet(wb,ws,"MyProducts")
+    XLSX.writeFile(wb,"productsData.xlsx")
+    // const dataStr = JSON.stringify(products, null, 2);
+    // const dataBlob = new Blob([dataStr], { type: "application/json" });
+    // const url = URL.createObjectURL(dataBlob);
+    // const link = document.createElement("a");
+    // link.href = url;
+    // link.download = "products-export.json";
+    // link.click();
   };
 
   // refetch

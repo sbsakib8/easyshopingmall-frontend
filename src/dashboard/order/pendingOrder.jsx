@@ -59,7 +59,6 @@ const PendingOrdersPage = () => {
   // Handle order actions
  
   const handleStatusChange = async () => {
-    console.log("confierm", selectedOrder?._id, status)
     const res = await OrderUpdate(selectedOrder?._id, status)
     // console.log(res)
     if (res.success) {
