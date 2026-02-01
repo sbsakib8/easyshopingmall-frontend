@@ -24,11 +24,11 @@ const isProductNew = (createdDate) => {
 
 const ShopPage = () => {
   const router = useRouter()
-const [deleteModal, setDeleteModal] = useState(null)
- const [editModal, setEditModal] = useState(null);
+  const [deleteModal, setDeleteModal] = useState(null)
+  const [editModal, setEditModal] = useState(null);
   // Request all products without pagination limit
   const productParams = useMemo(() => ({ limit: 1000 }), [])
-  const { product, loading, error, refetch:productRefetch } = useGetProduct(productParams)
+  const { product, loading, error, refetch: productRefetch } = useGetProduct(productParams)
 
   const [allProducts, setAllProducts] = useState([])
   const [products, setProducts] = useState([])
@@ -244,6 +244,7 @@ const [deleteModal, setDeleteModal] = useState(null)
           name: p.name || p.productName || p.title || "Untitled",
           price: Number(p.price ?? p.sell_price ?? p.sellingPrice ?? p.amount ?? 0) || 0,
           originalPrice: Number(p.originalPrice ?? p.mrp ?? p.price ?? p.sell_price) || Number(p.price ?? 0) || 0,
+          retailSale: p.productRank,
           category: categoryVal,
           subCategory: subCategoryVal,
           brand: p.brand || p.manufacturer || "Brand",
@@ -522,9 +523,9 @@ const [deleteModal, setDeleteModal] = useState(null)
     // Clear URL search params as well
     router.push('/shop')
   }
-// handle delete functionality 
-const confirmDelete = async () => {
-  
+  // handle delete functionality 
+  const confirmDelete = async () => {
+
     try {
       if (!deleteModal) return;
       await ProductDelete(deleteModal.id);
@@ -536,40 +537,40 @@ const confirmDelete = async () => {
       toast.error(error.response?.data?.message || "Something went wrong");
     }
   };
- const [load, setLoad] = useState(false);
+  const [load, setLoad] = useState(false);
   // handle edit functionality 
-const handleEdit =(p)=>{
-  const selectedProudct = product.find(item=>item._id==p.id)
-  setEditModal(selectedProudct)
+  const handleEdit = (p) => {
+    const selectedProudct = product.find(item => item._id == p.id)
+    setEditModal(selectedProudct)
 
-}
+  }
 
   const saveEdit = async () => {
     // console.log("editModal-->",editModal)
-      setLoad(true);
-      try {
-        const res = await ProductUpdate(editModal);
-        if (res.success) {
-          toast.success("Product updated successfully!");
-          productRefetch()
-          setEditModal(null);
-        } else {
-          toast.error(res.message);
-        }
-      } catch (error) {
-        toast.error("Error updating product");
-      } finally {
-        setLoad(false);
+    setLoad(true);
+    try {
+      const res = await ProductUpdate(editModal);
+      if (res.success) {
+        toast.success("Product updated successfully!");
+        productRefetch()
+        setEditModal(null);
+      } else {
+        toast.error(res.message);
       }
-    };
-    const updateEditField = (field, value) => {
+    } catch (error) {
+      toast.error("Error updating product");
+    } finally {
+      setLoad(false);
+    }
+  };
+  const updateEditField = (field, value) => {
     setEditModal({ ...editModal, [field]: value });
   };
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Mobile Search */}
-        <div className="md:hidden mb-6">
+        {/* <div className="md:hidden mb-6">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
@@ -580,7 +581,7 @@ const handleEdit =(p)=>{
               className="pl-10 pr-4 py-3 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
           </div>
-        </div>
+        </div> */}
 
         {/* Top Filter Bar */}
         <div className="bg-white lg:mt-28 rounded-lg shadow-md p-4 mb-6">
@@ -834,6 +835,7 @@ const handleEdit =(p)=>{
                   }`}
               >
                 {currentProducts.map((product, index) => (
+                  console.log(product),
                   <div
                     key={product.id}
                     onClick={() => router.push(`/productdetails/${product.id}`)}
@@ -849,19 +851,28 @@ const handleEdit =(p)=>{
                       />
 
                       {/* Badges */}
-                      <div className="absolute top-3 left-3 space-y-1">
-                        {product.isNew && (
-                          <span className="bg-green-500 text-white px-2 py-1 rounded text-xs font-bold">NEW</span>
-                        )}
-                        {product.discount > 0 && (
-                          <span className="bg-yellow-500 text-white px-2 py-1 rounded text-xs font-bold">
+                      <div className="absolute top-0 left-0 flex justify-between w-full">
+                        <div>
+                          {product.isNew && (
+                            <span className="bg-green-500 text-white px-1 py-1 rounded text-xs font-semibold">NEW</span>
+                          )}
+                          {/* {product.discount > 0 && (
+                          <span className="bg-yellow-500 text-white px-1 py-1 rounded text-xs font-semibold">
                             {product.discount}% OFF
                           </span>
-                        )}
+                        )} */}
+                          {product.retailSale > product.price ? <span className="bg-yellow-500 text-white px-1 py-1 mx-1 rounded text-xs font-semibold">
+
+                            -{(product.retailSale - product.price)}৳
+                          </span> : 0}
+                        </div>
+                        {product.isNew && (
+                            <span className="bg-orange-400 max-h-6  text-white px-1 py-1 rounded text-xs font-semibold">🔥Hot</span>
+                          )}
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="absolute top-3 right-3 space-y-2  opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="absolute top-8 right-1 space-y-2  lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300">
                         <button
                           onClick={(e) => {
                             e.stopPropagation()
@@ -914,9 +925,9 @@ const handleEdit =(p)=>{
                         {/* Price */}
                         <div className="flex items-center gap-2 mb-2">
                           <span className="text-base font-bold text-red-600">Tk {product.price}</span>
-                          {product.originalPrice > product.price && (
-                            <span className="text-xs text-gray-400 line-through">
-                              Tk {product.originalPrice.toFixed(2)}
+                          {product.retailSale > product.price && (
+                            <span className="text-xs font-semibold text-gray-400 line-through">
+                               {product.retailSale.toFixed(2)}
                             </span>
                           )}
                         </div>
@@ -966,8 +977,8 @@ const handleEdit =(p)=>{
                           </button>
                           {/* edit button  */}
                           <button
-                             onClick={(e) => {
-                               e.stopPropagation()
+                            onClick={(e) => {
+                              e.stopPropagation()
                               handleEdit(product)
                             }}
                             className="p-2 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-emerald-500/25"
@@ -977,7 +988,7 @@ const handleEdit =(p)=>{
                           {/* delete button  */}
                           <button
                             onClick={(e) => {
-                               e.stopPropagation()
+                              e.stopPropagation()
                               setDeleteModal(product)
                             }}
                             className="p-2 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-400 hover:to-pink-400 text-white rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-red-500/25 cursor-pointer"
@@ -1065,7 +1076,7 @@ const handleEdit =(p)=>{
         </div>
       </div>
 
-{/* Edit Modal */}
+      {/* Edit Modal */}
       {editModal && (
         (
           <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
@@ -1236,7 +1247,7 @@ const handleEdit =(p)=>{
 
                 <div className="flex gap-3 mt-6">
                   <button
-                     onClick={saveEdit}
+                    onClick={saveEdit}
                     className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold rounded-lg transition-all transform hover:scale-105"
                   >
                     {load ? "Saving..." : "Save Changes"}
@@ -1254,37 +1265,37 @@ const handleEdit =(p)=>{
         ))}
 
       {/* Delete Confirmation Modal */}
-            {deleteModal && (
-              <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
-                <div className="bg-white/70 rounded-2xl border border-pink-500/30 max-w-md w-full p-6 animate-slideUp text-black">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-3 bg-pink-500/20 rounded-full">
-                      <Trash2 className="w-8 h-8 text-pink-500" />
-                    </div>
-                    <h2 className="text-2xl font-bold ">Delete Product</h2>
-                  </div>
-      
-                  <p className=" mb-6">
-                    Are you sure you want to delete this product? This action cannot be undone.
-                  </p>
-      
-                  <div className="flex gap-3">
-                    <button
-                       onClick={confirmDelete}
-                      className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-semibold rounded-lg transition-all transform hover:scale-105 cursor-pointer"
-                    >
-                      Delete
-                    </button>
-                    <button
-                      onClick={() => setDeleteModal(null)}
-                      className="flex-1 px-6 py-3 bg-slate-200 hover:bg-slate-600 hover:text-white font-semibold rounded-lg transition-colors cursor-pointer"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
+      {deleteModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+          <div className="bg-white/70 rounded-2xl border border-pink-500/30 max-w-md w-full p-6 animate-slideUp text-black">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-3 bg-pink-500/20 rounded-full">
+                <Trash2 className="w-8 h-8 text-pink-500" />
               </div>
-            )}
+              <h2 className="text-2xl font-bold ">Delete Product</h2>
+            </div>
+
+            <p className=" mb-6">
+              Are you sure you want to delete this product? This action cannot be undone.
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                onClick={confirmDelete}
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-semibold rounded-lg transition-all transform hover:scale-105 cursor-pointer"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => setDeleteModal(null)}
+                className="flex-1 px-6 py-3 bg-slate-200 hover:bg-slate-600 hover:text-white font-semibold rounded-lg transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Custom Styles */}
       <style jsx>{`
