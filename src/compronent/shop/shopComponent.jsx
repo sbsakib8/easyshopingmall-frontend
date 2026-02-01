@@ -86,6 +86,7 @@ const ShopPage = () => {
   const [showCategory, setShowCategory] = useState(false)
   const [showSubCategory, setShowSubCategory] = useState(false)
   const [cartOpen, setCartOpen] = useState(false)
+  const [tags, setTags] = useState()
   const [currentPage, setCurrentPage] = useState(1)
   const productsPerPage = 30
 
@@ -566,6 +567,7 @@ const ShopPage = () => {
   const updateEditField = (field, value) => {
     setEditModal({ ...editModal, [field]: value });
   };
+  console.log(tags)
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -835,7 +837,6 @@ const ShopPage = () => {
                   }`}
               >
                 {currentProducts.map((product, index) => (
-                  console.log(product),
                   <div
                     key={product.id}
                     onClick={() => router.push(`/productdetails/${product.id}`)}
@@ -862,13 +863,12 @@ const ShopPage = () => {
                           </span>
                         )} */}
                           {product.retailSale > product.price ? <span className="bg-yellow-500 text-white px-1 py-1 mx-1 rounded text-xs font-semibold">
-
                             -{(product.retailSale - product.price)}৳
                           </span> : 0}
                         </div>
                         {product.isNew && (
-                            <span className="bg-orange-400 max-h-6  text-white px-1 py-1 rounded text-xs font-semibold">🔥Hot</span>
-                          )}
+                          <span className="bg-orange-400 max-h-6  text-white px-1 py-1 rounded text-xs font-semibold">🔥Hot</span>
+                        )}
                       </div>
 
                       {/* Action Buttons */}
@@ -927,7 +927,7 @@ const ShopPage = () => {
                           <span className="text-base font-bold text-red-600">Tk {product.price}</span>
                           {product.retailSale > product.price && (
                             <span className="text-xs font-semibold text-gray-400 line-through">
-                               {product.retailSale.toFixed(2)}
+                              {product.retailSale.toFixed(2)}
                             </span>
                           )}
                         </div>
@@ -1208,6 +1208,7 @@ const ShopPage = () => {
                       className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
                     />
                   </div>
+                  
 
                   <div>
                     <label className="block text-black text-sm font-semibold mb-2">
@@ -1219,6 +1220,20 @@ const ShopPage = () => {
                       onChange={(e) => updateEditField("productRank", Number(e.target.value))}
                       className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
                     />
+                  </div>
+                  <div>
+                    <label className="block text-black text-sm font-semibold mb-2">
+                      Product Tags
+                    </label>
+                    <select
+                      
+                      onChange={(e) => setTags(e.target.value)}
+                      className="appearance-none border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-purple-500 bg-white"
+                    >
+                      <option disabled selected defaultValue="none">None</option>
+                      <option defaultValue="hot">Hot</option>
+                      <option defaultValue="cold">Cold</option>              
+                    </select>
                   </div>
 
                   <div className="md:col-span-2">
