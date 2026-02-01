@@ -6,12 +6,13 @@ import { useCategoryWithSubcategories } from "@/src/utlis/useCategoryWithSubcate
 import { useGetProduct } from "@/src/utlis/userProduct";
 import useWebsiteInfo from "@/src/utlis/useWebsiteInfo";
 import { Camera, ChevronDown, Heart, Menu, Search, ShoppingCart, Star, User, X, Zap } from "lucide-react";
-import CustomLoader from '@/src/compronent/loading/CustomLoader';
+import Skeleton from '@/src/compronent/loading/Skeleton';
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { setSearchTerm } from "@/src/redux/shopSlice";
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -130,6 +131,15 @@ const Header = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  const { searchTerm: reduxSearchTerm } = useSelector((state) => state.shop || {});
+
+  // Sync internal searchQuery with reduxSearchTerm if on shop page
+  useEffect(() => {
+    if (pathname === "/shop") {
+      setSearchQuery(reduxSearchTerm || "");
+    }
+  }, [reduxSearchTerm, pathname]);
+
   // Debounce input to avoid excessive work
   useEffect(() => {
     const t = setTimeout(() => {
@@ -141,12 +151,15 @@ const Header = () => {
   // Auto-search as user types (using debounced value)
   useEffect(() => {
     if (debouncedSearch) {
-      router.push(`/shop?search=${encodeURIComponent(debouncedSearch)}`);
-    } else if (debouncedSearch === '' && searchQuery === '') {
-      // When search is cleared, go to shop page without search params
-      router.push('/');
+      if (pathname !== "/shop") {
+        router.push(`/shop?search=${encodeURIComponent(debouncedSearch)}`);
+      }
+      dispatch(setSearchTerm(debouncedSearch));
+    } else if (debouncedSearch === '' && searchQuery === '' && pathname === "/shop") {
+      dispatch(setSearchTerm(""));
+      router.push('/shop');
     }
-  }, [debouncedSearch, searchQuery, router]);
+  }, [debouncedSearch, searchQuery, router, pathname, dispatch]);
   // Show live results when user types at least 2 chars
   useEffect(() => {
     // allow single-character suggestions (helpful for quick lookups)
@@ -468,8 +481,13 @@ const Header = () => {
                       {/* Main Categories List */}
                       <div className="py-2 relative">
                         {categoriesLoading ? (
-                          <div className="flex items-center justify-center py-12">
-                            <CustomLoader size="medium" message="Loading categories..." />
+                          <div className="py-2 space-y-1">
+                            {[...Array(6)].map((_, i) => (
+                              <div key={i} className="flex items-center space-x-3 px-6 py-4">
+                                <Skeleton variant="circle" className="w-6 h-6" />
+                                <Skeleton className="h-5 w-32" />
+                              </div>
+                            ))}
                           </div>
                         ) : (
                           menuCategories.map((category) => {
@@ -672,7 +690,7 @@ const Header = () => {
                 <button onClick={() => {
                   router.push("/shop")
                   setImageSearch(!imageSearch)
-                  }} className="w-12 cursor-pointer" >
+                }} className="w-12 cursor-pointer" >
                   <Camera />
                 </button>
 
@@ -682,7 +700,7 @@ const Header = () => {
         </div>
         {/* image searche dropdown */}
         {imageSearch ? <div className="flex flex-col lg:hidden justify-center items-center absolute inset-0  bg-white  shadow-2xl shadow-black-100 z-999 sm:w-80 mx-auto min-h-52 mt-25 rounded-sm">
-          <button onClick={() =>{ setImageSearch(!imageSearch)}} className="absolute top-2 right-5 text-2xl" >X</button>
+          <button onClick={() => { setImageSearch(!imageSearch) }} className="absolute top-2 right-5 text-2xl" >X</button>
           <p className="my-4 text-green-600 font-semibold">Search Product with Image</p>
           <div className="max-w-2/3 min-h-30 border-3 border-dotted border-green-300 bg-green-100 flex justify-center items-center">
             <input className="max-w-2/3 max-h-60 cursor-pointer bg-gray-200 py-1 rounded-2xl px-2" type="file" accept="image/*" />

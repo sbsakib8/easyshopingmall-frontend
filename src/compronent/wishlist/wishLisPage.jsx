@@ -1,5 +1,5 @@
 "use client";
-import LoadingPage from "@/src/helper/loading/loadingPge";
+import { CardSkeleton } from "@/src/compronent/loading/Skeleton";
 import { getWishlistApi, removeFromWishlistApi } from "@/src/hook/useWishlist";
 import { Eye, Grid, Heart, List, Share2, ShoppingCart, Star, Trash2 } from "lucide-react";
 import Link from "next/link";
@@ -97,7 +97,20 @@ const WishlistComponent = () => {
   // Loading + Error
   if (loading)
     return (
-      <LoadingPage />
+      <div className="min-h-screen lg:mt-24 py-6 bg-gray-50 p-4 sm:p-6 lg:p-8">
+        <div className="max-w-7xl mx-auto space-y-8">
+          <div className="flex flex-col items-center space-y-4">
+            <div className="h-10 w-64 bg-gray-200 rounded-lg animate-pulse" />
+            <div className="h-6 w-32 bg-gray-200 rounded-lg animate-pulse" />
+          </div>
+          <div className="h-24 w-full bg-gray-200 rounded-2xl animate-pulse" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <CardSkeleton key={i} />
+            ))}
+          </div>
+        </div>
+      </div>
     );
 
   if (error)

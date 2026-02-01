@@ -8,7 +8,7 @@ import {
   Sparkles,
   Star
 } from "lucide-react";
-import CustomLoader from '@/src/compronent/loading/CustomLoader';
+import { CardSkeleton } from '@/src/compronent/loading/Skeleton';
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
@@ -126,7 +126,7 @@ const PopularProducts = ({ initialData }) => {
         reviews: p.reviews,
         category: categoryName,
         subCategory: subCategoryName,
-        badge: p.tags?.[0] || "New",
+        tags: p.tags || [],
         isNew: isProductNew(p.createdAt || p.created_at || p.createdDate),
         discount: p.discount || (p.oldPrice && p.price ? Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100) : 0),
       };
@@ -283,8 +283,12 @@ const PopularProducts = ({ initialData }) => {
 
   if (loading)
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <CustomLoader size="large" message="Loading products..." />
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:mt-24">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6">
+          {[...Array(12)].map((_, i) => (
+            <CardSkeleton key={i} />
+          ))}
+        </div>
       </div>
     );
 
@@ -387,6 +391,12 @@ const PopularProducts = ({ initialData }) => {
                     <span className="bg-green-500 text-white px-2 py-1 rounded text-xs font-bold">
                       NEW
                     </span>
+                  )}
+                  {product.tags?.includes('hot') && (
+                    <span className="bg-red-600 text-white px-2 py-1 rounded text-xs font-bold shadow-lg shadow-red-500/20 uppercase">HOT</span>
+                  )}
+                  {product.tags?.includes('cold') && (
+                    <span className="bg-blue-600 text-white px-2 py-1 rounded text-xs font-bold shadow-lg shadow-blue-500/20 uppercase">COLD</span>
                   )}
                   {product.discount > 0 && (
                     <span className="bg-yellow-500 text-white px-2 py-1 rounded text-xs font-bold">
