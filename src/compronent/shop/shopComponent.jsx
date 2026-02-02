@@ -29,9 +29,9 @@ const ShopPage = () => {
   // Request all products without pagination limit
   const productParams = useMemo(() => ({ limit: 1000 }), [])
   const { product, loading, error, refetch: productRefetch } = useGetProduct(productParams)
-
+const [favorite, setFavorite] = useState([])
   const [allProducts, setAllProducts] = useState([])
-  const [products, setProducts] = useState([])
+  const [products, setProducts] = useState('')
   const dispatch = useDispatch()
 
   // Redux-backed cart & wishlist
@@ -86,7 +86,7 @@ const ShopPage = () => {
   const [showCategory, setShowCategory] = useState(false)
   const [showSubCategory, setShowSubCategory] = useState(false)
   const [cartOpen, setCartOpen] = useState(false)
-  const [tags, setTags] = useState()
+  const [productStatus, setProductStatus] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const productsPerPage = 30
 
@@ -246,6 +246,7 @@ const ShopPage = () => {
           price: Number(p.price ?? p.sell_price ?? p.sellingPrice ?? p.amount ?? 0) || 0,
           originalPrice: Number(p.originalPrice ?? p.mrp ?? p.price ?? p.sell_price) || Number(p.price ?? 0) || 0,
           retailSale: p.productRank,
+          productStatus: p.productStatus,
           category: categoryVal,
           subCategory: subCategoryVal,
           brand: p.brand || p.manufacturer || "Brand",
@@ -547,7 +548,7 @@ const ShopPage = () => {
   }
 
   const saveEdit = async () => {
-    // console.log("editModal-->",editModal)
+    console.log("editModal-->",editModal)
     setLoad(true);
     try {
       const res = await ProductUpdate(editModal);
@@ -565,9 +566,9 @@ const ShopPage = () => {
     }
   };
   const updateEditField = (field, value) => {
-    setEditModal({ ...editModal, [field]: value });
+    setEditModal({ ...editModal, [field]: value});
   };
-  console.log(tags)
+  // console.log(favorite)
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -853,40 +854,36 @@ const ShopPage = () => {
 
                       {/* Badges */}
                       <div className="absolute top-0 left-0 flex justify-between w-full">
-                        <div>
+                        <div className="flex items-start">
                           {product.isNew && (
-                            <span className="bg-green-500 text-white px-1 py-1 rounded text-xs font-semibold">NEW</span>
-                          )}
-                          {/* {product.discount > 0 && (
-                          <span className="bg-yellow-500 text-white px-1 py-1 rounded text-xs font-semibold">
-                            {product.discount}% OFF
-                          </span>
-                        )} */}
-                          {product.retailSale > product.price ? <span className="bg-yellow-500 text-white px-1 py-1 mx-1 rounded text-xs font-semibold">
+                            <span className="bg-green-500 text-white px-1 py-1 rounded text-[8px] font-semibold">NEW</span>
+                          )}  
+                          {product.retailSale > product.price ? <span className="bg-yellow-500 text-black px-1 py-1 mx-[2px] rounded text-[8px] font-semibold">
                             -{(product.retailSale - product.price)}৳
                           </span> : 0}
                         </div>
-                        {product.isNew && (
-                          <span className="bg-orange-400 max-h-6  text-white px-1 py-1 rounded text-xs font-semibold">🔥Hot</span>
+                        {product.productStatus?.length > 0 && (
+                          <span className={` ${product.productStatus.includes("hot") ? 'text-red-500' : 'text-blue-400 '} max-h-6  bg-black px-1 py-1 rounded-md text-xs font-bold`}>{product.productStatus}</span>
                         )}
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="absolute top-8 right-1 space-y-2  lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="absolute top-6 right-1 space-y-2  transition-opacity duration-300">
                         <button
                           onClick={(e) => {
                             e.stopPropagation()
                             toggleWishlist(product)
+                            setFavorite(product)
                           }}
-                          className={`p-2 rounded-lg transition-all duration-300
+                          className={`p-1 rounded-lg transition-all duration-300
                             ${wishlist.some((item) => item.id === product.id)
                               ? "text-red-500 bg-red-100"
                               : "text-gray-400 bg-white hover:text-red-500 hover:bg-red-50"
                             }`}
                         >
                           <Heart
-                            className="w-5 h-5"
-                            fill={wishlist.some((item) => item.id === product.id) ? "red" : "none"}
+                            className="w-3 h-3"
+                            fill={wishlist.some((item) => item.id === product.id) ? "red" : "none" } 
                             strokeWidth={2}
                           />
                         </button>
@@ -1223,16 +1220,16 @@ const ShopPage = () => {
                   </div>
                   <div>
                     <label className="block text-black text-sm font-semibold mb-2">
-                      Product Tags
+                      Product Status
                     </label>
-                    <select
-                      
-                      onChange={(e) => setTags(e.target.value)}
+                    <select 
+                      defaultValue={editModal.productStatus.length>0?editModal.productStatus[0] : "none"}
+                      onChange={(e) => updateEditField("productStatus", e.target.value)} 
                       className="appearance-none border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-purple-500 bg-white"
                     >
-                      <option disabled selected defaultValue="none">None</option>
-                      <option defaultValue="hot">Hot</option>
-                      <option defaultValue="cold">Cold</option>              
+                      <option disabled selected defaultValue={editModal.productStatus.length>0?editModal.productStatus[0] : "none"}>{editModal.productStatus.length>0?editModal.productStatus[0] : "none"}</option>
+                      <option defaultValue="hot">hot</option>
+                      <option defaultValue="cold">cold</option>              
                     </select>
                   </div>
 
