@@ -868,7 +868,7 @@ const [favorite, setFavorite] = useState([])
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="absolute top-6 right-1 space-y-2  transition-opacity duration-300">
+                      <div className={`absolute ${product.productStatus?.length > 0 ? "top-6":"top-0"}  bg-white rounded-md right-0 transition-opacity duration-300`}>
                         <button
                           onClick={(e) => {
                             e.stopPropagation()
@@ -881,7 +881,7 @@ const [favorite, setFavorite] = useState([])
                               
                             setFavorite([...favorite,product.id])
                           }}
-                          className={`p-1 rounded-lg transition-all duration-300
+                          className={`p-1 cursor-pointer rounded-lg transition-all duration-300
                             ${wishlist.some((item) => item.id === product.id)
                               ? "text-red-500 bg-red-100"
                               : "text-gray-400 bg-white hover:text-red-500 hover:bg-red-50"

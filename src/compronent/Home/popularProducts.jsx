@@ -407,7 +407,7 @@ const PopularProducts = ({ initialData }) => {
                       e.preventDefault();
                       toggleWishlist(product.id); // Call our fixed toggle function
                     }}
-                    className={`p-2 rounded-lg transition-all duration-300
+                    className={`p-2 cursor-pointer rounded-lg transition-all duration-300
       ${localWishlist.has(product.id)
                         ? "text-red-500 bg-red-100"
                         : "text-gray-400 hover:text-red-500 hover:bg-red-50"
