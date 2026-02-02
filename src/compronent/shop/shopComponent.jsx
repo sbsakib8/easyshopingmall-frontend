@@ -548,7 +548,7 @@ const [favorite, setFavorite] = useState([])
   }
 
   const saveEdit = async () => {
-    console.log("editModal-->",editModal)
+    // console.log("editModal-->",editModal)
     setLoad(true);
     try {
       const res = await ProductUpdate(editModal);
@@ -863,7 +863,7 @@ const [favorite, setFavorite] = useState([])
                           </span> : 0}
                         </div>
                         {product.productStatus?.length > 0 && (
-                          <span className={` ${product.productStatus.includes("hot") ? 'text-red-500' : 'text-blue-400 '} max-h-6  bg-black px-1 py-1 rounded-md text-xs font-bold`}>{product.productStatus}</span>
+                          <span className={` ${product.productStatus.includes("hot") ? 'text-red-500' : 'text-blue-400 '} max-h-6  bg-black px-1 py-1 rounded-md text-xs font-bold ${product.productStatus.includes("none") ? 'hidden' : ''}`}>{product.productStatus}</span>
                         )}
                       </div>
 
@@ -1228,6 +1228,7 @@ const [favorite, setFavorite] = useState([])
                       className="appearance-none border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-purple-500 bg-white"
                     >
                       <option disabled selected defaultValue={editModal.productStatus.length>0?editModal.productStatus[0] : "none"}>{editModal.productStatus.length>0?editModal.productStatus[0] : "none"}</option>
+                      <option defaultValue="none">none</option>
                       <option defaultValue="hot">hot</option>
                       <option defaultValue="cold">cold</option>              
                     </select>
