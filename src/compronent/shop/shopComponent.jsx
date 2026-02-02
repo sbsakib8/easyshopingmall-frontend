@@ -445,7 +445,7 @@ const [favorite, setFavorite] = useState([])
   // Toggle wishlist (uses API + redux)
   const toggleWishlist = async (product) => {
     try {
-      const exists = (wishlist || []).some((i) => i.id === product.id)
+      const exists = (wishlist || []).some((i) => i.id === product.id || favorite.includes(product.id))
       if (exists) {
         await removeFromWishlistApi(product.id, dispatch)
         toast.success("Removed from wishlist")
@@ -873,6 +873,12 @@ const [favorite, setFavorite] = useState([])
                           onClick={(e) => {
                             e.stopPropagation()
                             toggleWishlist(product)
+                            if(favorite.includes(product.id) || wishlist.includes(product.id)){
+                              const removeItem = favorite.filter(item => item !== product.id)
+                              console.log(removeItem)
+                             return setFavorite(removeItem)
+                            }
+                              
                             setFavorite([...favorite,product.id])
                           }}
                           className={`p-1 rounded-lg transition-all duration-300

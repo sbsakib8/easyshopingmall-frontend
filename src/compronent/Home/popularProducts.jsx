@@ -24,6 +24,7 @@ import {
 import { useGetcategory } from "../../utlis/usecategory";
 import { useGetProduct } from "../../utlis/userProduct";
 import { useCategoryWithSubcategories } from "../../utlis/useCategoryWithSubcategories";
+import { useWishlist } from "@/src/utlis/useWishList";
 
 // Helper function to determine if product is new or old
 const isProductNew = (createdDate) => {
@@ -43,6 +44,7 @@ const PopularProducts = ({ initialData }) => {
 
   const dispatch = useDispatch();
   const { data: wishlistItems } = useSelector((state) => state?.wishlist?.data);
+  const { wishlist } = useWishlist()
   const user = useSelector((state) => state.user.data);
 
   const productParams = useMemo(() => ({ page: 1, limit: 1000, search: "" }), []);
@@ -74,8 +76,8 @@ const PopularProducts = ({ initialData }) => {
   }, [dispatch]);
 
   useEffect(() => {
-    setLocalWishlist(new Set((wishlistItems || []).map((item) => item.id)));
-  }, [wishlistItems]);
+    setLocalWishlist(new Set((wishlist || []).map((item) => item.id)));
+  }, [wishlist]);
 
 
 
@@ -123,6 +125,8 @@ const PopularProducts = ({ initialData }) => {
         price: p.price,
         originalPrice: p.oldPrice || p.price,
         rating: p.ratings,
+        productStatus: p.productStatus,
+        retailSale: p.productRank,
         reviews: p.reviews,
         category: categoryName,
         subCategory: subCategoryName,
@@ -382,21 +386,22 @@ const PopularProducts = ({ initialData }) => {
                 />
 
                 {/* Badges */}
-                <div className="absolute top-3 left-3 space-y-1">
-                  {product.isNew && (
-                    <span className="bg-green-500 text-white px-2 py-1 rounded text-xs font-bold">
-                      NEW
-                    </span>
-                  )}
-                  {product.discount > 0 && (
-                    <span className="bg-yellow-500 text-white px-2 py-1 rounded text-xs font-bold">
-                      {product.discount}% OFF
-                    </span>
-                  )}
-                </div>
+                      <div className="absolute top-0 left-0 flex justify-between w-full">
+                        <div className="flex items-start">
+                          {product.isNew && (
+                            <span className="bg-green-500 text-white px-1 py-1 rounded text-[8px] font-semibold">NEW</span>
+                          )}  
+                          {product.retailSale > product.price ? <span className="bg-yellow-500 text-black px-1 py-1 mx-[2px] rounded text-[8px] font-semibold">
+                            -{(product.retailSale - product.price)}৳
+                          </span> : 0}
+                        </div>
+                        {product.productStatus?.length > 0 && (
+                          <span className={` ${product.productStatus.includes("hot") ? 'text-red-500' : 'text-blue-400 '} max-h-6  bg-black px-1 py-1 rounded-md text-xs font-bold ${product.productStatus.includes("none") ? 'hidden' : ''}`}>{product.productStatus}</span>
+                        )}
+                      </div>
 
                 {/* Action Buttons */}
-                <div className="absolute top-3 right-3 space-y-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className={`absolute ${product.productStatus?.length > 0 ? "top-6":"top-0"}  bg-white rounded-md right-0 space-y-2 transition-opacity duration-300`}>
                   <button
                     onClick={(e) => {
                       e.preventDefault();
@@ -409,7 +414,7 @@ const PopularProducts = ({ initialData }) => {
                       }`}
                   >
                     <Heart
-                      className="w-5 h-5"
+                      className="w-3 h-3"
                       fill={localWishlist.has(product.id) ? "red" : "none"}
                       strokeWidth={2}
                     />
@@ -439,9 +444,9 @@ const PopularProducts = ({ initialData }) => {
                     <span className="text-base font-bold text-red-600">
                       Tk {product.price}
                     </span>
-                    {product.originalPrice > product.price && (
+                    {product.retailSale > product.price && (
                       <span className="text-xs text-gray-400 line-through">
-                        Tk {product.originalPrice.toFixed(2)}
+                        Tk {product.retailSale.toFixed(2)}
                       </span>
                     )}
                   </div>
