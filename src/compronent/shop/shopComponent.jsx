@@ -568,7 +568,7 @@ const [favorite, setFavorite] = useState([])
   const updateEditField = (field, value) => {
     setEditModal({ ...editModal, [field]: value});
   };
-  // console.log(favorite)
+  
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -873,7 +873,7 @@ const [favorite, setFavorite] = useState([])
                           onClick={(e) => {
                             e.stopPropagation()
                             toggleWishlist(product)
-                            setFavorite(product)
+                            setFavorite([...favorite,product.id])
                           }}
                           className={`p-1 rounded-lg transition-all duration-300
                             ${wishlist.some((item) => item.id === product.id)
@@ -883,7 +883,7 @@ const [favorite, setFavorite] = useState([])
                         >
                           <Heart
                             className="w-3 h-3"
-                            fill={wishlist.some((item) => item.id === product.id) ? "red" : "none" } 
+                            fill={wishlist.some((item) => item.id === product.id) || favorite.includes(product.id) ? "red" : "none" } 
                             strokeWidth={2}
                           />
                         </button>
