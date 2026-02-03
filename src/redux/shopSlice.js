@@ -1,6 +1,27 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { ProductAllGet } from "../hook/useProduct";
+import { normalizeProduct } from "../utlis/filterHelpers";
+
+export const fetchShopProducts = createAsyncThunk(
+    "shop/fetchProducts",
+    async (params, { rejectWithValue }) => {
+        try {
+            const data = await ProductAllGet(params);
+            const rawProducts = data?.data || data?.products || (Array.isArray(data) ? data : []);
+            const count = data?.totalCount || data?.total || (Array.isArray(data) ? data.length : 0);
+
+            return {
+                products: rawProducts.map(normalizeProduct),
+                totalCount: count
+            };
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || error.message || "Failed to fetch products");
+        }
+    }
+);
 
 const initialState = {
+    // Filter State
     searchTerm: "",
     debouncedSearchTerm: "",
     filterCategory: "all",
@@ -13,6 +34,12 @@ const initialState = {
     currentPage: 1,
     viewMode: "grid",
     showFilters: false,
+
+    // Data State
+    products: [],
+    totalCount: 0,
+    loading: false,
+    error: null,
 };
 
 const shopSlice = createSlice({
@@ -27,7 +54,7 @@ const shopSlice = createSlice({
         },
         setFilterCategory: (state, action) => {
             state.filterCategory = action.payload;
-            state.filterSubCategory = "all"; // Reset subcat when cat changes
+            state.filterSubCategory = "all";
             state.currentPage = 1;
         },
         setFilterSubCategory: (state, action) => {
@@ -64,7 +91,12 @@ const shopSlice = createSlice({
             state.showFilters = !state.showFilters;
         },
         resetFilters: (state) => {
-            return { ...initialState, viewMode: state.viewMode };
+            return {
+                ...initialState,
+                viewMode: state.viewMode,
+                products: state.products, // Keep products for smoother transition
+                totalCount: state.totalCount
+            };
         },
         syncFromUrl: (state, action) => {
             const { search, category, subcategory, sortBy } = action.payload;
@@ -76,6 +108,22 @@ const shopSlice = createSlice({
             if (subcategory !== undefined) state.filterSubCategory = subcategory || "all";
             if (sortBy !== undefined) state.sortBy = sortBy || "name";
         }
+    },
+    extraReducers: (builder) => {
+        builder
+            .addCase(fetchShopProducts.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(fetchShopProducts.fulfilled, (state, action) => {
+                state.loading = false;
+                state.products = action.payload.products;
+                state.totalCount = action.payload.totalCount;
+            })
+            .addCase(fetchShopProducts.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            });
     },
 });
 
