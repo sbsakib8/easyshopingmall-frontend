@@ -30,6 +30,7 @@ import { ProductDelete, ProductUpdate } from "@/src/hook/useProduct";
 import { useGetAllOrders } from "@/src/utlis/useGetAllOrders";
 import useGetRevenue from "@/src/utlis/useGetRevenue";
 import * as XLSX from "xlsx"
+import ExportButton from "@/src/helper/Buttons/ExportButton";
 
 const ProductDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -49,7 +50,7 @@ const ProductDashboard = () => {
   );
 
   // product get
-  const { product,totalCount,refetch } = useGetProduct(formData);
+  const { product, totalCount, refetch } = useGetProduct(formData);
   // console.log("totalCount--->",totalCount)
   const allCategorydata = useSelector((state) => state.category.allCategorydata);
   const allsubCategorydata = useSelector((state) => state.subcategory.allsubCategorydata);
@@ -60,7 +61,7 @@ const ProductDashboard = () => {
   useEffect(() => {
     if (product) {
       setProducts(product);
-      
+
     }
   }, [product, allCategorydata, allsubCategorydata]);
   // console.log("allCategorydata---->",allCategorydata)
@@ -91,9 +92,8 @@ const ProductDashboard = () => {
       <Star
         key={i}
         size={12}
-        className={`${
-          i < rating ? "text-yellow-400 fill-yellow-400" : "text-gray-500"
-        } transition-all duration-300`}
+        className={`${i < rating ? "text-yellow-400 fill-yellow-400" : "text-gray-500"
+          } transition-all duration-300`}
       />
     ));
   };
@@ -116,32 +116,32 @@ const ProductDashboard = () => {
   };
 
   //  handleExport
-  const handleExport = () => {
-    const wb = XLSX.utils.book_new()
-    const ws = XLSX.utils.json_to_sheet(products)
-    ws["!cols"] = [
-    { wch: 10 },
-    { wch: 10 },
-    { wch: 40 },
-    { wch: 40 },
-  ]
-    XLSX.utils.book_append_sheet(wb,ws,"MyProducts")
-    XLSX.writeFile(wb,"productsData.xlsx")
-    // const dataStr = JSON.stringify(products, null, 2);
-    // const dataBlob = new Blob([dataStr], { type: "application/json" });
-    // const url = URL.createObjectURL(dataBlob);
-    // const link = document.createElement("a");
-    // link.href = url;
-    // link.download = "products-export.json";
-    // link.click();
-  };
+  // const handleExport = () => {
+  //   const wb = XLSX.utils.book_new()
+  //   const ws = XLSX.utils.json_to_sheet(products)
+  //   ws["!cols"] = [
+  //   { wch: 10 },
+  //   { wch: 10 },
+  //   { wch: 40 },
+  //   { wch: 40 },
+  // ]
+  //   XLSX.utils.book_append_sheet(wb,ws,"MyProducts")
+  //   XLSX.writeFile(wb,"productsData.xlsx")
+  //   // const dataStr = JSON.stringify(products, null, 2);
+  //   // const dataBlob = new Blob([dataStr], { type: "application/json" });
+  //   // const url = URL.createObjectURL(dataBlob);
+  //   // const link = document.createElement("a");
+  //   // link.href = url;
+  //   // link.download = "products-export.json";
+  //   // link.click();
+  // };
 
   // refetch
-  const reFreshData = async() => {
+  const reFreshData = async () => {
     setSpin(true)
-    setPage(page+1)
-   await refetch();
-   setSpin(false)
+    setPage(page + 1)
+    await refetch();
+    setSpin(false)
   };
 
   //  action function click handle
@@ -197,18 +197,18 @@ const ProductDashboard = () => {
     setEditModal({ ...editModal, [field]: value });
   };
 
-// toal sale calculation 
-//  const { allOrders, loading: ordersLoading } = useGetAllOrders()
-//  const completedOrders = allOrders?.filter(order => order.order_status==="completed")
-//  const toalIncome = completedOrders?.reduce((sum,o)=>sum+o.totalAmt,0)
- const {totalRevenue,loading:revenueLoading} = useGetRevenue()
-//  console.log("allOrders--->",allOrders)
-//  console.log("completedOrders--->",completedOrders)
-//  console.log("toalIncome--->",toalIncome)
-//  console.log("totalRevenue--->",totalRevenue)
+  // toal sale calculation 
+  //  const { allOrders, loading: ordersLoading } = useGetAllOrders()
+  //  const completedOrders = allOrders?.filter(order => order.order_status==="completed")
+  //  const toalIncome = completedOrders?.reduce((sum,o)=>sum+o.totalAmt,0)
+  const { totalRevenue, loading: revenueLoading } = useGetRevenue()
+  //  console.log("allOrders--->",allOrders)
+  //  console.log("completedOrders--->",completedOrders)
+  //  console.log("toalIncome--->",toalIncome)
+  //  console.log("totalRevenue--->",totalRevenue)
 
-// if(loading)return <p>Loading...</p>
-// console.log(loading)
+  // if(loading)return <p>Loading...</p>
+  // console.log(loading)
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 relative overflow-hidden">
       {/* Animated Background Elements */}
@@ -402,18 +402,25 @@ const ProductDashboard = () => {
                   <Plus className="w-4 h-4" />
                   <span>Add Product</span>
                 </button>
+               
+                <ExportButton
+                  data={product}
+                  sheetName={"MyProduct"}
+                  fileName={"productData"}
+                  colsConfig={[
+                    { wch: 10 },
+                    { wch: 30 },
+                    { wch: 40 },
+                    { wch: 40 },
+                  ]}
+                  className={"flex items-center space-x-2 px-4 py-3 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-600/50 text-gray-300 hover:text-white rounded-xl transition-all duration-300 transform hover:scale-105"}
+                />
+
                 <button
-                  onClick={handleExport}
-                  className="flex items-center space-x-2 px-4 py-3 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-600/50 text-gray-300 hover:text-white rounded-xl transition-all duration-300 transform hover:scale-105"
-                >
-                  <Download className="w-4 h-4" />
-                  <span className="hidden sm:inline">Export</span>
-                </button>
-                <button
-                  onClick={()=>reFreshData()}
+                  onClick={() => reFreshData()}
                   className="flex items-center space-x-2 px-4 py-3 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-600/50 text-gray-300 hover:text-white rounded-xl transition-all duration-300 transform hover:scale-105 cursor-pointer"
                 >
-                  <RefreshCw className={`w-4 h-4 ${spin?'animate-spin':''}`} />
+                  <RefreshCw className={`w-4 h-4 ${spin ? 'animate-spin' : ''}`} />
                   <span className="hidden sm:inline">Refresh</span>
                 </button>
               </div>
@@ -449,7 +456,7 @@ const ProductDashboard = () => {
 
           {/* Table Body */}
           <div className="divide-y divide-gray-700/30 max-h-96 lg:max-h-none overflow-y-auto">
-            {filteredProducts?.slice(0,20)?.sort((a,b)=>a?.productStock-b?.productStock)?.map((product, index) => (
+            {filteredProducts?.slice(0, 20)?.sort((a, b) => a?.productStock - b?.productStock)?.map((product, index) => (
               <div
                 key={index}
                 className="group px-4 sm:px-6 py-4 hover:bg-gradient-to-r hover:from-gray-800/50 hover:to-gray-700/50 transition-all duration-500 transform hover:scale-[1.02] animate-fadeInUp"
