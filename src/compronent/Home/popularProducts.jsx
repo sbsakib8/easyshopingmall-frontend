@@ -236,6 +236,11 @@ const PopularProducts = ({ initialData }) => {
   };
 
   const toggleWishlist = async (id) => {
+    if (!user?._id) {
+      toast.error("Please sign in to add to wishlist");
+      return;
+    }
+
     // Instant UI
     setLocalWishlist((prev) => {
       const updated = new Set(prev);
@@ -386,22 +391,22 @@ const PopularProducts = ({ initialData }) => {
                 />
 
                 {/* Badges */}
-                      <div className="absolute top-0 left-0 flex justify-between w-full">
-                        <div className="flex items-start">
-                          {product.isNew && (
-                            <span className="bg-green-500 text-white px-1 py-1 rounded text-[8px] font-semibold">NEW</span>
-                          )}  
-                          {product.retailSale > product.price ? <span className="bg-yellow-500 text-black px-1 py-1 mx-[2px] rounded text-[8px] font-semibold">
-                            -{(product.retailSale - product.price)}৳
-                          </span> : 0}
-                        </div>
-                        {product.productStatus?.length > 0 && (
-                          <span className={` ${product.productStatus.includes("hot") ? 'text-red-500' : 'text-blue-400 '} max-h-6  bg-black px-1 py-1 rounded-md text-xs font-bold ${product.productStatus.includes("none") ? 'hidden' : ''}`}>{product.productStatus}</span>
-                        )}
-                      </div>
+                <div className="absolute top-0 left-0 flex justify-between w-full">
+                  <div className="flex items-start">
+                    {product.isNew && (
+                      <span className="bg-green-500 text-white px-1 py-1 rounded text-[8px] font-semibold">NEW</span>
+                    )}
+                    {product.retailSale > product.price ? <span className="bg-yellow-500 text-black px-1 py-1 mx-[2px] rounded text-[8px] font-semibold">
+                      -{(product.retailSale - product.price)}৳
+                    </span> : 0}
+                  </div>
+                  {product.productStatus?.length > 0 && (
+                    <span className={` ${product.productStatus.includes("hot") ? 'text-red-500' : 'text-blue-400 '} max-h-6  bg-black px-1 py-1 rounded-md text-xs font-bold ${product.productStatus.includes("none") ? 'hidden' : ''}`}>{product.productStatus}</span>
+                  )}
+                </div>
 
                 {/* Action Buttons */}
-                <div className={`absolute ${product.productStatus?.length > 0 ? "top-6":"top-0"}  bg-white rounded-md right-0 space-y-2 transition-opacity duration-300`}>
+                <div className={`absolute ${product.productStatus?.length > 0 ? "top-6" : "top-0"}  bg-white rounded-md right-0 space-y-2 transition-opacity duration-300`}>
                   <button
                     onClick={(e) => {
                       e.preventDefault();

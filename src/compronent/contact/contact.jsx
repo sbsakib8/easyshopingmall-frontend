@@ -6,7 +6,7 @@ import useWebsiteInfo from '@/src/utlis/useWebsiteInfo';
 import { CheckCircle, Clock, Mail, MapPin, MessageSquare, Phone, Send, User } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-const ContactPage = () => {
+const ContactPage = ({ initialSiteInfo }) => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -24,7 +24,8 @@ const ContactPage = () => {
       [name]: value,
     }));
   };
-  const { data: siteInfo, loading: siteLoading } = useWebsiteInfo();
+  const { data: fetchedData } = useWebsiteInfo();
+  const siteInfo = initialSiteInfo || fetchedData;
 
 
   // socket test

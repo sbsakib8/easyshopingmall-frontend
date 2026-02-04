@@ -18,24 +18,26 @@ export const ProductCreate = async (formData,) => {
 
 // all product get 
 export const ProductAllGet = async (formData,) => {
+  console.log("ProductAllGet called with:", formData);
   try {
-   
+
     const response = await axios.post(`${UrlBackend}/products/get`, formData, {
       withCredentials: true,
       headers: {
-        "Content-Type": "application/json", // crucial!
+        "Content-Type": "application/json",
       },
+      timeout: 15000,
     });
-    
 
-    
+
+
     // Extract products array from response
     const products = response.data?.products || response.data?.data || response.data || [];
-    
+
     // Extract unique categories and subcategories
     const categories = new Set();
     const subCategories = new Set();
-    
+
     if (Array.isArray(products)) {
       products.forEach(product => {
         // Handle category
@@ -48,7 +50,7 @@ export const ProductAllGet = async (formData,) => {
           const catName = typeof product.category === 'string' ? product.category : (product.category?.name || String(product.category));
           if (catName) categories.add(catName);
         }
-        
+
         // Handle subcategory
         if (Array.isArray(product.subCategory)) {
           product.subCategory.forEach(subCat => {
@@ -61,7 +63,7 @@ export const ProductAllGet = async (formData,) => {
         }
       });
     }
-    
+
     return response.data;
   } catch (error) {
     console.error("Registration error:", error.response?.data || error.message);

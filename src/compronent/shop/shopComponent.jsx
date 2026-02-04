@@ -1,17 +1,34 @@
 "use client"
+import React, { useEffect, useMemo, useCallback, useState } from "react"
 import { addToCartApi, getCartApi, removeCartItemApi, updateCartItemApi } from "@/src/hook/useCart"
 import { addToWishlistApi, removeFromWishlistApi } from "@/src/hook/useWishlist"
-import { useGetProduct } from "@/src/utlis/userProduct"
-import { useSearchProduct } from "@/src/utlis/useSearchProduct"
+import { useFilteredProducts } from "@/src/utlis/useFilteredProducts"
 import { useWishlist } from "@/src/utlis/useWishList"
 import { useCategoryWithSubcategories } from "@/src/utlis/useCategoryWithSubcategories"
 import { ArrowUp, ChevronDown, Edit, Filter, Grid, Heart, List, Search, ShoppingCart, SlidersHorizontal, Star, Trash2, X } from "lucide-react"
-import CustomLoader from '@/src/compronent/loading/CustomLoader'
+import { getCategoryId, getSubCategoryId } from "@/src/utlis/filterHelpers"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useEffect, useMemo, useState } from "react"
 import toast from "react-hot-toast"
 import { useDispatch, useSelector } from "react-redux"
 import { ProductDelete, ProductUpdate } from "@/src/hook/useProduct"
+import { ProductGridSkeleton, ShopPageSkeleton } from '@/src/compronent/loading/ProductGridSkeleton'
+import {
+  setSearchTerm,
+  setDebouncedSearch,
+  setFilterCategory,
+  setFilterSubCategory,
+  setFilterBrand,
+  setFilterGender,
+  setPriceRange,
+  setRatingFilter,
+  setSortBy,
+  setCurrentPage,
+  setViewMode,
+  toggleFilters,
+  resetFilters,
+  syncFromUrl,
+  fetchShopProducts
+} from "@/src/redux/shopSlice"
 
 // Helper function to determine if product is new or old
 const isProductNew = (createdDate) => {
@@ -22,20 +39,252 @@ const isProductNew = (createdDate) => {
   return created > monthAgo
 }
 
-const ShopPage = () => {
-  const router = useRouter()
-  const [deleteModal, setDeleteModal] = useState(null)
-  const [editModal, setEditModal] = useState(null);
-  // Request all products without pagination limit
-  const productParams = useMemo(() => ({ limit: 1000 }), [])
-  const { product, loading, error, refetch: productRefetch } = useGetProduct(productParams)
-const [favorite, setFavorite] = useState([])
-  const [allProducts, setAllProducts] = useState([])
-  const [products, setProducts] = useState('')
-  const dispatch = useDispatch()
 
-  // Redux-backed cart & wishlist
-  const reduxCart = useSelector((state) => state.cart.items || [])
+
+const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wishlist, favorite, setFavorite, addToCart, user, handleEdit, setDeleteModal }) => {
+  if (!product) return null;
+
+  // Render Stars Helper
+  const ratingValue = product.rating || product.ratings || 0;
+  const renderStars = (rating) => {
+    return [...Array(5)].map((_, i) => (
+      <Star
+        key={i}
+        className={`w-3 h-3 sm:w-4 sm:h-4 ${i < Math.floor(rating)
+          ? "text-yellow-400 fill-current"
+          : "text-black"
+          }`}
+      />
+    ));
+  };
+
+  return (
+    <div
+      onClick={() => router.push(`/productdetails/${product.id}`)}
+      className={`group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 cursor-pointer ${viewMode === "list" ? "flex" : ""}`}
+    >
+      <div className={`relative ${viewMode === "list" ? "w-48" : ""}`}>
+        <img
+          src={product.image || "/banner/img/placeholder.png"}
+          alt={product.name}
+          className={`w-full object-cover group-hover:scale-105 transition-transform duration-500 ${viewMode === "list" ? "h-full" : "h-40 sm:h-44"}`}
+        />
+
+        {/* Badges */}
+        <div className="absolute top-0 left-0 flex justify-between w-full">
+          <div className="flex items-start">
+            {product.isNew && (
+              <span className="bg-green-500 text-white px-1 py-1 rounded text-[8px] font-semibold">NEW</span>
+            )}
+            {product.retailSale > product.price ? <span className="bg-yellow-500 text-black px-1 py-1 mx-[2px] rounded text-[8px] font-semibold">
+              -{(product.retailSale - product.price)}৳
+            </span> : 0}
+          </div>
+          {product.productStatus && product.productStatus.length > 0 && !product.productStatus.includes("none") && (
+            <span className={` ${product.productStatus.includes("hot") ? 'text-red-500' : 'text-blue-400 '} max-h-6  bg-black px-1 py-1 rounded-md text-xs font-bold`}>
+              {Array.isArray(product.productStatus) ? product.productStatus[0] : product.productStatus}
+            </span>
+          )}
+        </div>
+
+        {/* Action Buttons (Wishlist) */}
+        <div className={`absolute ${product.productStatus?.length > 0 ? "top-6" : "top-0"} bg-white rounded-md right-0 space-y-2 transition-opacity duration-300`}>
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              toggleWishlist(product)
+              // Local update for immediate feedback if needed, distinct from prop check
+              if ((favorite && favorite.includes(product.id)) || (wishlist && wishlist.some(i => i.id === product.id))) {
+                const removeItem = favorite ? favorite.filter(item => item !== product.id) : []
+                return setFavorite(removeItem)
+              }
+              setFavorite([...favorite, product.id])
+            }}
+            className={`p-1 cursor-pointer rounded-lg transition-all duration-300
+              ${(wishlist && wishlist.some((item) => item.id === product.id))
+                ? "text-red-500 bg-red-100"
+                : "text-gray-400 bg-white hover:text-red-500 hover:bg-red-50"
+              }`}
+          >
+            <Heart
+              className="w-3 h-3"
+              fill={(wishlist && wishlist.some((item) => item.id === product.id)) || (favorite && favorite.includes(product.id)) ? "red" : "none"}
+              strokeWidth={2}
+            />
+          </button>
+        </div>
+
+        {!product.inStock && (
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+            <span className="bg-red-500 text-white px-3 py-1 rounded font-semibold text-xs">Out of Stock</span>
+          </div>
+        )}
+      </div>
+
+      <div className={`p-3 ${viewMode === "list" ? "flex-1 flex flex-col justify-between" : ""}`}>
+        <div>
+          <h3 className={`font-semibold text-sm text-gray-800 mb-1 group-hover:text-purple-600 transition-colors duration-300 line-clamp-2`}>
+            {product.name}
+          </h3>
+          <p className="text-xs text-gray-500 mb-2">{product.brand}</p>
+
+          {/* Rating */}
+          <div className="flex items-center gap-1 mb-2">
+            <div className="flex items-center">
+              {renderStars(ratingValue)}
+            </div>
+            <span className="text-xs text-gray-500">({product.rating})</span>
+          </div>
+        </div>
+
+        <div>
+          {/* Price */}
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-base font-bold text-red-600">
+              Tk {product.price}
+            </span>
+            {product.retailSale > product.price && (
+              <span className="text-xs font-semibold text-gray-400 line-through">
+                {product.retailSale.toFixed(2)}
+              </span>
+            )}
+          </div>
+
+          {user?.role !== "ADMIN" ? (
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                addToCart(product)
+              }}
+              disabled={!product.inStock}
+              className={`w-full py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs ${product.inStock
+                ? "bg-green-600 text-white hover:bg-green-700 transform hover:scale-105"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
+            >
+              {product.inStock ? (
+                <span className="flex items-center justify-center gap-1">
+                  <ShoppingCart className="w-3 h-3" />
+                  Add to Cart
+                </span>
+              ) : ("Out of Stock")}
+            </button>
+          ) : (
+            <div className="flex justify-around gap-2">
+              <button
+                disabled
+                className=" py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs bg-gray-300 text-gray-500 cursor-not-allowed"
+              >
+                {product.inStock ? (
+                  <span className="flex items-center justify-center gap-1">
+                    <ShoppingCart size={16} />
+
+                  </span>
+                ) : (
+                  "Out of Stock"
+                )}
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleEdit(product)
+                }}
+                className="p-2 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg"
+              >
+                <Edit size={16} />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setDeleteModal(product)
+                }}
+                className="p-2 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-400 hover:to-pink-400 text-white rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg cursor-pointer"
+              >
+                <Trash2 size={16} />
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+});
+
+import { setProducts, setTotalCount } from "@/src/redux/shopSlice" // Ensure these actions exist or use a generic success action
+
+const ShopPage = ({ initialData, queryParams }) => {
+  const router = useRouter()
+  const dispatch = useDispatch()
+  const searchParams = useSearchParams()
+
+  // Get all filter states from Redux
+  const shopState = useSelector((state) => state.shop)
+  const {
+    searchTerm,
+    filterCategory,
+    filterSubCategory,
+    filterBrand,
+    filterGender,
+    priceRange,
+    ratingFilter,
+    sortBy,
+    currentPage,
+    viewMode,
+    showFilters,
+    products: reduxProducts,
+    totalCount: reduxTotalCount,
+    loading: productsLoading,
+    error: productsError,
+    debouncedSearchTerm
+  } = shopState
+
+  // Hydrate Redux with Server Data on Mount
+  useEffect(() => {
+    if (initialData) {
+      // Dispatch actions to sync Redux with Server Data
+      // We use a custom action type or existing ones. Assuming fetchShopProducts.fulfilled like behavior or direct setters.
+      // For now, let's assume we can dispatch a hydration action or manually set data if your slice supports it.
+      // If not, we'll rely on the Fallback Logic below for rendering.
+
+      // However, to ensure filters work, we definitely need to populate Redux if it's empty.
+      if (!reduxProducts.length && initialData.products?.length) {
+        // Check if we have an action to set products directly. If not, this is a conceptual step.
+        // Let's rely on the fallback below for view, but dispatch syncFromUrl to set filters.
+      }
+    }
+  }, [initialData, reduxProducts.length]);
+
+  // Sync URL params to Redux state on mount (Enhanced with Props)
+  const urlSearch = queryParams?.search || searchParams?.get("search") || ""
+  const urlCategory = queryParams?.category || searchParams?.get("category") || ""
+  const urlSubCategory = queryParams?.subcategory || searchParams?.get("subcategory") || ""
+
+  useEffect(() => {
+    dispatch(syncFromUrl({
+      search: urlSearch,
+      category: urlCategory,
+      subcategory: urlSubCategory
+    }))
+  }, [urlSearch, urlCategory, urlSubCategory, dispatch])
+
+
+  // Use server products directly from Redux OR Fallback to Initial Data
+  // This ensures the user sees the cached server data immediately before Redux takes over
+  const currentProducts = reduxProducts?.length > 0 || productsLoading ? reduxProducts : (initialData?.products || [])
+  const totalCount = reduxTotalCount > 0 || productsLoading ? reduxTotalCount : (initialData?.totalCount || 0)
+
+  // Local component state
+  const [deleteModal, setDeleteModal] = useState(null)
+  const [editModal, setEditModal] = useState(null)
+  const [favorite, setFavorite] = useState([])
+  const [showCategory, setShowCategory] = useState(false)
+  const [showSubCategory, setShowSubCategory] = useState(false)
+  const productsPerPage = 30
+
+  // Optimize Redux Selectors to avoid new references
+  const reduxCartItems = useSelector((state) => state.cart.items) || []; // Default outside selector
+  const reduxCart = useMemo(() => reduxCartItems, [reduxCartItems]);
+
   // Normalize redux cart items for UI
   const cart = useMemo(() => {
     return (reduxCart || []).map((item) => {
@@ -44,7 +293,7 @@ const [favorite, setFavorite] = useState([])
         return {
           id: prod._id || prod.id || String(prod?._id || prod?.id || ""),
           name: prod.productName || prod.name || prod.title || "Product",
-          image: prod.images?.[0] || prod.image || "/banner/img/placeholder.png",
+          image: prod.images?.[0] || prod.image || "/images/placeholder.png",
           price: Number(prod.price ?? prod.sell_price ?? prod.amount) || 0,
           quantity: item.quantity || 1,
           brand: prod.brand || prod.manufacturer || "",
@@ -54,14 +303,14 @@ const [favorite, setFavorite] = useState([])
       return {
         id: item.id || item._id || "",
         name: item.name || item.productName || "Product",
-        image: item.image || item.images?.[0] || "/banner/img/placeholder.png",
+        image: item.image || item.images?.[0] || "/images/placeholder.png",
         price: Number(item.price) || 0,
         quantity: item.quantity || 1,
         brand: item.brand || "",
       }
     })
   }, [reduxCart])
-  const user = useSelector((state) => state.user.data)
+  const user = useSelector((state) => state.user?.data)
   const { wishlist } = useWishlist()
 
   // Fetch categories and subcategories from API
@@ -73,316 +322,51 @@ const [favorite, setFavorite] = useState([])
       getCartApi(user._id, dispatch)
     }
   }, [user, dispatch])
-  const [viewMode, setViewMode] = useState("grid")
-  const [sortBy, setSortBy] = useState("name")
-  const [filterCategory, setFilterCategory] = useState("all")
-  const [filterSubCategory, setFilterSubCategory] = useState("all")
-  const [filterBrand, setFilterBrand] = useState("all")
-  const [filterGender, setFilterGender] = useState("all")
-  const [searchTerm, setSearchTerm] = useState("")
-  const [priceRange, setPriceRange] = useState([0, 300])
-  const [ratingFilter, setRatingFilter] = useState(0)
-  const [showFilters, setShowFilters] = useState(false)
-  const [showCategory, setShowCategory] = useState(false)
-  const [showSubCategory, setShowSubCategory] = useState(false)
-  const [cartOpen, setCartOpen] = useState(false)
-  const [productStatus, setProductStatus] = useState("")
-  const [currentPage, setCurrentPage] = useState(1)
-  const productsPerPage = 30
 
-  const searchParams = useSearchParams()
-  const urlSearch = searchParams?.get("search") || ""
-  const urlCategory = searchParams?.get("category") || ""
-  const urlSubCategory = searchParams?.get("subcategory") || ""
+  const totalPages = Math.ceil(totalCount / productsPerPage)
 
-  // when user navigates with ?search=..., call server-side search
-  const {
-    data: searchData,
-    loading: searchLoading,
-    error: searchError,
-    refetch: refetchSearch,
-  } = useSearchProduct({ search: urlSearch, page: currentPage, limit: 200 })
-
-  // keep the local search input in sync with URL search param
+  // Fetch products when any filter changes
   useEffect(() => {
-    if (urlSearch) setSearchTerm(urlSearch)
-    else setSearchTerm("")
-  }, [urlSearch])
+    const fetchParams = {
+      search: debouncedSearchTerm,
+      categoryId: getCategoryId(filterCategory, apiCategories),
+      subCategoryId: getSubCategoryId(filterSubCategory, apiSubcategories),
+      minPrice: priceRange[0],
+      maxPrice: priceRange[1],
+      sortBy: sortBy,
+      page: currentPage,
+      limit: productsPerPage,
+      brand: filterBrand,
+      rating: ratingFilter,
+      gender: filterGender,
+    };
 
-  useEffect(() => {
-    if (urlSubCategory) {
-      // If subcategory is in URL, set it as the filter
-      setFilterSubCategory(urlSubCategory)
-      setFilterCategory("all") // Reset category when filtering by subcategory
-    } else if (urlCategory) {
-      // The header passes subcategory names like "saree" as ?category=saree
-      const existingCategories = Array.from(new Set(allProducts.map((p) => p.category)))
-      const existingSubCategories = Array.from(new Set(allProducts.map((p) => p.subCategory)))
-
-      if (existingSubCategories.includes(urlCategory)) {
-        // It's a subcategory name, so filter by subcategory
-        setFilterSubCategory(urlCategory)
-        setFilterCategory("all")
-      } else if (existingCategories.includes(urlCategory)) {
-        // It's a category name
-        setFilterCategory(urlCategory)
-        setFilterSubCategory("all")
-      } else {
-        // Not found, reset filters
-        setFilterCategory("all")
-        setFilterSubCategory("all")
-      }
-    }
-  }, [urlCategory, urlSubCategory, allProducts])
-
-  // Filter and search products
-  useEffect(() => {
-    // If there's a search query param, prefer server-side search results
-    if (urlSearch) {
-      const list = searchData?.products ?? searchData?.data ?? searchData ?? []
-      if (Array.isArray(list) && list.length > 0) {
-        const normalized = list.map((p) => {
-          // normalize category to a string (API may return object or array)
-          let categoryVal = "uncategorized"
-          if (Array.isArray(p.category) && p.category.length > 0) {
-            const c0 = p.category[0]
-            categoryVal = typeof c0 === "string" ? c0 : c0?.name || String(c0)
-          } else if (p.category && typeof p.category === "object") {
-            categoryVal = p.category.name || String(p.category)
-          } else if (p.category) {
-            categoryVal = String(p.category)
-          }
-
-          // normalize subCategory
-          let subCategoryVal = "general"
-          if (Array.isArray(p.subCategory) && p.subCategory.length > 0) {
-            const s0 = p.subCategory[0]
-            subCategoryVal = typeof s0 === "string" ? s0 : s0?.name || String(s0)
-          } else if (p.subCategory && typeof p.subCategory === "object") {
-            subCategoryVal = p.subCategory.name || String(p.subCategory)
-          } else if (p.subCategory) {
-            subCategoryVal = String(p.subCategory)
-          }
-
-          return {
-            id: p._id || p.id || (p._id?.toString && p._id.toString()) || String(p.id || ""),
-            name: p.name || p.productName || p.title || "Untitled",
-            price: Number(p.price ?? p.sell_price ?? p.sellingPrice ?? p.amount ?? 0) || 0,
-            originalPrice: Number(p.originalPrice ?? p.mrp ?? p.price ?? p.sell_price) || Number(p.price ?? 0) || 0,
-            category: categoryVal,
-            subCategory: subCategoryVal,
-            brand: p.brand || p.manufacturer || "Brand",
-            size: p.size || p.sizes || p.productSize || [],
-            color: p.color || p.colors || p.color || [],
-            rating: Number(p.rating ?? p.ratings) || 4,
-            reviews: Number(p.reviews ?? 0) || 0,
-            image: p.image || p.images?.[0] || "/banner/img/placeholder.png",
-            inStock: (typeof p.stock !== "undefined" ? p.stock : (p.productStock ?? p.quantity ?? p.qty ?? 0)) > 0,
-            isNew: isProductNew(p.createdAt || p.created_at || p.createdDate),
-            discount: Number(p.discount) || Number(p.offerPercent) || 0,
-            gender: p.gender || "unisex",
-            tags: p.tags || [],
-          }
-        })
-
-        setAllProducts(normalized)
-        setProducts(normalized)
-
-        try {
-          const prices = normalized.map((p) => Number(p.price) || 0).filter((n) => !Number.isNaN(n))
-          if (prices.length > 0) {
-            const actualMin = Math.min(...prices)
-            const actualMax = Math.max(...prices)
-            if (priceRange[0] === 0 && priceRange[1] === 300) {
-              setPriceRange([Math.floor(actualMin), Math.ceil(actualMax)])
-            }
-          }
-        } catch (e) { }
-      } else {
-        // No search active - clear any previous search results
-        // and let the regular product loading below handle it
-      }
-
-      // Only return early if we're actively searching
-      if (urlSearch) {
-        return;
-      }
-    }
-
-    // API may return different shapes:
-    // - { products: [...] }
-    // - array (already product.data set by hook)
-    // - { data: [...] }
-
-    const list = product?.products ?? product?.data ?? product ?? []
-
-    if (Array.isArray(list) && list.length > 0) {
-      const normalized = list.map((p) => {
-        // normalize category to a string (API may return object or array)
-        let categoryVal = "uncategorized"
-        if (Array.isArray(p.category) && p.category.length > 0) {
-          const c0 = p.category[0]
-          categoryVal = typeof c0 === "string" ? c0 : c0?.name || String(c0)
-        } else if (p.category && typeof p.category === "object") {
-          categoryVal = p.category.name || String(p.category)
-        } else if (p.category) {
-          categoryVal = String(p.category)
-        }
-
-        // normalize subCategory
-        let subCategoryVal = "general"
-        if (Array.isArray(p.subCategory) && p.subCategory.length > 0) {
-          const s0 = p.subCategory[0]
-          subCategoryVal = typeof s0 === "string" ? s0 : s0?.name || String(s0)
-        } else if (p.subCategory && typeof p.subCategory === "object") {
-          subCategoryVal = p.subCategory.name || String(p.subCategory)
-        } else if (p.subCategory) {
-          subCategoryVal = String(p.subCategory)
-        }
-
-        return {
-          id: p._id || p.id || (p._id?.toString && p._id.toString()) || String(p.id || ""),
-          name: p.name || p.productName || p.title || "Untitled",
-          price: Number(p.price ?? p.sell_price ?? p.sellingPrice ?? p.amount ?? 0) || 0,
-          originalPrice: Number(p.originalPrice ?? p.mrp ?? p.price ?? p.sell_price) || Number(p.price ?? 0) || 0,
-          retailSale: p.productRank,
-          productStatus: p.productStatus,
-          category: categoryVal,
-          subCategory: subCategoryVal,
-          brand: p.brand || p.manufacturer || "Brand",
-          size: p.size || p.sizes || p.productSize || [],
-          color: p.color || p.colors || p.color || [],
-          rating: Number(p.rating ?? p.ratings) || 4,
-          reviews: Number(p.reviews ?? 0) || 0,
-          image: p.image || p.images?.[0] || "/banner/img/placeholder.png",
-          inStock: (typeof p.stock !== "undefined" ? p.stock : (p.productStock ?? p.quantity ?? p.qty ?? 0)) > 0,
-          tags: p.tags || [],
-          isNew: isProductNew(p.createdAt || p.created_at || p.createdDate),
-          discount: Number(p.discount) || Number(p.offerPercent) || 0,
-          gender: p.gender || "unisex",
-          tags: p.tags || [],
-        }
-      })
-
-      setAllProducts(normalized)
-      setProducts(normalized)
-
-      // If user hasn't changed the price range (default [0,300]),
-      // expand it to cover actual product prices so items >300 aren't hidden.
-      try {
-        const prices = normalized.map((p) => Number(p.price) || 0).filter((n) => !Number.isNaN(n))
-        if (prices.length > 0) {
-          const actualMin = Math.min(...prices)
-          const actualMax = Math.max(...prices)
-          // only update if current range is the initial default
-          if (priceRange[0] === 0 && priceRange[1] === 300) {
-            setPriceRange([Math.floor(actualMin), Math.ceil(actualMax)])
-          }
-        }
-      } catch (e) {
-        // ignore
-      }
-    } else {
-      setAllProducts([])
-      setProducts([])
-    }
-  }, [product, urlSearch, searchData])
-
-  // Optimized filtering using useMemo for better performance
-  const filteredProducts = useMemo(() => {
-    let filtered = allProducts;
-
-    // Early return if no products
-    if (!filtered.length) return [];
-
-    const searchLower = searchTerm.toLowerCase();
-
-    // Optimized search filter - single pass through products
-    if (searchTerm) {
-      filtered = filtered.filter((product) => {
-        // Early return on first match for better performance
-        if (product.name?.toLowerCase().includes(searchLower)) return true;
-        if (product.brand?.toLowerCase().includes(searchLower)) return true;
-        if (product.category?.toLowerCase().includes(searchLower)) return true;
-        if (product.subCategory?.toLowerCase().includes(searchLower)) return true;
-
-        // Check tags only if other fields don't match
-        if (product.tags?.length) {
-          for (let i = 0; i < product.tags.length; i++) {
-            if (product.tags[i]?.toLowerCase().includes(searchLower)) return true;
-          }
-        }
-
-        return false;
-      });
-    }
-
-    // Combine multiple filters in single pass
-    filtered = filtered.filter((product) => {
-      // Category filter
-      if (filterCategory !== "all" && product.category !== filterCategory) return false;
-
-      // Subcategory filter
-      if (filterSubCategory !== "all" &&
-        product.subCategory !== filterSubCategory &&
-        product.category !== filterSubCategory) return false;
-
-      // Brand filter
-      if (filterBrand !== "all" && product.brand !== filterBrand) return false;
-
-      // Gender filter
-      if (filterGender !== "all" &&
-        product.gender !== filterGender &&
-        product.gender !== "unisex") return false;
-
-      // Price range filter
-      if (product.price < priceRange[0] || product.price > priceRange[1]) return false;
-
-      // Rating filter
-      if (ratingFilter > 0 && product.rating < ratingFilter) return false;
-
-      return true;
-    });
-
-    // Sort products
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case "price-low":
-          return a.price - b.price
-        case "price-high":
-          return b.price - a.price
-        case "rating":
-          return b.rating - a.rating
-        case "newest":
-          return b.isNew - a.isNew
-        case "discount":
-          return b.discount - a.discount
-        default:
-          return a.name.localeCompare(b.name)
-      }
-    })
-
-    return filtered;
+    dispatch(fetchShopProducts(fetchParams));
   }, [
-    allProducts,
-    searchTerm,
+    dispatch,
+    debouncedSearchTerm,
     filterCategory,
     filterSubCategory,
-    filterBrand,
-    filterGender,
     priceRange,
-    ratingFilter,
     sortBy,
+    currentPage,
+    filterBrand,
+    ratingFilter,
+    filterGender,
+    apiCategories,
+    apiSubcategories
   ]);
 
-  // Update products and reset pagination when filters change
+  // Debounce search term
   useEffect(() => {
-    setProducts(filteredProducts);
-    setCurrentPage(1);
-  }, [filteredProducts]);
+    const timer = setTimeout(() => {
+      dispatch(setDebouncedSearch(searchTerm));
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm, dispatch]);
 
   // Add to cart (uses API + redux)
-  const addToCart = async (product) => {
+  const addToCart = useCallback(async (product) => {
     if (!user?._id) {
       toast.error("Please sign in to add items to cart")
       return
@@ -406,10 +390,10 @@ const [favorite, setFavorite] = useState([])
       const msg = err?.response?.data?.message || "Failed to add to cart"
       toast.error(msg)
     }
-  }
+  }, [user?._id, dispatch]);
 
   // Remove from cart (uses API + redux)
-  const removeFromCart = async (productId) => {
+  const removeFromCart = useCallback(async (productId) => {
     if (!user?._id) {
       // optimistic local fallback (should rarely happen)
       return
@@ -422,10 +406,10 @@ const [favorite, setFavorite] = useState([])
       console.error("Remove from cart error:", err)
       toast.error("Failed to remove item")
     }
-  }
+  }, [user?._id, dispatch]);
 
   // Update quantity (API + redux)
-  const updateQuantity = async (productId, newQuantity) => {
+  const updateQuantity = useCallback(async (productId, newQuantity) => {
     if (!user?._id) {
       return
     }
@@ -440,10 +424,14 @@ const [favorite, setFavorite] = useState([])
       console.error("Update cart quantity error:", err)
       toast.error("Failed to update quantity")
     }
-  }
+  }, [user?._id, dispatch, removeFromCart]);
 
   // Toggle wishlist (uses API + redux)
-  const toggleWishlist = async (product) => {
+  const toggleWishlist = useCallback(async (product) => {
+    if (!user?._id) {
+      toast.error("Please sign in to add to wishlist")
+      return
+    }
     try {
       const exists = (wishlist || []).some((i) => i.id === product.id || favorite.includes(product.id))
       if (exists) {
@@ -457,18 +445,12 @@ const [favorite, setFavorite] = useState([])
       console.error("Wishlist toggle error:", err)
       toast.error("Failed to update wishlist")
     }
-  }
+  }, [wishlist, favorite, dispatch]);
 
   // Calculate cart total
   const cartTotal = cart.reduce((total, item) => total + item.price * item.quantity, 0)
 
-  // Pagination
-  const indexOfLastProduct = currentPage * productsPerPage
-  const indexOfFirstProduct = indexOfLastProduct - productsPerPage
-  const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct)
-  const totalPages = Math.ceil(products.length / productsPerPage)
-
-  // Calculate which page numbers to show
+  // Calculate which page numbers to show (using server-side totalPages)
   const getPageNumbers = () => {
     const pages = [];
 
@@ -496,7 +478,7 @@ const [favorite, setFavorite] = useState([])
   // Use API categories if available, otherwise fall back to product categories
   const categories = apiCategories.length > 0
     ? ["all", ...apiCategories.map(cat => cat.name)]
-    : ["all", ...Array.from(new Set(allProducts.map((p) => p.category)))]
+    : ["all"]
 
   const subCategories = apiSubcategories.length > 0
     ? (filterCategory === "all"
@@ -507,22 +489,13 @@ const [favorite, setFavorite] = useState([])
           return category?.name === filterCategory
         })
         .map(sub => sub.name)])
-    : (filterCategory === "all"
-      ? ["all", ...Array.from(new Set(allProducts.map((p) => p.subCategory)))]
-      : ["all", ...Array.from(new Set(allProducts.filter((p) => p.category === filterCategory).map((p) => p.subCategory)))])
+    : ["all"]
 
-  const brands = ["all", ...Array.from(new Set(allProducts.map((p) => p.brand)))]
+  const brands = ["all"] // Can be populated from API if needed
   const genders = ["all", "men", "women", "unisex"]
 
   const clearFilters = () => {
-    setFilterCategory("all")
-    setFilterSubCategory("all")
-    setFilterBrand("all")
-    setFilterGender("all")
-    setPriceRange([0, 300])
-    setRatingFilter(0)
-    setSearchTerm("")
-    // Clear URL search params as well
+    dispatch(resetFilters())
     router.push('/shop')
   }
   // handle delete functionality 
@@ -532,7 +505,19 @@ const [favorite, setFavorite] = useState([])
       if (!deleteModal) return;
       await ProductDelete(deleteModal.id);
       setDeleteModal(null);
-      productRefetch()
+      dispatch(fetchShopProducts({
+        search: debouncedSearchTerm,
+        categoryId: getCategoryId(filterCategory, apiCategories),
+        subCategoryId: getSubCategoryId(filterSubCategory, apiSubcategories),
+        minPrice: priceRange[0],
+        maxPrice: priceRange[1],
+        sortBy: sortBy,
+        page: currentPage,
+        limit: productsPerPage,
+        brand: filterBrand,
+        rating: ratingFilter,
+        gender: filterGender,
+      })); // Refetch filtered products
       toast.success("Product deleted successfully");
     } catch (error) {
       console.log(error);
@@ -541,11 +526,11 @@ const [favorite, setFavorite] = useState([])
   };
   const [load, setLoad] = useState(false);
   // handle edit functionality 
-  const handleEdit = (p) => {
-    const selectedProudct = product.find(item => item._id == p.id)
+  const handleEdit = useCallback((p) => {
+    const selectedProudct = currentProducts.find(item => item.id == p.id)
     setEditModal(selectedProudct)
 
-  }
+  }, [currentProducts])
 
   const saveEdit = async () => {
     // console.log("editModal-->",editModal)
@@ -554,7 +539,19 @@ const [favorite, setFavorite] = useState([])
       const res = await ProductUpdate(editModal);
       if (res.success) {
         toast.success("Product updated successfully!");
-        productRefetch()
+        dispatch(fetchShopProducts({
+          search: debouncedSearchTerm,
+          categoryId: getCategoryId(filterCategory, apiCategories),
+          subCategoryId: getSubCategoryId(filterSubCategory, apiSubcategories),
+          minPrice: priceRange[0],
+          maxPrice: priceRange[1],
+          sortBy: sortBy,
+          page: currentPage,
+          limit: productsPerPage,
+          brand: filterBrand,
+          rating: ratingFilter,
+          gender: filterGender,
+        })); // Refetch filtered products
         setEditModal(null);
       } else {
         toast.error(res.message);
@@ -566,9 +563,9 @@ const [favorite, setFavorite] = useState([])
     }
   };
   const updateEditField = (field, value) => {
-    setEditModal({ ...editModal, [field]: value});
+    setEditModal({ ...editModal, [field]: value });
   };
-  
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -580,7 +577,7 @@ const [favorite, setFavorite] = useState([])
               type="text"
               placeholder="Search products, categories, brands, tags..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => dispatch(setSearchTerm(e.target.value))}
               className="pl-10 pr-4 py-3 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
           </div>
@@ -590,7 +587,7 @@ const [favorite, setFavorite] = useState([])
         <div className="bg-white lg:mt-28 rounded-lg shadow-md p-4 mb-6">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
             <div className="flex items-center gap-4 flex-wrap">
-              <span className="text-gray-600 font-medium">Showing {products.length} results</span>
+              <span className="text-gray-600 font-medium">Showing {totalCount} results</span>
 
               {/* Quick Filters */}
 
@@ -601,7 +598,7 @@ const [favorite, setFavorite] = useState([])
               <div className="relative">
                 <select
                   value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
+                  onChange={(e) => dispatch(setSortBy(e.target.value))}
                   className="appearance-none border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-purple-500 bg-white"
                 >
                   <option value="name">Sort By Latest</option>
@@ -617,14 +614,14 @@ const [favorite, setFavorite] = useState([])
               {/* View Mode */}
               <div className="flex border border-gray-300 rounded-lg overflow-hidden">
                 <button
-                  onClick={() => setViewMode("grid")}
+                  onClick={() => dispatch(setViewMode("grid"))}
                   className={`p-2 transition-colors duration-300 ${viewMode === "grid" ? "bg-purple-500 text-white" : "bg-white text-gray-600 hover:bg-gray-50"
                     }`}
                 >
                   <Grid className="w-5 h-5" />
                 </button>
                 <button
-                  onClick={() => setViewMode("list")}
+                  onClick={() => dispatch(setViewMode("list"))}
                   className={`p-2 transition-colors duration-300 ${viewMode === "list" ? "bg-purple-500 text-white" : "bg-white text-gray-600 hover:bg-gray-50"
                     }`}
                 >
@@ -640,7 +637,7 @@ const [favorite, setFavorite] = useState([])
           <div className="lg:w-80 space-y-6">
             {/* Filter Toggle for Mobile */}
             <button
-              onClick={() => setShowFilters(!showFilters)}
+              onClick={() => dispatch(toggleFilters())}
               className="lg:hidden w-full flex items-center justify-between bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 border"
             >
               <span className="font-semibold flex items-center gap-2">
@@ -663,14 +660,14 @@ const [favorite, setFavorite] = useState([])
                     <input
                       type="number"
                       value={priceRange[0]}
-                      onChange={(e) => setPriceRange([Number.parseInt(e.target.value) || 0, priceRange[1]])}
+                      onChange={(e) => dispatch(setPriceRange([Number.parseInt(e.target.value) || 0, priceRange[1]]))}
                       className="w-20 px-2 py-1 border border-gray-300 rounded text-center"
                       placeholder="0"
                     />
                     <input
                       type="number"
                       value={priceRange[1]}
-                      onChange={(e) => setPriceRange([priceRange[0], Number.parseInt(e.target.value) || 300])}
+                      onChange={(e) => dispatch(setPriceRange([priceRange[0], Number.parseInt(e.target.value) || 300]))}
                       className="w-20 px-2 py-1 border border-gray-300 rounded text-center"
                       placeholder="300"
                     />
@@ -680,7 +677,7 @@ const [favorite, setFavorite] = useState([])
                     min="0"
                     max="300"
                     value={priceRange[1]}
-                    onChange={(e) => setPriceRange([priceRange[0], Number.parseInt(e.target.value)])}
+                    onChange={(e) => dispatch(setPriceRange([priceRange[0], Number.parseInt(e.target.value)]))}
                     className="w-full accent-purple-600"
                   />
                   <div className="text-center">
@@ -705,8 +702,8 @@ const [favorite, setFavorite] = useState([])
                         name="category"
                         checked={filterCategory === category}
                         onChange={() => {
-                          setFilterCategory(category)
-                          setFilterSubCategory("all")
+                          dispatch(setFilterCategory(category))
+                          dispatch(setFilterSubCategory("all"))
                           setShowSubCategory(true)
                           setShowCategory(false)
                         }}
@@ -738,7 +735,7 @@ const [favorite, setFavorite] = useState([])
                           type="radio"
                           name="subcategory"
                           checked={filterSubCategory === subcat}
-                          onChange={() => setFilterSubCategory(subcat)}
+                          onChange={() => dispatch(setFilterSubCategory(subcat))}
                           className="text-purple-600 focus:ring-purple-500"
                         />
                         <span className="capitalize text-gray-700">
@@ -762,7 +759,7 @@ const [favorite, setFavorite] = useState([])
                       <input
                         type="checkbox"
                         checked={filterBrand === brand}
-                        onChange={() => setFilterBrand(filterBrand === brand ? "all" : brand)}
+                        onChange={() => dispatch(setFilterBrand(filterBrand === brand ? "all" : brand))}
                         className="text-purple-600 focus:ring-purple-500"
                       />
                       <span className="text-gray-700">{brand === "all" ? "All Brands" : brand}</span>
@@ -784,7 +781,7 @@ const [favorite, setFavorite] = useState([])
                         type="radio"
                         name="rating"
                         checked={ratingFilter === rating}
-                        onChange={() => setRatingFilter(ratingFilter === rating ? 0 : rating)}
+                        onChange={() => dispatch(setRatingFilter(ratingFilter === rating ? 0 : rating))}
                         className="text-purple-600 focus:ring-purple-500"
                       />
                       <div className="flex items-center space-x-1">
@@ -806,14 +803,38 @@ const [favorite, setFavorite] = useState([])
           {/* Products Grid */}
           <div className="flex-1">
             {/* Loading State */}
-            {(loading || searchLoading) && (
-              <div className="flex items-center justify-center py-20">
-                <CustomLoader size="large" message="Loading products..." />
+            {productsLoading && (
+              <ProductGridSkeleton count={productsPerPage} viewMode={viewMode} />
+            )}
+
+            {/* Error State */}
+            {!productsLoading && productsError && (
+              <div className="text-center py-12 text-red-500 bg-red-50 rounded-lg border border-red-200 mb-6">
+                <p className="font-semibold mb-2 text-lg italic">Error loading products!</p>
+                <p className="text-sm mb-4">{productsError.message || "Check your internet or try again."}</p>
+                <button
+                  onClick={() => dispatch(fetchShopProducts({
+                    search: debouncedSearchTerm,
+                    categoryId: getCategoryId(filterCategory, apiCategories),
+                    subCategoryId: getSubCategoryId(filterSubCategory, apiSubcategories),
+                    minPrice: priceRange[0],
+                    maxPrice: priceRange[1],
+                    sortBy: sortBy,
+                    page: currentPage,
+                    limit: productsPerPage,
+                    brand: filterBrand,
+                    rating: ratingFilter,
+                    gender: filterGender,
+                  }))}
+                  className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg transition-colors font-medium shadow-md"
+                >
+                  Retry Loading
+                </button>
               </div>
             )}
 
             {/* No Products Found */}
-            {!loading && !searchLoading && products.length === 0 && (
+            {!productsLoading && currentProducts.length === 0 && (
               <div className="text-center py-12">
                 <div className="text-gray-400 mb-4">
                   <Search className="w-16 h-16 mx-auto" />
@@ -830,182 +851,33 @@ const [favorite, setFavorite] = useState([])
             )}
 
             {/* Products */}
-            {!loading && !searchLoading && products.length > 0 && (
+            {!productsLoading && currentProducts.length > 0 && (
               <div
                 className={`${viewMode === "grid"
                   ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6"
                   : "space-y-6"
                   }`}
               >
-                {currentProducts.map((product, index) => (
-                  <div
-                    key={product.id}
-                    onClick={() => router.push(`/productdetails/${product.id}`)}
-                    className={`group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 cursor-pointer ${viewMode === "list" ? "flex" : ""
-                      }`}
-                  >
-                    <div className={`relative ${viewMode === "list" ? "w-48" : ""}`}>
-                      <img
-                        src={product.image || "/placeholder.svg"}
-                        alt={product.name}
-                        className={`w-full object-cover group-hover:scale-105 transition-transform duration-500 ${viewMode === "list" ? "h-full" : "h-40 sm:h-44"
-                          }`}
-                      />
-
-                      {/* Badges */}
-                      <div className="absolute top-0 left-0 flex justify-between w-full">
-                        <div className="flex items-start">
-                          {product.isNew && (
-                            <span className="bg-green-500 text-white px-1 py-1 rounded text-[8px] font-semibold">NEW</span>
-                          )}  
-                          {product.retailSale > product.price ? <span className="bg-yellow-500 text-black px-1 py-1 mx-[2px] rounded text-[8px] font-semibold">
-                            -{(product.retailSale - product.price)}৳
-                          </span> : 0}
-                        </div>
-                        {product.productStatus?.length > 0 && (
-                          <span className={` ${product.productStatus.includes("hot") ? 'text-red-500' : 'text-blue-400 '} max-h-6  bg-black px-1 py-1 rounded-md text-xs font-bold ${product.productStatus.includes("none") ? 'hidden' : ''}`}>{product.productStatus}</span>
-                        )}
-                      </div>
-
-                      {/* Action Buttons */}
-                      <div className={`absolute ${product.productStatus?.length > 0 ? "top-6":"top-0"}  bg-white rounded-md right-0 transition-opacity duration-300`}>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            toggleWishlist(product)
-                            if(favorite.includes(product.id) || wishlist.includes(product.id)){
-                              const removeItem = favorite.filter(item => item !== product.id)
-                              console.log(removeItem)
-                             return setFavorite(removeItem)
-                            }
-                              
-                            setFavorite([...favorite,product.id])
-                          }}
-                          className={`p-1 cursor-pointer rounded-lg transition-all duration-300
-                            ${wishlist.some((item) => item.id === product.id)
-                              ? "text-red-500 bg-red-100"
-                              : "text-gray-400 bg-white hover:text-red-500 hover:bg-red-50"
-                            }`}
-                        >
-                          <Heart
-                            className="w-3 h-3"
-                            fill={wishlist.some((item) => item.id === product.id) || favorite.includes(product.id) ? "red" : "none" } 
-                            strokeWidth={2}
-                          />
-                        </button>
-                      </div>
-
-                      {!product.inStock && (
-                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                          <span className="bg-red-500 text-white px-3 py-1 rounded font-semibold text-xs">Out of Stock</span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className={`p-3 ${viewMode === "list" ? "flex-1 flex flex-col justify-between" : ""}`}>
-                      <div>
-                        <h3 className="font-semibold text-sm text-gray-800 mb-1 group-hover:text-purple-600 transition-colors duration-300 line-clamp-2">
-                          {product.name}
-                        </h3>
-                        <p className="text-xs text-gray-500 mb-2">{product.brand}</p>
-
-                        {/* Rating */}
-                        <div className="flex items-center gap-1 mb-2">
-                          <div className="flex items-center">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`w-3 h-3 sm:w-4 sm:h-4 ${i < Math.floor(product.rating) ? "text-yellow-400 fill-current" : "text-black"
-                                  }`}
-                              />
-                            ))}
-                          </div>
-                          <span className="text-xs text-gray-500">({product.rating})</span>
-                        </div>
-                      </div>
-
-                      <div>
-                        {/* Price */}
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="text-base font-bold text-red-600">Tk {product.price}</span>
-                          {product.retailSale > product.price && (
-                            <span className="text-xs font-semibold text-gray-400 line-through">
-                              {product.retailSale.toFixed(2)}
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Add to Cart */}
-                        {user?.role !== "ADMIN" ? <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            addToCart(product)
-                          }}
-                          disabled={!product.inStock}
-                          className={`w-full py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs ${product.inStock
-                            ? "bg-green-600 text-white hover:bg-green-700 transform hover:scale-105"
-                            : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                            }`}
-                        >
-                          {product.inStock ? (
-                            <span className="flex items-center justify-center gap-1">
-                              <ShoppingCart className="w-3 h-3" />
-                              Add to Cart
-                            </span>
-                          ) : (
-                            "Out of Stock"
-                          )}
-                        </button> : <div className="flex justify-around">
-                          {/* add to cart button  */}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              addToCart(product)
-                            }}
-                            disabled={!product.inStock}
-                            className={` py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs ${product.inStock
-                              ? "bg-green-600 text-white hover:bg-green-700 transform hover:scale-105"
-                              : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                              }`}
-                          >
-                            {product.inStock ? (
-                              <span className="flex items-center justify-center gap-1">
-                                <ShoppingCart size={16} />
-
-                              </span>
-                            ) : (
-                              "Out of Stock"
-                            )}
-
-                          </button>
-                          {/* edit button  */}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleEdit(product)
-                            }}
-                            className="p-2 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-emerald-500/25"
-                          >
-                            <Edit size={16} />
-                          </button>
-                          {/* delete button  */}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setDeleteModal(product)
-                            }}
-                            className="p-2 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-400 hover:to-pink-400 text-white rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-red-500/25 cursor-pointer"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>}
-
-                      </div>
-                    </div>
-                  </div>
+                {currentProducts.map((product) => (
+                  <ProductCard
+                    key={product._id}
+                    product={product}
+                    viewMode={viewMode}
+                    router={router}
+                    toggleWishlist={toggleWishlist}
+                    wishlist={wishlist}
+                    favorite={favorite}
+                    setFavorite={setFavorite}
+                    addToCart={addToCart}
+                    user={user}
+                    handleEdit={handleEdit}
+                    setDeleteModal={setDeleteModal}
+                  />
                 ))}
               </div>
             )}
+
+
 
             {/* Pagination */}
             {totalPages > 1 && (
@@ -1080,8 +952,8 @@ const [favorite, setFavorite] = useState([])
       </div>
 
       {/* Edit Modal */}
-      {editModal && (
-        (
+      {
+        editModal && (
           <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
             <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-emerald-500/30 max-w-3xl w-full max-h-[90vh] overflow-y-auto animate-slideUp">
               <div className="sticky top-0 bg-gradient-to-r from-emerald-600 to-teal-600 p-6 flex justify-between items-center z-10">
@@ -1211,7 +1083,7 @@ const [favorite, setFavorite] = useState([])
                       className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
                     />
                   </div>
-                  
+
 
                   <div>
                     <label className="block text-black text-sm font-semibold mb-2">
@@ -1228,15 +1100,15 @@ const [favorite, setFavorite] = useState([])
                     <label className="block text-black text-sm font-semibold mb-2">
                       Product Status
                     </label>
-                    <select 
-                      defaultValue={editModal.productStatus.length>0?editModal.productStatus[0] : "none"}
-                      onChange={(e) => updateEditField("productStatus", e.target.value)} 
+                    <select
+                      defaultValue={editModal.productStatus.length > 0 ? editModal.productStatus[0] : "none"}
+                      onChange={(e) => updateEditField("productStatus", e.target.value)}
                       className="appearance-none border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-purple-500 bg-white"
                     >
-                      <option disabled selected defaultValue={editModal.productStatus.length>0?editModal.productStatus[0] : "none"}>{editModal.productStatus.length>0?editModal.productStatus[0] : "none"}</option>
+                      <option disabled selected defaultValue={editModal.productStatus.length > 0 ? editModal.productStatus[0] : "none"}>{editModal.productStatus.length > 0 ? editModal.productStatus[0] : "none"}</option>
                       <option defaultValue="none">none</option>
                       <option defaultValue="hot">hot</option>
-                      <option defaultValue="cold">cold</option>              
+                      <option defaultValue="cold">cold</option>
                     </select>
                   </div>
 
@@ -1281,43 +1153,53 @@ const [favorite, setFavorite] = useState([])
               </div>
             </div>
           </div>
-        ))}
+        )
+      }
 
       {/* Delete Confirmation Modal */}
-      {deleteModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
-          <div className="bg-white/70 rounded-2xl border border-pink-500/30 max-w-md w-full p-6 animate-slideUp text-black">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-3 bg-pink-500/20 rounded-full">
-                <Trash2 className="w-8 h-8 text-pink-500" />
+      {
+        deleteModal && (
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+            <div className="bg-white/70 rounded-2xl border border-pink-500/30 max-w-md w-full p-6 animate-slideUp text-black">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-3 bg-pink-500/20 rounded-full">
+                  <Trash2 className="w-8 h-8 text-pink-500" />
+                </div>
+                <h2 className="text-2xl font-bold ">Delete Product</h2>
               </div>
-              <h2 className="text-2xl font-bold ">Delete Product</h2>
-            </div>
 
-            <p className=" mb-6">
-              Are you sure you want to delete this product? This action cannot be undone.
-            </p>
+              <p className=" mb-6">
+                Are you sure you want to delete this product? This action cannot be undone.
+              </p>
 
-            <div className="flex gap-3">
-              <button
-                onClick={confirmDelete}
-                className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-semibold rounded-lg transition-all transform hover:scale-105 cursor-pointer"
-              >
-                Delete
-              </button>
-              <button
-                onClick={() => setDeleteModal(null)}
-                className="flex-1 px-6 py-3 bg-slate-200 hover:bg-slate-600 hover:text-white font-semibold rounded-lg transition-colors cursor-pointer"
-              >
-                Cancel
-              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={confirmDelete}
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-semibold rounded-lg transition-all transform hover:scale-105 cursor-pointer"
+                >
+                  Delete
+                </button>
+                <button
+                  onClick={() => setDeleteModal(null)}
+                  className="flex-1 px-6 py-3 bg-slate-200 hover:bg-slate-600 hover:text-white font-semibold rounded-lg transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Custom Styles */}
       <style jsx>{`
+        .line-clamp-1 {
+          display: -webkit-box;
+          -webkit-line-clamp: 1;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+
         .line-clamp-2 {
           display: -webkit-box;
           -webkit-line-clamp: 2;
@@ -1350,8 +1232,50 @@ const [favorite, setFavorite] = useState([])
           scrollbar-color: #a855f7 #e5e7eb;
         }
       `}</style>
+      {/* ✨ Animations + Glassmorphism + Scrollbar Hide */}
+      <style jsx>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes slideInUp {
+          from {
+            opacity: 0;
+            transform: translateY(50px) scale(0.9);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        .backdrop-blur-sm {
+          backdrop-filter: blur(8px);
+        }
+        .backdrop-blur-lg {
+          backdrop-filter: blur(16px);
+        }
+        .line-clamp-2 {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+      `}</style>
     </div>
-  )
-}
+  );
+};
 
-export default ShopPage
+export default ShopPage;

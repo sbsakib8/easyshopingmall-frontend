@@ -48,7 +48,7 @@ const DashboardNebver = ({ children }) => {
   // category get
   const { category, loading, error } = useGetcategory();
   // subcategory all get
-  const {} = useGetSubcategory();
+  const { } = useGetSubcategory();
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
@@ -227,9 +227,8 @@ const DashboardNebver = ({ children }) => {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => makeFalse()}
         className={`fixed top-16 left-0 z-40 h-[calc(100vh-4rem)] transition-all duration-500 ease-out
-           ${
-             sidebarOpen || isHovered ? "w-full md:w-72" : "w-0 md:w-20 "
-           }  bg-black/95 backdrop-blur-xl border-r border-gray-800/50 shadow-2xl shadow-black/20 overflow-hidden`}
+           ${sidebarOpen || isHovered ? "w-full md:w-72" : "w-0 md:w-20 "
+          }  bg-black/95 backdrop-blur-xl border-r border-gray-800/50 shadow-2xl shadow-black/20 overflow-hidden`}
       >
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-gray-900/20 via-black/20 to-gray-800/20 pointer-events-none"></div>
@@ -253,17 +252,15 @@ const DashboardNebver = ({ children }) => {
                         toggleSubmenu(item.id);
                       }
                     }}
-                    className={`w-full flex items-center justify-between px-4 py-3 text-sm font-semibold rounded-2xl transition-all duration-300 group relative overflow-hidden ${
-                      activeMenu === item.id
+                    className={`w-full flex items-center justify-between px-4 py-3 text-sm font-semibold rounded-2xl transition-all duration-300 group relative overflow-hidden ${activeMenu === item.id
                         ? "bg-gradient-to-r from-gray-700 to-gray-900 text-white shadow-xl shadow-black/50 transform scale-105 border border-gray-600/50"
                         : "text-gray-300 hover:bg-gradient-to-r hover:from-gray-800/50 hover:to-black/50 hover:shadow-lg hover:shadow-black/20 hover:scale-105 hover:text-white border border-transparent hover:border-gray-700/30"
-                    }`}
+                      }`}
                   >
                     {/* Animated background */}
                     <div
-                      className={`absolute inset-0 bg-gradient-to-r from-gray-700/20 to-gray-900/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
-                        activeMenu === item.id ? "opacity-30" : ""
-                      }`}
+                      className={`absolute inset-0 bg-gradient-to-r from-gray-700/20 to-gray-900/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${activeMenu === item.id ? "opacity-30" : ""
+                        }`}
                     ></div>
 
                     <Link
@@ -272,27 +269,24 @@ const DashboardNebver = ({ children }) => {
                       className="flex items-center space-x-4 relative z-10"
                     >
                       <div
-                        className={`p-2 rounded-xl transition-all duration-300 ${
-                          activeMenu === item.id
+                        className={`p-2 rounded-xl transition-all duration-300 ${activeMenu === item.id
                             ? "bg-white/10 shadow-lg backdrop-blur-sm"
                             : "group-hover:bg-gray-700/30"
-                        }`}
+                          }`}
                       >
                         <item.icon
-                          className={`w-5 h-5 transition-all duration-300 ${
-                            activeMenu === item.id
+                          className={`w-5 h-5 transition-all duration-300 ${activeMenu === item.id
                               ? "text-white scale-110"
                               : "text-gray-400 group-hover:text-white group-hover:scale-110"
-                          }`}
+                            }`}
                         />
                       </div>
                       {(sidebarOpen || isHovered) && (
                         <span
-                          className={`transition-all duration-300 ${
-                            sidebarOpen || isHovered
+                          className={`transition-all duration-300 ${sidebarOpen || isHovered
                               ? "opacity-100 transform translate-x-0"
                               : "opacity-0 transform translate-x-4"
-                          } font-medium`}
+                            } font-medium`}
                         >
                           {item.label}
                         </span>
@@ -300,9 +294,8 @@ const DashboardNebver = ({ children }) => {
                     </Link>
                     {item.submenu && (sidebarOpen || isHovered) && (
                       <ChevronRight
-                        className={`w-5 h-5 transition-all duration-300 relative z-10 ${
-                          expandedMenus[item.id] ? "rotate-90 text-white" : "text-gray-500"
-                        } ${activeMenu === item.id ? "text-white" : ""}`}
+                        className={`w-5 h-5 transition-all duration-300 relative z-10 ${expandedMenus[item.id] ? "rotate-90 text-white" : "text-gray-500"
+                          } ${activeMenu === item.id ? "text-white" : ""}`}
                       />
                     )}
                   </button>
@@ -311,11 +304,10 @@ const DashboardNebver = ({ children }) => {
                   {item.submenu && (sidebarOpen || isHovered) && (
                     <div
                       onClick={toggleSidebar}
-                      className={`mt-3 ml-6 space-y-2 overflow-hidden transition-all duration-500 transform ${
-                        expandedMenus[item.id]
+                      className={`mt-3 ml-6 space-y-2 overflow-hidden transition-all duration-500 transform ${expandedMenus[item.id]
                           ? "max-h-96 opacity-100 translate-y-0"
                           : "max-h-0 opacity-0 -translate-y-4"
-                      }`}
+                        }`}
                     >
                       {item.submenu.map((subItem, subIndex) => (
                         <Link
@@ -325,19 +317,17 @@ const DashboardNebver = ({ children }) => {
                             makeFalse();
                             setActiveMenu(subItem.id);
                           }}
-                          className={` group flex items-center space-x-3 px-4 py-2.5 text-sm rounded-xl transition-all duration-300 transform hover:scale-105 ${
-                            activeMenu === subItem.id
+                          className={` group flex items-center space-x-3 px-4 py-2.5 text-sm rounded-xl transition-all duration-300 transform hover:scale-105 ${activeMenu === subItem.id
                               ? "bg-gradient-to-r from-gray-600 to-gray-800 text-white shadow-lg shadow-black/30 border border-gray-600/50"
                               : "text-gray-400 hover:bg-gradient-to-r hover:from-gray-800/30 hover:to-black/30 hover:text-white hover:shadow-md border border-transparent hover:border-gray-700/20"
-                          } animate-slideInRight`}
+                            } animate-slideInRight`}
                           style={{ animationDelay: `${subIndex * 0.05}s` }}
                         >
                           <div
-                            className={`p-1.5 rounded-lg transition-all duration-300 ${
-                              activeMenu === subItem.id
+                            className={`p-1.5 rounded-lg transition-all duration-300 ${activeMenu === subItem.id
                                 ? "bg-white/10 backdrop-blur-sm"
                                 : "group-hover:bg-gray-700/20"
-                            }`}
+                              }`}
                           >
                             <subItem.icon className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" />
                           </div>
