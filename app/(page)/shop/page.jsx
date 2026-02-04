@@ -1,9 +1,5 @@
 import ShopPage from "@/src/compronent/shop/shopComponent"
-import { ProductAllGet } from "@/src/hook/useProduct";
-import { CategoryAllGet } from "@/src/hook/usecategory";
-import { SubCategoryAllGet } from "@/src/hook/useSubcategory";
-
-export const dynamic = 'force-dynamic';
+import { UrlBackend } from "@/src/confic/urlExport"
 
 export const metadata = {
   title: "Shop - Huge Collection of Quality Products",
@@ -15,41 +11,90 @@ export const metadata = {
   },
 };
 
-async function getShopData(searchParams) {
+async function getCategories() {
   try {
-    const { search, category, subcategory, sortBy } = searchParams || {};
-
-    const [productsResponse, categories, subCategories] = await Promise.all([
-      ProductAllGet({
-        limit: 1000,
-        search: search || "",
-        categoryId: category || "all",
-        subCategoryId: subcategory || "all",
-        sortBy: sortBy || "name"
-      }),
-      CategoryAllGet(),
-      SubCategoryAllGet()
-    ]);
-
-    return {
-      products: productsResponse?.products || productsResponse?.data || productsResponse || [],
-      categories: categories?.data || [],
-      subcategories: subCategories?.data || [],
-      totalCount: productsResponse?.totalCount || 0
-    };
+    const res = await fetch(`${UrlBackend}/category/get`, {
+      next: { revalidate: 3600 } // Cache for 1 hour
+    });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.data || [];
   } catch (error) {
-    console.error("Error fetching shop data:", error);
-    return { products: [], categories: [], subcategories: [], totalCount: 0 };
+    console.error("Error fetching categories:", error);
+    return [];
   }
 }
 
-const shop = async (props) => {
-  const searchParams = await props.searchParams;
-  const initialData = await getShopData(searchParams);
+async function getSubCategories() {
+  try {
+    const res = await fetch(`${UrlBackend}/sub_category/get`, {
+      next: { revalidate: 3600 } // Cache for 1 hour
+    });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.data || [];
+  } catch (error) {
+    console.error("Error fetching subcategories:", error);
+    return [];
+  }
+}
+
+async function getProducts(searchParams) {
+  try {
+    const { search, category, subcategory, sortBy } = searchParams || {};
+
+    // Construct the body for the POST request (matching your backend expectation)
+    const body = {
+      limit: 30, // Optimized limit for initial server render
+      search: search || "",
+      categoryId: category || "all",
+      subCategoryId: subcategory || "all",
+      sortBy: sortBy || "name"
+    };
+
+    const res = await fetch(`${UrlBackend}/products/get`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+      next: { revalidate: 60, tags: ['products'] } // Cache for 60 seconds
+    });
+
+    if (!res.ok) return { products: [], totalCount: 0 };
+
+    const json = await res.json();
+    const products = json.products || json.data || json || [];
+    const totalCount = json.totalCount || products.length || 0;
+
+    return { products, totalCount };
+
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    return { products: [], totalCount: 0 };
+  }
+}
+
+const shop = async ({ searchParams }) => {
+  // Await searchParams if it's a promise (Next.js 15+ changes, but safe to await in recent versions)
+  const resolvedSearchParams = await searchParams;
+
+  const [productsData, categories, subcategories] = await Promise.all([
+    getProducts(resolvedSearchParams),
+    getCategories(),
+    getSubCategories()
+  ]);
+
+  const initialData = {
+    products: productsData.products,
+    totalCount: productsData.totalCount,
+    categories,
+    subcategories
+  };
 
   return (
     <div>
-      <ShopPage initialData={initialData} queryParams={searchParams} />
+      <ShopPage initialData={initialData} queryParams={resolvedSearchParams} />
     </div>
   )
 }

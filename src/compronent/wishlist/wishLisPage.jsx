@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 const WishlistComponent = () => {
   const dispatch = useDispatch();
   const { data: wishlistItems = [], loading, error } = useSelector((state) => state.wishlist);
+  const user = useSelector((state) => state.user.data);
 
   const [viewMode, setViewMode] = useState("grid");
   const [sortBy, setSortBy] = useState("newest");
@@ -18,8 +19,27 @@ const WishlistComponent = () => {
 
 
   useEffect(() => {
-    getWishlistApi(dispatch);
-  }, [dispatch]);
+    if (user) {
+      getWishlistApi(dispatch);
+    }
+  }, [dispatch, user]);
+
+  if (!user) {
+    return (
+      <div className="min-h-screen lg:mt-24 py-5 flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <div className="bg-white shadow-lg rounded-2xl p-8 text-center max-w-md">
+          <h2 className="text-2xl font-bold mb-2 text-gray-900">Please sign in</h2>
+          <p className="text-gray-600 mb-4">You need to log in to view your wishlist.</p>
+          <Link
+            href="/signin"
+            className="inline-block bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-teal-700 hover:to-green-700 transition-all"
+          >
+            Go to Sign In
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const removeFromWishlist = async (id) => {
     setAnimatingItems((prev) => new Set(prev).add(id));

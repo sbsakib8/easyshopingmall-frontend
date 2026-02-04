@@ -149,6 +149,7 @@ const Header = () => {
   }, [searchQuery]);
 
   // Auto-search as user types (using debounced value)
+  // Auto-search as user types (using debounced value)
   useEffect(() => {
     if (debouncedSearch) {
       if (pathname !== "/shop") {
@@ -159,7 +160,8 @@ const Header = () => {
       dispatch(setSearchTerm(""));
       router.push('/shop');
     }
-  }, [debouncedSearch, searchQuery, router, pathname, dispatch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch]);
   // Show live results when user types at least 2 chars
   useEffect(() => {
     // allow single-character suggestions (helpful for quick lookups)
@@ -210,6 +212,10 @@ const Header = () => {
   };
 
   const toggleWishlistLocal = async (productId) => {
+    if (!data?._id) {
+      toast.error("Please sign in to add to wishlist");
+      return;
+    }
     try {
       if (wishlistIds.has(productId)) {
         await removeFromWishlistApi(productId, dispatch);
@@ -566,7 +572,7 @@ const Header = () => {
                   <button onClick={() => {
                     router.push(`/shop`)
                     setImageSearch(!imageSearch)
-                    }} className="w-12 cursor-pointer" >
+                  }} className="w-12 cursor-pointer" >
                     <Camera />
                   </button>
                   {/* image searche dropdown */}
@@ -574,7 +580,7 @@ const Header = () => {
 
                     <p className="my-4 text-green-600 font-semibold">Search Product with Image</p>
                     <div className="max-w-2/3 min-h-30 border-3 border-dotted border-green-300 bg-green-100 flex flex-col gap-2 justify-center items-center">
-                    <p className="text-red-400">(JPG and PNG file only)</p>
+                      <p className="text-red-400">(JPG and PNG file only)</p>
                       <input className="max-w-2/3 max-h-60 cursor-pointer bg-gray-200 py-1 rounded-2xl px-2" type="file" accept="image/*" />
                     </div>
                   </div> : ""}
@@ -707,7 +713,7 @@ const Header = () => {
           <button onClick={() => { setImageSearch(!imageSearch) }} className="absolute top-2 right-5 text-2xl" >X</button>
           <p className="my-4 text-green-600 font-semibold">Search Product with Image</p>
           <div className="max-w-2/3 min-h-30 border-3 border-dotted border-green-300 bg-green-100 flex flex-col justify-center items-center gap-2">
-          <p className="text-red-400">(JPG and PNG file only)</p>
+            <p className="text-red-400">(JPG and PNG file only)</p>
             <input className="max-w-2/3 max-h-60 cursor-pointer bg-gray-200 py-1 rounded-2xl px-2" type="file" accept="image/*" />
           </div>
         </div> : ""}
