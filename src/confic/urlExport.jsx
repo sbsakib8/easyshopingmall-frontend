@@ -1,5 +1,5 @@
 // export const UrlFrontend = "https://easyshoppingmallbd.com"
-export const UrlBackend = "http://localhost:5003/api"
+export const UrlBackend = "http://localhost:5001/api"
 export const UrlFrontend = "http://localhost:3000"
 
 
