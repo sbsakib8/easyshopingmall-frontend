@@ -212,6 +212,10 @@ const Header = () => {
   };
 
   const toggleWishlistLocal = async (productId) => {
+    if (!data?._id) {
+      toast.error("Please sign in to add to wishlist");
+      return;
+    }
     try {
       if (wishlistIds.has(productId)) {
         await removeFromWishlistApi(productId, dispatch);

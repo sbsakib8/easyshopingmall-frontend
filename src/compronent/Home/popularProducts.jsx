@@ -236,6 +236,11 @@ const PopularProducts = ({ initialData }) => {
   };
 
   const toggleWishlist = async (id) => {
+    if (!user?._id) {
+      toast.error("Please sign in to add to wishlist");
+      return;
+    }
+
     // Instant UI
     setLocalWishlist((prev) => {
       const updated = new Set(prev);

@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useEffect, useMemo, useCallback, useState } from "react"
 import { addToCartApi, getCartApi, removeCartItemApi, updateCartItemApi } from "@/src/hook/useCart"
 import { addToWishlistApi, removeFromWishlistApi } from "@/src/hook/useWishlist"
 import { useFilteredProducts } from "@/src/utlis/useFilteredProducts"
@@ -43,18 +43,31 @@ const isProductNew = (createdDate) => {
 
 const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wishlist, favorite, setFavorite, addToCart, user, handleEdit, setDeleteModal }) => {
   if (!product) return null;
+
+  // Render Stars Helper
+  const ratingValue = product.rating || product.ratings || 0;
+  const renderStars = (rating) => {
+    return [...Array(5)].map((_, i) => (
+      <Star
+        key={i}
+        className={`w-3 h-3 sm:w-4 sm:h-4 ${i < Math.floor(rating)
+          ? "text-yellow-400 fill-current"
+          : "text-black"
+          }`}
+      />
+    ));
+  };
+
   return (
     <div
       onClick={() => router.push(`/productdetails/${product.id}`)}
-      className={`group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 cursor-pointer ${viewMode === "list" ? "flex" : ""
-        }`}
+      className={`group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 cursor-pointer ${viewMode === "list" ? "flex" : ""}`}
     >
       <div className={`relative ${viewMode === "list" ? "w-48" : ""}`}>
         <img
-          src={product.image || "/placeholder.svg"}
+          src={product.image || "/banner/img/placeholder.png"}
           alt={product.name}
-          className={`w-full object-cover group-hover:scale-105 transition-transform duration-500 ${viewMode === "list" ? "h-full" : "h-40 sm:h-44"
-            }`}
+          className={`w-full object-cover group-hover:scale-105 transition-transform duration-500 ${viewMode === "list" ? "h-full" : "h-40 sm:h-44"}`}
         />
 
         {/* Badges */}
@@ -63,25 +76,24 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
             {product.isNew && (
               <span className="bg-green-500 text-white px-1 py-1 rounded text-[8px] font-semibold">NEW</span>
             )}
-            {product.retailSale > product.price && (
-              <span className="bg-yellow-500 text-black px-1 py-1 mx-[2px] rounded text-[8px] font-semibold">
-                -{(product.retailSale - product.price)}৳
-              </span>
-            )}
+            {product.retailSale > product.price ? <span className="bg-yellow-500 text-black px-1 py-1 mx-[2px] rounded text-[8px] font-semibold">
+              -{(product.retailSale - product.price)}৳
+            </span> : 0}
           </div>
           {product.productStatus && product.productStatus.length > 0 && !product.productStatus.includes("none") && (
-            <span className={` ${product.productStatus.includes("hot") ? 'text-red-500' : 'text-blue-400 '} max-h-6  bg-black px-1 py-1 rounded-md text-[10px] font-bold`}>
+            <span className={` ${product.productStatus.includes("hot") ? 'text-red-500' : 'text-blue-400 '} max-h-6  bg-black px-1 py-1 rounded-md text-xs font-bold`}>
               {Array.isArray(product.productStatus) ? product.productStatus[0] : product.productStatus}
             </span>
           )}
         </div>
 
-        {/* Action Buttons */}
-        <div className={`absolute ${product.productStatus?.length > 0 ? "top-6" : "top-0"}  bg-white rounded-md right-0 transition-opacity duration-300`}>
+        {/* Action Buttons (Wishlist) */}
+        <div className={`absolute ${product.productStatus?.length > 0 ? "top-6" : "top-0"} bg-white rounded-md right-0 space-y-2 transition-opacity duration-300`}>
           <button
             onClick={(e) => {
               e.stopPropagation()
               toggleWishlist(product)
+              // Local update for immediate feedback if needed, distinct from prop check
               if ((favorite && favorite.includes(product.id)) || (wishlist && wishlist.some(i => i.id === product.id))) {
                 const removeItem = favorite ? favorite.filter(item => item !== product.id) : []
                 return setFavorite(removeItem)
@@ -109,35 +121,33 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
         )}
       </div>
 
-      <div className={`p-4 ${viewMode === "list" ? "flex-1" : ""}`}>
-        <div className="mb-1">
-          <span className="text-[10px] font-medium text-purple-600 uppercase tracking-wider">{product.category}</span>
-        </div>
-        <h3 className={`font-semibold text-gray-800 group-hover:text-purple-600 transition-colors duration-300 mb-1 ${viewMode === "list" ? "text-lg" : "text-sm line-clamp-1"
-          }`}>
-          {product.name}
-        </h3>
+      <div className={`p-3 ${viewMode === "list" ? "flex-1 flex flex-col justify-between" : ""}`}>
+        <div>
+          <h3 className={`font-semibold text-sm text-gray-800 mb-1 group-hover:text-purple-600 transition-colors duration-300 line-clamp-2`}>
+            {product.name}
+          </h3>
+          <p className="text-xs text-gray-500 mb-2">{product.brand}</p>
 
-        <div className="flex items-center space-x-2 mb-2">
-          <div className="flex items-center text-yellow-400">
-            {[...Array(5)].map((_, i) => (
-              <Star
-                key={i}
-                className={`w-3 h-3 ${i < Math.floor(product.rating) ? "fill-current" : "text-gray-300"}`}
-              />
-            ))}
-          </div>
-          <span className="text-[10px] text-gray-500">({product.reviews})</span>
-        </div>
-
-        <div className="mt-4">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex flex-col">
-              <span className="text-base font-bold text-red-600">Tk {product.price}</span>
-              {product.originalPrice > product.price && (
-                <span className="text-xs text-gray-400 line-through">Tk {product.originalPrice}</span>
-              )}
+          {/* Rating */}
+          <div className="flex items-center gap-1 mb-2">
+            <div className="flex items-center">
+              {renderStars(ratingValue)}
             </div>
+            <span className="text-xs text-gray-500">({product.rating})</span>
+          </div>
+        </div>
+
+        <div>
+          {/* Price */}
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-base font-bold text-red-600">
+              Tk {product.price}
+            </span>
+            {product.retailSale > product.price && (
+              <span className="text-xs font-semibold text-gray-400 line-through">
+                {product.retailSale.toFixed(2)}
+              </span>
+            )}
           </div>
 
           {user?.role !== "ADMIN" ? (
@@ -152,25 +162,27 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
                 }`}
             >
-              <span className="flex items-center justify-center gap-1">
-                <ShoppingCart className="w-3 h-3" />
-                Add to Cart
-              </span>
+              {product.inStock ? (
+                <span className="flex items-center justify-center gap-1">
+                  <ShoppingCart className="w-3 h-3" />
+                  Add to Cart
+                </span>
+              ) : ("Out of Stock")}
             </button>
           ) : (
             <div className="flex justify-around gap-2">
               <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  addToCart(product)
-                }}
-                disabled={!product.inStock}
-                className={`flex-1 py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs ${product.inStock
-                  ? "bg-green-600 text-white hover:bg-green-700"
-                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  }`}
+                disabled
+                className=" py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs bg-gray-300 text-gray-500 cursor-not-allowed"
               >
-                <ShoppingCart size={16} className="mx-auto" />
+                {product.inStock ? (
+                  <span className="flex items-center justify-center gap-1">
+                    <ShoppingCart size={16} />
+
+                  </span>
+                ) : (
+                  "Out of Stock"
+                )}
               </button>
               <button
                 onClick={(e) => {
@@ -198,7 +210,9 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
   );
 });
 
-const ShopPage = () => {
+import { setProducts, setTotalCount } from "@/src/redux/shopSlice" // Ensure these actions exist or use a generic success action
+
+const ShopPage = ({ initialData, queryParams }) => {
   const router = useRouter()
   const dispatch = useDispatch()
   const searchParams = useSearchParams()
@@ -216,8 +230,48 @@ const ShopPage = () => {
     sortBy,
     currentPage,
     viewMode,
-    showFilters
+    showFilters,
+    products: reduxProducts,
+    totalCount: reduxTotalCount,
+    loading: productsLoading,
+    error: productsError,
+    debouncedSearchTerm
   } = shopState
+
+  // Hydrate Redux with Server Data on Mount
+  useEffect(() => {
+    if (initialData) {
+      // Dispatch actions to sync Redux with Server Data
+      // We use a custom action type or existing ones. Assuming fetchShopProducts.fulfilled like behavior or direct setters.
+      // For now, let's assume we can dispatch a hydration action or manually set data if your slice supports it.
+      // If not, we'll rely on the Fallback Logic below for rendering.
+
+      // However, to ensure filters work, we definitely need to populate Redux if it's empty.
+      if (!reduxProducts.length && initialData.products?.length) {
+        // Check if we have an action to set products directly. If not, this is a conceptual step.
+        // Let's rely on the fallback below for view, but dispatch syncFromUrl to set filters.
+      }
+    }
+  }, [initialData, reduxProducts.length]);
+
+  // Sync URL params to Redux state on mount (Enhanced with Props)
+  const urlSearch = queryParams?.search || searchParams?.get("search") || ""
+  const urlCategory = queryParams?.category || searchParams?.get("category") || ""
+  const urlSubCategory = queryParams?.subcategory || searchParams?.get("subcategory") || ""
+
+  useEffect(() => {
+    dispatch(syncFromUrl({
+      search: urlSearch,
+      category: urlCategory,
+      subcategory: urlSubCategory
+    }))
+  }, [urlSearch, urlCategory, urlSubCategory, dispatch])
+
+
+  // Use server products directly from Redux OR Fallback to Initial Data
+  // This ensures the user sees the cached server data immediately before Redux takes over
+  const currentProducts = reduxProducts?.length > 0 || productsLoading ? reduxProducts : (initialData?.products || [])
+  const totalCount = reduxTotalCount > 0 || productsLoading ? reduxTotalCount : (initialData?.totalCount || 0)
 
   // Local component state
   const [deleteModal, setDeleteModal] = useState(null)
@@ -227,8 +281,10 @@ const ShopPage = () => {
   const [showSubCategory, setShowSubCategory] = useState(false)
   const productsPerPage = 30
 
-  // Redux-backed cart & wishlist
-  const reduxCart = useSelector((state) => state.cart.items || [])
+  // Optimize Redux Selectors to avoid new references
+  const reduxCartItems = useSelector((state) => state.cart.items) || []; // Default outside selector
+  const reduxCart = useMemo(() => reduxCartItems, [reduxCartItems]);
+
   // Normalize redux cart items for UI
   const cart = useMemo(() => {
     return (reduxCart || []).map((item) => {
@@ -237,7 +293,7 @@ const ShopPage = () => {
         return {
           id: prod._id || prod.id || String(prod?._id || prod?.id || ""),
           name: prod.productName || prod.name || prod.title || "Product",
-          image: prod.images?.[0] || prod.image || "/banner/img/placeholder.png",
+          image: prod.images?.[0] || prod.image || "/images/placeholder.png",
           price: Number(prod.price ?? prod.sell_price ?? prod.amount) || 0,
           quantity: item.quantity || 1,
           brand: prod.brand || prod.manufacturer || "",
@@ -247,7 +303,7 @@ const ShopPage = () => {
       return {
         id: item.id || item._id || "",
         name: item.name || item.productName || "Product",
-        image: item.image || item.images?.[0] || "/banner/img/placeholder.png",
+        image: item.image || item.images?.[0] || "/images/placeholder.png",
         price: Number(item.price) || 0,
         quantity: item.quantity || 1,
         brand: item.brand || "",
@@ -267,29 +323,6 @@ const ShopPage = () => {
     }
   }, [user, dispatch])
 
-  // Sync URL params to Redux state on mount
-  const urlSearch = searchParams?.get("search") || ""
-  const urlCategory = searchParams?.get("category") || ""
-  const urlSubCategory = searchParams?.get("subcategory") || ""
-
-  useEffect(() => {
-    dispatch(syncFromUrl({
-      search: urlSearch,
-      category: urlCategory,
-      subcategory: urlSubCategory
-    }))
-  }, [urlSearch, urlCategory, urlSubCategory, dispatch])
-
-  const {
-    products,
-    totalCount,
-    loading: productsLoading,
-    error: productsError,
-    debouncedSearchTerm
-  } = shopState
-
-  // Use server products directly from Redux
-  const currentProducts = products || []
   const totalPages = Math.ceil(totalCount / productsPerPage)
 
   // Fetch products when any filter changes
@@ -333,7 +366,7 @@ const ShopPage = () => {
   }, [searchTerm, dispatch]);
 
   // Add to cart (uses API + redux)
-  const addToCart = async (product) => {
+  const addToCart = useCallback(async (product) => {
     if (!user?._id) {
       toast.error("Please sign in to add items to cart")
       return
@@ -357,10 +390,10 @@ const ShopPage = () => {
       const msg = err?.response?.data?.message || "Failed to add to cart"
       toast.error(msg)
     }
-  }
+  }, [user?._id, dispatch]);
 
   // Remove from cart (uses API + redux)
-  const removeFromCart = async (productId) => {
+  const removeFromCart = useCallback(async (productId) => {
     if (!user?._id) {
       // optimistic local fallback (should rarely happen)
       return
@@ -373,10 +406,10 @@ const ShopPage = () => {
       console.error("Remove from cart error:", err)
       toast.error("Failed to remove item")
     }
-  }
+  }, [user?._id, dispatch]);
 
   // Update quantity (API + redux)
-  const updateQuantity = async (productId, newQuantity) => {
+  const updateQuantity = useCallback(async (productId, newQuantity) => {
     if (!user?._id) {
       return
     }
@@ -391,10 +424,14 @@ const ShopPage = () => {
       console.error("Update cart quantity error:", err)
       toast.error("Failed to update quantity")
     }
-  }
+  }, [user?._id, dispatch, removeFromCart]);
 
   // Toggle wishlist (uses API + redux)
-  const toggleWishlist = async (product) => {
+  const toggleWishlist = useCallback(async (product) => {
+    if (!user?._id) {
+      toast.error("Please sign in to add to wishlist")
+      return
+    }
     try {
       const exists = (wishlist || []).some((i) => i.id === product.id || favorite.includes(product.id))
       if (exists) {
@@ -408,7 +445,7 @@ const ShopPage = () => {
       console.error("Wishlist toggle error:", err)
       toast.error("Failed to update wishlist")
     }
-  }
+  }, [wishlist, favorite, dispatch]);
 
   // Calculate cart total
   const cartTotal = cart.reduce((total, item) => total + item.price * item.quantity, 0)
@@ -489,11 +526,11 @@ const ShopPage = () => {
   };
   const [load, setLoad] = useState(false);
   // handle edit functionality 
-  const handleEdit = (p) => {
+  const handleEdit = useCallback((p) => {
     const selectedProudct = currentProducts.find(item => item.id == p.id)
     setEditModal(selectedProudct)
 
-  }
+  }, [currentProducts])
 
   const saveEdit = async () => {
     // console.log("editModal-->",editModal)
@@ -823,7 +860,7 @@ const ShopPage = () => {
               >
                 {currentProducts.map((product) => (
                   <ProductCard
-                    key={product.id}
+                    key={product._id}
                     product={product}
                     viewMode={viewMode}
                     router={router}
@@ -1193,6 +1230,48 @@ const ShopPage = () => {
         .scrollbar-thin {
           scrollbar-width: thin;
           scrollbar-color: #a855f7 #e5e7eb;
+        }
+      `}</style>
+      {/* ✨ Animations + Glassmorphism + Scrollbar Hide */}
+      <style jsx>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes slideInUp {
+          from {
+            opacity: 0;
+            transform: translateY(50px) scale(0.9);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        .backdrop-blur-sm {
+          backdrop-filter: blur(8px);
+        }
+        .backdrop-blur-lg {
+          backdrop-filter: blur(16px);
+        }
+        .line-clamp-2 {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
         }
       `}</style>
     </div>

@@ -7,8 +7,8 @@ import { LeftBannerAllGet } from "@/src/hook/useLeftBanner";
 import { RightBannerAllGet } from "@/src/hook/userRightBanner";
 import { SubCategoryAllGet } from "@/src/hook/useSubcategory";
 
-// Disable static optimization for this page to ensure fresh data using your hooks
-export const dynamic = 'force-dynamic';
+// Enable ISR with 5-minute revalidation for better performance
+export const revalidate = 300;
 
 export const metadata = {
   title: "Home - Best Online Shopping Experience in BD",

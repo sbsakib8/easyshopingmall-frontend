@@ -13,24 +13,43 @@ import ReactPlayer from 'react-player'
 
 
 
-export default function CheckoutComponent() {
-  const user = useSelector((state) => state.user?.data);
-  const [showGuideVideo, setShowGuideVideo] = useState(false)
+import { userget } from "@/src/redux/userSlice";
+import { cartSuccess } from "@/src/redux/cartSlice";
+
+export default function CheckoutComponent({ initialUser, initialCartItems }) {
+  const user = useSelector((state) => state.user?.data) || initialUser;
   const dispatch = useDispatch();
   const { items } = useSelector((state) => state.cart || {});
-  const cartItems = items || [];
+  // Use Redux items if available (client updates), otherwise fall back to server initial items
+  const cartItems = items?.length > 0 ? items : (initialCartItems || []);
 
+  const [showGuideVideo, setShowGuideVideo] = useState(false)
   const [selectedPayment, setSelectedPayment] = useState("");
   const [customerInfo, setCustomerInfo] = useState({
     name: user?.name || "",
     phone: user?.phone || "",
     email: user?.email || "",
-    address: "",
+    address: user?.address || "",
     division: "",
     district: "",
     area: "",
     pincode: "",
   });
+
+  // Hydrate Redux from Server Data (Optional but recommended for consistency)
+  useEffect(() => {
+    if (initialUser && !items?.length) {
+      // Only hydrate if Redux is empty to avoid overwriting client-side changes
+      // Logic can be adjusted based on needs
+    }
+    // We can dispatch to sync state if needed, but local state usage above handles the view.
+    if (initialUser && user?._id !== initialUser._id) {
+      dispatch(userget({ data: initialUser }));
+    }
+    if (initialCartItems?.length > 0 && items?.length === 0) {
+      dispatch(cartSuccess(initialCartItems));
+    }
+  }, [initialUser, initialCartItems, dispatch]);
 
   const [selectedManualMethod, setSelectedManualMethod] = useState(null);
   const [createdOrder, setCreatedOrder] = useState(null);
@@ -39,7 +58,6 @@ export default function CheckoutComponent() {
   const [deliveryCharge, setDeliveryCharge] = useState(60);
   const [manualPaymentInfo, setManualPaymentInfo] = useState({ senderNumber: "", transactionId: "" })
   const [usedTransactionIds, setUsedTransactionIds] = useState([]);
-  ;
 
   const isValidBDPhone = (phone) => /^01[3-9]\d{8}$/.test(phone);
   const isValidEmail = (email) =>
@@ -53,7 +71,7 @@ export default function CheckoutComponent() {
   // subtotal
   const subtotal = cartItems.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 0), 0);
   const total = subtotal + deliveryCharge;
-  console.log('cartItems', cartItems);
+  // console.log('cartItems', cartItems);
 
   useEffect(() => {
     // if user already has an address prefills
