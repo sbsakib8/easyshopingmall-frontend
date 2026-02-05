@@ -88,9 +88,9 @@ const DashboardNebver = ({ children }) => {
       icon: ShoppingCart,
       path: "/dashboard/order/allorders",
       submenu: [
-        { path: "/order/completed-orders", id: 19, label: "All Orders", icon: CheckCircle },
-        { path: "/order/allorders", id: 16, label: "Pending Orders", icon: ShoppingCart },
-        { path: "/order/pending-orders", id: 17, label: "Processing Orders", icon: Clock },
+        { path: "/order/allorders", id: 19, label: "All Orders", icon: CheckCircle },
+        { path: "/order/pending-orders", id: 16, label: "Pending Orders", icon: ShoppingCart },
+        { path: "/order/processing-orders", id: 17, label: "Processing Orders", icon: Clock },
         { path: "/order/shipped-orders", id: 18, label: "Shipped Orders", icon: Truck },
         
       ],
