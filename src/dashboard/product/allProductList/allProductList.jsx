@@ -997,6 +997,24 @@ const ProductDashboard = () => {
                     />
                   </div>
 
+                  <div>
+                    <label className="block text-gray-300 text-sm font-semibold mb-2">
+                      Product Status
+                    </label>
+                    <select
+                      value={editModal?.productStatus?.length > 0 ? editModal.productStatus[0] : "none"}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        updateEditField("productStatus", val === "none" ? [] : [val]);
+                      }}
+                      className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                    >
+                      <option value="none">None</option>
+                      <option value="hot">Hot</option>
+                      <option value="cold">Cold</option>
+                    </select>
+                  </div>
+
                   <div className="md:col-span-2">
                     <label className="block text-gray-300 text-sm font-semibold mb-3">
                       Product Status Badges (Tags)

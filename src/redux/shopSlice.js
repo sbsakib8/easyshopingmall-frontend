@@ -99,14 +99,21 @@ const shopSlice = createSlice({
             };
         },
         syncFromUrl: (state, action) => {
-            const { search, category, subcategory, sortBy } = action.payload;
+            const { search, category, subcategory, sortBy, brand, gender, minPrice, maxPrice, rating, page } = action.payload;
             if (search !== undefined) {
                 state.searchTerm = search;
                 state.debouncedSearchTerm = search;
             }
             if (category !== undefined) state.filterCategory = category || "all";
             if (subcategory !== undefined) state.filterSubCategory = subcategory || "all";
+            if (brand !== undefined) state.filterBrand = brand || "all";
+            if (gender !== undefined) state.filterGender = gender || "all";
+            if (minPrice !== undefined && maxPrice !== undefined) {
+                state.priceRange = [Number(minPrice) || 0, Number(maxPrice) || 100000];
+            }
+            if (rating !== undefined) state.ratingFilter = Number(rating) || 0;
             if (sortBy !== undefined) state.sortBy = sortBy || "name";
+            if (page !== undefined) state.currentPage = Number(page) || 1;
         }
     },
     extraReducers: (builder) => {
