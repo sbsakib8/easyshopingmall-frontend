@@ -112,7 +112,7 @@ export const getUserProfile = async () => {
     });
     return response.data;
   } catch (error) {
-    console.error("Get User Profile error:", error.response?.data || error.message);
+    // console.error("Get User Profile error:", error.response?.data || error.message);
     throw error;
   }
 }

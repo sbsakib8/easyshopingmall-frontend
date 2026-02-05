@@ -1,5 +1,5 @@
 "use client";
-import LoadingPage from "@/src/helper/loading/loadingPge";
+import { CardSkeleton } from "@/src/compronent/loading/Skeleton";
 import { getWishlistApi, removeFromWishlistApi } from "@/src/hook/useWishlist";
 import { Eye, Grid, Heart, List, Share2, ShoppingCart, Star, Trash2 } from "lucide-react";
 import Link from "next/link";
@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 const WishlistComponent = () => {
   const dispatch = useDispatch();
   const { data: wishlistItems = [], loading, error } = useSelector((state) => state.wishlist);
+  const user = useSelector((state) => state.user.data);
 
   const [viewMode, setViewMode] = useState("grid");
   const [sortBy, setSortBy] = useState("newest");
@@ -18,8 +19,27 @@ const WishlistComponent = () => {
 
 
   useEffect(() => {
-    getWishlistApi(dispatch);
-  }, [dispatch]);
+    if (user) {
+      getWishlistApi(dispatch);
+    }
+  }, [dispatch, user]);
+
+  if (!user) {
+    return (
+      <div className="min-h-screen lg:mt-24 py-5 flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <div className="bg-white shadow-lg rounded-2xl p-8 text-center max-w-md">
+          <h2 className="text-2xl font-bold mb-2 text-gray-900">Please sign in</h2>
+          <p className="text-gray-600 mb-4">You need to log in to view your wishlist.</p>
+          <Link
+            href="/signin"
+            className="inline-block bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-teal-700 hover:to-green-700 transition-all"
+          >
+            Go to Sign In
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const removeFromWishlist = async (id) => {
     setAnimatingItems((prev) => new Set(prev).add(id));
@@ -97,7 +117,20 @@ const WishlistComponent = () => {
   // Loading + Error
   if (loading)
     return (
-      <LoadingPage />
+      <div className="min-h-screen lg:mt-24 py-6 bg-gray-50 p-4 sm:p-6 lg:p-8">
+        <div className="max-w-7xl mx-auto space-y-8">
+          <div className="flex flex-col items-center space-y-4">
+            <div className="h-10 w-64 bg-gray-200 rounded-lg animate-pulse" />
+            <div className="h-6 w-32 bg-gray-200 rounded-lg animate-pulse" />
+          </div>
+          <div className="h-24 w-full bg-gray-200 rounded-2xl animate-pulse" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <CardSkeleton key={i} />
+            ))}
+          </div>
+        </div>
+      </div>
     );
 
   if (error)

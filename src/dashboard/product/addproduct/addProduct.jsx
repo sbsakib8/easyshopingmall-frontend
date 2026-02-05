@@ -83,8 +83,8 @@ const AddProductComponent = () => {
         type === "checkbox"
           ? checked
           : name === "category" || name === "subCategory"
-          ? [value]
-          : value,
+            ? [value]
+            : value,
     }));
   };
 
@@ -220,7 +220,7 @@ const AddProductComponent = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true); 
+    setIsLoading(true);
 
     try {
       const formDataToSend = new FormData();
@@ -248,7 +248,7 @@ const AddProductComponent = () => {
         toast.success("✅ Product added successfully!");
         resetForm();
 
-        
+
         await ProductNotification({
           title: "New Product Added",
           message: `Product is now live!`,
@@ -263,7 +263,7 @@ const AddProductComponent = () => {
       console.error("Error adding product:", error);
       toast.error("❌ Something went wrong! Please try again.");
     } finally {
-      setIsLoading(false); 
+      setIsLoading(false);
     }
   };
 
@@ -419,42 +419,32 @@ const AddProductComponent = () => {
             </div>
 
             {/* Tags */}
-            <div className="mt-6 space-y-2">
-              <label className="text-white font-medium">Product Tags</label>
-              <div className="flex flex-wrap gap-2 mb-3">
-                {formData.tags.map((tag) => (
-                  <span
+            <div className="mt-6 space-y-4">
+              <label className="text-white font-medium">Product Status Badges (Tags)</label>
+              <div className="flex gap-4">
+                {['hot', 'cold'].map((tag) => (
+                  <button
                     key={tag}
-                    className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-full text-sm flex items-center"
+                    type="button"
+                    onClick={() => {
+                      if (formData.tags.includes(tag)) {
+                        removeTag(tag);
+                      } else {
+                        setFormData(prev => ({ ...prev, tags: [...prev.tags, tag] }));
+                      }
+                    }}
+                    className={`px-6 py-3 rounded-xl border transition-all duration-300 flex items-center gap-2 capitalize
+                      ${formData.tags.includes(tag)
+                        ? "bg-gradient-to-r from-blue-500 to-purple-500 border-transparent text-white shadow-lg shadow-purple-500/20"
+                        : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
+                      }`}
                   >
                     {tag}
-                    <button
-                      type="button"
-                      onClick={() => removeTag(tag)}
-                      className="ml-2 hover:bg-white/20 rounded-full p-1 transition-colors"
-                    >
-                      <X size={12} />
-                    </button>
-                  </span>
+                    {formData.tags.includes(tag) && <X size={14} className="ml-1" />}
+                  </button>
                 ))}
               </div>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={newTag}
-                  onChange={(e) => setNewTag(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
-                  className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Add product tags"
-                />
-                <button
-                  type="button"
-                  onClick={addTag}
-                  className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-300 flex items-center"
-                >
-                  <Plus size={20} />
-                </button>
-              </div>
+              <p className="text-xs text-gray-400">Select badges to display on the product card.</p>
             </div>
           </div>
 
@@ -661,9 +651,8 @@ const AddProductComponent = () => {
                   >
                     <Star
                       size={24}
-                      className={`${
-                        star <= formData.ratings ? "text-yellow-400 fill-current" : "text-gray-400"
-                      } transition-colors duration-200`}
+                      className={`${star <= formData.ratings ? "text-yellow-400 fill-current" : "text-gray-400"
+                        } transition-colors duration-200`}
                     />
                   </button>
                 ))}
@@ -681,11 +670,10 @@ const AddProductComponent = () => {
 
             {/* Drag & Drop Upload Area */}
             <div
-              className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 ${
-                dragOver
+              className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 ${dragOver
                   ? "border-blue-400 bg-blue-500/20"
                   : "border-white/30 hover:border-white/50"
-              }`}
+                }`}
               onDrop={handleDrop}
               onDragOver={(e) => {
                 e.preventDefault();
@@ -759,11 +747,10 @@ const AddProductComponent = () => {
               type="submit"
               disabled={isLoading}
               className={`px-8 py-4 rounded-xl text-white flex items-center justify-center space-x-2 shadow-lg transition-all duration-300
-    ${
-      isLoading
-        ? "bg-gray-500 cursor-not-allowed"
-        : "bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 transform hover:scale-105"
-    }
+    ${isLoading
+                  ? "bg-gray-500 cursor-not-allowed"
+                  : "bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 transform hover:scale-105"
+                }
   `}
             >
               {isLoading ? (

@@ -41,7 +41,7 @@ export const getWishlistApi = async (dispatch) => {
 
         dispatch(wishlistSet(formatted));
     } catch (error) {
-        console.error("Get wishlist error:", error?.response?.data || error.message);
+        // console.error("Get wishlist error:", error?.response?.data || error?.message);
         dispatch(
             wishlistError(error?.response?.data?.message || "Failed to load wishlist")
         );

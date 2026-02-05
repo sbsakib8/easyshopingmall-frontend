@@ -55,7 +55,7 @@ const ProductDetails = () => {
   // Fetch all products for related products
   const productParams = useMemo(() => ({}), []);
   const { product: allProductsData } = useGetProduct(productParams);
-  // console.log("product", allProductsData);
+  console.log("product", allProductsData);
 
   const handleSubmitReview = async () => {
     // Check if user is logged in
@@ -122,7 +122,7 @@ const ProductDetails = () => {
         setReviewList(data);
 
         const approveData = data.filter((review) => review.status === "approved");
-        // console.log(approveData);
+        console.log(approveData);
       } catch (err) {
         console.error(err);
       } finally {
@@ -153,7 +153,6 @@ const ProductDetails = () => {
             rating: Number(data?.ratings),
             reviews: Number(data.reviews ?? 0) || 0,
             images: data.images || ["/banner/img/placeholder.png"],
-            video_link: data.video_link ,
             sizes: data.productSize ? [data.productSize] : data.sizes || [],
             colors: Array.isArray(data.color) ? data.color : data.colors || [],
             stock: Number(data.productStock ?? data.stock ?? 0) || 0,
@@ -433,28 +432,28 @@ const ProductDetails = () => {
                     alt={`${product?.name} `}
                     className="w-20 h-20 object-cover"
                   />
-                  <img onClick={() => setshowVideo(true)} src={"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRT7dAm2xeRPWO5PJWhJnhfUeG3Syl3ws8wnw&s"} alt="" className="w-10 h-10 absolute  top-5 right-5 cursor-pointer rounded-full" />
+                  <img onClick={() => setshowVideo(true)} src={product?.video_link} alt="" className="w-10 h-10 object-cover absolute  top-5 right-5 cursor-pointer" />
 
                   {/* details video  */}
-                {showVideo && <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn ">
-                  <ReactPlayer
-                    controls
-                    light={<img
-                      src={product?.images[0] || []}
-                      alt={`${product?.name} `}
-                      className=" w-96 h-96 rounded-xl md:rounded-2xl"
-                    />}
-                    playIcon={<img className='w-12 h-12 absolute rounded-full' src={"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRT7dAm2xeRPWO5PJWhJnhfUeG3Syl3ws8wnw&s"} />}
-                    width={660}
-                    height={315}
-                    volume={0.5}
-                    playing={true}
-                    src={product?.video_link}
-                  />
-                  <button onClick={() => setshowVideo(!showVideo)} className="text-xl bg-red-400 py-1 px-3 rounded-full absolute top-10 right-10 cursor-pointer">X</button>
-                </div>}
+                  {showVideo && <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn ">
+                    <ReactPlayer
+                      controls
+                      light={<img
+                        src={product?.images[0] || []}
+                        alt={`${product?.name} `}
+                        className=" w-96 h-96 rounded-xl md:rounded-2xl"
+                      />}
+                      playIcon={<img className='w-12 h-12 absolute rounded-full' src={"https://cdn-icons-png.freepik.com/256/13983/13983898.png?semt=ais_white_label"} />}
+                      width={660}
+                      height={315}
+                      volume={0.5}
+                      playing={true}
+                      src={product?.video_link || "https://youtube.com/shorts/axcw2w7pKkk?si=-doija2AmzPRa_4v"}
+                    />
+                    <button onClick={() => setshowVideo(!showVideo)} className="text-xl bg-red-400 py-1 px-3 rounded-full absolute top-10 right-10 cursor-pointer">X</button>
+                  </div>}
                 </>}
-                
+
               </div>
 
               {/* Thumbnail Images */}
