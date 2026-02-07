@@ -118,7 +118,7 @@ const ContactPage = ({ initialSiteInfo }) => {
 
 
   return (
-    <div className="min-h-screen lg:mt-20 py-4 bg-gradient-to-br bg-base-300 relative overflow-hidden">
+    <div className="min-h-screen lg:mt-20 py-4 bg-gradient-to-br bg-[#2e394a] relative overflow-hidden">
 
 
       <div className="relative z-10 container mx-auto px-4 py-12 lg:py-20">
