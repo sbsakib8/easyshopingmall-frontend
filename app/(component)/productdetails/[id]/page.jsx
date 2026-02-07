@@ -23,6 +23,7 @@ export async function generateMetadata(props) {
         images: [{ url: image }],
         type: 'article',
       },
+      keywords:[...product.tags,product.category[0].name,product.subCategory[0].name],
       twitter: {
         card: 'summary_large_image',
         title,

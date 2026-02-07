@@ -48,7 +48,7 @@ const AboutPage = () => {
     <div className="min-h-screen lg:mt-20 py-5 bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-secondary/30 to-secondary/40"></div>
         <div className={`container mx-auto px-4 py-16 md:py-24 relative transform transition-all duration-1000 ${
           isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
         }`}>
@@ -73,7 +73,7 @@ const AboutPage = () => {
                 isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
               }`} style={{ transitionDelay: `${index * 200}ms` }}>
                 <div className="mb-4 flex justify-center">
-                  <div className="p-4 bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 rounded-full group-hover:shadow-lg group-hover:shadow-blue-500/25 transition-all duration-300">
+                  <div className="p-4 bg-gradient-to-r from-btn-color/80 via-btn-color/95 to-btn-color rounded-full group-hover:shadow-lg group-hover:shadow-blue-500/25 transition-all duration-300">
                     <stat.icon className="w-8 h-8 text-white" />
                   </div>
                 </div>
@@ -110,7 +110,7 @@ const AboutPage = () => {
       </div>
 
       {/* Values Section */}
-      <div className="py-16 bg-gradient-to-r from-blue-50 to-purple-50">
+      <div className="py-16 bg-gradient-to-r from-base-300/50 to-purple-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">আমাদের মূল্যবোধ</h2>
@@ -122,7 +122,7 @@ const AboutPage = () => {
                 isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
               }`} style={{ transitionDelay: `${index * 300}ms` }}>
                 <div className="flex justify-center mb-6">
-                  <div className="p-4 bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 rounded-full">
+                  <div className="p-4 bg-gradient-to-r from-btn-color/80 via-btn-color/95 to-btn-color rounded-full">
                     <value.icon className="w-8 h-8 text-white" />
                   </div>
                 </div>
@@ -147,7 +147,7 @@ const AboutPage = () => {
                 <div key={index} className={`flex items-center space-x-4 p-4 bg-white rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 ${
                   isVisible ? 'translate-x-0 opacity-100' : 'translate-x-10 opacity-0'
                 }`} style={{ transitionDelay: `${index * 200}ms` }}>
-                  <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0" />
+                  <CheckCircle className="w-6 h-6 text-btn-color flex-shrink-0" />
                   <span className="text-gray-700 font-medium">{feature}</span>
                 </div>
               ))}
@@ -157,7 +157,7 @@ const AboutPage = () => {
       </div>
 
       {/* Mission Section */}
-      <div className="py-16 bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white">
+      <div className="py-16 bg-gradient-to-r from-btn-color/80 via-btn-color/95 to-btn-color text-accent-content">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-8">আমাদের লক্ষ্য</h2>
@@ -180,7 +180,7 @@ const AboutPage = () => {
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
             আজই শুরু করুন আপনার অনলাইন শপিং যাত্রা এবং অভিজ্ঞতা নিন সেরা সেবার।
           </p>
-          <Link href='/shop' className="bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:shadow-lg hover:shadow-blue-500/25 transform hover:scale-105 transition-all duration-300">
+          <Link href='/shop' className="bg-gradient-to-r from-btn-color/80 via-btn-color/95 to-btn-color text-white px-8 py-4 rounded-full text-lg font-semibold hover:shadow-lg hover:shadow-blue-500/25 transform hover:scale-105 transition-all duration-300">
             এখনই শপিং শুরু করুন
           </Link>
         </div>

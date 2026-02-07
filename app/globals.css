@@ -2,9 +2,17 @@
 
 
 /* color set up  */
+/* @theme {
+  --color-primary-color:blue; 
+  --color-btn-color: blue; 
+  --color-secondary: pink; 
+  --color-base-300:  #ffbb00;
+  --color-accent: black;
+  --color-accent-content: white;
+} */
 @theme {
   --color-primary-color: #39B47f; 
-  --color-btn-color: green; 
+  --color-btn-color: #009C5E; 
   --color-secondary: #ffbb00; 
   --color-base-300: #C9C4C3;
   --color-accent: black;

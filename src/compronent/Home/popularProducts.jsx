@@ -459,18 +459,18 @@ const PopularProducts = ({ initialData }) => {
 
                   {/* Add to Cart */}
                   
-                  <Button
+                  <button
                     onClick={(e) => {
                       e.preventDefault();
                       handleAddToCart(product);
                     }}
-                    className="w-full py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs hover:bg-green-700 transform hover:scale-105 "
+                    className="w-full py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs bg-btn-color text-accent-content hover:bg-green-700 transform hover:scale-105 cursor-pointer"
                   >
                     <span className="flex items-center justify-center gap-1">
                       <ShoppingCart className="w-3 h-3" />
                       Add to Cart
                     </span>
-                  </Button>
+                  </button>
                 </div>
               </div>
             </Link>
