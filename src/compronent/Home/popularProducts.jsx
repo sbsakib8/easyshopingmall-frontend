@@ -25,6 +25,7 @@ import { useGetcategory } from "../../utlis/usecategory";
 import { useGetProduct } from "../../utlis/userProduct";
 import { useCategoryWithSubcategories } from "../../utlis/useCategoryWithSubcategories";
 import { useWishlist } from "@/src/utlis/useWishList";
+import Button from "@/src/helper/Buttons/Button";
 
 // Helper function to determine if product is new or old
 const isProductNew = (createdDate) => {
@@ -457,18 +458,19 @@ const PopularProducts = ({ initialData }) => {
                   </div>
 
                   {/* Add to Cart */}
-                  <button
+                  
+                  <Button
                     onClick={(e) => {
                       e.preventDefault();
                       handleAddToCart(product);
                     }}
-                    className="w-full py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs bg-green-600 text-white hover:bg-green-700 transform hover:scale-105"
+                    className="w-full py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs hover:bg-green-700 transform hover:scale-105 "
                   >
                     <span className="flex items-center justify-center gap-1">
                       <ShoppingCart className="w-3 h-3" />
                       Add to Cart
                     </span>
-                  </button>
+                  </Button>
                 </div>
               </div>
             </Link>
