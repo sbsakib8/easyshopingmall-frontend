@@ -93,7 +93,7 @@ const CompletedOrdersPage = () => {
                             <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between">
                                 <div>
                                     <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">
-                                        Completed <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Order</span>!
+                                        All <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Order</span>!
                                     </h1>
                                     <p className="text-gray-300 text-sm sm:text-base">
                                         EasyShoppingMall Admin Dashboard
