@@ -1,9 +1,9 @@
 "use client";
-import React, { useState } from 'react';
-import { Mail, Lock, ArrowRight, CheckCircle, Eye, EyeOff, ShoppingBag } from 'lucide-react';
 import { changePassword, sendOtp, verifyOtp } from '@/src/hook/useAuth';
+import { ArrowRight, CheckCircle, Eye, EyeOff, Lock, Mail, ShoppingBag } from 'lucide-react';
+import React, { useState } from 'react';
 
- const ForgotPassword=()=> {
+const ForgotPassword = () => {
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
@@ -16,15 +16,15 @@ import { changePassword, sendOtp, verifyOtp } from '@/src/hook/useAuth';
 
   const handleSendOtp = () => {
     setError('');
-    
+
     if (!email || !email.includes('@')) {
       setError('Valid email address din');
       return;
-    } 
+    }
     setLoading(true);
     sendOtp({ email })
       .then((res) => {
-        if (res.success) { 
+        if (res.success) {
           setStep(2);
         } else {
           setError(res.message || 'OTP pathano jaini. Punarbar chesta korun.');
@@ -39,69 +39,69 @@ import { changePassword, sendOtp, verifyOtp } from '@/src/hook/useAuth';
   };
 
   const handleVerifyOtp = () => {
-  setError('');
+    setError('');
 
-  if (!otp || otp.length !== 6) {
-    setError('6 digit OTP din');
-    return;
-  }
+    if (!otp || otp.length !== 6) {
+      setError('6 digit OTP din');
+      return;
+    }
 
-  setLoading(true);
+    setLoading(true);
 
-  verifyOtp({ email, otp })
-    .then((res) => {
-      if (res.success) {
-        setStep(3); 
-      } else {
-        setError(res.message || 'OTP verify kora jaini. Punarbar chesta korun.');
-      }
-    })
-    .catch((err) => {
-      setError(err.response?.data?.message || 'OTP verify kora jaini. Punarbar chesta korun.');
-    })
-    .finally(() => {
-      setLoading(false); 
-    });
-};
+    verifyOtp({ email, otp })
+      .then((res) => {
+        if (res.success) {
+          setStep(3);
+        } else {
+          setError(res.message || 'OTP verify kora jaini. Punarbar chesta korun.');
+        }
+      })
+      .catch((err) => {
+        setError(err.response?.data?.message || 'OTP verify kora jaini. Punarbar chesta korun.');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
 
 
-// change password
+  // change password
   const handleChangePassword = () => {
-  setError('');
+    setError('');
 
-  if (newPassword.length < 6) {
-    setError('Password minimum 6 character hote hobe');
-    return;
-  }
+    if (newPassword.length < 6) {
+      setError('Password minimum 6 character hote hobe');
+      return;
+    }
 
-  if (newPassword !== confirmPassword) {
-    setError('Password match korche na');
-    return;
-  }
+    if (newPassword !== confirmPassword) {
+      setError('Password match korche na');
+      return;
+    }
 
-  setLoading(true);
+    setLoading(true);
 
-  changePassword({ email, newpassword:newPassword })
-    .then((res) => {
-      if (res.success) {
-        alert('Password successfully change hoyeche! Sign in page e redirect korche...');
-        // window.location.href = '/signin';
-        setStep(1);
-        setEmail('');
-        setOtp('');
-        setNewPassword('');
-        setConfirmPassword('');
-      } else {
-        setError(res.message || 'Password change kora jaini. Punarbar chesta korun.');
-      }
-    })
-    .catch((err) => {
-      setError(err.response?.data?.message || 'Password change kora jaini. Punarbar chesta korun.');
-    })
-    .finally(() => {
-      setLoading(false);
-    });
-};
+    changePassword({ email, newpassword: newPassword })
+      .then((res) => {
+        if (res.success) {
+          alert('Password successfully change hoyeche! Sign in page e redirect korche...');
+          // window.location.href = '/signin';
+          setStep(1);
+          setEmail('');
+          setOtp('');
+          setNewPassword('');
+          setConfirmPassword('');
+        } else {
+          setError(res.message || 'Password change kora jaini. Punarbar chesta korun.');
+        }
+      })
+      .catch((err) => {
+        setError(err.response?.data?.message || 'Password change kora jaini. Punarbar chesta korun.');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
 
 
   const getPasswordStrength = (password) => {
@@ -117,7 +117,7 @@ import { changePassword, sendOtp, verifyOtp } from '@/src/hook/useAuth';
     <div className="min-h-screen bg-gray-200 flex items-center justify-center p-4 relative overflow-hidden">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -left-40 w-80 h-80 bg-white rounded-full mix-blend-overlay filter blur-3xl opacity-20 animate-pulse"></div>
-        <div className="absolute -bottom-40 -right-40 w-80 h-80 bg-white rounded-full mix-blend-overlay filter blur-3xl opacity-20 animate-pulse" style={{animationDelay: '1s'}}></div>
+        <div className="absolute -bottom-40 -right-40 w-80 h-80 bg-white rounded-full mix-blend-overlay filter blur-3xl opacity-20 animate-pulse" style={{ animationDelay: '1s' }}></div>
       </div>
 
       <div className="w-full max-w-md relative z-10">
@@ -133,15 +133,13 @@ import { changePassword, sendOtp, verifyOtp } from '@/src/hook/useAuth';
           <div className="flex items-center justify-between mb-8">
             {[1, 2, 3].map((num) => (
               <React.Fragment key={num}>
-                <div className={`flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 ${
-                  step >= num ? 'bg-green-600 text-white scale-110' : 'bg-gray-200 text-gray-400'
-                }`}>
+                <div className={`flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 ${step >= num ? 'bg-green-600 text-white scale-110' : 'bg-gray-200 text-gray-400'
+                  }`}>
                   {step > num ? <CheckCircle className="w-5 h-5" /> : num}
                 </div>
                 {num < 3 && (
-                  <div className={`flex-1 h-1 mx-2 transition-all duration-300 ${
-                    step > num ? 'bg-green-600' : 'bg-gray-200'
-                  }`}></div>
+                  <div className={`flex-1 h-1 mx-2 transition-all duration-300 ${step > num ? 'bg-green-600' : 'bg-gray-200'
+                    }`}></div>
                 )}
               </React.Fragment>
             ))}
@@ -158,7 +156,7 @@ import { changePassword, sendOtp, verifyOtp } from '@/src/hook/useAuth';
               <div>
                 <h2 className="text-2xl font-bold text-gray-800 mb-2">ইমেইল দিন</h2>
                 <p className="text-gray-600 mb-6">আপনার রেজিস্টার্ড ইমেইল ঠিকানা দিন</p>
-                
+
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <input
@@ -180,7 +178,7 @@ import { changePassword, sendOtp, verifyOtp } from '@/src/hook/useAuth';
                   <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
                 ) : (
                   <>
-                    Send OTP 
+                    Send OTP
                     <ArrowRight className="w-5 h-5" />
                   </>
                 )}
@@ -195,7 +193,7 @@ import { changePassword, sendOtp, verifyOtp } from '@/src/hook/useAuth';
                 <p className="text-gray-600 mb-6">
                   <span className="font-medium text-purple-600">{email}</span> আপনাকে পাঠানো ৬ সংখ্যার কোডটি দিন
                 </p>
-                
+
                 <div className="relative">
                   <input
                     type="text"
@@ -235,7 +233,7 @@ import { changePassword, sendOtp, verifyOtp } from '@/src/hook/useAuth';
                 onClick={handleSendOtp}
                 className="w-full text-purple-600 text-sm hover:underline transition-all"
               >
-               ওটিপি আসছে না? আবার পাঠান।
+                ওটিপি আসছে না? আবার পাঠান।
               </button>
             </div>
           )}
@@ -245,7 +243,7 @@ import { changePassword, sendOtp, verifyOtp } from '@/src/hook/useAuth';
               <div>
                 <h2 className="text-2xl font-bold text-gray-800 mb-2"> নতুন পাসওয়ার্ড সেট করুন </h2>
                 <p className="text-gray-600 mb-6"> একটি শক্তিশালী পাসওয়ার্ড নির্বাচন করুন </p>
-                
+
                 <div className="space-y-4">
                   <div className="relative">
                     <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -268,15 +266,14 @@ import { changePassword, sendOtp, verifyOtp } from '@/src/hook/useAuth';
                     <div className="space-y-2 animate-fadeIn">
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-gray-600">Password Strength</span>
-                        <span className={`font-semibold ${
-                          passwordStrength.strength === 100 ? 'text-green-600' : 
+                        <span className={`font-semibold ${passwordStrength.strength === 100 ? 'text-green-600' :
                           passwordStrength.strength === 66 ? 'text-yellow-600' : 'text-red-600'
-                        }`}>
+                          }`}>
                           {passwordStrength.text}
                         </span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                        <div 
+                        <div
                           className={`h-full transition-all duration-300 ${passwordStrength.color}`}
                           style={{ width: `${passwordStrength.strength}%` }}
                         ></div>
@@ -332,7 +329,7 @@ import { changePassword, sendOtp, verifyOtp } from '@/src/hook/useAuth';
         <div className="text-center mt-6 animate-fadeIn">
           <a href="/signin" className="text-green-500  hover:underline flex items-center justify-center gap-2 transition-all">
             <ArrowRight className="w-4 h-4 rotate-180" />
-           সাইন ইন পেজে ফিরে যান
+            সাইন ইন পেজে ফিরে যান
           </a>
         </div>
       </div>

@@ -172,13 +172,19 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
           ) : (
             <div className="flex justify-around gap-2">
               <button
-                disabled
-                className=" py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs bg-gray-300 text-gray-500 cursor-not-allowed"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  addToCart(product)
+                }}
+                disabled={!product.inStock}
+                className={`py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs ${product.inStock
+                  ? "bg-green-600 text-white hover:bg-green-700 transform hover:scale-105"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  }`}
               >
                 {product.inStock ? (
                   <span className="flex items-center justify-center gap-1">
                     <ShoppingCart size={16} />
-
                   </span>
                 ) : (
                   "Out of Stock"
@@ -258,14 +264,59 @@ const ShopPage = ({ initialData, queryParams }) => {
   const urlSearch = queryParams?.search || searchParams?.get("search") || ""
   const urlCategory = queryParams?.category || searchParams?.get("category") || ""
   const urlSubCategory = queryParams?.subcategory || searchParams?.get("subcategory") || ""
+  const urlBrand = queryParams?.brand || searchParams?.get("brand") || ""
+  const urlGender = queryParams?.gender || searchParams?.get("gender") || ""
+  const urlMinPrice = queryParams?.minPrice || searchParams?.get("minPrice")
+  const urlMaxPrice = queryParams?.maxPrice || searchParams?.get("maxPrice")
+  const urlRating = queryParams?.rating || searchParams?.get("rating")
+  const urlSortBy = queryParams?.sortBy || searchParams?.get("sortBy") || ""
+  const urlPage = queryParams?.page || searchParams?.get("page")
 
   useEffect(() => {
     dispatch(syncFromUrl({
       search: urlSearch,
       category: urlCategory,
-      subcategory: urlSubCategory
+      subcategory: urlSubCategory,
+      brand: urlBrand,
+      gender: urlGender,
+      minPrice: urlMinPrice,
+      maxPrice: urlMaxPrice,
+      rating: urlRating,
+      sortBy: urlSortBy,
+      page: urlPage
     }))
-  }, [urlSearch, urlCategory, urlSubCategory, dispatch])
+  }, [dispatch]) // Only run on mount to sync initial URL -> Redux
+
+  // Update URL when Filters Change (Redux -> URL)
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (debouncedSearchTerm) params.set("search", debouncedSearchTerm);
+    if (filterCategory !== "all") params.set("category", filterCategory);
+    if (filterSubCategory !== "all") params.set("subcategory", filterSubCategory);
+    if (filterBrand !== "all") params.set("brand", filterBrand);
+    if (filterGender !== "all") params.set("gender", filterGender);
+    if (sortBy !== "name") params.set("sortBy", sortBy);
+    if (currentPage > 1) params.set("page", currentPage.toString());
+    if (ratingFilter > 0) params.set("rating", ratingFilter.toString());
+    if (priceRange[0] > 0 || priceRange[1] < 100000) {
+      params.set("minPrice", priceRange[0].toString());
+      params.set("maxPrice", priceRange[1].toString());
+    }
+
+    // Replace current URL without reloading page
+    router.replace(`?${params.toString()}`, { scroll: false });
+  }, [
+    debouncedSearchTerm,
+    filterCategory,
+    filterSubCategory,
+    filterBrand,
+    filterGender,
+    sortBy,
+    currentPage,
+    ratingFilter,
+    priceRange,
+    router
+  ]);
 
 
   // Use server products directly from Redux OR Fallback to Initial Data
@@ -533,10 +584,26 @@ const ShopPage = ({ initialData, queryParams }) => {
   }, [currentProducts])
 
   const saveEdit = async () => {
-    // console.log("editModal-->",editModal)
     setLoad(true);
     try {
-      const res = await ProductUpdate(editModal);
+      // Transform normalized product back to backend format
+      const updatePayload = {
+        _id: editModal.id || editModal._id, // Backend expects _id
+        productName: editModal.name,
+        price: editModal.price,
+        productRank: editModal.retailSale,
+        productStatus: editModal.productStatus || [],
+        brand: editModal.brand,
+        description: editModal.description,
+        productSize: editModal.size,
+        color: editModal.color,
+        discount: editModal.discount,
+        ratings: editModal.rating,
+        productStock: editModal.stock,
+        video_link: editModal.video_link,
+      };
+
+      const res = await ProductUpdate(updatePayload);
       if (res.success) {
         toast.success("Product updated successfully!");
         dispatch(fetchShopProducts({
@@ -557,7 +624,8 @@ const ShopPage = ({ initialData, queryParams }) => {
         toast.error(res.message);
       }
     } catch (error) {
-      toast.error("Error updating product");
+      console.error("Update error:", error);
+      toast.error(error.response?.data?.message || "Error updating product");
     } finally {
       setLoad(false);
     }
@@ -1102,7 +1170,10 @@ const ShopPage = ({ initialData, queryParams }) => {
                     </label>
                     <select
                       defaultValue={editModal.productStatus.length > 0 ? editModal.productStatus[0] : "none"}
-                      onChange={(e) => updateEditField("productStatus", e.target.value)}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        updateEditField("productStatus", val === "none" ? [] : [val]);
+                      }}
                       className="appearance-none border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-purple-500 bg-white"
                     >
                       <option disabled selected defaultValue={editModal.productStatus.length > 0 ? editModal.productStatus[0] : "none"}>{editModal.productStatus.length > 0 ? editModal.productStatus[0] : "none"}</option>

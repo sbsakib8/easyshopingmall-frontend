@@ -1,31 +1,35 @@
 "use client";
-import { UrlFrontend } from "@/src/confic/urlExport";
-import { ProductDelete, ProductUpdate } from "@/src/hook/useProduct";
-import useGetRevenue from "@/src/utlis/useGetRevenue";
-import { useGetProduct } from "@/src/utlis/userProduct";
+import React, { useState, useMemo, useEffect } from "react";
 import {
-  Activity,
-  ArrowUp,
-  DollarSign,
-  Download,
-  Edit,
-  Eye,
-  Grid,
-  MoreVertical,
-  Package,
-  Plus,
-  RefreshCw,
   Search,
-  Star,
+  Package,
   Tag,
+  Grid,
+  Eye,
+  Edit,
   Trash2,
-  X
+  Star,
+  Plus,
+  Download,
+  RefreshCw,
+  X,
+  TrendingUp,
+  ArrowUp,
+  MoreVertical,
+  DollarSign,
+  Activity,
+  Zap,
+  Globe,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
-import toast from "react-hot-toast";
+import { useGetProduct } from "@/src/utlis/userProduct";
 import { useSelector } from "react-redux";
-import * as XLSX from "xlsx";
+import { useRouter } from "next/navigation";
+import { UrlFrontend } from "@/src/confic/urlExport";
+import toast from "react-hot-toast";
+import { ProductDelete, ProductUpdate } from "@/src/hook/useProduct";
+import { useGetAllOrders } from "@/src/utlis/useGetAllOrders";
+import useGetRevenue from "@/src/utlis/useGetRevenue";
+import * as XLSX from "xlsx"
 
 const ProductDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -45,7 +49,7 @@ const ProductDashboard = () => {
   );
 
   // product get
-  const { product, totalCount, loading, error, refetch } = useGetProduct(formData);
+  const { product,totalCount,refetch } = useGetProduct(formData);
   // console.log("totalCount--->",totalCount)
   const allCategorydata = useSelector((state) => state.category.allCategorydata);
   const allsubCategorydata = useSelector((state) => state.subcategory.allsubCategorydata);
@@ -56,7 +60,7 @@ const ProductDashboard = () => {
   useEffect(() => {
     if (product) {
       setProducts(product);
-
+      
     }
   }, [product, allCategorydata, allsubCategorydata]);
   // console.log("allCategorydata---->",allCategorydata)
@@ -87,8 +91,9 @@ const ProductDashboard = () => {
       <Star
         key={i}
         size={12}
-        className={`${i < rating ? "text-yellow-400 fill-yellow-400" : "text-gray-500"
-          } transition-all duration-300`}
+        className={`${
+          i < rating ? "text-yellow-400 fill-yellow-400" : "text-gray-500"
+        } transition-all duration-300`}
       />
     ));
   };
@@ -115,13 +120,13 @@ const ProductDashboard = () => {
     const wb = XLSX.utils.book_new()
     const ws = XLSX.utils.json_to_sheet(products)
     ws["!cols"] = [
-      { wch: 10 },
-      { wch: 10 },
-      { wch: 40 },
-      { wch: 40 },
-    ]
-    XLSX.utils.book_append_sheet(wb, ws, "MyProducts")
-    XLSX.writeFile(wb, "productsData.xlsx")
+    { wch: 10 },
+    { wch: 10 },
+    { wch: 40 },
+    { wch: 40 },
+  ]
+    XLSX.utils.book_append_sheet(wb,ws,"MyProducts")
+    XLSX.writeFile(wb,"productsData.xlsx")
     // const dataStr = JSON.stringify(products, null, 2);
     // const dataBlob = new Blob([dataStr], { type: "application/json" });
     // const url = URL.createObjectURL(dataBlob);
@@ -132,11 +137,11 @@ const ProductDashboard = () => {
   };
 
   // refetch
-  const reFreshData = async () => {
+  const reFreshData = async() => {
     setSpin(true)
-    setPage(page + 1)
-    await refetch();
-    setSpin(false)
+    setPage(page+1)
+   await refetch();
+   setSpin(false)
   };
 
   //  action function click handle
@@ -192,18 +197,18 @@ const ProductDashboard = () => {
     setEditModal({ ...editModal, [field]: value });
   };
 
-  // toal sale calculation 
-  //  const { allOrders, loading: ordersLoading } = useGetAllOrders()
-  //  const completedOrders = allOrders?.filter(order => order.order_status==="completed")
-  //  const toalIncome = completedOrders?.reduce((sum,o)=>sum+o.totalAmt,0)
-  const { totalRevenue, loading: revenueLoading } = useGetRevenue()
-  //  console.log("allOrders--->",allOrders)
-  //  console.log("completedOrders--->",completedOrders)
-  //  console.log("toalIncome--->",toalIncome)
-  //  console.log("totalRevenue--->",totalRevenue)
+// toal sale calculation 
+//  const { allOrders, loading: ordersLoading } = useGetAllOrders()
+//  const completedOrders = allOrders?.filter(order => order.order_status==="completed")
+//  const toalIncome = completedOrders?.reduce((sum,o)=>sum+o.totalAmt,0)
+ const {totalRevenue,loading:revenueLoading} = useGetRevenue()
+//  console.log("allOrders--->",allOrders)
+//  console.log("completedOrders--->",completedOrders)
+//  console.log("toalIncome--->",toalIncome)
+//  console.log("totalRevenue--->",totalRevenue)
 
-  // if(loading)return <p>Loading...</p>
-  // console.log(loading)
+// if(loading)return <p>Loading...</p>
+// console.log(loading)
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 relative overflow-hidden">
       {/* Animated Background Elements */}
@@ -405,10 +410,10 @@ const ProductDashboard = () => {
                   <span className="hidden sm:inline">Export</span>
                 </button>
                 <button
-                  onClick={() => reFreshData()}
+                  onClick={()=>reFreshData()}
                   className="flex items-center space-x-2 px-4 py-3 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-600/50 text-gray-300 hover:text-white rounded-xl transition-all duration-300 transform hover:scale-105 cursor-pointer"
                 >
-                  <RefreshCw className={`w-4 h-4 ${spin ? 'animate-spin' : ''}`} />
+                  <RefreshCw className={`w-4 h-4 ${spin?'animate-spin':''}`} />
                   <span className="hidden sm:inline">Refresh</span>
                 </button>
               </div>
@@ -444,7 +449,7 @@ const ProductDashboard = () => {
 
           {/* Table Body */}
           <div className="divide-y divide-gray-700/30 max-h-96 lg:max-h-none overflow-y-auto">
-            {filteredProducts?.slice(0, 20)?.sort((a, b) => a?.productStock - b?.productStock)?.map((product, index) => (
+            {filteredProducts?.slice(0,20)?.sort((a,b)=>a?.productStock-b?.productStock)?.map((product, index) => (
               <div
                 key={index}
                 className="group px-4 sm:px-6 py-4 hover:bg-gradient-to-r hover:from-gray-800/50 hover:to-gray-700/50 transition-all duration-500 transform hover:scale-[1.02] animate-fadeInUp"
@@ -811,22 +816,6 @@ const ProductDashboard = () => {
                 </div>
 
                 <div className="bg-slate-700/30 rounded-xl p-4 border border-slate-600/50">
-                  <span className="text-gray-400 text-sm">Product Status Badges (Tags)</span>
-                  <div className="flex gap-2 mt-2">
-                    {viewModal?.tags?.length > 0 ? (
-                      viewModal.tags.map(tag => (
-                        <span key={tag} className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${tag === 'hot' ? 'bg-red-500 text-white' : 'bg-blue-500 text-white'
-                          }`}>
-                          {tag}
-                        </span>
-                      ))
-                    ) : (
-                      <span className="text-gray-500 text-xs italic">No badges active</span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="bg-slate-700/30 rounded-xl p-4 border border-slate-600/50">
                   <span className="text-gray-400 text-sm">Product ID</span>
                   <p className="text-emerald-400 font-mono text-sm mt-2">#{viewModal?._id}</p>
                 </div>
@@ -997,33 +986,22 @@ const ProductDashboard = () => {
                     />
                   </div>
 
-                  <div className="md:col-span-2">
-                    <label className="block text-gray-300 text-sm font-semibold mb-3">
-                      Product Status Badges (Tags)
+                  <div>
+                    <label className="block text-gray-300 text-sm font-semibold mb-2">
+                      Product Status
                     </label>
-                    <div className="flex gap-4">
-                      {['hot', 'cold'].map((tag) => (
-                        <button
-                          key={tag}
-                          type="button"
-                          onClick={() => {
-                            const currentTags = editModal?.tags || [];
-                            const newTags = currentTags.includes(tag)
-                              ? currentTags.filter(t => t !== tag)
-                              : [...currentTags, tag];
-                            updateEditField("tags", newTags);
-                          }}
-                          className={`px-4 py-2 rounded-lg border transition-all duration-300 flex items-center gap-2 capitalize text-sm
-                            ${editModal?.tags?.includes(tag)
-                              ? "bg-emerald-500 border-transparent text-white shadow-lg"
-                              : "bg-slate-700/50 border-slate-600 text-gray-400 hover:bg-slate-700"
-                            }`}
-                        >
-                          {tag}
-                          {editModal?.tags?.includes(tag) && <X size={12} />}
-                        </button>
-                      ))}
-                    </div>
+                    <select
+                      value={editModal?.productStatus?.length > 0 ? editModal.productStatus[0] : "none"}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        updateEditField("productStatus", val === "none" ? [] : [val]);
+                      }}
+                      className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                    >
+                      <option value="none">None</option>
+                      <option value="hot">Hot</option>
+                      <option value="cold">Cold</option>
+                    </select>
                   </div>
 
                   <div className="md:col-span-2">
