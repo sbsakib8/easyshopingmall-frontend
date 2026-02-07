@@ -4,13 +4,24 @@ import { Star, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { useGetcategory } from "@/src/utlis/usecategory";
 import { HomeBannerAllGet } from "@/src/hook/useHomeBanner";
+import Button from "@/src/helper/Buttons/Button";
 
 
-function Categories() {
-  const { category, loading, error } = useGetcategory(); 
+function Categories({ initialData }) {
+  const { category: apiCategory, loading: apiLoading, error } = useGetcategory();
+  const [category, setCategory] = useState(initialData || null);
+  const [loading, setLoading] = useState(!initialData);
   const [paused, setPaused] = useState(false);
+
+  React.useEffect(() => {
+    if (apiCategory) {
+      setCategory(apiCategory);
+      setLoading(false);
+    }
+  }, [apiCategory]);
+
   const loopData = [...(category || []), ...(category || [])];
-  
+
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
@@ -60,15 +71,15 @@ function Categories() {
                     <Star
                       key={i}
                       className={`w-3 h-3 ${i < 4
-                          ? "fill-yellow-400 text-yellow-400"
-                          : "text-gray-300"
+                        ? "fill-yellow-400 text-yellow-400"
+                        : "text-gray-300"
                         }`}
                     />
                   ))}
                 </div>
-                <button className="w-full bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white py-1.5 rounded-md text-xs font-medium">
+                <Button className="w-full bg-gradient-to-r from-btn-color/15 via-btn-color/55 to-btn-color/75 text-white py-1.5 rounded-md text-xs font-medium">
                   Explore Now
-                </button>
+                </Button>
               </div>
             </Link>
           ))}

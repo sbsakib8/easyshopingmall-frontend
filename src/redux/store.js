@@ -7,6 +7,7 @@ import searchReducer from "./searchSlice";
 import subcategoryRoute from "./subcategorySlice";
 import userReducer from "./userSlice";
 import wishlistReducer from "./wishlistSlice";
+import shopReducer from "./shopSlice";
 
 export const store = configureStore({
   reducer: {
@@ -18,5 +19,6 @@ export const store = configureStore({
     cart: cartReducer,
     order: orderSlice,
     search: searchReducer,
+    shop: shopReducer,
   },
 });

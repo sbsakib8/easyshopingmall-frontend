@@ -1,12 +1,13 @@
 "use client";
 import socket from '@/src/confic/socket';
+import Button from '@/src/helper/Buttons/Button';
 import { ContactCreate } from '@/src/hook/content/useContact';
 import { CreateNotification } from '@/src/hook/useNotification';
 import useWebsiteInfo from '@/src/utlis/useWebsiteInfo';
 import { CheckCircle, Clock, Mail, MapPin, MessageSquare, Phone, Send, User } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-const ContactPage = () => {
+const ContactPage = ({ initialSiteInfo }) => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -24,7 +25,8 @@ const ContactPage = () => {
       [name]: value,
     }));
   };
-  const { data: siteInfo, loading: siteLoading } = useWebsiteInfo();
+  const { data: fetchedData } = useWebsiteInfo();
+  const siteInfo = initialSiteInfo || fetchedData;
 
 
   // socket test
@@ -32,12 +34,12 @@ const ContactPage = () => {
   useEffect(() => {
     // socket connect 
     socket.on("connect", () => {
-      console.log("🟢 Socket connected:", socket.id);
+      // console.log("🟢 Socket connected:", socket.id);
     });
 
     //  notification 
     socket.on("notification:new", (notif) => {
-      console.log("📩 New notification:", notif);
+      // console.log("📩 New notification:", notif);
       setNotifications((prev) => [notif, ...prev]);
       toast.success(` ${notif.title}: ${notif.message}`);
     });
@@ -116,16 +118,16 @@ const ContactPage = () => {
 
 
   return (
-    <div className="min-h-screen lg:mt-20 py-4 bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900 relative overflow-hidden">
+    <div className="min-h-screen lg:mt-20 py-4 bg-gradient-to-br bg-[#2e394a] relative overflow-hidden">
 
 
       <div className="relative z-10 container mx-auto px-4 py-12 lg:py-20">
         {/* Header Section */}
         <div className="text-center mb-16 animate-fade-in">
-          <h1 className="text-5xl lg:text-7xl font-bold bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent mb-6 animate-slide-down">
+          <h1 className="text-5xl lg:text-7xl font-bold bg-gradient-to-r from-accent-content via-blue-200 to-purple-200 bg-clip-text text-transparent mb-6 animate-slide-down">
             Get In Touch
           </h1>
-          <p className="text-xl lg:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed animate-slide-up">
+          <p className="text-xl lg:text-2xl text-accent-content/70 max-w-3xl mx-auto leading-relaxed animate-slide-up">
             আমাদের সাথে যোগাযোগ করুন এবং আমরা আপনার সকল প্রশ্নের উত্তর দেওয়ার জন্য প্রস্তুত
           </p>
         </div>
@@ -141,7 +143,7 @@ const ContactPage = () => {
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold text-white mb-2">ফোন</h3>
-                  <p className="text-gray-300">{siteInfo?.number}</p>
+                  <p className="text-accent-content/70">{siteInfo?.number}</p>
                 </div>
               </div>
             </div>
@@ -154,7 +156,7 @@ const ContactPage = () => {
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold text-white mb-2">ইমেইল</h3>
-                  <p className="text-gray-300">{siteInfo?.email}</p>
+                  <p className="text-accent-content/70">{siteInfo?.email}</p>
                 </div>
               </div>
             </div>
@@ -167,7 +169,7 @@ const ContactPage = () => {
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold text-white mb-2">ঠিকানা</h3>
-                  <p className="text-gray-300">{siteInfo?.address}</p>
+                  <p className="text-accent-content/70">{siteInfo?.address}</p>
                 </div>
               </div>
             </div>
@@ -180,7 +182,7 @@ const ContactPage = () => {
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold text-white mb-2">অফিস সময়</h3>
-                  <p className="text-gray-300">{siteInfo?.deliveryText}</p>
+                  <p className="text-accent-content/70">{siteInfo?.deliveryText}</p>
                 </div>
               </div>
             </div>
@@ -189,7 +191,7 @@ const ContactPage = () => {
           {/* Contact Form */}
           <div className="lg:col-span-2">
             <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 lg:p-12 border border-white/20 hover:bg-white/15 transition-all duration-500">
-              <h2 className="text-3xl lg:text-4xl font-bold text-white mb-8 text-center">
+              <h2 className="text-3xl lg:text-4xl font-bold text-accent-content mb-8 text-center">
                 আমাদের সাথে যোগাযোগ করুন
               </h2>
 
@@ -204,7 +206,7 @@ const ContactPage = () => {
                 <div className="grid md:grid-cols-2 gap-6">
                   {/* Name Input */}
                   <div className="group">
-                    <label className="block text-gray-300 text-sm font-medium mb-3">
+                    <label className="block text-accent-content/70 text-sm font-medium mb-3">
                       <User className="inline w-4 h-4 mr-2" />
                       নাম *
                     </label>
@@ -221,7 +223,7 @@ const ContactPage = () => {
 
                   {/* Email Input */}
                   <div className="group">
-                    <label className="block text-gray-300 text-sm font-medium mb-3">
+                    <label className="block text-accent-content/70 text-sm font-medium mb-3">
                       <Mail className="inline w-4 h-4 mr-2" />
                       ইমেইল *
                     </label>
@@ -240,7 +242,7 @@ const ContactPage = () => {
                 <div className="grid md:grid-cols-2 gap-6">
                   {/* Phone Input */}
                   <div className="group">
-                    <label className="block text-gray-300 text-sm font-medium mb-3">
+                    <label className="block text-accent-content/70 text-sm font-medium mb-3">
                       <Phone className="inline w-4 h-4 mr-2" />
                       ফোন নম্বর
                     </label>
@@ -256,7 +258,7 @@ const ContactPage = () => {
 
                   {/* Subject Input */}
                   <div className="group">
-                    <label className="block text-gray-300 text-sm font-medium mb-3">
+                    <label className="block text-accent-content/70 text-sm font-medium mb-3">
                       <MessageSquare className="inline w-4 h-4 mr-2" />
                       বিষয় *
                     </label>
@@ -274,7 +276,7 @@ const ContactPage = () => {
 
                 {/* Message Textarea */}
                 <div className="group">
-                  <label className="block text-gray-300 text-sm font-medium mb-3">
+                  <label className="block text-accent-content/70 text-sm font-medium mb-3">
                     <MessageSquare className="inline w-4 h-4 mr-2" />
                     বার্তা *
                   </label>
@@ -291,11 +293,10 @@ const ContactPage = () => {
 
                 {/* Submit Button */}
                 <div className="text-center">
-                  <button
+                  <Button
                     onClick={handleSubmit}
                     disabled={loading}
-                    className={`inline-flex items-center px-12 py-4 bg-gradient-to-r from-blue-500 to-purple-600 
-    hover:from-blue-600 hover:to-purple-700 text-white font-semibold rounded-2xl 
+                    className={`inline-flex items-center px-12 py-4  font-semibold rounded-2xl 
     transition-all duration-300 group cursor-pointer 
     ${loading ? "opacity-60 cursor-not-allowed" : "hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25"}`}
                   >
@@ -325,7 +326,7 @@ const ContactPage = () => {
                     )}
 
                     {loading ? "Sending..." : "বার্তা পাঠান"}
-                  </button>
+                  </Button>
                 </div>
 
               </div>
@@ -338,7 +339,7 @@ const ContactPage = () => {
           <h3 className="text-3xl lg:text-4xl font-bold text-white mb-6">
             আমরা আপনার সেবায় নিয়োজিত
           </h3>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+          <p className="text-xl text-accent-content/70 max-w-2xl mx-auto">
             আমাদের দল ২৪/৭ আপনার সকল প্রয়োজনে সাহায্য করতে প্রস্তুত। যেকোনো প্রশ্ন বা সমস্যার জন্য আমাদের সাথে যোগাযোগ করুন।
           </p>
         </div>

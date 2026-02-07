@@ -224,7 +224,7 @@ const OrderManagement = () => {
             <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">
-                  Order List & <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Add</span>!
+                  Pending  <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Orders</span>!
                 </h1>
                 <p className="text-gray-300 text-sm sm:text-base">
                   EasyShoppingMall Admin Dashboard
@@ -586,7 +586,7 @@ const OrderManagement = () => {
                         </div>
                         <div className="flex items-center gap-3">
                           <Phone className="h-4 w-4 text-gray-400" />
-                          <span className="text-gray-300">{selectedOrder?.payment_details?.manual?.senderNumber || "018XXXXXXXX"}</span>
+                          <span className="text-gray-300">{selectedOrder?.address?.mobile || "018XXXXXXXX"}</span>
                         </div>
                         <div className="flex flex-col items-start gap-3">
                           {/* <MapPin className="h-4 w-4 text-gray-400 mt-1" /> */}

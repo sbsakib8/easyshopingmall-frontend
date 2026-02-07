@@ -26,13 +26,14 @@ export const UserSignin = async (formData, route, dispatch) => {
     });
 
     if (response.data.success) {
-      dispatch(userget(response.data));
+      // Backend returns { success, message, user: { ... } }
+      dispatch(userget(response.data.user));
       route.push("/");
     }
 
     return response.data;
   } catch (error) {
-    console.error("Registration error:", error.response?.data || error.message);
+    console.error("Signin error:", error.response?.data || error.message);
     throw error;
   }
 };
@@ -48,23 +49,25 @@ export const Logout = async (route) => {
     }
     return response.data;
   } catch (error) {
-    console.error("Registration error:", error.response?.data || error.message);
+    console.error("Signout error:", error.response?.data || error.message);
     throw error;
   }
 }
 
-// reset password
+// ... (sendOtp, verifyOtp, changePassword unchanged)
+
+// send OTP for password reset
 export const sendOtp = async (formData) => {
   try {
     const response = await axios.post(`${UrlBackend}/users/send-otp`, formData, { withCredentials: true });
     return response.data;
-
   } catch (error) {
     console.error("Reset Password error:", error.response?.data || error.message);
     throw error;
   }
-}
-// VERIFY OTP
+};
+
+// verify OTP
 export const verifyOtp = async (formData) => {
   try {
     const response = await axios.post(`${UrlBackend}/users/verify-otp`, formData, { withCredentials: true });
@@ -73,9 +76,9 @@ export const verifyOtp = async (formData) => {
     console.error("Verify OTP error:", error.response?.data || error.message);
     throw error;
   }
-}
+};
 
-// CHANGE PASSWORD
+// change/reset password
 export const changePassword = async (formData) => {
   try {
     const response = await axios.post(`${UrlBackend}/users/reset-password`, formData, { withCredentials: true });
@@ -84,7 +87,7 @@ export const changePassword = async (formData) => {
     console.error("Change Password error:", error.response?.data || error.message);
     throw error;
   }
-}
+};
 
 // google sign in
 export const googleSignIn = async (formData, route, dispatch) => {
@@ -93,7 +96,9 @@ export const googleSignIn = async (formData, route, dispatch) => {
       withCredentials: true,
     });
     if (response.data.success) {
-      dispatch(userget(response.data));
+      // Backend returns flat object: { success, message, id, name, email, ... }
+      const { success, message, id, ...rest } = response.data;
+      dispatch(userget({ ...rest, _id: id, id }));
       route.push("/");
     }
     return response.data;
@@ -112,7 +117,7 @@ export const getUserProfile = async () => {
     });
     return response.data;
   } catch (error) {
-    console.error("Get User Profile error:", error.response?.data || error.message);
+    // console.error("Get User Profile error:", error.response?.data || error.message);
     throw error;
   }
 }

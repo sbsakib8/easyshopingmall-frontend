@@ -1,6 +1,7 @@
 "use client";
 
 import { createManualPaymentOrder, createSslPaymentOrder, submitManualPayment } from "@/src/hook/useOrder";
+import { ProductNotification } from "@/src/hook/useProduct";
 import { cartClear } from "@/src/redux/cartSlice";
 import { AlertTriangle, Copy, MapPin, Shield, ShoppingBag, ShoppingCart, Star, Truck } from "lucide-react";
 import Link from "next/link";
@@ -12,24 +13,43 @@ import ReactPlayer from 'react-player'
 
 
 
-export default function CheckoutComponent() {
-  const user = useSelector((state) => state.user?.data);
-  const [showGuideVideo, setShowGuideVideo] = useState(false)
+import { userget } from "@/src/redux/userSlice";
+import { cartSuccess } from "@/src/redux/cartSlice";
+
+export default function CheckoutComponent({ initialUser, initialCartItems }) {
+  const user = useSelector((state) => state.user?.data) || initialUser;
   const dispatch = useDispatch();
   const { items } = useSelector((state) => state.cart || {});
-  const cartItems = items || [];
+  // Use Redux items if available (client updates), otherwise fall back to server initial items
+  const cartItems = items?.length > 0 ? items : (initialCartItems || []);
 
+  const [showGuideVideo, setShowGuideVideo] = useState(false)
   const [selectedPayment, setSelectedPayment] = useState("");
   const [customerInfo, setCustomerInfo] = useState({
     name: user?.name || "",
     phone: user?.phone || "",
     email: user?.email || "",
-    address: "",
+    address: user?.address || "",
     division: "",
     district: "",
     area: "",
     pincode: "",
   });
+
+  // Hydrate Redux from Server Data (Optional but recommended for consistency)
+  useEffect(() => {
+    if (initialUser && !items?.length) {
+      // Only hydrate if Redux is empty to avoid overwriting client-side changes
+      // Logic can be adjusted based on needs
+    }
+    // We can dispatch to sync state if needed, but local state usage above handles the view.
+    if (initialUser && user?._id !== initialUser._id) {
+      dispatch(userget({ data: initialUser }));
+    }
+    if (initialCartItems?.length > 0 && items?.length === 0) {
+      dispatch(cartSuccess(initialCartItems));
+    }
+  }, [initialUser, initialCartItems, dispatch]);
 
   const [selectedManualMethod, setSelectedManualMethod] = useState(null);
   const [createdOrder, setCreatedOrder] = useState(null);
@@ -38,7 +58,6 @@ export default function CheckoutComponent() {
   const [deliveryCharge, setDeliveryCharge] = useState(60);
   const [manualPaymentInfo, setManualPaymentInfo] = useState({ senderNumber: "", transactionId: "" })
   const [usedTransactionIds, setUsedTransactionIds] = useState([]);
-  ;
 
   const isValidBDPhone = (phone) => /^01[3-9]\d{8}$/.test(phone);
   const isValidEmail = (email) =>
@@ -52,7 +71,7 @@ export default function CheckoutComponent() {
   // subtotal
   const subtotal = cartItems.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 0), 0);
   const total = subtotal + deliveryCharge;
-  console.log('cartItems', cartItems);
+  // console.log('cartItems', cartItems);
 
   useEffect(() => {
     // if user already has an address prefills
@@ -373,6 +392,21 @@ export default function CheckoutComponent() {
       setUsedTransactionIds(prev => [...prev, transactionId]);
 
       toast.success("অর্ডার এবং পেমেন্ট সফলভাবে জমা হয়েছে!");
+      if (orderRes) {
+        // toast.success("✅ Product added successfully!");
+        // resetForm();
+
+
+        await ProductNotification({
+          title: "New Order Added",
+          message: `Order is now live!`,
+          type: "Order",
+          referenceId: orderRes.data._id,
+          // meta: { category: response.data.category },
+        });
+      } else {
+        toast.error(response?.message || "Failed to add product");
+      }
 
       // 7️⃣ Clear cart and update state
       dispatch(cartClear());
@@ -460,7 +494,7 @@ export default function CheckoutComponent() {
         <ReactPlayer
           controls
           light={<img
-            src={"https://i.ytimg.com/vi/W2paMfruQ9E/hqdefault.jpg?sqp=-oaymwFBCNACELwBSFryq4qpAzMIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB8AEB-AH-CYAC0AWKAgwIABABGBEgcihEMA8=&rs=AOn4CLDdu1fUa6vCag_bXVZ84066LrfDrA"}
+            src={"https://i.ibb.co.com/bj9sxtv0/Screenshot-2026-01-26-at-4-23-43-PM.png"}
             alt={`thumbnel `}
             className=" w-96 h-96  rounded-xl md:rounded-2xl"
           />}
@@ -469,7 +503,7 @@ export default function CheckoutComponent() {
           height={315}
           volume={0.5}
           playing={true}
-          src="https://www.youtube.com/watch?v=W2paMfruQ9E"
+          src="https://youtu.be/_qETiv0aTdA?feature=shared"
         />
         <button onClick={() => setShowGuideVideo(!showGuideVideo)} className="text-xl bg-red-400 py-1 px-3 rounded-full absolute top-10 right-10 cursor-pointer">X</button>
       </div>}

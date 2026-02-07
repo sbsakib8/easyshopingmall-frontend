@@ -1,0 +1,1 @@
+                      onChange={(e) => dispatch(setPriceRange([Number.parseInt(e.target.value) || 0, priceRange[1]]))}

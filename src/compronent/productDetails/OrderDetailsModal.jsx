@@ -82,8 +82,8 @@ function OrderDetailsModal({ order, onClose }) {
               <p className="text-xs text-gray-500 mb-2">Customer Information</p>
               <div className="flex items-center gap-3">
                 {userImage ? (
-                  <img 
-                    src={userImage} 
+                  <img
+                    src={userImage}
                     alt={userName}
                     className="w-10 h-10 rounded-full object-cover border-2 border-blue-200"
                   />
@@ -144,7 +144,7 @@ function OrderDetailsModal({ order, onClose }) {
                 <p className="text-gray-500 text-xs mb-1">Payment Type</p>
                 <p className="font-medium text-gray-800 capitalize">{order.payment_type || "N/A"}</p>
               </div>
-              
+
               {manualPayment && (
                 <>
                   <div>
@@ -165,7 +165,7 @@ function OrderDetailsModal({ order, onClose }) {
                   </div>
                 </>
               )}
-              
+
               {order.paymentId && (
                 <div className="md:col-span-2">
                   <p className="text-gray-500 text-xs mb-1">Payment ID</p>
@@ -188,7 +188,7 @@ function OrderDetailsModal({ order, onClose }) {
                   const name = p.name || product.productName || "N/A";
                   const images = p.image || product.images || [];
                   const image = images[0] || "/banner/img/placeholder.png";
-                  
+
                   return (
                     <div
                       key={idx}
@@ -204,6 +204,12 @@ function OrderDetailsModal({ order, onClose }) {
                         <div className="flex flex-wrap gap-3 text-xs text-gray-600">
                           <span>Qty: <span className="font-medium text-gray-900">{p.quantity || 0}</span></span>
                           <span>Price: <span className="font-medium text-gray-900">৳{p.price || 0}</span></span>
+                          {p.category && p.category.length > 0 && (
+                            <span>Category: <span className="font-medium text-gray-900">{p.category.join(", ")}</span></span>
+                          )}
+                          {p.subCategory && p.subCategory.length > 0 && (
+                            <span>Subcategory: <span className="font-medium text-gray-900">{p.subCategory.join(", ")}</span></span>
+                          )}
                           {p.size && <span>Size: <span className="font-medium text-gray-900">{p.size}</span></span>}
                           {p.color && <span>Color: <span className="font-medium text-gray-900">{p.color}</span></span>}
                           {p.weight && <span>Weight: <span className="font-medium text-gray-900">{p.weight}</span></span>}
@@ -232,7 +238,7 @@ function OrderDetailsModal({ order, onClose }) {
                 <p className="text-gray-500 text-xs mb-1">Full Address</p>
                 <p className="text-gray-800 font-medium">{fullAddress || "N/A"}</p>
               </div>
-              
+
               <div className="grid md:grid-cols-3 gap-3">
                 {division && (
                   <div>
@@ -284,7 +290,7 @@ function OrderDetailsModal({ order, onClose }) {
                 <span className="text-gray-600">Delivery Charge</span>
                 <span className="font-semibold text-gray-800">৳{order.deliveryCharge || 0}</span>
               </div>
-              
+
               <div className="border-t border-cyan-200 pt-3 mt-3">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-green-600 font-medium">Amount Paid</span>

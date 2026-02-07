@@ -2,7 +2,7 @@ import React from "react";
 import { X, User, Tag, Calendar, Clock } from "lucide-react";
 
 const BlogModal = ({blog, setShowModal }) => {
-console.log(blog)
+// console.log(blog)
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md">
       {/* Modal Container */}

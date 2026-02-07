@@ -28,7 +28,7 @@ import {
 import CustomLoader from '@/src/compronent/loading/CustomLoader';
 
 
-const ProductDetails = () => {
+const ProductDetails = ({ initialProduct }) => {
   const params = useParams();
   const router = useRouter();
   const dispatch = useDispatch();
@@ -37,7 +37,42 @@ const ProductDetails = () => {
   const cartItems = useSelector((state) => state.cart.items || []);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [product, setProduct] = useState(null);
+  const [product, setProduct] = useState(() => {
+    if (initialProduct) {
+      const data = initialProduct;
+      return {
+        id: data._id || data.id,
+        name: data.productName || data.name || "Product",
+        brand: data.brand || "Brand",
+        price: Number(data.price ?? data.sell_price ?? 0) || 0,
+        originalPrice: Number(data.oldPrice ?? data.mrp ?? data.price ?? 0) || 0,
+        discount: Number(data.discount ?? 0) || 0,
+        rating: Number(data?.ratings),
+        reviews: Number(data.reviews ?? 0) || 0,
+        images: data.images || ["/banner/img/placeholder.png"],
+        sizes: data.productSize ? [data.productSize] : data.sizes || [],
+        colors: Array.isArray(data.color) ? data.color : data.colors || [],
+        stock: Number(data.productStock ?? data.stock ?? 0) || 0,
+        description: data.description || data.productDescription || "",
+        specifications: data.specifications || {},
+        category: data.category,
+        subCategory: data.subCategory,
+        features: data.features || (Array.isArray(data.tags) ? data.tags : []),
+        weight: Number(data.productWeight ?? 0) || 0,
+        sizes: Array.isArray(data.productSize)
+          ? data.productSize
+          : typeof data.productSize === "string"
+            ? data.productSize.split(",").map((s) => s.trim())
+            : [],
+        sku: data.sku || "",
+        rank: Number(data.productRank ?? 0) || 0,
+        featured: data.featured || false,
+        publish: data.publish || true,
+        tags: Array.isArray(data.tags) ? data.tags : [],
+      };
+    }
+    return null;
+  });
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [showVideo, setshowVideo] = useState(false)
   const [selectedImage, setSelectedImage] = useState(0);
@@ -136,6 +171,14 @@ const ProductDetails = () => {
 
   // Fetch product details
   useEffect(() => {
+    // If product is already initialized from initialProduct, don't fetch again
+    if (product) {
+      setLoading(false);
+      if (product.colors?.length > 0 && !selectedColor) setSelectedColor(product.colors[0]);
+      if (product.sizes?.length > 0 && !selectedSize) setSelectedSize(product.sizes[0]);
+      return;
+    }
+
     const fetchProduct = async () => {
       try {
         setLoading(true);
@@ -435,25 +478,25 @@ const ProductDetails = () => {
                   <img onClick={() => setshowVideo(true)} src={product?.video_link} alt="" className="w-10 h-10 object-cover absolute  top-5 right-5 cursor-pointer" />
 
                   {/* details video  */}
-                {showVideo && <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn ">
-                  <ReactPlayer
-                    controls
-                    light={<img
-                      src={product?.images[0] || []}
-                      alt={`${product?.name} `}
-                      className=" w-96 h-96 rounded-xl md:rounded-2xl"
-                    />}
-                    playIcon={<img className='w-12 h-12 absolute rounded-full' src={"https://cdn-icons-png.freepik.com/256/13983/13983898.png?semt=ais_white_label"} />}
-                    width={660}
-                    height={315}
-                    volume={0.5}
-                    playing={true}
-                    src={product?.video_link||"https://youtube.com/shorts/axcw2w7pKkk?si=-doija2AmzPRa_4v"}
-                  />
-                  <button onClick={() => setshowVideo(!showVideo)} className="text-xl bg-red-400 py-1 px-3 rounded-full absolute top-10 right-10 cursor-pointer">X</button>
-                </div>}
+                  {showVideo && <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn ">
+                    <ReactPlayer
+                      controls
+                      light={<img
+                        src={product?.images[0] || []}
+                        alt={`${product?.name} `}
+                        className=" w-96 h-96 rounded-xl md:rounded-2xl"
+                      />}
+                      playIcon={<img className='w-12 h-12 absolute rounded-full' src={"https://cdn-icons-png.freepik.com/256/13983/13983898.png?semt=ais_white_label"} />}
+                      width={660}
+                      height={315}
+                      volume={0.5}
+                      playing={true}
+                      src={product?.video_link || "https://youtube.com/shorts/axcw2w7pKkk?si=-doija2AmzPRa_4v"}
+                    />
+                    <button onClick={() => setshowVideo(!showVideo)} className="text-xl bg-red-400 py-1 px-3 rounded-full absolute top-10 right-10 cursor-pointer">X</button>
+                  </div>}
                 </>}
-                
+
               </div>
 
               {/* Thumbnail Images */}

@@ -59,9 +59,8 @@ const PendingOrdersPage = () => {
   // Handle order actions
  
   const handleStatusChange = async () => {
-    console.log("confierm", selectedOrder?._id, status)
     const res = await OrderUpdate(selectedOrder?._id, status)
-    console.log(res)
+    // console.log(res)
     if (res.success) {
       setConfirmationModal(false)
       setShowModal(false)
@@ -110,7 +109,7 @@ const PendingOrdersPage = () => {
               <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">
-                    Pending  <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Order</span>!
+                    Processing  <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Order</span>!
                   </h1>
                   <p className="text-gray-300 text-sm sm:text-base">
                     EasyShoppingMall Admin Dashboard
@@ -390,7 +389,7 @@ const PendingOrdersPage = () => {
                       <span className="text-gray-500">Email:</span> {selectedOrder?.userId?.name}
                     </p>
                     <p className="text-gray-300">
-                      <span className="text-gray-500">Phone:</span> {selectedOrder?.payment_method === "manual" ? selectedOrder?.payment_details?.manual?.senderNumber : selectedOrder?.address?.mobile}
+                      <span className="text-gray-500">Phone:</span> {selectedOrder?.address?.mobile}
                     </p>
                   </div>
                 </div>

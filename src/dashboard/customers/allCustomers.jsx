@@ -275,7 +275,7 @@ const AllCustomersPage = () => {
             <div className="divide-y divide-gray-700/50">
               {paginatedCustomers.map(
                 (customer, index) => (
-                  console.log("Rendering customer:", customer),
+                  // console.log("Rendering customer:", customer),
                   (
                     <div
                       key={customer.id}

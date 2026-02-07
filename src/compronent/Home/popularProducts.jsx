@@ -1,5 +1,7 @@
 "use client";
 import {
+  ArrowDown,
+  ArrowUp,
   Heart,
   Search,
   ShoppingCart,
@@ -22,6 +24,8 @@ import {
 import { useGetcategory } from "../../utlis/usecategory";
 import { useGetProduct } from "../../utlis/userProduct";
 import { useCategoryWithSubcategories } from "../../utlis/useCategoryWithSubcategories";
+import { useWishlist } from "@/src/utlis/useWishList";
+import Button from "@/src/helper/Buttons/Button";
 
 // Helper function to determine if product is new or old
 const isProductNew = (createdDate) => {
@@ -32,24 +36,38 @@ const isProductNew = (createdDate) => {
   return created > monthAgo;
 };
 
-const PopularProducts = () => {
+const PopularProducts = ({ initialData }) => {
   const [activeCategory, setActiveCategory] = useState("ALL");
   const [searchTerm, setSearchTerm] = useState("");
+  const [showCategories, setShowCategories] = useState(false);
   const [localWishlist, setLocalWishlist] = useState(new Set());
 
 
   const dispatch = useDispatch();
   const { data: wishlistItems } = useSelector((state) => state?.wishlist?.data);
+  const { wishlist } = useWishlist()
   const user = useSelector((state) => state.user.data);
 
   const productParams = useMemo(() => ({ page: 1, limit: 1000, search: "" }), []);
 
   // ✅ Fetch data dynamically (same as shop component)
-  const { category, loading: categoryLoading } = useGetcategory();
-  const { product, loading: productLoading, error } = useGetProduct(productParams);
-  
+  const { category: apiCategory, loading: categoryLoading } = useGetcategory();
+  const { product: apiProduct, loading: productLoading, error } = useGetProduct(productParams);
+
   // ✅ Fetch categories and subcategories from API (same as shop)
-  const { categories: shopCategories, subcategories: shopSubcategories, loading: shopCategoriesLoading } = useCategoryWithSubcategories();
+  const { categories: shopCategoriesApi, subcategories: shopSubcategoriesApi, loading: shopCategoriesLoading } = useCategoryWithSubcategories();
+
+  const [category, setCategory] = useState(initialData?.categories || null);
+  const [product, setProduct] = useState(initialData?.products || null);
+  const [shopCategories, setShopCategories] = useState(initialData?.categories || null);
+  const [shopSubcategories, setShopSubcategories] = useState(initialData?.subcategories || null);
+
+  useEffect(() => {
+    if (apiCategory) setCategory(apiCategory);
+    if (apiProduct) setProduct(apiProduct);
+    if (shopCategoriesApi) setShopCategories(shopCategoriesApi);
+    if (shopSubcategoriesApi) setShopSubcategories(shopSubcategoriesApi);
+  }, [apiCategory, apiProduct, shopCategoriesApi, shopSubcategoriesApi]);
 
 
 
@@ -59,12 +77,12 @@ const PopularProducts = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    setLocalWishlist(new Set((wishlistItems || []).map((item) => item.id)));
-  }, [wishlistItems]);
+    setLocalWishlist(new Set((wishlist || []).map((item) => item.id)));
+  }, [wishlist]);
 
 
 
-  const loading = categoryLoading || productLoading || shopCategoriesLoading;
+  const loading = !initialData && (categoryLoading || productLoading || shopCategoriesLoading);
 
   // 🧩 Merge structured dataset using shop categories
   const mergedData = useMemo(() => {
@@ -108,6 +126,8 @@ const PopularProducts = () => {
         price: p.price,
         originalPrice: p.oldPrice || p.price,
         rating: p.ratings,
+        productStatus: p.productStatus,
+        retailSale: p.productRank,
         reviews: p.reviews,
         category: categoryName,
         subCategory: subCategoryName,
@@ -124,12 +144,12 @@ const PopularProducts = () => {
     if (activeCategory === "ALL") {
       // When ALL is selected, get 5 products from each subcategory within each category
       const productsByCategory = {};
-      
+
       mergedData.products.forEach(p => {
         if (!productsByCategory[p.category]) {
           productsByCategory[p.category] = {};
         }
-        
+
         const subCatKey = p.subCategory || 'NO_SUBCATEGORY';
         if (!productsByCategory[p.category][subCatKey]) {
           productsByCategory[p.category][subCatKey] = [];
@@ -151,10 +171,10 @@ const PopularProducts = () => {
 
       return result;
     }
-    
+
     // When a specific category is selected, get 5 products from each subcategory
     const categoryProducts = mergedData.products.filter((p) => p.category === activeCategory);
-    
+
     // Group by subcategory
     const productsBySubCategory = {};
     categoryProducts.forEach(p => {
@@ -217,6 +237,11 @@ const PopularProducts = () => {
   };
 
   const toggleWishlist = async (id) => {
+    if (!user?._id) {
+      toast.error("Please sign in to add to wishlist");
+      return;
+    }
+
     // Instant UI
     setLocalWishlist((prev) => {
       const updated = new Set(prev);
@@ -309,7 +334,21 @@ const PopularProducts = () => {
           </div>
 
           {/* Categories */}
-          <div className="flex overflow-x-auto scrollbar-hide flex-wrap justify-center gap-2 sm:gap-3 animate-[fadeInUp_0.8s_ease-out]">
+          <div className="flex justify-center">
+            <button
+              onClick={() => setShowCategories(!showCategories)}
+              className={`flex sm:hidden items-center space-x-2 px-4 py-2 sm:py-3 rounded-full font-medium transition-all duration-300 ${activeCategory === "ALL"
+                ? "bg-gradient-to-r from-gray-700 to-gray-900 text-white shadow-lg"
+                : "bg-white/70 text-gray-700 hover:bg-white/90 border border-gray-200"
+                } mb-5 md:mb-0 gap-2`}
+            >
+              {showCategories ? "Hide" : "Show"} Categories
+              {showCategories ? <ArrowUp color="white" /> : <ArrowDown color="white" />}
+
+            </button>
+          </div>
+
+          <div className={` ${showCategories ? "flex" : "hidden"} sm:flex flex-col sm:flex-row sm:flex-wrap overflow-x-auto pt-20 sm:pt-0 justify-center gap-2 sm:gap-3 animate-[fadeInUp_0.8s_ease-out] max-h-60 sm:max-h-full scroll-auto `}>
             <button
               onClick={() => setActiveCategory("ALL")}
               className={`flex items-center space-x-2 px-4 py-2 sm:py-3 rounded-full font-medium transition-all duration-300 ${activeCategory === "ALL"
@@ -337,8 +376,8 @@ const PopularProducts = () => {
       </div>
 
       {/* Product Grid */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6">
+      <div className=" bg-base-300 ">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6 container mx-auto px-3 sm:px-6 lg:px-8 py-8">
           {filteredProducts.map((product) => (
             <Link
               href={`/productdetails/${product.id}`}
@@ -353,34 +392,35 @@ const PopularProducts = () => {
                 />
 
                 {/* Badges */}
-                <div className="absolute top-3 left-3 space-y-1">
-                  {product.isNew && (
-                    <span className="bg-green-500 text-white px-2 py-1 rounded text-xs font-bold">
-                      NEW
-                    </span>
-                  )}
-                  {product.discount > 0 && (
-                    <span className="bg-yellow-500 text-white px-2 py-1 rounded text-xs font-bold">
-                      {product.discount}% OFF
-                    </span>
+                <div className="absolute top-0 left-0 flex justify-between w-full">
+                  <div className="flex items-start">
+                    {product.isNew && (
+                      <span className="bg-green-500 text-white px-1 py-1 rounded text-[8px] font-semibold">NEW</span>
+                    )}
+                    {product.retailSale > product.price ? <span className="bg-yellow-500 text-black px-1 py-1 mx-[2px] rounded text-[8px] font-semibold">
+                      -{(product.retailSale - product.price)}৳
+                    </span> : 0}
+                  </div>
+                  {product.productStatus?.length > 0 && (
+                    <span className={` ${product.productStatus.includes("hot") ? 'text-red-500' : 'text-blue-400 '} max-h-6  bg-black px-1 py-1 rounded-md text-xs font-bold ${product.productStatus.includes("none") ? 'hidden' : ''}`}>{product.productStatus}</span>
                   )}
                 </div>
 
                 {/* Action Buttons */}
-                <div className="absolute top-3 right-3 space-y-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className={`absolute ${product.productStatus?.length > 0 ? "top-6" : "top-0"}  bg-white rounded-md right-0 space-y-2 transition-opacity duration-300`}>
                   <button
                     onClick={(e) => {
                       e.preventDefault();
                       toggleWishlist(product.id); // Call our fixed toggle function
                     }}
-                    className={`p-2 rounded-lg transition-all duration-300
+                    className={`p-2 cursor-pointer rounded-lg transition-all duration-300
       ${localWishlist.has(product.id)
                         ? "text-red-500 bg-red-100"
                         : "text-gray-400 hover:text-red-500 hover:bg-red-50"
                       }`}
                   >
                     <Heart
-                      className="w-5 h-5"
+                      className="w-3 h-3"
                       fill={localWishlist.has(product.id) ? "red" : "none"}
                       strokeWidth={2}
                     />
@@ -410,20 +450,21 @@ const PopularProducts = () => {
                     <span className="text-base font-bold text-red-600">
                       Tk {product.price}
                     </span>
-                    {product.originalPrice > product.price && (
+                    {product.retailSale > product.price && (
                       <span className="text-xs text-gray-400 line-through">
-                        Tk {product.originalPrice.toFixed(2)}
+                        Tk {product.retailSale.toFixed(2)}
                       </span>
                     )}
                   </div>
 
                   {/* Add to Cart */}
+                  
                   <button
                     onClick={(e) => {
                       e.preventDefault();
                       handleAddToCart(product);
                     }}
-                    className="w-full py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs bg-green-600 text-white hover:bg-green-700 transform hover:scale-105"
+                    className="w-full py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs bg-btn-color text-accent-content hover:bg-green-700 transform hover:scale-105 cursor-pointer"
                   >
                     <span className="flex items-center justify-center gap-1">
                       <ShoppingCart className="w-3 h-3" />

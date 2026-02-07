@@ -150,7 +150,7 @@ const InventoryDashboard = () => {
     return sorted;
   }, [products, searchTerm, selectedCategory, sortBy]);
 
-console.log("products --->",products)
+// console.log("products --->",products)
   const stats = useMemo(() => {
     const totalProducts = products.length;
     const lowStockProducts = products.filter(p => p?.productStock <= 1).length;
@@ -194,11 +194,11 @@ console.log("products --->",products)
   //  notification 
   useEffect(() => {
   socket.on("connect", () => {
-    console.log("🟢 Socket connected:", socket.id);
+    // console.log("🟢 Socket connected:", socket.id);
   });
 
   socket.on("notification:new", notif => {
-    console.log("📩 New notification:", notif);
+    // console.log("📩 New notification:", notif);
     setNotifications(prev => [notif, ...prev]);
     toast.success(`${notif.title}: ${notif.message}`);
   });
@@ -228,7 +228,7 @@ const sendStockNotification = async (product) => {
       meta: { stock: product.productStock }
     });
 
-    console.log("✅ Stock notification sent:", product.productName);
+    // console.log("✅ Stock notification sent:", product.productName);
   } catch (error) {
     console.error("❌ Notification error:", error);
   }

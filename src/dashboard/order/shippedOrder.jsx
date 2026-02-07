@@ -85,7 +85,7 @@ const ShippedOrdersPage = () => {
   const handleStatusChange = async () => {
     console.log("confierm", selectedOrder?._id, status)
     const res = await OrderUpdate(selectedOrder?._id, status)
-    console.log(res)
+    // console.log(res)
     if (res.success) {
       setConfirmationModal(false)
       setShowModal(false)
@@ -452,7 +452,7 @@ const ShippedOrdersPage = () => {
                         <span className="text-gray-500">Email:</span> {selectedOrder?.userId?.name}
                       </p>
                       <p className="text-gray-300">
-                        <span className="text-gray-500">Phone:</span> {selectedOrder?.payment_method === "manual" ? selectedOrder?.payment_details?.manual?.senderNumber : selectedOrder?.address?.mobile}
+                        <span className="text-gray-500">Phone:</span> {selectedOrder?.address?.mobile}
                       </p>
                     </div>
                   </div>
