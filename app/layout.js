@@ -3,6 +3,7 @@ import { Lato, Roboto } from "next/font/google";
 import "./globals.css";
 import LayoutWrapper from "./LayoutWrapper";
 import ToasterClient from "./ToasterClient";
+import { GoogleAnalytics } from '@next/third-parties/google'
 
 const lato = Lato({
   subsets: ["latin"],
@@ -82,6 +83,7 @@ export default function RootLayout({ children }) {
         </Providers>
         < ToasterClient />
       </body>
+        <GoogleAnalytics gaId="G-5MQNQRZC5T" />
     </html>
   );
 }
