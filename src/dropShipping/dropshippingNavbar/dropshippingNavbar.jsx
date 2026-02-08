@@ -65,7 +65,6 @@ const DropShippingNavbar = () => {
                     className={`w-6 h-6 sm:w-10 sm:h-10 lg:w-12 lg:h-12  from-emerald-500 via-green-500 to-teal-500 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 ${isScrolled ? "animate-pulse" : ""
                       }`}
                   >
-                   
                     <Image src={logo} width={60} height={100} alt="Easy Shopping Mall Logo" />
                   </div>
                   <div className="absolute -top-0.5 sm:-top-1 -right-0.5 sm:-right-1 w-2 h-2 sm:w-3 sm:h-3 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full animate-pulse"></div>
@@ -121,15 +120,10 @@ const DropShippingNavbar = () => {
                   </div>
                 </Link>
               )}
-
-             
-
-             
-
               {/* Mobile Menu Button */}
               <button
                 onClick={toggleMobileMenu}
-                className="lg:hidden p-2 sm:p-3 rounded-lg sm:rounded-xl bg-gradient-to-r from-gray-100 to-gray-50 hover:from-emerald-100 hover:to-teal-100 text-gray-700 hover:text-emerald-600 transition-all duration-300 shadow-sm"
+                className=" p-2 sm:p-3 rounded-lg sm:rounded-xl bg-gradient-to-r from-gray-100 to-gray-50 hover:from-emerald-100 hover:to-teal-100 text-gray-700 hover:text-emerald-600 transition-all duration-300 shadow-sm"
               >
                 {isMobileMenuOpen ? (
                   <X size={20} className="sm:w-6 sm:h-6" />
@@ -138,39 +132,12 @@ const DropShippingNavbar = () => {
                 )}
               </button>
             </div>
-          </div>
-
-          
+          </div>     
         </div>
         
-        {/* Enhanced Navigation Menu - Responsive */}
-        <div className="bg-gradient-to-r from-slate-50 via-white to-slate-50 border-t border-gray-200/60 backdrop-blur-sm">
-          <div className="container mx-auto px-2 sm:px-4 hidden lg:block">
-            <nav className="hidden lg:flex items-center justify-between py-3 lg:py-4">
-              <div className="flex items-center space-x-4 lg:space-x-8">
-                {navItems.map((item, index) => (
-                  <Link
-                    key={index}
-                    href={item.href}
-                    className="relative flex items-center space-x-1 text-gray-700 hover:text-emerald-600 font-semibold transition-all duration-300 group hover:scale-105"
-                  >
-                    <span className="text-sm lg:text-base">{item.name}</span>
-                    {item.badge && (
-                      <span className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs px-2 lg:px-3 py-0.5 lg:py-1 rounded-full font-bold shadow-sm animate-pulse">
-                        {item.badge}
-                      </span>
-                    )}
-                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-300 group-hover:w-full rounded-full"></span>
-                  </Link>
-                ))}
-              </div>
-            </nav>
-          </div>
-        </div>
-
         {/* Enhanced Mobile Menu - Fully Responsive */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden 
+          <div className=" 
  bg-white/95 backdrop-blur-md border-t border-gray-200/60 animate-in slide-in-from-top-5 duration-300">
             <nav className="px-2 sm:px-4 py-3 sm:py-4 space-y-1 sm:space-y-2 max-h-96 overflow-visible">
               {navItems.map((item, index) => (

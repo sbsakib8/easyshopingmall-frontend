@@ -21,15 +21,14 @@ export default function LayoutWrapper({ children }) {
     if (user) {
       dispatch(userget(user));
     } else {
-      dispatch(clearUser()); 
+      dispatch(clearUser());
     }
   }, [user, dispatch]);
-const role = "DROP-SHIPPING"
-console.log(!hideLayout && role !== "DROP-SHIPPING")
+  const role = "DROP-SHIPPING"
   return (
     <BlockedUserRoute>
-      {!hideLayout && role !== "DROP-SHIPPING" ? <Header /> :""}
-       <DropshippingNavbar/>  
+      {!hideLayout && role !== "DROP-SHIPPING" ? <Header /> : ""}
+      <DropshippingNavbar />
       {children}
       {!hideLayout && <Footer />}
     </BlockedUserRoute>
