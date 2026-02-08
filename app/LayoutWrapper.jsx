@@ -8,6 +8,8 @@ import { useDispatch } from "react-redux";
 import { userget, clearUser } from "@/src/redux/userSlice";
 import { useEffect } from "react";
 import BlockedUserRoute from "@/src/utlis/BlockedUserRoute";
+import DropshippingNavbar from "@/src/dropShipping/dropshippingNavbar/dropshippingNavbar";
+
 
 export default function LayoutWrapper({ children }) {
   const pathname = usePathname();
@@ -22,10 +24,12 @@ export default function LayoutWrapper({ children }) {
       dispatch(clearUser()); 
     }
   }, [user, dispatch]);
-
+const role = "DROP-SHIPPING"
+console.log(!hideLayout && role !== "DROP-SHIPPING")
   return (
     <BlockedUserRoute>
-      {!hideLayout && <Header />}
+      {!hideLayout && role !== "DROP-SHIPPING" ? <Header /> :""}
+       <DropshippingNavbar/>  
       {children}
       {!hideLayout && <Footer />}
     </BlockedUserRoute>
