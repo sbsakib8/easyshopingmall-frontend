@@ -7,6 +7,9 @@ import { LeftBannerAllGet } from "@/src/hook/useLeftBanner";
 import { RightBannerAllGet } from "@/src/hook/userRightBanner";
 import { SubCategoryAllGet } from "@/src/hook/useSubcategory";
 import DropShippingHome from "@/src/dropShipping/dropShippingHome/dropShippingHome";
+import { useGetUser } from "@/src/utlis/useGetuser";
+import { getUserProfile } from "@/src/hook/useAuth";
+import { cookies } from "next/headers";
 
 // Enable ISR with 5-minute revalidation for better performance
 export const revalidate = 300;
@@ -25,7 +28,8 @@ async function getHomeData() {
       CenterBannerAllGet(),
       LeftBannerAllGet(),
       RightBannerAllGet(),
-      SubCategoryAllGet()
+      SubCategoryAllGet(),
+      getUserProfile(cookieHeader)
     ]);
 
     return {
@@ -47,11 +51,11 @@ async function getHomeData() {
 
 export default async function Home() {
   const data = await getHomeData();
-const role = 'DROP-SHIPPING'
+
+  const role = 'DROPSHIPPING'
   return (
     <div>
-      {role==="DROP-SHIPPING" ? <DropShippingHome initialData={data} /> : <Hero initialData={data} />}
-      
+      {role === "DROPSHIPPING" ? <DropShippingHome initialData={data} /> : <Hero initialData={data} />}
     </div>
   );
 }

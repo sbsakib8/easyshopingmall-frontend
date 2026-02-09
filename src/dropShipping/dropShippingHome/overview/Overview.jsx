@@ -7,37 +7,43 @@ function Overview() {
             id: 1,
             text: "All Products",
             icon: "",
-            href: "/shop"
+            href: "/all-products",
+            class:"bg-base-400"
         },
         {
             id: 2,
             text: "New Products",
             icon: "",
-            href: "/new-products"
+            href: "/new-products",
+            class:"bg-base-500"
         },
         {
             id: 3,
             text: "Boost Products",
             icon: "",
-            href: "/boost-products"
+            href: "/boost-products",
+            class:"bg-base-600"
         },
         {
             id: 4,
             text: "Team System",
             icon: "",
-            href: "/team-system"
+            href: "/team-system",
+            class:"bg-base-700"
         },
         {
             id: 5,
             text: "Video",
             icon: "",
-            href: "/video"
+            href: "/video",
+            class:"bg-base-800"
         },
         {
             id: 6,
             text: "Seller Dashboard",
             icon: "",
-            href: "/seller-dashboard"
+            href: "/seller-dashboard",
+            class:"bg-base-800/60"
         },
         {
             id: 7,
@@ -67,7 +73,7 @@ function Overview() {
         </p>
       </div>
     <div className='container grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 '>
-             {overview.map(view => <Link key={view.id} className={`py-20 md:px-20 border border-secondary  cursor-pointer hover:scale-105 duration-75 rounded-2xl relative ${view.class}`} href={view.href}>
+             {overview.map(view => <Link key={view.id} className={`py-20 md:px-20   cursor-pointer hover:scale-105 duration-75 rounded-2xl relative ${view.class}`} href={view.href}>
                <h2 className="text-center text-lg font-bold"> {view.text}</h2>
             <p className="absolute top-5 right-3">{view?.icon}</p>
             </Link>)}

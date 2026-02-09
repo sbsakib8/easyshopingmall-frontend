@@ -16,12 +16,10 @@ const DropShippingNavbar = () => {
 
   // user data fatch
   const data = useSelector((state) => state.user.data);
-
   // Navigation items
   const navItems = [
     { name: "Home", href: "/" },
-    { name: "About", href: "/about" },
-    { name: "Shop", href: "/shop" },
+    { name: "All Products", href: "/all-products" },
     { name: "Blog", href: "blog", badge: "New" },
     { name: "Contact", href: "contact" },
   ];

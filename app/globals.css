@@ -17,6 +17,13 @@
   --color-base-300: #C9C4C3;
   --color-accent: black;
   --color-accent-content: white;
+
+  /* for shipping  */
+  --color-base-400: #CADCAE;
+  --color-base-500: #FFC900;
+  --color-base-600: #FFE100;
+  --color-base-700: #FF9B00;
+  --color-base-800: #EDA35A;
 }
 
 
