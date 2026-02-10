@@ -1,5 +1,5 @@
-import ShopPage from "@/src/compronent/shop/shopComponent"
-import { UrlBackend } from "@/src/confic/urlExport"
+import ShopPage from "@/src/compronent/shop/shopComponent";
+import { UrlBackend } from "@/src/confic/urlExport";
 
 export const metadata = {
   title: "Shop - Huge Collection of Quality Products",
@@ -45,7 +45,7 @@ async function getProducts(searchParams) {
 
     // Construct the body for the POST request (matching your backend expectation)
     const body = {
-      limit: 30, // Optimized limit for initial server render
+      limit: 100, // Optimized limit for initial server render
       search: search || "",
       categoryId: category || "all",
       subCategoryId: subcategory || "all",
