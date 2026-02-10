@@ -16,6 +16,50 @@ export default function LocationSelects({ customerInfo, setCustomerInfo }) {
         setDivisionList(bdData.map(d => d.division));
     }, []);
 
+    // Sync state with customerInfo props (e.g., when auto-populated from profile)
+    // Sync state with customerInfo props (e.g., when auto-populated from profile)
+    useEffect(() => {
+        // 1. Handle Division & Districts
+        if (customerInfo.division) {
+            setSelectedDivision(customerInfo.division);
+            const divObj = bdData.find(d => d.division === customerInfo.division);
+            if (divObj) {
+                setDistrictList(divObj.districts || []);
+            }
+        }
+
+        // 2. Handle District & Upazilas
+        if (customerInfo.district) {
+            setSelectedDistrict(customerInfo.district);
+
+            // Find district object - prioritize current division but fallback to global search
+            let distObj = null;
+
+            if (customerInfo.division) {
+                const divObj = bdData.find(d => d.division === customerInfo.division);
+                distObj = divObj?.districts.find(d => d.district === customerInfo.district);
+            }
+
+            // Fallback: search all divisions if not found yet
+            if (!distObj) {
+                for (const div of bdData) {
+                    const found = div.districts.find(d => d.district === customerInfo.district);
+                    if (found) {
+                        distObj = found;
+                        break;
+                    }
+                }
+            }
+
+            // Always update upazila list if district found
+            if (distObj) {
+                setUpazilaList(distObj.upazilas || []);
+            } else {
+                setUpazilaList([]);
+            }
+        }
+    }, [customerInfo.division, customerInfo.district, customerInfo.area]);
+
     const handleDivisionChange = (division) => {
         setSelectedDivision(division);
         setSelectedDistrict("");

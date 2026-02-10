@@ -11,8 +11,9 @@ const iconMap = {
 };
 
 
-function Footer() {
-    const { data: siteInfo, loading: siteLoading } = useWebsiteInfo();
+function Footer({ initialData }) {
+    const { data: siteInfoFetched, loading: siteLoading } = useWebsiteInfo();
+    const siteInfo = siteInfoFetched || initialData;
     const socialLinks = siteInfo?.socialLinks || [];
 
 
