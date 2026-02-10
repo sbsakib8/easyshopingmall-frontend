@@ -7,9 +7,7 @@ import { LeftBannerAllGet } from "@/src/hook/useLeftBanner";
 import { RightBannerAllGet } from "@/src/hook/userRightBanner";
 import { SubCategoryAllGet } from "@/src/hook/useSubcategory";
 import DropShippingHome from "@/src/dropShipping/dropShippingHome/dropShippingHome";
-import { useGetUser } from "@/src/utlis/useGetuser";
 import { getUserProfile } from "@/src/hook/useAuth";
-import { cookies } from "next/headers";
 
 // Enable ISR with 5-minute revalidation for better performance
 export const revalidate = 300;
