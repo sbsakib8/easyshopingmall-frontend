@@ -137,8 +137,8 @@ const DropShippingNavbar = () => {
         {/* Enhanced Mobile Menu - Fully Responsive */}
         {isMobileMenuOpen && (
           <div className=" 
- bg-white/95 backdrop-blur-md border-t border-gray-200/60 animate-in slide-in-from-top-5 duration-300">
-            <nav className="px-2 sm:px-4 py-3 sm:py-4 space-y-1 sm:space-y-2 max-h-96 overflow-visible">
+ backdrop-blur-md border-t border-gray-200/60 animate-in slide-in-from-top-5 duration-300 lg:flex lg:justify-center ">
+            <nav className="px-2 sm:px-4 py-3 sm:py-4 space-y-1 sm:space-y-2 max-h-96 overflow-visible lg:border lg:border-gray-200/60 lg:rounded-2xl lg:w-1/2 bg-white">
               {navItems.map((item, index) => (
                 <Link
                   onClick={toggleMobileMenu}
