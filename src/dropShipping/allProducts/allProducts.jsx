@@ -19,8 +19,10 @@ const AllProducts = () => {
                     menCategory.map(cat=> <Link href={`/sub-category/${cat?._id}`} className='shadow-md rounded-2xl px-3 py-2 min-h-40 hover:scale-105 duration-75'>
                         <Image
                         src={cat?.image}
+                        alt='category image'
                         width={200}
                         height={200}
+                        
                         className='rounded-sm w-full max-h-40 object-cover'
                         />
                       <h2 className="text-center text-lg font-bold mt-5">{cat?.name}</h2>

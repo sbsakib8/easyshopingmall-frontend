@@ -22,6 +22,7 @@ const DropShippingNavbar = () => {
     { name: "All Products", href: "/all-products" },
     { name: "Blog", href: "blog", badge: "New" },
     { name: "Contact", href: "contact" },
+    { name: "Wishlist", href: "/wishlist" },
   ];
 
   if (data?.role === "DROP-SHIPPING") {

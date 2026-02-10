@@ -1,32 +1,36 @@
 "use client"
+import { addToWishlistApi, removeFromWishlistApi } from '@/src/hook/useWishlist';
 import { useGetProduct } from '@/src/utlis/userProduct';
-import { ArrowDownToLine, Star } from 'lucide-react';
-import React, { useEffect, useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useWishlist } from '@/src/utlis/useWishList';
+import { ArrowDownToLine, Heart, Star } from 'lucide-react';
+import { useRouter } from "next/navigation"
+import React, { useCallback, useMemo, useState } from 'react';
+import toast from 'react-hot-toast';
+import { useDispatch, useSelector } from 'react-redux';
 
 const handleDownloadImage = async (e, imageUrl, productName) => {
-  e.stopPropagation(); // ⛔ stop card click
+    e.stopPropagation(); // ⛔ stop card click
 
-  try {
-    const response = await fetch(imageUrl);
-    const blob = await response.blob();
+    try {
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
 
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
 
-    link.href = url;
-    link.download = `${productName || "product"}.jpg`;
+        link.href = url;
+        link.download = `${productName || "product"}.jpg`;
 
-    document.body.appendChild(link);
-    link.click();
+        document.body.appendChild(link);
+        link.click();
 
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
-  } catch (error) {
-    console.error("Image download failed:", error);
-  }
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error("Image download failed:", error);
+    }
 };
-const ProductCard = React.memo(({ product, viewMode }) => {
+const ProductCard = React.memo(({ product, viewMode,toggleWishlist,wishlist,favorite,setFavorite,router }) => {
     if (!product) return null;
     // Render Stars Helper
     const ratingValue = product.rating || product.ratings || 0;
@@ -44,7 +48,7 @@ const ProductCard = React.memo(({ product, viewMode }) => {
 
     return (
         <div
-            onClick={() => router.push(`/productdetails/${product.id}`)}
+            onClick={() => router.push(`/productdetails/${product._id}`)}
             className={`group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 cursor-pointer ${viewMode === "list" ? "flex" : ""}`}
         >
             <div className={`relative ${viewMode === "list" ? "w-48" : ""}`}>
@@ -99,13 +103,9 @@ const ProductCard = React.memo(({ product, viewMode }) => {
                         <span className="text-base font-bold text-red-600">
                             Tk {product.price}
                         </span>
-                        {product.productRank > product.price && (
-                            <span className="text-xs font-semibold text-gray-400 line-through">
-                                {product.productRank.toFixed(2)}
-                            </span>
-                        )}
+                       
                     </div>
-                    <div>
+                    <div className='flex justify-between'>
                         <button
                             onClick={(e) =>
                                 handleDownloadImage(
@@ -119,6 +119,32 @@ const ProductCard = React.memo(({ product, viewMode }) => {
                             Download <ArrowDownToLine />
                         </button>
 
+                        {/* Action Buttons (Wishlist) */}
+                        <div className={` bg-accent-content/50 rounded-md right-0  transition-opacity duration-300`}>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    toggleWishlist(product)
+                                    // Local update for immediate feedback if needed, distinct from prop check
+                                    if ((favorite && favorite.includes(product._id)) || (wishlist && wishlist.some(i => i.id === product._id))) {
+                                        const removeItem = favorite ? favorite.filter(item => item !== product._id) : []
+                                        return setFavorite(removeItem)
+                                    }
+                                    setFavorite([...favorite, product._id])
+                                }}
+                                className={`p-2 border cursor-pointer rounded-lg transition-all duration-300
+              ${(wishlist && wishlist.some((item) => item.id === product._id) || (favorite && favorite.includes(product._id)))
+                                        ? "text-red-500 bg-red-100"
+                                        : "text-gray-400 bg-white/50 hover:text-red-500 hover:bg-red-50"
+                                    }`}
+                            >
+                                <Heart
+                                    className="w-5 h-5"
+                                    fill={(wishlist && wishlist.some((item) => item.id === product._id)) || (favorite && favorite.includes(product._id)) ? "red" : "none"}
+                                    strokeWidth={2}
+                                />
+                            </button>
+                        </div>
                     </div>
 
                 </div>
@@ -166,22 +192,12 @@ const ProductSkeleton = ({ viewMode }) => {
 
 
 const SubCategoryProducts = ({ id }) => {
+    const router = useRouter()
+    const [favorite, setFavorite] = useState([])
+    const dispatch = useDispatch()
     // Get all filter states from Redux
     const shopState = useSelector((state) => state.shop)
-    const {
-        searchTerm,
-        filterCategory,
-        filterSubCategory,
-        filterBrand,
-        filterGender,
-        priceRange,
-        ratingFilter,
-        sortBy,
-        currentPage,
-        viewMode,
-        showFilters,
-        debouncedSearchTerm
-    } = shopState
+    const { viewMode } = shopState
     const [page, setPage] = useState(1);
     const formData = useMemo(
         () => ({
@@ -194,8 +210,28 @@ const SubCategoryProducts = ({ id }) => {
     // product get
     const { product: products, loading: productsLoading } = useGetProduct(formData);
     const filteredProducts = products?.filter(p => p?.subCategory[0]?._id === id)
-
-
+ const { wishlist } = useWishlist()
+ const user = useSelector((state) => state.user?.data)
+  // Toggle wishlist (uses API + redux)
+  const toggleWishlist = useCallback(async (product) => {
+    if (!user?._id) {
+      toast.error("Please sign in to add to wishlist")
+      return
+    }
+    try {
+      const exists = (wishlist || []).some((i) => i.id === product._id || favorite.includes(product._id))
+      if (exists) {
+        await removeFromWishlistApi(product._id, dispatch)
+        toast.success("Removed from wishlist")
+      } else {
+        await addToWishlistApi(product._id, dispatch)
+        toast.success("Added to wishlist")
+      }
+    } catch (err) {
+      console.error("Wishlist toggle error:", err)
+      toast.error("Failed to update wishlist")
+    }
+  }, [wishlist, favorite, dispatch]);
 
     return (
         <div className="container grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
@@ -209,6 +245,11 @@ const SubCategoryProducts = ({ id }) => {
                         key={product._id}
                         viewMode={viewMode}
                         product={product}
+                        toggleWishlist={toggleWishlist}
+                        wishlist={wishlist}
+                        favorite={favorite}
+                        setFavorite={setFavorite}
+                        router={router}
                     />
                 ))}
         </div>
