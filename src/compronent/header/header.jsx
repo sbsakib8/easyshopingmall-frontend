@@ -14,7 +14,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setSearchTerm } from "@/src/redux/shopSlice";
 
-const Header = () => {
+const Header = ({ initialData }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [hoveredCategoryId, setHoveredCategoryId] = useState(null);
@@ -54,8 +54,16 @@ const Header = () => {
   }, [dispatch, data?._id]);
 
   // Countdown timer state (will be driven by website info)
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-  const { data: siteInfo, loading: siteLoading } = useWebsiteInfo();
+  const [timeLeft, setTimeLeft] = useState({
+    days: initialData?.countdownDays || 0,
+    hours: initialData?.countdownHours || 0,
+    minutes: initialData?.countdownMinutes || 0,
+    seconds: initialData?.countdownSeconds || 0
+  });
+  const { data: siteInfoFetched, loading: siteLoading } = useWebsiteInfo();
+
+  // Use initialData if available, otherwise fallback to fetched data
+  const siteInfo = siteInfoFetched || initialData;
   // console.log(siteInfo)
   // Fetch categories + subcategories from hook
   const {

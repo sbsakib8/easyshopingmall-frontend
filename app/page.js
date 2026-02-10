@@ -8,7 +8,7 @@ import { RightBannerAllGet } from "@/src/hook/userRightBanner";
 import { SubCategoryAllGet } from "@/src/hook/useSubcategory";
 
 // Enable ISR with 5-minute revalidation for better performance
-export const revalidate = 300;
+export const dynamic = 'force-dynamic';
 
 export const metadata = {
   title: "Home - Best Online Shopping Experience in BD",

@@ -9,7 +9,7 @@ import { userget, clearUser } from "@/src/redux/userSlice";
 import { useEffect } from "react";
 import BlockedUserRoute from "@/src/utlis/BlockedUserRoute";
 
-export default function LayoutWrapper({ children }) {
+export default function LayoutWrapper({ children, initialWebsiteInfo }) {
   const pathname = usePathname();
   const hideLayout = pathname.startsWith("/dashboard");
   const { user, loading, error } = useGetUser();
@@ -19,15 +19,15 @@ export default function LayoutWrapper({ children }) {
     if (user) {
       dispatch(userget(user));
     } else {
-      dispatch(clearUser()); 
+      dispatch(clearUser());
     }
   }, [user, dispatch]);
 
   return (
     <BlockedUserRoute>
-      {!hideLayout && <Header />}
+      {!hideLayout && <Header initialData={initialWebsiteInfo} />}
       {children}
-      {!hideLayout && <Footer />}
+      {!hideLayout && <Footer initialData={initialWebsiteInfo} />}
     </BlockedUserRoute>
   );
 }

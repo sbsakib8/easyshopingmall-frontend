@@ -190,6 +190,22 @@ export const updateAddress = async (addressData) => {
   }
 }
 
+// delete address (soft delete)
+export const deleteAddress = async (addressId) => {
+  try {
+    const response = await axios.delete(`${UrlBackend}/address/disable`, {
+      data: { _id: addressId },
+      withCredentials: true,
+      headers: { "Content-Type": "application/json" },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Delete Address error:", error.response?.data || error.message);
+    throw error;
+  }
+}
+
+
 // delete user
 export const deleteUser = async (id) => {
   try {
