@@ -691,14 +691,20 @@ const ProductDetails = ({ initialProduct }) => {
                 <ShoppingCart className="w-5 h-5 " />
                 <span>{product?.stock === 0 ? "Out of Stock" : "Add to Cart"}</span>
               </button>
-
-              <div className="grid grid-cols-2 gap-4">
-                <button onClick={async()=>{
+              <div className="grid grid-cols-2 gap-4">             
+                <button
+                disabled={product?.stock === 0}
+                onClick={async()=>{
                   setLoading(true)
                  await handleAddToCart()
                  setLoading(false)
                  router.push("/checkout")
-                }} className="bg-gradient-to-r from-emerald-500 to-green-500 text-white py-3 rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2 cursor-pointer">
+                }} 
+                
+                className={`w-full py-4 rounded-xl font-semibold text-lg flex items-center justify-center space-x-2 transition-all duration-300 ${product?.stock === 0
+                  ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                  : "bg-btn-color text-white hover:shadow-lg hover:scale-102 cursor-pointer"
+                  }`}>
                   <Zap className={`w-5 h-5 ${loading?'animate-spin':''} `} />
                   <span>Buy Now</span>
                 </button>

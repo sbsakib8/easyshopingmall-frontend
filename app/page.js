@@ -7,7 +7,6 @@ import { LeftBannerAllGet } from "@/src/hook/useLeftBanner";
 import { RightBannerAllGet } from "@/src/hook/userRightBanner";
 import { SubCategoryAllGet } from "@/src/hook/useSubcategory";
 import DropShippingHome from "@/src/dropShipping/dropShippingHome/dropShippingHome";
-import { getUserProfile } from "@/src/hook/useAuth";
 
 // Enable ISR with 5-minute revalidation for better performance
 export const revalidate = 300;
@@ -26,8 +25,7 @@ async function getHomeData() {
       CenterBannerAllGet(),
       LeftBannerAllGet(),
       RightBannerAllGet(),
-      SubCategoryAllGet(),
-      getUserProfile(cookieHeader)
+      SubCategoryAllGet()
     ]);
 
     return {
