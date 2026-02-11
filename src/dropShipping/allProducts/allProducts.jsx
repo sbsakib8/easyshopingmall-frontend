@@ -26,7 +26,7 @@ const AllProducts = () => {
             [...Array(8)].map((_, i) => (
               <div
                 key={i}
-                className="shadow-md rounded-2xl px-3 py-2 min-h-40 min-w-40 animate-pulse"
+                className="shadow-md rounded-2xl px-3 py-2 min-h-40 min-w-80 animate-pulse"
               >
                 <div className="bg-gray-300 rounded-sm h-40" />
                 <div className="h-5 bg-gray-300 rounded mt-5 mx-auto w-3/4" />

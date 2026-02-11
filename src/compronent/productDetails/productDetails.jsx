@@ -90,12 +90,10 @@ const ProductDetails = ({ initialProduct }) => {
   // Fetch all products for related products
   const productParams = useMemo(() => ({}), []);
   const { product: allProductsData } = useGetProduct(productParams);
-  console.log("product", allProductsData);
-
   const handleSubmitReview = async () => {
     // Check if user is logged in
     console.log("=== Review Submission Check ===");
-    console.log("User object:", user);
+   
 
     // Handle both _id (normal login) and id (Google login)
     const userId = user?._id || user?.id;
@@ -110,14 +108,7 @@ const ProductDetails = ({ initialProduct }) => {
       toast.error("Rating & comment required");
       return;
     }
-
-    // Use params.id instead of product?.id to ensure we have the correct ID
     const productId = params?.id || product?.id;
-
-    // console.log("Product ID from params:", params?.id);
-    // console.log("Product ID from product:", product?.id);
-    // console.log("Final Product ID:", productId);
-
     if (!productId) {
       toast.error("Product ID not found");
       return;
@@ -527,31 +518,30 @@ const ProductDetails = ({ initialProduct }) => {
               <p className="text-blue-600 font-semibold text-sm uppercase tracking-wide">
                 {product.brand}
               </p>
-
               {/* Category & SubCategory Info */}
               {(product?.category || product?.subCategory) && (
                 <div className="text-xs text-gray-500 mt-1 space-y-1">
                   {product?.category && (
                     <p>
                       <span className="font-semibold">Category:</span>{" "}
-                      {typeof product.category === "string"
-                        ? product.category
-                        : product.category?.name || "Category"}
+                      {typeof product.category[0]?.name  === "string"
+                        ? product.category[0]?.name 
+                        : product.category[0]?.name || "Category"}
                     </p>
                   )}
                   {product?.subCategory && (
                     <p>
                       <span className="font-semibold">Subcategory:</span>{" "}
-                      {typeof product.subCategory === "string"
-                        ? product.subCategory
-                        : product.subCategory?.name || "Subcategory"}
+                      {typeof product.subCategory[0]?.name === "string"
+                        ?product.subCategory[0]?.name
+                        : product.subCategory[0]?.name || "Subcategory"}
                     </p>
                   )}
                 </div>
               )}
 
               <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mt-2 leading-tight">
-                {product.name}
+                {product?.name}
               </h1>
 
               {/* Rating */}
@@ -816,7 +806,7 @@ const ProductDetails = ({ initialProduct }) => {
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-gray-100">
                   <span className="font-medium text-gray-900">Size:</span>
-                  <span className="text-gray-600">{product?.size || "N/A"}</span>
+                  <span className="text-gray-600">{product?.sizes.join(',') || "N/A"}</span>
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-gray-100">
                   <span className="font-medium text-gray-900">Stock Available:</span>

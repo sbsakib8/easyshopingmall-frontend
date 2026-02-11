@@ -3,16 +3,15 @@ import logo from "@/app/icon.png";
 import {Menu, User, X, } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useSelector } from "react-redux";
 
 const DropShippingNavbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
- 
-  const pathname = usePathname();
+
 
   // user data fatch
   const data = useSelector((state) => state.user.data);
