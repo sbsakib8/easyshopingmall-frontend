@@ -570,26 +570,19 @@ const ProductDetails = ({ initialProduct }) => {
               </span>
 
               <div>
-                {product?.discount > 0 && user?.role === "USER" && (
-                  <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1 rounded-full text-sm font-semibold animate-pulse">
-                    {Math.round(product.discount)}% OFF
-                  </div>
-                )}
-                {user?.role === "USER" ? <del className="text-2xl font-bold bg-gradient-to-r from-gray-400 to-gray-500 bg-clip-text text-transparent">
+               {product?.rank > product?.price && user?.role !== "DROPSHIPPING" && (
+                <>
+                  <p className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                    Save ৳{(product?.rank - product?.price)?.toFixed(0) || 0}
+                  </p>
+                </>
+              )}
+                {user?.role !== "DROPSHIPPING" ? <del className="text-2xl font-bold bg-gradient-to-r from-gray-400 to-gray-500 bg-clip-text text-transparent">
                   Rs {product?.rank}
                 </del> : ""}
               </div>
               
-              {product?.rank > product?.price && user?.role === "USER" && (
-                <>
-                  <span className="text-xl text-gray-500 line-through">
-                    ৳{product?.rank?.toFixed(0) || 0}
-                  </span>
-                  <span className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                    Save ৳{(product?.rank - product?.price)?.toFixed(0) || 0}
-                  </span>
-                </>
-              )}
+              
             </div>
             {/* Market Price */}
             {user?.role === "DROPSHIPPING" && <p className="text-2xl font-bold text-gray-500 ">
@@ -712,7 +705,7 @@ const ProductDetails = ({ initialProduct }) => {
             </div>
 
             {/* Features */}
-            {user?.role === "USER" && <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl">
+            {user?.role !== "DROPSHIPPING" && <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="flex flex-col items-center text-center space-y-2">
                   <Truck className="w-8 h-8 text-blue-500" />
@@ -745,7 +738,7 @@ const ProductDetails = ({ initialProduct }) => {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`py-4 ${user?.role !== "USER" && tab === "reviews" ? "hidden" : ''} px-1 border-b-2 font-medium text-sm capitalize transition-all duration-300 ${activeTab === tab
+                  className={`py-4 ${user?.role === "DROPSHIPPING" && tab === "reviews" ? "hidden" : ''} px-1 border-b-2 font-medium text-sm capitalize transition-all duration-300 ${activeTab === tab
                     ? "border-blue-500 text-blue-600"
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                     }`}
@@ -867,7 +860,7 @@ const ProductDetails = ({ initialProduct }) => {
               </div>
             )}
             { }
-            {activeTab === "reviews" && user?.role === "USER" && (
+            {activeTab === "reviews" && user?.role !== "DROPSHIPPING" && (
 
               <div className="py-12 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
                 {/* Summary */}
