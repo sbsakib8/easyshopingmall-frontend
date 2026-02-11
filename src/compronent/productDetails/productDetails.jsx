@@ -93,7 +93,7 @@ const ProductDetails = ({ initialProduct }) => {
   const handleSubmitReview = async () => {
     // Check if user is logged in
     console.log("=== Review Submission Check ===");
-   
+
 
     // Handle both _id (normal login) and id (Google login)
     const userId = user?._id || user?.id;
@@ -524,8 +524,8 @@ const ProductDetails = ({ initialProduct }) => {
                   {product?.category && (
                     <p>
                       <span className="font-semibold">Category:</span>{" "}
-                      {typeof product.category[0]?.name  === "string"
-                        ? product.category[0]?.name 
+                      {typeof product.category[0]?.name === "string"
+                        ? product.category[0]?.name
                         : product.category[0]?.name || "Category"}
                     </p>
                   )}
@@ -533,7 +533,7 @@ const ProductDetails = ({ initialProduct }) => {
                     <p>
                       <span className="font-semibold">Subcategory:</span>{" "}
                       {typeof product.subCategory[0]?.name === "string"
-                        ?product.subCategory[0]?.name
+                        ? product.subCategory[0]?.name
                         : product.subCategory[0]?.name || "Subcategory"}
                     </p>
                   )}
@@ -706,7 +706,7 @@ const ProductDetails = ({ initialProduct }) => {
             </div>
 
             {/* Features */}
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl">
+            {user.role === "USER" && <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="flex flex-col items-center text-center space-y-2">
                   <Truck className="w-8 h-8 text-blue-500" />
@@ -725,7 +725,9 @@ const ProductDetails = ({ initialProduct }) => {
                   <span className="text-sm font-medium">Premium Quality</span>
                 </div>
               </div>
-            </div>
+            </div>}
+
+
           </div>
         </div>
 
@@ -737,7 +739,7 @@ const ProductDetails = ({ initialProduct }) => {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm capitalize transition-all duration-300 ${activeTab === tab
+                  className={`py-4 ${user?.role !=="USER" && tab==="reviews"?"hidden":'' } px-1 border-b-2 font-medium text-sm capitalize transition-all duration-300 ${activeTab === tab
                     ? "border-blue-500 text-blue-600"
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                     }`}
@@ -858,8 +860,9 @@ const ProductDetails = ({ initialProduct }) => {
                 ))}
               </div>
             )}
-
-            {activeTab === "reviews" && (
+{}
+            {activeTab === "reviews" && user?.role==="USER" && (
+              
               <div className="py-12 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
                 {/* Summary */}
                 <div className="text-center mb-10">
