@@ -45,10 +45,10 @@ const AboutPage = () => {
   ];
 
   return (
-    <div className="min-h-screen lg:mt-20 py-5 bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen lg:mt-20 py-5 bg-bg">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-secondary/30 to-secondary/40"></div>
+        <div className="absolute inset-0"></div>
         <div className={`container mx-auto px-4 py-16 md:py-24 relative transform transition-all duration-1000 ${
           isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
         }`}>
@@ -65,7 +65,7 @@ const AboutPage = () => {
       </div>
 
       {/* Stats Section */}
-      <div className="py-16 bg-white/50 backdrop-blur-sm">
+      <div className="py-16">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
@@ -110,7 +110,7 @@ const AboutPage = () => {
       </div>
 
       {/* Values Section */}
-      <div className="py-16 bg-gradient-to-r from-base-300/50 to-purple-50">
+      <div className="py-16 ">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">আমাদের মূল্যবোধ</h2>
@@ -157,7 +157,7 @@ const AboutPage = () => {
       </div>
 
       {/* Mission Section */}
-      <div className="py-16 bg-gradient-to-r from-btn-color/80 via-btn-color/95 to-btn-color text-accent-content">
+      <div className="py-1 text-accent">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-8">আমাদের লক্ষ্য</h2>
@@ -174,7 +174,7 @@ const AboutPage = () => {
       </div>
 
       {/* Call to Action */}
-      <div className="py-16 bg-gray-50">
+      <div className="py-16">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">আমাদের সাথে যুক্ত হন</h2>
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">

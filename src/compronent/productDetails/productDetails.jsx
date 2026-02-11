@@ -36,6 +36,7 @@ const ProductDetails = ({ initialProduct }) => {
   const { data: wishlist } = useSelector((state) => state.wishlist);
   const cartItems = useSelector((state) => state.cart.items || []);
   const [loading, setLoading] = useState(true);
+  const [dropShippingPrice, setDropShippingPrice] = useState(0);
   const [error, setError] = useState(null);
   const [product, setProduct] = useState(() => {
     if (initialProduct) {
@@ -394,7 +395,6 @@ const ProductDetails = ({ initialProduct }) => {
       </div>
     );
   }
-
   return (
     <div className="min-h-screen lg:mt-30 lg:py-10 bg-gradient-to-br from-purple-50 via-white to-blue-50">
       <div className="container mx-auto px-4 py-8">
@@ -677,7 +677,19 @@ const ProductDetails = ({ initialProduct }) => {
                 </p>
               </div>
             </div>
-
+            
+            {/* dropShipping price  */}
+            {user?.role === "DROPSHIPPING" && <div >
+                <label className="text-accen font-medium">আপনার বিক্রয়কৃত মূল্য</label>
+                <input
+                  type="number"
+                  onChange={(e)=>setDropShippingPrice(e.target.value)}
+                  className="w-full p-4 bg-white/10  rounded-xl text-accent placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 border border-gray-300 focus:border-transparent transition-all duration-300 mt-2"
+                  placeholder="0৳"
+                  required
+                />
+              </div>}
+              
             {/* Action Buttons */}
             <div className="space-y-4">
               <button

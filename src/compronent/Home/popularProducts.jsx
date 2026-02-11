@@ -306,9 +306,9 @@ const PopularProducts = ({ initialData }) => {
     );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-bg">
       {/* Header & Categories */}
-      <div className="bg-white/80 backdrop-blur-lg border-b border-white/20 shadow-xl">
+      <div className=" backdrop-blur-lg border-b border-white/20 shadow-xl">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="text-center mb-6 animate-[fadeInUp_0.6s_ease-out]">
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 bg-clip-text text-transparent mb-2">
@@ -338,8 +338,8 @@ const PopularProducts = ({ initialData }) => {
             <button
               onClick={() => setShowCategories(!showCategories)}
               className={`flex sm:hidden items-center space-x-2 px-4 py-2 sm:py-3 rounded-full font-medium transition-all duration-300 ${activeCategory === "ALL"
-                ? "bg-gradient-to-r from-gray-700 to-gray-900 text-white shadow-lg"
-                : "bg-white/70 text-gray-700 hover:bg-white/90 border border-gray-200"
+                ? "bg-secondary text-white shadow-lg"
+                : "bg-accent-content hover:bg-white/90 border border-gray-200"
                 } mb-5 md:mb-0 gap-2`}
             >
               {showCategories ? "Hide" : "Show"} Categories
@@ -352,8 +352,8 @@ const PopularProducts = ({ initialData }) => {
             <button
               onClick={() => setActiveCategory("ALL")}
               className={`flex items-center space-x-2 px-4 py-2 sm:py-3 rounded-full font-medium transition-all duration-300 ${activeCategory === "ALL"
-                ? "bg-gradient-to-r from-gray-700 to-gray-900 text-white shadow-lg"
-                : "bg-white/70 text-gray-700 hover:bg-white/90 border border-gray-200"
+                ? "bg-secondary text-white shadow-lg"
+                : "bg-accent-content hover:bg-white/90 border border-gray-200"
                 }`}
             >
               All
@@ -363,7 +363,7 @@ const PopularProducts = ({ initialData }) => {
                 key={cat.id}
                 onClick={() => setActiveCategory(cat.id)}
                 className={`flex items-center space-x-2 px-4 py-2 sm:py-3 rounded-full font-medium transition-all duration-300 ${activeCategory === cat.id
-                  ? `bg-gradient-to-r ${cat.color} text-white shadow-lg`
+                  ? `bg-secondary text-white shadow-lg`
                   : "bg-white/70 text-gray-700 hover:bg-white/90 border border-gray-200"
                   }`}
               >

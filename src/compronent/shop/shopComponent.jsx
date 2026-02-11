@@ -123,7 +123,7 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
 
       <div className={`p-3 ${viewMode === "list" ? "flex-1 flex flex-col justify-between" : ""}`}>
         <div>
-          <h3 className={`font-semibold text-sm text-gray-800 mb-1 group-hover:text-purple-600 transition-colors duration-300 line-clamp-2`}>
+          <h3 className={`font-semibold text-sm text-gray-800 mb-1 group-hover:text-secondary transition-colors duration-300 line-clamp-2`}>
             {product.name}
           </h3>
           <p className="text-xs text-gray-500 mb-2">{product.brand}</p>
@@ -178,7 +178,7 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
                 }}
                 disabled={!product.inStock}
                 className={`py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs ${product.inStock
-                  ? "bg-green-600 text-white hover:bg-green-700 transform hover:scale-105"
+                  ? "bg-btn-color text-white hover:bg-green-700 transform hover:scale-105"
                   : "bg-gray-300 text-gray-500 cursor-not-allowed"
                   }`}
               >
@@ -635,28 +635,14 @@ const ShopPage = ({ initialData, queryParams }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-bg">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Mobile Search */}
-        {/* <div className="md:hidden mb-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Search products, categories, brands, tags..."
-              value={searchTerm}
-              onChange={(e) => dispatch(setSearchTerm(e.target.value))}
-              className="pl-10 pr-4 py-3 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            />
-          </div>
-        </div> */}
-
+    
         {/* Top Filter Bar */}
         <div className="bg-white lg:mt-28 rounded-lg shadow-md p-4 mb-6">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
             <div className="flex items-center gap-4 flex-wrap">
               <span className="text-gray-600 font-medium">Showing {totalCount} results</span>
-
               {/* Quick Filters */}
 
             </div>
@@ -667,7 +653,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                 <select
                   value={sortBy}
                   onChange={(e) => dispatch(setSortBy(e.target.value))}
-                  className="appearance-none border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-purple-500 bg-white"
+                  className="appearance-none border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-secondary bg-white"
                 >
                   <option value="name">Sort By Latest</option>
                   <option value="price-low">Price: Low to High</option>
@@ -683,14 +669,14 @@ const ShopPage = ({ initialData, queryParams }) => {
               <div className="flex border border-gray-300 rounded-lg overflow-hidden">
                 <button
                   onClick={() => dispatch(setViewMode("grid"))}
-                  className={`p-2 transition-colors duration-300 ${viewMode === "grid" ? "bg-purple-500 text-white" : "bg-white text-gray-600 hover:bg-gray-50"
+                  className={`p-2 transition-colors duration-300 ${viewMode === "grid" ? "bg-secondary text-white" : "bg-white text-gray-600 hover:bg-gray-50"
                     }`}
                 >
                   <Grid className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => dispatch(setViewMode("list"))}
-                  className={`p-2 transition-colors duration-300 ${viewMode === "list" ? "bg-purple-500 text-white" : "bg-white text-gray-600 hover:bg-gray-50"
+                  className={`p-2 transition-colors duration-300 ${viewMode === "list" ? "bg-secondary text-white" : "bg-white text-gray-600 hover:bg-gray-50"
                     }`}
                 >
                   <List className="w-5 h-5" />
@@ -746,7 +732,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                     max="300"
                     value={priceRange[1]}
                     onChange={(e) => dispatch(setPriceRange([priceRange[0], Number.parseInt(e.target.value)]))}
-                    className="w-full accent-purple-600"
+                    className="w-full accent-secondary"
                   />
                   <div className="text-center">
                     <span className="text-sm text-gray-600">
@@ -759,7 +745,7 @@ const ShopPage = ({ initialData, queryParams }) => {
               {/* Product Categories */}
               <div onClick={() => setShowCategory(!showCategory)} className="bg-white px-6 rounded-lg shadow-md border border-gray-200">
                 <h3 className="flex justify-between font-bold items-center text-lg mb-4 text-gray-800 border lg:border-none mt-3 p-2 rounded-xl">Product Categories <span className={`${showCategory ? "" : "rotate-180"} lg:hidden`}><ArrowUp /></span> </h3>
-                <div className={`space-y-2 ${categories.length > 4 ? 'max-h-64 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-purple-500 scrollbar-track-gray-200' : ''}`}>
+                <div className={`space-y-2 ${categories.length > 4 ? 'max-h-64 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-secondary scrollbar-track-gray-200' : ''}`}>
                   {categories.map((category) => (
                     <label
                       key={category}
@@ -775,7 +761,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                           setShowSubCategory(true)
                           setShowCategory(false)
                         }}
-                        className="text-purple-600 focus:ring-purple-500"
+                        className="text-secondary focus:ring-secondary"
                       />
                       <span className="capitalize text-gray-700">
                         {category === "all" ? "All Categories" : category.replace("-", " ")}
@@ -793,7 +779,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                       <X onClick={() => setShowSubCategory(false)} size={30} />
                     </span>
                   </h3>
-                  <div className={`space-y-2 ${subCategories.length > 4 ? 'max-h-64 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-purple-500 scrollbar-track-gray-200' : ''}`}>
+                  <div className={`space-y-2 ${subCategories.length > 4 ? 'max-h-64 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-secondary scrollbar-track-gray-200' : ''}`}>
                     {subCategories.map((subcat) => (
                       <label
                         key={subcat}
@@ -804,7 +790,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                           name="subcategory"
                           checked={filterSubCategory === subcat}
                           onChange={() => dispatch(setFilterSubCategory(subcat))}
-                          className="text-purple-600 focus:ring-purple-500"
+                          className="text-secondary focus:ring-secondary"
                         />
                         <span className="capitalize text-gray-700">
                           {subcat === "all" ? "All Subcategories" : subcat.replace("-", " ")}
@@ -815,56 +801,6 @@ const ShopPage = ({ initialData, queryParams }) => {
                 </div>
               )}
 
-              {/* Select Brands */}
-              {/* <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="font-bold text-lg mb-4 text-gray-800">Select Brands</h3>
-                <div className="space-y-2">
-                  {brands.map((brand) => (
-                    <label
-                      key={brand}
-                      className="flex items-center space-x-2 hover:bg-gray-50 p-2 rounded cursor-pointer"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={filterBrand === brand}
-                        onChange={() => dispatch(setFilterBrand(filterBrand === brand ? "all" : brand))}
-                        className="text-purple-600 focus:ring-purple-500"
-                      />
-                      <span className="text-gray-700">{brand === "all" ? "All Brands" : brand}</span>
-                    </label>
-                  ))}
-                </div>
-              </div> */}
-
-              {/* Rating Filter */}
-              {/* <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="font-bold text-lg mb-4 text-gray-800">Customer Rating</h3>
-                <div className="space-y-2">
-                  {[4, 3, 2, 1].map((rating) => (
-                    <label
-                      key={rating}
-                      className="flex items-center space-x-2 hover:bg-gray-50 p-2 rounded cursor-pointer"
-                    >
-                      <input
-                        type="radio"
-                        name="rating"
-                        checked={ratingFilter === rating}
-                        onChange={() => dispatch(setRatingFilter(ratingFilter === rating ? 0 : rating))}
-                        className="text-purple-600 focus:ring-purple-500"
-                      />
-                      <div className="flex items-center space-x-1">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`w-4 h-4 ${i < rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`}
-                          />
-                        ))}
-                        <span className="text-gray-600 text-sm">& Up</span>
-                      </div>
-                    </label>
-                  ))}
-                </div>
-              </div> */}
             </div>
           </div>
 
@@ -911,7 +847,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                 <p className="text-gray-500 mb-4">Try adjusting your filters or search terms</p>
                 <button
                   onClick={clearFilters}
-                  className="bg-purple-500 text-white px-6 py-2 rounded-lg hover:bg-purple-600 transition-colors duration-300"
+                  className="bg-secondary text-white px-6 py-2 rounded-lg hover:bg-secondary transition-colors duration-300"
                 >
                   Clear All Filters
                 </button>
@@ -956,7 +892,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                   disabled={currentPage === 1}
                   className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${currentPage === 1
                     ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                    : "bg-purple-500 text-white hover:bg-purple-600"
+                    : "bg-secondary text-white hover:bg-secondary"
                     }`}
                 >
                   Previous
@@ -981,7 +917,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                     key={page}
                     onClick={() => setCurrentPage(page)}
                     className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${currentPage === page
-                      ? "bg-purple-500 text-white transform scale-110"
+                      ? "bg-secondary text-white transform scale-110"
                       : "bg-white border border-gray-300 hover:bg-purple-50"
                       }`}
                   >
@@ -1008,7 +944,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                   disabled={currentPage === totalPages}
                   className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${currentPage === totalPages
                     ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                    : "bg-purple-500 text-white hover:bg-purple-600"
+                    : "bg-secondary text-white hover:bg-secondary"
                     }`}
                 >
                   Next
@@ -1174,7 +1110,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                         const val = e.target.value;
                         updateEditField("productStatus", val === "none" ? [] : [val]);
                       }}
-                      className="appearance-none border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-purple-500 bg-white"
+                      className="appearance-none border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-secondary bg-white"
                     >
                       <option disabled selected defaultValue={editModal.productStatus.length > 0 ? editModal.productStatus[0] : "none"}>{editModal.productStatus.length > 0 ? editModal.productStatus[0] : "none"}</option>
                       <option defaultValue="none">none</option>

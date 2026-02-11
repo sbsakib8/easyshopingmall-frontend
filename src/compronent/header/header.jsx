@@ -256,7 +256,7 @@ const Header = () => {
   return (
     <>
       <div
-        className={`bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 text-white text-xs sm:text-sm py-2 sm:py-3 px-2 sm:px-4 relative overflow-hidden transition-all duration-300 ${isScrolled ? "h-0 py-0 opacity-0" : "h-auto lg:h-[60px]"
+        className={`bg-gradient-to-r bg-secondary text-accent text-xs sm:text-sm py-2 sm:py-3 px-2 sm:px-4 relative overflow-hidden transition-all duration-300 ${isScrolled ? "h-0 py-0 opacity-0" : "h-auto lg:h-[60px]"
           } hidden sm:block`}
       >
         {/* Animated background particles */}
@@ -316,95 +316,10 @@ const Header = () => {
 
       {/* Secondary Top Bar */}
       <div
-        className={`bg-gradient-to-r from-slate-50 to-gray-100 border-b border-gray-200/80 text-xs sm:text-sm py-2 sm:py-3 px-2 sm:px-4 backdrop-blur-sm transition-all duration-300 ${isScrolled ? "h-0 py-0 opacity-0" : "h-auto sm:h-[50px] lg:h-[80px]"
+        className={`bg-gradient-to-r from-slate-50 to-gray-100 border-b border-gray-200/80 text-xs sm:text-sm  backdrop-blur-sm transition-all duration-300 ${isScrolled ? "h-0 py-0 opacity-0" : "h-auto sm:h-[50px]"
           } hidden sm:block`}
       >
-        <div className="px-2 sm:px-5 lg:px-32 mx-auto flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
-          <div className="flex flex-wrap items-center justify-center sm:justify-start space-x-2 sm:space-x-4 lg:space-x-6 mb-2 sm:mb-0">
-            <Link
-              href="/about"
-              className="text-gray-600 hover:text-emerald-600 transition-all duration-300 hover:scale-105 relative group"
-            >
-              About Us
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-300 group-hover:w-full"></span>
-            </Link>
-            <Link
-              href="/account"
-              className="text-gray-600 hover:text-emerald-600 transition-all duration-300 hover:scale-105 relative group"
-            >
-              My Account
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-300 group-hover:w-full"></span>
-            </Link>
-            <Link
-              href="/wishlist"
-              className="text-gray-600 hover:text-emerald-600 transition-all duration-300 hover:scale-105 relative group"
-            >
-              Wishlist
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-300 group-hover:w-full"></span>
-            </Link>
-            <div className="hidden lg:flex items-center space-x-2 text-gray-500">
-              <div className="w-2 h-2 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full animate-pulse"></div>
-              <span>{siteInfo?.deliveryText || "We deliver everyday from 7:00 to 22:00"}</span>
-            </div>
-          </div>
-          <div className="flex items-center space-x-2 sm:space-x-4">
-            {/* Language Dropdown with Enhanced Styling */}
-            {/* <div className="relative">
-              <button
-                onClick={() => setIsLanguageOpen(!isLanguageOpen)}
-                className="flex items-center space-x-1 text-gray-600 hover:text-emerald-600 transition-all duration-300 hover:scale-105 bg-white/80 backdrop-blur-sm px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-gray-200/60 shadow-sm hover:shadow-md"
-              >
-                <span className="font-medium text-xs sm:text-sm">{language}</span>
-                <ChevronDown size={12} className={`transition-transform duration-300 ${isLanguageOpen ? 'rotate-180' : ''}`} />
-              </button>
-              {isLanguageOpen && (
-                <div className="absolute right-0 mt-2 w-28 sm:w-32 bg-white/95 backdrop-blur-md border border-gray-200/60 rounded-xl shadow-xl py-2 z-50 animate-in fade-in slide-in-from-top-5 duration-200">
-                  {['English', 'বাংলা', 'العربية'].map((lang) => (
-                    <button
-                      key={lang}
-                      onClick={() => { setLanguage(lang); setIsLanguageOpen(false); }}
-                      className="block w-full text-left px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 hover:text-emerald-600 transition-all duration-200 font-medium"
-                    >
-                      {lang}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div> */}
-
-            {/* Currency Dropdown with Enhanced Styling */}
-            {/* <div className="relative">
-              <button
-                onClick={() => setIsCurrencyOpen(!isCurrencyOpen)}
-                className="flex items-center space-x-1 text-gray-600 hover:text-emerald-600 transition-all duration-300 hover:scale-105 bg-white/80 backdrop-blur-sm px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-gray-200/60 shadow-sm hover:shadow-md"
-              >
-                <span className="font-medium text-xs sm:text-sm">{currency}</span>
-                <ChevronDown size={12} className={`transition-transform duration-300 ${isCurrencyOpen ? 'rotate-180' : ''}`} />
-              </button>
-              {isCurrencyOpen && (
-                <div className="absolute right-0 mt-2 w-20 sm:w-24 bg-white/95 backdrop-blur-md border border-gray-200/60 rounded-xl shadow-xl py-2 z-50 animate-in fade-in slide-in-from-top-5 duration-200">
-                  {['USD', 'BDT', 'EUR'].map((curr) => (
-                    <button
-                      key={curr}
-                      onClick={() => { setCurrency(curr); setIsCurrencyOpen(false); }}
-                      className="block w-full text-left px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 hover:text-emerald-600 transition-all duration-200 font-medium"
-                    >
-                      {curr}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div> */}
-
-            <Link
-              href="/account?tab=orders"
-              className="text-gray-600 hover:text-emerald-600 transition-all duration-300 hover:scale-105 relative group font-medium text-xs sm:text-sm"
-            >
-              Track Order
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-300 group-hover:w-full"></span>
-            </Link>
-          </div>
-        </div>
+        
         <div className="py-2 overflow-hidden hidden sm:block bg-gradient-to-r from-amber-400 via-yellow-400 to-orange-400">
           <marquee behavior="scroll" direction="left" scrollamount="8" loop="infinite" className="text-sm font-semibold text-gray-800">
             {siteInfo?.discountTitle}
@@ -718,9 +633,9 @@ const Header = () => {
           </div>
         </div> : ""}
         {/* Enhanced Navigation Menu - Responsive */}
-        <div className="bg-gradient-to-r from-slate-50 via-white to-slate-50 border-t border-gray-200/60 backdrop-blur-sm">
+        <div className="bg-primary-color border-t border-gray-200/60 backdrop-blur-sm">
           <div className="container mx-auto px-2 sm:px-4 hidden lg:block">
-            <nav className="hidden lg:flex items-center justify-between py-3 lg:py-4">
+            <nav className="hidden lg:flex items-center justify-between ">
               <div className="flex items-center space-x-4 lg:space-x-8">
                 {navItems.map((item, index) => (
                   <Link
