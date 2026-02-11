@@ -693,8 +693,13 @@ const ProductDetails = ({ initialProduct }) => {
               </button>
 
               <div className="grid grid-cols-2 gap-4">
-                <button className="bg-gradient-to-r from-emerald-500 to-green-500 text-white py-3 rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2 cursor-pointer">
-                  <Zap className="w-5 h-5" />
+                <button onClick={async()=>{
+                  setLoading(true)
+                 await handleAddToCart()
+                 setLoading(false)
+                 router.push("/checkout")
+                }} className="bg-gradient-to-r from-emerald-500 to-green-500 text-white py-3 rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2 cursor-pointer">
+                  <Zap className={`w-5 h-5 ${loading?'animate-spin':''} `} />
                   <span>Buy Now</span>
                 </button>
                 <button className="border-2 border-gray-300 text-gray-700 py-3 rounded-xl font-semibold hover:border-blue-300 hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2 cursor-pointer">

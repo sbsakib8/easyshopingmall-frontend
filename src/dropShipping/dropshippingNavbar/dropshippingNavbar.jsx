@@ -22,6 +22,7 @@ const DropShippingNavbar = () => {
     { name: "Blog", href: "blog", badge: "New" },
     { name: "Contact", href: "contact" },
     { name: "Wishlist", href: "/wishlist" },
+    { name: "Add to Cart", href: "/addtocart" },
   ];
 
   if (data?.role === "DROP-SHIPPING") {
@@ -137,7 +138,7 @@ const DropShippingNavbar = () => {
         {isMobileMenuOpen && (
           <div className=" 
  backdrop-blur-md border-t border-gray-200/60 animate-in slide-in-from-top-5 duration-300 lg:flex lg:justify-center ">
-            <nav className="px-2 sm:px-4 py-3 sm:py-4 space-y-1 sm:space-y-2 max-h-96 overflow-visible lg:border lg:border-gray-200/60 lg:rounded-2xl lg:w-1/2 bg-white">
+            <nav className="px-2 sm:px-4 py-3 sm:py-4 space-y-1 sm:space-y-2 overflow-visible lg:border lg:border-gray-200/60 lg:rounded-2xl lg:w-1/2 bg-white">
               {navItems.map((item, index) => (
                 <Link
                   onClick={toggleMobileMenu}
