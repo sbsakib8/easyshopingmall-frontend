@@ -27,7 +27,6 @@ import { useRouter } from "next/navigation";
 import { UrlFrontend } from "@/src/confic/urlExport";
 import toast from "react-hot-toast";
 import { ProductDelete, ProductUpdate } from "@/src/hook/useProduct";
-import { useGetAllOrders } from "@/src/utlis/useGetAllOrders";
 import useGetRevenue from "@/src/utlis/useGetRevenue";
 import * as XLSX from "xlsx"
 

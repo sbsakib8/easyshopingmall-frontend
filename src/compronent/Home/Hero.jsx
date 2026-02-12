@@ -8,12 +8,12 @@ import ChatBoot from './ChatBoot'
 
 function Hero({ initialData }) {
   return (
-    <div>
-      <div className=' py-1 mt-10 lg:mt-30  h-[200px] sm:h-[400px] lg:h-[720px] bg-[#F3F4F6]  '>
+    <div className='bg-bg'>
+      <div className=' py-1 mt-10 lg:mt-30  h-[200px] sm:h-[400px] lg:h-[720px] bg-bg  '>
         <Carousels initialData={initialData?.banners} />
       </div>
 
-      <div className='mt-5'>
+      <div className='mt-5 bg-bg'>
         <Categories initialData={initialData?.categories} />
       </div>
       <Ads initialData={initialData?.ads} />

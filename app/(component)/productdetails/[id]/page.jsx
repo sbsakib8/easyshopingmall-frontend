@@ -20,7 +20,14 @@ export async function generateMetadata(props) {
       openGraph: {
         title,
         description,
-        images: [{ url: image }],
+         images: [
+      {
+        url: image, 
+        width: 800,
+        height: 600,
+        alt: "product image",
+      },
+    ],
         type: 'article',
       },
       keywords:[...product.tags,product.category[0].name,product.subCategory[0].name],

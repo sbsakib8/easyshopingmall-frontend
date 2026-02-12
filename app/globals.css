@@ -11,12 +11,19 @@
   --color-accent-content: white;
 } */
 @theme {
-  --color-primary-color: #39B47f; 
-  --color-btn-color: #009C5E; 
-  --color-secondary: #ffbb00; 
-  --color-base-300: #C9C4C3;
+  --color-primary-color: #FFC900; 
+  --color-secondary: #f87171CC; 
+  --color-btn-color: #478c1f;  
+  --color-bg: #FFFDE1;
   --color-accent: black;
   --color-accent-content: white;
+
+  /* for shipping  */
+  --color-base-400: #CADCAE;
+  --color-base-500: #FFC900;
+  --color-base-600: #FFE100;
+  --color-base-700: #FF9B00;
+  --color-base-800: #EDA35A;
 }
 
 
