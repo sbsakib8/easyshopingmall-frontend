@@ -1,34 +1,29 @@
 "use client"
-import React, { useEffect, useMemo, useCallback, useState } from "react"
+import { ProductGridSkeleton } from '@/src/compronent/loading/ProductGridSkeleton'
 import { addToCartApi, getCartApi, removeCartItemApi, updateCartItemApi } from "@/src/hook/useCart"
-import { addToWishlistApi, removeFromWishlistApi } from "@/src/hook/useWishlist"
-import { useFilteredProducts } from "@/src/utlis/useFilteredProducts"
-import { useWishlist } from "@/src/utlis/useWishList"
-import { useCategoryWithSubcategories } from "@/src/utlis/useCategoryWithSubcategories"
-import { ArrowUp, ChevronDown, Edit, Filter, Grid, Heart, List, Search, ShoppingCart, SlidersHorizontal, Star, Trash2, X } from "lucide-react"
-import { getCategoryId, getSubCategoryId } from "@/src/utlis/filterHelpers"
-import { useRouter, useSearchParams } from "next/navigation"
-import toast from "react-hot-toast"
-import { useDispatch, useSelector } from "react-redux"
 import { ProductDelete, ProductUpdate } from "@/src/hook/useProduct"
-import { ProductGridSkeleton, ShopPageSkeleton } from '@/src/compronent/loading/ProductGridSkeleton'
+import { addToWishlistApi, removeFromWishlistApi } from "@/src/hook/useWishlist"
 import {
-  setSearchTerm,
+  fetchShopProducts,
+  resetFilters,
+  setCurrentPage,
   setDebouncedSearch,
   setFilterCategory,
   setFilterSubCategory,
-  setFilterBrand,
-  setFilterGender,
   setPriceRange,
-  setRatingFilter,
   setSortBy,
-  setCurrentPage,
   setViewMode,
-  toggleFilters,
-  resetFilters,
   syncFromUrl,
-  fetchShopProducts
+  toggleFilters
 } from "@/src/redux/shopSlice"
+import { getCategoryId, getSubCategoryId } from "@/src/utlis/filterHelpers"
+import { useCategoryWithSubcategories } from "@/src/utlis/useCategoryWithSubcategories"
+import { useWishlist } from "@/src/utlis/useWishList"
+import { ArrowUp, ChevronDown, Edit, Filter, Grid, Heart, List, Search, ShoppingCart, SlidersHorizontal, Star, Trash2, X } from "lucide-react"
+import { useRouter, useSearchParams } from "next/navigation"
+import React, { useCallback, useEffect, useMemo, useState } from "react"
+import toast from "react-hot-toast"
+import { useDispatch, useSelector } from "react-redux"
 
 // Helper function to determine if product is new or old
 const isProductNew = (createdDate) => {
@@ -216,7 +211,6 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
   );
 });
 
-import { setProducts, setTotalCount } from "@/src/redux/shopSlice" // Ensure these actions exist or use a generic success action
 
 const ShopPage = ({ initialData, queryParams }) => {
   const router = useRouter()
@@ -330,7 +324,7 @@ const ShopPage = ({ initialData, queryParams }) => {
   const [favorite, setFavorite] = useState([])
   const [showCategory, setShowCategory] = useState(false)
   const [showSubCategory, setShowSubCategory] = useState(false)
-  const productsPerPage = 30
+  const productsPerPage = 100
 
   // Optimize Redux Selectors to avoid new references
   const reduxCartItems = useSelector((state) => state.cart.items) || []; // Default outside selector
@@ -888,7 +882,7 @@ const ShopPage = ({ initialData, queryParams }) => {
               <div className="flex justify-center items-center space-x-2 mt-12 flex-wrap gap-2">
                 {/* Previous Button */}
                 <button
-                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  onClick={() => dispatch(setCurrentPage(Math.max(1, currentPage - 1)))}
                   disabled={currentPage === 1}
                   className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${currentPage === 1
                     ? "bg-gray-100 text-gray-400 cursor-not-allowed"
@@ -902,7 +896,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                 {showStartDots && (
                   <>
                     <button
-                      onClick={() => setCurrentPage(1)}
+                      onClick={() => dispatch(setCurrentPage(1))}
                       className="px-4 py-2 rounded-lg font-medium bg-white border border-gray-300 hover:bg-purple-50 transition-colors duration-300"
                     >
                       1
@@ -915,7 +909,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                 {pageNumbers.map((page) => (
                   <button
                     key={page}
-                    onClick={() => setCurrentPage(page)}
+                    onClick={() => dispatch(setCurrentPage(page))}
                     className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${currentPage === page
                       ? "bg-secondary text-white transform scale-110"
                       : "bg-white border border-gray-300 hover:bg-purple-50"
@@ -930,7 +924,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                   <>
                     <span className="px-2 text-gray-500 font-bold">...</span>
                     <button
-                      onClick={() => setCurrentPage(totalPages)}
+                      onClick={() => dispatch(setCurrentPage(totalPages))}
                       className="px-4 py-2 rounded-lg font-medium bg-white border border-gray-300 hover:bg-purple-50 transition-colors duration-300"
                     >
                       {totalPages}
@@ -940,7 +934,7 @@ const ShopPage = ({ initialData, queryParams }) => {
 
                 {/* Next Button */}
                 <button
-                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  onClick={() => dispatch(setCurrentPage(Math.min(totalPages, currentPage + 1)))}
                   disabled={currentPage === totalPages}
                   className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${currentPage === totalPages
                     ? "bg-gray-100 text-gray-400 cursor-not-allowed"

@@ -73,12 +73,30 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
   const total = subtotal + deliveryCharge;
   // console.log('cartItems', cartItems);
 
+
   useEffect(() => {
-    // if user already has an address prefills
-    if (user?.address) {
-      setCustomerInfo((p) => ({ ...p, address: user.address }));
+    // Auto-populate customer info from user data
+    if (user) {
+      const updates = {
+        name: user.name || "",
+        phone: user.mobile || "",
+        email: user.email || "",
+      };
+
+      // If user has saved address details, populate them
+      if (user.address_details && user.address_details.length > 0) {
+        const savedAddress = user.address_details[0];
+        updates.address = savedAddress.address_line || "";
+        updates.division = savedAddress.division || "";
+        updates.district = savedAddress.district || "";
+        updates.area = savedAddress.upazila_thana || "";
+        updates.pincode = savedAddress.pincode || "";
+      }
+
+      setCustomerInfo((prev) => ({ ...prev, ...updates }));
     }
   }, [user]);
+
 
 
   useEffect(() => {

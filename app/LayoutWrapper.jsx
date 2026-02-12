@@ -11,7 +11,7 @@ import BlockedUserRoute from "@/src/utlis/BlockedUserRoute";
 import DropshippingNavbar from "@/src/dropShipping/dropshippingNavbar/dropshippingNavbar";
 
 
-export default function LayoutWrapper({ children }) {
+export default function LayoutWrapper({ children, initialWebsiteInfo }) {
   const pathname = usePathname();
   const hideLayout = pathname.startsWith("/dashboard");
   const { user, loading, error } = useGetUser();
@@ -30,7 +30,7 @@ export default function LayoutWrapper({ children }) {
       {!hideLayout && role !== "DROPSHIPPING" ? <Header /> : ""}
       {role==="DROPSHIPPING" &&<DropshippingNavbar />}
       {children}
-      {!hideLayout && <Footer />}
+      {!hideLayout && <Footer initialData={initialWebsiteInfo} />}
     </BlockedUserRoute>
   );
 }
