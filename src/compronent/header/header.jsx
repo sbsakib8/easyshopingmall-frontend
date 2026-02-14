@@ -263,68 +263,11 @@ const Header = ({ initialData }) => {
 
   return (
     <>
-      <div
-        className={`bg-gradient-to-r bg-secondary text-accent text-xs sm:text-sm py-2 sm:py-3 px-2 sm:px-4 relative overflow-hidden transition-all duration-300 ${isScrolled ? "h-0 py-0 opacity-0" : "h-auto lg:h-[60px]"
-          } hidden sm:block`}
-      >
-        {/* Animated background particles */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-2 left-10 w-2 h-2 bg-white rounded-full animate-pulse"></div>
-          <div className="absolute top-8 left-32 w-1 h-1 bg-yellow-300 rounded-full animate-bounce"></div>
-          <div className="absolute top-4 right-20 w-1.5 h-1.5 bg-white rounded-full animate-pulse delay-300"></div>
-          <div className="absolute top-7 right-40 w-1 h-1 bg-yellow-300 rounded-full animate-bounce delay-500"></div>
-        </div>
-
-        <div className="px-2 sm:px-4 lg:px-32 mx-auto text-center flex flex-col lg:flex-row justify-between items-center relative z-10 space-y-2 lg:space-y-0">
-          <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 lg:space-x-4">
-            <div className="flex items-center space-x-2">
-              <Zap className="w-4 h-4 text-yellow-300 animate-pulse" />
-              <span className="font-semibold tracking-wide text-center">
-                {siteLoading
-                  ? "Loading offers..."
-                  : siteInfo?.offerText || "FREE delivery & 40% Discount for next 3 orders!"}
-              </span>
-            </div>
-            <div className="flex items-center space-x-1 sm:space-x-2 bg-white/30 backdrop-blur-sm rounded-lg px-2 sm:px-3 py-1 border border-white/20 shadow-lg">
-              <div className="flex items-center space-x-0.5 sm:space-x-1 animate-pulse">
-                <span className="font-bold text-sm sm:text-lg">
-                  {timeLeft.days.toString().padStart(2, "0")}
-                </span>
-                <span className="text-xs opacity-90">Days</span>
-              </div>
-              <div className="w-px h-3 sm:h-4 bg-white/40"></div>
-              <div className="flex items-center space-x-0.5 sm:space-x-1 animate-pulse delay-75">
-                <span className="font-bold text-sm sm:text-lg">
-                  {timeLeft.hours.toString().padStart(2, "0")}
-                </span>
-                <span className="text-xs opacity-90">Hr</span>
-              </div>
-              <div className="w-px h-3 sm:h-4 bg-white/40"></div>
-              <div className="flex items-center space-x-0.5 sm:space-x-1 animate-pulse delay-150">
-                <span className="font-bold text-sm sm:text-lg">
-                  {timeLeft.minutes.toString().padStart(2, "0")}
-                </span>
-                <span className="text-xs opacity-90">Min</span>
-              </div>
-              <div className="w-px h-3 sm:h-4 bg-white/40"></div>
-              <div className="flex items-center space-x-0.5 sm:space-x-1 animate-pulse delay-200">
-                <span className="font-bold text-sm sm:text-lg text-yellow-300">
-                  {timeLeft.seconds.toString().padStart(2, "0")}
-                </span>
-                <span className="text-xs opacity-90">Sec</span>
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-yellow-300 rounded-full animate-pulse"></div>
-            <span className="font-medium">Need help? Call: {siteInfo?.number}</span>
-          </div>
-        </div>
-      </div>
+      
 
       {/* Secondary Top Bar */}
       <div
-        className={`bg-gradient-to-r from-slate-50 to-gray-100 border-b border-gray-200/80 text-xs sm:text-sm  backdrop-blur-sm transition-all duration-300 ${isScrolled ? "h-0 py-0 opacity-0" : "h-auto sm:h-[50px]"
+        className={`bg-bg text-xs sm:text-sm  backdrop-blur-sm transition-all duration-300 ${isScrolled ? "h-0 py-0 opacity-0" : "h-auto sm:h-[50px]"
           } hidden sm:block`}
       >
         
@@ -339,10 +282,10 @@ const Header = ({ initialData }) => {
 
       {/* Main Header */}
       <header
-        className={`bg-white/95 backdrop-blur-md shadow-lg sticky top-0 z-40 border-b border-gray-200/50 transition-all duration-300 ${isScrolled ? "h-16 sm:h-20" : "h-20 sm:h-24 lg:h-[100px]"
+        className={`bg-bg shadow-lg sticky top-0 z-40 border-b border-gray-200/50 transition-all duration-300 ${isScrolled ? "h-16 sm:h-20" : "h-20 sm:h-24 lg:h-[100px]"
           }`}
       >
-        <div className="mx-auto px-2 sm:px-4 lg:px-32">
+        <div className="mx-auto px-4 xl:px-32">
           <div className="flex items-center justify-between py-2 sm:py-3 lg:py-4">
             {/* Enhanced Logo - Responsive */}
             <div className="flex items-center">
@@ -352,9 +295,6 @@ const Header = ({ initialData }) => {
                     className={`w-6 h-6 sm:w-10 sm:h-10 lg:w-12 lg:h-12  from-emerald-500 via-green-500 to-teal-500 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 ${isScrolled ? "animate-pulse" : ""
                       }`}
                   >
-                    {/* <div className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 bg-white rounded-lg sm:rounded-xl flex items-center justify-center transform group-hover:rotate-12 transition-transform duration-300">
-                      <div className="w-3 h-3 sm:w-3.5 sm:h-3.5 lg:w-4 lg:h-4 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-md sm:rounded-lg"></div>
-                    </div> */}
                     <Image src={logo} width={60} height={100} alt="Easy Shopping Mall Logo" />
                   </div>
                   <div className="absolute -top-0.5 sm:-top-1 -right-0.5 sm:-right-1 w-2 h-2 sm:w-3 sm:h-3 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full animate-pulse"></div>
@@ -513,7 +453,7 @@ const Header = ({ initialData }) => {
               </div>
             </div>
 
-            <div className="flex items-center space-x-2 sm:space-x-4 lg:space-x-6">
+            <div className="flex items-center space-x-2 sm:space-x-4 mx-3">
               {data ? (
                 <Link
                   href="/account"
@@ -526,7 +466,7 @@ const Header = ({ initialData }) => {
                     />
                   </div>
                   <div>
-                    <div className=" hidden lg:block text-xs text-gray-500 font-medium">
+                    <div className="hidden sm:block lg:block text-xs text-accent font-bold">
                       Account
                     </div>
                   </div>
@@ -543,7 +483,7 @@ const Header = ({ initialData }) => {
                     />
                   </div>
                   <div>
-                    <div className=" hidden lg:block text-xs text-gray-500 font-medium">SignIn</div>
+                    <div className=" hidden lg:block text-xs text-accent font-medium">SignIn</div>
                   </div>
                 </Link>
               )}
@@ -566,7 +506,7 @@ const Header = ({ initialData }) => {
                     )}
                   </div>
                   <div className="hidden sm:block lg:block">
-                    <div className="text-xs text-gray-500 font-medium">Wishlist</div>
+                    <div className="text-xs text-accent font-bold">Wishlist</div>
                   </div>
                 </Link>
               </div>
@@ -589,7 +529,7 @@ const Header = ({ initialData }) => {
                     )}
                   </div>
                   <div className="hidden sm:block lg:block">
-                    <div className="text-xs text-gray-500 font-medium">Cart</div>
+                    <div className="text-xs text-accent font-bold">Cart</div>
                   </div>
                 </Link>
               </div>
@@ -641,7 +581,7 @@ const Header = ({ initialData }) => {
           </div>
         </div> : ""}
         {/* Enhanced Navigation Menu - Responsive */}
-        <div className="bg-primary-color border-t border-gray-200/60 backdrop-blur-sm">
+        <div className="bg-primary-color border-t border-gray-200/60 backdrop-blur-sm py-2 hidden lg:block">
           <div className="container mx-auto px-2 sm:px-4 hidden lg:block">
             <nav className="hidden lg:flex items-center justify-between ">
               <div className="flex items-center space-x-4 lg:space-x-8">

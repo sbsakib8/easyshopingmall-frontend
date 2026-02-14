@@ -396,10 +396,10 @@ const ProductDetails = ({ initialProduct }) => {
     );
   }
   return (
-    <div className="min-h-screen lg:mt-16 lg:py-10 bg-bg">
+    <div className="min-h-screen lg:mt-6 lg:py-10 bg-bg">
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumb with Category & SubCategory */}
-        <div className="flex items-center space-x-2 text-sm text-gray-600 mb-8 flex-wrap">
+        <div className="flex items-center space-x-2 text-sm text-gray-600 mb-2 mt-4 flex-wrap">
           <button onClick={() => router.push("/")} className="hover:text-blue-600 hover:underline">
             Home
           </button>
@@ -754,7 +754,7 @@ const ProductDetails = ({ initialProduct }) => {
         </div>
 
         {/* Product Details Tabs */}
-        <div className="mt-16">
+        <div className="">
           <div className="border-b border-gray-200">
             <nav className="flex space-x-8">
               {["description", "specifications", "reviews"].map((tab) => (
@@ -772,7 +772,7 @@ const ProductDetails = ({ initialProduct }) => {
             </nav>
           </div>
 
-          <div className="mt-8">
+          <div className="mt-2">
             {activeTab === "description" && (
               <div className="prose max-w-none">
                 <p className="text-gray-600 text-lg leading-relaxed mb-6 break-words overflow-wrap-anywhere whitespace-pre-line">
