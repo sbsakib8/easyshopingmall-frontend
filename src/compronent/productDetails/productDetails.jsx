@@ -396,7 +396,7 @@ const ProductDetails = ({ initialProduct }) => {
     );
   }
   return (
-    <div className="min-h-screen lg:mt-30 lg:py-10 bg-gradient-to-br from-purple-50 via-white to-blue-50">
+    <div className="min-h-screen lg:mt-16 lg:py-10 bg-bg">
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumb with Category & SubCategory */}
         <div className="flex items-center space-x-2 text-sm text-gray-600 mb-8 flex-wrap">
@@ -728,7 +728,7 @@ const ProductDetails = ({ initialProduct }) => {
             </div>
 
             {/* Features */}
-            {user?.role !== "DROPSHIPPING" && <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl">
+            {user?.role !== "DROPSHIPPING" && <div className="shadow-xl p-6 rounded-xl">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="flex flex-col items-center text-center space-y-2">
                   <Truck className="w-8 h-8 text-blue-500" />
