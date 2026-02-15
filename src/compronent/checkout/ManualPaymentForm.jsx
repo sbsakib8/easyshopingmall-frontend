@@ -110,7 +110,7 @@ export default function ManualPaymentForm({ order, selectedManualMethod, manualM
       <button
         onClick={handleSubmitPayment}
         disabled={isSubmitting || !selectedManualMethod}
-        className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white py-3 rounded-xl font-semibold disabled:opacity-60"
+        className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-accent-content py-3 rounded-xl font-semibold disabled:opacity-60"
       >
         {isSubmitting ? 'জমা দেওয়া হচ্ছে...' : 'পেমেন্ট জমা দিন'}
       </button>

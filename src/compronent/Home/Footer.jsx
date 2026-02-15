@@ -18,7 +18,7 @@ function Footer({ initialData }) {
 
 
     return (
-        <footer className=' px-20 mx-auto bg-red-400/80'>
+        <footer className='px-20 mx-auto bg-secondary'>
             {/* main div */}
             <div className='w-[98%] lg:w-[95%] flex flex-wrap justify-between items-center gap-4 lg:gap-0 py-4 px-2 lg:px-0'>
 
@@ -116,7 +116,7 @@ function Footer({ initialData }) {
                      flex justify-center items-center cursor-pointer 
                      transition-all duration-200 delay-100"
                                 >
-                                    <IconComponent className="text-2xl text-white" />
+                                    <IconComponent className="text-2xl text-accent-content" />
                                 </a>
                             );
                         })}

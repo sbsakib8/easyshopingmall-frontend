@@ -58,10 +58,10 @@ function OrderDetailsModal({ order, onClose }) {
         {/* Header */}
         <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4
                         bg-gradient-to-r from-emerald-500 to-teal-500 rounded-t-2xl">
-          <h2 className="text-white text-lg font-semibold">Order Details</h2>
+          <h2 className="text-accent-content text-lg font-semibold">Order Details</h2>
           <button
             onClick={onClose}
-            className="text-white text-xl hover:rotate-90 transition"
+            className="text-accent-content text-xl hover:rotate-90 transition"
           >
             ✕
           </button>

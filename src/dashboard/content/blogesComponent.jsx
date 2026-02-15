@@ -37,20 +37,20 @@ const BlogsAdminDashboard = () => {
 
   const filteredBlogs = blogs.filter(blog => {
     const matchesSearch = blog.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         blog.author?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         blog.category?.toLowerCase().includes(searchTerm.toLowerCase());
+      blog.author?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      blog.category?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = filterStatus === 'All' || blog.status === filterStatus;
     return matchesSearch && matchesStatus;
   });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.title || !formData.author || !formData.category || !formData.excerpt || !formData.content) {
       alert('Please fill in all required fields');
       return;
     }
-    
+
     setSubmitting(true);
 
     try {
@@ -61,7 +61,7 @@ const BlogsAdminDashboard = () => {
       submitData.append('status', formData.status);
       submitData.append('excerpt', formData.excerpt);
       submitData.append('content', formData.content);
-      
+
       if (formData.image && formData.image instanceof File) {
         submitData.append('image', formData.image);
       }
@@ -128,7 +128,7 @@ const BlogsAdminDashboard = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData({...formData, image: file});
+      setFormData({ ...formData, image: file });
     }
   };
 
@@ -155,7 +155,7 @@ const BlogsAdminDashboard = () => {
 
   if (loading && blogs.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-accent-content flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="animate-spin mx-auto mb-4 text-blue-400" size={48} />
           <p className="text-gray-400">Loading blogs...</p>
@@ -166,10 +166,10 @@ const BlogsAdminDashboard = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-accent-content flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-400 mb-4">Error loading blogs</p>
-          <button 
+          <button
             onClick={refetch}
             className="bg-blue-500 hover:bg-blue-600 px-6 py-2 rounded-lg transition-colors"
           >
@@ -181,7 +181,7 @@ const BlogsAdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-accent-content overflow-hidden">
       <div className="transition-all duration-500 lg:ml-15 py-5 px-2 lg:px-9">
         {/* Header Section */}
         <div className="mb-8">
@@ -208,7 +208,7 @@ const BlogsAdminDashboard = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-blue-300 text-sm">Total Blogs</p>
-                <p className="text-2xl font-bold text-white">{blogs.length}</p>
+                <p className="text-2xl font-bold text-accent-content">{blogs.length}</p>
               </div>
               <div className="bg-blue-500/30 p-3 rounded-xl">
                 <Edit2 size={24} className="text-blue-300" />
@@ -219,7 +219,7 @@ const BlogsAdminDashboard = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-green-300 text-sm">Published</p>
-                <p className="text-2xl font-bold text-white">{blogs.filter(b => b.status === 'Published').length}</p>
+                <p className="text-2xl font-bold text-accent-content">{blogs.filter(b => b.status === 'Published').length}</p>
               </div>
               <div className="bg-green-500/30 p-3 rounded-xl">
                 <Eye size={24} className="text-green-300" />
@@ -230,7 +230,7 @@ const BlogsAdminDashboard = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-yellow-300 text-sm">Drafts</p>
-                <p className="text-2xl font-bold text-white">{blogs.filter(b => b.status === 'Draft').length}</p>
+                <p className="text-2xl font-bold text-accent-content">{blogs.filter(b => b.status === 'Draft').length}</p>
               </div>
               <div className="bg-yellow-500/30 p-3 rounded-xl">
                 <Edit2 size={24} className="text-yellow-300" />
@@ -241,7 +241,7 @@ const BlogsAdminDashboard = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-purple-300 text-sm">Total Views</p>
-                <p className="text-2xl font-bold text-white">{blogs.reduce((sum, blog) => sum + (blog.views || 0), 0).toLocaleString()}</p>
+                <p className="text-2xl font-bold text-accent-content">{blogs.reduce((sum, blog) => sum + (blog.views || 0), 0).toLocaleString()}</p>
               </div>
               <div className="bg-purple-500/30 p-3 rounded-xl">
                 <TrendingUp size={24} className="text-purple-300" />
@@ -260,13 +260,13 @@ const BlogsAdminDashboard = () => {
                 placeholder="Search blogs by title, author, or category..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl pl-10 pr-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
+                className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl pl-10 pr-4 py-3 text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
               />
             </div>
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
+              className="bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-accent-content focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
             >
               {statuses.map(status => (
                 <option key={status} value={status}>{status}</option>
@@ -280,8 +280,8 @@ const BlogsAdminDashboard = () => {
           {filteredBlogs.map((blog) => (
             <div key={blog._id || blog.id} className="group bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-2xl overflow-hidden hover:border-blue-500/50 transition-all duration-500 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/20">
               <div className="relative overflow-hidden">
-                <img 
-                  src={getImageUrl(blog)} 
+                <img
+                  src={getImageUrl(blog)}
                   alt={blog.title}
                   className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
                 />
@@ -292,16 +292,16 @@ const BlogsAdminDashboard = () => {
                   </span>
                 </div>
               </div>
-              
+
               <div className="p-6">
-                <h3 className="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors duration-300 line-clamp-2">
+                <h3 className="text-xl font-bold text-accent-content mb-3 group-hover:text-blue-400 transition-colors duration-300 line-clamp-2">
                   {blog.title}
                 </h3>
-                
+
                 <p className="text-gray-400 text-sm mb-4 line-clamp-3">
                   {blog.excerpt}
                 </p>
-                
+
                 <div className="flex items-center gap-4 text-xs text-gray-400 mb-4">
                   <div className="flex items-center gap-1">
                     <User size={14} />
@@ -316,13 +316,13 @@ const BlogsAdminDashboard = () => {
                     {blog.category}
                   </div>
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1 text-gray-400">
                     <Eye size={14} />
                     <span className="text-xs">{blog.views || 0} views</span>
                   </div>
-                  
+
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleEdit(blog)}
@@ -362,7 +362,7 @@ const BlogsAdminDashboard = () => {
                   {editingBlog ? 'Edit Blog' : 'Add New Blog'}
                 </h2>
               </div>
-              
+
               <div className="p-6 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -370,8 +370,8 @@ const BlogsAdminDashboard = () => {
                     <input
                       type="text"
                       value={formData.title}
-                      onChange={(e) => setFormData({...formData, title: e.target.value})}
-                      className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
                       placeholder="Enter blog title"
                     />
                   </div>
@@ -380,8 +380,8 @@ const BlogsAdminDashboard = () => {
                     <input
                       type="text"
                       value={formData.author}
-                      onChange={(e) => setFormData({...formData, author: e.target.value})}
-                      className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
+                      onChange={(e) => setFormData({ ...formData, author: e.target.value })}
+                      className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
                       placeholder="Author name"
                     />
                   </div>
@@ -392,8 +392,8 @@ const BlogsAdminDashboard = () => {
                     <label className="block text-sm font-semibold text-gray-300 mb-2">Category *</label>
                     <select
                       value={formData.category}
-                      onChange={(e) => setFormData({...formData, category: e.target.value})}
-                      className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
+                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                      className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-accent-content focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
                     >
                       <option value="">Select Category</option>
                       {allCategorydata?.data?.map(category => (
@@ -405,8 +405,8 @@ const BlogsAdminDashboard = () => {
                     <label className="block text-sm font-semibold text-gray-300 mb-2">Status</label>
                     <select
                       value={formData.status}
-                      onChange={(e) => setFormData({...formData, status: e.target.value})}
-                      className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
+                      onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                      className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-accent-content focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
                     >
                       <option value="Draft">Draft</option>
                       <option value="Published">Published</option>
@@ -420,7 +420,7 @@ const BlogsAdminDashboard = () => {
                     type="file"
                     accept="image/*"
                     onChange={handleImageChange}
-                    className="w-full cursor-pointer bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-500/20 file:text-blue-400 hover:file:bg-blue-500/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
+                    className="w-full cursor-pointer bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-accent-content file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-500/20 file:text-blue-400 hover:file:bg-blue-500/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
                   />
                 </div>
 
@@ -428,8 +428,8 @@ const BlogsAdminDashboard = () => {
                   <label className="block text-sm font-semibold text-gray-300 mb-2">Excerpt *</label>
                   <textarea
                     value={formData.excerpt}
-                    onChange={(e) => setFormData({...formData, excerpt: e.target.value})}
-                    className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300 h-24 resize-none"
+                    onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
+                    className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300 h-24 resize-none"
                     placeholder="Brief description of the blog post"
                   />
                 </div>
@@ -438,8 +438,8 @@ const BlogsAdminDashboard = () => {
                   <label className="block text-sm font-semibold text-gray-300 mb-2">Content *</label>
                   <textarea
                     value={formData.content}
-                    onChange={(e) => setFormData({...formData, content: e.target.value})}
-                    className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300 h-32 resize-none"
+                    onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                    className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300 h-32 resize-none"
                     placeholder="Write your blog content here..."
                   />
                 </div>
@@ -448,7 +448,7 @@ const BlogsAdminDashboard = () => {
                   <button
                     onClick={handleSubmit}
                     disabled={submitting}
-                    className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 px-6 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
+                    className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-accent-content py-3 px-6 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
                   >
                     {submitting ? (
                       <>

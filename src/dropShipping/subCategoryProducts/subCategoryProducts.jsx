@@ -30,7 +30,7 @@ const handleDownloadImage = async (e, imageUrl, productName) => {
         console.error("Image download failed:", error);
     }
 };
-const ProductCard = React.memo(({ product, viewMode,toggleWishlist,wishlist,favorite,setFavorite,router }) => {
+const ProductCard = React.memo(({ product, viewMode, toggleWishlist, wishlist, favorite, setFavorite, router }) => {
     if (!product) return null;
     // Render Stars Helper
     const ratingValue = product.rating || product.ratings || 0;
@@ -62,7 +62,7 @@ const ProductCard = React.memo(({ product, viewMode,toggleWishlist,wishlist,favo
                 <div className="absolute top-0 left-0 flex justify-between w-full">
                     <div className="flex items-start">
                         {product.isNew && (
-                            <span className="bg-green-500 text-white px-1 py-1 rounded text-[8px] font-semibold">NEW</span>
+                            <span className="bg-green-500 text-accent-content px-1 py-1 rounded text-[8px] font-semibold">NEW</span>
                         )}
                     </div>
                     {product.productStatus && product.productStatus.length > 0 && !product.productStatus.includes("none") && (
@@ -76,7 +76,7 @@ const ProductCard = React.memo(({ product, viewMode,toggleWishlist,wishlist,favo
 
                 {product.productStock < 1 && (
                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                        <span className="bg-red-500 text-white px-3 py-1 rounded font-semibold text-xs">Out of Stock</span>
+                        <span className="bg-red-500 text-accent-content px-3 py-1 rounded font-semibold text-xs">Out of Stock</span>
                     </div>
                 )}
             </div>
@@ -103,7 +103,7 @@ const ProductCard = React.memo(({ product, viewMode,toggleWishlist,wishlist,favo
                         <span className="text-base font-bold text-red-600">
                             Tk {product.price}
                         </span>
-                       
+
                     </div>
                     <div className='flex justify-between'>
                         <button
@@ -210,28 +210,28 @@ const SubCategoryProducts = ({ id }) => {
     // product get
     const { product: products, loading: productsLoading } = useGetProduct(formData);
     const filteredProducts = products?.filter(p => p?.subCategory[0]?._id === id)
- const { wishlist } = useWishlist()
- const user = useSelector((state) => state.user?.data)
-  // Toggle wishlist (uses API + redux)
-  const toggleWishlist = useCallback(async (product) => {
-    if (!user?._id) {
-      toast.error("Please sign in to add to wishlist")
-      return
-    }
-    try {
-      const exists = (wishlist || []).some((i) => i.id === product._id || favorite.includes(product._id))
-      if (exists) {
-        await removeFromWishlistApi(product._id, dispatch)
-        toast.success("Removed from wishlist")
-      } else {
-        await addToWishlistApi(product._id, dispatch)
-        toast.success("Added to wishlist")
-      }
-    } catch (err) {
-      console.error("Wishlist toggle error:", err)
-      toast.error("Failed to update wishlist")
-    }
-  }, [wishlist, favorite, dispatch]);
+    const { wishlist } = useWishlist()
+    const user = useSelector((state) => state.user?.data)
+    // Toggle wishlist (uses API + redux)
+    const toggleWishlist = useCallback(async (product) => {
+        if (!user?._id) {
+            toast.error("Please sign in to add to wishlist")
+            return
+        }
+        try {
+            const exists = (wishlist || []).some((i) => i.id === product._id || favorite.includes(product._id))
+            if (exists) {
+                await removeFromWishlistApi(product._id, dispatch)
+                toast.success("Removed from wishlist")
+            } else {
+                await addToWishlistApi(product._id, dispatch)
+                toast.success("Added to wishlist")
+            }
+        } catch (err) {
+            console.error("Wishlist toggle error:", err)
+            toast.error("Failed to update wishlist")
+        }
+    }, [wishlist, favorite, dispatch]);
 
     return (
         <div className="container grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">

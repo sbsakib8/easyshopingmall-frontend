@@ -12,7 +12,7 @@ export default function BlockedPage() {
   useEffect(() => {
     // If user is not blocked, redirect to home
     const isBlocked = user?.status === "Blocked" || user?.status === "blocked";
-    
+
     if (!isBlocked) {
       router.push("/");
     }
@@ -54,9 +54,9 @@ export default function BlockedPage() {
         </div>
 
         <h1 className="text-3xl font-bold text-gray-900 mb-4">Account Blocked</h1>
-        
+
         <p className="text-gray-600 mb-6">
-          Your account has been blocked by the administrator. If you believe this is a mistake, 
+          Your account has been blocked by the administrator. If you believe this is a mistake,
           please contact support for assistance.
         </p>
 
@@ -68,7 +68,7 @@ export default function BlockedPage() {
 
         <button
           onClick={handleLogout}
-          className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+          className="w-full bg-red-600 hover:bg-red-700 text-accent-content font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
         >
           Logout
         </button>

@@ -85,9 +85,9 @@ export default function LocationSelects({ customerInfo, setCustomerInfo }) {
             <div className="bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 p-6">
                 <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                        <MapPin className="w-5 h-5 text-white" />
+                        <MapPin className="w-5 h-5 text-accent-content" />
                     </div>
-                    <h2 className="text-xl font-semibold text-white">অঞ্চল ও জেলা নির্বাচন</h2>
+                    <h2 className="text-xl font-semibold text-accent-content">অঞ্চল ও জেলা নির্বাচন</h2>
                 </div>
             </div>
 

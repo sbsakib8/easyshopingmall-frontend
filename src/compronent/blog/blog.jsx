@@ -50,7 +50,7 @@ const BlogPage = ({ initialData }) => {
   });
 
   return (
-    <div className="min-h-screen lg:mt-20 py-5 bg-bg">
+    <div className="min-h-screen lg:mt-12 py-5 bg-bg">
       {/* Header Section */}
       <div className="relative overflow-hidden text-accent">
         <div className="absolute inset-0"></div>
@@ -113,7 +113,7 @@ const BlogPage = ({ initialData }) => {
                   </div>
                   <div className="md:w-1/2 p-8 text-black">
                     <div className="flex items-center gap-4 mb-4">
-                      <span className="bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                      <span className="bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-accent-content px-3 py-1 rounded-full text-sm font-medium">
                         {featuredPost?.category}
                       </span>
                       <div className="flex items-center text-gray-500 text-sm">
@@ -183,7 +183,7 @@ const BlogPage = ({ initialData }) => {
               <button
                 onClick={() => setSelectedCategory("All")}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${selectedCategory === "All"
-                  ? 'bg-btn-color text-white shadow-lg'
+                  ? 'bg-btn-color text-accent-content shadow-lg'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
               >
@@ -194,7 +194,7 @@ const BlogPage = ({ initialData }) => {
                   key={cat._id}
                   onClick={() => setSelectedCategory(cat.name)}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${selectedCategory === cat.name
-                    ? 'bg-btn-color text-white shadow-lg'
+                    ? 'bg-btn-color text-accent-content shadow-lg'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                 >

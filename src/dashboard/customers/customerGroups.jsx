@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 
 
 
-const CustomerGroups=()=> {
+const CustomerGroups = () => {
   const [groups, setGroups] = useState([])
   const [selectedGroup, setSelectedGroup] = useState(null)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
@@ -169,7 +169,7 @@ const CustomerGroups=()=> {
               placeholder="Search groups..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-gradient-to-r from-gray-800/80 to-gray-700/80 border border-gray-600/50 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-300"
+              className="w-full bg-gradient-to-r from-gray-800/80 to-gray-700/80 border border-gray-600/50 rounded-xl px-4 py-3 text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-300"
             />
             <div className="absolute right-3 top-3 text-gray-400">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -187,7 +187,7 @@ const CustomerGroups=()=> {
           <select
             value={filterBy}
             onChange={(e) => setFilterBy(e.target.value)}
-            className="bg-gradient-to-r from-gray-800/80 to-gray-700/80 border border-gray-600/50 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-300"
+            className="bg-gradient-to-r from-gray-800/80 to-gray-700/80 border border-gray-600/50 rounded-xl px-4 py-3 text-accent-content focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-300"
           >
             <option className="bg-gray-700" value="all">All Groups</option>
             <option className="bg-gray-700" value="high-revenue">High Revenue</option>
@@ -198,7 +198,7 @@ const CustomerGroups=()=> {
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="bg-gradient-to-r from-gray-800/80 to-gray-700/80 border border-gray-600/50 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-300"
+            className="bg-gradient-to-r from-gray-800/80 to-gray-700/80 border border-gray-600/50 rounded-xl px-4 py-3 text-accent-content focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-300"
           >
             <option className="bg-gray-700" value="name">Sort by Name</option>
             <option className="bg-gray-700" value="customers">Sort by Customers</option>
@@ -209,7 +209,7 @@ const CustomerGroups=()=> {
           {/* Create Button */}
           <button
             onClick={() => setIsCreateModalOpen(true)}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25"
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-accent-content px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25"
           >
             + Create Group
           </button>
@@ -221,7 +221,7 @@ const CustomerGroups=()=> {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-blue-300 text-sm font-medium">Total Groups</p>
-                <p className="text-3xl font-bold text-white">{groups.length}</p>
+                <p className="text-3xl font-bold text-accent-content">{groups.length}</p>
               </div>
               <div className="bg-blue-500/20 p-3 rounded-xl">
                 <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -240,7 +240,7 @@ const CustomerGroups=()=> {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-green-300 text-sm font-medium">Total Customers</p>
-                <p className="text-3xl font-bold text-white">
+                <p className="text-3xl font-bold text-accent-content">
                   {groups.reduce((sum, group) => sum + group.totalCustomers, 0)}
                 </p>
               </div>
@@ -261,7 +261,7 @@ const CustomerGroups=()=> {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-purple-300 text-sm font-medium">Total Revenue</p>
-                <p className="text-3xl font-bold text-white">
+                <p className="text-3xl font-bold text-accent-content">
                   ${groups.reduce((sum, group) => sum + group.totalRevenue, 0).toLocaleString()}
                 </p>
               </div>
@@ -290,7 +290,7 @@ const CustomerGroups=()=> {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
                   <div className="w-4 h-4 rounded-full" style={{ backgroundColor: group.color }}></div>
-                  <h3 className="text-xl font-bold text-white group-hover:text-gray-200 transition-colors">
+                  <h3 className="text-xl font-bold text-accent-content group-hover:text-gray-200 transition-colors">
                     {group.name}
                   </h3>
                 </div>
@@ -331,11 +331,11 @@ const CustomerGroups=()=> {
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div className="bg-gradient-to-r from-gray-700/30 to-gray-600/30 rounded-lg p-3">
                   <p className="text-gray-400 text-xs">Customers</p>
-                  <p className="text-white font-bold text-lg">{group.totalCustomers}</p>
+                  <p className="text-accent-content font-bold text-lg">{group.totalCustomers}</p>
                 </div>
                 <div className="bg-gradient-to-r from-gray-700/30 to-gray-600/30 rounded-lg p-3">
                   <p className="text-gray-400 text-xs">Revenue</p>
-                  <p className="text-white font-bold text-lg">${group.totalRevenue.toLocaleString()}</p>
+                  <p className="text-accent-content font-bold text-lg">${group.totalRevenue.toLocaleString()}</p>
                 </div>
               </div>
 
@@ -357,7 +357,7 @@ const CustomerGroups=()=> {
         {isCreateModalOpen && (
           <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 w-full max-w-md border border-gray-700">
-              <h2 className="text-2xl font-bold text-white mb-6">Create New Group</h2>
+              <h2 className="text-2xl font-bold text-accent-content mb-6">Create New Group</h2>
 
               <div className="space-y-4">
                 <div>
@@ -366,7 +366,7 @@ const CustomerGroups=()=> {
                     type="text"
                     value={newGroup.name}
                     onChange={(e) => setNewGroup({ ...newGroup, name: e.target.value })}
-                    className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-accent-content focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Enter group name"
                   />
                 </div>
@@ -376,7 +376,7 @@ const CustomerGroups=()=> {
                   <textarea
                     value={newGroup.description}
                     onChange={(e) => setNewGroup({ ...newGroup, description: e.target.value })}
-                    className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 h-24 resize-none"
+                    className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-accent-content focus:outline-none focus:ring-2 focus:ring-blue-500 h-24 resize-none"
                     placeholder="Enter group description"
                   />
                 </div>
@@ -395,13 +395,13 @@ const CustomerGroups=()=> {
               <div className="flex space-x-4 mt-8">
                 <button
                   onClick={() => setIsCreateModalOpen(false)}
-                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-medium transition-colors"
+                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-accent-content py-3 rounded-lg font-medium transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleCreateGroup}
-                  className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 rounded-lg font-medium transition-all"
+                  className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-accent-content py-3 rounded-lg font-medium transition-all"
                 >
                   Create Group
                 </button>
@@ -414,7 +414,7 @@ const CustomerGroups=()=> {
         {isEditModalOpen && (
           <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 w-full max-w-md border border-gray-700">
-              <h2 className="text-2xl font-bold text-white mb-6">Edit Group</h2>
+              <h2 className="text-2xl font-bold text-accent-content mb-6">Edit Group</h2>
 
               <div className="space-y-4">
                 <div>
@@ -423,7 +423,7 @@ const CustomerGroups=()=> {
                     type="text"
                     value={newGroup.name}
                     onChange={(e) => setNewGroup({ ...newGroup, name: e.target.value })}
-                    className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-accent-content focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
@@ -432,7 +432,7 @@ const CustomerGroups=()=> {
                   <textarea
                     value={newGroup.description}
                     onChange={(e) => setNewGroup({ ...newGroup, description: e.target.value })}
-                    className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 h-24 resize-none"
+                    className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-accent-content focus:outline-none focus:ring-2 focus:ring-blue-500 h-24 resize-none"
                   />
                 </div>
 
@@ -450,13 +450,13 @@ const CustomerGroups=()=> {
               <div className="flex space-x-4 mt-8">
                 <button
                   onClick={() => setIsEditModalOpen(false)}
-                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-medium transition-colors"
+                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-accent-content py-3 rounded-lg font-medium transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleEditGroup}
-                  className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 rounded-lg font-medium transition-all"
+                  className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-accent-content py-3 rounded-lg font-medium transition-all"
                 >
                   Update Group
                 </button>
@@ -472,7 +472,7 @@ const CustomerGroups=()=> {
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-3">
                   <div className="w-6 h-6 rounded-full" style={{ backgroundColor: selectedGroup.color }}></div>
-                  <h2 className="text-3xl font-bold text-white">{selectedGroup.name}</h2>
+                  <h2 className="text-3xl font-bold text-accent-content">{selectedGroup.name}</h2>
                 </div>
                 <button
                   onClick={() => setSelectedGroup(null)}
@@ -489,30 +489,30 @@ const CustomerGroups=()=> {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div className="bg-gradient-to-r from-blue-600/20 to-blue-800/20 rounded-xl p-4">
                   <p className="text-blue-300 text-sm">Total Customers</p>
-                  <p className="text-2xl font-bold text-white">{selectedGroup.totalCustomers}</p>
+                  <p className="text-2xl font-bold text-accent-content">{selectedGroup.totalCustomers}</p>
                 </div>
                 <div className="bg-gradient-to-r from-green-600/20 to-green-800/20 rounded-xl p-4">
                   <p className="text-green-300 text-sm">Total Revenue</p>
-                  <p className="text-2xl font-bold text-white">${selectedGroup.totalRevenue.toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-accent-content">${selectedGroup.totalRevenue.toLocaleString()}</p>
                 </div>
                 <div className="bg-gradient-to-r from-purple-600/20 to-purple-800/20 rounded-xl p-4">
                   <p className="text-purple-300 text-sm">Created</p>
-                  <p className="text-2xl font-bold text-white">{selectedGroup.createdAt}</p>
+                  <p className="text-2xl font-bold text-accent-content">{selectedGroup.createdAt}</p>
                 </div>
               </div>
 
-              <h3 className="text-xl font-bold text-white mb-4">Customers in this group</h3>
+              <h3 className="text-xl font-bold text-accent-content mb-4">Customers in this group</h3>
 
               {selectedGroup.customers.length > 0 ? (
                 <div className="space-y-3">
                   {selectedGroup.customers.map((customer) => (
                     <div key={customer.id} className="bg-gray-700/30 rounded-lg p-4 flex items-center justify-between">
                       <div>
-                        <h4 className="text-white font-medium">{customer.name}</h4>
+                        <h4 className="text-accent-content font-medium">{customer.name}</h4>
                         <p className="text-gray-400 text-sm">{customer.email}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-white font-medium">{customer.totalOrders} orders</p>
+                        <p className="text-accent-content font-medium">{customer.totalOrders} orders</p>
                         <p className="text-gray-400 text-sm">${customer.totalSpent.toLocaleString()}</p>
                       </div>
                     </div>

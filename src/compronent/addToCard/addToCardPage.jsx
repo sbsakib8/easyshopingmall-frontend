@@ -250,7 +250,7 @@ const ShoppingCartComponent = () => {
           <p className="text-gray-600 mb-4">You need to log in to view your cart.</p>
           <Link
             href="/signin"
-            className="inline-block bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-teal-700 hover:to-green-700 transition-all"
+            className="inline-block bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-accent-content px-6 py-3 rounded-xl font-semibold hover:from-teal-700 hover:to-green-700 transition-all"
           >
             Go to Sign In
           </Link>
@@ -351,7 +351,7 @@ const ShoppingCartComponent = () => {
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Your cart is empty</h2>
             <p className="text-gray-600 mb-8">Add some items to get started</p>
-            <button className="bg-teal-500 hover:bg-green-600 text-white px-8 py-3 rounded-xl font-medium transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1">
+            <button className="bg-teal-500 hover:bg-green-600 text-accent-content px-8 py-3 rounded-xl font-medium transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1">
               Continue Shopping
             </button>
           </div>
@@ -377,7 +377,7 @@ const ShoppingCartComponent = () => {
                         className="w-24 h-24 object-cover rounded-xl"
                       />
                       {item.discount > 0 && (
-                        <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full font-bold">
+                        <div className="absolute -top-2 -right-2 bg-red-500 text-accent-content text-xs px-2 py-1 rounded-full font-bold">
                           -{item.discount}%
                         </div>
                       )}
@@ -517,7 +517,7 @@ const ShoppingCartComponent = () => {
                         />
                         <button
                           onClick={applyCoupon}
-                          className="px-4 py-2 bg-teal-500 hover:bg-green-600 text-white rounded-lg font-medium transition-all duration-300"
+                          className="px-4 py-2 bg-teal-500 hover:bg-green-600 text-accent-content rounded-lg font-medium transition-all duration-300"
                         >
                           Apply
                         </button>
@@ -611,7 +611,7 @@ const ShoppingCartComponent = () => {
                 {/* Go to Checkout Button */}
                 <Link
                   href="/checkout"
-                  className="w-full cursor-pointer bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 hover:from-teal-600 hover:to-green-700 text-white py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center space-x-2"
+                  className="w-full cursor-pointer bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 hover:from-teal-600 hover:to-green-700 text-accent-content py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center space-x-2"
                 >
                   <CreditCard className="w-5 h-5" />
                   <span>Proceed to Checkout</span>
@@ -667,7 +667,7 @@ const ShoppingCartComponent = () => {
 
                       <button
                         onClick={() => handleAddToCart(item)}
-                        className="w-full bg-teal-600 text-white text-xs py-1.5 rounded-lg hover:bg-teal-700 transition"
+                        className="w-full bg-teal-600 text-accent-content text-xs py-1.5 rounded-lg hover:bg-teal-700 transition"
                       >
                         Add to Cart
                       </button>
