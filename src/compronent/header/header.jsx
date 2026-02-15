@@ -4,12 +4,13 @@ import { getCartApi } from "@/src/hook/useCart";
 import { getWishlistApi } from "@/src/hook/useWishlist";
 import { useCategoryWithSubcategories } from "@/src/utlis/useCategoryWithSubcategories";
 import { useGetProduct } from "@/src/utlis/userProduct";
+import { useSearchProduct } from "@/src/utlis/useSearchProduct";
 import useWebsiteInfo from "@/src/utlis/useWebsiteInfo";
 import { Camera, ChevronDown, Heart, Menu, Search, ShoppingCart, Star, User, X, Zap } from "lucide-react";
 import Skeleton from '@/src/compronent/loading/Skeleton';
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setSearchTerm } from "@/src/redux/shopSlice";
@@ -24,6 +25,7 @@ const Header = ({ initialData }) => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [showLiveResults, setShowLiveResults] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const dispatch = useDispatch();
   const { data: wishlistItems } = useSelector((state) => state.wishlist);
@@ -73,13 +75,11 @@ const Header = ({ initialData }) => {
     getSubcategoriesForCategory,
   } = useCategoryWithSubcategories();
 
-  // Attach nested subcategory names to each category for the old UI structure
   const menuCategories = (categories || []).map((cat) => ({
     ...cat,
     icon: cat.icon || cat.image || null,
     subcategories: (subcategories || [])
-      .filter((s) => s.categoryId === cat.id || s.categoryId?._id === cat.id)
-      .map((s) => s.name),
+      .filter((s) => s.categoryId === cat.id || s.categoryId?._id === cat.id),
   }));
 
 
@@ -89,8 +89,8 @@ const Header = ({ initialData }) => {
     { name: "Home", href: "/" },
     { name: "About", href: "/about" },
     { name: "Shop", href: "/shop" },
-    { name: "Blog", href: "blog", badge: "New" },
-    { name: "Contact", href: "contact" },
+    { name: "Blog", href: "/blog", badge: "New" },
+    { name: "Contact", href: "/contact" },
   ];
 
   if (data?.role === "ADMIN") {
@@ -177,32 +177,26 @@ const Header = ({ initialData }) => {
     else setShowLiveResults(false);
   }, [debouncedSearch]);
 
-  // Load products once and filter client-side for live suggestions
-  const productParams = useMemo(() => ({ page: 1, limit: 200, search: "" }), []);
-  const { product: productResp, loading: productsLoading } = useGetProduct(productParams);
+  // Use the dedicated search hook for live suggestions (400ms internal debounce)
+  const { data: searchResults, loading: searchLoading } = useSearchProduct({
+    search: searchQuery,
+    limit: 6
+  });
 
-  const allProducts = useMemo(() => {
-    const list = productResp?.products ?? productResp?.data ?? productResp ?? [];
+  const liveResults = useMemo(() => {
+    const list = searchResults?.data || searchResults?.products || [];
     if (!Array.isArray(list)) return [];
+
     return list.map((p) => ({
-      id: p._id || p.id || (p._id?.toString && p._id.toString()) || String(p.id || ""),
+      id: p._id || p.id || String(p.id || ""),
       name: p.name || p.productName || p.title || "Untitled",
-      price: Number(p.price ?? p.sell_price ?? p.amount) || 0,
-      originalPrice: Number(p.originalPrice ?? p.oldPrice ?? p.mrp ?? 0) || 0,
+      price: Number(p.price ?? p.sell_price ?? 0) || 0,
+      originalPrice: Number(p.originalPrice ?? p.oldPrice ?? 0) || 0,
       image: p.image || p.images?.[0] || "/banner/img/placeholder.png",
       rating: Number(p.rating ?? p.ratings) || 4,
       reviews: Number(p.reviews ?? p.reviewCount ?? 0) || 0,
-      createdAt: p.createdAt || p.created_at || p.createdDate,
     }));
-  }, [productResp]);
-
-  const liveResults = useMemo(() => {
-    if (!debouncedSearch || debouncedSearch.length < 1) return [];
-    const q = debouncedSearch.toLowerCase();
-    return allProducts
-      .filter((p) => (p.name || "").toLowerCase().includes(q) || String(p.price || "").includes(q))
-      .slice(0, 6);
-  }, [allProducts, debouncedSearch]);
+  }, [searchResults]);
 
   // Additional helpers for dropdown cards
   const wishlistIds = useSelector(
@@ -270,7 +264,7 @@ const Header = ({ initialData }) => {
         className={`bg-secondary text-xs sm:text-sm  backdrop-blur-sm transition-all duration-300 ${isScrolled ? "h-0 py-0 opacity-0" : "h-auto sm:h-[50px]"
           } hidden sm:block`}
       >
-        
+
         <div className="py-2 overflow-hidden hidden sm:block bg-gradient-to-r from-amber-400 via-yellow-400 to-orange-400">
           <marquee behavior="scroll" direction="left" scrollamount="8" loop="infinite" className="text-sm font-semibold text-gray-800">
             {siteInfo?.discountTitle}
@@ -361,9 +355,9 @@ const Header = ({ initialData }) => {
                         ) : (
                           menuCategories.map((category) => {
                             const activeSub = category.subcategories.find(
-                              (sub) => pathname === `/shop?category=${encodeURIComponent(sub)}`
+                              (sub) => pathname === "/shop" && (searchParams.get("category") === category.name && searchParams.get("subcategory") === sub.name)
                             );
-                            const isActiveCategory = hoveredCategoryId === category.id || activeSub;
+                            const isActiveCategory = hoveredCategoryId === category.id || activeSub || (pathname === "/shop" && searchParams.get("category") === category.name);
 
                             return (
                               <div
@@ -373,6 +367,10 @@ const Header = ({ initialData }) => {
                                 onMouseLeave={() => setHoveredCategoryId(null)}
                               >
                                 <button
+                                  onClick={() => {
+                                    router.push(`/shop?category=${encodeURIComponent(category.name)}`);
+                                    setIsCategoriesOpen(false);
+                                  }}
                                   className={`flex items-center space-x-3 w-full px-6 py-4 transition-all duration-300 ${isActiveCategory
                                     ? "bg-emerald-50 text-emerald-700"
                                     : "hover:bg-emerald-50 text-gray-700"
@@ -401,11 +399,11 @@ const Header = ({ initialData }) => {
                                   <div className="py-2">
                                     {category.subcategories.map((sub) => (
                                       <Link
-                                        key={sub}
-                                        href={`/shop?category=${encodeURIComponent(sub)}`}
+                                        key={sub.name}
+                                        href={`/shop?category=${encodeURIComponent(category.name)}&subcategory=${encodeURIComponent(sub.name)}`}
                                         className="block px-6 py-3 text-gray-600 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 font-medium"
                                       >
-                                        {sub}
+                                        {sub.name}
                                       </Link>
                                     ))}
                                   </div>
@@ -427,9 +425,6 @@ const Header = ({ initialData }) => {
                     placeholder="Search for products"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    onFocus={() => {
-                      router.push(`/shop?search=${encodeURIComponent(searchQuery || "")}`);
-                    }}
                     className="w-full pl-12 lg:pl-14 pr-4 lg:pr-6 py-3 lg:py-4 bg-transparent focus:outline-none text-gray-700 placeholder-gray-500 font-medium"
                   />
                   <button onClick={() => {
@@ -670,14 +665,23 @@ const Header = ({ initialData }) => {
                           {/* Subcategories (FAQ style) */}
                           {isOpen && (
                             <div className="px-4 pb-3 space-y-1 animate-in slide-in-from-top-2">
+                              {/* Option to view all in this category */}
+                              <Link
+                                onClick={toggleMobileMenu}
+                                href={`/shop?category=${encodeURIComponent(category.name)}`}
+                                className="block py-2 px-2 rounded-md text-sm font-bold text-emerald-600 hover:bg-emerald-50 transition-all underline"
+                              >
+                                View All {category.name}
+                              </Link>
+
                               {category.subcategories.map((sub) => (
                                 <Link
-                                  key={sub}
+                                  key={sub.name}
                                   onClick={toggleMobileMenu}
-                                  href={`/shop?category=${encodeURIComponent(sub)}`}
+                                  href={`/shop?category=${encodeURIComponent(category.name)}&subcategory=${encodeURIComponent(sub.name)}`}
                                   className="block py-2 px-2 rounded-md text-sm text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 transition-all"
                                 >
-                                  {sub}
+                                  {sub.name}
                                 </Link>
                               ))}
                             </div>

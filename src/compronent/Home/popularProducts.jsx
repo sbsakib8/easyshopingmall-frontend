@@ -9,10 +9,13 @@ import {
   Star
 } from "lucide-react";
 import CustomLoader from '@/src/compronent/loading/CustomLoader';
+import { ProductGridSkeleton } from '@/src/compronent/loading/ProductGridSkeleton';
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
+import { useRouter } from "next/navigation"; // Import useRouter
 
 // 🧠 Import your hooks
 import { addToCartApi } from "../../hook/useCart";
@@ -26,6 +29,7 @@ import { useGetProduct } from "../../utlis/userProduct";
 import { useCategoryWithSubcategories } from "../../utlis/useCategoryWithSubcategories";
 import { useWishlist } from "@/src/utlis/useWishList";
 import Button from "@/src/helper/Buttons/Button";
+import { setQuickViewProduct } from "../../redux/shopSlice";
 
 // Helper function to determine if product is new or old
 const isProductNew = (createdDate) => {
@@ -39,11 +43,13 @@ const isProductNew = (createdDate) => {
 const PopularProducts = ({ initialData }) => {
   const [activeCategory, setActiveCategory] = useState("ALL");
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [showCategories, setShowCategories] = useState(false);
   const [localWishlist, setLocalWishlist] = useState(new Set());
 
 
   const dispatch = useDispatch();
+  const router = useRouter(); // Initialize useRouter
   const { data: wishlistItems } = useSelector((state) => state?.wishlist?.data);
   const { wishlist } = useWishlist()
   const user = useSelector((state) => state.user.data);
@@ -79,6 +85,14 @@ const PopularProducts = ({ initialData }) => {
   useEffect(() => {
     setLocalWishlist(new Set((wishlist || []).map((item) => item.id)));
   }, [wishlist]);
+
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
 
 
@@ -197,12 +211,12 @@ const PopularProducts = ({ initialData }) => {
 
   const filteredProducts = useMemo(() => {
     const filtered = currentProducts.filter((p) =>
-      p.name.toLowerCase().includes(searchTerm.toLowerCase())
+      p.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
     );
-    // Limit to 100 products for home page to show all categories
+    // Limit to 50 products for home page to show all categories
 
-    return filtered.slice(0, 100);
-  }, [currentProducts, searchTerm]);
+    return filtered.slice(0, 50);
+  }, [currentProducts, debouncedSearchTerm]);
 
   const renderStars = (rating) => {
     return [...Array(5)].map((_, i) => (
@@ -293,8 +307,12 @@ const PopularProducts = ({ initialData }) => {
 
   if (loading)
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <CustomLoader size="large" message="Loading products..." />
+      <div className="container mx-auto px-4 py-12">
+        <div className="text-center mb-10">
+          <div className="h-10 bg-gray-200 animate-pulse rounded-lg w-64 mx-auto mb-4"></div>
+          <div className="h-4 bg-gray-200 animate-pulse rounded-lg w-48 mx-auto"></div>
+        </div>
+        <ProductGridSkeleton count={12} />
       </div>
     );
 
@@ -379,15 +397,21 @@ const PopularProducts = ({ initialData }) => {
       <div className=" bg-base-300 ">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6 container mx-auto px-3 sm:px-6 lg:px-8 py-8">
           {filteredProducts.map((product) => (
-            <Link
-              href={`/productdetails/${product.id}`}
+            <div
               key={product.id}
+              onClick={() => {
+                dispatch(setQuickViewProduct(product));
+                router.push(`/productdetails/${product.id}`);
+              }}
               className="group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 cursor-pointer"
             >
               <div className="relative">
-                <img
-                  src={product.image}
+                <Image
+                  src={product.image || "/img/product.jpg"}
                   alt={product.name}
+                  width={400}
+                  height={400}
+                  loading="lazy"
                   className="w-full h-40 sm:h-44 object-cover group-hover:scale-105 transition-transform duration-500"
                 />
 
@@ -473,7 +497,7 @@ const PopularProducts = ({ initialData }) => {
                   </button>
                 </div>
               </div>
-            </Link>
+            </div>
           ))}
           {filteredProducts.length === 0 && (
             <div className="col-span-full text-center py-16">

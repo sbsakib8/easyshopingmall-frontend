@@ -50,11 +50,11 @@ function Footer({ initialData }) {
                 <div className='w-[200px] h-auto mt-3 '>
                     <h3 className=" text-[20px] text-accent-content font-bold">Company</h3>
                     <div>
-                        <p className=" text-[16px] my-3 text-accent hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'about'}>About</Link></p>
-                        <p className=" text-[16px] my-3 text-accent hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'Delivery'}>Delivery Information</Link></p>
+                        <p className=" text-[16px] my-3 text-accent hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'/about'}>About</Link></p>
+                        <p className=" text-[16px] my-3 text-accent hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'/delivery'}>Delivery Information</Link></p>
                         <p className=" text-[16px] my-3 text-accent hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'/'}>Privacy Policy</Link></p>
                         <p className=" text-[16px] my-3 text-accent hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'/'}>Terms & Conditions</Link></p>
-                        <p className=" text-[16px] my-3 text-accent hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'contact'}>Contact Us</Link></p>
+                        <p className=" text-[16px] my-3 text-accent hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'/contact'}>Contact Us</Link></p>
                         <p className=" text-[16px] my-3 text-accent hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'/'}>Support Center
                         </Link></p>
                         <p className=" text-[16px] my-3 text-accent hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'/'}>Careers</Link></p>
@@ -64,11 +64,11 @@ function Footer({ initialData }) {
                 <div className='w-[200px] h-auto mt-3 '>
                     <h3 className=" text-[20px] text-accent-content font-bold">Corporate</h3>
                     <div>
-                        <p className=" text-[16px] my-3 text-accent hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'about'}>About</Link></p>
-                        <p className=" text-[16px] my-3 text-accent hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'Delivery'}>Delivery Information</Link></p>
+                        <p className=" text-[16px] my-3 text-accent hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'/about'}>About</Link></p>
+                        <p className=" text-[16px] my-3 text-accent hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'/delivery'}>Delivery Information</Link></p>
                         <p className=" text-[16px] my-3 text-accent hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'/'}>Privacy Policy</Link></p>
                         <p className=" text-[16px] my-3 text-accent hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'/'}>Terms & Conditions</Link></p>
-                        <p className=" text-[16px] my-3 text-accent hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'contact'}>Contact Us</Link></p>
+                        <p className=" text-[16px] my-3 text-accent hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'/contact'}>Contact Us</Link></p>
                         <p className=" text-[16px] my-3 text-accent hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'/'}>Support Center
                         </Link></p>
                         <p className=" text-[16px] my-3 text-accent hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'/'}>Careers</Link></p>
@@ -78,11 +78,11 @@ function Footer({ initialData }) {
                 <div className='w-[200px] h-auto mt-3 '>
                     <h3 className=" text-[20px] text-accent-content font-bold">Popular</h3>
                     <div>
-                        <p className=" text-[16px] my-3 text-accent hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'about'}>About</Link></p>
-                        <p className=" text-[16px] my-3 text-accent hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'Delivery'}>Delivery Information</Link></p>
+                        <p className=" text-[16px] my-3 text-accent hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'/about'}>About</Link></p>
+                        <p className=" text-[16px] my-3 text-accent hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'/delivery'}>Delivery Information</Link></p>
                         <p className=" text-[16px] my-3 text-accent hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'/'}>Privacy Policy</Link></p>
                         <p className=" text-[16px] my-3 text-accent hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'/'}>Terms & Conditions</Link></p>
-                        <p className=" text-[16px] my-3 text-accent hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'contact'}>Contact Us</Link></p>
+                        <p className=" text-[16px] my-3 text-accent hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'/contact'}>Contact Us</Link></p>
                         <p className=" text-[16px] my-3 text-accent hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'/'}>Support Center
                         </Link></p>
                         <p className=" text-[16px] my-3 text-accent hover:text-primary-color cursor-pointer hover:transition-al hover:ml-4 hover:duration-200"><Link href={'/'}>Careers</Link></p>

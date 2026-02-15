@@ -2,6 +2,8 @@
 import { useGetHomeBanner } from '@/src/utlis/useHomeBanner';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import React from 'react';
+import Image from 'next/image';
+import Skeleton from '../../compronent/loading/Skeleton';
 
 const Carousel = ({ initialData }) => {
   const { homebanner: apiBanners, loading: apiLoading, error, refetch } = useGetHomeBanner();
@@ -56,8 +58,8 @@ const Carousel = ({ initialData }) => {
 
   if (loading)
     return (
-      <div className="flex items-center justify-center h-[400px]">
-        <p className="text-gray-500">Loading banners...</p>
+      <div className="relative h-[200px] sm:h-[400px] lg:h-[600px] w-[98%] mx-auto">
+        <Skeleton className="w-full h-full rounded-2xl" />
       </div>
     );
 
@@ -96,10 +98,12 @@ const Carousel = ({ initialData }) => {
                   : 'opacity-0 translate-x-full'
                 }`}
             >
-              <img
+              <Image
                 src={slide?.images?.[0] || ""}
-                alt={slide?.title}
-                className="w-full h-full "
+                alt={slide?.title || "Banner"}
+                fill
+                priority={index === 0}
+                className="object-cover"
               />
 
 
@@ -179,10 +183,12 @@ const Carousel = ({ initialData }) => {
               : 'opacity-60 hover:opacity-80'
               }`}
           >
-            <img
-              src={slide?.images || slide?.image}
-              alt={slide?.title}
-              className="w-16 h-10 "
+            <Image
+              src={slide?.images?.[0] || slide?.image || ""}
+              alt={slide?.title || "Thumbnail"}
+              width={64}
+              height={40}
+              className="object-cover h-10 w-16"
             />
           </button>
         ))}
