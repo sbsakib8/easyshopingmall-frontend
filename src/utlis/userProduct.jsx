@@ -12,6 +12,10 @@ export const useGetProduct = (formData) => {
   const dispatch = useDispatch();
 
   const fetchProduct = useCallback(async () => {
+    if (!formData) {
+      setLoading(false);
+      return;
+    }
     try {
       setLoading(true);
       const data = await ProductAllGet(formData);
@@ -29,5 +33,5 @@ export const useGetProduct = (formData) => {
     fetchProduct();
   }, [fetchProduct]);
 
-  return { product,totalCount, loading, error, refetch: fetchProduct };
+  return { product, totalCount, loading, error, refetch: fetchProduct };
 };

@@ -1,13 +1,9 @@
 "use client"
+import HomeSkeleton from "@/src/compronent/loading/HomeSkeleton";
 
-import LoadingPage from "@/src/helper/loading/loadingPge"
-
-const loading=()=> {
-  return (
-    <div>
-        <LoadingPage/>
-    </div>
-  )
+const loading = () => {
+  // Only show home skeleton when initially loading the home page/layout
+  return <HomeSkeleton />;
 }
 
 export default loading

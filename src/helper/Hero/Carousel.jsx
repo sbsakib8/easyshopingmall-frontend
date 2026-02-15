@@ -56,8 +56,8 @@ const Carousel = ({ initialData }) => {
 
   if (loading)
     return (
-      <div className="flex items-center justify-center h-[400px]">
-        <p className="text-gray-500">Loading banners...</p>
+      <div className="relative h-[200px] sm:h-[400px] lg:h-[600px] w-[98%] mx-auto">
+        <Skeleton className="w-full h-full rounded-2xl" />
       </div>
     );
 

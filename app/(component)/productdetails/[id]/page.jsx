@@ -53,12 +53,18 @@ export async function generateMetadata(props) {
 const productdetailsid = async (props) => {
   const params = await props.params;
   const { id } = params;
+
+  // Validate ID format before fetching
+  const isValidId = /^[0-9a-fA-F]{24}$/.test(id);
+
   let initialProduct = null;
 
-  try {
-    initialProduct = await getProductDetailsApi(id);
-  } catch (error) {
-    console.error("Error fetching product details on server:", error);
+  if (isValidId) {
+    try {
+      initialProduct = await getProductDetailsApi(id);
+    } catch (error) {
+      console.error("Error fetching product details on server:", error);
+    }
   }
 
   return (

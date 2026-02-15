@@ -24,9 +24,49 @@ import {
   Star,
   Truck,
   Zap,
+  TriangleAlert // Added for error UI
 } from "lucide-react";
+import { setDetailsError, clearDetailsError } from "../../redux/shopSlice";
 import CustomLoader from '@/src/compronent/loading/CustomLoader';
+import DetailSkeleton from '@/src/compronent/loading/DetailSkeleton';
 import ShareModal from './ShareModal';
+
+const normalizeProductDetail = (data) => {
+  if (!data) return null;
+  return {
+    id: data._id || data.id,
+    name: data.productName || data.name || "Product",
+    brand: data.brand || "Brand",
+    price: Number(data.price ?? data.sell_price ?? 0) || 0,
+    originalPrice: Number(data.oldPrice ?? data.mrp ?? data.price ?? 0) || 0,
+    discount: Number(data.discount ?? 0) || 0,
+    rating: Number(data?.ratings || 0),
+    reviews: Number(data.reviews ?? 0) || 0,
+    images: data.images || ["/banner/img/placeholder.png"],
+    colors: Array.isArray(data.color) ? data.color : data.colors || [],
+    stock: Number(data.productStock ?? data.stock ?? 0) || 0,
+    description: data.description || data.productDescription || "",
+    specifications: data.specifications || {},
+    category: data.category,
+    subCategory: data.subCategory,
+    features: data.features || (Array.isArray(data.tags) ? data.tags : []),
+    weight: Number(data.productWeight ?? 0) || 0,
+    sizes: Array.isArray(data.productSize)
+      ? data.productSize
+      : typeof data.productSize === "string"
+        ? data.productSize.split(",").map((s) => s.trim())
+        : Array.isArray(data.sizes) ? data.sizes : [],
+    sku: data.sku || "",
+    rank: Number(data.productRank ?? 0) || 0,
+    featured: data.featured || false,
+    publish: data.publish || true,
+    image: data.image || data.images?.[0] || "/img/product.jpg",
+    images: data.images?.length > 0 ? data.images : ["/img/product.jpg"],
+    tags: Array.isArray(data.tags) ? data.tags : [],
+    video_link: data.video_link || "",
+  };
+};
+
 
 
 const ProductDetails = ({ initialProduct }) => {
@@ -36,42 +76,18 @@ const ProductDetails = ({ initialProduct }) => {
   const user = useSelector((state) => state.user.data);
   const { data: wishlist } = useSelector((state) => state.wishlist);
   const cartItems = useSelector((state) => state.cart.items || []);
-  const [loading, setLoading] = useState(true);
+  const quickView = useSelector((state) => state.shop.quickViewProduct);
+
+  // Determine if we have enough data to show something immediately
+  const hasInitialData = initialProduct || (quickView && (quickView.id === params.id || quickView._id === params.id));
+
+  const [loading, setLoading] = useState(!hasInitialData);
   const [dropShippingPrice, setDropShippingPrice] = useState(0);
   const [error, setError] = useState(null);
   const [product, setProduct] = useState(() => {
-    if (initialProduct) {
-      const data = initialProduct;
-      return {
-        id: data._id || data.id,
-        name: data.productName || data.name || "Product",
-        brand: data.brand || "Brand",
-        price: Number(data.price ?? data.sell_price ?? 0) || 0,
-        originalPrice: Number(data.oldPrice ?? data.mrp ?? data.price ?? 0) || 0,
-        discount: Number(data.discount ?? 0) || 0,
-        rating: Number(data?.ratings),
-        reviews: Number(data.reviews ?? 0) || 0,
-        images: data.images || ["/banner/img/placeholder.png"],
-        sizes: data.productSize ? [data.productSize] : data.sizes || [],
-        colors: Array.isArray(data.color) ? data.color : data.colors || [],
-        stock: Number(data.productStock ?? data.stock ?? 0) || 0,
-        description: data.description || data.productDescription || "",
-        specifications: data.specifications || {},
-        category: data.category,
-        subCategory: data.subCategory,
-        features: data.features || (Array.isArray(data.tags) ? data.tags : []),
-        weight: Number(data.productWeight ?? 0) || 0,
-        sizes: Array.isArray(data.productSize)
-          ? data.productSize
-          : typeof data.productSize === "string"
-            ? data.productSize.split(",").map((s) => s.trim())
-            : [],
-        sku: data.sku || "",
-        rank: Number(data.productRank ?? 0) || 0,
-        featured: data.featured || false,
-        publish: data.publish || true,
-        tags: Array.isArray(data.tags) ? data.tags : [],
-      };
+    if (initialProduct) return normalizeProductDetail(initialProduct);
+    if (quickView && (quickView.id === params.id || quickView._id === params.id)) {
+      return normalizeProductDetail(quickView);
     }
     return null;
   });
@@ -90,8 +106,15 @@ const ProductDetails = ({ initialProduct }) => {
   const [reviewText, setReviewText] = useState("");
   const [reviewList, setReviewList] = useState([]);
 
-  // Fetch all products for related products
-  const productParams = useMemo(() => ({}), []);
+  // Optimize: Fetch only products in the same category for related products
+  const productParams = useMemo(() => {
+    const cid = product?.category?._id || product?.category;
+    if (!cid) return null; // Don't fetch if category ID isn't ready
+    return {
+      categoryId: cid,
+      limit: 12
+    };
+  }, [product?.category]);
   const { product: allProductsData } = useGetProduct(productParams);
   const handleSubmitReview = async () => {
     // Check if user is logged in
@@ -146,27 +169,26 @@ const ProductDetails = ({ initialProduct }) => {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        setLoading(true);
         const data = await getApprovedReviews(params?.id);
         setReviewList(data);
-
         const approveData = data.filter((review) => review.status === "approved");
-        console.log(approveData);
+        console.log("Approved Reviews:", approveData);
       } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
+        console.error("Reviews Fetch Error:", err);
       }
     };
 
     fetchReviews();
-  }, [params?.id]);
+
+    // Clear previous errors when mounting new ID
+    dispatch(clearDetailsError());
+  }, [params?.id, dispatch]);
 
 
   // Fetch product details
   useEffect(() => {
-    // If product is already initialized from initialProduct, don't fetch again
-    if (product) {
+    // If product is already initialized from initialProduct AND matches current ID, don't fetch
+    if (product && (product.id === params.id || product._id === params.id)) {
       setLoading(false);
       if (product.colors?.length > 0 && !selectedColor) setSelectedColor(product.colors[0]);
       if (product.sizes?.length > 0 && !selectedSize) setSelectedSize(product.sizes[0]);
@@ -176,54 +198,34 @@ const ProductDetails = ({ initialProduct }) => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        const data = await getProductDetailsApi(params.id);
-
         if (data) {
-          // Normalize product data - handle all API fields
-          const normalized = {
-            id: data._id || data.id,
-            name: data.productName || data.name || "Product",
-            brand: data.brand || "Brand",
-            price: Number(data.price ?? data.sell_price ?? 0) || 0,
-            originalPrice: Number(data.oldPrice ?? data.mrp ?? data.price ?? 0) || 0,
-            discount: Number(data.discount ?? 0) || 0,
-            rating: Number(data?.ratings),
-            reviews: Number(data.reviews ?? 0) || 0,
-            images: data.images || ["/banner/img/placeholder.png"],
-            sizes: data.productSize ? [data.productSize] : data.sizes || [],
-            colors: Array.isArray(data.color) ? data.color : data.colors || [],
-            stock: Number(data.productStock ?? data.stock ?? 0) || 0,
-            description: data.description || data.productDescription || "",
-            specifications: data.specifications || {},
-            category: data.category,
-            subCategory: data.subCategory,
-            features: data.features || (Array.isArray(data.tags) ? data.tags : []),
-            weight: Number(data.productWeight ?? 0) || 0,
-            sizes: Array.isArray(data.productSize)
-              ? data.productSize
-              : typeof data.productSize === "string"
-                ? data.productSize.split(",").map((s) => s.trim())
-                : [],
-            sku: data.sku || "",
-            rank: Number(data.productRank ?? 0) || 0,
-            featured: data.featured || false,
-            publish: data.publish || true,
-            tags: Array.isArray(data.tags) ? data.tags : [],
-          };
+          const normalized = normalizeProductDetail(data);
           setProduct(normalized);
           if (normalized.colors?.length > 0) setSelectedColor(normalized.colors[0]);
           if (normalized.sizes?.length > 0) setSelectedSize(normalized.sizes[0]);
-          setError(null);
+          dispatch(clearDetailsError());
+        } else {
+          dispatch(setDetailsError("Product not found or invalid ID"));
+          setError("Product not found");
         }
       } catch (err) {
         console.error("Error fetching product:", err);
+        dispatch(setDetailsError("Failed to connect to server"));
         setError("Failed to load product details");
       } finally {
         setLoading(false);
       }
     };
-    if (params.id) fetchProduct();
-  }, [params.id]);
+    if (params.id) {
+      // Direct validation check
+      if (!/^[0-9a-fA-F]{24}$/.test(params.id)) {
+        dispatch(setDetailsError("Invalid Product URL"));
+        setLoading(false);
+        return;
+      }
+      fetchProduct();
+    }
+  }, [params.id, dispatch]);
 
   // Filter related products from same subcategory
   useEffect(() => {
@@ -245,7 +247,7 @@ const ProductDetails = ({ initialProduct }) => {
         name: p.name || p.productName || "Product",
         price: Number(p.price ?? p.sell_price ?? 0) || 0,
         originalPrice: Number(p.originalPrice ?? p.mrp ?? p.price ?? 0) || 0,
-        image: p.image || p.images?.[0] || "/banner/img/placeholder.png",
+        image: p.image || p.images?.[0] || "/img/product.jpg",
         rating: Number(p.ratings),
         reviews: Number(p.reviews ?? 0) || 0,
         subCategory: subCategoryVal,
@@ -374,25 +376,38 @@ const ProductDetails = ({ initialProduct }) => {
   const rawSizes = product?.productSize?.[0] || "";
   const cleanedSizes = rawSizes.split(",").map((s) => s.trim());
 
+  // Access global error state
+  const globalError = useSelector((state) => state.shop.detailsError);
+
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <CustomLoader size="large" message="Loading product details..." />
-      </div>
-    );
+    return <DetailSkeleton />;
   }
 
-  if (error || !product) {
+  if (globalError || error || !product) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <p className="text-red-600 text-lg">{error || "Product not found"}</p>
-          <button
-            onClick={() => router.back()}
-            className="bg-blue-600 text-accent-content px-6 py-2 rounded-lg"
-          >
-            Go Back
-          </button>
+      <div className="min-h-[70vh] flex flex-col items-center justify-center p-4">
+        <div className="max-w-md w-full text-center space-y-6 bg-white p-10 rounded-3xl shadow-xl border border-red-50">
+          <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <TriangleAlert className="w-10 h-10 text-red-600" />
+          </div>
+          <h2 className="text-3xl font-extrabold text-gray-900">Oops!</h2>
+          <p className="text-gray-600 text-lg leading-relaxed">
+            {globalError || error || "We couldn't find the product you're looking for."}
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+            <button
+              onClick={() => router.push("/")}
+              className="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-blue-200 hover:scale-105 transition-all text-sm uppercase tracking-wider"
+            >
+              Back to Home
+            </button>
+            <button
+              onClick={() => router.push("/shop")}
+              className="px-8 py-3 bg-white text-gray-700 border-2 border-gray-200 rounded-xl font-bold hover:bg-gray-50 transition-all text-sm uppercase tracking-wider"
+            >
+              Go to Shop
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -441,6 +456,7 @@ const ProductDetails = ({ initialProduct }) => {
                 quality={95}
                 src={product?.images?.[selectedImage]}
                 alt={product?.name}
+                priority={true}
                 className="w-full h-auto object-cover "
               />
               {product?.discount > 0 && (
@@ -574,80 +590,88 @@ const ProductDetails = ({ initialProduct }) => {
               <div>
                 {product?.rank > product?.price && user?.role !== "DROPSHIPPING" && (
                   <>
-                    <p className="bg-gradient-to-r from-green-500 to-emerald-500 text-accent-content px-3 py-1 rounded-full text-sm font-semibold">
+                    <p className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
                       Save ৳{(product?.rank - product?.price)?.toFixed(0) || 0}
                     </p>
                   </>
                 )}
-                {user?.role !== "DROPSHIPPING" ? <del className="text-2xl font-bold bg-gradient-to-r from-gray-400 to-gray-500 bg-clip-text text-transparent">
-                  Rs {product?.rank}
-                </del> : ""}
-              </div>
+                {
+                  user?.role !== "DROPSHIPPING" ? <del className="text-2xl font-bold bg-gradient-to-r from-gray-400 to-gray-500 bg-clip-text text-transparent">
+                    Rs {product?.rank}
+                  </del> : ""
+                }
+              </div >
 
 
-            </div>
+            </div >
             {/* Market Price */}
-            {user?.role === "DROPSHIPPING" && <p className="text-2xl font-bold text-gray-500 ">
-              <span className='text-xl text-accent'> Market Price:</span> {product?.rank}৳
-            </p>}
+            {
+              user?.role === "DROPSHIPPING" && <p className="text-2xl font-bold text-gray-500 ">
+                <span className='text-xl text-accent'> Market Price:</span> {product?.rank}৳
+              </p>
+            }
 
             {/* Color Selection */}
-            {(product?.colors?.length || 0) > 0 && (
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">Color: {selectedColor}</h3>
-                <div className="flex space-x-3">
-                  {product?.colors?.map((color, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setSelectedColor(color)}
-                      className={`w-10 h-10 rounded-full border transition-all duration-300  ${selectedColor === color
-                        ? "ring-4 ring-blue-300 scale-110"
-                        : "hover:scale-110"
-                        }`}
-                      style={{
-                        backgroundColor: color,
-                        borderColor: 'black',
-                      }}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {product?.sizes?.length > 0 && (
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">Sizes</h3>
-
-                <div className="flex flex-wrap gap-2">
-                  {product.sizes.map((size) => {
-                    const isActive = selectedSize === size;
-
-                    return (
+            {
+              (product?.colors?.length || 0) > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Color: {selectedColor}</h3>
+                  <div className="flex space-x-3">
+                    {product?.colors?.map((color, index) => (
                       <button
-                        key={size}
-                        onClick={() => setSelectedSize((prev) => (prev === size ? null : size))}
-                        className={`
+                        key={index}
+                        onClick={() => setSelectedColor(color)}
+                        className={`w-10 h-10 rounded-full border transition-all duration-300  ${selectedColor === color
+                          ? "ring-4 ring-blue-300 scale-110"
+                          : "hover:scale-110"
+                          }`}
+                        style={{
+                          backgroundColor: color,
+                          borderColor: 'black',
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )
+            }
+
+            {
+              product?.sizes?.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Sizes</h3>
+
+                  <div className="flex flex-wrap gap-2">
+                    {product.sizes.map((size) => {
+                      const isActive = selectedSize === size;
+
+                      return (
+                        <button
+                          key={size}
+                          onClick={() => setSelectedSize((prev) => (prev === size ? null : size))}
+                          className={`
               flex items-center justify-center w-20
               h-8
               px-3 rounded-full font-semibold
               transition-all duration-300 border
               ${isActive
-                            ? "bg-gradient-to-r from-blue-500 to-purple-500 text-accent-content border-transparent shadow-md scale-105"
-                            : "bg-white text-gray-800 border-gray-300 hover:border-blue-400 hover:scale-105"
-                          }
+                              ? "bg-gradient-to-r from-blue-500 to-purple-500 text-accent-content border-transparent shadow-md scale-105"
+                              : "bg-white text-gray-800 border-gray-300 hover:border-blue-400 hover:scale-105"
+                            }
             `}
-                      >
-                        {size}
+                        >
+                          {size}
 
-                        {isActive && (
-                          <span className="text-accent-content font-bold text-lg leading-none ml-1">✓</span>
-                        )}
-                      </button>
-                    );
-                  })}
+                          {isActive && (
+                            <span className="text-accent-content font-bold text-lg leading-none ml-1">✓</span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            )}
+              )
+            }
             {/* Quantity */}
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Quantity</h3>
@@ -681,16 +705,18 @@ const ProductDetails = ({ initialProduct }) => {
             </div>
 
             {/* dropShipping price  */}
-            {user?.role === "DROPSHIPPING" && <div >
-              <label className="text-accen font-medium">আপনার বিক্রয়কৃত মূল্য</label>
-              <input
-                type="number"
-                onChange={(e) => setDropShippingPrice(e.target.value)}
-                className="w-full p-4 bg-white/10  rounded-xl text-accent placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 border border-gray-300 focus:border-transparent transition-all duration-300 mt-2"
-                placeholder="0৳"
-                required
-              />
-            </div>}
+            {
+              user?.role === "DROPSHIPPING" && <div >
+                <label className="text-accen font-medium">আপনার বিক্রয়কৃত মূল্য</label>
+                <input
+                  type="number"
+                  onChange={(e) => setDropShippingPrice(e.target.value)}
+                  className="w-full p-4 bg-white/10  rounded-xl text-accent placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 border border-gray-300 focus:border-transparent transition-all duration-300 mt-2"
+                  placeholder="0৳"
+                  required
+                />
+              </div>
+            }
 
             {/* Action Buttons */}
             <div className="space-y-4">
@@ -717,7 +743,7 @@ const ProductDetails = ({ initialProduct }) => {
 
                   className={`w-full py-4 rounded-xl font-semibold text-lg flex items-center justify-center space-x-2 transition-all duration-300 ${product?.stock === 0
                     ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                    : "bg-btn-color text-accent-content hover:shadow-lg hover:scale-102 cursor-pointer"
+                    : "bg-btn-color text-white hover:shadow-lg hover:scale-102 cursor-pointer"
                     }`}>
                   <Zap className={`w-5 h-5 ${loading ? 'animate-spin' : ''} `} />
                   <span>Buy Now</span>
@@ -739,33 +765,35 @@ const ProductDetails = ({ initialProduct }) => {
             />
 
             {/* Features */}
-            {user?.role !== "DROPSHIPPING" && <div className="shadow-xl p-6 rounded-xl">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="flex flex-col items-center text-center space-y-2">
-                  <Truck className="w-8 h-8 text-blue-500" />
-                  <span className="text-sm font-medium">Free Delivery</span>
-                </div>
-                <div className="flex flex-col items-center text-center space-y-2">
-                  <Shield className="w-8 h-8 text-green-500" />
-                  <span className="text-sm font-medium">2 Year Warranty</span>
-                </div>
-                <div className="flex flex-col items-center text-center space-y-2">
-                  <RotateCcw className="w-8 h-8 text-purple-500" />
-                  <span className="text-sm font-medium">Easy Return</span>
-                </div>
-                <div className="flex flex-col items-center text-center space-y-2">
-                  <Star className="w-8 h-8 text-yellow-500" />
-                  <span className="text-sm font-medium">Premium Quality</span>
+            {
+              user?.role !== "DROPSHIPPING" && <div className="shadow-xl p-6 rounded-xl">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="flex flex-col items-center text-center space-y-2">
+                    <Truck className="w-8 h-8 text-blue-500" />
+                    <span className="text-sm font-medium">Free Delivery</span>
+                  </div>
+                  <div className="flex flex-col items-center text-center space-y-2">
+                    <Shield className="w-8 h-8 text-green-500" />
+                    <span className="text-sm font-medium">2 Year Warranty</span>
+                  </div>
+                  <div className="flex flex-col items-center text-center space-y-2">
+                    <RotateCcw className="w-8 h-8 text-purple-500" />
+                    <span className="text-sm font-medium">Easy Return</span>
+                  </div>
+                  <div className="flex flex-col items-center text-center space-y-2">
+                    <Star className="w-8 h-8 text-yellow-500" />
+                    <span className="text-sm font-medium">Premium Quality</span>
+                  </div>
                 </div>
               </div>
-            </div>}
+            }
 
 
-          </div>
-        </div>
+          </div >
+        </div >
 
         {/* Product Details Tabs */}
-        <div className="">
+        < div className="" >
           <div className="border-b border-gray-200">
             <nav className="flex space-x-8">
               {["description", "specifications", "reviews"].map((tab) => (
@@ -968,9 +996,12 @@ const ProductDetails = ({ initialProduct }) => {
                         {/* Author */}
                         <div className="flex items-center gap-3">
                           {review.image ? (
-                            <img
+                            <Image
                               src={review.image}
                               alt={review.author || "Anonymous"}
+                              width={48}
+                              height={48}
+                              loading="lazy"
                               className="w-12 h-12 rounded-full object-cover border"
                             />
                           ) : (
@@ -1003,83 +1034,87 @@ const ProductDetails = ({ initialProduct }) => {
               </div>
             )}
           </div>
-        </div>
+        </div >
 
         {/* Related Products Section */}
-        {relatedProducts.length > 0 && (
-          <div className="mt-20 pt-16 border-t border-gray-200">
-            <h2 className="text-3xl font-bold text-gray-900 mb-8">Related Products</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {relatedProducts.map((relProduct) => (
-                <div
-                  key={relProduct.id}
-                  onClick={() => router.push(`/productdetails/${relProduct.id}`)}
-                  className="group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
-                >
-                  <div className="relative overflow-hidden bg-gray-100">
-                    <img
-                      src={relProduct.image}
-                      alt={relProduct.name}
-                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    {relProduct.discount > 0 && (
-                      <div className="absolute top-2 left-2 bg-red-500 text-accent-content px-2 py-1 rounded text-xs font-bold">
-                        {relProduct.discount}% OFF
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="p-4">
-                    <h3 className="font-semibold text-gray-800 mb-1 line-clamp-2 group-hover:text-blue-600">
-                      {relProduct.name}
-                    </h3>
-
-                    {/* Rating */}
-                    <div className="flex items-center gap-1 mb-3">
-                      <div className="flex">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`w-3 h-3 ${i < Math.floor(relProduct.rating)
-                              ? "fill-yellow-400 text-yellow-400"
-                              : "text-gray-300"
-                              }`}
-                          />
-                        ))}
-                      </div>
-                      <span className="text-xs text-gray-500">({relProduct.reviews})</span>
-                    </div>
-
-                    {/* Price */}
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="text-lg font-bold text-red-600">
-                        ${relProduct.price.toFixed(2)}
-                      </span>
-                      {relProduct.originalPrice > relProduct.price && (
-                        <span className="text-sm text-gray-400 line-through">
-                          ${relProduct.originalPrice.toFixed(2)}
-                        </span>
+        {
+          relatedProducts.length > 0 && (
+            <div className="mt-20 pt-16 border-t border-gray-200">
+              <h2 className="text-3xl font-bold text-gray-900 mb-8">Related Products</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {relatedProducts.map((relProduct) => (
+                  <div
+                    key={relProduct.id}
+                    onClick={() => router.push(`/productdetails/${relProduct.id}`)}
+                    className="group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
+                  >
+                    <div className="relative overflow-hidden bg-gray-100 h-48">
+                      <Image
+                        src={relProduct.image || "/banner/img/placeholder.png"}
+                        alt={relProduct.name}
+                        fill
+                        loading="lazy"
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      {relProduct.discount > 0 && (
+                        <div className="absolute top-2 left-2 bg-red-500 text-accent-content px-2 py-1 rounded text-xs font-bold">
+                          {relProduct.discount}% OFF
+                        </div>
                       )}
                     </div>
 
-                    {/* Quick Actions */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        router.push(`/productdetails/${relProduct.id}`);
-                      }}
-                      className="w-full bg-blue-600 text-accent-content py-2 px-3 rounded font-semibold hover:bg-blue-700 transition-colors duration-300 text-sm flex items-center justify-center gap-2"
-                    >
-                      <ShoppingCart className="w-4 h-4" />
-                      View Product
-                    </button>
+                    <div className="p-4">
+                      <h3 className="font-semibold text-gray-800 mb-1 line-clamp-2 group-hover:text-blue-600">
+                        {relProduct.name}
+                      </h3>
+
+                      {/* Rating */}
+                      <div className="flex items-center gap-1 mb-3">
+                        <div className="flex">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`w-3 h-3 ${i < Math.floor(relProduct.rating)
+                                ? "fill-yellow-400 text-yellow-400"
+                                : "text-gray-300"
+                                }`}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-xs text-gray-500">({relProduct.reviews})</span>
+                      </div>
+
+                      {/* Price */}
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="text-lg font-bold text-red-600">
+                          ${relProduct.price.toFixed(2)}
+                        </span>
+                        {relProduct.originalPrice > relProduct.price && (
+                          <span className="text-sm text-gray-400 line-through">
+                            ${relProduct.originalPrice.toFixed(2)}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Quick Actions */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/productdetails/${relProduct.id}`);
+                        }}
+                        className="w-full bg-blue-600 text-accent-content py-2 px-3 rounded font-semibold hover:bg-blue-700 transition-colors duration-300 text-sm flex items-center justify-center gap-2"
+                      >
+                        <ShoppingCart className="w-4 h-4" />
+                        View Product
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )
+        }
+      </div >
     </div >
   );
 };

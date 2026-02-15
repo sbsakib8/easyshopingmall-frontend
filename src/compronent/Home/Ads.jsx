@@ -6,6 +6,7 @@ import { useGetLeftBanner } from "@/src/utlis/banner/useLeftBanner";
 import { useGetRightBanner } from "@/src/utlis/banner/userRightBanner";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import Skeleton from "../loading/Skeleton";
 
 
 function Ads({ initialData }) {
@@ -29,7 +30,19 @@ function Ads({ initialData }) {
   }, [apiAds, apiLeft, apiRight]);
 
 
-  if (loading && !initialData) return null;
+  if (loading && !initialData) {
+    return (
+      <div className="container mx-auto max-w-8xl px-4 py-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 px-3">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="flex justify-center">
+              <Skeleton className="w-[150px] md:w-[200px] lg:w-[320px] xl:w-[360px] h-40 md:h-60 lg:h-80 rounded-lg" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
 
   // ✅ AUTO-HIDE INACTIVE ADS
@@ -136,6 +149,7 @@ function Ads({ initialData }) {
                     width={400}
                     height={400}
                     alt={item.title || "Advertisement"}
+                    loading="lazy"
                     className="object-cover bg-white shadow-md rounded-lg cursor-pointer hover:shadow-lg hover:scale-110 transition-all duration-300"
                   />
                 </div>
