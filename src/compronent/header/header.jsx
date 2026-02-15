@@ -267,7 +267,7 @@ const Header = ({ initialData }) => {
 
       {/* Secondary Top Bar */}
       <div
-        className={`bg-bg text-xs sm:text-sm  backdrop-blur-sm transition-all duration-300 ${isScrolled ? "h-0 py-0 opacity-0" : "h-auto sm:h-[50px]"
+        className={`bg-secondary text-xs sm:text-sm  backdrop-blur-sm transition-all duration-300 ${isScrolled ? "h-0 py-0 opacity-0" : "h-auto sm:h-[50px]"
           } hidden sm:block`}
       >
         
@@ -282,7 +282,7 @@ const Header = ({ initialData }) => {
 
       {/* Main Header */}
       <header
-        className={`bg-bg shadow-lg sticky top-0 z-40 border-b border-gray-200/50 transition-all duration-300 ${isScrolled ? "h-16 sm:h-20" : "h-20 sm:h-24 lg:h-[100px]"
+        className={`bg-secondary shadow-lg sticky top-0 z-40 border-b border-gray-200/50 transition-all duration-300 ${isScrolled ? "h-16 sm:h-20" : "h-20 sm:h-24 lg:h-[100px]"
           }`}
       >
         <div className="mx-auto px-4 xl:px-32">
@@ -316,14 +316,14 @@ const Header = ({ initialData }) => {
             </div>
 
             {/* Enhanced Search Bar  */}
-            <div className="hidden lg:flex flex-1 max-w-3xl mx-8">
-              <div className="flex w-full shadow-lg rounded-2xl z-50  border border-gray-200/60 bg-white/90 backdrop-blur-sm">
+            <div className="hidden lg:flex flex-1 max-w-xl justify-center mx-8">
+              <div className="flex w-full shadow-lg rounded-2xl z-50  border border-gray-200/60 bg-bg backdrop-blur-sm">
                 {/* Categories Button */}
                 <div className="relative group/main">
                   {" "}
                   <button
                     onClick={toggleCategories}
-                    className="flex items-center space-x-2 bg-gradient-to-r from-gray-100 to-gray-50 px-4 lg:px-6 py-3 lg:py-4 hover:from-emerald-50 hover:to-teal-50 hover:text-emerald-600 transition-all duration-300 group"
+                    className="flex items-center space-x-2 bg-bg px-4 lg:px-6 py-3 lg:py-4 hover:from-emerald-50 hover:to-teal-50 hover:text-emerald-600 transition-all duration-300 group rounded-2xl"
                   >
                     <Menu
                       size={16}
@@ -388,7 +388,7 @@ const Header = ({ initialData }) => {
 
 
                                 <div
-                                  className={`absolute left-full top-0 ml-[2px] w-64 bg-white border border-gray-100 rounded-2xl shadow-2xl transition-all duration-300 ease-out z-[60] 
+                                  className={`absolute left-full top-0 ml-[2px] w-64 bg-bg border border-gray-100 rounded-2xl shadow-2xl transition-all duration-300 ease-out z-[60] 
                   ${isActiveCategory
                                       ? "opacity-100 visible translate-x-0"
                                       : "opacity-0 invisible -translate-x-4"
@@ -420,11 +420,11 @@ const Header = ({ initialData }) => {
                 </div>
 
                 {/* Search Input */}
-                <div className="flex-1 relative flex items-center">
+                <div className="flex-1 relative flex items-center bg-bg rounded-2xl">
                   <Search className="absolute left-4 lg:left-6 text-gray-400" size={18} />
                   <input
                     type="text"
-                    placeholder="Search for products, categories or brands"
+                    placeholder="Search for products"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onFocus={() => {
@@ -459,14 +459,14 @@ const Header = ({ initialData }) => {
                   href="/account"
                   className="flex items-center  text-gray-700 hover:text-emerald-600 transition-all duration-300 cursor-pointer group"
                 >
-                  <div className="p-2 rounded-xl bg-gradient-to-r from-gray-100 to-gray-50 group-hover:from-emerald-100 group-hover:to-teal-100 transition-all duration-300 shadow-sm">
+                  <div className="p-2 rounded-xl bg-bg group-hover:from-emerald-100 group-hover:to-teal-100 transition-all duration-300 shadow-sm">
                     <User
                       size={18}
                       className="group-hover:scale-110 transition-transform duration-300"
                     />
                   </div>
                   <div>
-                    <div className="hidden sm:block lg:block text-xs text-accent font-bold">
+                    <div className="hidden sm:block lg:block text-xs text-accent font-bold ml-1">
                       Account
                     </div>
                   </div>
@@ -476,9 +476,9 @@ const Header = ({ initialData }) => {
                   href="/signin"
                   className="flex items-center  text-gray-700 hover:text-emerald-600 transition-all duration-300 cursor-pointer group"
                 >
-                  <div className="p-2 rounded-xl bg-gradient-to-r from-gray-100 to-gray-50 group-hover:from-emerald-100 group-hover:to-teal-100 transition-all duration-300 shadow-sm">
+                  <div className="p-2 rounded-xl bg-bg group-hover:from-emerald-100 group-hover:to-teal-100 transition-all duration-300 shadow-sm">
                     <User
-                      size={18}
+                      size={16}
                       className="group-hover:scale-110 transition-transform duration-300"
                     />
                   </div>
@@ -581,7 +581,7 @@ const Header = ({ initialData }) => {
           </div>
         </div> : ""}
         {/* Enhanced Navigation Menu - Responsive */}
-        <div className="bg-primary-color border-t border-gray-200/60 backdrop-blur-sm py-2 hidden lg:block">
+        <div className="bg-primary-color border-t border-gray-200/60 backdrop-blur-sm py-1 hidden lg:block">
           <div className="container mx-auto px-2 sm:px-4 hidden lg:block">
             <nav className="hidden lg:flex items-center justify-between ">
               <div className="flex items-center space-x-4 lg:space-x-8">
