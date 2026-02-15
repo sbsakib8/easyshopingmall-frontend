@@ -18,26 +18,19 @@ export const metadata = {
 
 async function getHomeData() {
   try {
-    const [banners, categories, productsResponse, centerAds, leftAds, rightAds, subCategories] = await Promise.all([
+    // Only fetch absolute must-haves on the server to speed up initial response
+    const [banners, categories, productsResponse] = await Promise.all([
       HomeBannerAllGet(),
-      CategoryAllGet(), // No dispatch passed so it works on server
-      ProductAllGet({ page: 1, limit: 100 }),
-      CenterBannerAllGet(),
-      LeftBannerAllGet(),
-      RightBannerAllGet(),
-      SubCategoryAllGet()
+      CategoryAllGet(),
+      ProductAllGet({ page: 1, limit: 20 }), // Fetch a smaller batch initially
     ]);
 
     return {
       banners: banners?.data || [],
       categories: categories?.data || [],
-      subcategories: subCategories?.data || [],
       products: productsResponse?.products || productsResponse?.data || productsResponse || [],
-      ads: {
-        center: centerAds?.data || [],
-        left: leftAds?.data || [],
-        right: rightAds?.data || []
-      }
+      ads: { center: [], left: [], right: [] }, // Load ads lazily on client
+      subcategories: [] // Load subcategories lazily
     };
   } catch (error) {
     console.error("Error fetching home data via hooks:", error);

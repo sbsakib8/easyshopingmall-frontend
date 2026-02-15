@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useGetcategory } from "@/src/utlis/usecategory";
 import { HomeBannerAllGet } from "@/src/hook/useHomeBanner";
 import Button from "@/src/helper/Buttons/Button";
+import Image from "next/image";
+import { CategorySkeleton } from "../loading/Skeleton";
 
 
 function Categories({ initialData }) {
@@ -21,6 +23,22 @@ function Categories({ initialData }) {
   }, [apiCategory]);
 
   const loopData = [...(category || []), ...(category || [])];
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex gap-4 overflow-x-auto py-6">
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className="w-48 flex-shrink-0 bg-white p-4 rounded-xl shadow-md space-y-3">
+              <div className="h-32 bg-gray-200 animate-pulse rounded-lg w-full"></div>
+              <div className="h-4 bg-gray-200 animate-pulse rounded-md w-3/4 mx-auto"></div>
+              <div className="h-8 bg-gray-200 animate-pulse rounded-md w-full mt-2"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -55,10 +73,13 @@ function Categories({ initialData }) {
                 </div>
               )}
               {/* Image */}
-              <div className="h-32 overflow-hidden">
-                <img
+              <div className="h-32 overflow-hidden relative">
+                <Image
                   src={item.image}
                   alt={item.name}
+                  width={200}
+                  height={150}
+                  loading="lazy"
                   className="w-full h-full object-cover"
                 />
               </div>

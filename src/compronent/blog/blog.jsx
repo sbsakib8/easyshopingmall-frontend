@@ -38,12 +38,14 @@ const BlogPage = ({ initialData }) => {
   }
 
   const featuredPost = blogs[0];
-  const regularPosts = blogs.slice(1)
+  const regularPosts = Array.isArray(blogs) ? blogs.slice(1) : [];
 
   const filteredPosts = regularPosts.filter(post => {
-    const matchesCategory = selectedCategory === 'All' || post.category === selectedCategory;
-    const matchesSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
+    const title = post?.title || "";
+    const excerpt = post?.excerpt || "";
+    const matchesCategory = selectedCategory === 'All' || post?.category === selectedCategory;
+    const matchesSearch = title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      excerpt.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 

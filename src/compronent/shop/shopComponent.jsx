@@ -1,4 +1,5 @@
 "use client"
+import Image from "next/image"
 import { ProductGridSkeleton } from '@/src/compronent/loading/ProductGridSkeleton'
 import { addToCartApi, getCartApi, removeCartItemApi, updateCartItemApi } from "@/src/hook/useCart"
 import { ProductDelete, ProductUpdate } from "@/src/hook/useProduct"
@@ -11,6 +12,7 @@ import {
   setFilterCategory,
   setFilterSubCategory,
   setPriceRange,
+  setQuickViewProduct,
   setSortBy,
   setViewMode,
   syncFromUrl,
@@ -37,6 +39,7 @@ const isProductNew = (createdDate) => {
 
 
 const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wishlist, favorite, setFavorite, addToCart, user, handleEdit, setDeleteModal }) => {
+  const dispatch = useDispatch();
   if (!product) return null;
 
   // Render Stars Helper
@@ -55,13 +58,19 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
 
   return (
     <div
-      onClick={() => router.push(`/productdetails/${product.id}`)}
+      onClick={() => {
+        dispatch(setQuickViewProduct(product));
+        router.push(`/productdetails/${product.id}`);
+      }}
       className={`group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 cursor-pointer ${viewMode === "list" ? "flex" : ""}`}
     >
       <div className={`relative ${viewMode === "list" ? "w-48" : ""}`}>
-        <img
-          src={product.image || "/banner/img/placeholder.png"}
+        <Image
+          src={product.image || "/img/product.jpg"}
           alt={product.name}
+          width={400}
+          height={400}
+          loading="lazy"
           className={`w-full object-cover group-hover:scale-105 transition-transform duration-500 ${viewMode === "list" ? "h-full" : "h-40 sm:h-44"}`}
         />
 
@@ -631,7 +640,7 @@ const ShopPage = ({ initialData, queryParams }) => {
   return (
     <div className="min-h-screen bg-bg">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    
+
         {/* Top Filter Bar */}
         <div className="bg-white lg:mt-28 rounded-lg shadow-md p-4 mb-6">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">

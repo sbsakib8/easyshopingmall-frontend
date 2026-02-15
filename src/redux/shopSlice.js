@@ -38,8 +38,10 @@ const initialState = {
     // Data State
     products: [],
     totalCount: 0,
+    quickViewProduct: null, // For zero-latency navigation
     loading: false,
     error: null,
+    detailsError: null, // Track specific errors for product details
 };
 
 const shopSlice = createSlice({
@@ -95,8 +97,18 @@ const shopSlice = createSlice({
                 ...initialState,
                 viewMode: state.viewMode,
                 products: state.products, // Keep products for smoother transition
-                totalCount: state.totalCount
+                totalCount: state.totalCount,
+                quickViewProduct: state.quickViewProduct
             };
+        },
+        setQuickViewProduct: (state, action) => {
+            state.quickViewProduct = action.payload;
+        },
+        setDetailsError: (state, action) => {
+            state.detailsError = action.payload;
+        },
+        clearDetailsError: (state) => {
+            state.detailsError = null;
         },
         syncFromUrl: (state, action) => {
             const { search, category, subcategory, sortBy, brand, gender, minPrice, maxPrice, rating, page } = action.payload;
@@ -148,6 +160,9 @@ export const {
     setViewMode,
     toggleFilters,
     resetFilters,
+    setQuickViewProduct,
+    setDetailsError,
+    clearDetailsError,
     syncFromUrl
 } = shopSlice.actions;
 
