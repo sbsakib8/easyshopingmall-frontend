@@ -56,7 +56,7 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
   return (
     <div
       onClick={() => router.push(`/productdetails/${product.id}`)}
-      className={`group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 cursor-pointer ${viewMode === "list" ? "flex" : ""}`}
+      className={`group bg-accent-content rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 cursor-pointer ${viewMode === "list" ? "flex" : ""}`}
     >
       <div className={`relative ${viewMode === "list" ? "w-48" : ""}`}>
         <img
@@ -69,7 +69,7 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
         <div className="absolute top-0 left-0 flex justify-between w-full">
           <div className="flex items-start">
             {product.isNew && (
-              <span className="bg-green-500 text-accent-content px-1 py-1 rounded text-[8px] font-semibold">NEW</span>
+              <span className="bg-btn-color text-accent-content px-1 py-1 rounded text-[8px] font-semibold">NEW</span>
             )}
             {product.retailSale > product.price ? <span className="bg-yellow-500 text-black px-1 py-1 mx-[2px] rounded text-[8px] font-semibold">
               -{(product.retailSale - product.price)}৳
@@ -83,7 +83,7 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
         </div>
 
         {/* Action Buttons (Wishlist) */}
-        <div className={`absolute ${product.productStatus?.length > 0 ? "top-6" : "top-0"} bg-white rounded-md right-0 space-y-2 transition-opacity duration-300`}>
+        <div className={`absolute ${product.productStatus?.length > 0 ? "top-6" : "top-0"} bg-accent-content rounded-md right-0 space-y-2 transition-opacity duration-300`}>
           <button
             onClick={(e) => {
               e.stopPropagation()
@@ -98,7 +98,7 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
             className={`p-1 cursor-pointer rounded-lg transition-all duration-300
               ${(wishlist && wishlist.some((item) => item.id === product.id))
                 ? "text-red-500 bg-red-100"
-                : "text-gray-400 bg-white hover:text-red-500 hover:bg-red-50"
+                : "text-gray-400 bg-bg hover:text-red-500 hover:bg-red-50"
               }`}
           >
             <Heart
@@ -153,7 +153,7 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
               }}
               disabled={!product.inStock}
               className={`w-full py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs ${product.inStock
-                ? "bg-green-600 text-accent-content hover:bg-green-700 transform hover:scale-105"
+                ? "bg-btn-color text-accent-content hover:bg-btn-color/80 transform hover:scale-105"
                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
                 }`}
             >
