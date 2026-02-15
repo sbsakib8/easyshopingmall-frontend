@@ -6,13 +6,13 @@ import { CheckCircle, CircleCheckBig, CircleX, ShoppingCart, Trash2, Truck } fro
 import { useEffect, useMemo, useState } from "react"
 
 const statusColors = {
-    pending: "bg-gradient-to-r from-yellow-400 to-orange-400 text-white shadow-lg shadow-yellow-500/25",
-    processing: "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/25",
-    submitted: "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/25",
-    shipped: "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/25",
-    completed: "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/25",
-    paid: "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/25",
-    cancelled: "bg-gradient-to-r from-red-500 to-rose-500 text-white shadow-lg shadow-red-500/25",
+    pending: "bg-gradient-to-r from-yellow-400 to-orange-400 text-accent-content shadow-lg shadow-yellow-500/25",
+    processing: "bg-gradient-to-r from-blue-500 to-cyan-500 text-accent-content shadow-lg shadow-blue-500/25",
+    submitted: "bg-gradient-to-r from-blue-500 to-cyan-500 text-accent-content shadow-lg shadow-blue-500/25",
+    shipped: "bg-gradient-to-r from-purple-500 to-pink-500 text-accent-content shadow-lg shadow-purple-500/25",
+    completed: "bg-gradient-to-r from-green-500 to-emerald-500 text-accent-content shadow-lg shadow-green-500/25",
+    paid: "bg-gradient-to-r from-green-500 to-emerald-500 text-accent-content shadow-lg shadow-green-500/25",
+    cancelled: "bg-gradient-to-r from-red-500 to-rose-500 text-accent-content shadow-lg shadow-red-500/25",
 }
 const CompletedOrdersPage = () => {
     const [searchTerm, setSearchTerm] = useState("")
@@ -36,7 +36,7 @@ const CompletedOrdersPage = () => {
                 customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 order?.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 customerEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                order?.address?.mobile ==searchTerm
+                order?.address?.mobile == searchTerm
             return matchesSearch
         })
         return filtered
@@ -92,7 +92,7 @@ const CompletedOrdersPage = () => {
 
                             <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between">
                                 <div>
-                                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">
+                                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-accent-content mb-2">
                                         All <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Order</span>!
                                     </h1>
                                     <p className="text-gray-300 text-sm sm:text-base">
@@ -108,31 +108,31 @@ const CompletedOrdersPage = () => {
                     <div
                         className={`grid grid-cols-1 md:grid-cols-3 gap-6 transform transition-all duration-1000 delay-200 ${animateCards ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"} mb-8`}
                     >
-                        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+                        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-accent-content shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
                             <div className="absolute top-0 right-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
                             <div className="relative">
                                 <ShoppingCart className="h-8 w-8 mb-3 text-blue-400" />
                                 <p className="text-gray-400 text-sm">Total Orders</p>
-                                <p className="text-3xl font-bold text-white">{stats?.total}</p>
+                                <p className="text-3xl font-bold text-accent-content">{stats?.total}</p>
                             </div>
                         </div>
 
-                        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+                        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-accent-content shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
                             <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/10 rounded-full -translate-y-10 translate-x-10"></div>
                             <div className="relative">
                                 <CircleX className="h-8 w-8 mb-3 text-red-400" />
                                 <p className="text-gray-400 text-sm">Cancelled</p>
-                                <p className="text-3xl font-bold text-white">{stats?.cancelled || 0}</p>
+                                <p className="text-3xl font-bold text-accent-content">{stats?.cancelled || 0}</p>
                             </div>
                         </div>
 
 
-                        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+                        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-accent-content shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
                             <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/10 rounded-full -translate-y-10 translate-x-10"></div>
                             <div className="relative">
                                 <CheckCircle className="h-8 w-8 mb-3 text-green-400" />
                                 <p className="text-gray-400 text-sm">Completed</p>
-                                <p className="text-3xl font-bold text-white">{stats?.completed || 0}</p>
+                                <p className="text-3xl font-bold text-accent-content">{stats?.completed || 0}</p>
                             </div>
                         </div>
                     </div>
@@ -143,7 +143,7 @@ const CompletedOrdersPage = () => {
                                 placeholder="Search orders, customers, or tracking numbers..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full px-4 py-3 pl-12 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent backdrop-blur-sm"
+                                className="w-full px-4 py-3 pl-12 bg-gray-800/50 border border-gray-700 rounded-xl text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent backdrop-blur-sm"
                             />
                             <svg
                                 className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
@@ -177,8 +177,8 @@ const CompletedOrdersPage = () => {
                                 {/* Order Header */}
                                 <div className="flex justify-between items-start mb-4">
                                     <div>
-                                        <h3 className="text-sm font-bold text-white mb-1">{order?.orderId}</h3>
-                                        <p className="text-gray-400 text-sm">Delivered: <span className="text-white">{formatDate(order?.updatedAt)}</span> </p>
+                                        <h3 className="text-sm font-bold text-accent-content mb-1">{order?.orderId}</h3>
+                                        <p className="text-gray-400 text-sm">Delivered: <span className="text-accent-content">{formatDate(order?.updatedAt)}</span> </p>
                                     </div>
                                     <div className="text-gray-300 flex gap-3">
                                         <p className={`px-3 py-1 text-sm ${statusColors[order?.order_status]} rounded-full text-yellow-300 font-medium`}>
@@ -189,13 +189,13 @@ const CompletedOrdersPage = () => {
 
                                 {/* Customer Info */}
                                 <div className="mb-4">
-                                    <h4 className="text-white font-semibold mb-2">{order?.userId?.name || "none"}</h4>
+                                    <h4 className="text-accent-content font-semibold mb-2">{order?.userId?.name || "none"}</h4>
                                     <p className="text-gray-400 text-sm mb-1">{order?.userId?.email || "demo@gmail.com"}</p>
                                     <p className="text-gray-400 text-sm">{order?.address?.mobile || "018XXXXXXXX"}</p>
                                 </div>
                                 {/* Order Items */}
                                 <div className="mb-4">
-                                    <h5 className="text-white font-medium mb-2">Items ({order?.products.length})</h5>
+                                    <h5 className="text-accent-content font-medium mb-2">Items ({order?.products.length})</h5>
                                     <div className="space-y-1 ">
                                         {order?.products.slice(0, 2).map((item, index) => (
                                             <div key={index} className="flex justify-between text-sm">
@@ -214,11 +214,11 @@ const CompletedOrdersPage = () => {
                                 {/* Total */}
                                 <div className="mb-6">
                                     <div className="flex justify-between items-center mb-2">
-                                        <span className="text-white font-semibold">Delivery Charge:</span>
+                                        <span className="text-accent-content font-semibold">Delivery Charge:</span>
                                         <span className="text-green-400 font-bold text-lg">৳{order?.deliveryCharge}</span>
                                     </div>
                                     <div className="flex justify-between items-center">
-                                        <span className="text-white font-semibold">Total:</span>
+                                        <span className="text-accent-content font-semibold">Total:</span>
                                         <span className="text-green-400 font-bold text-lg">৳{order.totalAmt}</span>
                                     </div>
                                 </div>
@@ -251,7 +251,7 @@ const CompletedOrdersPage = () => {
                                     />
                                 </svg>
                             </div>
-                            <h3 className="text-xl font-semibold text-white mb-2">No Shipped Orders Found</h3>
+                            <h3 className="text-xl font-semibold text-accent-content mb-2">No Shipped Orders Found</h3>
                             <p className="text-gray-400">No shipped orders match your search criteria.</p>
                         </div>
                     )}
@@ -262,8 +262,8 @@ const CompletedOrdersPage = () => {
                         <div className="bg-gray-900/95 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
                             {/* Modal Header */}
                             <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-2xl font-bold text-white">Completed Order Details</h2>
-                                <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-white transition-colors">
+                                <h2 className="text-2xl font-bold text-accent-content">Completed Order Details</h2>
+                                <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-accent-content transition-colors">
                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                     </svg>
@@ -276,7 +276,7 @@ const CompletedOrdersPage = () => {
                                     {/* Order Info */}
                                     <div className="grid md:grid-cols-1 gap-6 mb-6">
                                         <div>
-                                            <h3 className="text-lg font-semibold text-white mb-3">Order Information</h3>
+                                            <h3 className="text-lg font-semibold text-accent-content mb-3">Order Information</h3>
                                             <div className="space-y-2">
                                                 <p className="text-gray-300">
                                                     <span className="text-gray-500">Order ID:</span> {selectedOrder?.orderId}
@@ -298,11 +298,11 @@ const CompletedOrdersPage = () => {
                                                 </p>
                                                 <div className="flex gap-2">
                                                     <span className="text-gray-400">Amount Due:</span>
-                                                    <span className="font-medium text-white">৳{selectedOrder?.amount_due}</span>
+                                                    <span className="font-medium text-accent-content">৳{selectedOrder?.amount_due}</span>
                                                 </div>
                                                 <div className="flex gap-2">
                                                     <span className="text-gray-400">Amount Paid:</span>
-                                                    <span className="font-medium text-white">৳{selectedOrder?.amount_paid}</span>
+                                                    <span className="font-medium text-accent-content">৳{selectedOrder?.amount_paid}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -311,7 +311,7 @@ const CompletedOrdersPage = () => {
 
                                     {/* Customer Info */}
                                     <div>
-                                        <h3 className="text-lg font-semibold text-white mb-3">Customer Information</h3>
+                                        <h3 className="text-lg font-semibold text-accent-content mb-3">Customer Information</h3>
                                         <div className="space-y-2">
                                             <p className="text-gray-300">
                                                 <span className="text-gray-500">Name:</span> {selectedOrder?.userId?.email}
@@ -327,7 +327,7 @@ const CompletedOrdersPage = () => {
 
                                     {/* Shipping Address */}
                                     <div className="mb-6">
-                                        <h3 className="text-lg font-semibold text-white mb-3">Shipping Address</h3>
+                                        <h3 className="text-lg font-semibold text-accent-content mb-3">Shipping Address</h3>
                                         <p className="text-gray-300 bg-gray-800/50 p-3 rounded-lg">{selectedOrder?.address?.upazila_thana}, {selectedOrder?.address?.district}</p>
                                     </div>
                                 </div>
@@ -337,14 +337,14 @@ const CompletedOrdersPage = () => {
 
                                     {/* Order Items */}
                                     <div>
-                                        <h3 className="text-lg font-semibold text-white mb-3">Order Items</h3>
+                                        <h3 className="text-lg font-semibold text-accent-content mb-3">Order Items</h3>
                                         <div className="space-y-3">
                                             {selectedOrder?.products?.map((item, index) => (
                                                 <div key={index} className="flex justify-between items-center bg-gray-800/50 p-3 rounded-lg">
                                                     <div className="flex gap-2">
                                                         <img className="w-15 h-15 rounded-sm object-cover" src={item?.image[0]} alt="" />
                                                         <div>
-                                                            <p className="text-white font-medium">{item?.name}</p>
+                                                            <p className="text-accent-content font-medium">{item?.name}</p>
                                                             <p className="text-gray-400 text-sm">Quantity: {item?.quantity}</p>
                                                             <p className="text-gray-400 text-sm">Color: {item?.color || "none"}</p>
                                                             <p className="text-gray-400 text-sm">Size: {item?.size || "none"}</p>
@@ -358,12 +358,12 @@ const CompletedOrdersPage = () => {
                                             ))}
                                         </div>
                                         <div className="flex justify-between items-center m-2">
-                                            <span className="text-white font-semibold">Delivery Charge:</span>
+                                            <span className="text-accent-content font-semibold">Delivery Charge:</span>
                                             <span className="text-green-400 font-bold text-lg">৳{selectedOrder?.deliveryCharge}</span>
                                         </div>
                                         <div className="mt-4 pt-4 border-t border-gray-700">
                                             <div className="flex justify-between items-center">
-                                                <span className="text-xl font-bold text-white">Total:</span>
+                                                <span className="text-xl font-bold text-accent-content">Total:</span>
                                                 <span className="text-2xl font-bold text-green-400">৳{selectedOrder?.totalAmt}</span>
                                             </div>
                                         </div>
@@ -382,7 +382,7 @@ const CompletedOrdersPage = () => {
                             <div className="p-3 bg-pink-500/20 rounded-full">
                                 {status === "completed" ? <CircleCheckBig className="w-8 h-8 text-green-500" /> : <Trash2 className="w-8 h-8 text-pink-500" />}
                             </div>
-                            <h2 className="text-2xl font-bold text-white"> {status === "cancelled" ? "Cancelled" : "Delivered"} Product</h2>
+                            <h2 className="text-2xl font-bold text-accent-content"> {status === "cancelled" ? "Cancelled" : "Delivered"} Product</h2>
                         </div>
 
                         <p className="text-gray-300 mb-6">
@@ -392,7 +392,7 @@ const CompletedOrdersPage = () => {
                         <div className="flex gap-3">
                             <button
                                 onClick={() => handleStatusChange()}
-                                className={`flex-1 px-6 py-3 ${status === "completed" ? "bg-gradient-to-r from-green-500 to-green-500 hover:from-green-600 hover:to-green-600" : "bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600"}  text-white font-semibold rounded-lg transition-all transform hover:scale-105 cursor-pointer`}
+                                className={`flex-1 px-6 py-3 ${status === "completed" ? "bg-gradient-to-r from-green-500 to-green-500 hover:from-green-600 hover:to-green-600" : "bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600"}  text-accent-content font-semibold rounded-lg transition-all transform hover:scale-105 cursor-pointer`}
                             >
                                 {status === "cancelled" ? "Confirmed" : "Delivered"}
                             </button>
@@ -402,7 +402,7 @@ const CompletedOrdersPage = () => {
                                     setSelectedOrder(null)
                                     setConfirmationModal(false)
                                 }}
-                                className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition-colors cursor-pointer"
+                                className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-accent-content font-semibold rounded-lg transition-colors cursor-pointer"
                             >
                                 Cancel
                             </button>

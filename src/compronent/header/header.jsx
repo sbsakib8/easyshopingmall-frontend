@@ -341,7 +341,7 @@ const Header = ({ initialData }) => {
                     <div className="absolute top-full left-0 mt-2 w-80 bg-white border border-gray-200 rounded-2xl shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-300">
                       {/* Header */}
                       <div className="bg-gradient-to-r from-emerald-500 to-teal-500 p-4 rounded-t-2xl">
-                        <h3 className="text-white font-bold text-lg flex items-center space-x-2">
+                        <h3 className="text-accent-content font-bold text-lg flex items-center space-x-2">
                           <Star className="w-5 h-5 animate-pulse" />
                           <span>Shop by Category</span>
                         </h3>
@@ -494,13 +494,13 @@ const Header = ({ initialData }) => {
                   href="/wishlist"
                   className="flex items-center space-x-1 sm:space-x-2 text-gray-700 group-hover:text-emerald-600 transition-all duration-300"
                 >
-                  <div className="relative p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-gradient-to-r from-gray-100 to-gray-50 group-hover:from-pink-100 group-hover:to-rose-100 transition-all duration-300 shadow-sm">
+                  <div className="relative p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-bg group-hover:from-pink-100 group-hover:to-rose-100 transition-all duration-300 shadow-sm">
                     <Heart
                       size={16}
                       className="sm:w-5 sm:h-5 group-hover:scale-110 transition-transform duration-300 group-hover:text-pink-600"
                     />
                     {wishlistCount > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-xs rounded-full h-4 w-4 sm:h-6 sm:w-6 flex items-center justify-center font-bold animate-bounce shadow-lg">
+                      <span className="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-rose-500 text-accent-content text-xs rounded-full h-4 w-4 sm:h-6 sm:w-6 flex items-center justify-center font-bold animate-bounce shadow-lg">
                         {wishlistCount}
                       </span>
                     )}
@@ -517,13 +517,13 @@ const Header = ({ initialData }) => {
                   href="/addtocart"
                   className="flex items-center space-x-1 sm:space-x-2 text-gray-700 group-hover:text-emerald-600 transition-all duration-300"
                 >
-                  <div className="relative p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-gradient-to-r from-gray-100 to-gray-50 group-hover:from-emerald-100 group-hover:to-teal-100 transition-all duration-300 shadow-sm">
+                  <div className="relative p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-bg group-hover:from-emerald-100 group-hover:to-teal-100 transition-all duration-300 shadow-sm">
                     <ShoppingCart
                       size={16}
                       className="sm:w-5 sm:h-5 group-hover:scale-110 transition-transform duration-300"
                     />
                     {cartCount > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs rounded-full h-4 w-4 sm:h-6 sm:w-6 flex items-center justify-center font-bold animate-pulse shadow-lg">
+                      <span className="absolute -top-1 -right-1 bg-secondary text-accent-content text-xs rounded-full h-4 w-4 sm:h-6 sm:w-6 flex items-center justify-center font-bold animate-pulse shadow-lg">
                         {cartCount}
                       </span>
                     )}
@@ -589,15 +589,15 @@ const Header = ({ initialData }) => {
                   <Link
                     key={index}
                     href={item.href}
-                    className="relative flex items-center space-x-1 text-gray-700 hover:text-emerald-600 font-semibold transition-all duration-300 group hover:scale-105"
+                    className="relative flex items-center space-x-1 text-accent hover:text-secondary/80 font-semibold transition-all duration-300 group hover:scale-105"
                   >
                     <span className="text-sm lg:text-base">{item.name}</span>
                     {item.badge && (
-                      <span className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs px-2 lg:px-3 py-0.5 lg:py-1 rounded-full font-bold shadow-sm animate-pulse">
+                      <span className="bg-secondary text-accent-content text-xs px-2 lg:px-3 py-0.5 lg:py-1 rounded-full font-bold shadow-sm animate-pulse">
                         {item.badge}
                       </span>
                     )}
-                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-300 group-hover:w-full rounded-full"></span>
+                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-secondary transition-all duration-300 group-hover:w-full rounded-full"></span>
                   </Link>
                 ))}
               </div>
@@ -619,7 +619,7 @@ const Header = ({ initialData }) => {
                 >
                   <span className="text-sm sm:text-base">{item.name}</span>
                   {item.badge && (
-                    <span className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs px-2 sm:px-3 py-0.5 sm:py-1 rounded-full font-bold animate-pulse">
+                    <span className="bg-gradient-to-r from-emerald-500 to-teal-500 text-accent-content text-xs px-2 sm:px-3 py-0.5 sm:py-1 rounded-full font-bold animate-pulse">
                       {item.badge}
                     </span>
                   )}
@@ -691,13 +691,13 @@ const Header = ({ initialData }) => {
 
               {/* Mobile Quick Actions */}
               {/* <div className="border-t border-gray-200/60 pt-3 sm:pt-4 mt-3 sm:mt-4 grid grid-cols-2 gap-2 sm:gap-3">
-                <div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-3 sm:p-4 rounded-xl flex flex-col items-center space-y-1 sm:space-y-2 hover:from-emerald-700 hover:to-teal-700 transition-all duration-300 cursor-pointer group shadow-lg">
+                <div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-accent-content p-3 sm:p-4 rounded-xl flex flex-col items-center space-y-1 sm:space-y-2 hover:from-emerald-700 hover:to-teal-700 transition-all duration-300 cursor-pointer group shadow-lg">
                   <Package size={20} className="group-hover:rotate-12 transition-transform duration-300" />
                   <span className="font-bold text-xs sm:text-sm text-center">30% Off Sale</span>
                   <span className="bg-white text-emerald-600 px-2 py-0.5 rounded-full text-xs font-bold">Limited</span>
                 </div>
 
-                <div className="bg-gradient-to-r from-pink-500 to-rose-500 text-white p-3 sm:p-4 rounded-xl flex flex-col items-center space-y-1 sm:space-y-2 hover:from-pink-600 hover:to-rose-600 transition-all duration-300 cursor-pointer group shadow-lg">
+                <div className="bg-gradient-to-r from-pink-500 to-rose-500 text-accent-content p-3 sm:p-4 rounded-xl flex flex-col items-center space-y-1 sm:space-y-2 hover:from-pink-600 hover:to-rose-600 transition-all duration-300 cursor-pointer group shadow-lg">
                   <Star size={20} className="group-hover:scale-110 transition-transform duration-300" />
                   <span className="font-bold text-xs sm:text-sm text-center">Trending</span>
                   <span className="bg-white text-pink-600 px-2 py-0.5 rounded-full text-xs font-bold">Hot</span>

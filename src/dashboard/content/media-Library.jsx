@@ -168,12 +168,12 @@ export default function WebsiteInfoAdmin() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black p-4 md:p-6 text-white overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black p-4 md:p-6 text-accent-content overflow-hidden">
       <div className="max-w-7xl mx-auto">
         {/* Notification */}
         {notification.show && (
           <div className={`fixed top-4 right-4 z-50 ${notification.type === 'success' ? 'bg-green-500' : 'bg-red-500'
-            } text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-slide-in`}>
+            } text-accent-content px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-slide-in`}>
             {notification.type === 'success' ? <Check className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
             {notification.message}
           </div>
@@ -183,21 +183,21 @@ export default function WebsiteInfoAdmin() {
         <div className="bg-gradient-to-r from-green-900/80 via-blue-900/80 to-purple-900/80 backdrop-blur-xl  rounded-lg shadow-lg p-4 md:p-6 mb-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-white">Website Info Management</h1>
-              <p className="text-white mt-1">Admin Dashboard</p>
+              <h1 className="text-2xl md:text-3xl font-bold text-accent-content">Website Info Management</h1>
+              <p className="text-accent-content mt-1">Admin Dashboard</p>
             </div>
             <div className="flex gap-3 w-full md:w-auto">
               <button
                 onClick={refetch}
                 disabled={dataLoading || loading}
-                className="flex items-center justify-center gap-2 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition disabled:opacity-50 flex-1 md:flex-initial"
+                className="flex items-center justify-center gap-2 bg-gray-600 text-accent-content px-4 py-2 rounded-lg hover:bg-gray-700 transition disabled:opacity-50 flex-1 md:flex-initial"
               >
                 <RefreshCw className={`w-4 h-4 ${dataLoading ? 'animate-spin' : ''}`} />
                 Refresh
               </button>
               <button
                 onClick={() => setShowForm(!showForm)}
-                className="flex items-center justify-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition flex-1 md:flex-initial"
+                className="flex items-center justify-center gap-2 bg-indigo-600 text-accent-content px-4 py-2 rounded-lg hover:bg-indigo-700 transition flex-1 md:flex-initial"
               >
                 {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
                 {showForm ? 'Cancel' : 'Add New'}
@@ -441,7 +441,7 @@ export default function WebsiteInfoAdmin() {
                   <button
                     type="button"
                     onClick={addSocialLink}
-                    className="flex items-center gap-2 bg-green-600 text-white px-3 py-1 rounded-lg hover:bg-green-700 transition text-sm"
+                    className="flex items-center gap-2 bg-green-600 text-accent-content px-3 py-1 rounded-lg hover:bg-green-700 transition text-sm"
                   >
                     <Plus className="w-4 h-4" />
                     Add Link
@@ -533,7 +533,7 @@ export default function WebsiteInfoAdmin() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex items-center justify-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  className="flex items-center justify-center gap-2 bg-indigo-600 text-accent-content px-6 py-3 rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
                 >
                   <Save className="w-4 h-4" />
                   {loading ? 'Saving...' : editingId ? 'Update' : 'Create'}
@@ -609,7 +609,7 @@ export default function WebsiteInfoAdmin() {
                       <button
                         onClick={() => handleDelete(info._id)}
                         disabled={loading}
-                        className="flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition disabled:opacity-50"
+                        className="flex items-center justify-center gap-2 bg-red-600 text-accent-content px-4 py-2 rounded-lg hover:bg-red-700 transition disabled:opacity-50"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

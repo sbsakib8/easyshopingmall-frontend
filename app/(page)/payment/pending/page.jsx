@@ -17,7 +17,7 @@ export default function PaymentCancelled() {
                 <div className="mt-6 space-y-3">
                     <Link
                         href="/checkout"
-                        className="flex items-center justify-center gap-2 bg-yellow-500 text-white rounded-xl py-2 hover:bg-yellow-600 transition"
+                        className="flex items-center justify-center gap-2 bg-yellow-500 text-accent-content rounded-xl py-2 hover:bg-yellow-600 transition"
                     >
                         <CornerUpLeft size={18} /> Go Back to Checkout
                     </Link>

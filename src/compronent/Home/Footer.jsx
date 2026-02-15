@@ -116,7 +116,7 @@ function Footer({ initialData }) {
                      flex justify-center items-center cursor-pointer 
                      transition-all duration-200 delay-100"
                                 >
-                                    <IconComponent className="text-2xl text-white" />
+                                    <IconComponent className="text-2xl text-accent-content" />
                                 </a>
                             );
                         })}

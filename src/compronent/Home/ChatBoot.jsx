@@ -69,7 +69,7 @@ const ChatBoot = () => {
         z-50 flex flex-col overflow-hidden">
 
           {/* Header */}
-          <div className="bg-indigo-600 text-white px-4 py-3 flex justify-between items-center">
+          <div className="bg-indigo-600 text-accent-content px-4 py-3 flex justify-between items-center">
             <span className="font-semibold">AI Assistant</span>
             <button onClick={() => setOpenAI(false)}>
               <X className="w-5 h-5" />
@@ -81,11 +81,10 @@ const ChatBoot = () => {
             {messages.map((msg, i) => (
               <div
                 key={i}
-                className={`max-w-[75%] px-3 py-2 rounded-lg break-words ${
-                  msg.from === "user"
-                    ? "ml-auto bg-indigo-600 text-white"
+                className={`max-w-[75%] px-3 py-2 rounded-lg break-words ${msg.from === "user"
+                    ? "ml-auto bg-indigo-600 text-accent-content"
                     : "bg-gray-100 text-gray-700"
-                }`}
+                  }`}
               >
                 {msg.text}
               </div>
@@ -103,7 +102,7 @@ const ChatBoot = () => {
             />
             <button
               onClick={handleSend}
-              className="bg-indigo-600 text-white px-3 rounded-lg flex items-center justify-center"
+              className="bg-indigo-600 text-accent-content px-3 rounded-lg flex items-center justify-center"
             >
               <Send className="w-4 h-4" />
             </button>

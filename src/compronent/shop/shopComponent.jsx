@@ -69,7 +69,7 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
         <div className="absolute top-0 left-0 flex justify-between w-full">
           <div className="flex items-start">
             {product.isNew && (
-              <span className="bg-green-500 text-white px-1 py-1 rounded text-[8px] font-semibold">NEW</span>
+              <span className="bg-green-500 text-accent-content px-1 py-1 rounded text-[8px] font-semibold">NEW</span>
             )}
             {product.retailSale > product.price ? <span className="bg-yellow-500 text-black px-1 py-1 mx-[2px] rounded text-[8px] font-semibold">
               -{(product.retailSale - product.price)}৳
@@ -111,7 +111,7 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
 
         {!product.inStock && (
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-            <span className="bg-red-500 text-white px-3 py-1 rounded font-semibold text-xs">Out of Stock</span>
+            <span className="bg-red-500 text-accent-content px-3 py-1 rounded font-semibold text-xs">Out of Stock</span>
           </div>
         )}
       </div>
@@ -153,7 +153,7 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
               }}
               disabled={!product.inStock}
               className={`w-full py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs ${product.inStock
-                ? "bg-green-600 text-white hover:bg-green-700 transform hover:scale-105"
+                ? "bg-green-600 text-accent-content hover:bg-green-700 transform hover:scale-105"
                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
                 }`}
             >
@@ -173,7 +173,7 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
                 }}
                 disabled={!product.inStock}
                 className={`py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs ${product.inStock
-                  ? "bg-btn-color text-white hover:bg-green-700 transform hover:scale-105"
+                  ? "bg-btn-color text-accent-content hover:bg-green-700 transform hover:scale-105"
                   : "bg-gray-300 text-gray-500 cursor-not-allowed"
                   }`}
               >
@@ -190,7 +190,7 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
                   e.stopPropagation()
                   handleEdit(product)
                 }}
-                className="p-2 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg"
+                className="p-2 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-accent-content rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg"
               >
                 <Edit size={16} />
               </button>
@@ -199,7 +199,7 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
                   e.stopPropagation()
                   setDeleteModal(product)
                 }}
-                className="p-2 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-400 hover:to-pink-400 text-white rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg cursor-pointer"
+                className="p-2 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-400 hover:to-pink-400 text-accent-content rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg cursor-pointer"
               >
                 <Trash2 size={16} />
               </button>
@@ -631,7 +631,7 @@ const ShopPage = ({ initialData, queryParams }) => {
   return (
     <div className="min-h-screen bg-bg">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    
+
         {/* Top Filter Bar */}
         <div className="bg-white lg:mt-28 rounded-lg shadow-md p-4 mb-6">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
@@ -663,14 +663,14 @@ const ShopPage = ({ initialData, queryParams }) => {
               <div className="flex border border-gray-300 rounded-lg overflow-hidden">
                 <button
                   onClick={() => dispatch(setViewMode("grid"))}
-                  className={`p-2 transition-colors duration-300 ${viewMode === "grid" ? "bg-secondary text-white" : "bg-white text-gray-600 hover:bg-gray-50"
+                  className={`p-2 transition-colors duration-300 ${viewMode === "grid" ? "bg-secondary text-accent-content" : "bg-white text-gray-600 hover:bg-gray-50"
                     }`}
                 >
                   <Grid className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => dispatch(setViewMode("list"))}
-                  className={`p-2 transition-colors duration-300 ${viewMode === "list" ? "bg-secondary text-white" : "bg-white text-gray-600 hover:bg-gray-50"
+                  className={`p-2 transition-colors duration-300 ${viewMode === "list" ? "bg-secondary text-accent-content" : "bg-white text-gray-600 hover:bg-gray-50"
                     }`}
                 >
                   <List className="w-5 h-5" />
@@ -824,7 +824,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                     rating: ratingFilter,
                     gender: filterGender,
                   }))}
-                  className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg transition-colors font-medium shadow-md"
+                  className="bg-red-500 hover:bg-red-600 text-accent-content px-6 py-2 rounded-lg transition-colors font-medium shadow-md"
                 >
                   Retry Loading
                 </button>
@@ -841,7 +841,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                 <p className="text-gray-500 mb-4">Try adjusting your filters or search terms</p>
                 <button
                   onClick={clearFilters}
-                  className="bg-secondary text-white px-6 py-2 rounded-lg hover:bg-secondary transition-colors duration-300"
+                  className="bg-secondary text-accent-content px-6 py-2 rounded-lg hover:bg-secondary transition-colors duration-300"
                 >
                   Clear All Filters
                 </button>
@@ -886,7 +886,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                   disabled={currentPage === 1}
                   className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${currentPage === 1
                     ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                    : "bg-secondary text-white hover:bg-secondary"
+                    : "bg-secondary text-accent-content hover:bg-secondary"
                     }`}
                 >
                   Previous
@@ -911,7 +911,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                     key={page}
                     onClick={() => dispatch(setCurrentPage(page))}
                     className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${currentPage === page
-                      ? "bg-secondary text-white transform scale-110"
+                      ? "bg-secondary text-accent-content transform scale-110"
                       : "bg-white border border-gray-300 hover:bg-purple-50"
                       }`}
                   >
@@ -938,7 +938,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                   disabled={currentPage === totalPages}
                   className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${currentPage === totalPages
                     ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                    : "bg-secondary text-white hover:bg-secondary"
+                    : "bg-secondary text-accent-content hover:bg-secondary"
                     }`}
                 >
                   Next
@@ -955,7 +955,7 @@ const ShopPage = ({ initialData, queryParams }) => {
           <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
             <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-emerald-500/30 max-w-3xl w-full max-h-[90vh] overflow-y-auto animate-slideUp">
               <div className="sticky top-0 bg-gradient-to-r from-emerald-600 to-teal-600 p-6 flex justify-between items-center z-10">
-                <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                <h2 className="text-2xl font-bold text-accent-content flex items-center gap-2">
                   <Edit className="w-6 h-6" />
                   Edit Product
                 </h2>
@@ -963,7 +963,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                   onClick={() => setEditModal(null)}
                   className="p-2 hover:bg-white/10 rounded-lg transition-colors"
                 >
-                  <X className="w-6 h-6 text-white cursor-pointer" />
+                  <X className="w-6 h-6 text-accent-content cursor-pointer" />
                 </button>
               </div>
 
@@ -1140,7 +1140,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                 <div className="flex gap-3 mt-6">
                   <button
                     onClick={saveEdit}
-                    className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold rounded-lg transition-all transform hover:scale-105"
+                    className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-accent-content font-semibold rounded-lg transition-all transform hover:scale-105"
                   >
                     {load ? "Saving..." : "Save Changes"}
                   </button>
@@ -1176,13 +1176,13 @@ const ShopPage = ({ initialData, queryParams }) => {
               <div className="flex gap-3">
                 <button
                   onClick={confirmDelete}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-semibold rounded-lg transition-all transform hover:scale-105 cursor-pointer"
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-accent-content font-semibold rounded-lg transition-all transform hover:scale-105 cursor-pointer"
                 >
                   Delete
                 </button>
                 <button
                   onClick={() => setDeleteModal(null)}
-                  className="flex-1 px-6 py-3 bg-slate-200 hover:bg-slate-600 hover:text-white font-semibold rounded-lg transition-colors cursor-pointer"
+                  className="flex-1 px-6 py-3 bg-slate-200 hover:bg-slate-600 hover:text-accent-content font-semibold rounded-lg transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>

@@ -389,7 +389,7 @@ const ProductDetails = ({ initialProduct }) => {
           <p className="text-red-600 text-lg">{error || "Product not found"}</p>
           <button
             onClick={() => router.back()}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg"
+            className="bg-blue-600 text-accent-content px-6 py-2 rounded-lg"
           >
             Go Back
           </button>
@@ -444,15 +444,15 @@ const ProductDetails = ({ initialProduct }) => {
                 className="w-full h-auto object-cover "
               />
               {product?.discount > 0 && (
-                <div className="absolute top-4 left-4 bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1 rounded-full text-sm font-semibold animate-pulse">
+                <div className="absolute top-4 left-4 bg-gradient-to-r from-red-500 to-pink-500 text-accent-content px-3 py-1 rounded-full text-sm font-semibold animate-pulse">
                   {Math.round(product.discount)}% OFF
                 </div>
               )}
               <button
                 onClick={handleWishlist}
                 className={`absolute top-4 right-4 p-2 rounded-full transition-all duration-300 ${isWishlisted
-                  ? "bg-red-500 text-white scale-110"
-                  : "bg-white/80 text-gray-600 hover:bg-red-500 hover:text-white"
+                  ? "bg-red-500 text-accent-content scale-110"
+                  : "bg-white/80 text-gray-600 hover:bg-red-500 hover:text-accent-content"
                   }`}
               >
                 <Heart className={`w-5 h-5 ${isWishlisted ? "fill-current" : ""}`} />
@@ -574,7 +574,7 @@ const ProductDetails = ({ initialProduct }) => {
               <div>
                 {product?.rank > product?.price && user?.role !== "DROPSHIPPING" && (
                   <>
-                    <p className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                    <p className="bg-gradient-to-r from-green-500 to-emerald-500 text-accent-content px-3 py-1 rounded-full text-sm font-semibold">
                       Save ৳{(product?.rank - product?.price)?.toFixed(0) || 0}
                     </p>
                   </>
@@ -632,7 +632,7 @@ const ProductDetails = ({ initialProduct }) => {
               px-3 rounded-full font-semibold
               transition-all duration-300 border
               ${isActive
-                            ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white border-transparent shadow-md scale-105"
+                            ? "bg-gradient-to-r from-blue-500 to-purple-500 text-accent-content border-transparent shadow-md scale-105"
                             : "bg-white text-gray-800 border-gray-300 hover:border-blue-400 hover:scale-105"
                           }
             `}
@@ -640,7 +640,7 @@ const ProductDetails = ({ initialProduct }) => {
                         {size}
 
                         {isActive && (
-                          <span className="text-white font-bold text-lg leading-none ml-1">✓</span>
+                          <span className="text-accent-content font-bold text-lg leading-none ml-1">✓</span>
                         )}
                       </button>
                     );
@@ -699,7 +699,7 @@ const ProductDetails = ({ initialProduct }) => {
                 disabled={product?.stock === 0}
                 className={`w-full py-4 rounded-xl font-semibold text-lg flex items-center justify-center space-x-2 transition-all duration-300 ${product?.stock === 0
                   ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                  : "bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white hover:shadow-lg hover:scale-102 cursor-pointer"
+                  : "bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-accent-content hover:shadow-lg hover:scale-102 cursor-pointer"
                   }`}
               >
                 <ShoppingCart className="w-5 h-5 " />
@@ -717,7 +717,7 @@ const ProductDetails = ({ initialProduct }) => {
 
                   className={`w-full py-4 rounded-xl font-semibold text-lg flex items-center justify-center space-x-2 transition-all duration-300 ${product?.stock === 0
                     ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                    : "bg-btn-color text-white hover:shadow-lg hover:scale-102 cursor-pointer"
+                    : "bg-btn-color text-accent-content hover:shadow-lg hover:scale-102 cursor-pointer"
                     }`}>
                   <Zap className={`w-5 h-5 ${loading ? 'animate-spin' : ''} `} />
                   <span>Buy Now</span>
@@ -913,7 +913,7 @@ const ProductDetails = ({ initialProduct }) => {
 
                   <button
                     onClick={() => setShowReviewForm(!showReviewForm)}
-                    className="mt-6 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-lg hover:shadow-lg transition-all duration-300"
+                    className="mt-6 bg-gradient-to-r from-blue-500 to-purple-500 text-accent-content px-6 py-3 rounded-lg hover:shadow-lg transition-all duration-300"
                   >
                     Write a Review
                   </button>
@@ -949,7 +949,7 @@ const ProductDetails = ({ initialProduct }) => {
 
                     <button
                       onClick={handleSubmitReview}
-                      className="w-full mt-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white py-2 rounded-lg hover:shadow-md transition-all"
+                      className="w-full mt-4 bg-gradient-to-r from-blue-500 to-purple-500 text-accent-content py-2 rounded-lg hover:shadow-md transition-all"
                     >
                       Submit Review
                     </button>
@@ -974,7 +974,7 @@ const ProductDetails = ({ initialProduct }) => {
                               className="w-12 h-12 rounded-full object-cover border"
                             />
                           ) : (
-                            <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white flex items-center justify-center font-bold text-lg">
+                            <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-accent-content flex items-center justify-center font-bold text-lg">
                               {review.userId?.name?.[0]?.toUpperCase() || "A"}
                             </div>
                           )}
@@ -1023,7 +1023,7 @@ const ProductDetails = ({ initialProduct }) => {
                       className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     {relProduct.discount > 0 && (
-                      <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
+                      <div className="absolute top-2 left-2 bg-red-500 text-accent-content px-2 py-1 rounded text-xs font-bold">
                         {relProduct.discount}% OFF
                       </div>
                     )}
@@ -1068,7 +1068,7 @@ const ProductDetails = ({ initialProduct }) => {
                         e.stopPropagation();
                         router.push(`/productdetails/${relProduct.id}`);
                       }}
-                      className="w-full bg-blue-600 text-white py-2 px-3 rounded font-semibold hover:bg-blue-700 transition-colors duration-300 text-sm flex items-center justify-center gap-2"
+                      className="w-full bg-blue-600 text-accent-content py-2 px-3 rounded font-semibold hover:bg-blue-700 transition-colors duration-300 text-sm flex items-center justify-center gap-2"
                     >
                       <ShoppingCart className="w-4 h-4" />
                       View Product

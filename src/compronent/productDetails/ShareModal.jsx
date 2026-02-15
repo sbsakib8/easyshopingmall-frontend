@@ -88,7 +88,7 @@ const ShareModal = ({ isOpen, onClose, product }) => {
                                     />
                                     <button
                                         onClick={handleCopy}
-                                        className="bg-[#3EA6FF] hover:bg-[#65B8FF] text-black px-4 py-1.5 rounded-full text-sm font-bold transition-colors flex items-center gap-2 whitespace-nowrap"
+                                        className="bg-secondary hover:bg-secondary/80 text-black px-4 py-1.5 rounded-full text-sm font-bold transition-colors flex items-center gap-2 whitespace-nowrap"
                                     >
                                         {isCopied ? <Check className="w-4 h-4" /> : null}
                                         {isCopied ? 'Copied' : 'Copy'}

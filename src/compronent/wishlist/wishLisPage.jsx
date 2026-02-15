@@ -32,7 +32,7 @@ const WishlistComponent = () => {
           <p className="text-gray-600 mb-4">You need to log in to view your wishlist.</p>
           <Link
             href="/signin"
-            className="inline-block bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-teal-700 hover:to-green-700 transition-all"
+            className="inline-block bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-accent-content px-6 py-3 rounded-xl font-semibold hover:from-teal-700 hover:to-green-700 transition-all"
           >
             Go to Sign In
           </Link>
@@ -243,14 +243,14 @@ const WishlistComponent = () => {
 
                   {/* Discount Badge */}
                   {item.discount && (
-                    <div className="absolute top-3 left-3 bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
+                    <div className="absolute top-3 left-3 bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 text-accent-content px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
                       -{item.discount}%
                     </div>
                   )}
 
                   {/* Stock Status */}
                   {!item.inStock && (
-                    <div className="absolute top-3 right-3 bg-red-700/80 text-white px-3 py-1 rounded-full text-sm font-medium">
+                    <div className="absolute top-3 right-3 bg-red-700/80 text-accent-content px-3 py-1 rounded-full text-sm font-medium">
                       Out of Stock
                     </div>
                   )}
@@ -316,7 +316,7 @@ const WishlistComponent = () => {
                       }}
                       disabled={!item.inStock}
                       className={`flex-1 cursor-pointer flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-semibold transition-all duration-300 ${item.inStock
-                        ? "bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 hover:from-teal-700 hover:to-green-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
+                        ? "bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 hover:from-teal-700 hover:to-green-700 text-accent-content shadow-lg hover:shadow-xl transform hover:scale-105"
                         : "bg-gray-200 text-gray-500 cursor-not-allowed"
                         }`}
                     >
@@ -332,7 +332,7 @@ const WishlistComponent = () => {
 
         {/* Summary Footer */}
         {wishlistItems.length > 0 && (
-          <div className="mt-12 bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 rounded-3xl shadow-2xl p-8 text-white text-center">
+          <div className="mt-12 bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 rounded-3xl shadow-2xl p-8 text-accent-content text-center">
             <h3 className="text-2xl font-bold mb-4">Ready to Shop?</h3>
             <p className="text-purple-100 mb-6">
               You have {wishlistItems.filter((item) => item.inStock).length} items available in

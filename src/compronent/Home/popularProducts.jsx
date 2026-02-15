@@ -338,7 +338,7 @@ const PopularProducts = ({ initialData }) => {
             <button
               onClick={() => setShowCategories(!showCategories)}
               className={`flex sm:hidden items-center space-x-2 px-4 py-2 sm:py-3 rounded-full font-medium transition-all duration-300 ${activeCategory === "ALL"
-                ? "bg-secondary text-white shadow-lg"
+                ? "bg-secondary text-accent-content shadow-lg"
                 : "bg-accent-content hover:bg-white/90 border border-gray-200"
                 } mb-5 md:mb-0 gap-2`}
             >
@@ -352,7 +352,7 @@ const PopularProducts = ({ initialData }) => {
             <button
               onClick={() => setActiveCategory("ALL")}
               className={`flex items-center space-x-2 px-4 py-2 sm:py-3 rounded-full font-medium transition-all duration-300 ${activeCategory === "ALL"
-                ? "bg-secondary text-white shadow-lg"
+                ? "bg-secondary text-accent-content shadow-lg"
                 : "bg-accent-content hover:bg-white/90 border border-gray-200"
                 }`}
             >
@@ -363,7 +363,7 @@ const PopularProducts = ({ initialData }) => {
                 key={cat.id}
                 onClick={() => setActiveCategory(cat.id)}
                 className={`flex items-center space-x-2 px-4 py-2 sm:py-3 rounded-full font-medium transition-all duration-300 ${activeCategory === cat.id
-                  ? `bg-secondary text-white shadow-lg`
+                  ? `bg-secondary text-accent-content shadow-lg`
                   : "bg-white/70 text-gray-700 hover:bg-white/90 border border-gray-200"
                   }`}
               >
@@ -395,7 +395,7 @@ const PopularProducts = ({ initialData }) => {
                 <div className="absolute top-0 left-0 flex justify-between w-full">
                   <div className="flex items-start">
                     {product.isNew && (
-                      <span className="bg-green-500 text-white px-1 py-1 rounded text-[8px] font-semibold">NEW</span>
+                      <span className="bg-green-500 text-accent-content px-1 py-1 rounded text-[8px] font-semibold">NEW</span>
                     )}
                     {product.retailSale > product.price ? <span className="bg-yellow-500 text-black px-1 py-1 mx-[2px] rounded text-[8px] font-semibold">
                       -{(product.retailSale - product.price)}৳
@@ -458,7 +458,7 @@ const PopularProducts = ({ initialData }) => {
                   </div>
 
                   {/* Add to Cart */}
-                  
+
                   <button
                     onClick={(e) => {
                       e.preventDefault();

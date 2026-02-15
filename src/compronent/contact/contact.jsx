@@ -118,7 +118,7 @@ const ContactPage = ({ initialSiteInfo }) => {
 
 
   return (
-    <div className="min-h-screen lg:mt-20 py-4 bg-gradient-to-br bg-[#2e394a] relative overflow-hidden">
+    <div className="min-h-screen lg:mt-12 py-4 bg-gradient-to-br bg-[#2e394a] relative overflow-hidden">
 
 
       <div className="relative z-10 container mx-auto px-4 py-12 lg:py-20">
@@ -139,10 +139,10 @@ const ContactPage = ({ initialSiteInfo }) => {
             <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-500 hover:scale-105 hover:rotate-1 group">
               <div className="flex items-center space-x-4">
                 <div className="w-14 h-14 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <Phone className="w-7 h-7 text-white" />
+                  <Phone className="w-7 h-7 text-accent-content" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold text-white mb-2">ফোন</h3>
+                  <h3 className="text-xl font-semibold text-accent-content mb-2">ফোন</h3>
                   <p className="text-accent-content/70">{siteInfo?.number}</p>
                 </div>
               </div>
@@ -152,10 +152,10 @@ const ContactPage = ({ initialSiteInfo }) => {
             <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-500 hover:scale-105 hover:-rotate-1 group">
               <div className="flex items-center space-x-4">
                 <div className="w-14 h-14 bg-gradient-to-r from-pink-400 to-red-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <Mail className="w-7 h-7 text-white" />
+                  <Mail className="w-7 h-7 text-accent-content" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold text-white mb-2">ইমেইল</h3>
+                  <h3 className="text-xl font-semibold text-accent-content mb-2">ইমেইল</h3>
                   <p className="text-accent-content/70">{siteInfo?.email}</p>
                 </div>
               </div>
@@ -165,10 +165,10 @@ const ContactPage = ({ initialSiteInfo }) => {
             <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-500 hover:scale-105 hover:rotate-1 group">
               <div className="flex items-center space-x-4">
                 <div className="w-14 h-14 bg-gradient-to-r from-purple-400 to-pink-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <MapPin className="w-7 h-7 text-white" />
+                  <MapPin className="w-7 h-7 text-accent-content" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold text-white mb-2">ঠিকানা</h3>
+                  <h3 className="text-xl font-semibold text-accent-content mb-2">ঠিকানা</h3>
                   <p className="text-accent-content/70">{siteInfo?.address}</p>
                 </div>
               </div>
@@ -178,10 +178,10 @@ const ContactPage = ({ initialSiteInfo }) => {
             <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-500 hover:scale-105 hover:-rotate-1 group">
               <div className="flex items-center space-x-4">
                 <div className="w-14 h-14 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <Clock className="w-7 h-7 text-white" />
+                  <Clock className="w-7 h-7 text-accent-content" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold text-white mb-2">অফিস সময়</h3>
+                  <h3 className="text-xl font-semibold text-accent-content mb-2">অফিস সময়</h3>
                   <p className="text-accent-content/70">{siteInfo?.deliveryText}</p>
                 </div>
               </div>
@@ -215,7 +215,7 @@ const ContactPage = ({ initialSiteInfo }) => {
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      className="w-full px-6 py-4 bg-white/5 border border-white/20 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 group-hover:bg-white/10"
+                      className="w-full px-6 py-4 bg-white/5 border border-white/20 rounded-2xl text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 group-hover:bg-white/10"
                       placeholder="আপনার নাম লিখুন"
                       required
                     />
@@ -232,7 +232,7 @@ const ContactPage = ({ initialSiteInfo }) => {
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className="w-full px-6 py-4 bg-white/5 border border-white/20 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 group-hover:bg-white/10"
+                      className="w-full px-6 py-4 bg-white/5 border border-white/20 rounded-2xl text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 group-hover:bg-white/10"
                       placeholder="your@email.com"
                       required
                     />
@@ -251,7 +251,7 @@ const ContactPage = ({ initialSiteInfo }) => {
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      className="w-full px-6 py-4 bg-white/5 border border-white/20 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 group-hover:bg-white/10"
+                      className="w-full px-6 py-4 bg-white/5 border border-white/20 rounded-2xl text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 group-hover:bg-white/10"
                       placeholder="+880 1234-567890"
                     />
                   </div>
@@ -267,7 +267,7 @@ const ContactPage = ({ initialSiteInfo }) => {
                       name="subject"
                       value={formData.subject}
                       onChange={handleInputChange}
-                      className="w-full px-6 py-4 bg-white/5 border border-white/20 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 group-hover:bg-white/10"
+                      className="w-full px-6 py-4 bg-white/5 border border-white/20 rounded-2xl text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 group-hover:bg-white/10"
                       placeholder="আপনার বার্তার বিষয়"
                       required
                     />
@@ -285,7 +285,7 @@ const ContactPage = ({ initialSiteInfo }) => {
                     value={formData.message}
                     onChange={handleInputChange}
                     rows="6"
-                    className="w-full px-6 py-4 bg-white/5 border border-white/20 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 resize-none group-hover:bg-white/10"
+                    className="w-full px-6 py-4 bg-white/5 border border-white/20 rounded-2xl text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 resize-none group-hover:bg-white/10"
                     placeholder="আপনার বার্তা বিস্তারিত লিখুন..."
                     required
                   ></textarea>
@@ -336,7 +336,7 @@ const ContactPage = ({ initialSiteInfo }) => {
 
         {/* Bottom CTA Section */}
         <div className="text-center mt-20 animate-fade-in">
-          <h3 className="text-3xl lg:text-4xl font-bold text-white mb-6">
+          <h3 className="text-3xl lg:text-4xl font-bold text-accent-content mb-6">
             আমরা আপনার সেবায় নিয়োজিত
           </h3>
           <p className="text-xl text-accent-content/70 max-w-2xl mx-auto">

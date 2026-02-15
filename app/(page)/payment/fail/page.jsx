@@ -17,7 +17,7 @@ export default function PaymentFailed() {
                 <div className="mt-6 space-y-3">
                     <Link
                         href="/checkout"
-                        className="flex items-center justify-center gap-2 bg-red-600 text-white rounded-xl py-2 hover:bg-red-700 transition"
+                        className="flex items-center justify-center gap-2 bg-red-600 text-accent-content rounded-xl py-2 hover:bg-red-700 transition"
                     >
                         <RotateCcw size={18} /> Try Again
                     </Link>

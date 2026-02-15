@@ -284,7 +284,7 @@ const AddProductComponent = () => {
               <div className="absolute bottom-6 left-6 w-1 h-1 bg-purple-400 rounded-full animate-pulse"></div>
               <div className="absolute top-1/2 right-1/3 w-1 h-1 bg-cyan-400 rounded-full animate-bounce"></div>
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Add New Product</h1>
+            <h1 className="text-3xl md:text-4xl font-bold text-accent-content mb-2">Add New Product</h1>
             <p className="text-blue-100">EasyShoppingMall Admin Dashboard</p>
           </div>
         </div>
@@ -292,45 +292,45 @@ const AddProductComponent = () => {
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Basic Information */}
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
-            <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
+            <h2 className="text-2xl font-bold text-accent-content mb-6 flex items-center">
               <Package className="mr-3 text-blue-400" />
               Basic Information
             </h2>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-white font-medium">Product Name</label>
+                <label className="text-accent-content font-medium">Product Name</label>
                 <input
                   type="text"
                   name="productName"
                   value={formData.productName}
                   onChange={handleInputChange}
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 mt-1"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 mt-1"
                   placeholder="Enter product name"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-white font-medium">Brand</label>
+                <label className="text-accent-content font-medium">Brand</label>
                 <input
                   type="text"
                   name="brand"
                   value={formData.brand}
                   onChange={handleInputChange}
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 mt-1"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 mt-1"
                   placeholder="Enter brand name"
                 />
               </div>
 
               <div className="lg:col-span-2 space-y-2">
-                <label className="text-white font-medium">Description</label>
+                <label className="text-accent-content font-medium">Description</label>
                 <textarea
                   name="description"
                   value={formData.description}
                   onChange={handleInputChange}
                   rows="4"
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 resize-none mt-1"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 resize-none mt-1"
                   placeholder="Enter detailed product description"
                   required
                 />
@@ -340,7 +340,7 @@ const AddProductComponent = () => {
 
           {/* Categories & Classification */}
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
-            <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
+            <h2 className="text-2xl font-bold text-accent-content mb-6 flex items-center">
               <Tag className="mr-3 text-green-400" />
               Categories & Classification
             </h2>
@@ -348,12 +348,12 @@ const AddProductComponent = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* CATEGORY */}
               <div className="space-y-2">
-                <label className="text-white font-medium">Category</label>
+                <label className="text-accent-content font-medium">Category</label>
                 <select
                   name="category"
                   value={formData.category[0] || ""}
                   onChange={handleInputChange}
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300 mt-1"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300 mt-1"
                   required
                 >
                   <option value="" className="bg-slate-800">
@@ -376,13 +376,13 @@ const AddProductComponent = () => {
 
               {/* SUB CATEGORY */}
               <div className="space-y-2">
-                <label className="text-white font-medium">Sub Category</label>
+                <label className="text-accent-content font-medium">Sub Category</label>
                 <select
                   name="subCategory"
                   value={formData.subCategory[0] || ""}
                   onChange={handleInputChange}
                   disabled={!formData.category.length}
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300 disabled:opacity-50 mt-1"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300 disabled:opacity-50 mt-1"
                 >
                   <option value="" className="bg-slate-800">
                     Select Sub Category
@@ -404,7 +404,7 @@ const AddProductComponent = () => {
 
               {/* FEATURED */}
               <div className="space-y-2">
-                <label className="text-white font-medium">Featured Product</label>
+                <label className="text-accent-content font-medium">Featured Product</label>
                 <div className="flex items-center p-4 bg-white/10 border border-white/20 rounded-xl mt-1">
                   <input
                     type="checkbox"
@@ -413,14 +413,14 @@ const AddProductComponent = () => {
                     onChange={handleInputChange}
                     className="w-5 h-5 text-green-600 bg-transparent border-white/30 rounded focus:ring-green-500"
                   />
-                  <label className="ml-3 text-white">Mark as Featured</label>
+                  <label className="ml-3 text-accent-content">Mark as Featured</label>
                 </div>
               </div>
             </div>
 
             {/* Tags */}
             <div className="mt-6 space-y-4">
-              <label className="text-white font-medium">Product Status Badges (Tags)</label>
+              <label className="text-accent-content font-medium">Product Status Badges (Tags)</label>
               <div className="flex gap-4">
                 {['hot', 'cold'].map((tag) => (
                   <button
@@ -435,7 +435,7 @@ const AddProductComponent = () => {
                     }}
                     className={`px-6 py-3 rounded-xl border transition-all duration-300 flex items-center gap-2 capitalize
                       ${formData.tags.includes(tag)
-                        ? "bg-gradient-to-r from-blue-500 to-purple-500 border-transparent text-white shadow-lg shadow-purple-500/20"
+                        ? "bg-gradient-to-r from-blue-500 to-purple-500 border-transparent text-accent-content shadow-lg shadow-purple-500/20"
                         : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
                       }`}
                   >
@@ -450,7 +450,7 @@ const AddProductComponent = () => {
 
           {/* Product Details */}
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
-            <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
+            <h2 className="text-2xl font-bold text-accent-content mb-6 flex items-center">
               <BarChart3 className="mr-3 text-yellow-400" />
               Product Details
             </h2>
@@ -458,12 +458,12 @@ const AddProductComponent = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* add weight */}
               <div className="">
-                <label className="text-white font-medium">Product weight</label>
+                <label className="text-accent-content font-medium">Product weight</label>
                 <div className="flex flex-wrap gap-2">
                   {formData.productWeight.map((weight) => (
                     <span
                       key={weight}
-                      className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-full text-sm flex items-center"
+                      className="bg-gradient-to-r from-blue-500 to-purple-500 text-accent-content px-3 py-1 rounded-full text-sm flex items-center"
                     >
                       {weight}
                       <button
@@ -482,13 +482,13 @@ const AddProductComponent = () => {
                     value={newWeight}
                     onChange={(e) => setnewWeight(e.target.value)}
                     onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addweight())}
-                    className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 "
+                    className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 "
                     placeholder="Add product weight"
                   />
                   <button
                     type="button"
                     onClick={addweight}
-                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-300 flex items-center"
+                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-accent-content rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-300 flex items-center"
                   >
                     <Plus size={20} />
                   </button>
@@ -497,12 +497,12 @@ const AddProductComponent = () => {
 
               {/* add size */}
               <div className="">
-                <label className="text-white font-medium">Product size</label>
+                <label className="text-accent-content font-medium">Product size</label>
                 <div className="flex flex-wrap gap-2">
                   {formData.productSize.map((size) => (
                     <span
                       key={size}
-                      className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-full text-sm flex items-center"
+                      className="bg-gradient-to-r from-blue-500 to-purple-500 text-accent-content px-3 py-1 rounded-full text-sm flex items-center"
                     >
                       {size}
                       <button
@@ -521,13 +521,13 @@ const AddProductComponent = () => {
                     value={setsize}
                     onChange={(e) => setsetsize(e.target.value)}
                     onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addsize())}
-                    className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Add product size"
                   />
                   <button
                     type="button"
                     onClick={addsize}
-                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-300 flex items-center"
+                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-accent-content rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-300 flex items-center"
                   >
                     <Plus size={20} />
                   </button>
@@ -536,12 +536,12 @@ const AddProductComponent = () => {
 
               {/* add color */}
               <div className="">
-                <label className="text-white font-medium">Product Color</label>
+                <label className="text-accent-content font-medium">Product Color</label>
                 <div className="flex flex-wrap gap-2">
                   {formData.color.map((color) => (
                     <span
                       key={color}
-                      className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-full text-sm flex items-center"
+                      className="bg-gradient-to-r from-blue-500 to-purple-500 text-accent-content px-3 py-1 rounded-full text-sm flex items-center"
                     >
                       {color}
                       <button
@@ -560,13 +560,13 @@ const AddProductComponent = () => {
                     value={newColor}
                     onChange={(e) => setNewColor(e.target.value)}
                     onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addcolor())}
-                    className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Add product color"
                   />
                   <button
                     type="button"
                     onClick={addcolor}
-                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-300 flex items-center"
+                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-accent-content rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-300 flex items-center"
                   >
                     <Plus size={20} />
                   </button>
@@ -577,41 +577,41 @@ const AddProductComponent = () => {
 
           {/* Pricing & Inventory */}
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
-            <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
+            <h2 className="text-2xl font-bold text-accent-content mb-6 flex items-center">
               <DollarSign className="mr-3 text-green-400" />
               Pricing & Inventory
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="space-y-2">
-                <label className="text-white font-medium ">Price (৳)</label>
+                <label className="text-accent-content font-medium ">Price (৳)</label>
                 <input
                   type="number"
                   name="price"
                   value={formData.price}
                   onChange={handleInputChange}
                   step="0.01"
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 mt-1"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 mt-1"
                   placeholder="0.00"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-white font-medium">Stock Quantity</label>
+                <label className="text-accent-content font-medium">Stock Quantity</label>
                 <input
                   type="number"
                   name="productStock"
                   value={formData.productStock}
                   onChange={handleInputChange}
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 mt-1"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 mt-1"
                   placeholder="Available quantity"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-white font-medium">Discount (%)</label>
+                <label className="text-accent-content font-medium">Discount (%)</label>
                 <input
                   type="number"
                   name="discount"
@@ -619,20 +619,20 @@ const AddProductComponent = () => {
                   onChange={handleInputChange}
                   min="0"
                   max="100"
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 mt-1"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 mt-1"
                   placeholder="0"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-white font-medium">Product Rank</label>
+                <label className="text-accent-content font-medium">Product Rank</label>
                 <input
                   type="number"
                   name="productRank"
                   value={formData.productRank}
                   onChange={handleInputChange}
                   min="1"
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 mt-1"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-300 mt-1"
                   placeholder="Product ranking"
                 />
               </div>
@@ -640,7 +640,7 @@ const AddProductComponent = () => {
 
             {/* Ratings */}
             <div className="mt-6 space-y-2">
-              <label className="text-white font-medium">Initial Rating</label>
+              <label className="text-accent-content font-medium">Initial Rating</label>
               <div className="flex items-center space-x-2">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
@@ -656,14 +656,14 @@ const AddProductComponent = () => {
                     />
                   </button>
                 ))}
-                <span className="text-white ml-2">{formData.ratings}/5</span>
+                <span className="text-accent-content ml-2">{formData.ratings}/5</span>
               </div>
             </div>
           </div>
 
           {/* Media Upload */}
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
-            <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
+            <h2 className="text-2xl font-bold text-accent-content mb-6 flex items-center">
               <Camera className="mr-3 text-purple-400" />
               Product Images
             </h2>
@@ -671,8 +671,8 @@ const AddProductComponent = () => {
             {/* Drag & Drop Upload Area */}
             <div
               className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 ${dragOver
-                  ? "border-blue-400 bg-blue-500/20"
-                  : "border-white/30 hover:border-white/50"
+                ? "border-blue-400 bg-blue-500/20"
+                : "border-white/30 hover:border-white/50"
                 }`}
               onDrop={handleDrop}
               onDragOver={(e) => {
@@ -681,8 +681,8 @@ const AddProductComponent = () => {
               }}
               onDragLeave={() => setDragOver(false)}
             >
-              <Upload className="mx-auto mb-4 text-white/60" size={48} />
-              <p className="text-white mb-4 text-lg">Drag & drop images here or click to browse</p>
+              <Upload className="mx-auto mb-4 text-accent-content/60" size={48} />
+              <p className="text-accent-content mb-4 text-lg">Drag & drop images here or click to browse</p>
               <input
                 type="file"
                 multiple
@@ -693,7 +693,7 @@ const AddProductComponent = () => {
               />
               <label
                 htmlFor="image-upload"
-                className="cursor-pointer bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all duration-300 inline-block"
+                className="cursor-pointer bg-gradient-to-r from-purple-500 to-pink-500 text-accent-content px-6 py-3 rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all duration-300 inline-block"
               >
                 Browse Images
               </label>
@@ -702,7 +702,7 @@ const AddProductComponent = () => {
             {/* Image Preview */}
             {formData.images.length > 0 && (
               <div className="mt-6">
-                <h3 className="text-white font-medium mb-4">
+                <h3 className="text-accent-content font-medium mb-4">
                   Uploaded Images ({formData.images.length})
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -716,12 +716,12 @@ const AddProductComponent = () => {
                       <button
                         type="button"
                         onClick={() => removeImage(image.id)}
-                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-red-600"
+                        className="absolute top-2 right-2 bg-red-500 text-accent-content rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-red-600"
                       >
                         <X size={16} />
                       </button>
                       <div className="absolute bottom-2 left-2 right-2">
-                        <p className="text-white text-xs bg-black/50 rounded px-2 py-1 truncate">
+                        <p className="text-accent-content text-xs bg-black/50 rounded px-2 py-1 truncate">
                           {image.name}
                         </p>
                       </div>
@@ -737,7 +737,7 @@ const AddProductComponent = () => {
             <button
               type="button"
               onClick={handlePreview}
-              className="px-8 py-4 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105"
+              className="px-8 py-4 bg-gradient-to-r from-gray-600 to-gray-700 text-accent-content rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105"
             >
               <Eye size={20} />
               <span>Preview Product</span>
@@ -746,7 +746,7 @@ const AddProductComponent = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className={`px-8 py-4 rounded-xl text-white flex items-center justify-center space-x-2 shadow-lg transition-all duration-300
+              className={`px-8 py-4 rounded-xl text-accent-content flex items-center justify-center space-x-2 shadow-lg transition-all duration-300
     ${isLoading
                   ? "bg-gray-500 cursor-not-allowed"
                   : "bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 transform hover:scale-105"
@@ -756,7 +756,7 @@ const AddProductComponent = () => {
               {isLoading ? (
                 <>
                   <svg
-                    className="animate-spin h-5 w-5 text-white"
+                    className="animate-spin h-5 w-5 text-accent-content"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -793,7 +793,7 @@ const AddProductComponent = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-cyan-300 text-sm">Total Products</p>
-                <p className="text-white text-2xl font-bold">1,248</p>
+                <p className="text-accent-content text-2xl font-bold">1,248</p>
               </div>
               <Package className="text-cyan-400" size={32} />
             </div>
@@ -803,7 +803,7 @@ const AddProductComponent = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-emerald-300 text-sm">Active Categories</p>
-                <p className="text-white text-2xl font-bold">24</p>
+                <p className="text-accent-content text-2xl font-bold">24</p>
               </div>
               <Tag className="text-emerald-400" size={32} />
             </div>
@@ -813,7 +813,7 @@ const AddProductComponent = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-pink-300 text-sm">Featured Products</p>
-                <p className="text-white text-2xl font-bold">156</p>
+                <p className="text-accent-content text-2xl font-bold">156</p>
               </div>
               <Star className="text-pink-400" size={32} />
             </div>
