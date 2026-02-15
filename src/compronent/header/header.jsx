@@ -576,7 +576,7 @@ const Header = ({ initialData }) => {
           <button onClick={() => { setImageSearch(!imageSearch) }} className="absolute top-2 right-5 text-2xl" >X</button>
           <p className="my-4 text-green-600 font-semibold">Search Product with Image</p>
           <div className="max-w-2/3 min-h-30 border-3 border-dotted border-green-300 bg-green-100 flex flex-col justify-center items-center gap-2">
-            <p className="text-red-400">(JPG and PNG file only)</p>
+            <p className="text-secondary">(JPG and PNG file only)</p>
             <input className="max-w-2/3 max-h-60 cursor-pointer bg-gray-200 py-1 rounded-2xl px-2" type="file" accept="image/*" />
           </div>
         </div> : ""}

@@ -26,6 +26,7 @@ import {
   Zap,
 } from "lucide-react";
 import CustomLoader from '@/src/compronent/loading/CustomLoader';
+import ShareModal from './ShareModal';
 
 
 const ProductDetails = ({ initialProduct }) => {
@@ -81,6 +82,7 @@ const ProductDetails = ({ initialProduct }) => {
   const [selectedColor, setSelectedColor] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("description");
+  const [showShareModal, setShowShareModal] = useState(false);
 
   //review
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -570,25 +572,25 @@ const ProductDetails = ({ initialProduct }) => {
               </span>
 
               <div>
-               {product?.rank > product?.price && user?.role !== "DROPSHIPPING" && (
-                <>
-                  <p className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                    Save ৳{(product?.rank - product?.price)?.toFixed(0) || 0}
-                  </p>
-                </>
-              )}
+                {product?.rank > product?.price && user?.role !== "DROPSHIPPING" && (
+                  <>
+                    <p className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                      Save ৳{(product?.rank - product?.price)?.toFixed(0) || 0}
+                    </p>
+                  </>
+                )}
                 {user?.role !== "DROPSHIPPING" ? <del className="text-2xl font-bold bg-gradient-to-r from-gray-400 to-gray-500 bg-clip-text text-transparent">
                   Rs {product?.rank}
                 </del> : ""}
               </div>
-              
-              
+
+
             </div>
             {/* Market Price */}
             {user?.role === "DROPSHIPPING" && <p className="text-2xl font-bold text-gray-500 ">
-             <span className='text-xl text-accent'> Market Price:</span> {product?.rank}৳
+              <span className='text-xl text-accent'> Market Price:</span> {product?.rank}৳
             </p>}
-            
+
             {/* Color Selection */}
             {(product?.colors?.length || 0) > 0 && (
               <div>
@@ -677,19 +679,19 @@ const ProductDetails = ({ initialProduct }) => {
                 </p>
               </div>
             </div>
-            
+
             {/* dropShipping price  */}
             {user?.role === "DROPSHIPPING" && <div >
-                <label className="text-accen font-medium">আপনার বিক্রয়কৃত মূল্য</label>
-                <input
-                  type="number"
-                  onChange={(e)=>setDropShippingPrice(e.target.value)}
-                  className="w-full p-4 bg-white/10  rounded-xl text-accent placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 border border-gray-300 focus:border-transparent transition-all duration-300 mt-2"
-                  placeholder="0৳"
-                  required
-                />
-              </div>}
-              
+              <label className="text-accen font-medium">আপনার বিক্রয়কৃত মূল্য</label>
+              <input
+                type="number"
+                onChange={(e) => setDropShippingPrice(e.target.value)}
+                className="w-full p-4 bg-white/10  rounded-xl text-accent placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 border border-gray-300 focus:border-transparent transition-all duration-300 mt-2"
+                placeholder="0৳"
+                required
+              />
+            </div>}
+
             {/* Action Buttons */}
             <div className="space-y-4">
               <button
@@ -703,29 +705,38 @@ const ProductDetails = ({ initialProduct }) => {
                 <ShoppingCart className="w-5 h-5 " />
                 <span>{product?.stock === 0 ? "Out of Stock" : "Add to Cart"}</span>
               </button>
-              <div className="grid grid-cols-2 gap-4">             
+              <div className="grid grid-cols-2 gap-4">
                 <button
-                disabled={product?.stock === 0}
-                onClick={async()=>{
-                  setLoading(true)
-                 await handleAddToCart()
-                 setLoading(false)
-                 router.push("/checkout")
-                }} 
-                
-                className={`w-full py-4 rounded-xl font-semibold text-lg flex items-center justify-center space-x-2 transition-all duration-300 ${product?.stock === 0
-                  ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                  : "bg-btn-color text-white hover:shadow-lg hover:scale-102 cursor-pointer"
-                  }`}>
-                  <Zap className={`w-5 h-5 ${loading?'animate-spin':''} `} />
+                  disabled={product?.stock === 0}
+                  onClick={async () => {
+                    setLoading(true)
+                    await handleAddToCart()
+                    setLoading(false)
+                    router.push("/checkout")
+                  }}
+
+                  className={`w-full py-4 rounded-xl font-semibold text-lg flex items-center justify-center space-x-2 transition-all duration-300 ${product?.stock === 0
+                    ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                    : "bg-btn-color text-white hover:shadow-lg hover:scale-102 cursor-pointer"
+                    }`}>
+                  <Zap className={`w-5 h-5 ${loading ? 'animate-spin' : ''} `} />
                   <span>Buy Now</span>
                 </button>
-                <button className="border-2 border-gray-300 text-gray-700 py-3 rounded-xl font-semibold hover:border-blue-300 hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2 cursor-pointer">
+                <button
+                  onClick={() => setShowShareModal(true)}
+                  className="border-2 border-gray-300 text-gray-700 py-3 rounded-xl font-semibold hover:border-blue-300 hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2 cursor-pointer w-full">
                   <Share2 className="w-5 h-5" />
                   <span>Share</span>
                 </button>
               </div>
             </div>
+
+            {/* Share Modal */}
+            <ShareModal
+              isOpen={showShareModal}
+              onClose={() => setShowShareModal(false)}
+              product={product}
+            />
 
             {/* Features */}
             {user?.role !== "DROPSHIPPING" && <div className="shadow-xl p-6 rounded-xl">
@@ -1069,7 +1080,7 @@ const ProductDetails = ({ initialProduct }) => {
           </div>
         )}
       </div>
-    </div>
+    </div >
   );
 };
 
