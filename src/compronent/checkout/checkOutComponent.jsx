@@ -73,12 +73,30 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
   const total = subtotal + deliveryCharge;
   // console.log('cartItems', cartItems);
 
+
   useEffect(() => {
-    // if user already has an address prefills
-    if (user?.address) {
-      setCustomerInfo((p) => ({ ...p, address: user.address }));
+    // Auto-populate customer info from user data
+    if (user) {
+      const updates = {
+        name: user.name || "",
+        phone: user.mobile || "",
+        email: user.email || "",
+      };
+
+      // If user has saved address details, populate them
+      if (user.address_details && user.address_details.length > 0) {
+        const savedAddress = user.address_details[0];
+        updates.address = savedAddress.address_line || "";
+        updates.division = savedAddress.division || "";
+        updates.district = savedAddress.district || "";
+        updates.area = savedAddress.upazila_thana || "";
+        updates.pincode = savedAddress.pincode || "";
+      }
+
+      setCustomerInfo((prev) => ({ ...prev, ...updates }));
     }
   }, [user]);
+
 
 
   useEffect(() => {
@@ -473,7 +491,7 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
           <div className="flex items-center justify-center">
             <div className="flex items-center space-x-3">
               <div className="w-12 h-12 bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 rounded-xl flex items-center justify-center">
-                <ShoppingCart className="w-6 h-6 text-white" />
+                <ShoppingCart className="w-6 h-6 text-accent-content" />
               </div>
               <div>
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600bg-clip-text text-transparent">
@@ -517,9 +535,9 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
               <div className="bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 p-6">
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                    <MapPin className="w-5 h-5 text-white" />
+                    <MapPin className="w-5 h-5 text-accent-content" />
                   </div>
-                  <h2 className="text-xl font-semibold text-white">গ্রাহকের তথ্য</h2>
+                  <h2 className="text-xl font-semibold text-accent-content">গ্রাহকের তথ্য</h2>
                 </div>
               </div>
               <div className="p-6">
@@ -547,9 +565,9 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
               <div className="bg-gradient-to-r from-green-600 to-teal-600 p-6">
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                    <Truck className="w-5 h-5 text-white" />
+                    <Truck className="w-5 h-5 text-accent-content" />
                   </div>
-                  <h2 className="text-xl font-semibold text-white">ডেলিভারি ঠিকানা</h2>
+                  <h2 className="text-xl font-semibold text-accent-content">ডেলিভারি ঠিকানা</h2>
                 </div>
               </div>
               <div className="p-6">
@@ -575,9 +593,9 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
               <div className="bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 p-6">
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                    <ShoppingCart className="w-5 h-5 text-white" />
+                    <ShoppingCart className="w-5 h-5 text-accent-content" />
                   </div>
-                  <h2 className="text-xl font-semibold text-white">অর্ডার সামারি</h2>
+                  <h2 className="text-xl font-semibold text-accent-content">অর্ডার সামারি</h2>
                 </div>
               </div>
 
@@ -589,7 +607,7 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
                     <div key={item._id || item.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-xl">
                       <div className="relative">
                         <img src={item.productId.images?.[0] || item.image || "/placeholder.svg"} alt={item.productId?.productName || item.name || "Product"} className="w-16 h-16 object-cover rounded-xl" />
-                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-xs text-white font-bold">{item.quantity}</div>
+                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-xs text-accent-content font-bold">{item.quantity}</div>
                       </div>
 
                       <div className="flex-1">
@@ -728,14 +746,14 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
                             <button
                               onClick={() => handleManualOrderAndPaymentSubmission({ payDeliveryOnly: true })}
                               disabled={isProcessing || !selectedManualMethod}
-                              className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-semibold disabled:opacity-60"
+                              className="flex-1 bg-blue-600 text-accent-content py-3 rounded-xl font-semibold disabled:opacity-60"
                             >
                               {isProcessing ? 'প্রসেসিং হচ্ছে...' : `ডেলিভারি চার্জ দিন ৳${deliveryCharge}`}
                             </button>
                             <button
                               onClick={() => handleManualOrderAndPaymentSubmission({ payDeliveryOnly: false })}
                               disabled={isProcessing || !selectedManualMethod}
-                              className="flex-1 bg-green-600 text-white py-3 rounded-xl font-semibold disabled:opacity-60"
+                              className="flex-1 bg-green-600 text-accent-content py-3 rounded-xl font-semibold disabled:opacity-60"
                             >
                               {isProcessing ? 'প্রসেসিং হচ্ছে...' : `সম্পূর্ণ পেমেন্ট দিন ৳${(subtotal + deliveryCharge).toLocaleString()}`}
                             </button>
@@ -801,7 +819,7 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
 
                           <Link
                             href="/account"
-                            className="inline-flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition mt-3"
+                            className="inline-flex items-center gap-2 bg-green-600 text-accent-content px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition mt-3"
                           >
                             <ShoppingBag size={18} /> আমার অর্ডারগুলো দেখুন
                           </Link>
@@ -894,7 +912,7 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
                   {/* <button onClick={() => {
                     if (selectedPayment !== 'ssl') { setSelectedPayment('ssl'); return; }
                     handleProceedToPayment({ payDeliveryOnly: false });
-                  }} disabled={isProcessing} className="w-full bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white py-3 rounded-xl font-semibold disabled:opacity-60">{isProcessing ? 'প্রসেসিং হচ্ছে...' : 'One-Click SSL — Full'}</button>
+                  }} disabled={isProcessing} className="w-full bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-accent-content py-3 rounded-xl font-semibold disabled:opacity-60">{isProcessing ? 'প্রসেসিং হচ্ছে...' : 'One-Click SSL — Full'}</button>
 
                   <button onClick={() => { if (selectedPayment !== 'ssl-delivery') { setSelectedPayment('ssl-delivery'); return; } handleProceedToPayment({ payDeliveryOnly: true }); }} disabled={isProcessing} className="w-full border border-gray-300 py-3 rounded-xl font-semibold">{isProcessing ? 'প্রসেসিং হচ্ছে...' : `Pay Delivery Only (৳${deliveryCharge})`}</button> */}
 

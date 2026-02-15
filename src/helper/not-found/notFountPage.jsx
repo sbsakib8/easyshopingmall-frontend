@@ -36,14 +36,13 @@ const PageNotFound = () => {
         <div className="absolute bottom-20 right-10 w-24 h-24 bg-pink-200 rounded-full opacity-20 animate-pulse delay-500"></div>
       </div>
 
-      <div className={`container  mx-auto text-center transition-all duration-1000 transform ${
-        isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-      }`}>
-        
+      <div className={`container  mx-auto text-center transition-all duration-1000 transform ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+        }`}>
+
         {/* Logo/Brand */}
         <div className="mb-8 lg:mt-24">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 rounded-2xl mb-4 transform hover:scale-110 transition-transform duration-300">
-            <ShoppingBag className="w-8 h-8 text-white" />
+            <ShoppingBag className="w-8 h-8 text-accent-content" />
           </div>
           <h1 className="text-2xl font-bold text-gray-800">EasyShoppingMall</h1>
         </div>
@@ -84,7 +83,7 @@ const PageNotFound = () => {
               />
               <button
                 onClick={handleSearch}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 text-white px-6 py-2 rounded-full hover:from-teal-600 hover:to-green-600 transition-all duration-300 hover:scale-105"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 text-accent-content px-6 py-2 rounded-full hover:from-teal-600 hover:to-green-600 transition-all duration-300 hover:scale-105"
               >
                 খুঁজুন
               </button>
@@ -95,16 +94,16 @@ const PageNotFound = () => {
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
           <Link
-          href="/"
+            href="/"
             onClick={handleGoHome}
-            className="group flex items-center space-x-2 bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 text-white px-6 py-3 rounded-full hover:from-teal-600 hover:to-green-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+            className="group flex items-center space-x-2 bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 text-accent-content px-6 py-3 rounded-full hover:from-teal-600 hover:to-green-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
           >
             <Home className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
             <span>হোমে ফিরুন</span>
           </Link>
-          
+
           <Link
-           href="/shop"
+            href="/shop"
             onClick={handleGoBack}
             className="group flex items-center space-x-2 bg-white/80 backdrop-blur-sm text-gray-700 px-6 py-3 rounded-full border-2 border-gray-200 hover:border-gray-300 hover:bg-white transition-all duration-300 transform hover:scale-105"
           >

@@ -40,10 +40,19 @@ export default function WebsiteInfoAdmin() {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : type === 'number' ? Number(value) : value
-    }));
+    setFormData(prev => {
+      const newFormData = {
+        ...prev,
+        [name]: type === 'checkbox' ? checked : type === 'number' ? Number(value) : value
+      };
+
+      // If manual countdown fields are changed, clear the target date to prioritize the offsets
+      if (['countdownDays', 'countdownHours', 'countdownMinutes', 'countdownSeconds'].includes(name)) {
+        newFormData.countdownTargetDate = '';
+      }
+
+      return newFormData;
+    });
   };
 
   const handleSocialLinkChange = (index, field, value) => {
@@ -68,7 +77,7 @@ export default function WebsiteInfoAdmin() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validation
     if (!formData.offerText || !formData.discountTitle || !formData.address || !formData.email || !formData.number) {
       showNotification('Please fill all required fields!', 'error');
@@ -159,13 +168,12 @@ export default function WebsiteInfoAdmin() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black p-4 md:p-6 text-white overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black p-4 md:p-6 text-accent-content overflow-hidden">
       <div className="max-w-7xl mx-auto">
         {/* Notification */}
         {notification.show && (
-          <div className={`fixed top-4 right-4 z-50 ${
-            notification.type === 'success' ? 'bg-green-500' : 'bg-red-500'
-          } text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-slide-in`}>
+          <div className={`fixed top-4 right-4 z-50 ${notification.type === 'success' ? 'bg-green-500' : 'bg-red-500'
+            } text-accent-content px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-slide-in`}>
             {notification.type === 'success' ? <Check className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
             {notification.message}
           </div>
@@ -175,21 +183,21 @@ export default function WebsiteInfoAdmin() {
         <div className="bg-gradient-to-r from-green-900/80 via-blue-900/80 to-purple-900/80 backdrop-blur-xl  rounded-lg shadow-lg p-4 md:p-6 mb-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-white">Website Info Management</h1>
-              <p className="text-white mt-1">Admin Dashboard</p>
+              <h1 className="text-2xl md:text-3xl font-bold text-accent-content">Website Info Management</h1>
+              <p className="text-accent-content mt-1">Admin Dashboard</p>
             </div>
             <div className="flex gap-3 w-full md:w-auto">
               <button
                 onClick={refetch}
                 disabled={dataLoading || loading}
-                className="flex items-center justify-center gap-2 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition disabled:opacity-50 flex-1 md:flex-initial"
+                className="flex items-center justify-center gap-2 bg-gray-600 text-accent-content px-4 py-2 rounded-lg hover:bg-gray-700 transition disabled:opacity-50 flex-1 md:flex-initial"
               >
                 <RefreshCw className={`w-4 h-4 ${dataLoading ? 'animate-spin' : ''}`} />
                 Refresh
               </button>
               <button
                 onClick={() => setShowForm(!showForm)}
-                className="flex items-center justify-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition flex-1 md:flex-initial"
+                className="flex items-center justify-center gap-2 bg-indigo-600 text-accent-content px-4 py-2 rounded-lg hover:bg-indigo-700 transition flex-1 md:flex-initial"
               >
                 {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
                 {showForm ? 'Cancel' : 'Add New'}
@@ -204,7 +212,7 @@ export default function WebsiteInfoAdmin() {
             <h2 className="text-xl md:text-2xl font-bold mb-6">
               {editingId ? 'Edit Website Info' : 'Create New Website Info'}
             </h2>
-            
+
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Top Bar Section */}
               <div className="border-b pb-6">
@@ -224,7 +232,7 @@ export default function WebsiteInfoAdmin() {
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">Countdown Days</label>
                     <input
@@ -236,7 +244,7 @@ export default function WebsiteInfoAdmin() {
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">Countdown Hours</label>
                     <input
@@ -249,7 +257,7 @@ export default function WebsiteInfoAdmin() {
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">Countdown Minutes</label>
                     <input
@@ -262,7 +270,7 @@ export default function WebsiteInfoAdmin() {
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">Countdown Seconds</label>
                     <input
@@ -275,7 +283,7 @@ export default function WebsiteInfoAdmin() {
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                     />
                   </div>
-                  
+
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-300 mb-2">Target Date & Time</label>
                     <input
@@ -286,7 +294,7 @@ export default function WebsiteInfoAdmin() {
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">Delivery Time</label>
                     <input
@@ -298,7 +306,7 @@ export default function WebsiteInfoAdmin() {
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">Support Contact</label>
                     <input
@@ -331,7 +339,7 @@ export default function WebsiteInfoAdmin() {
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">Discount Label</label>
                     <input
@@ -343,7 +351,7 @@ export default function WebsiteInfoAdmin() {
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">
                       Discount Percent <span className="text-red-500">*</span>
@@ -360,7 +368,7 @@ export default function WebsiteInfoAdmin() {
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                     />
                   </div>
-                  
+
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-300 mb-2">Discount Link</label>
                     <input
@@ -393,7 +401,7 @@ export default function WebsiteInfoAdmin() {
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">
                       Email <span className="text-red-500">*</span>
@@ -408,7 +416,7 @@ export default function WebsiteInfoAdmin() {
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">
                       Phone Number <span className="text-red-500">*</span>
@@ -433,13 +441,13 @@ export default function WebsiteInfoAdmin() {
                   <button
                     type="button"
                     onClick={addSocialLink}
-                    className="flex items-center gap-2 bg-green-600 text-white px-3 py-1 rounded-lg hover:bg-green-700 transition text-sm"
+                    className="flex items-center gap-2 bg-green-600 text-accent-content px-3 py-1 rounded-lg hover:bg-green-700 transition text-sm"
                   >
                     <Plus className="w-4 h-4" />
                     Add Link
                   </button>
                 </div>
-                
+
                 <div className="space-y-4">
                   {formData.socialLinks.map((link, index) => (
                     <div key={index} className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl p-4 rounded-lg">
@@ -454,7 +462,7 @@ export default function WebsiteInfoAdmin() {
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500"
                           />
                         </div>
-                        
+
                         <div>
                           <label className="block text-xs font-medium text-gray-300 mb-1">Icon</label>
                           <input
@@ -465,7 +473,7 @@ export default function WebsiteInfoAdmin() {
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500"
                           />
                         </div>
-                        
+
                         <div>
                           <label className="block text-xs font-medium text-gray-300 mb-1">URL</label>
                           <input
@@ -476,7 +484,7 @@ export default function WebsiteInfoAdmin() {
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500"
                           />
                         </div>
-                        
+
                         <div className="flex items-end gap-2">
                           <label className="flex items-center gap-2">
                             <input
@@ -487,7 +495,7 @@ export default function WebsiteInfoAdmin() {
                             />
                             <span className="text-sm">Active</span>
                           </label>
-                          
+
                           <button
                             type="button"
                             onClick={() => removeSocialLink(index)}
@@ -499,7 +507,7 @@ export default function WebsiteInfoAdmin() {
                       </div>
                     </div>
                   ))}
-                  
+
                   {formData.socialLinks.length === 0 && (
                     <p className="text-gray-300 text-center py-4">No social links added yet</p>
                   )}
@@ -525,12 +533,12 @@ export default function WebsiteInfoAdmin() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex items-center justify-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  className="flex items-center justify-center gap-2 bg-indigo-600 text-accent-content px-6 py-3 rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
                 >
                   <Save className="w-4 h-4" />
                   {loading ? 'Saving...' : editingId ? 'Update' : 'Create'}
                 </button>
-                
+
                 <button
                   type="button"
                   onClick={resetForm}
@@ -546,7 +554,7 @@ export default function WebsiteInfoAdmin() {
         {/* Data List */}
         <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl rounded-lg shadow-lg p-4 md:p-6">
           <h2 className="text-xl md:text-2xl font-bold text-gray-300 mb-6">Website Info List</h2>
-          
+
           {dataLoading ? (
             <div className="text-center py-12">
               <RefreshCw className="w-8 h-8 animate-spin mx-auto text-indigo-600" />
@@ -581,15 +589,14 @@ export default function WebsiteInfoAdmin() {
                     <div className="flex-1">
                       <div className="flex flex-wrap items-center gap-3 mb-2">
                         <h3 className="text-lg md:text-xl font-bold text-gray-300">{info.discountTitle}</h3>
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          info.active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                        }`}>
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${info.active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                          }`}>
                           {info.active ? 'Active' : 'Inactive'}
                         </span>
                       </div>
                       <p className="text-gray-300 text-sm md:text-base">{info.offerText}</p>
                     </div>
-                    
+
                     <div className="flex gap-2 w-full md:w-auto">
                       <button
                         onClick={() => handleEdit(info)}
@@ -602,13 +609,13 @@ export default function WebsiteInfoAdmin() {
                       <button
                         onClick={() => handleDelete(info._id)}
                         disabled={loading}
-                        className="flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition disabled:opacity-50"
+                        className="flex items-center justify-center gap-2 bg-red-600 text-accent-content px-4 py-2 rounded-lg hover:bg-red-700 transition disabled:opacity-50"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
                     <div>
                       <span className="font-medium text-gray-300">Discount:</span>

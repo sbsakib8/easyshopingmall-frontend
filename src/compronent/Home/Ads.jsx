@@ -100,12 +100,12 @@ function Ads({ initialData }) {
             <div className="space-y-3">
               {visibleLeftAds.map((ad, index) => (
                 <div key={ad._id || index} className="relative bg-white shadow-lg rounded-lg p-2 border-2 border-gray-300">
-                  <div className="absolute top-0 left-0 bg-gray-700 text-white text-xs px-2 py-0.5 rounded-tl-lg rounded-br-lg">
+                  <div className="absolute top-0 left-0 bg-gray-700 text-accent-content text-xs px-2 py-0.5 rounded-tl-lg rounded-br-lg">
                     Ad
                   </div>
                   <button
                     onClick={() => handleCloseLeftAd(ad._id)}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors text-sm font-bold z-10"
+                    className="absolute -top-2 -right-2 bg-red-500 text-accent-content rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors text-sm font-bold z-10"
                     aria-label="Close this ad"
                   >
                     ×
@@ -150,12 +150,12 @@ function Ads({ initialData }) {
             <div className="space-y-3">
               {visibleRightAds.map((ad, index) => (
                 <div key={ad._id || index} className="relative bg-white shadow-lg rounded-lg p-2 border-2 border-gray-300">
-                  <div className="absolute top-0 left-0 bg-gray-700 text-white text-xs px-2 py-0.5 rounded-tl-lg rounded-br-lg">
+                  <div className="absolute top-0 left-0 bg-gray-700 text-accent-content text-xs px-2 py-0.5 rounded-tl-lg rounded-br-lg">
                     Ad
                   </div>
                   <button
                     onClick={() => handleCloseRightAd(ad._id)}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors text-sm font-bold z-10"
+                    className="absolute -top-2 -right-2 bg-red-500 text-accent-content rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors text-sm font-bold z-10"
                     aria-label="Close this ad"
                   >
                     ×

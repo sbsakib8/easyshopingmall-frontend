@@ -6,9 +6,10 @@ import { CenterBannerAllGet } from "@/src/hook/useCernterBanner";
 import { LeftBannerAllGet } from "@/src/hook/useLeftBanner";
 import { RightBannerAllGet } from "@/src/hook/userRightBanner";
 import { SubCategoryAllGet } from "@/src/hook/useSubcategory";
+import DropShippingHome from "@/src/dropShipping/dropShippingHome/dropShippingHome";
 
 // Enable ISR with 5-minute revalidation for better performance
-export const revalidate = 300;
+export const dynamic = 'force-dynamic';
 
 export const metadata = {
   title: "Home - Best Online Shopping Experience in BD",
@@ -47,9 +48,10 @@ async function getHomeData() {
 export default async function Home() {
   const data = await getHomeData();
 
+  const role = 'USER'
   return (
     <div>
-      <Hero initialData={data} />
+      {role === "DROPSHIPPING" ? <DropShippingHome initialData={data} /> : <Hero initialData={data} />}
     </div>
   );
 }

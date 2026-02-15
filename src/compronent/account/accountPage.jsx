@@ -33,18 +33,18 @@ import OrderDetailsModal from "../productDetails/OrderDetailsModal";
 const AccountPage = () => {
   // user data fatch
   const data = useSelector((state) => state.user.data);
-  
+
   // console.log("Profile Info Data:", data);
-  
+
   // Get cart items from Redux store (same as header)
   const { items: cartItems } = useSelector((state) => state.cart);
-  
+
   // Calculate cart product count (same as header)
   const cartCount = (cartItems || []).reduce((sum, item) => sum + (item.quantity || 1), 0);
 
   const searchParams = useSearchParams();
   const tabFromUrl = searchParams.get('tab');
-  
+
   const [activeTab, setActiveTab] = useState(tabFromUrl || "profile");
   const [isEditing, setIsEditing] = useState(false);
   const [showImageUpload, setShowImageUpload] = useState(false);
@@ -72,7 +72,7 @@ const AccountPage = () => {
 
   const [orders, setOrders] = useState([]);
   const { wishlist, loading: wishlistLoading } = useWishlist();
-  
+
 
 
   // derive addresses from user data if available
@@ -81,13 +81,13 @@ const AccountPage = () => {
       (data.addresses ||
         (data.address_details
           ? [
-              {
-                id: 1,
-                type: "Home",
-                address: data.address_details,
-                isDefault: true,
-              },
-            ]
+            {
+              id: 1,
+              type: "Home",
+              address: data.address_details,
+              isDefault: true,
+            },
+          ]
           : []))) ||
     [];
 
@@ -165,13 +165,13 @@ const AccountPage = () => {
         try {
           const addressResponse = await getAddress();
           // console.log("Address API Response:", addressResponse);
-          
+
           if (addressResponse.success && addressResponse.data) {
             // Handle if data is an array or single object
-            const addresses = Array.isArray(addressResponse.data) 
-              ? addressResponse.data 
+            const addresses = Array.isArray(addressResponse.data)
+              ? addressResponse.data
               : [addressResponse.data];
-            
+
             if (addresses.length > 0) {
               const addr = addresses[0];
               setAddressData({
@@ -250,7 +250,7 @@ const AccountPage = () => {
       }
 
       setSelectedImage(file);
-      
+
       // Create preview
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -277,7 +277,7 @@ const AccountPage = () => {
     try {
       // Upload to ImgBB
       const imageUrl = await uploadImageToImgBB(selectedImage);
-      
+
       // Update profile with new image URL
       const updateData = {
         image: imageUrl,
@@ -291,7 +291,7 @@ const AccountPage = () => {
           ...data,
           image: imageUrl,
         };
-        
+
         dispatch(userget(updatedUser));
 
         toast.success("Profile picture updated successfully!");
@@ -316,27 +316,26 @@ const AccountPage = () => {
     }
 
     try {
-      // Check if DOB exists in the current data
-      const oldDOB = data.date_of_birth;
-      const newDOB = profileData.dateƒOfBirth;
-      
-      // Determine if DOB is being created or updated
-      const isDOBNew = !oldDOB && newDOB;
-      const isDOBUpdated = oldDOB && newDOB && oldDOB !== newDOB;
-      
-      // Update user profile
-      const profileUpdateData = {
+      // Build payload - only include fields with valid values
+      const payload = {
         name: profileData.name || "",
         email: profileData.email || "",
         mobile: profileData.phone || "",
-        date_of_birth: profileData.dateOfBirth || "",
-        gender: profileData.gender || "",
       };
 
-      const profileResponse = await updateUserProfile(data._id, profileUpdateData);
+      // Only add date_of_birth if it has a valid value
+      if (profileData.dateOfBirth && profileData.dateOfBirth.trim() !== "") {
+        payload.date_of_birth = profileData.dateOfBirth;
+      }
 
-      // Create or update address
-      const addressPayload = {
+      // Only add gender if it has a valid value
+      if (profileData.gender && profileData.gender.trim() !== "") {
+        payload.gender = profileData.gender;
+      }
+
+      // Add address data
+      payload.address_data = {
+        _id: addressData._id || undefined,
         address_line: addressData.address_line || "",
         district: addressData.district || "",
         division: addressData.division || "",
@@ -346,55 +345,36 @@ const AccountPage = () => {
         mobile: addressData.mobile || profileData.phone || "",
       };
 
-      let addressResponse;
-      if (addressData._id) {
-        // Update existing address
-        // console.log("Updating address with ID:", addressData._id);
-        addressResponse = await updateAddress({ _id: addressData._id, ...addressPayload });
-      } else {
-        // Create new address
-        // console.log("Creating new address");
-        addressResponse = await createAddress(addressPayload);
-      }
+      const response = await updateUserProfile(data._id, payload);
 
-      // console.log("Address Response:", addressResponse);
-
-      if ((profileResponse.success || profileResponse.data) && (addressResponse.success || addressResponse.data)) {
-        // Log DOB status
-        if (isDOBNew) {
-          // console.log("✅ DOB created successfully:", newDOB);
-        } else if (isDOBUpdated) {
-          // console.log("✅ DOB updated successfully");
-          // console.log("   Old DOB:", oldDOB);
-          // console.log("   New DOB:", newDOB);
-        } else if (oldDOB && oldDOB === newDOB) {
-          // console.log("ℹ️ DOB unchanged:", oldDOB);
-        } else if (!newDOB) {
-          // console.log("ℹ️ No DOB provided");
-        }
-        
-        // Update Redux store with new data
-        const updatedUser = {
-          ...data,
-          name: profileUpdateData.name,
-          email: profileUpdateData.email,
-          mobile: profileUpdateData.mobile,
-          date_of_birth: profileUpdateData.date_of_birth,
-          gender: profileUpdateData.gender,
-        };
-        
+      if (response.success || response.data) {
+        // Update Redux with returned user data (includes populated address_details)
+        const updatedUser = response.user || response.data;
         dispatch(userget(updatedUser));
+
+        // Update local address state from the populated address_details
+        if (updatedUser.address_details && updatedUser.address_details.length > 0) {
+          const addr = updatedUser.address_details[0];
+          setAddressData({
+            _id: addr._id || "",
+            address_line: addr.address_line || "",
+            district: addr.district || "",
+            division: addr.division || "",
+            upazila_thana: addr.upazila_thana || "",
+            country: addr.country || "Bangladesh",
+            pincode: addr.pincode || "",
+            mobile: addr.mobile || "",
+          });
+        }
 
         toast.success("Profile and address updated successfully!");
         setIsEditing(false);
       } else {
-        toast.error(profileResponse.message || addressResponse.message || "Failed to update profile");
+        toast.error(response.message || "Failed to update profile");
       }
     } catch (error) {
       console.error("=== Error updating profile ===");
       console.error("Error object:", error);
-      console.error("Error response:", error.response);
-      console.error("Error response data:", error.response?.data);
       const errorMessage = error.response?.data?.message || error.message || "Failed to update profile";
       toast.error(errorMessage);
     }
@@ -416,23 +396,20 @@ const AccountPage = () => {
   const TabButton = ({ id, icon: Icon, label, count }) => (
     <button
       onClick={() => setActiveTab(id)}
-      className={`flex items-center cursor-pointer space-x-3 w-full px-4 py-3 rounded-xl transition-all duration-300 group ${
-        activeTab === id
-          ? "bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 text-white shadow-lg transform scale-105"
-          : "text-gray-600 hover:bg-gray-50 hover:text-teal-600"
-      }`}
+      className={`flex items-center cursor-pointer space-x-3 w-full px-4 py-3 rounded-xl transition-all duration-300 group ${activeTab === id
+        ? "bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 text-accent-content shadow-lg transform scale-105"
+        : "text-gray-600 hover:bg-gray-50 hover:text-teal-600"
+        }`}
     >
       <Icon
-        className={`w-5 h-5 transition-transform duration-300 ${
-          activeTab === id ? "scale-110" : "group-hover:scale-110"
-        }`}
+        className={`w-5 h-5 transition-transform duration-300 ${activeTab === id ? "scale-110" : "group-hover:scale-110"
+          }`}
       />
       <span className="font-medium">{label}</span>
       {count && (
         <span
-          className={`ml-auto px-2 py-1 text-xs rounded-full ${
-            activeTab === id ? "bg-white/20" : "bg-blue-100 text-blue-600"
-          }`}
+          className={`ml-auto px-2 py-1 text-xs rounded-full ${activeTab === id ? "bg-white/20" : "bg-blue-100 text-blue-600"
+            }`}
         >
           {count}
         </span>
@@ -477,7 +454,7 @@ const AccountPage = () => {
                 {/* Profile Card */}
                 <div className="text-center mb-8">
                   <div className="relative inline-block">
-                    <div className="w-24 h-24 cursor-pointer bg-gradient-to-r   from-emerald-600 via-green-600 to-teal-600 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                    <div className="w-24 h-24 cursor-pointer bg-gradient-to-r   from-emerald-600 via-green-600 to-teal-600 rounded-full flex items-center justify-center text-accent-content text-2xl font-bold shadow-lg">
                       <img
                         className=" w-22 h-22 cursor-pointer rounded-full"
                         src={data?.image}
@@ -515,7 +492,7 @@ const AccountPage = () => {
                 </nav>
                 <button
                   onClick={handleLogout}
-                  className="flex items-center justify-center gap-2 mt-6 w-full bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white py-3 px-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                  className="flex items-center justify-center gap-2 mt-6 w-full bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-accent-content py-3 px-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg"
                 >
                   <LogOut className="w-5 h-5" />
                   <span className="font-medium">Logout</span>
@@ -536,11 +513,10 @@ const AccountPage = () => {
                       </div>
                       <button
                         onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
-                        className={`flex items-center  cursor-pointer space-x-2 px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
-                          isEditing
-                            ? "bg-teal-500 hover:bg-teal-800 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-                            : "bg-green-500 hover:bg-green-600 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-                        }`}
+                        className={`flex items-center  cursor-pointer space-x-2 px-6 py-3 rounded-xl font-medium transition-all duration-300 ${isEditing
+                          ? "bg-teal-500 hover:bg-teal-800 text-accent-content shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                          : "bg-green-500 hover:bg-green-600 text-accent-content shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                          }`}
                       >
                         {isEditing ? <Save className="w-4 h-4" /> : <Edit3 className="w-4 h-4" />}
                         <span className=" hidden md:block">
@@ -560,9 +536,8 @@ const AccountPage = () => {
                             onChange={(e) => handleInputChange("name", e.target.value)}
                             disabled={!isEditing}
                             placeholder="Enter your full name"
-                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
-                              !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
-                            }`}
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${!isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
+                              }`}
                           />
                         </div>
                       </div>
@@ -577,9 +552,8 @@ const AccountPage = () => {
                             onChange={(e) => handleInputChange("email", e.target.value)}
                             disabled={!isEditing}
                             placeholder="Enter your email"
-                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-teal-500 transition-all duration-300 ${
-                              !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
-                            }`}
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-teal-500 transition-all duration-300 ${!isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
+                              }`}
                           />
                         </div>
                       </div>
@@ -594,9 +568,8 @@ const AccountPage = () => {
                             onChange={(e) => handleInputChange("phone", e.target.value)}
                             disabled={!isEditing}
                             placeholder="Enter your phone number"
-                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
-                              !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
-                            }`}
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${!isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
+                              }`}
                           />
                         </div>
                       </div>
@@ -610,9 +583,8 @@ const AccountPage = () => {
                             value={profileData.dateOfBirth || ""}
                             onChange={(e) => handleInputChange("dateOfBirth", e.target.value)}
                             disabled={!isEditing}
-                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-teal-500 transition-all duration-300 ${
-                              !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
-                            }`}
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-teal-500 transition-all duration-300 ${!isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
+                              }`}
                           />
                         </div>
                       </div>
@@ -625,9 +597,8 @@ const AccountPage = () => {
                             value={profileData.gender || "Male"}
                             onChange={(e) => handleInputChange("gender", e.target.value)}
                             disabled={!isEditing}
-                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-teal-500 transition-all duration-300 ${
-                              !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
-                            }`}
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-teal-500 transition-all duration-300 ${!isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
+                              }`}
                           >
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
@@ -643,12 +614,11 @@ const AccountPage = () => {
                           <input
                             type="text"
                             value={addressData.address_line || ""}
-                            onChange={(e) => setAddressData({...addressData, address_line: e.target.value})}
+                            onChange={(e) => setAddressData({ ...addressData, address_line: e.target.value })}
                             disabled={!isEditing}
                             placeholder="Street address, House/Building number"
-                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
-                              !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
-                            }`}
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${!isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
+                              }`}
                           />
                         </div>
                       </div>
@@ -660,12 +630,11 @@ const AccountPage = () => {
                           <input
                             type="text"
                             value={addressData.district || ""}
-                            onChange={(e) => setAddressData({...addressData, district: e.target.value})}
+                            onChange={(e) => setAddressData({ ...addressData, district: e.target.value })}
                             disabled={!isEditing}
                             placeholder="Enter district"
-                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
-                              !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
-                            }`}
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${!isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
+                              }`}
                           />
                         </div>
                       </div>
@@ -677,12 +646,11 @@ const AccountPage = () => {
                           <input
                             type="text"
                             value={addressData.division || ""}
-                            onChange={(e) => setAddressData({...addressData, division: e.target.value})}
+                            onChange={(e) => setAddressData({ ...addressData, division: e.target.value })}
                             disabled={!isEditing}
                             placeholder="Enter division"
-                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
-                              !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
-                            }`}
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${!isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
+                              }`}
                           />
                         </div>
                       </div>
@@ -694,12 +662,11 @@ const AccountPage = () => {
                           <input
                             type="text"
                             value={addressData.upazila_thana || ""}
-                            onChange={(e) => setAddressData({...addressData, upazila_thana: e.target.value})}
+                            onChange={(e) => setAddressData({ ...addressData, upazila_thana: e.target.value })}
                             disabled={!isEditing}
                             placeholder="Enter upazila or thana"
-                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
-                              !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
-                            }`}
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${!isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
+                              }`}
                           />
                         </div>
                       </div>
@@ -711,12 +678,11 @@ const AccountPage = () => {
                           <input
                             type="text"
                             value={addressData.pincode || ""}
-                            onChange={(e) => setAddressData({...addressData, pincode: e.target.value})}
+                            onChange={(e) => setAddressData({ ...addressData, pincode: e.target.value })}
                             disabled={!isEditing}
                             placeholder="Enter pincode"
-                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
-                              !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
-                            }`}
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${!isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
+                              }`}
                           />
                         </div>
                       </div>
@@ -728,12 +694,11 @@ const AccountPage = () => {
                           <input
                             type="text"
                             value={addressData.country || "Bangladesh"}
-                            onChange={(e) => setAddressData({...addressData, country: e.target.value})}
+                            onChange={(e) => setAddressData({ ...addressData, country: e.target.value })}
                             disabled={!isEditing}
                             placeholder="Enter country"
-                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
-                              !isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
-                            }`}
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${!isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
+                              }`}
                           />
                         </div>
                       </div>
@@ -872,7 +837,7 @@ const AccountPage = () => {
                             </h3>
                             <p className="text-lg font-bold text-blue-600 mb-3">৳{price}</p>
                             <div className="flex space-x-2">
-                              <button className="flex-1 cursor-pointer bg-teal-500 hover:bg-green-600 text-white py-2 rounded-lg font-medium transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1">
+                              <button className="flex-1 cursor-pointer bg-teal-500 hover:bg-green-600 text-accent-content py-2 rounded-lg font-medium transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1">
                                 Add to Cart
                               </button>
                               <button className="p-2 border cursor-pointer border-gray-200 rounded-lg hover:border-red-300 hover:text-red-500 transition-all duration-300">
@@ -900,17 +865,17 @@ const AccountPage = () => {
                           <span className="w-1 h-5 bg-emerald-500 rounded"></span>
                           Current Delivery Information
                         </h3>
-                        
+
                         <div className="space-y-4">
                           {/* Profile Image Section */}
                           <div className="bg-white rounded-lg p-4 border border-emerald-100">
                             <div className="flex items-center gap-4">
                               <div className="relative">
                                 {data.image ? (
-                                  <img 
-                                    src={data.image} 
-                                    alt="Profile" 
-                                    className="w-24 h-24 rounded-full object-cover border-4 border-emerald-200 shadow-lg" 
+                                  <img
+                                    src={data.image}
+                                    alt="Profile"
+                                    className="w-24 h-24 rounded-full object-cover border-4 border-emerald-200 shadow-lg"
                                   />
                                 ) : (
                                   <div className="w-24 h-24 rounded-full bg-emerald-200 flex items-center justify-center border-4 border-emerald-300 shadow-lg">
@@ -1004,11 +969,11 @@ const AccountPage = () => {
                                   <div>
                                     <p className="text-gray-500 text-xs mb-1">Full Address</p>
                                     <p className="text-gray-800 font-medium">
-                                      {typeof data.address_details === 'string' 
-                                        ? data.address_details 
+                                      {typeof data.address_details === 'string'
+                                        ? data.address_details
                                         : Array.isArray(data.address_details) && data.address_details.length > 0
-                                        ? data.address_details[0]
-                                        : "No address available"}
+                                          ? data.address_details[0]
+                                          : "No address available"}
                                     </p>
                                   </div>
                                 )}
@@ -1033,18 +998,17 @@ const AccountPage = () => {
                             <h4 className="text-sm font-semibold text-gray-700 mb-3">Account Status</h4>
                             <div className="flex flex-wrap gap-3">
                               <div className="flex items-center gap-2">
-                                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                                  data.verify_email 
-                                    ? 'bg-green-100 text-green-800' 
-                                    : 'bg-yellow-100 text-yellow-800'
-                                }`}>
+                                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${data.verify_email
+                                  ? 'bg-green-100 text-green-800'
+                                  : 'bg-yellow-100 text-yellow-800'
+                                  }`}>
                                   {data.verify_email ? '✓ Email Verified' : '⚠ Email Not Verified'}
                                 </span>
                               </div>
                               <div className="flex items-center gap-2">
-                             
+
                               </div>
-                           
+
                             </div>
                           </div>
 
@@ -1070,7 +1034,7 @@ const AccountPage = () => {
                   </div>
                 )}
 
-              
+
 
                 {/* Settings Tab */}
                 {activeTab === "settings" && (
@@ -1092,14 +1056,12 @@ const AccountPage = () => {
                             <div key={setting.id} className="flex items-center justify-between">
                               <span className="text-gray-700">{setting.label}</span>
                               <button
-                                className={`w-12 h-6 cursor-pointer rounded-full transition-all duration-300 ${
-                                  setting.enabled ? "bg-teal-500" : "bg-gray-300"
-                                }`}
+                                className={`w-12 h-6 cursor-pointer rounded-full transition-all duration-300 ${setting.enabled ? "bg-teal-500" : "bg-gray-300"
+                                  }`}
                               >
                                 <div
-                                  className={`w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-300 ${
-                                    setting.enabled ? "translate-x-6" : "translate-x-1"
-                                  }`}
+                                  className={`w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-300 ${setting.enabled ? "translate-x-6" : "translate-x-1"
+                                    }`}
                                 />
                               </button>
                             </div>
@@ -1110,7 +1072,7 @@ const AccountPage = () => {
                       <div className="border border-gray-200 rounded-xl p-6">
                         <h3 className="font-semibold text-gray-900 mb-4">Security</h3>
                         <div className="space-y-3">
-                          <button 
+                          <button
                             onClick={() => router.push('/forgotpassword')}
                             className="w-full text-left p-3 hover:bg-gray-50 rounded-lg transition-colors duration-300"
                           >
@@ -1184,7 +1146,7 @@ const AccountPage = () => {
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            <User className="w-20 h-20 text-white" />
+                            <User className="w-20 h-20 text-accent-content" />
                           )}
                         </div>
                       )}
@@ -1255,11 +1217,10 @@ const AccountPage = () => {
                   <button
                     onClick={handleImageUpload}
                     disabled={!selectedImage || uploadingImage}
-                    className={`flex-1 px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center justify-center space-x-2 ${
-                      !selectedImage || uploadingImage
-                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                        : "bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white hover:shadow-lg hover:scale-105"
-                    }`}
+                    className={`flex-1 px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center justify-center space-x-2 ${!selectedImage || uploadingImage
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-accent-content hover:shadow-lg hover:scale-105"
+                      }`}
                   >
                     {uploadingImage ? (
                       <>

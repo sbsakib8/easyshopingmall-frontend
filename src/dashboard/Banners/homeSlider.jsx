@@ -5,20 +5,20 @@ import { useGetHomeBanner } from "@/src/utlis/useHomeBanner"
 import { useState, useRef, useEffect } from "react"
 import toast from "react-hot-toast"
 
-const HomeSliderPage=()=> {
+const HomeSliderPage = () => {
 
   const { homebanner, loading, error, refetch } = useGetHomeBanner();
-const [sliders, setSliders] = useState([]);
+  const [sliders, setSliders] = useState([]);
 
-useEffect(() => {
-  if (homebanner) {
-    if (Array.isArray(homebanner)) {
-      setSliders(homebanner);
-    } else {
-      setSliders([homebanner]);
+  useEffect(() => {
+    if (homebanner) {
+      if (Array.isArray(homebanner)) {
+        setSliders(homebanner);
+      } else {
+        setSliders([homebanner]);
+      }
     }
-  }
-}, [homebanner]);
+  }, [homebanner]);
 
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
@@ -33,51 +33,51 @@ useEffect(() => {
   const fileInputRef = useRef(null)
 
   const handleImageUpload = (e) => {
-  const file = e.target.files?.[0];
-  if (file) {
-    setFormData({ ...formData, images: file }); 
-  }
-};
+    const file = e.target.files?.[0];
+    if (file) {
+      setFormData({ ...formData, images: file });
+    }
+  };
 
   const handleAddSlider = async () => {
-  try {
-    const data = new FormData();
-    data.append("title", formData.title);
-    data.append("Description", formData.Description);
-    data.append("Link_URL", formData.linkUrl);
-    data.append("active", true);
+    try {
+      const data = new FormData();
+      data.append("title", formData.title);
+      data.append("Description", formData.Description);
+      data.append("Link_URL", formData.linkUrl);
+      data.append("active", true);
 
-    if (formData.images) {
-      data.append("images", formData.images);
+      if (formData.images) {
+        data.append("images", formData.images);
+      }
+
+      const res = await HomeBannerCreate(data);
+
+      const newSlider = {
+        id: res?.data?._id || Date.now().toString(),
+        title: res?.data?.title || formData.title,
+        Description: res?.data?.Description || formData.Description,
+        images: res?.data?.images || [],
+        linkUrl: res?.data?.Link_URL || formData.linkUrl,
+        active: res?.data?.active ?? true,
+      };
+
+      setSliders((prev) => [...prev, newSlider]);
+
+      setFormData({
+        title: "",
+        Description: "",
+        images: "",
+        linkUrl: "",
+      });
+
+      setIsAddDialogOpen(false);
+      toast.success("Home banner added successfully!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to add home banner");
     }
-
-    const res = await HomeBannerCreate(data);
-
-    const newSlider = {
-      id: res?.data?._id || Date.now().toString(),
-      title: res?.data?.title || formData.title,
-      Description: res?.data?.Description || formData.Description,
-      images: res?.data?.images || [],
-      linkUrl: res?.data?.Link_URL || formData.linkUrl,
-      active: res?.data?.active ?? true,
-    };
-
-    setSliders((prev) => [...prev, newSlider]);
-
-    setFormData({
-      title: "",
-      Description: "",
-      images: "",
-      linkUrl: "",
-    });
-
-    setIsAddDialogOpen(false);
-    toast.success("Home banner added successfully!");
-  } catch (error) {
-    console.error(error);
-    toast.error("Failed to add home banner");
-  }
-};
+  };
 
   const handleEditSlider = (slider) => {
     setEditingSlider(slider)
@@ -89,94 +89,94 @@ useEffect(() => {
     })
   }
 
-// update slider
+  // update slider
   const handleUpdateSlider = async () => {
-  if (!editingSlider) return;
+    if (!editingSlider) return;
 
-  try {
-    const updatedData = new FormData();
-    updatedData.append("title", formData.title || "");
-    updatedData.append("Description", formData.Description || "");
-    updatedData.append("Link_URL", formData.linkUrl || "");
-    updatedData.append("active", editingSlider.active ?? true);
+    try {
+      const updatedData = new FormData();
+      updatedData.append("title", formData.title || "");
+      updatedData.append("Description", formData.Description || "");
+      updatedData.append("Link_URL", formData.linkUrl || "");
+      updatedData.append("active", editingSlider.active ?? true);
 
-    if (formData.images instanceof File) {
-      updatedData.append("images", formData.images);
+      if (formData.images instanceof File) {
+        updatedData.append("images", formData.images);
+      }
+
+      await HomeBannerUploade(updatedData, editingSlider._id);
+
+      setSliders((prev) =>
+        prev.map((slider) =>
+          slider._id === editingSlider._id ? { ...slider, ...formData } : slider
+        )
+      );
+
+      setEditingSlider(null);
+      setFormData({
+        title: "",
+        Description: "",
+        images: "",
+        linkUrl: "",
+      });
+
+      if (typeof refetch === "function") refetch();
+
+      toast.success("Home banner updated successfully!");
+    } catch (error) {
+      console.error("Update slider error:", error);
+      toast.error("Failed to update banner");
     }
+  };
 
-    await HomeBannerUploade(updatedData, editingSlider._id);
-
-    setSliders((prev) =>
-      prev.map((slider) =>
-        slider._id === editingSlider._id ? { ...slider, ...formData } : slider
-      )
-    );
-
-    setEditingSlider(null);
-    setFormData({
-      title: "",
-      Description: "",
-      images: "",
-      linkUrl: "",
-    });
-
-    if (typeof refetch === "function") refetch();
-
-    toast.success("Home banner updated successfully!");
-  } catch (error) {
-    console.error("Update slider error:", error);
-    toast.error("Failed to update banner");
-  }
-};
-
-// delete slider
+  // delete slider
   const handleDeleteSlider = async (id) => {
-  if (!id) return;
+    if (!id) return;
 
-  const confirmDelete = window.confirm("Are you sure you want to delete this banner?");
-  if (!confirmDelete) return;
+    const confirmDelete = window.confirm("Are you sure you want to delete this banner?");
+    if (!confirmDelete) return;
 
-  try {
-    await HomeBannerDelete(id);
+    try {
+      await HomeBannerDelete(id);
 
-    setSliders((prev) => prev.filter((slider) => slider?._id !== id));
+      setSliders((prev) => prev.filter((slider) => slider?._id !== id));
 
-    if (typeof refetch === "function") refetch();
+      if (typeof refetch === "function") refetch();
 
-    toast.success("Home banner deleted successfully!");
-  } catch (error) {
-    console.error("Delete banner error:", error);
-    toast.error("Failed to delete banner");
-  }
-};
+      toast.success("Home banner deleted successfully!");
+    } catch (error) {
+      console.error("Delete banner error:", error);
+      toast.error("Failed to delete banner");
+    }
+  };
 
 
   // update slider active status
 
   const toggleSliderStatus = async (id) => {
-  setSliders((prev) =>
-    prev.map((slider) =>
-      slider._id === id ? { ...slider, active: !slider.active } : slider
-    )
-  );
+    setSliders((prev) =>
+      prev.map((slider) =>
+        slider._id === id ? { ...slider, active: !slider.active } : slider
+      )
+    );
 
-  try {
-    const targetBanner = sliders.find((slider) => slider._id === id);
-    if (!targetBanner) return;
+    try {
+      const targetBanner = sliders.find((slider) => slider._id === id);
+      if (!targetBanner) return;
 
-    const updatedActive = !targetBanner.active;
+      const updatedActive = !targetBanner.active;
 
-    const formData = new FormData();
-    formData.append("active", updatedActive);
+      const formData = new FormData();
+      formData.append("active", updatedActive);
 
-    await HomeBannerUploade(formData, id);
+      await HomeBannerUploade(formData, id);
 
-    refetch();
+      refetch();
 
-  } catch (error) {
-    toast.error("❌ Toggle slider status error:", error);
-  }
-};
+    } catch (error) {
+      toast.error("❌ Toggle slider status error:", error);
+    }
+  };
 
 
   const nextSlide = () => {
@@ -187,7 +187,7 @@ useEffect(() => {
     setCurrentSlide((prev) => (prev - 1 + sliders.length) % sliders.length)
   }
 
-  
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black overflow-hidden">
@@ -196,7 +196,7 @@ useEffect(() => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform duration-300">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6 text-accent-content" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -252,7 +252,7 @@ useEffect(() => {
                     d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                   />
                 </svg>
-                <h3 className="text-2xl font-bold text-white">Live Preview</h3>
+                <h3 className="text-2xl font-bold text-accent-content">Live Preview</h3>
               </div>
 
               {sliders?.length > 0 ? (
@@ -266,7 +266,7 @@ useEffect(() => {
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                    <div className="absolute bottom-6 left-6 right-6 text-white transform transition-transform duration-500 group-hover:translate-y-[-4px]">
+                    <div className="absolute bottom-6 left-6 right-6 text-accent-content transform transition-transform duration-500 group-hover:translate-y-[-4px]">
                       <h4 className="text-2xl font-bold mb-3 text-balance">{sliders[currentSlide]?.title}</h4>
                       <p className="text-gray-200 text-lg opacity-90 text-pretty">
                         {sliders[currentSlide]?.Description}
@@ -280,7 +280,7 @@ useEffect(() => {
                         className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
                         onClick={prevSlide}
                       >
-                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-6 h-6 text-accent-content" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                         </svg>
                       </button>
@@ -288,7 +288,7 @@ useEffect(() => {
                         className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
                         onClick={nextSlide}
                       >
-                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-6 h-6 text-accent-content" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
                       </button>
@@ -299,9 +299,8 @@ useEffect(() => {
                     {sliders.map((banner, index) => (
                       <button
                         key={index}
-                        className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                          index === currentSlide ? "bg-white scale-125" : "bg-white/50 hover:bg-white/75"
-                        }`}
+                        className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentSlide ? "bg-white scale-125" : "bg-white/50 hover:bg-white/75"
+                          }`}
                         onClick={() => setCurrentSlide(index)}
                       />
                     ))}
@@ -336,7 +335,7 @@ useEffect(() => {
                 <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
-                <h3 className="text-2xl font-bold text-white">Add New Slider</h3>
+                <h3 className="text-2xl font-bold text-accent-content">Add New Slider</h3>
               </div>
 
               <div className="space-y-6">
@@ -347,7 +346,7 @@ useEffect(() => {
                     placeholder="Enter slider title"
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                    className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
                   />
                 </div>
 
@@ -358,7 +357,7 @@ useEffect(() => {
                     value={formData.Description}
                     onChange={(e) => setFormData({ ...formData, Description: e.target.value })}
                     rows={3}
-                    className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 resize-none"
+                    className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 resize-none"
                   />
                 </div>
 
@@ -370,11 +369,11 @@ useEffect(() => {
                       placeholder="Image URL or upload"
                       value={formData.images}
                       onChange={(e) => setFormData({ ...formData, images: e.target.value })}
-                      className="flex-1 px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                      className="flex-1 px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
                     />
                     <button
                       onClick={() => fileInputRef.current?.click()}
-                      className="px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-xl transition-all duration-300 hover:scale-105 shadow-lg"
+                      className="px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-accent-content rounded-xl transition-all duration-300 hover:scale-105 shadow-lg"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path
@@ -403,16 +402,16 @@ useEffect(() => {
                       placeholder="/collections/sale"
                       value={formData.linkUrl}
                       onChange={(e) => setFormData({ ...formData, linkUrl: e.target.value })}
-                      className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                      className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
                     />
                   </div>
-                  
+
                 </div>
 
                 <button
                   onClick={handleAddSlider}
                   disabled={!formData.title || !formData.images}
-                  className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:from-gray-700 disabled:to-gray-800 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all duration-300 hover:scale-[1.02] shadow-lg flex items-center justify-center gap-2"
+                  className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:from-gray-700 disabled:to-gray-800 disabled:cursor-not-allowed text-accent-content font-semibold rounded-xl transition-all duration-300 hover:scale-[1.02] shadow-lg flex items-center justify-center gap-2"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -426,7 +425,7 @@ useEffect(() => {
 
         <div className="mt-12 animate-fade-in-up">
           <div className="bg-gradient-to-br from-gray-900/50 to-black/50 backdrop-blur-sm border border-gray-800/50 rounded-2xl p-6 shadow-2xl">
-            <h3 className="text-2xl font-bold text-white mb-6">Manage Sliders</h3>
+            <h3 className="text-2xl font-bold text-accent-content mb-6">Manage Sliders</h3>
 
             {sliders?.length === 0 ? (
               <div className="text-center py-12">
@@ -461,15 +460,14 @@ useEffect(() => {
                         className="w-full md:w-24 h-20 object-cover rounded-lg shadow-lg"
                       />
                       <div className="flex-1">
-                        <h4 className="font-bold text-white text-lg mb-2">{slider?.title}</h4>
+                        <h4 className="font-bold text-accent-content text-lg mb-2">{slider?.title}</h4>
                         <p className="text-gray-300 text-sm mb-3 text-pretty">{slider?.Description}</p>
                         <div className="flex flex-wrap items-center gap-3">
                           <span
-                            className={`px-3 py-1 rounded-full text-xs font-medium ${
-                              slider?.active
+                            className={`px-3 py-1 rounded-full text-xs font-medium ${slider?.active
                                 ? "bg-green-500/20 text-green-400 border border-green-500/30"
                                 : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
-                            }`}
+                              }`}
                           >
                             {slider?.active ? "Active" : "Inactive"}
                           </span>
@@ -478,11 +476,10 @@ useEffect(() => {
                       <div className="flex flex-wrap gap-2">
                         <button
                           onClick={() => toggleSliderStatus(slider?._id)}
-                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105 ${
-                            slider?.active
+                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105 ${slider?.active
                               ? "bg-orange-600/20 text-orange-400 border border-orange-600/30 hover:bg-orange-600/30"
                               : "bg-green-600/20 text-green-400 border border-green-600/30 hover:bg-green-600/30"
-                          }`}
+                            }`}
                         >
                           {slider?.active ? "Deactivate" : "Activate"}
                         </button>
@@ -525,7 +522,7 @@ useEffect(() => {
         {editingSlider && (
           <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
             <div className="bg-gradient-to-br from-gray-900 to-black border border-gray-700 rounded-2xl p-8 max-w-md w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-scale-in">
-              <h3 className="text-2xl font-bold text-white mb-6">Edit Slider</h3>
+              <h3 className="text-2xl font-bold text-accent-content mb-6">Edit Slider</h3>
               <div className="space-y-4">
                 <div>
                   <label className="block text-gray-300 text-sm font-medium mb-2">Title</label>
@@ -533,7 +530,7 @@ useEffect(() => {
                     type="text"
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
+                    className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-accent-content focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
                   />
                 </div>
                 <div>
@@ -542,10 +539,10 @@ useEffect(() => {
                     value={formData.Description}
                     onChange={(e) => setFormData({ ...formData, Description: e.target.value })}
                     rows={3}
-                    className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 resize-none"
+                    className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-accent-content focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 resize-none"
                   />
                 </div>
-                 <div>
+                <div>
                   <label className="block text-gray-300 text-sm font-medium mb-2">Image</label>
                   <div className="flex gap-3">
                     <input
@@ -553,11 +550,11 @@ useEffect(() => {
                       placeholder="Image URL or upload"
                       value={formData.images}
                       onChange={(e) => setFormData({ ...formData, images: e.target.value })}
-                      className="flex-1 px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                      className="flex-1 px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
                     />
                     <button
                       onClick={() => fileInputRef.current?.click()}
-                      className="px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-xl transition-all duration-300 hover:scale-105 shadow-lg"
+                      className="px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-accent-content rounded-xl transition-all duration-300 hover:scale-105 shadow-lg"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path
@@ -584,21 +581,21 @@ useEffect(() => {
                       type="text"
                       value={formData.linkUrl}
                       onChange={(e) => setFormData({ ...formData, linkUrl: e.target.value })}
-                      className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
+                      className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-accent-content focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
                     />
                   </div>
-                 
+
                 </div>
                 <div className="flex gap-3 pt-4">
                   <button
                     onClick={handleUpdateSlider}
-                    className="flex-1 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold rounded-xl transition-all duration-300 hover:scale-105"
+                    className="flex-1 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-accent-content font-semibold rounded-xl transition-all duration-300 hover:scale-105"
                   >
                     Update Slider
                   </button>
                   <button
                     onClick={() => setEditingSlider(null)}
-                    className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-xl transition-all duration-300"
+                    className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-accent-content font-semibold rounded-xl transition-all duration-300"
                   >
                     Cancel
                   </button>

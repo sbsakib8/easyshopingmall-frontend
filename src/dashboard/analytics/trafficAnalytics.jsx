@@ -150,11 +150,10 @@ const TrafficAnalyticsDashboard = () => {
                     <button
                       key={range}
                       onClick={() => setSelectedTimeRange(range)}
-                      className={`px-6 py-3 rounded-xl transition-all duration-300 font-medium ${
-                        selectedTimeRange === range
-                          ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg shadow-blue-500/25 animate-pulse-glow scale-105"
+                      className={`px-6 py-3 rounded-xl transition-all duration-300 font-medium ${selectedTimeRange === range
+                          ? "bg-gradient-to-r from-blue-500 to-purple-500 text-accent-content shadow-lg shadow-blue-500/25 animate-pulse-glow scale-105"
                           : "backdrop-blur-sm bg-white/10 text-gray-300 hover:bg-white/20 hover:scale-105 border border-white/20"
-                      }`}
+                        }`}
                     >
                       {range}
                     </button>
@@ -235,107 +234,107 @@ const TrafficAnalyticsDashboard = () => {
 
           {/* Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-slide-up">
-        <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-4 shadow-xl hover:bg-white/10 transition-all duration-500">
-    <h3 className="text-lg font-semibold mb-3 text-white text-center">Visitors Trend</h3>
-    {isLoading ? (
-      <div className="h-48 bg-white/5 rounded animate-pulse"></div>
-    ) : (
-      <Line
-        data={{
-          labels: chartData.map(d => d.date),
-          datasets: [
-            {
-              label: "Visitors",
-              data: chartData.map(d => d.visitors),
-              fill: true,
-              backgroundColor: "rgba(59, 130, 246, 0.2)",
-              borderColor: "rgb(59, 130, 246)",
-              tension: 0.4,
-              pointRadius: 3,
-              pointHoverRadius: 5,
-              borderWidth: 2,
-            },
-          ],
-        }}
-        options={{
-          responsive: true,
-          animation: {
-            x: { duration: 1200, easing: "easeOutQuart" },
-            y: { duration: 1200, easing: "easeOutQuart" },
-          },
-          plugins: {
-            legend: { labels: { color: "#fff", font: { size: 12 } } },
-            tooltip: { enabled: true },
-          },
-          scales: {
-            x: {
-              ticks: { color: "#fff", font: { size: 12 } },
-              grid: { color: "rgba(255,255,255,0.1)" },
-            },
-            y: {
-              ticks: { color: "#fff", font: { size: 12 } },
-              grid: { color: "rgba(255,255,255,0.1)" },
-            },
-          },
-        }}
-        className="h-40 w-full"
-      />
-    )}
-  </div>
+            <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-4 shadow-xl hover:bg-white/10 transition-all duration-500">
+              <h3 className="text-lg font-semibold mb-3 text-accent-content text-center">Visitors Trend</h3>
+              {isLoading ? (
+                <div className="h-48 bg-white/5 rounded animate-pulse"></div>
+              ) : (
+                <Line
+                  data={{
+                    labels: chartData.map(d => d.date),
+                    datasets: [
+                      {
+                        label: "Visitors",
+                        data: chartData.map(d => d.visitors),
+                        fill: true,
+                        backgroundColor: "rgba(59, 130, 246, 0.2)",
+                        borderColor: "rgb(59, 130, 246)",
+                        tension: 0.4,
+                        pointRadius: 3,
+                        pointHoverRadius: 5,
+                        borderWidth: 2,
+                      },
+                    ],
+                  }}
+                  options={{
+                    responsive: true,
+                    animation: {
+                      x: { duration: 1200, easing: "easeOutQuart" },
+                      y: { duration: 1200, easing: "easeOutQuart" },
+                    },
+                    plugins: {
+                      legend: { labels: { color: "#fff", font: { size: 12 } } },
+                      tooltip: { enabled: true },
+                    },
+                    scales: {
+                      x: {
+                        ticks: { color: "#fff", font: { size: 12 } },
+                        grid: { color: "rgba(255,255,255,0.1)" },
+                      },
+                      y: {
+                        ticks: { color: "#fff", font: { size: 12 } },
+                        grid: { color: "rgba(255,255,255,0.1)" },
+                      },
+                    },
+                  }}
+                  className="h-40 w-full"
+                />
+              )}
+            </div>
 
-    {/* Pie Chart */}
-<div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-4 shadow-xl hover:bg-white/10 transition-all duration-500">
-  <h3 className="text-lg font-semibold mb-3 text-white text-center">Revenue Breakdown</h3>
-  {isLoading ? (
-    <div className="h-80 w-full bg-white/5 rounded animate-pulse"></div>
-  ) : (
-    <div className="h-80 w-full">
-      <Pie
-        data={{
-          labels: trafficSources.map(src => src.source),
-          datasets: [
-            {
-              label: "Revenue by Source",
-              data: trafficSources.map(src => src.visitors),
-              backgroundColor: [
-                "rgba(59, 130, 246, 0.7)",
-                "rgba(147, 51, 234, 0.7)",
-                "rgba(236, 72, 153, 0.7)",
-                "rgba(16, 185, 129, 0.7)",
-              ],
-              borderColor: "rgba(255,255,255,0.2)",
-              borderWidth: 2,
-              borderRadius: 8,
-              hoverOffset: 10, // slice hover motion
-            },
-          ],
-        }}
-        options={{
-          responsive: true,
-          maintainAspectRatio: false, // ✨ important for resizing
-          cutout: "30%", // donut style
-          plugins: {
-            legend: { position: "bottom", labels: { color: "#fff", boxWidth: 12, padding: 10 } },
-            tooltip: { enabled: true },
-          },
-          animation: {
-            animateRotate: true, // page load animation
-            animateScale: true,  // smooth scale
-          },
-        }}
-      />
-    </div>
-  )}
-</div>
+            {/* Pie Chart */}
+            <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-4 shadow-xl hover:bg-white/10 transition-all duration-500">
+              <h3 className="text-lg font-semibold mb-3 text-accent-content text-center">Revenue Breakdown</h3>
+              {isLoading ? (
+                <div className="h-80 w-full bg-white/5 rounded animate-pulse"></div>
+              ) : (
+                <div className="h-80 w-full">
+                  <Pie
+                    data={{
+                      labels: trafficSources.map(src => src.source),
+                      datasets: [
+                        {
+                          label: "Revenue by Source",
+                          data: trafficSources.map(src => src.visitors),
+                          backgroundColor: [
+                            "rgba(59, 130, 246, 0.7)",
+                            "rgba(147, 51, 234, 0.7)",
+                            "rgba(236, 72, 153, 0.7)",
+                            "rgba(16, 185, 129, 0.7)",
+                          ],
+                          borderColor: "rgba(255,255,255,0.2)",
+                          borderWidth: 2,
+                          borderRadius: 8,
+                          hoverOffset: 10, // slice hover motion
+                        },
+                      ],
+                    }}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false, // ✨ important for resizing
+                      cutout: "30%", // donut style
+                      plugins: {
+                        legend: { position: "bottom", labels: { color: "#fff", boxWidth: 12, padding: 10 } },
+                        tooltip: { enabled: true },
+                      },
+                      animation: {
+                        animateRotate: true, // page load animation
+                        animateScale: true,  // smooth scale
+                      },
+                    }}
+                  />
+                </div>
+              )}
+            </div>
 
 
           </div>
 
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-slide-up">
             {/* Enhanced Top Pages */}
             <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl hover:bg-white/10 transition-all duration-500">
-              <h3 className="text-xl font-semibold mb-4 text-white">Top Pages</h3>
+              <h3 className="text-xl font-semibold mb-4 text-accent-content">Top Pages</h3>
               {isLoading ? (
                 <div className="space-y-3">
                   {Array(5)
@@ -352,7 +351,7 @@ const TrafficAnalyticsDashboard = () => {
                       className="flex items-center justify-between p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-all duration-300 cursor-pointer border border-white/10 hover:border-white/20 hover:scale-105"
                     >
                       <div>
-                        <p className="font-medium text-white">{page.page}</p>
+                        <p className="font-medium text-accent-content">{page.page}</p>
                         <p className="text-sm text-gray-300">{formatNumber(page.views)} views</p>
                       </div>
                       <div className="text-right">
@@ -368,7 +367,7 @@ const TrafficAnalyticsDashboard = () => {
 
             {/* Enhanced Traffic Sources */}
             <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl hover:bg-white/10 transition-all duration-500">
-              <h3 className="text-xl font-semibold mb-4 text-white">Traffic Sources</h3>
+              <h3 className="text-xl font-semibold mb-4 text-accent-content">Traffic Sources</h3>
               {isLoading ? (
                 <div className="space-y-3">
                   {Array(4)
@@ -385,7 +384,7 @@ const TrafficAnalyticsDashboard = () => {
                       className="flex items-center justify-between p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-all duration-300 cursor-pointer border border-white/10 hover:border-white/20 hover:scale-105"
                     >
                       <div>
-                        <p className="font-medium text-white">{source.source}</p>
+                        <p className="font-medium text-accent-content">{source.source}</p>
                         <p className="text-sm text-gray-300">{formatNumber(source.visitors)} visitors</p>
                       </div>
                       <div className="text-right">
@@ -407,7 +406,7 @@ const TrafficAnalyticsDashboard = () => {
 
             {/* Enhanced Device Stats */}
             <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl hover:bg-white/10 transition-all duration-500">
-              <h3 className="text-xl font-semibold mb-4 text-white">Device Breakdown</h3>
+              <h3 className="text-xl font-semibold mb-4 text-accent-content">Device Breakdown</h3>
               {isLoading ? (
                 <div className="space-y-3">
                   {Array(3)
@@ -421,18 +420,17 @@ const TrafficAnalyticsDashboard = () => {
                   {deviceStats.map((device, index) => (
                     <div key={index} className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <span className="font-medium text-white">{device.device}</span>
+                        <span className="font-medium text-accent-content">{device.device}</span>
                         <span className="text-sm text-gray-300">{device.percentage}%</span>
                       </div>
                       <div className="w-full h-3 bg-white/20 rounded-full overflow-hidden">
                         <div
-                          className={`h-full rounded-full transition-all duration-1000 animate-progress-fill ${
-                            index === 0
+                          className={`h-full rounded-full transition-all duration-1000 animate-progress-fill ${index === 0
                               ? "bg-gradient-to-r from-blue-500 to-purple-500"
                               : index === 1
                                 ? "bg-gradient-to-r from-purple-500 to-pink-500"
                                 : "bg-gradient-to-r from-pink-500 to-red-500"
-                          }`}
+                            }`}
                           style={{
                             width: `${device.percentage}%`,
                             animationDelay: `${index * 0.2}s`,
@@ -449,7 +447,7 @@ const TrafficAnalyticsDashboard = () => {
 
           <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl hover:bg-white/10 transition-all duration-500 animate-slide-up">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold text-white">Real-time Activity</h3>
+              <h3 className="text-xl font-semibold text-accent-content">Real-time Activity</h3>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse shadow-lg shadow-green-400/50"></div>
                 <span className="text-sm text-gray-300">Live</span>
@@ -499,11 +497,10 @@ function EnhancedMetricCard({ title, value, change, positive, icon, gradient }) 
         <div className="flex items-center justify-between mb-2">
           <span className="text-3xl filter drop-shadow-lg">{icon}</span>
           <span
-            className={`text-sm font-medium px-3 py-1 rounded-full backdrop-blur-sm ${
-              positive
+            className={`text-sm font-medium px-3 py-1 rounded-full backdrop-blur-sm ${positive
                 ? "text-green-300 bg-green-500/20 border border-green-500/30"
                 : "text-red-300 bg-red-500/20 border border-red-500/30"
-            }`}
+              }`}
           >
             {change}
           </span>

@@ -4,7 +4,7 @@ import { Truck, Package, MapPin, Clock, DollarSign, Plus, Trash2, Edit3, Save, X
 
 const ShippingSettings = () => {
   const [activeTab, setActiveTab] = useState('methods');
-  
+
   const [shippingZones, setShippingZones] = useState([
     {
       id: 1,
@@ -102,13 +102,13 @@ const ShippingSettings = () => {
   };
 
   const toggleZoneStatus = (id) => {
-    setShippingZones(shippingZones.map(zone => 
+    setShippingZones(shippingZones.map(zone =>
       zone.id === id ? { ...zone, isActive: !zone.isActive } : zone
     ));
   };
 
   const toggleMethodStatus = (id) => {
-    setShippingMethods(shippingMethods.map(method => 
+    setShippingMethods(shippingMethods.map(method =>
       method.id === id ? { ...method, isActive: !method.isActive } : method
     ));
   };
@@ -116,11 +116,10 @@ const ShippingSettings = () => {
   const TabButton = ({ id, label, icon: Icon, isActive, onClick }) => (
     <button
       onClick={onClick}
-      className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
-        isActive
-          ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg transform scale-105'
-          : 'bg-gradient-to-r from-gray-700 to-gray-800 text-gray-300 hover:from-gray-600 hover:to-gray-700 hover:text-white'
-      }`}
+      className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-300 ${isActive
+          ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-accent-content shadow-lg transform scale-105'
+          : 'bg-gradient-to-r from-gray-700 to-gray-800 text-gray-300 hover:from-gray-600 hover:to-gray-700 hover:text-accent-content'
+        }`}
     >
       <Icon size={18} />
       <span>{label}</span>
@@ -138,28 +137,28 @@ const ShippingSettings = () => {
       <div className="transition-all  duration-500  lg:ml-10 lg:px-9">
         {/* Header */}
         <div className="mb-8">
-         <div className="mb-8 animate-slideDown">
-          <div className="relative bg-gradient-to-r from-gray-900/80 via-blue-900/80 to-purple-900/80 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-gray-700/50 shadow-2xl shadow-blue-500/10 overflow-hidden">
-            {/* Animated particles */}
-            <div className="absolute inset-0">
-              <div className="absolute top-4 right-4 w-2 h-2 bg-blue-400 rounded-full animate-ping"></div>
-              <div className="absolute bottom-6 left-6 w-1 h-1 bg-purple-400 rounded-full animate-pulse"></div>
-              <div className="absolute top-1/2 right-1/3 w-1 h-1 bg-cyan-400 rounded-full animate-bounce"></div>
-            </div>
-            
-            <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">
-                  Shipping <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Settings</span>! 
-                </h1>
-                <p className="text-gray-300 text-sm sm:text-base">
-                  EasyShoppingMall Admin Dashboard
-                </p>
+          <div className="mb-8 animate-slideDown">
+            <div className="relative bg-gradient-to-r from-gray-900/80 via-blue-900/80 to-purple-900/80 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-gray-700/50 shadow-2xl shadow-blue-500/10 overflow-hidden">
+              {/* Animated particles */}
+              <div className="absolute inset-0">
+                <div className="absolute top-4 right-4 w-2 h-2 bg-blue-400 rounded-full animate-ping"></div>
+                <div className="absolute bottom-6 left-6 w-1 h-1 bg-purple-400 rounded-full animate-pulse"></div>
+                <div className="absolute top-1/2 right-1/3 w-1 h-1 bg-cyan-400 rounded-full animate-bounce"></div>
               </div>
-             
+
+              <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-accent-content mb-2">
+                    Shipping <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Settings</span>!
+                  </h1>
+                  <p className="text-gray-300 text-sm sm:text-base">
+                    EasyShoppingMall Admin Dashboard
+                  </p>
+                </div>
+
+              </div>
             </div>
           </div>
-        </div>
           {/* Tab Navigation */}
           <div className="flex flex-wrap gap-4">
             <TabButton
@@ -191,7 +190,7 @@ const ShippingSettings = () => {
           <div className="space-y-6">
             {/* Add New Method */}
             <Card className="p-6">
-              <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
+              <h3 className="text-xl font-semibold text-accent-content mb-4 flex items-center">
                 <Plus className="mr-2" size={20} />
                 Add Shipping Method
               </h3>
@@ -201,34 +200,34 @@ const ShippingSettings = () => {
                   placeholder="Method Name"
                   value={newMethod.name}
                   onChange={(e) => setNewMethod({ ...newMethod, name: e.target.value })}
-                  className="bg-gray-700 text-white rounded-lg px-4 py-3 border border-gray-600 focus:border-blue-500 focus:outline-none transition-colors"
+                  className="bg-gray-700 text-accent-content rounded-lg px-4 py-3 border border-gray-600 focus:border-blue-500 focus:outline-none transition-colors"
                 />
                 <input
                   type="number"
                   placeholder="Cost (৳)"
                   value={newMethod.cost}
                   onChange={(e) => setNewMethod({ ...newMethod, cost: e.target.value })}
-                  className="bg-gray-700 text-white rounded-lg px-4 py-3 border border-gray-600 focus:border-blue-500 focus:outline-none transition-colors"
+                  className="bg-gray-700 text-accent-content rounded-lg px-4 py-3 border border-gray-600 focus:border-blue-500 focus:outline-none transition-colors"
                 />
                 <input
                   type="text"
                   placeholder="Estimated Days (e.g., 3-5)"
                   value={newMethod.estimatedDays}
                   onChange={(e) => setNewMethod({ ...newMethod, estimatedDays: e.target.value })}
-                  className="bg-gray-700 text-white rounded-lg px-4 py-3 border border-gray-600 focus:border-blue-500 focus:outline-none transition-colors"
+                  className="bg-gray-700 text-accent-content rounded-lg px-4 py-3 border border-gray-600 focus:border-blue-500 focus:outline-none transition-colors"
                 />
                 <input
                   type="number"
                   placeholder="Free Shipping Threshold (৳)"
                   value={newMethod.freeShippingThreshold}
                   onChange={(e) => setNewMethod({ ...newMethod, freeShippingThreshold: e.target.value })}
-                  className="bg-gray-700 text-white rounded-lg px-4 py-3 border border-gray-600 focus:border-blue-500 focus:outline-none transition-colors"
+                  className="bg-gray-700 text-accent-content rounded-lg px-4 py-3 border border-gray-600 focus:border-blue-500 focus:outline-none transition-colors"
                 />
                 <select
                   multiple
                   value={newMethod.zones}
                   onChange={(e) => setNewMethod({ ...newMethod, zones: Array.from(e.target.selectedOptions, option => parseInt(option.value)) })}
-                  className="bg-gray-700 text-white rounded-lg px-4 py-3 border border-gray-600 focus:border-blue-500 focus:outline-none transition-colors"
+                  className="bg-gray-700 text-accent-content rounded-lg px-4 py-3 border border-gray-600 focus:border-blue-500 focus:outline-none transition-colors"
                 >
                   {shippingZones.map(zone => (
                     <option key={zone.id} value={zone.id}>{zone.name}</option>
@@ -236,7 +235,7 @@ const ShippingSettings = () => {
                 </select>
                 <button
                   onClick={addShippingMethod}
-                  className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2"
+                  className="bg-gradient-to-r from-green-500 to-emerald-600 text-accent-content px-6 py-3 rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2"
                 >
                   <Plus size={18} />
                   <span>Add Method</span>
@@ -251,10 +250,10 @@ const ShippingSettings = () => {
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center space-x-3">
                       <div className={`p-2 rounded-lg ${method.isActive ? 'bg-green-500' : 'bg-red-500'}`}>
-                        <Package className="text-white" size={18} />
+                        <Package className="text-accent-content" size={18} />
                       </div>
                       <div>
-                        <h4 className="text-lg font-semibold text-white">{method.name}</h4>
+                        <h4 className="text-lg font-semibold text-accent-content">{method.name}</h4>
                         <p className="text-gray-400 text-sm">
                           {method.isActive ? 'Active' : 'Inactive'}
                         </p>
@@ -263,42 +262,41 @@ const ShippingSettings = () => {
                     <div className="flex space-x-2">
                       <button
                         onClick={() => toggleMethodStatus(method.id)}
-                        className={`p-2 rounded-lg transition-colors ${
-                          method.isActive ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'
-                        }`}
+                        className={`p-2 rounded-lg transition-colors ${method.isActive ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'
+                          }`}
                       >
-                        {method.isActive ? <X size={16} className="text-white" /> : <Settings size={16} className="text-white" />}
+                        {method.isActive ? <X size={16} className="text-accent-content" /> : <Settings size={16} className="text-accent-content" />}
                       </button>
                       <button
                         onClick={() => deleteMethod(method.id)}
                         className="p-2 bg-red-500 rounded-lg hover:bg-red-600 transition-colors"
                       >
-                        <Trash2 size={16} className="text-white" />
+                        <Trash2 size={16} className="text-accent-content" />
                       </button>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-gray-300 flex items-center">
                         <DollarSign size={16} className="mr-1" />
                         Cost:
                       </span>
-                      <span className="text-white font-semibold">৳{method.cost}</span>
+                      <span className="text-accent-content font-semibold">৳{method.cost}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-gray-300 flex items-center">
                         <Clock size={16} className="mr-1" />
                         Delivery:
                       </span>
-                      <span className="text-white font-semibold">{method.estimatedDays} days</span>
+                      <span className="text-accent-content font-semibold">{method.estimatedDays} days</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-gray-300 flex items-center">
                         <Package size={16} className="mr-1" />
                         Free Shipping:
                       </span>
-                      <span className="text-white font-semibold">Above ৳{method.freeShippingThreshold}</span>
+                      <span className="text-accent-content font-semibold">Above ৳{method.freeShippingThreshold}</span>
                     </div>
                   </div>
                 </Card>
@@ -312,7 +310,7 @@ const ShippingSettings = () => {
           <div className="space-y-6">
             {/* Add New Zone */}
             <Card className="p-6">
-              <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
+              <h3 className="text-xl font-semibold text-accent-content mb-4 flex items-center">
                 <Plus className="mr-2" size={20} />
                 Add Shipping Zone
               </h3>
@@ -322,18 +320,18 @@ const ShippingSettings = () => {
                   placeholder="Zone Name"
                   value={newZone.name}
                   onChange={(e) => setNewZone({ ...newZone, name: e.target.value })}
-                  className="bg-gray-700 text-white rounded-lg px-4 py-3 border border-gray-600 focus:border-blue-500 focus:outline-none transition-colors"
+                  className="bg-gray-700 text-accent-content rounded-lg px-4 py-3 border border-gray-600 focus:border-blue-500 focus:outline-none transition-colors"
                 />
                 <input
                   type="text"
                   placeholder="Regions (comma separated)"
                   value={newZone.regions}
                   onChange={(e) => setNewZone({ ...newZone, regions: e.target.value })}
-                  className="bg-gray-700 text-white rounded-lg px-4 py-3 border border-gray-600 focus:border-blue-500 focus:outline-none transition-colors"
+                  className="bg-gray-700 text-accent-content rounded-lg px-4 py-3 border border-gray-600 focus:border-blue-500 focus:outline-none transition-colors"
                 />
                 <button
                   onClick={addShippingZone}
-                  className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2"
+                  className="bg-gradient-to-r from-green-500 to-emerald-600 text-accent-content px-6 py-3 rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2"
                 >
                   <Plus size={18} />
                   <span>Add Zone</span>
@@ -348,10 +346,10 @@ const ShippingSettings = () => {
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center space-x-3">
                       <div className={`p-2 rounded-lg ${zone.isActive ? 'bg-green-500' : 'bg-red-500'}`}>
-                        <MapPin className="text-white" size={18} />
+                        <MapPin className="text-accent-content" size={18} />
                       </div>
                       <div>
-                        <h4 className="text-lg font-semibold text-white">{zone.name}</h4>
+                        <h4 className="text-lg font-semibold text-accent-content">{zone.name}</h4>
                         <p className="text-gray-400 text-sm">
                           {zone.isActive ? 'Active' : 'Inactive'}
                         </p>
@@ -360,28 +358,27 @@ const ShippingSettings = () => {
                     <div className="flex space-x-2">
                       <button
                         onClick={() => toggleZoneStatus(zone.id)}
-                        className={`p-2 rounded-lg transition-colors ${
-                          zone.isActive ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'
-                        }`}
+                        className={`p-2 rounded-lg transition-colors ${zone.isActive ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'
+                          }`}
                       >
-                        {zone.isActive ? <X size={16} className="text-white" /> : <Settings size={16} className="text-white" />}
+                        {zone.isActive ? <X size={16} className="text-accent-content" /> : <Settings size={16} className="text-accent-content" />}
                       </button>
                       <button
                         onClick={() => deleteZone(zone.id)}
                         className="p-2 bg-red-500 rounded-lg hover:bg-red-600 transition-colors"
                       >
-                        <Trash2 size={16} className="text-white" />
+                        <Trash2 size={16} className="text-accent-content" />
                       </button>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <span className="text-gray-300 text-sm">Regions:</span>
                     <div className="flex flex-wrap gap-2">
                       {zone.regions.map((region, index) => (
                         <span
                           key={index}
-                          className="bg-gradient-to-r from-blue-500 to-purple-600 text-white text-xs px-2 py-1 rounded-full"
+                          className="bg-gradient-to-r from-blue-500 to-purple-600 text-accent-content text-xs px-2 py-1 rounded-full"
                         >
                           {region}
                         </span>
@@ -397,16 +394,16 @@ const ShippingSettings = () => {
         {/* General Settings Tab */}
         {activeTab === 'general' && (
           <Card className="p-6">
-            <h3 className="text-xl font-semibold text-white mb-6 flex items-center">
+            <h3 className="text-xl font-semibold text-accent-content mb-6 flex items-center">
               <Settings className="mr-2" size={20} />
               General Shipping Settings
             </h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-4 bg-gray-800 rounded-lg">
                   <div>
-                    <h4 className="text-white font-medium">Enable Free Shipping</h4>
+                    <h4 className="text-accent-content font-medium">Enable Free Shipping</h4>
                     <p className="text-gray-400 text-sm">Allow free shipping for orders above threshold</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
@@ -421,22 +418,22 @@ const ShippingSettings = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-white font-medium">Free Shipping Threshold (৳)</label>
+                  <label className="text-accent-content font-medium">Free Shipping Threshold (৳)</label>
                   <input
                     type="number"
                     value={generalSettings.freeShippingThreshold}
                     onChange={(e) => setGeneralSettings({ ...generalSettings, freeShippingThreshold: parseFloat(e.target.value) })}
-                    className="w-full bg-gray-700 text-white rounded-lg px-4 py-3 border border-gray-600 focus:border-blue-500 focus:outline-none transition-colors"
+                    className="w-full bg-gray-700 text-accent-content rounded-lg px-4 py-3 border border-gray-600 focus:border-blue-500 focus:outline-none transition-colors"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-white font-medium">Processing Time (Days)</label>
+                  <label className="text-accent-content font-medium">Processing Time (Days)</label>
                   <input
                     type="text"
                     value={generalSettings.processingTime}
                     onChange={(e) => setGeneralSettings({ ...generalSettings, processingTime: e.target.value })}
-                    className="w-full bg-gray-700 text-white rounded-lg px-4 py-3 border border-gray-600 focus:border-blue-500 focus:outline-none transition-colors"
+                    className="w-full bg-gray-700 text-accent-content rounded-lg px-4 py-3 border border-gray-600 focus:border-blue-500 focus:outline-none transition-colors"
                   />
                 </div>
               </div>
@@ -444,7 +441,7 @@ const ShippingSettings = () => {
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-4 bg-gray-800 rounded-lg">
                   <div>
-                    <h4 className="text-white font-medium">Shipping Calculator</h4>
+                    <h4 className="text-accent-content font-medium">Shipping Calculator</h4>
                     <p className="text-gray-400 text-sm">Enable shipping cost calculator on frontend</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
@@ -459,11 +456,11 @@ const ShippingSettings = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-white font-medium">Weight Unit</label>
+                  <label className="text-accent-content font-medium">Weight Unit</label>
                   <select
                     value={generalSettings.weightUnit}
                     onChange={(e) => setGeneralSettings({ ...generalSettings, weightUnit: e.target.value })}
-                    className="w-full bg-gray-700 text-white rounded-lg px-4 py-3 border border-gray-600 focus:border-blue-500 focus:outline-none transition-colors"
+                    className="w-full bg-gray-700 text-accent-content rounded-lg px-4 py-3 border border-gray-600 focus:border-blue-500 focus:outline-none transition-colors"
                   >
                     <option value="kg">Kilogram (kg)</option>
                     <option value="g">Gram (g)</option>
@@ -472,11 +469,11 @@ const ShippingSettings = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-white font-medium">Dimension Unit</label>
+                  <label className="text-accent-content font-medium">Dimension Unit</label>
                   <select
                     value={generalSettings.dimensionUnit}
                     onChange={(e) => setGeneralSettings({ ...generalSettings, dimensionUnit: e.target.value })}
-                    className="w-full bg-gray-700 text-white rounded-lg px-4 py-3 border border-gray-600 focus:border-blue-500 focus:outline-none transition-colors"
+                    className="w-full bg-gray-700 text-accent-content rounded-lg px-4 py-3 border border-gray-600 focus:border-blue-500 focus:outline-none transition-colors"
                   >
                     <option value="cm">Centimeter (cm)</option>
                     <option value="m">Meter (m)</option>
@@ -488,7 +485,7 @@ const ShippingSettings = () => {
             </div>
 
             <div className="flex justify-end mt-6">
-              <button className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 flex items-center space-x-2">
+              <button className="bg-gradient-to-r from-green-500 to-emerald-600 text-accent-content px-6 py-3 rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 flex items-center space-x-2">
                 <Save size={18} />
                 <span>Save Settings</span>
               </button>

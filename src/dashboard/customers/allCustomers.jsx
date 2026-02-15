@@ -158,7 +158,7 @@ const AllCustomersPage = () => {
           <div className="w-full mx-auto ">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <h1 className="text-3xl font-bold text-white mb-2">All Customers</h1>
+                <h1 className="text-3xl font-bold text-accent-content mb-2">All Customers</h1>
                 <p className="text-gray-400">Manage and view all your customers</p>
               </div>
             </div>
@@ -192,7 +192,7 @@ const AllCustomersPage = () => {
                   {stat.icon}
                 </div>
                 <h3 className="text-gray-400 text-sm font-medium">{stat.title}</h3>
-                <p className="text-2xl font-bold text-white mt-1">{stat.value}</p>
+                <p className="text-2xl font-bold text-accent-content mt-1">{stat.value}</p>
               </div>
             ))}
           </div>
@@ -208,7 +208,7 @@ const AllCustomersPage = () => {
                   placeholder="Search customers by name, email, or phone..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full sm:w-[500px] pl-10 pr-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                  className="w-full sm:w-[500px] pl-10 pr-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
                 />
               </div>
 
@@ -217,7 +217,7 @@ const AllCustomersPage = () => {
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="w-full sm:w-[200px] px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
+                  className="w-full sm:w-[200px] px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-accent-content focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
                 >
                   <option value="all">All Status</option>
                   <option value="active">Active</option>
@@ -231,20 +231,20 @@ const AllCustomersPage = () => {
           {selectedCustomers.length > 0 && (
             <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/30 rounded-xl p-4 mb-6 animate-fade-in">
               <div className="flex items-center justify-between">
-                <span className="text-white">
+                <span className="text-accent-content">
                   {selectedCustomers.length} customer{selectedCustomers.length > 1 ? "s" : ""}{" "}
                   selected
                 </span>
                 <div className="flex gap-2">
                   <button
                     onClick={handleBulkDelete}
-                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-300"
+                    className="px-4 py-2 bg-red-600 text-accent-content rounded-lg hover:bg-red-700 transition-all duration-300"
                   >
                     Delete Selected
                   </button>
                   <button
                     onClick={() => setSelectedCustomers([])}
-                    className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-all duration-300"
+                    className="px-4 py-2 bg-gray-600 text-accent-content rounded-lg hover:bg-gray-700 transition-all duration-300"
                   >
                     Clear Selection
                   </button>
@@ -295,7 +295,7 @@ const AllCustomersPage = () => {
                           {/* Avatar and Basic Info */}
                           <div className="lg:col-span-4 flex items-center gap-3">
                             {/* Avatar or First Letter */}
-                            <div className="w-12 h-12 rounded-full border-2 border-gray-600 flex items-center justify-center bg-gray-800 text-white font-bold text-lg overflow-hidden">
+                            <div className="w-12 h-12 rounded-full border-2 border-gray-600 flex items-center justify-center bg-gray-800 text-accent-content font-bold text-lg overflow-hidden">
                               {customer?.avatar?.trim() ? (
                                 <img
                                   src={customer?.avatar}
@@ -303,15 +303,15 @@ const AllCustomersPage = () => {
                                   className="w-full h-full object-cover"
                                 />
                               ) : (
-                                <div className="w-12 h-12 rounded-full border-2 border-yellow-500 bg-gray-600 flex items-center justify-center text-white font-bold text-lg">
-                              {customer?.name?.charAt(0).toUpperCase() || "U"}
-                            </div>
+                                <div className="w-12 h-12 rounded-full border-2 border-yellow-500 bg-gray-600 flex items-center justify-center text-accent-content font-bold text-lg">
+                                  {customer?.name?.charAt(0).toUpperCase() || "U"}
+                                </div>
                               )}
                             </div>
 
                             {/* Name & Email */}
                             <div className="flex flex-col">
-                              <h3 className="text-white font-semibold">{customer.name}</h3>
+                              <h3 className="text-accent-content font-semibold">{customer.name}</h3>
                               <div className="flex items-center gap-2 text-sm text-gray-400">
                                 <Mail className="w-3 h-3" />
                                 <span>{customer.email}</span>
@@ -327,7 +327,7 @@ const AllCustomersPage = () => {
                             </div>
                             <div className="flex items-center gap-2 text-sm text-gray-400">
                               <MapPin className="w-3 h-3" />
-                              {customer?.address.address_line|| "none"}
+                              {customer?.address.address_line || "none"}
                             </div>
                           </div>
 
@@ -343,11 +343,10 @@ const AllCustomersPage = () => {
                           <div className="lg:col-span-2">
                             <div className="flex items-center gap-2 mb-1">
                               <span
-                                className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                  customer.status === "active"
+                                className={`px-2 py-1 rounded-full text-xs font-medium ${customer.status === "active"
                                     ? "bg-green-500/20 text-green-400 border border-green-500/30"
                                     : "bg-red-500/20 text-red-400 border border-red-500/30"
-                                }`}
+                                  }`}
                               >
                                 {customer.status}
                               </span>
@@ -396,7 +395,7 @@ const AllCustomersPage = () => {
                 <button
                   onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
-                  className="flex items-center gap-2 px-3 py-2 bg-gray-700/50 text-white rounded-lg hover:bg-gray-600/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+                  className="flex items-center gap-2 px-3 py-2 bg-gray-700/50 text-accent-content rounded-lg hover:bg-gray-600/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
                 >
                   <ChevronLeft className="w-4 h-4" />
                   Previous
@@ -409,11 +408,10 @@ const AllCustomersPage = () => {
                       <button
                         key={pageNum}
                         onClick={() => setCurrentPage(pageNum)}
-                        className={`px-3 py-2 rounded-lg transition-all duration-300 ${
-                          currentPage === pageNum
-                            ? "bg-blue-600 text-white"
+                        className={`px-3 py-2 rounded-lg transition-all duration-300 ${currentPage === pageNum
+                            ? "bg-blue-600 text-accent-content"
                             : "bg-gray-700/50 text-gray-300 hover:bg-gray-600/50"
-                        }`}
+                          }`}
                       >
                         {pageNum}
                       </button>
@@ -424,7 +422,7 @@ const AllCustomersPage = () => {
                 <button
                   onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                   disabled={currentPage === totalPages}
-                  className="flex items-center gap-2 px-3 py-2 bg-gray-700/50 text-white rounded-lg hover:bg-gray-600/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+                  className="flex items-center gap-2 px-3 py-2 bg-gray-700/50 text-accent-content rounded-lg hover:bg-gray-600/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
                 >
                   Next
                   <ChevronRight className="w-4 h-4" />
@@ -442,10 +440,10 @@ const AllCustomersPage = () => {
               <div className="bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
                 {/* Header */}
                 <div className="p-6 border-b border-gray-700 flex items-center justify-between">
-                  <h2 className="text-2xl font-bold text-white">Customer Details</h2>
+                  <h2 className="text-2xl font-bold text-accent-content">Customer Details</h2>
                   <button
                     onClick={() => setShowCustomerModal(false)}
-                    className="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-300"
+                    className="p-2 text-gray-400 hover:text-accent-content hover:bg-gray-700 rounded-lg transition-all duration-300"
                   >
                     ✕
                   </button>
@@ -456,7 +454,7 @@ const AllCustomersPage = () => {
                   {/* Avatar + Name + Email + Status */}
                   <div className="flex items-center gap-4 mb-6">
                     {/* Avatar or First Letter */}
-                    <div className="w-20 h-20 rounded-full border-4 border-gray-600 flex items-center justify-center bg-gray-800 text-white font-bold text-3xl overflow-hidden">
+                    <div className="w-20 h-20 rounded-full border-4 border-gray-600 flex items-center justify-center bg-gray-800 text-accent-content font-bold text-3xl overflow-hidden">
                       {selectedCustomer.avatar?.trim() ? (
                         <img
                           src={selectedCustomer.avatar}
@@ -470,17 +468,16 @@ const AllCustomersPage = () => {
 
                     {/* Customer Info */}
                     <div className="flex flex-col">
-                      <h3 className="text-2xl font-bold text-white">{selectedCustomer.name}</h3>
+                      <h3 className="text-2xl font-bold text-accent-content">{selectedCustomer.name}</h3>
                       <p className="text-gray-400">{selectedCustomer.email}</p>
 
                       {/* Status Badge */}
                       <div className="flex items-center gap-2 mt-2">
                         <span
-                          className={`px-3 py-1 rounded-full text-sm font-medium ${
-                            selectedCustomer.status === "active"
+                          className={`px-3 py-1 rounded-full text-sm font-medium ${selectedCustomer.status === "active"
                               ? "bg-green-500/20 text-green-400 border border-green-500/30"
                               : "bg-red-500/20 text-red-400 border border-red-500/30"
-                          }`}
+                            }`}
                         >
                           {selectedCustomer.status}
                         </span>
@@ -492,7 +489,7 @@ const AllCustomersPage = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Contact Info */}
                     <div className="space-y-4">
-                      <h4 className="text-lg font-semibold text-white mb-3">Contact Information</h4>
+                      <h4 className="text-lg font-semibold text-accent-content mb-3">Contact Information</h4>
                       <div className="space-y-2">
                         <div className="flex items-center gap-3 text-gray-300">
                           <Phone className="w-4 h-4 text-gray-400" />
@@ -514,17 +511,17 @@ const AllCustomersPage = () => {
 
                     {/* Order Stats */}
                     <div className="space-y-4">
-                      <h4 className="text-lg font-semibold text-white mb-3">Order Statistics</h4>
+                      <h4 className="text-lg font-semibold text-accent-content mb-3">Order Statistics</h4>
                       <div className="space-y-3">
                         <div className="flex justify-between items-center">
                           <span className="text-gray-400">Total Orders:</span>
-                          <span className="text-white font-semibold">
+                          <span className="text-accent-content font-semibold">
                             {selectedCustomer.totalOrders}
                           </span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-gray-400">Last Order:</span>
-                          <span className="text-white font-semibold">
+                          <span className="text-accent-content font-semibold">
                             {selectedCustomer.lastOrder
                               ? new Date(selectedCustomer.lastOrder).toLocaleDateString()
                               : "N/A"}

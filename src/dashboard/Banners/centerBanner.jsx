@@ -7,8 +7,8 @@ import { useState, useRef, useEffect } from "react"
 import toast from "react-hot-toast"
 
 const CenterBanner = () => {
-  
-  const { ads, loading, error} = useGetCenterBanner();
+
+  const { ads, loading, error } = useGetCenterBanner();
   const [banners, setBanners] = useState([]);
   useEffect(() => {
     if (ads) {
@@ -19,11 +19,11 @@ const CenterBanner = () => {
       }
     }
   }, [ads]);
-  
+
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingBanner, setEditingBanner] = useState(null)
-   const [deleteModal, setDeleteModal] = useState(null)
+  const [deleteModal, setDeleteModal] = useState(null)
   const [formData, setFormData] = useState({
     title: "",
     images: "",
@@ -79,58 +79,58 @@ const CenterBanner = () => {
 
   // Create or Update Banner
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    const data = new FormData();
-    data.append("title", formData.title);
-    data.append("Description", formData.Description);
-    data.append("Link_URL", formData.link);
-    data.append("status", formData.status);
-    if (formData.images) data.append("images", formData.images);
+    try {
+      const data = new FormData();
+      data.append("title", formData.title);
+      data.append("Description", formData.Description);
+      data.append("Link_URL", formData.link);
+      data.append("status", formData.status);
+      if (formData.images) data.append("images", formData.images);
 
-    let res;
+      let res;
 
-    if (editingBanner) {
-      res = await CenterBannerUploade(data, editingBanner._id || editingBanner.id);
+      if (editingBanner) {
+        res = await CenterBannerUploade(data, editingBanner._id || editingBanner.id);
 
-      setBanners((prev) =>
-        prev.map((banner) =>
-          banner._id === editingBanner._id || banner.id === editingBanner.id
-            ? { ...banner, ...formData }
-            : banner
-        )
-      );
-       refetch();
-      toast.success("✅ Banner updated successfully!");
-    } else {
-      res = await CenterBannerCreate(data);
+        setBanners((prev) =>
+          prev.map((banner) =>
+            banner._id === editingBanner._id || banner.id === editingBanner.id
+              ? { ...banner, ...formData }
+              : banner
+          )
+        );
+        refetch();
+        toast.success("✅ Banner updated successfully!");
+      } else {
+        res = await CenterBannerCreate(data);
 
-      const newBanner = {
-        id: res?.data?._id || Date.now(),
-        ...res?.data || formData,
-        createdAt: new Date().toISOString().split("T")[0],
-      };
+        const newBanner = {
+          id: res?.data?._id || Date.now(),
+          ...res?.data || formData,
+          createdAt: new Date().toISOString().split("T")[0],
+        };
 
-      setBanners((prev) => [newBanner, ...prev]);
-      refetch();
-    toast.success("✅ Banner Create successfully!");
+        setBanners((prev) => [newBanner, ...prev]);
+        refetch();
+        toast.success("✅ Banner Create successfully!");
+      }
+
+
+      closeModal();
+    } catch (error) {
+      console.error("CenterBanner save error:", error);
+      toast.error("Something went wrong while saving the banner!");
     }
-
-    
-    closeModal();
-  } catch (error) {
-    console.error("CenterBanner save error:", error);
-    toast.error("Something went wrong while saving the banner!");
-  }
-};
+  };
 
 
   // delete banner
- const handleDelete = (id) => {
+  const handleDelete = (id) => {
     setDeleteModal(id);
   };
-//  confirm delete
+  //  confirm delete
   const deleteBanner = async () => {
     try {
       if (!deleteModal) return;
@@ -144,49 +144,49 @@ const CenterBanner = () => {
     }
   };
 
- 
+
 
 
   // Toggle All Status
- const toggleAllStatus = async () => {
-  try {
-    const hasActive = banners.some((b) => b.status === "active");
-    const newStatus = hasActive ? "inactive" : "active";
-    setBanners((prev) =>
-      prev.map((banner) => ({
-        ...banner,
-        status: newStatus,
-      }))
-    );
-    await Promise.allSettled(
-      banners
-        .filter((b) => b._id)
-        .map(async (banner) => {
-          const data = new FormData();
-          data.append("status", newStatus);
-          await CenterBannerUploade(data, banner._id);
-        })
-    );
-    toast.success(`All banners are now ${newStatus}!`);
-  } catch (error) {
-    console.error("Error toggling all statuses:", error);
-    toast.error("Something went wrong while updating statuses!");
-  }
-};
+  const toggleAllStatus = async () => {
+    try {
+      const hasActive = banners.some((b) => b.status === "active");
+      const newStatus = hasActive ? "inactive" : "active";
+      setBanners((prev) =>
+        prev.map((banner) => ({
+          ...banner,
+          status: newStatus,
+        }))
+      );
+      await Promise.allSettled(
+        banners
+          .filter((b) => b._id)
+          .map(async (banner) => {
+            const data = new FormData();
+            data.append("status", newStatus);
+            await CenterBannerUploade(data, banner._id);
+          })
+      );
+      toast.success(`All banners are now ${newStatus}!`);
+    } catch (error) {
+      console.error("Error toggling all statuses:", error);
+      toast.error("Something went wrong while updating statuses!");
+    }
+  };
 
 
   const handleImageUpload = (e) => {
-  const file = e.target.files?.[0];
-  if (file) {
-    setFormData({ ...formData, images: file }); 
-  }
-};
+    const file = e.target.files?.[0];
+    if (file) {
+      setFormData({ ...formData, images: file });
+    }
+  };
 
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black  relative overflow-hidden">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-       
+
         <div
           className="absolute top-1/2 left-1/4 w-64 h-64 bg-gradient-to-r from-emerald-500/15 to-teal-500/15 rounded-full blur-3xl animate-pulse"
           style={{ animationDelay: "2s" }}
@@ -212,7 +212,7 @@ const CenterBanner = () => {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
             <div className="text-center sm:text-left">
               <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent animate-pulse">
-               Center Banner Management
+                Center Banner Management
               </h1>
               <p className="text-gray-300 text-lg md:text-xl font-light">
                 Create stunning promotional banners with advanced controls
@@ -221,13 +221,13 @@ const CenterBanner = () => {
             <div className="flex flex-col sm:flex-row gap-3">
               <button
                 onClick={toggleAllStatus}
-                className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/25"
+                className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-accent-content px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/25"
               >
                 Toggle All Status
               </button>
               <button
                 onClick={() => openModal()}
-                className="bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 hover:from-purple-600 hover:via-pink-600 hover:to-blue-600 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25 animate-pulse"
+                className="bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 hover:from-purple-600 hover:via-pink-600 hover:to-blue-600 text-accent-content px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25 animate-pulse"
               >
                 ✨ Create New Banner
               </button>
@@ -242,7 +242,7 @@ const CenterBanner = () => {
                   placeholder="Search banners..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full px-6 py-4 bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all duration-300"
+                  className="w-full px-6 py-4 bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all duration-300"
                 />
                 <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
                   <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -259,7 +259,7 @@ const CenterBanner = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-6 py-4 bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all duration-300"
+              className="px-6 py-4 bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl text-accent-content focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all duration-300"
             >
               <option value="all">All Status</option>
               <option value="active">Active Only</option>
@@ -272,10 +272,10 @@ const CenterBanner = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-300 text-sm font-medium">Total Banners</p>
-                  <p className="text-3xl font-bold text-white mt-1">{banners.length}</p>
+                  <p className="text-3xl font-bold text-accent-content mt-1">{banners.length}</p>
                 </div>
                 <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
-                  <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-7 h-7 text-accent-content" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -291,12 +291,12 @@ const CenterBanner = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-300 text-sm font-medium">Active Banners</p>
-                  <p className="text-3xl font-bold text-white mt-1">
+                  <p className="text-3xl font-bold text-accent-content mt-1">
                     {banners.filter((b) => b.status === "active").length}
                   </p>
                 </div>
                 <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center shadow-lg">
-                  <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-7 h-7 text-accent-content" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -312,12 +312,12 @@ const CenterBanner = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-300 text-sm font-medium">Inactive Banners</p>
-                  <p className="text-3xl font-bold text-white mt-1">
+                  <p className="text-3xl font-bold text-accent-content mt-1">
                     {banners.filter((b) => b.status === "inactive").length}
                   </p>
                 </div>
                 <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center shadow-lg">
-                  <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-7 h-7 text-accent-content" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -329,11 +329,11 @@ const CenterBanner = () => {
               </div>
             </div>
 
-            
+
           </div>
         </div>
 
-       
+
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
           {currentBanners.map((banner, index) => (
@@ -350,18 +350,17 @@ const CenterBanner = () => {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div
-                  className={`absolute top-4 right-4 px-4 py-2 rounded-full text-sm font-bold backdrop-blur-sm ${
-                    banner.status === "active"
-                      ? "bg-gradient-to-r from-emerald-500/80 to-teal-500/80 text-white border border-emerald-400/50"
-                      : "bg-gradient-to-r from-red-500/80 to-pink-500/80 text-white border border-red-400/50"
-                  }`}
+                  className={`absolute top-4 right-4 px-4 py-2 rounded-full text-sm font-bold backdrop-blur-sm ${banner.status === "active"
+                      ? "bg-gradient-to-r from-emerald-500/80 to-teal-500/80 text-accent-content border border-emerald-400/50"
+                      : "bg-gradient-to-r from-red-500/80 to-pink-500/80 text-accent-content border border-red-400/50"
+                    }`}
                 >
                   {banner.status.toUpperCase()}
                 </div>
               </div>
 
               <div className="p-6">
-                <h3 className="text-xl font-bold text-white mb-3 group-hover:bg-gradient-to-r group-hover:from-purple-400 group-hover:to-pink-400 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300">
+                <h3 className="text-xl font-bold text-accent-content mb-3 group-hover:bg-gradient-to-r group-hover:from-purple-400 group-hover:to-pink-400 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300">
                   {banner.title}
                 </h3>
                 <p className="text-gray-300 mb-4 line-clamp-2 leading-relaxed">{banner.Description}</p>
@@ -391,7 +390,7 @@ const CenterBanner = () => {
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
-              className="px-6 py-3 bg-gradient-to-r from-gray-700/50 to-gray-800/50 border border-gray-600/50 rounded-xl text-white hover:from-gray-600/60 hover:to-gray-700/60 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105"
+              className="px-6 py-3 bg-gradient-to-r from-gray-700/50 to-gray-800/50 border border-gray-600/50 rounded-xl text-accent-content hover:from-gray-600/60 hover:to-gray-700/60 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105"
             >
               ← Previous
             </button>
@@ -400,11 +399,10 @@ const CenterBanner = () => {
               <button
                 key={page}
                 onClick={() => setCurrentPage(page)}
-                className={`px-5 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 ${
-                  currentPage === page
-                    ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/25"
-                    : "bg-gradient-to-r from-gray-700/50 to-gray-800/50 border border-gray-600/50 text-white hover:from-gray-600/60 hover:to-gray-700/60"
-                }`}
+                className={`px-5 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 ${currentPage === page
+                    ? "bg-gradient-to-r from-purple-500 to-pink-500 text-accent-content shadow-lg shadow-purple-500/25"
+                    : "bg-gradient-to-r from-gray-700/50 to-gray-800/50 border border-gray-600/50 text-accent-content hover:from-gray-600/60 hover:to-gray-700/60"
+                  }`}
               >
                 {page}
               </button>
@@ -413,7 +411,7 @@ const CenterBanner = () => {
             <button
               onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
               disabled={currentPage === totalPages}
-              className="px-6 py-3 bg-gradient-to-r from-gray-700/50 to-gray-800/50 border border-gray-600/50 rounded-xl text-white hover:from-gray-600/60 hover:to-gray-700/60 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105"
+              className="px-6 py-3 bg-gradient-to-r from-gray-700/50 to-gray-800/50 border border-gray-600/50 rounded-xl text-accent-content hover:from-gray-600/60 hover:to-gray-700/60 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105"
             >
               Next →
             </button>
@@ -436,9 +434,9 @@ const CenterBanner = () => {
                     type="text"
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="w-full px-6 py-4 bg-gray-800/50 border border-gray-700/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all duration-300"
+                    className="w-full px-6 py-4 bg-gray-800/50 border border-gray-700/50 rounded-xl text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all duration-300"
                     placeholder="Enter banner title"
-                  
+
                   />
                 </div>
 
@@ -485,9 +483,9 @@ const CenterBanner = () => {
                     type="url"
                     value={formData.link}
                     onChange={(e) => setFormData({ ...formData, link: e.target.value })}
-                    className="w-full px-6 py-4 bg-gray-800/50 border border-gray-700/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all duration-300"
+                    className="w-full px-6 py-4 bg-gray-800/50 border border-gray-700/50 rounded-xl text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all duration-300"
                     placeholder="https://example.com"
-                  
+
                   />
                 </div>
 
@@ -497,9 +495,9 @@ const CenterBanner = () => {
                     value={formData.Description}
                     onChange={(e) => setFormData({ ...formData, Description: e.target.value })}
                     rows={4}
-                    className="w-full px-6 py-4 bg-gray-800/50 border border-gray-700/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all duration-300 resize-none"
+                    className="w-full px-6 py-4 bg-gray-800/50 border border-gray-700/50 rounded-xl text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all duration-300 resize-none"
                     placeholder="Enter banner Description"
-                  
+
                   />
                 </div>
 
@@ -508,7 +506,7 @@ const CenterBanner = () => {
                   <select
                     value={formData.status}
                     onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                    className="w-full px-6 py-4 bg-gray-800/50 border border-gray-700/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all duration-300"
+                    className="w-full px-6 py-4 bg-gray-800/50 border border-gray-700/50 rounded-xl text-accent-content focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all duration-300"
                   >
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
@@ -525,7 +523,7 @@ const CenterBanner = () => {
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 px-8 py-4 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 text-white rounded-xl font-semibold hover:from-purple-600 hover:via-pink-600 hover:to-blue-600 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25"
+                    className="flex-1 px-8 py-4 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 text-accent-content rounded-xl font-semibold hover:from-purple-600 hover:via-pink-600 hover:to-blue-600 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25"
                   >
                     {editingBanner ? "💾 Update Banner" : "✨ Create Banner"}
                   </button>
@@ -544,7 +542,7 @@ const CenterBanner = () => {
               <div className="p-3 bg-pink-500/20 rounded-full">
                 <Trash2 className="w-8 h-8 text-pink-500" />
               </div>
-              <h2 className="text-2xl font-bold text-white">Delete Product</h2>
+              <h2 className="text-2xl font-bold text-accent-content">Delete Product</h2>
             </div>
 
             <p className="text-gray-300 mb-6">
@@ -554,13 +552,13 @@ const CenterBanner = () => {
             <div className="flex gap-3">
               <button
                 onClick={deleteBanner}
-                className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-semibold rounded-lg transition-all transform hover:scale-105"
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-accent-content font-semibold rounded-lg transition-all transform hover:scale-105"
               >
                 Delete
               </button>
               <button
                 onClick={() => setDeleteModal(null)}
-                className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition-colors"
+                className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-accent-content font-semibold rounded-lg transition-colors"
               >
                 Cancel
               </button>

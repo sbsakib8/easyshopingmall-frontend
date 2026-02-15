@@ -31,39 +31,39 @@ const ReviewsPage = () => {
   // Filter and sort reviews
   const filteredReviews = clientSide
     ? reviews
-        .filter((review) => {
-          const term = searchTerm.toLowerCase();
+      .filter((review) => {
+        const term = searchTerm.toLowerCase();
 
-          const matchesSearch =
-            review.userId?.name?.toLowerCase().includes(term) ||
-            review.userId?.email?.toLowerCase().includes(term) ||
-            review.comment?.toLowerCase().includes(term) ||
-            review.status?.toLowerCase().includes(term);
+        const matchesSearch =
+          review.userId?.name?.toLowerCase().includes(term) ||
+          review.userId?.email?.toLowerCase().includes(term) ||
+          review.comment?.toLowerCase().includes(term) ||
+          review.status?.toLowerCase().includes(term);
 
-          const matchesStatus = filterStatus === "all" || review.status === filterStatus;
+        const matchesStatus = filterStatus === "all" || review.status === filterStatus;
 
-          const matchesRating =
-            filterRating === "all" || review.rating?.toString() === filterRating;
+        const matchesRating =
+          filterRating === "all" || review.rating?.toString() === filterRating;
 
-          return matchesSearch && matchesStatus && matchesRating;
-        })
-        .sort((a, b) => {
-          let aValue;
-          let bValue;
+        return matchesSearch && matchesStatus && matchesRating;
+      })
+      .sort((a, b) => {
+        let aValue;
+        let bValue;
 
-          if (sortBy === "date") {
-            aValue = new Date(a.createdAt).getTime();
-            bValue = new Date(b.createdAt).getTime();
-          } else if (sortBy === "rating") {
-            aValue = a.rating;
-            bValue = b.rating;
-          } else {
-            aValue = a[sortBy];
-            bValue = b[sortBy];
-          }
+        if (sortBy === "date") {
+          aValue = new Date(a.createdAt).getTime();
+          bValue = new Date(b.createdAt).getTime();
+        } else if (sortBy === "rating") {
+          aValue = a.rating;
+          bValue = b.rating;
+        } else {
+          aValue = a[sortBy];
+          bValue = b[sortBy];
+        }
 
-          return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
-        })
+        return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
+      })
     : reviews;
 
   // Calculate statistics
@@ -156,11 +156,11 @@ const ReviewsPage = () => {
   // Get status badge color
   const getStatusBadge = (status) => {
     const colors = {
-      approved: "bg-green-600 text-white",
-      pending: "bg-yellow-600 text-white",
-      rejected: "bg-red-600 text-white",
+      approved: "bg-green-600 text-accent-content",
+      pending: "bg-yellow-600 text-accent-content",
+      rejected: "bg-red-600 text-accent-content",
     };
-    return colors[status] || "bg-gray-600 text-white";
+    return colors[status] || "bg-gray-600 text-accent-content";
   };
 
   const Modal = ({ isOpen, onClose, children }) => {
@@ -175,7 +175,7 @@ const ReviewsPage = () => {
         <div className="relative bg-gradient-to-br from-gray-900 to-black border border-gray-700 rounded-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto animate-scale-in">
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 text-gray-400 hover:text-white text-xl font-bold z-10"
+            className="absolute top-4 right-4 text-gray-400 hover:text-accent-content text-xl font-bold z-10"
           >
             ×
           </button>
@@ -216,7 +216,7 @@ const ReviewsPage = () => {
 
             <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-accent-content mb-2">
                   Customers{" "}
                   <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                     Reviews
@@ -236,13 +236,13 @@ const ReviewsPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in">
             <div className="bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-lg p-6 hover:scale-105 transition-transform duration-200 hover:shadow-lg hover:shadow-yellow-500/20">
               <div className="text-sm font-medium text-gray-400 mb-2">Total Reviews</div>
-              <div className="text-3xl font-bold text-white">{totalReviews}</div>
+              <div className="text-3xl font-bold text-accent-content">{totalReviews}</div>
             </div>
 
             <div className="bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-lg p-6 hover:scale-105 transition-transform duration-200 hover:shadow-lg hover:shadow-yellow-500/20">
               <div className="text-sm font-medium text-gray-400 mb-2">Average Rating</div>
               <div className="flex items-center space-x-2">
-                <div className="text-3xl font-bold text-white">{averageRating.toFixed(1)}</div>
+                <div className="text-3xl font-bold text-accent-content">{averageRating.toFixed(1)}</div>
                 <div className="flex">{renderStars(Math.round(averageRating))}</div>
               </div>
             </div>
@@ -260,7 +260,7 @@ const ReviewsPage = () => {
 
           {/* Filters and Search */}
           <div className="bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-lg p-6 animate-slide-up">
-            <h2 className="text-xl font-semibold text-white mb-4">Filter & Search Reviews</h2>
+            <h2 className="text-xl font-semibold text-accent-content mb-4">Filter & Search Reviews</h2>
 
             <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
               {/* Search Input - Left */}
@@ -269,7 +269,7 @@ const ReviewsPage = () => {
                 placeholder="Search reviews..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full md:w-1/2 bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                className="w-full md:w-1/2 bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500"
               />
 
               {/* Rating Dropdown - Right */}
@@ -280,7 +280,7 @@ const ReviewsPage = () => {
                   trigger={
                     <button
                       onClick={() => setShowRatingDropdown(!showRatingDropdown)}
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white hover:bg-gray-600 transition-colors flex items-center justify-between"
+                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-accent-content hover:bg-gray-600 transition-colors flex items-center justify-between"
                     >
                       Rating: {filterRating === "all" ? "All" : `${filterRating} Stars`}
                       <span>▼</span>
@@ -292,7 +292,7 @@ const ReviewsPage = () => {
                       setFilterRating("all");
                       setShowRatingDropdown(false);
                     }}
-                    className="block w-full text-left px-4 py-2 text-white hover:bg-gray-700"
+                    className="block w-full text-left px-4 py-2 text-accent-content hover:bg-gray-700"
                   >
                     All Ratings
                   </button>
@@ -304,7 +304,7 @@ const ReviewsPage = () => {
                         setFilterRating(rating.toString());
                         setShowRatingDropdown(false);
                       }}
-                      className="block w-full text-left px-4 py-2 text-white hover:bg-gray-700"
+                      className="block w-full text-left px-4 py-2 text-accent-content hover:bg-gray-700"
                     >
                       {rating} Stars
                     </button>
@@ -338,12 +338,12 @@ const ReviewsPage = () => {
                               className="w-12 h-12 rounded-full border-2 border-yellow-500 object-cover"
                             />
                           ) : (
-                            <div className="w-12 h-12 rounded-full border-2 border-yellow-500 bg-gray-600 flex items-center justify-center text-white font-bold text-lg">
+                            <div className="w-12 h-12 rounded-full border-2 border-yellow-500 bg-gray-600 flex items-center justify-center text-accent-content font-bold text-lg">
                               {review.userId?.name?.charAt(0).toUpperCase() || "U"}
                             </div>
                           )}
                           <div className="min-w-0">
-                            <h3 className="font-semibold text-white truncate">
+                            <h3 className="font-semibold text-accent-content truncate">
                               {review.userId?.name}
                             </h3>
                             <p className="text-sm text-gray-400">
@@ -354,7 +354,7 @@ const ReviewsPage = () => {
 
                         {/* Product & Rating */}
                         <div className="lg:col-span-3">
-                          <h4 className="font-medium text-white mb-1 truncate">
+                          <h4 className="font-medium text-accent-content mb-1 truncate">
                             {review.productId?.productName || "Unknown Product"}
                           </h4>
 
@@ -366,7 +366,7 @@ const ReviewsPage = () => {
 
                         {/* Comment */}
                         <div className="lg:col-span-4">
-                          <p className="text-white text-sm leading-relaxed line-clamp-2">
+                          <p className="text-accent-content text-sm leading-relaxed line-clamp-2">
                             {review?.comment}
                           </p>
                           <div className="flex flex-wrap items-center gap-4 mt-2 text-xs text-gray-400">
@@ -397,7 +397,7 @@ const ReviewsPage = () => {
                                 setSelectedReview(review);
                                 setIsDetailModalOpen(true);
                               }}
-                              className="bg-slate-700 border border-slate-600 rounded-md px-3 py-1.5 text-sm text-white hover:bg-slate-600 transition"
+                              className="bg-slate-700 border border-slate-600 rounded-md px-3 py-1.5 text-sm text-accent-content hover:bg-slate-600 transition"
                             >
                               View
                             </button>
@@ -412,7 +412,7 @@ const ReviewsPage = () => {
                                       showActionDropdown === review._id ? null : review._id
                                     )
                                   }
-                                  className="bg-slate-700 border border-slate-600 rounded-md px-3 py-1.5 text-sm text-white hover:bg-slate-600 transition"
+                                  className="bg-slate-700 border border-slate-600 rounded-md px-3 py-1.5 text-sm text-accent-content hover:bg-slate-600 transition"
                                 >
                                   Actions
                                 </button>
@@ -421,7 +421,7 @@ const ReviewsPage = () => {
                               {review.status !== "approved" && (
                                 <button
                                   onClick={() => handleStatusChange(review._id, "approved")}
-                                  className="block w-full text-left px-4 py-2 text-sm text-white hover:bg-green-600"
+                                  className="block w-full text-left px-4 py-2 text-sm text-accent-content hover:bg-green-600"
                                 >
                                   Approve
                                 </button>
@@ -429,7 +429,7 @@ const ReviewsPage = () => {
                               {review.status !== "pending" && (
                                 <button
                                   onClick={() => handleStatusChange(review._id, "pending")}
-                                  className="block w-full text-left px-4 py-2 text-sm text-white hover:bg-yellow-600"
+                                  className="block w-full text-left px-4 py-2 text-sm text-accent-content hover:bg-yellow-600"
                                 >
                                   Mark Pending
                                 </button>
@@ -437,14 +437,14 @@ const ReviewsPage = () => {
                               {review.status !== "rejected" && (
                                 <button
                                   onClick={() => handleStatusChange(review._id, "rejected")}
-                                  className="block w-full text-left px-4 py-2 text-sm text-white hover:bg-red-600"
+                                  className="block w-full text-left px-4 py-2 text-sm text-accent-content hover:bg-red-600"
                                 >
                                   Reject
                                 </button>
                               )}
                               <button
                                 onClick={() => handleDeleteReview(review._id)}
-                                className="block w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-red-600 hover:text-white"
+                                className="block w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-red-600 hover:text-accent-content"
                               >
                                 Delete
                               </button>
@@ -463,7 +463,7 @@ const ReviewsPage = () => {
           {filteredReviews.length === 0 && (
             <div className="bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-lg p-12 text-center animate-fade-in">
               <div className="text-6xl mb-4">📝</div>
-              <h3 className="text-xl font-semibold text-white mb-2">No Reviews Found</h3>
+              <h3 className="text-xl font-semibold text-accent-content mb-2">No Reviews Found</h3>
               <p className="text-gray-400">Try adjusting your search or filter criteria.</p>
             </div>
           )}
@@ -472,13 +472,13 @@ const ReviewsPage = () => {
         {/* Detail Modal */}
         <Modal isOpen={isDetailModalOpen} onClose={() => setIsDetailModalOpen(false)}>
           {selectedReview && (
-            <div className="p-8 text-white">
+            <div className="p-8 text-accent-content">
               {/* Header with Close Button */}
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold">Review Details</h2>
                 <button
                   onClick={() => setIsDetailModalOpen(false)}
-                  className="text-gray-400 hover:text-white transition-colors"
+                  className="text-gray-400 hover:text-accent-content transition-colors"
                 ></button>
               </div>
 
@@ -493,7 +493,7 @@ const ReviewsPage = () => {
                         className="w-12 h-12 rounded-full border-2 border-yellow-500 object-cover"
                       />
                     ) : (
-                      <div className="w-12 h-12 rounded-full border-2 border-yellow-500 bg-gray-600 flex items-center justify-center text-white font-bold text-lg">
+                      <div className="w-12 h-12 rounded-full border-2 border-yellow-500 bg-gray-600 flex items-center justify-center text-accent-content font-bold text-lg">
                         {selectedReview.userId?.name?.charAt(0).toUpperCase() || "U"}
                       </div>
                     )}
@@ -551,25 +551,25 @@ const ReviewsPage = () => {
                 <div className="flex flex-wrap gap-2 pt-4">
                   <button
                     onClick={() => handleStatusChange(selectedReview._id, "approved")}
-                    className="bg-[#10b981] hover:bg-green-700 text-white font-medium px-6 py-2 rounded-md transition-all"
+                    className="bg-[#10b981] hover:bg-green-700 text-accent-content font-medium px-6 py-2 rounded-md transition-all"
                   >
                     Approve
                   </button>
                   <button
                     onClick={() => handleStatusChange(selectedReview._id, "pending")}
-                    className="bg-[#d97706] hover:bg-yellow-700 text-white font-medium px-6 py-2 rounded-md transition-all"
+                    className="bg-[#d97706] hover:bg-yellow-700 text-accent-content font-medium px-6 py-2 rounded-md transition-all"
                   >
                     Pending
                   </button>
                   <button
                     onClick={() => handleStatusChange(selectedReview._id, "rejected")}
-                    className="bg-[#ef4444] hover:bg-red-700 text-white font-medium px-6 py-2 rounded-md transition-all"
+                    className="bg-[#ef4444] hover:bg-red-700 text-accent-content font-medium px-6 py-2 rounded-md transition-all"
                   >
                     Reject
                   </button>
                   <button
                     onClick={() => handleDeleteReview(selectedReview._id)}
-                    className="bg-red-600 hover:bg-red-800 text-white font-medium px-6 py-2 rounded-md transition-all"
+                    className="bg-red-600 hover:bg-red-800 text-accent-content font-medium px-6 py-2 rounded-md transition-all"
                   >
                     Delete
                   </button>

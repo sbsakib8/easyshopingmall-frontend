@@ -16,6 +16,50 @@ export default function LocationSelects({ customerInfo, setCustomerInfo }) {
         setDivisionList(bdData.map(d => d.division));
     }, []);
 
+    // Sync state with customerInfo props (e.g., when auto-populated from profile)
+    // Sync state with customerInfo props (e.g., when auto-populated from profile)
+    useEffect(() => {
+        // 1. Handle Division & Districts
+        if (customerInfo.division) {
+            setSelectedDivision(customerInfo.division);
+            const divObj = bdData.find(d => d.division === customerInfo.division);
+            if (divObj) {
+                setDistrictList(divObj.districts || []);
+            }
+        }
+
+        // 2. Handle District & Upazilas
+        if (customerInfo.district) {
+            setSelectedDistrict(customerInfo.district);
+
+            // Find district object - prioritize current division but fallback to global search
+            let distObj = null;
+
+            if (customerInfo.division) {
+                const divObj = bdData.find(d => d.division === customerInfo.division);
+                distObj = divObj?.districts.find(d => d.district === customerInfo.district);
+            }
+
+            // Fallback: search all divisions if not found yet
+            if (!distObj) {
+                for (const div of bdData) {
+                    const found = div.districts.find(d => d.district === customerInfo.district);
+                    if (found) {
+                        distObj = found;
+                        break;
+                    }
+                }
+            }
+
+            // Always update upazila list if district found
+            if (distObj) {
+                setUpazilaList(distObj.upazilas || []);
+            } else {
+                setUpazilaList([]);
+            }
+        }
+    }, [customerInfo.division, customerInfo.district, customerInfo.area]);
+
     const handleDivisionChange = (division) => {
         setSelectedDivision(division);
         setSelectedDistrict("");
@@ -41,9 +85,9 @@ export default function LocationSelects({ customerInfo, setCustomerInfo }) {
             <div className="bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 p-6">
                 <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                        <MapPin className="w-5 h-5 text-white" />
+                        <MapPin className="w-5 h-5 text-accent-content" />
                     </div>
-                    <h2 className="text-xl font-semibold text-white">অঞ্চল ও জেলা নির্বাচন</h2>
+                    <h2 className="text-xl font-semibold text-accent-content">অঞ্চল ও জেলা নির্বাচন</h2>
                 </div>
             </div>
 

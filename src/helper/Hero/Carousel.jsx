@@ -104,9 +104,9 @@ const Carousel = ({ initialData }) => {
 
 
               {/* Content overlay */}
-              <div className="absolute inset-0 flex flex-col justify-end items-center text-white text-center  md:p-8 lg:p-12">
+              <div className="absolute inset-0 flex flex-col justify-end items-center text-accent-content text-center  md:p-8 lg:p-12">
                 <div className="max-w-4xl mx-auto transform translate-y-0 opacity-100 transition-all duration-700">
-                  <h2 className="hidden md:block text-2xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4 leading-tight text-white px-4 py-2 rounded-lg md:px-0 md:py-0 md:rounded-none">
+                  <h2 className="hidden md:block text-2xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4 leading-tight text-accent-content px-4 py-2 rounded-lg md:px-0 md:py-0 md:rounded-none">
                     {slide?.title}
                   </h2>
                   <p className="hidden md:block text-sm md:text-lg lg:text-xl opacity-90 leading-relaxed">
@@ -123,7 +123,7 @@ const Carousel = ({ initialData }) => {
           onClick={prevSlide}
           className="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 z-10 
                      bg-white/20 hover:bg-white/30 backdrop-blur-sm 
-                     text-white p-2 md:p-3 rounded-full 
+                     text-accent-content p-2 md:p-3 rounded-full 
                      transition-all duration-300 ease-in-out
                      opacity-0 group-hover:opacity-100
                      hover:scale-110 active:scale-95
@@ -137,7 +137,7 @@ const Carousel = ({ initialData }) => {
           onClick={nextSlide}
           className="absolute right-4 md:right-6 top-1/2 -translate-y-1/2 z-10 
                      bg-white/20 hover:bg-white/30 backdrop-blur-sm 
-                     text-white p-2 md:p-3 rounded-full 
+                     text-accent-content p-2 md:p-3 rounded-full 
                      transition-all duration-300 ease-in-out
                      opacity-0 group-hover:opacity-100
                      hover:scale-110 active:scale-95
@@ -148,7 +148,7 @@ const Carousel = ({ initialData }) => {
         </button>
 
         {/* Progress indicator */}
-        <div className="hidden md:block absolute top-4 right-4 bg-black/30 backdrop-blur-sm rounded-full px-3 py-1 text-white text-sm">
+        <div className="hidden md:block absolute top-4 right-4 bg-black/30 backdrop-blur-sm rounded-full px-3 py-1 text-accent-content text-sm">
           {currentSlide + 1} / {slides?.length}
         </div>
       </div>

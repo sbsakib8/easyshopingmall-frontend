@@ -48,16 +48,16 @@ const BlogPage = ({ initialData }) => {
   });
 
   return (
-    <div className="min-h-screen lg:mt-20 py-5 bg-gradient-to-br from-slate-50 via-white to-blue-50">
+    <div className="min-h-screen lg:mt-12 py-5 bg-bg">
       {/* Header Section */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white">
-        <div className="absolute inset-0 bg-black/20"></div>
+      <div className="relative overflow-hidden text-accent">
+        <div className="absolute inset-0"></div>
         <div className={`container mx-auto px-4 py-16 md:py-24 relative transform transition-all duration-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-          }`}>
+          } shadow-md rounded-2xl`}>
           <div className="text-center max-w-4xl mx-auto">
             <h1 className="text-4xl md:text-6xl font-bold mb-6">আমাদের ব্লগ</h1>
             <p className="text-xl md:text-2xl mb-8 opacity-90">সর্বশেষ ট্রেন্ড, টিপস এবং গাইড পড়ুন আমাদের expert দের কাছ থেকে</p>
-            <div className="w-24 h-1 bg-white/50 mx-auto rounded-full"></div>
+            <div className="w-24 h-1 mx-auto rounded-full"></div>
           </div>
         </div>
       </div>
@@ -72,7 +72,7 @@ const BlogPage = ({ initialData }) => {
             </div>
 
             {loading ? (
-              <div className="bg-white rounded-2xl shadow-xl overflow-hidden animate-pulse">
+              <div className="rounded-2xl shadow-xl overflow-hidden animate-pulse">
                 <div className="md:flex">
                   <div className="md:w-1/2">
                     <Skeleton className="w-full h-64 md:h-[400px]" />
@@ -111,7 +111,7 @@ const BlogPage = ({ initialData }) => {
                   </div>
                   <div className="md:w-1/2 p-8 text-black">
                     <div className="flex items-center gap-4 mb-4">
-                      <span className="bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                      <span className="bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-accent-content px-3 py-1 rounded-full text-sm font-medium">
                         {featuredPost?.category}
                       </span>
                       <div className="flex items-center text-gray-500 text-sm">
@@ -163,7 +163,7 @@ const BlogPage = ({ initialData }) => {
       </div>
 
       {/* Search and Filter */}
-      <div className="py-8 bg-white shadow-sm">
+      <div className="py-8  shadow-xl">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
             <div className="relative flex-1 max-w-md">
@@ -173,7 +173,7 @@ const BlogPage = ({ initialData }) => {
                 placeholder="ব্লগ খুঁজুন..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-black"
+                className="w-full pl-10 pr-4 py-3 border border-secondary rounded-full focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent text-black"
               />
             </div>
 
@@ -181,7 +181,7 @@ const BlogPage = ({ initialData }) => {
               <button
                 onClick={() => setSelectedCategory("All")}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${selectedCategory === "All"
-                  ? 'bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white shadow-lg'
+                  ? 'bg-btn-color text-accent-content shadow-lg'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
               >
@@ -192,7 +192,7 @@ const BlogPage = ({ initialData }) => {
                   key={cat._id}
                   onClick={() => setSelectedCategory(cat.name)}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${selectedCategory === cat.name
-                    ? 'bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white shadow-lg'
+                    ? 'bg-btn-color text-accent-content shadow-lg'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                 >
@@ -283,17 +283,17 @@ const BlogPage = ({ initialData }) => {
       </div>
 
       {/* Newsletter Section */}
-      <div className="py-16 bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white">
-        <div className="container mx-auto px-4 text-center">
+      <div className="py-16 text-accent">
+        <div className="container mx-auto px-4 text-center shadow-xl rounded-2xl border border-accent-content">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">নতুন পোস্টের আপডেট পান</h2>
           <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">আমাদের newsletter subscribe করুন এবং সর্বপ্রথম জানুন নতুন ব্লগ পোস্ট এবং exclusive content এর কথা।</p>
           <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
             <input
               type="email"
               placeholder="আপনার ইমেইল ঠিকানা"
-              className="flex-1 px-6 py-3 rounded-full bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-white/50"
+              className="flex-1 px-6 py-3 rounded-full bg-bg outline outline-secondary text-accent focus:outline-none focus:ring-2 focus:ring-accent"
             />
-            <button onClick={handleSubscribe} className="bg-white cursor-pointer text-teal-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transform hover:scale-105 transition-all duration-300">
+            <button onClick={handleSubscribe} className="bg-btn-color cursor-pointer text-accent-content px-8 py-3 rounded-full font-semibold hover:bg-secondary transform hover:scale-105 transition-all duration-300">
               {subscribe ? 'Subscribed' : 'Subscribe'}
             </button>
           </div>

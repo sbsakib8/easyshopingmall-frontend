@@ -8,26 +8,26 @@ import { useState } from "react";
 function SideBanners() {
   const { leftbanner, loading: leftLoading, error: leftError } = useGetLeftBanner();
   const { rightbanner, loading: rightLoading, error: rightError } = useGetRightBanner();
-  
+
   const [closedLeftAds, setClosedLeftAds] = useState([]);
   const [closedRightAds, setClosedRightAds] = useState([]);
 
   const activeLeftAds = Array.isArray(leftbanner)
     ? leftbanner.filter(
-        (item) =>
-          item?.status === "active" &&
-          Array.isArray(item?.images) &&
-          item.images.length > 0
-      )
+      (item) =>
+        item?.status === "active" &&
+        Array.isArray(item?.images) &&
+        item.images.length > 0
+    )
     : [];
 
   const activeRightAds = Array.isArray(rightbanner)
     ? rightbanner.filter(
-        (item) =>
-          item?.status === "active" &&
-          Array.isArray(item?.images) &&
-          item.images.length > 0
-      )
+      (item) =>
+        item?.status === "active" &&
+        Array.isArray(item?.images) &&
+        item.images.length > 0
+    )
     : [];
 
   const visibleLeftAds = activeLeftAds.filter(ad => !closedLeftAds.includes(ad._id));
@@ -49,12 +49,12 @@ function SideBanners() {
           <div className="space-y-3">
             {visibleLeftAds.map((ad, index) => (
               <div key={ad._id || index} className="relative bg-white shadow-lg rounded-lg p-2 border-2 border-gray-300">
-                <div className="absolute top-0 left-0 bg-gray-700 text-white text-xs px-2 py-0.5 rounded-tl-lg rounded-br-lg">
+                <div className="absolute top-0 left-0 bg-gray-700 text-accent-content text-xs px-2 py-0.5 rounded-tl-lg rounded-br-lg">
                   Ad
                 </div>
                 <button
                   onClick={() => closeLeftAd(ad._id)}
-                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors text-sm font-bold z-10"
+                  className="absolute -top-2 -right-2 bg-red-500 text-accent-content rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors text-sm font-bold z-10"
                   aria-label="Close this ad"
                 >
                   ×
@@ -80,12 +80,12 @@ function SideBanners() {
           <div className="space-y-3">
             {visibleRightAds.map((ad, index) => (
               <div key={ad._id || index} className="relative bg-white shadow-lg rounded-lg p-2 border-2 border-gray-300">
-                <div className="absolute top-0 left-0 bg-gray-700 text-white text-xs px-2 py-0.5 rounded-tl-lg rounded-br-lg">
+                <div className="absolute top-0 left-0 bg-gray-700 text-accent-content text-xs px-2 py-0.5 rounded-tl-lg rounded-br-lg">
                   Ad
                 </div>
                 <button
                   onClick={() => closeRightAd(ad._id)}
-                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors text-sm font-bold z-10"
+                  className="absolute -top-2 -right-2 bg-red-500 text-accent-content rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors text-sm font-bold z-10"
                   aria-label="Close this ad"
                 >
                   ×

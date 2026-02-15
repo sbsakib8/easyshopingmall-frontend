@@ -26,6 +26,7 @@ import {
   Zap,
 } from "lucide-react";
 import CustomLoader from '@/src/compronent/loading/CustomLoader';
+import ShareModal from './ShareModal';
 
 
 const ProductDetails = ({ initialProduct }) => {
@@ -36,6 +37,7 @@ const ProductDetails = ({ initialProduct }) => {
   const { data: wishlist } = useSelector((state) => state.wishlist);
   const cartItems = useSelector((state) => state.cart.items || []);
   const [loading, setLoading] = useState(true);
+  const [dropShippingPrice, setDropShippingPrice] = useState(0);
   const [error, setError] = useState(null);
   const [product, setProduct] = useState(() => {
     if (initialProduct) {
@@ -80,6 +82,7 @@ const ProductDetails = ({ initialProduct }) => {
   const [selectedColor, setSelectedColor] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("description");
+  const [showShareModal, setShowShareModal] = useState(false);
 
   //review
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -90,12 +93,10 @@ const ProductDetails = ({ initialProduct }) => {
   // Fetch all products for related products
   const productParams = useMemo(() => ({}), []);
   const { product: allProductsData } = useGetProduct(productParams);
-  console.log("product", allProductsData);
-
   const handleSubmitReview = async () => {
     // Check if user is logged in
     console.log("=== Review Submission Check ===");
-    console.log("User object:", user);
+
 
     // Handle both _id (normal login) and id (Google login)
     const userId = user?._id || user?.id;
@@ -110,14 +111,7 @@ const ProductDetails = ({ initialProduct }) => {
       toast.error("Rating & comment required");
       return;
     }
-
-    // Use params.id instead of product?.id to ensure we have the correct ID
     const productId = params?.id || product?.id;
-
-    // console.log("Product ID from params:", params?.id);
-    // console.log("Product ID from product:", product?.id);
-    // console.log("Final Product ID:", productId);
-
     if (!productId) {
       toast.error("Product ID not found");
       return;
@@ -395,7 +389,7 @@ const ProductDetails = ({ initialProduct }) => {
           <p className="text-red-600 text-lg">{error || "Product not found"}</p>
           <button
             onClick={() => router.back()}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg"
+            className="bg-blue-600 text-accent-content px-6 py-2 rounded-lg"
           >
             Go Back
           </button>
@@ -403,12 +397,11 @@ const ProductDetails = ({ initialProduct }) => {
       </div>
     );
   }
-
   return (
-    <div className="min-h-screen lg:mt-30 lg:py-10 bg-gradient-to-br from-purple-50 via-white to-blue-50">
+    <div className="min-h-screen lg:mt-6 lg:py-10 bg-bg">
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumb with Category & SubCategory */}
-        <div className="flex items-center space-x-2 text-sm text-gray-600 mb-8 flex-wrap">
+        <div className="flex items-center space-x-2 text-sm text-gray-600 mb-2 mt-4 flex-wrap">
           <button onClick={() => router.push("/")} className="hover:text-blue-600 hover:underline">
             Home
           </button>
@@ -451,15 +444,15 @@ const ProductDetails = ({ initialProduct }) => {
                 className="w-full h-auto object-cover "
               />
               {product?.discount > 0 && (
-                <div className="absolute top-4 left-4 bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1 rounded-full text-sm font-semibold animate-pulse">
+                <div className="absolute top-4 left-4 bg-gradient-to-r from-red-500 to-pink-500 text-accent-content px-3 py-1 rounded-full text-sm font-semibold animate-pulse">
                   {Math.round(product.discount)}% OFF
                 </div>
               )}
               <button
                 onClick={handleWishlist}
                 className={`absolute top-4 right-4 p-2 rounded-full transition-all duration-300 ${isWishlisted
-                  ? "bg-red-500 text-white scale-110"
-                  : "bg-white/80 text-gray-600 hover:bg-red-500 hover:text-white"
+                  ? "bg-red-500 text-accent-content scale-110"
+                  : "bg-white/80 text-gray-600 hover:bg-red-500 hover:text-accent-content"
                   }`}
               >
                 <Heart className={`w-5 h-5 ${isWishlisted ? "fill-current" : ""}`} />
@@ -527,31 +520,30 @@ const ProductDetails = ({ initialProduct }) => {
               <p className="text-blue-600 font-semibold text-sm uppercase tracking-wide">
                 {product.brand}
               </p>
-
               {/* Category & SubCategory Info */}
               {(product?.category || product?.subCategory) && (
                 <div className="text-xs text-gray-500 mt-1 space-y-1">
                   {product?.category && (
                     <p>
                       <span className="font-semibold">Category:</span>{" "}
-                      {typeof product.category === "string"
-                        ? product.category
-                        : product.category?.name || "Category"}
+                      {typeof product.category[0]?.name === "string"
+                        ? product.category[0]?.name
+                        : product.category[0]?.name || "Category"}
                     </p>
                   )}
                   {product?.subCategory && (
                     <p>
                       <span className="font-semibold">Subcategory:</span>{" "}
-                      {typeof product.subCategory === "string"
-                        ? product.subCategory
-                        : product.subCategory?.name || "Subcategory"}
+                      {typeof product.subCategory[0]?.name === "string"
+                        ? product.subCategory[0]?.name
+                        : product.subCategory[0]?.name || "Subcategory"}
                     </p>
                   )}
                 </div>
               )}
 
               <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mt-2 leading-tight">
-                {product.name}
+                {product?.name}
               </h1>
 
               {/* Rating */}
@@ -578,27 +570,26 @@ const ProductDetails = ({ initialProduct }) => {
               <span className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                 ৳{product?.price?.toFixed(0) || 0}
               </span>
+
               <div>
-                {product?.discount > 0 && (
-                  <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1 rounded-full text-sm font-semibold animate-pulse">
-                    {Math.round(product.discount)}% OFF
-                  </div>
+                {product?.rank > product?.price && user?.role !== "DROPSHIPPING" && (
+                  <>
+                    <p className="bg-gradient-to-r from-green-500 to-emerald-500 text-accent-content px-3 py-1 rounded-full text-sm font-semibold">
+                      Save ৳{(product?.rank - product?.price)?.toFixed(0) || 0}
+                    </p>
+                  </>
                 )}
-                <del className="text-2xl font-bold bg-gradient-to-r from-gray-400 to-gray-500 bg-clip-text text-transparent">
+                {user?.role !== "DROPSHIPPING" ? <del className="text-2xl font-bold bg-gradient-to-r from-gray-400 to-gray-500 bg-clip-text text-transparent">
                   Rs {product?.rank}
-                </del>
+                </del> : ""}
               </div>
-              {product?.originalPrice > product?.price && (
-                <>
-                  <span className="text-xl text-gray-500 line-through">
-                    ৳{product?.originalPrice?.toFixed(0) || 0}
-                  </span>
-                  <span className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                    Save ৳{(product?.originalPrice - product?.price)?.toFixed(0) || 0}
-                  </span>
-                </>
-              )}
+
+
             </div>
+            {/* Market Price */}
+            {user?.role === "DROPSHIPPING" && <p className="text-2xl font-bold text-gray-500 ">
+              <span className='text-xl text-accent'> Market Price:</span> {product?.rank}৳
+            </p>}
 
             {/* Color Selection */}
             {(product?.colors?.length || 0) > 0 && (
@@ -641,7 +632,7 @@ const ProductDetails = ({ initialProduct }) => {
               px-3 rounded-full font-semibold
               transition-all duration-300 border
               ${isActive
-                            ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white border-transparent shadow-md scale-105"
+                            ? "bg-gradient-to-r from-blue-500 to-purple-500 text-accent-content border-transparent shadow-md scale-105"
                             : "bg-white text-gray-800 border-gray-300 hover:border-blue-400 hover:scale-105"
                           }
             `}
@@ -649,7 +640,7 @@ const ProductDetails = ({ initialProduct }) => {
                         {size}
 
                         {isActive && (
-                          <span className="text-white font-bold text-lg leading-none ml-1">✓</span>
+                          <span className="text-accent-content font-bold text-lg leading-none ml-1">✓</span>
                         )}
                       </button>
                     );
@@ -689,6 +680,18 @@ const ProductDetails = ({ initialProduct }) => {
               </div>
             </div>
 
+            {/* dropShipping price  */}
+            {user?.role === "DROPSHIPPING" && <div >
+              <label className="text-accen font-medium">আপনার বিক্রয়কৃত মূল্য</label>
+              <input
+                type="number"
+                onChange={(e) => setDropShippingPrice(e.target.value)}
+                className="w-full p-4 bg-white/10  rounded-xl text-accent placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 border border-gray-300 focus:border-transparent transition-all duration-300 mt-2"
+                placeholder="0৳"
+                required
+              />
+            </div>}
+
             {/* Action Buttons */}
             <div className="space-y-4">
               <button
@@ -696,27 +699,47 @@ const ProductDetails = ({ initialProduct }) => {
                 disabled={product?.stock === 0}
                 className={`w-full py-4 rounded-xl font-semibold text-lg flex items-center justify-center space-x-2 transition-all duration-300 ${product?.stock === 0
                   ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                  : "bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white hover:shadow-lg hover:scale-102 cursor-pointer"
+                  : "bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-accent-content hover:shadow-lg hover:scale-102 cursor-pointer"
                   }`}
               >
                 <ShoppingCart className="w-5 h-5 " />
                 <span>{product?.stock === 0 ? "Out of Stock" : "Add to Cart"}</span>
               </button>
-
               <div className="grid grid-cols-2 gap-4">
-                <button className="bg-gradient-to-r from-emerald-500 to-green-500 text-white py-3 rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2 cursor-pointer">
-                  <Zap className="w-5 h-5" />
+                <button
+                  disabled={product?.stock === 0}
+                  onClick={async () => {
+                    setLoading(true)
+                    await handleAddToCart()
+                    setLoading(false)
+                    router.push("/checkout")
+                  }}
+
+                  className={`w-full py-4 rounded-xl font-semibold text-lg flex items-center justify-center space-x-2 transition-all duration-300 ${product?.stock === 0
+                    ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                    : "bg-btn-color text-accent-content hover:shadow-lg hover:scale-102 cursor-pointer"
+                    }`}>
+                  <Zap className={`w-5 h-5 ${loading ? 'animate-spin' : ''} `} />
                   <span>Buy Now</span>
                 </button>
-                <button className="border-2 border-gray-300 text-gray-700 py-3 rounded-xl font-semibold hover:border-blue-300 hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2 cursor-pointer">
+                <button
+                  onClick={() => setShowShareModal(true)}
+                  className="border-2 border-gray-300 text-gray-700 py-3 rounded-xl font-semibold hover:border-blue-300 hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2 cursor-pointer w-full">
                   <Share2 className="w-5 h-5" />
                   <span>Share</span>
                 </button>
               </div>
             </div>
 
+            {/* Share Modal */}
+            <ShareModal
+              isOpen={showShareModal}
+              onClose={() => setShowShareModal(false)}
+              product={product}
+            />
+
             {/* Features */}
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl">
+            {user?.role !== "DROPSHIPPING" && <div className="shadow-xl p-6 rounded-xl">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="flex flex-col items-center text-center space-y-2">
                   <Truck className="w-8 h-8 text-blue-500" />
@@ -735,19 +758,21 @@ const ProductDetails = ({ initialProduct }) => {
                   <span className="text-sm font-medium">Premium Quality</span>
                 </div>
               </div>
-            </div>
+            </div>}
+
+
           </div>
         </div>
 
         {/* Product Details Tabs */}
-        <div className="mt-16">
+        <div className="">
           <div className="border-b border-gray-200">
             <nav className="flex space-x-8">
               {["description", "specifications", "reviews"].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm capitalize transition-all duration-300 ${activeTab === tab
+                  className={`py-4 ${user?.role === "DROPSHIPPING" && tab === "reviews" ? "hidden" : ''} px-1 border-b-2 font-medium text-sm capitalize transition-all duration-300 ${activeTab === tab
                     ? "border-blue-500 text-blue-600"
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                     }`}
@@ -758,7 +783,7 @@ const ProductDetails = ({ initialProduct }) => {
             </nav>
           </div>
 
-          <div className="mt-8">
+          <div className="mt-2">
             {activeTab === "description" && (
               <div className="prose max-w-none">
                 <p className="text-gray-600 text-lg leading-relaxed mb-6 break-words overflow-wrap-anywhere whitespace-pre-line">
@@ -816,7 +841,7 @@ const ProductDetails = ({ initialProduct }) => {
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-gray-100">
                   <span className="font-medium text-gray-900">Size:</span>
-                  <span className="text-gray-600">{product?.size || "N/A"}</span>
+                  <span className="text-gray-600">{product?.sizes.join(',') || "N/A"}</span>
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-gray-100">
                   <span className="font-medium text-gray-900">Stock Available:</span>
@@ -868,8 +893,9 @@ const ProductDetails = ({ initialProduct }) => {
                 ))}
               </div>
             )}
+            { }
+            {activeTab === "reviews" && user?.role !== "DROPSHIPPING" && (
 
-            {activeTab === "reviews" && (
               <div className="py-12 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
                 {/* Summary */}
                 <div className="text-center mb-10">
@@ -887,7 +913,7 @@ const ProductDetails = ({ initialProduct }) => {
 
                   <button
                     onClick={() => setShowReviewForm(!showReviewForm)}
-                    className="mt-6 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-lg hover:shadow-lg transition-all duration-300"
+                    className="mt-6 bg-gradient-to-r from-blue-500 to-purple-500 text-accent-content px-6 py-3 rounded-lg hover:shadow-lg transition-all duration-300"
                   >
                     Write a Review
                   </button>
@@ -923,7 +949,7 @@ const ProductDetails = ({ initialProduct }) => {
 
                     <button
                       onClick={handleSubmitReview}
-                      className="w-full mt-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white py-2 rounded-lg hover:shadow-md transition-all"
+                      className="w-full mt-4 bg-gradient-to-r from-blue-500 to-purple-500 text-accent-content py-2 rounded-lg hover:shadow-md transition-all"
                     >
                       Submit Review
                     </button>
@@ -948,7 +974,7 @@ const ProductDetails = ({ initialProduct }) => {
                               className="w-12 h-12 rounded-full object-cover border"
                             />
                           ) : (
-                            <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white flex items-center justify-center font-bold text-lg">
+                            <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-accent-content flex items-center justify-center font-bold text-lg">
                               {review.userId?.name?.[0]?.toUpperCase() || "A"}
                             </div>
                           )}
@@ -997,7 +1023,7 @@ const ProductDetails = ({ initialProduct }) => {
                       className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     {relProduct.discount > 0 && (
-                      <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
+                      <div className="absolute top-2 left-2 bg-red-500 text-accent-content px-2 py-1 rounded text-xs font-bold">
                         {relProduct.discount}% OFF
                       </div>
                     )}
@@ -1042,7 +1068,7 @@ const ProductDetails = ({ initialProduct }) => {
                         e.stopPropagation();
                         router.push(`/productdetails/${relProduct.id}`);
                       }}
-                      className="w-full bg-blue-600 text-white py-2 px-3 rounded font-semibold hover:bg-blue-700 transition-colors duration-300 text-sm flex items-center justify-center gap-2"
+                      className="w-full bg-blue-600 text-accent-content py-2 px-3 rounded font-semibold hover:bg-blue-700 transition-colors duration-300 text-sm flex items-center justify-center gap-2"
                     >
                       <ShoppingCart className="w-4 h-4" />
                       View Product
@@ -1054,7 +1080,7 @@ const ProductDetails = ({ initialProduct }) => {
           </div>
         )}
       </div>
-    </div>
+    </div >
   );
 };
 
