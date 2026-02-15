@@ -5,9 +5,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Facebook,
     MessageCircle,
-    Check
+    Check,
+    X
 } from "lucide-react";
 import { FaSquareXTwitter } from "react-icons/fa6";
+import { FaFacebook } from 'react-icons/fa';
 
 const ShareModal = ({ isOpen, onClose, product }) => {
     const [isCopied, setIsCopied] = useState(false);
@@ -65,6 +67,12 @@ const ShareModal = ({ isOpen, onClose, product }) => {
                         {/* Header */}
                         <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
                             <h2 className="text-lg font-semibold">Share in a post</h2>
+                            <button
+                                onClick={onClose}
+                                className="p-1 hover:bg-white/10 rounded-full transition-colors cursor-pointer"
+                            >
+                                <X className="w-6 h-6" />
+                            </button>
                         </div>
 
                         <div className="p-6 space-y-2">
@@ -91,14 +99,14 @@ const ShareModal = ({ isOpen, onClose, product }) => {
                             <div className="mt-6">
                                 <h3 className="text-md font-medium px-1 text-accent">Share</h3>
                                 <div className="flex justify-between items-center  overflow-x-auto pb-4 custom-scrollbar w-2/3 mx-auto">
-                                  
+
                                     <ShareIcon
                                         icon={<MessageCircle className="w-6 h-6 fill-green-500 text-green-500" />}
                                         label="WhatsApp"
                                         onClick={shareOnWhatsApp}
                                     />
                                     <ShareIcon
-                                        icon={<Facebook className="w-6 h-6 fill-[#1877F2] text-[#1877F2]" />}
+                                        icon={<FaFacebook className="w-6 h-6 fill-[#1877F2] text-[#1877F2]" />}
                                         label="Facebook"
                                         onClick={shareOnFacebook}
                                     />
@@ -107,11 +115,11 @@ const ShareModal = ({ isOpen, onClose, product }) => {
                                         label="X"
                                         onClick={shareOnTwitter}
                                     />
-                                   
+
                                 </div>
                             </div>
 
-                            
+
                         </div>
                     </motion.div>
                 </div>

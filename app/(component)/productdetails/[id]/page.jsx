@@ -14,28 +14,33 @@ export async function generateMetadata(props) {
     const description = product.description || `Buy ${title} at the best price on EasyShoppingMallBD.`;
     const image = product.images?.[0] || "/icon.png";
 
+    const baseUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3000";
+    const pageUrl = `${baseUrl}/productdetails/${id}`;
+    const absoluteImageUrl = image.startsWith("http") ? image : `${baseUrl}${image}`;
+
     return {
       title,
       description,
       openGraph: {
         title,
         description,
-         images: [
-      {
-        url: image, 
-        width: 800,
-        height: 600,
-        alt: "product image",
-      },
-    ],
+        url: pageUrl,
+        images: [
+          {
+            url: absoluteImageUrl,
+            width: 1200,
+            height: 630,
+            alt: title,
+          },
+        ],
         type: 'article',
       },
-      keywords:[...product.tags,product.category[0].name,product.subCategory[0].name],
+      keywords: [...(product.tags || []), product.category?.[0]?.name, product.subCategory?.[0]?.name].filter(Boolean),
       twitter: {
         card: 'summary_large_image',
         title,
         description,
-        images: [image],
+        images: [absoluteImageUrl],
       },
     };
   } catch (error) {
