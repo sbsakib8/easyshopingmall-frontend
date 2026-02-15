@@ -47,7 +47,7 @@ const LoadingPage = () => {
       'সেরা দামে সেরা পণ্য...',
       'নিরাপদ অনলাইন শপিং...'
     ];
-    
+
     let textIndex = 0;
     const textInterval = setInterval(() => {
       setLoadingText(texts[textIndex]);
@@ -61,7 +61,7 @@ const LoadingPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4 relative overflow-hidden">
-      
+
       {/* Animated Background */}
       <div className="absolute inset-0">
         {/* Floating Orbs */}
@@ -69,7 +69,7 @@ const LoadingPage = () => {
         <div className="absolute top-40 right-32 w-24 h-24 bg-purple-500/20 rounded-full blur-xl animate-pulse delay-1000"></div>
         <div className="absolute bottom-32 left-40 w-28 h-28 bg-pink-500/20 rounded-full blur-xl animate-pulse delay-2000"></div>
         <div className="absolute bottom-20 right-20 w-36 h-36 bg-indigo-500/20 rounded-full blur-xl animate-pulse delay-500"></div>
-        
+
         {/* Moving Particles */}
         {[...Array(20)].map((_, i) => (
           <div
@@ -86,13 +86,13 @@ const LoadingPage = () => {
       </div>
 
       <div className="relative z-10 max-w-md mx-auto text-center">
-        
+
         {/* Brand Logo */}
         <div className="mb-8">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl mb-4 shadow-2xl transform hover:scale-110 transition-all duration-500 animate-bounce">
-            <ShoppingBag className="w-10 h-10 text-white" />
+            <ShoppingBag className="w-10 h-10 text-accent-content" />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">EasyShoppingMall</h1>
+          <h1 className="text-3xl font-bold text-accent-content mb-2">EasyShoppingMall</h1>
           <p className="text-blue-200 text-sm">আপনার বিশ্বস্ত অনলাইন শপিং সাথী</p>
         </div>
 
@@ -101,7 +101,7 @@ const LoadingPage = () => {
           <div className="relative w-32 h-32 mx-auto mb-6">
             {/* Outer Ring */}
             <div className="absolute inset-0 border-4 border-white/20 rounded-full"></div>
-            
+
             {/* Progress Ring */}
             <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 128 128">
               <circle
@@ -124,17 +124,17 @@ const LoadingPage = () => {
                 </linearGradient>
               </defs>
             </svg>
-            
+
             {/* Center Icon */}
             <div className="absolute inset-0 flex items-center justify-center">
               <div className={`p-4 rounded-full bg-gradient-to-r ${steps[currentStep].color} transform transition-all duration-500 scale-110`}>
-                <CurrentIcon className="w-8 h-8 text-white animate-pulse" />
+                <CurrentIcon className="w-8 h-8 text-accent-content animate-pulse" />
               </div>
             </div>
           </div>
 
           {/* Progress Percentage */}
-          <div className="text-4xl font-bold text-white mb-2 font-mono">
+          <div className="text-4xl font-bold text-accent-content mb-2 font-mono">
             {progress}%
           </div>
         </div>
@@ -144,17 +144,16 @@ const LoadingPage = () => {
           <div className="text-lg text-blue-200 mb-4 h-6 transition-all duration-500">
             {steps[currentStep].text}
           </div>
-          
+
           {/* Step Indicators */}
           <div className="flex justify-center space-x-3">
             {steps.map((step, index) => (
               <div
                 key={index}
-                className={`w-3 h-3 rounded-full transition-all duration-500 ${
-                  index <= currentStep 
-                    ? 'bg-gradient-to-r from-blue-400 to-purple-400 scale-125' 
+                className={`w-3 h-3 rounded-full transition-all duration-500 ${index <= currentStep
+                    ? 'bg-gradient-to-r from-blue-400 to-purple-400 scale-125'
                     : 'bg-white/20'
-                }`}
+                  }`}
               ></div>
             ))}
           </div>
@@ -163,7 +162,7 @@ const LoadingPage = () => {
         {/* Dynamic Loading Text */}
         <div className="mb-8">
           <div className="h-6 flex items-center justify-center">
-            <p className="text-white/80 text-sm animate-pulse transition-all duration-1000">
+            <p className="text-accent-content/80 text-sm animate-pulse transition-all duration-1000">
               {loadingText}
             </p>
           </div>
@@ -180,20 +179,20 @@ const LoadingPage = () => {
             <div
               key={index}
               className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 transform transition-all duration-500 hover:scale-105"
-              style={{ 
+              style={{
                 animationDelay: `${index * 200}ms`,
-                opacity: progress > index * 25 ? 1 : 0.3 
+                opacity: progress > index * 25 ? 1 : 0.3
               }}
             >
               <div className="text-2xl mb-2">{feature.icon}</div>
-              <div className="text-white/90 text-xs font-medium">{feature.text}</div>
+              <div className="text-accent-content/90 text-xs font-medium">{feature.text}</div>
             </div>
           ))}
         </div>
 
         {/* Loading Bar */}
         <div className="w-full bg-white/20 rounded-full h-2 mb-4 overflow-hidden">
-          <div 
+          <div
             className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full transition-all duration-300 ease-out relative"
             style={{ width: `${progress}%` }}
           >
@@ -202,7 +201,7 @@ const LoadingPage = () => {
         </div>
 
         {/* Tips */}
-        <div className="text-xs text-white/60">
+        <div className="text-xs text-accent-content/60">
           <p>💡 টিপস: লোডিং এর সময় আপনার wishlist চেক করুন</p>
         </div>
 

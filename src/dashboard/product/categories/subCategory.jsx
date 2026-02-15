@@ -28,7 +28,7 @@ const AddSubcategoriesComponent = () => {
   const dispatch = useDispatch();
 
   // categoryget 
-  
+
   const allCategorydata = useSelector((state) => state.category.allCategorydata);
   // Get subcategories from Redux store
   const allsubCategorydata = useSelector((state) => state.subcategory.allsubCategorydata);
@@ -37,12 +37,12 @@ const AddSubcategoriesComponent = () => {
   const [categorieid, setCategorieid] = useState("");
   const [subcategories, setSubcategories] = useState([]);
 
-  
+
 
 
   // console.log(categories);
   // categori get 
- useEffect(() => {
+  useEffect(() => {
     if (allCategorydata?.data) {
       setCategories(allCategorydata.data);
     }
@@ -50,8 +50,8 @@ const AddSubcategoriesComponent = () => {
 
   useEffect(() => {
     SubCategoryAllGet(dispatch)
-    }, [])
-  
+  }, [])
+
   // Load categories
   useEffect(() => {
     if (allsubCategorydata?.data) {
@@ -59,7 +59,7 @@ const AddSubcategoriesComponent = () => {
     }
   }, [allsubCategorydata]);
 
-  
+
 
   const iconOptions = ['📱', '💻', '⌚', '🎧', '📷', '🖥️', '⌨️', '🖱️', '👕', '👖', '👗', '👠', '👜', '🧥', '👔', '🥾', '🏠', '🛋️', '🛏️', '🪴', '🍳', '🧹', '⚽', '🏀', '🎾', '🏈', '⛳', '🎮', '🎯', '🎨'];
 
@@ -90,22 +90,22 @@ const AddSubcategoriesComponent = () => {
     }
   };
 
- const handleImageUpload = (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    const imageUrl = URL.createObjectURL(file);
-    setFormData(prev => ({
-      ...prev,
-      image: file,          
-      previewImage: imageUrl 
-    }));
-  }
-};
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setFormData(prev => ({
+        ...prev,
+        image: file,
+        previewImage: imageUrl
+      }));
+    }
+  };
 
   const resetForm = () => {
     setFormData({
-       categoryname:"",
-      category:"",
+      categoryname: "",
+      category: "",
       name: '',
       slug: '',
       icon: '',
@@ -120,56 +120,56 @@ const AddSubcategoriesComponent = () => {
   };
 
   const handleSubmit = async () => {
-  try {
-    const data = new FormData();
-    data.append("name", formData.name);
-    data.append("slug", formData.slug);
-    data.append("icon", formData.icon);
-    data.append("isActive", formData.isActive);
-    data.append("metaTitle", formData.metaTitle);
-    data.append("metaDescription", formData.metaDescription);
-    data.append("category", formData.category);
-    if (formData.image) {
-      data.append("image", formData.image); 
+    try {
+      const data = new FormData();
+      data.append("name", formData.name);
+      data.append("slug", formData.slug);
+      data.append("icon", formData.icon);
+      data.append("isActive", formData.isActive);
+      data.append("metaTitle", formData.metaTitle);
+      data.append("metaDescription", formData.metaDescription);
+      data.append("category", formData.category);
+      if (formData.image) {
+        data.append("image", formData.image);
+      }
+
+      let response;
+      if (editingId) {
+        response = await SubCategoryUploade(data, editingId);
+      } else {
+        response = await SubCategoryCreate(data);
+      }
+
+      if (response.success) {
+        toast.success(editingId ? "Updated successfully ✅ " : "Created successfully ✅");
+        resetForm();
+      }
+    } catch (err) {
+      toast.error("Upload failed");
     }
+  };
 
-    let response;
-    if (editingId) {
-      response = await SubCategoryUploade(data, editingId);
-    } else {
-      response = await SubCategoryCreate(data);
+
+  const handleDelete = async (id) => {
+    if (!id) return;
+
+    const confirmDelete = window.confirm("Are you sure you want to delete this subcategory?");
+    if (!confirmDelete) return;
+
+    try {
+      const response = await SubCategoryDelete(id);
+
+      if (response.success) {
+        setSubcategories(prev => prev.filter(sub => sub._id !== id));
+        toast.success(response.message || "Subcategory deleted successfully ✅");
+      } else {
+        toast.error(response.message || "Delete failed ❌");
+      }
+    } catch (error) {
+      console.error("Delete error:", error);
+      toast.error(error.response?.data?.message || "Delete failed ❌");
     }
-
-    if (response.success) {
-      toast.success(editingId ? "Updated successfully ✅ " : "Created successfully ✅");
-      resetForm();
-    }
-  } catch (err) {
-    toast.error("Upload failed");
-  }
-};
-
-
- const handleDelete = async (id) => {
-  if (!id) return;
-
-  const confirmDelete = window.confirm("Are you sure you want to delete this subcategory?");
-  if (!confirmDelete) return;
-
-  try {
-    const response = await SubCategoryDelete(id);
-
-    if (response.success) {
-      setSubcategories(prev => prev.filter(sub => sub._id !== id));
-      toast.success(response.message || "Subcategory deleted successfully ✅");
-    } else {
-      toast.error(response.message || "Delete failed ❌");
-    }
-  } catch (error) {
-    console.error("Delete error:", error);
-    toast.error(error.response?.data?.message || "Delete failed ❌");
-  }
-};
+  };
 
   const startEdit = (subcategory) => {
     setFormData({
@@ -189,14 +189,14 @@ const AddSubcategoriesComponent = () => {
   const toggleSubcategoryStatus = async (subcategory) => {
     try {
       const updatedStatus = !subcategory.isActive;
-      
+
       setSubcategories(prev =>
         prev.map(sub =>
           sub._id === subcategory._id ? { ...sub, isActive: updatedStatus } : sub
         )
       );
 
-      const response = await SubCategoryUploade({isActive: updatedStatus},subcategory._id)
+      const response = await SubCategoryUploade({ isActive: updatedStatus }, subcategory._id)
 
       if (response.success) {
         toast.success(`Subcategory "${subcategory.name}" status updated`);
@@ -204,7 +204,7 @@ const AddSubcategoriesComponent = () => {
     } catch (error) {
       console.error("Failed to update status:", error);
       toast.error("Failed to update status");
-      
+
       setSubcategories(prev =>
         prev.map(sub =>
           sub._id === subcategory._id ? { ...sub, isActive: subcategory.isActive } : sub
@@ -231,7 +231,7 @@ const AddSubcategoriesComponent = () => {
 
       for (const sub of subcategories) {
         if (!sub.isActive) {
-          await SubCategoryUploade({isActive: true },sub._id)
+          await SubCategoryUploade({ isActive: true }, sub._id)
         }
       }
 
@@ -248,7 +248,7 @@ const AddSubcategoriesComponent = () => {
       setSubcategories(prev => prev.map(sub => ({ ...sub, isActive: false })));
 
       for (const sub of subcategories) {
-        await SubCategoryUploade({isActive: false },sub._id)
+        await SubCategoryUploade({ isActive: false }, sub._id)
       }
 
       toast.success("All subcategories deactivated");
@@ -278,26 +278,26 @@ const AddSubcategoriesComponent = () => {
     return category?.color || '#6366F1';
   };
 
- const filteredSubcategories = subcategories.filter((subcategory) => {
-  //  Search Filter
-  const matchesSearch = subcategory.name
-    ?.toLowerCase()
-    .includes(searchTerm.toLowerCase());
+  const filteredSubcategories = subcategories.filter((subcategory) => {
+    //  Search Filter
+    const matchesSearch = subcategory.name
+      ?.toLowerCase()
+      .includes(searchTerm.toLowerCase());
 
-  //  Status Filter
-  const matchesFilter =
-    filterStatus === "all" ||
-    (filterStatus === "active" && subcategory.isActive) ||
-    (filterStatus === "inactive" && !subcategory.isActive);
+    //  Status Filter
+    const matchesFilter =
+      filterStatus === "all" ||
+      (filterStatus === "active" && subcategory.isActive) ||
+      (filterStatus === "inactive" && !subcategory.isActive);
 
-  //  Category Filter
-  const matchesCategory =
-    filterCategory === "all" ||
-    subcategory.category === filterCategory ||          
-    subcategory.category?._id === filterCategory;       
+    //  Category Filter
+    const matchesCategory =
+      filterCategory === "all" ||
+      subcategory.category === filterCategory ||
+      subcategory.category?._id === filterCategory;
 
-  return matchesSearch && matchesFilter && matchesCategory;
-});
+    return matchesSearch && matchesFilter && matchesCategory;
+  });
   const activeSubcategories = subcategories.filter(sub => sub.isActive);
 
 
@@ -315,7 +315,7 @@ const AddSubcategoriesComponent = () => {
 
             <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-accent-content mb-2">
                   Subcategories <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Management</span>!
                 </h1>
                 <p className="text-gray-300 text-sm sm:text-base">
@@ -332,7 +332,7 @@ const AddSubcategoriesComponent = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-purple-300 text-sm">Total Subcategories</p>
-                <p className="text-white text-2xl font-bold">{subcategories.length}</p>
+                <p className="text-accent-content text-2xl font-bold">{subcategories.length}</p>
               </div>
               <Layers className="text-purple-400" size={28} />
             </div>
@@ -342,7 +342,7 @@ const AddSubcategoriesComponent = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-emerald-300 text-sm">Active Subcategories</p>
-                <p className="text-white text-2xl font-bold">{activeSubcategories.length}</p>
+                <p className="text-accent-content text-2xl font-bold">{activeSubcategories.length}</p>
               </div>
               <Eye className="text-emerald-400" size={28} />
             </div>
@@ -352,7 +352,7 @@ const AddSubcategoriesComponent = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-cyan-300 text-sm">Parent Categories</p>
-                <p className="text-white text-2xl font-bold">{categories.length}</p>
+                <p className="text-accent-content text-2xl font-bold">{categories.length}</p>
               </div>
               <Link className="text-cyan-400" size={28} />
             </div>
@@ -362,7 +362,7 @@ const AddSubcategoriesComponent = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-orange-300 text-sm">Inactive</p>
-                <p className="text-white text-2xl font-bold">{subcategories.length - activeSubcategories.length}</p>
+                <p className="text-accent-content text-2xl font-bold">{subcategories.length - activeSubcategories.length}</p>
               </div>
               <EyeOff className="text-orange-400" size={28} />
             </div>
@@ -381,7 +381,7 @@ const AddSubcategoriesComponent = () => {
                   placeholder="Search subcategories..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300"
+                  className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300"
                 />
               </div>
 
@@ -391,7 +391,7 @@ const AddSubcategoriesComponent = () => {
                 <select
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
-                  className="pl-10 pr-8 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300"
+                  className="pl-10 pr-8 py-3 bg-white/10 border border-white/20 rounded-xl text-accent-content focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300"
                 >
                   <option value="all" className="bg-slate-800">All Status</option>
                   <option value="active" className="bg-slate-800">Active Only</option>
@@ -405,7 +405,7 @@ const AddSubcategoriesComponent = () => {
                 <select
                   value={filterCategory}
                   onChange={(e) => setFilterCategory(e.target.value)}
-                  className="pl-10 pr-8 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300"
+                  className="pl-10 pr-8 py-3 bg-white/10 border border-white/20 rounded-xl text-accent-content focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300"
                 >
                   <option value="all" className="bg-slate-800">All Categories</option>
                   {categories.map(cat => (
@@ -421,8 +421,8 @@ const AddSubcategoriesComponent = () => {
                 <button
                   onClick={() => setViewMode('grid')}
                   className={`p-3 transition-all duration-300 ${viewMode === 'grid'
-                    ? 'bg-purple-500 text-white'
-                    : 'text-gray-300 hover:text-white hover:bg-white/10'
+                    ? 'bg-purple-500 text-accent-content'
+                    : 'text-gray-300 hover:text-accent-content hover:bg-white/10'
                     }`}
                 >
                   <Grid size={20} />
@@ -430,8 +430,8 @@ const AddSubcategoriesComponent = () => {
                 <button
                   onClick={() => setViewMode('list')}
                   className={`p-3 transition-all duration-300 ${viewMode === 'list'
-                    ? 'bg-purple-500 text-white'
-                    : 'text-gray-300 hover:text-white hover:bg-white/10'
+                    ? 'bg-purple-500 text-accent-content'
+                    : 'text-gray-300 hover:text-accent-content hover:bg-white/10'
                     }`}
                 >
                   <List size={20} />
@@ -442,7 +442,7 @@ const AddSubcategoriesComponent = () => {
             {/* Add Subcategory Button */}
             <button
               onClick={() => setShowAddForm(!showAddForm)}
-              className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl hover:from-green-600 hover:to-emerald-600 transition-all duration-300 flex items-center space-x-2 transform hover:scale-105 shadow-lg"
+              className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-accent-content rounded-xl hover:from-green-600 hover:to-emerald-600 transition-all duration-300 flex items-center space-x-2 transform hover:scale-105 shadow-lg"
             >
               <Plus size={20} />
               <span>Add Subcategory</span>
@@ -454,13 +454,13 @@ const AddSubcategoriesComponent = () => {
         {showAddForm && (
           <div className="mb-8 bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20 transform transition-all duration-500 animate-slideIn">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-white flex items-center">
+              <h2 className="text-2xl font-bold text-accent-content flex items-center">
                 <Layers className="mr-3 text-green-400" />
                 {editingId ? 'Edit Subcategory' : 'Add New Subcategory'}
               </h2>
               <button
                 onClick={resetForm}
-                className="text-gray-400 hover:text-white transition-colors duration-200 hover:bg-white/10 rounded-full p-2"
+                className="text-gray-400 hover:text-accent-content transition-colors duration-200 hover:bg-white/10 rounded-full p-2"
               >
                 <X size={24} />
               </button>
@@ -470,12 +470,12 @@ const AddSubcategoriesComponent = () => {
               {/* Left Column */}
               <div className="space-y-6">
                 <div className="space-y-2">
-                  <label className="text-white font-medium">Parent Category *</label>
+                  <label className="text-accent-content font-medium">Parent Category *</label>
                   <select
                     name="category"
-                    value={formData.category}  
+                    value={formData.category}
                     onChange={handleInputChange}
-                    className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300"
+                    className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300"
                     required
                   >
                     <option value="" className="bg-slate-800">Select parent category</option>
@@ -488,26 +488,26 @@ const AddSubcategoriesComponent = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-white font-medium">Subcategory Name *</label>
+                  <label className="text-accent-content font-medium">Subcategory Name *</label>
                   <input
                     type="text"
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300"
+                    className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300"
                     placeholder="Enter subcategory name"
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-white font-medium">URL Slug</label>
+                  <label className="text-accent-content font-medium">URL Slug</label>
                   <input
                     type="text"
                     name="slug"
                     value={formData.slug}
                     onChange={handleInputChange}
-                    className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300"
+                    className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300"
                     placeholder="subcategory-url-slug"
                   />
                   <p className="text-gray-400 text-xs">URL: /subcategory/{formData.slug}</p>
@@ -517,7 +517,7 @@ const AddSubcategoriesComponent = () => {
               {/* Right Column */}
               <div className="space-y-6">
                 <div className="space-y-2">
-                  <label className="text-white font-medium">Subcategory Icon</label>
+                  <label className="text-accent-content font-medium">Subcategory Icon</label>
                   <div className="grid grid-cols-6 gap-2 mb-3 max-h-40 overflow-y-auto p-2 bg-white/5 rounded-xl">
                     {iconOptions.map(icon => (
                       <button
@@ -538,13 +538,13 @@ const AddSubcategoriesComponent = () => {
                     name="icon"
                     value={formData.icon}
                     onChange={handleInputChange}
-                    className="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300 text-center"
+                    className="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300 text-center"
                     placeholder="Or enter custom emoji/icon"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-white font-medium">Subcategory Image</label>
+                  <label className="text-accent-content font-medium">Subcategory Image</label>
                   <div className="border-2 border-dashed border-white/30 rounded-xl p-4 text-center hover:border-white/50 transition-all duration-300">
                     {formData.image ? (
                       <div className="relative">
@@ -556,16 +556,16 @@ const AddSubcategoriesComponent = () => {
                         <button
                           type="button"
                           onClick={() => setFormData(prev => ({ ...prev, image: null }))}
-                          className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                          className="absolute top-2 right-2 bg-red-500 text-accent-content rounded-full p-1 hover:bg-red-600 transition-colors"
                         >
                           <X size={16} />
                         </button>
                       </div>
                     ) : (
                       <div>
-                        <Image className="mx-auto mb-2 text-white/60" size={32} />
+                        <Image className="mx-auto mb-2 text-accent-content/60" size={32} />
                         <input
-                        name="image"
+                          name="image"
                           type="file"
                           accept="image/*"
                           onChange={handleImageUpload}
@@ -574,7 +574,7 @@ const AddSubcategoriesComponent = () => {
                         />
                         <label
                           htmlFor="subcategory-image"
-                          className="cursor-pointer text-white hover:text-green-400 transition-colors font-medium"
+                          className="cursor-pointer text-accent-content hover:text-green-400 transition-colors font-medium"
                         >
                           Upload Subcategory Image
                         </label>
@@ -584,7 +584,7 @@ const AddSubcategoriesComponent = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-white font-medium">Status</label>
+                  <label className="text-accent-content font-medium">Status</label>
                   <div className="flex items-center p-4 bg-white/10 border border-white/20 rounded-xl">
                     <input
                       type="checkbox"
@@ -593,7 +593,7 @@ const AddSubcategoriesComponent = () => {
                       onChange={handleInputChange}
                       className="w-5 h-5 text-green-600 bg-transparent border-white/30 rounded focus:ring-green-500"
                     />
-                    <label className="ml-3 text-white">Subcategory Active</label>
+                    <label className="ml-3 text-accent-content">Subcategory Active</label>
                   </div>
                 </div>
               </div>
@@ -601,19 +601,19 @@ const AddSubcategoriesComponent = () => {
               {/* SEO Section */}
               <div className="lg:col-span-2">
                 <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                  <h3 className="text-lg font-bold text-white mb-4 flex items-center">
+                  <h3 className="text-lg font-bold text-accent-content mb-4 flex items-center">
                     <BarChart3 className="mr-2 text-yellow-400" size={20} />
                     SEO Settings
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <label className="text-white font-medium">Meta Title</label>
+                      <label className="text-accent-content font-medium">Meta Title</label>
                       <input
                         type="text"
                         name="metaTitle"
                         value={formData.metaTitle}
                         onChange={handleInputChange}
-                        className="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-all duration-300"
+                        className="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-all duration-300"
                         placeholder="SEO meta title"
                       />
                       <p className="text-xs text-gray-400">
@@ -621,13 +621,13 @@ const AddSubcategoriesComponent = () => {
                       </p>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-white font-medium">Meta Description</label>
+                      <label className="text-accent-content font-medium">Meta Description</label>
                       <textarea
                         name="metaDescription"
                         value={formData.metaDescription}
                         onChange={handleInputChange}
                         rows="2"
-                        className="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-all duration-300 resize-none"
+                        className="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-all duration-300 resize-none"
                         placeholder="SEO meta description"
                       />
                       <p className="text-xs text-gray-400">
@@ -644,7 +644,7 @@ const AddSubcategoriesComponent = () => {
               <button
                 type="button"
                 onClick={resetForm}
-                className="px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all duration-300 flex items-center justify-center space-x-2"
+                className="px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-accent-content rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all duration-300 flex items-center justify-center space-x-2"
               >
                 <X size={20} />
                 <span>Cancel</span>
@@ -654,7 +654,7 @@ const AddSubcategoriesComponent = () => {
                 type="button"
                 onClick={handleSubmit}
                 disabled={!formData.name.trim() || !formData.category}
-                className="px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl hover:from-green-600 hover:to-emerald-600 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                className="px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-accent-content rounded-xl hover:from-green-600 hover:to-emerald-600 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 <Save size={20} />
                 <span>{editingId ? 'Update Subcategory' : 'Add Subcategory'}</span>
@@ -666,7 +666,7 @@ const AddSubcategoriesComponent = () => {
         {/* Subcategories Display */}
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
           <div className="flex flex-col lg:flex-row gap-4 items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-white flex items-center">
+            <h2 className="text-2xl font-bold text-accent-content flex items-center">
               <Tag className="mr-3 text-blue-400" />
               Subcategories ({filteredSubcategories.length})
             </h2>
@@ -717,26 +717,26 @@ const AddSubcategoriesComponent = () => {
                         >
                           {subcategory?.icon || '📦'}
                         </div>
-                        
+
                       </div>
                       <button
                         onClick={() => toggleSubcategoryStatus(subcategory)}
                         className={`p-2 rounded-lg transition-all duration-300 ${subcategory.isActive
-                            ? 'text-green-400 hover:bg-green-500/20'
-                            : 'text-gray-400 hover:bg-gray-500/20'
+                          ? 'text-green-400 hover:bg-green-500/20'
+                          : 'text-gray-400 hover:bg-gray-500/20'
                           }`}
                       >
                         {subcategory.isActive ? <Eye size={16} /> : <EyeOff size={16} />}
                       </button>
                     </div>
-                    
+
                     <div className='my-3 min-h-[100px]'>
-                          <h3 className="text-white font-bold text-xs ">{subcategory.name}</h3>
-                          <p className="text-gray-300 text-sm">/{subcategory.slug}</p>
-                          <p className="text-gray-400 text-xs mt-1">
-                            {getCategoryName(subcategory.parentCategory)}
-                          </p>
-                        </div>
+                      <h3 className="text-accent-content font-bold text-xs ">{subcategory.name}</h3>
+                      <p className="text-gray-300 text-sm">/{subcategory.slug}</p>
+                      <p className="text-gray-400 text-xs mt-1">
+                        {getCategoryName(subcategory.parentCategory)}
+                      </p>
+                    </div>
 
                     {subcategory.image && (
                       <img
@@ -761,7 +761,7 @@ const AddSubcategoriesComponent = () => {
                         className=" px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-all duration-300 flex items-center justify-center  transform hover:scale-105"
                       >
                         <Edit3 size={12} />
-                       
+
                       </button>
 
                       <button
@@ -769,7 +769,7 @@ const AddSubcategoriesComponent = () => {
                         className=" px-4 py-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-all duration-300 flex items-center justify-center  transform hover:scale-105"
                       >
                         <Trash2 size={16} />
-                       
+
                       </button>
                     </div>
                   </div>
@@ -789,7 +789,7 @@ const AddSubcategoriesComponent = () => {
                       <div className="flex items-center space-x-4 flex-1">
                         <button
                           onClick={() => toggleExpanded(subcategory._id)}
-                          className="text-gray-400 hover:text-white transition-colors p-1 hover:bg-white/10 rounded"
+                          className="text-gray-400 hover:text-accent-content transition-colors p-1 hover:bg-white/10 rounded"
                         >
                           {expandedSubcategories.has(subcategory._id) ? (
                             <ChevronDown size={20} />
@@ -811,7 +811,7 @@ const AddSubcategoriesComponent = () => {
 
                         <div className="flex-1">
                           <div className="flex items-center space-x-4 flex-wrap gap-2">
-                            <h3 className="text-white font-bold text-lg">{subcategory.name}</h3>
+                            <h3 className="text-accent-content font-bold text-lg">{subcategory.name}</h3>
                             <span className={`px-3 py-1 rounded-full text-xs font-medium ${subcategory.isActive
                               ? 'bg-green-500/20 text-green-400'
                               : 'bg-red-500/20 text-red-400'
@@ -874,7 +874,7 @@ const AddSubcategoriesComponent = () => {
                 <Tag className="mx-auto mb-4 text-gray-400 animate-pulse" size={64} />
                 <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full blur-xl"></div>
               </div>
-              <h3 className="text-2xl font-bold text-white mb-2">No Subcategories Found</h3>
+              <h3 className="text-2xl font-bold text-accent-content mb-2">No Subcategories Found</h3>
               <p className="text-gray-300 mb-8 max-w-md mx-auto">
                 {searchTerm || filterStatus !== 'all' || filterCategory !== 'all'
                   ? 'Try adjusting your search or filter criteria'
@@ -883,15 +883,15 @@ const AddSubcategoriesComponent = () => {
               {!searchTerm && filterStatus === 'all' && filterCategory === 'all' && (
                 <button
                   onClick={() => setShowAddForm(true)}
-                  className="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all duration-300 flex items-center space-x-2 mx-auto transform hover:scale-105 shadow-lg"
+                  className="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-accent-content rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all duration-300 flex items-center space-x-2 mx-auto transform hover:scale-105 shadow-lg"
                 >
                   <Plus size={24} />
                   <span>Add Your First Subcategory</span>
                 </button>
               )}
- 
+
             </div>
-          )} 
+          )}
         </div>
 
         {/* Subcategory Table */}
@@ -921,9 +921,9 @@ const AddSubcategoriesComponent = () => {
                 >
                   <div className="grid grid-cols-6 gap-4 items-center min-w-max">
                     <div className="flex items-center">
-                      <div 
+                      <div
                         className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-lg transform group-hover:scale-110 transition-all duration-300"
-                        style={{ 
+                        style={{
                           backgroundColor: categoryColor + '30',
                           border: `2px solid ${categoryColor}`
                         }}
@@ -937,7 +937,7 @@ const AddSubcategoriesComponent = () => {
                     </div>
 
                     <div>
-                      <div className="font-semibold text-white text-lg group-hover:text-indigo-300 transition-colors duration-300">
+                      <div className="font-semibold text-accent-content text-lg group-hover:text-indigo-300 transition-colors duration-300">
                         {subcategory.name}
                       </div>
                       <div className="text-sm text-gray-400">
@@ -946,7 +946,7 @@ const AddSubcategoriesComponent = () => {
                     </div>
 
                     <div>
-                      <div className="text-white font-medium">
+                      <div className="text-accent-content font-medium">
                         {getCategoryName(subcategory.parentCategory)}
                       </div>
                       <div className="text-sm text-gray-400">Parent</div>
@@ -961,11 +961,10 @@ const AddSubcategoriesComponent = () => {
                     </div>
 
                     <div>
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        subcategory.isActive
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${subcategory.isActive
                           ? 'bg-green-500/20 text-green-400'
                           : 'bg-red-500/20 text-red-400'
-                      }`}>
+                        }`}>
                         {subcategory.isActive ? 'Active' : 'Inactive'}
                       </span>
                     </div>
@@ -973,11 +972,10 @@ const AddSubcategoriesComponent = () => {
                     <div className="flex items-center justify-end space-x-2">
                       <button
                         onClick={() => toggleSubcategoryStatus(subcategory)}
-                        className={`p-2 rounded-lg transition-all duration-300 ${
-                          subcategory.isActive
+                        className={`p-2 rounded-lg transition-all duration-300 ${subcategory.isActive
                             ? 'text-green-400 hover:bg-green-500/20'
                             : 'text-gray-400 hover:bg-gray-500/20'
-                        }`}
+                          }`}
                       >
                         {subcategory.isActive ? <Eye size={16} /> : <EyeOff size={16} />}
                       </button>
@@ -1012,7 +1010,7 @@ const AddSubcategoriesComponent = () => {
 
         {/* Bulk Actions Panel */}
         <div className="mt-8 bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
-          <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
+          <h2 className="text-2xl font-bold text-accent-content mb-6 flex items-center">
             <Edit3 className="mr-3 text-yellow-400" />
             Bulk Operations
           </h2>
@@ -1020,7 +1018,7 @@ const AddSubcategoriesComponent = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <button
               onClick={bulkActivate}
-              className="px-6 py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl hover:from-green-600 hover:to-emerald-600 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105 shadow-lg"
+              className="px-6 py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-accent-content rounded-xl hover:from-green-600 hover:to-emerald-600 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105 shadow-lg"
             >
               <Eye size={20} />
               <span>Activate All</span>
@@ -1028,7 +1026,7 @@ const AddSubcategoriesComponent = () => {
 
             <button
               onClick={bulkDeactivate}
-              className="px-6 py-4 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-xl hover:from-red-600 hover:to-pink-600 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105 shadow-lg"
+              className="px-6 py-4 bg-gradient-to-r from-red-500 to-pink-500 text-accent-content rounded-xl hover:from-red-600 hover:to-pink-600 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105 shadow-lg"
             >
               <EyeOff size={20} />
               <span>Deactivate All</span>
@@ -1036,7 +1034,7 @@ const AddSubcategoriesComponent = () => {
 
             <button
               onClick={() => toast.info('CSV import feature coming soon')}
-              className="px-6 py-4 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-xl hover:from-purple-600 hover:to-indigo-600 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105 shadow-lg"
+              className="px-6 py-4 bg-gradient-to-r from-purple-500 to-indigo-500 text-accent-content rounded-xl hover:from-purple-600 hover:to-indigo-600 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105 shadow-lg"
             >
               <Upload size={20} />
               <span>Import CSV</span>
@@ -1044,7 +1042,7 @@ const AddSubcategoriesComponent = () => {
 
             <button
               onClick={exportData}
-              className="px-6 py-4 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105 shadow-lg"
+              className="px-6 py-4 bg-gradient-to-r from-blue-500 to-cyan-500 text-accent-content rounded-xl hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105 shadow-lg"
             >
               <Download size={20} />
               <span>Export Data</span>
@@ -1054,7 +1052,7 @@ const AddSubcategoriesComponent = () => {
 
         {/* Subcategory Hierarchy */}
         <div className="mt-8 bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
-          <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
+          <h2 className="text-2xl font-bold text-accent-content mb-6 flex items-center">
             <Layers className="mr-3 text-teal-400" />
             Subcategory Hierarchy
           </h2>
@@ -1064,7 +1062,7 @@ const AddSubcategoriesComponent = () => {
               const categorySubcategories = subcategories.filter(
                 sub => sub.parentCategory === category._id
               );
-              
+
               if (categorySubcategories.length === 0) return null;
 
               return (
@@ -1079,7 +1077,7 @@ const AddSubcategoriesComponent = () => {
                     >
                       {category.icon}
                     </div>
-                    <span className="text-white font-bold text-lg">{category.name}</span>
+                    <span className="text-accent-content font-bold text-lg">{category.name}</span>
                     <span className="text-gray-400 text-sm">
                       ({categorySubcategories.length} subcategories)
                     </span>
@@ -1104,11 +1102,10 @@ const AddSubcategoriesComponent = () => {
                             <p className="text-xs text-gray-400">/{subcat.slug}</p>
                           </div>
                         </div>
-                        <span className={`px-2 py-1 rounded-full text-xs ${
-                          subcat.isActive
+                        <span className={`px-2 py-1 rounded-full text-xs ${subcat.isActive
                             ? 'bg-green-500/20 text-green-400'
                             : 'bg-red-500/20 text-red-400'
-                        }`}>
+                          }`}>
                           {subcat.isActive ? 'Active' : 'Inactive'}
                         </span>
                       </div>
@@ -1117,29 +1114,29 @@ const AddSubcategoriesComponent = () => {
                 </div>
               );
             })}
-            
-            {categories.every(cat => 
+
+            {categories.every(cat =>
               subcategories.filter(sub => sub.parentCategory === cat._id).length === 0
             ) && (
-              <div className="text-center py-8 text-gray-400">
-                No subcategories to display in hierarchy
-              </div>
-            )}
+                <div className="text-center py-8 text-gray-400">
+                  No subcategories to display in hierarchy
+                </div>
+              )}
           </div>
         </div>
 
         {/* Quick Actions */}
         <div className="mt-8 mb-8 bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
-          <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
+          <h2 className="text-2xl font-bold text-accent-content mb-6 flex items-center">
             <Tag className="mr-3 text-rose-400" />
             Quick Actions
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-xl p-6 border border-white/10 hover:from-blue-500/20 hover:to-cyan-500/20 transition-all duration-300">
-              <h3 className="text-white font-bold mb-2">Subcategory Templates</h3>
+              <h3 className="text-accent-content font-bold mb-2">Subcategory Templates</h3>
               <p className="text-gray-300 text-sm mb-4">Use predefined templates for quick setup</p>
-              <button 
+              <button
                 onClick={() => toast.info('Templates feature coming soon')}
                 className="w-full px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-all duration-300"
               >
@@ -1148,9 +1145,9 @@ const AddSubcategoriesComponent = () => {
             </div>
 
             <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-xl p-6 border border-white/10 hover:from-green-500/20 hover:to-emerald-500/20 transition-all duration-300">
-              <h3 className="text-white font-bold mb-2">Subcategory Analytics</h3>
+              <h3 className="text-accent-content font-bold mb-2">Subcategory Analytics</h3>
               <p className="text-gray-300 text-sm mb-4">View detailed analytics for each subcategory</p>
-              <button 
+              <button
                 onClick={() => toast.info('Analytics feature coming soon')}
                 className="w-full px-4 py-2 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 transition-all duration-300"
               >
@@ -1159,9 +1156,9 @@ const AddSubcategoriesComponent = () => {
             </div>
 
             <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-xl p-6 border border-white/10 hover:from-purple-500/20 hover:to-pink-500/20 transition-all duration-300">
-              <h3 className="text-white font-bold mb-2">Bulk Import</h3>
+              <h3 className="text-accent-content font-bold mb-2">Bulk Import</h3>
               <p className="text-gray-300 text-sm mb-4">Import subcategories from CSV</p>
-              <button 
+              <button
                 onClick={() => toast.info('Import feature coming soon')}
                 className="w-full px-4 py-2 bg-purple-500/20 text-purple-400 rounded-lg hover:bg-purple-500/30 transition-all duration-300"
               >

@@ -6,7 +6,7 @@ import { deleteUser, updateUserProfile } from '@/src/hook/useAuth';
 export default function UserRoleManager() {
   // Get all users
   const { allusers, loading: fetchLoading, error, refetch } = useGetallUsers();
-  
+
   const [users, setUsers] = useState([]);
   const [displayedUsers, setDisplayedUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -80,7 +80,7 @@ export default function UserRoleManager() {
   }, [searchTerm, users]);
 
   const handleEditUser = (user) => {
-    setEditingUser({ 
+    setEditingUser({
       ...user,
       last_login_date: user.last_login_date ? new Date(user.last_login_date).toISOString().split('T')[0] : '',
       createdAt: user.createdAt ? new Date(user.createdAt).toISOString().split('T')[0] : ''
@@ -110,14 +110,14 @@ export default function UserRoleManager() {
 
       // Call API to update user
       await updateUserProfile(editingUser._id, updateData);
-      
+
       // Update local state
       setUsers(users.map(u => u._id === editingUser._id ? { ...u, ...updateData } : u));
-      
+
       showNotification('User updated successfully!', 'success');
       setShowModal(false);
       setEditingUser(null);
-      
+
       // Refetch to ensure data is in sync
       refetch();
     } catch (error) {
@@ -129,22 +129,22 @@ export default function UserRoleManager() {
   };
 
   const handleDeleteUser = async (userId) => {
-  if (!window.confirm("Are you sure you want to delete this user?")) return;
+    if (!window.confirm("Are you sure you want to delete this user?")) return;
 
-  try {
-    const res = await deleteUser(userId); 
+    try {
+      const res = await deleteUser(userId);
 
-    if (res.success) {
-      setUsers((prevUsers) => prevUsers.filter((u) => u._id !== userId));
-      showNotification("User deleted successfully!", "success");
-    } else {
-      showNotification(res.message || "Failed to delete user!", "error");
+      if (res.success) {
+        setUsers((prevUsers) => prevUsers.filter((u) => u._id !== userId));
+        showNotification("User deleted successfully!", "success");
+      } else {
+        showNotification(res.message || "Failed to delete user!", "error");
+      }
+    } catch (error) {
+      console.error("Delete user failed:", error);
+      showNotification("Failed to delete user!", "error");
     }
-  } catch (error) {
-    console.error("Delete user failed:", error);
-    showNotification("Failed to delete user!", "error");
-  }
-};
+  };
 
   const handleRoleChange = async (userId, newRole) => {
     try {
@@ -185,10 +185,10 @@ export default function UserRoleManager() {
 
   const formatDate = (date) => {
     if (!date) return 'N/A';
-    return new Date(date).toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
+    return new Date(date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
     });
   };
 
@@ -197,7 +197,7 @@ export default function UserRoleManager() {
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 flex items-center justify-center">
         <div className="text-center">
           <RefreshCw className="w-16 h-16 text-purple-500 animate-spin mx-auto mb-4" />
-          <p className="text-white text-xl">Loading users...</p>
+          <p className="text-accent-content text-xl">Loading users...</p>
         </div>
       </div>
     );
@@ -208,10 +208,10 @@ export default function UserRoleManager() {
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 flex items-center justify-center">
         <div className="text-center">
           <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <p className="text-white text-xl">Error loading users</p>
-          <button 
+          <p className="text-accent-content text-xl">Error loading users</p>
+          <button
             onClick={refetch}
-            className="mt-4 bg-purple-500 text-white px-6 py-2 rounded-lg hover:bg-purple-600"
+            className="mt-4 bg-purple-500 text-accent-content px-6 py-2 rounded-lg hover:bg-purple-600"
           >
             Retry
           </button>
@@ -224,11 +224,10 @@ export default function UserRoleManager() {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 p-4 md:p-8">
       {/* Notification */}
       {notification.show && (
-        <div className={`fixed top-6 right-6 z-50 ${
-          notification.type === 'success' ? 'bg-green-500' : 'bg-red-500'
-        } text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-in backdrop-blur-sm`}>
-          {notification.type === 'success' ? 
-            <Check className="w-6 h-6" /> : 
+        <div className={`fixed top-6 right-6 z-50 ${notification.type === 'success' ? 'bg-green-500' : 'bg-red-500'
+          } text-accent-content px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-in backdrop-blur-sm`}>
+          {notification.type === 'success' ?
+            <Check className="w-6 h-6" /> :
             <AlertCircle className="w-6 h-6" />
           }
           <span className="font-medium">{notification.message}</span>
@@ -242,22 +241,22 @@ export default function UserRoleManager() {
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <div className="bg-gradient-to-br from-purple-500 to-pink-500 p-3 rounded-xl">
-                  <UserCog className="w-8 h-8 text-white" />
+                  <UserCog className="w-8 h-8 text-accent-content" />
                 </div>
                 <div>
-                  <h1 className="text-3xl md:text-4xl font-bold text-white">User Management</h1>
+                  <h1 className="text-3xl md:text-4xl font-bold text-accent-content">User Management</h1>
                   <p className="text-gray-400 mt-1">Manage users, roles and permissions</p>
                 </div>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-gradient-to-br from-blue-500 to-cyan-500 px-6 py-3 rounded-xl">
-                <p className="text-white text-sm font-medium">Total Users</p>
-                <p className="text-white text-3xl font-bold">{users.length}</p>
+                <p className="text-accent-content text-sm font-medium">Total Users</p>
+                <p className="text-accent-content text-3xl font-bold">{users.length}</p>
               </div>
               <div className="bg-gradient-to-br from-green-500 to-emerald-500 px-6 py-3 rounded-xl">
-                <p className="text-white text-sm font-medium">Active</p>
-                <p className="text-white text-3xl font-bold">{users.filter(u => u.status === 'Active').length}</p>
+                <p className="text-accent-content text-sm font-medium">Active</p>
+                <p className="text-accent-content text-3xl font-bold">{users.filter(u => u.status === 'Active').length}</p>
               </div>
             </div>
           </div>
@@ -272,12 +271,12 @@ export default function UserRoleManager() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by name, email, mobile, ID, role or status..."
-              className="w-full pl-12 pr-4 py-4 bg-gray-900 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+              className="w-full pl-12 pr-4 py-4 bg-gray-900 border border-gray-700 rounded-xl text-accent-content placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
             />
             {searchTerm && (
               <button
                 onClick={() => setSearchTerm('')}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-accent-content transition"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -319,9 +318,9 @@ export default function UserRoleManager() {
                     )}
                   </div>
                   <div>
-                    <h3 className="text-white font-bold text-lg">{user?.name}</h3>
+                    <h3 className="text-accent-content font-bold text-lg">{user?.name}</h3>
                     <div className="flex items-center gap-2 mt-1 flex-wrap">
-                      <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(user?.status)} text-white`}>
+                      <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(user?.status)} text-accent-content`}>
                         {user?.status}
                       </span>
                       {user?.verify_email && (
@@ -366,7 +365,7 @@ export default function UserRoleManager() {
                 <select
                   value={user?.role}
                   onChange={(e) => handleRoleChange(user?._id, e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer"
+                  className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-accent-content text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer"
                 >
                   {roles.map((role) => (
                     <option key={role?.value} value={role?.value}>
@@ -382,7 +381,7 @@ export default function UserRoleManager() {
                 <select
                   value={user?.status}
                   onChange={(e) => handleStatusChange(user?._id, e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer"
+                  className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-accent-content text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer"
                 >
                   {statuses.map((status) => (
                     <option key={status?.value} value={status?.value}>
@@ -396,14 +395,14 @@ export default function UserRoleManager() {
               <div className="flex gap-2">
                 <button
                   onClick={() => handleEditUser(user)}
-                  className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-2 px-4 rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all flex items-center justify-center gap-2 font-medium text-sm"
+                  className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 text-accent-content py-2 px-4 rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all flex items-center justify-center gap-2 font-medium text-sm"
                 >
                   <Edit className="w-4 h-4" />
                   Edit
                 </button>
                 <button
                   onClick={() => handleDeleteUser(user?._id)}
-                  className="bg-gradient-to-r from-red-500 to-pink-500 text-white py-2 px-4 rounded-lg hover:from-red-600 hover:to-pink-600 transition-all flex items-center justify-center"
+                  className="bg-gradient-to-r from-red-500 to-pink-500 text-accent-content py-2 px-4 rounded-lg hover:from-red-600 hover:to-pink-600 transition-all flex items-center justify-center"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -416,9 +415,9 @@ export default function UserRoleManager() {
         {displayedUsers.length === 0 && (
           <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl shadow-2xl p-12 text-center border border-gray-700">
             <div className="bg-gradient-to-br from-purple-500 to-pink-500 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Search className="w-10 h-10 text-white" />
+              <Search className="w-10 h-10 text-accent-content" />
             </div>
-            <h3 className="text-white text-xl font-bold mb-2">No users found</h3>
+            <h3 className="text-accent-content text-xl font-bold mb-2">No users found</h3>
             <p className="text-gray-400">Try adjusting your search criteria</p>
           </div>
         )}
@@ -432,16 +431,16 @@ export default function UserRoleManager() {
             <div className="flex items-center justify-between p-6 border-b border-gray-700 sticky top-0 bg-gradient-to-br from-gray-800 to-gray-900 z-10">
               <div className="flex items-center gap-3">
                 <div className="bg-gradient-to-br from-purple-500 to-pink-500 p-2 rounded-lg">
-                  <Edit className="w-6 h-6 text-white" />
+                  <Edit className="w-6 h-6 text-accent-content" />
                 </div>
-                <h2 className="text-2xl font-bold text-white">Edit User</h2>
+                <h2 className="text-2xl font-bold text-accent-content">Edit User</h2>
               </div>
               <button
                 onClick={() => {
                   setShowModal(false);
                   setEditingUser(null);
                 }}
-                className="text-gray-400 hover:text-white transition"
+                className="text-gray-400 hover:text-accent-content transition"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -458,7 +457,7 @@ export default function UserRoleManager() {
                     type="text"
                     value={editingUser?.name}
                     onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-xl text-accent-content focus:outline-none focus:ring-2 focus:ring-purple-500"
                     required
                   />
                 </div>
@@ -471,7 +470,7 @@ export default function UserRoleManager() {
                     type="email"
                     value={editingUser?.email}
                     onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-xl text-accent-content focus:outline-none focus:ring-2 focus:ring-purple-500"
                     required
                   />
                 </div>
@@ -482,7 +481,7 @@ export default function UserRoleManager() {
                     type="text"
                     value={editingUser?.mobile || ''}
                     onChange={(e) => setEditingUser({ ...editingUser, mobile: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-xl text-accent-content focus:outline-none focus:ring-2 focus:ring-purple-500"
                     placeholder="+1234567890"
                   />
                 </div>
@@ -493,7 +492,7 @@ export default function UserRoleManager() {
                     type="text"
                     value={editingUser?.image || ''}
                     onChange={(e) => setEditingUser({ ...editingUser, image: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-xl text-accent-content focus:outline-none focus:ring-2 focus:ring-purple-500"
                     placeholder="https://example.com/image.jpg"
                   />
                 </div>
@@ -503,7 +502,7 @@ export default function UserRoleManager() {
                   <select
                     value={editingUser.role}
                     onChange={(e) => setEditingUser({ ...editingUser, role: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-xl text-accent-content focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
                     {roles.map((role) => (
                       <option key={role.value} value={role.value}>
@@ -518,7 +517,7 @@ export default function UserRoleManager() {
                   <select
                     value={editingUser.status}
                     onChange={(e) => setEditingUser({ ...editingUser, status: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-xl text-accent-content focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
                     {statuses.map((status) => (
                       <option key={status.value} value={status.value}>
@@ -533,7 +532,7 @@ export default function UserRoleManager() {
                   <select
                     value={editingUser.customerstatus}
                     onChange={(e) => setEditingUser({ ...editingUser, customerstatus: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-xl text-accent-content focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
                     {customerStatuses.map((status) => (
                       <option key={status.value} value={status.value}>
@@ -561,7 +560,7 @@ export default function UserRoleManager() {
                     type="date"
                     value={editingUser.last_login_date}
                     onChange={(e) => setEditingUser({ ...editingUser, last_login_date: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-xl text-accent-content focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
 
@@ -578,22 +577,22 @@ export default function UserRoleManager() {
 
               {/* Additional Info */}
               <div className="bg-gray-900 rounded-xl p-4 border border-gray-700">
-                <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+                <h3 className="text-accent-content font-semibold mb-3 flex items-center gap-2">
                   <Shield className="w-5 h-5 text-purple-400" />
                   Account Statistics
                 </h3>
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div>
                     <p className="text-gray-400 text-xs mb-1">Addresses</p>
-                    <p className="text-white text-xl font-bold">{editingUser.address_details?.length || 0}</p>
+                    <p className="text-accent-content text-xl font-bold">{editingUser.address_details?.length || 0}</p>
                   </div>
                   <div>
                     <p className="text-gray-400 text-xs mb-1">Cart Items</p>
-                    <p className="text-white text-xl font-bold">{editingUser.shopping_cart?.length || 0}</p>
+                    <p className="text-accent-content text-xl font-bold">{editingUser.shopping_cart?.length || 0}</p>
                   </div>
                   <div>
                     <p className="text-gray-400 text-xs mb-1">Orders</p>
-                    <p className="text-white text-xl font-bold">{editingUser.orderHistory?.length || 0}</p>
+                    <p className="text-accent-content text-xl font-bold">{editingUser.orderHistory?.length || 0}</p>
                   </div>
                 </div>
               </div>
@@ -604,7 +603,7 @@ export default function UserRoleManager() {
               <button
                 onClick={handleUpdateUser}
                 disabled={updateLoading}
-                className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 px-6 rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all disabled:opacity-50 flex items-center justify-center gap-2 font-medium"
+                className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 text-accent-content py-3 px-6 rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all disabled:opacity-50 flex items-center justify-center gap-2 font-medium"
               >
                 {updateLoading ? (
                   <>

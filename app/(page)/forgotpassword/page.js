@@ -133,7 +133,7 @@ const ForgotPassword = () => {
           <div className="flex items-center justify-between mb-8">
             {[1, 2, 3].map((num) => (
               <React.Fragment key={num}>
-                <div className={`flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 ${step >= num ? 'bg-green-600 text-white scale-110' : 'bg-gray-200 text-gray-400'
+                <div className={`flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 ${step >= num ? 'bg-green-600 text-accent-content scale-110' : 'bg-gray-200 text-gray-400'
                   }`}>
                   {step > num ? <CheckCircle className="w-5 h-5" /> : num}
                 </div>
@@ -172,7 +172,7 @@ const ForgotPassword = () => {
               <button
                 onClick={handleSendOtp}
                 disabled={loading}
-                className="w-full bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 text-white py-4 rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                className="w-full bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 text-accent-content py-4 rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 {loading ? (
                   <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -216,7 +216,7 @@ const ForgotPassword = () => {
                 <button
                   onClick={handleVerifyOtp}
                   disabled={loading}
-                  className="flex-1 bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 text-white py-4 rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  className="flex-1 bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 text-accent-content py-4 rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
                   {loading ? (
                     <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -310,7 +310,7 @@ const ForgotPassword = () => {
                 <button
                   onClick={handleChangePassword}
                   disabled={loading}
-                  className="flex-1 bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 text-white py-4 rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  className="flex-1 bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 text-accent-content py-4 rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
                   {loading ? (
                     <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>

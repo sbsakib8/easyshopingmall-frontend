@@ -397,7 +397,7 @@ const AccountPage = () => {
     <button
       onClick={() => setActiveTab(id)}
       className={`flex items-center cursor-pointer space-x-3 w-full px-4 py-3 rounded-xl transition-all duration-300 group ${activeTab === id
-        ? "bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 text-white shadow-lg transform scale-105"
+        ? "bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 text-accent-content shadow-lg transform scale-105"
         : "text-gray-600 hover:bg-gray-50 hover:text-teal-600"
         }`}
     >
@@ -454,7 +454,7 @@ const AccountPage = () => {
                 {/* Profile Card */}
                 <div className="text-center mb-8">
                   <div className="relative inline-block">
-                    <div className="w-24 h-24 cursor-pointer bg-gradient-to-r   from-emerald-600 via-green-600 to-teal-600 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                    <div className="w-24 h-24 cursor-pointer bg-gradient-to-r   from-emerald-600 via-green-600 to-teal-600 rounded-full flex items-center justify-center text-accent-content text-2xl font-bold shadow-lg">
                       <img
                         className=" w-22 h-22 cursor-pointer rounded-full"
                         src={data?.image}
@@ -492,7 +492,7 @@ const AccountPage = () => {
                 </nav>
                 <button
                   onClick={handleLogout}
-                  className="flex items-center justify-center gap-2 mt-6 w-full bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white py-3 px-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                  className="flex items-center justify-center gap-2 mt-6 w-full bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-accent-content py-3 px-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg"
                 >
                   <LogOut className="w-5 h-5" />
                   <span className="font-medium">Logout</span>
@@ -514,8 +514,8 @@ const AccountPage = () => {
                       <button
                         onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
                         className={`flex items-center  cursor-pointer space-x-2 px-6 py-3 rounded-xl font-medium transition-all duration-300 ${isEditing
-                          ? "bg-teal-500 hover:bg-teal-800 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-                          : "bg-green-500 hover:bg-green-600 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                          ? "bg-teal-500 hover:bg-teal-800 text-accent-content shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                          : "bg-green-500 hover:bg-green-600 text-accent-content shadow-lg hover:shadow-xl transform hover:-translate-y-1"
                           }`}
                       >
                         {isEditing ? <Save className="w-4 h-4" /> : <Edit3 className="w-4 h-4" />}
@@ -837,7 +837,7 @@ const AccountPage = () => {
                             </h3>
                             <p className="text-lg font-bold text-blue-600 mb-3">৳{price}</p>
                             <div className="flex space-x-2">
-                              <button className="flex-1 cursor-pointer bg-teal-500 hover:bg-green-600 text-white py-2 rounded-lg font-medium transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1">
+                              <button className="flex-1 cursor-pointer bg-teal-500 hover:bg-green-600 text-accent-content py-2 rounded-lg font-medium transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1">
                                 Add to Cart
                               </button>
                               <button className="p-2 border cursor-pointer border-gray-200 rounded-lg hover:border-red-300 hover:text-red-500 transition-all duration-300">
@@ -1146,7 +1146,7 @@ const AccountPage = () => {
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            <User className="w-20 h-20 text-white" />
+                            <User className="w-20 h-20 text-accent-content" />
                           )}
                         </div>
                       )}
@@ -1219,7 +1219,7 @@ const AccountPage = () => {
                     disabled={!selectedImage || uploadingImage}
                     className={`flex-1 px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center justify-center space-x-2 ${!selectedImage || uploadingImage
                       ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                      : "bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-white hover:shadow-lg hover:scale-105"
+                      : "bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-accent-content hover:shadow-lg hover:scale-105"
                       }`}
                   >
                     {uploadingImage ? (

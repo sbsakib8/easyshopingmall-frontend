@@ -1,6 +1,6 @@
 "use client"
 import React, { useState } from 'react';
-import {  Lock, Eye, EyeOff, Key, Smartphone, Users, Activity, AlertTriangle, Check, X, Settings, Globe, Clock } from 'lucide-react';
+import { Lock, Eye, EyeOff, Key, Smartphone, Users, Activity, AlertTriangle, Check, X, Settings, Globe, Clock } from 'lucide-react';
 
 const SecuritySettings = () => {
   const [settings, setSettings] = useState({
@@ -46,21 +46,19 @@ const SecuritySettings = () => {
   const ToggleSwitch = ({ checked, onChange, label, description }) => (
     <div className="flex items-center justify-between p-4 rounded-lg bg-gradient-to-r from-gray-800/50 to-gray-900/50 border border-gray-700/50 hover:border-purple-500/30 transition-all duration-300">
       <div className="flex-1">
-        <h3 className="text-white font-medium">{label}</h3>
+        <h3 className="text-accent-content font-medium">{label}</h3>
         <p className="text-gray-400 text-sm mt-1">{description}</p>
       </div>
       <button
         onClick={() => onChange(!checked)}
-        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 ${
-          checked 
-            ? 'bg-gradient-to-r from-purple-500 to-blue-500 shadow-lg shadow-purple-500/25' 
+        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 ${checked
+            ? 'bg-gradient-to-r from-purple-500 to-blue-500 shadow-lg shadow-purple-500/25'
             : 'bg-gray-600'
-        }`}
+          }`}
       >
         <span
-          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ${
-            checked ? 'translate-x-6' : 'translate-x-1'
-          }`}
+          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ${checked ? 'translate-x-6' : 'translate-x-1'
+            }`}
         />
       </button>
     </div>
@@ -69,7 +67,7 @@ const SecuritySettings = () => {
   const renderAuthenticationTab = () => (
     <div className="space-y-6">
       <div className="bg-gradient-to-br from-gray-800/60 to-gray-900/60 rounded-xl p-6 border border-gray-700/50">
-        <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
+        <h3 className="text-xl font-semibold text-accent-content mb-4 flex items-center">
           <Key className="mr-2 h-5 w-5 text-purple-400" />
           Password Settings
         </h3>
@@ -80,7 +78,7 @@ const SecuritySettings = () => {
               type="password"
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
-              className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
+              className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-accent-content placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
               placeholder="Enter current password"
             />
           </div>
@@ -90,7 +88,7 @@ const SecuritySettings = () => {
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
+              className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-accent-content placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
               placeholder="Enter new password"
             />
           </div>
@@ -100,11 +98,11 @@ const SecuritySettings = () => {
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
+              className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-accent-content placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
               placeholder="Confirm new password"
             />
           </div>
-          <button className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-2 rounded-lg hover:from-purple-600 hover:to-blue-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
+          <button className="bg-gradient-to-r from-purple-500 to-blue-500 text-accent-content px-6 py-2 rounded-lg hover:from-purple-600 hover:to-blue-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
             Update Password
           </button>
         </div>
@@ -122,7 +120,7 @@ const SecuritySettings = () => {
         <select
           value={settings.sessionTimeout}
           onChange={(e) => handleSettingChange('sessionTimeout', parseInt(e.target.value))}
-          className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
+          className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-accent-content focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
         >
           <option value={15}>15 minutes</option>
           <option value={30}>30 minutes</option>
@@ -136,7 +134,7 @@ const SecuritySettings = () => {
         <select
           value={settings.passwordExpiry}
           onChange={(e) => handleSettingChange('passwordExpiry', parseInt(e.target.value))}
-          className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
+          className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-accent-content focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
         >
           <option value={30}>30 days</option>
           <option value={60}>60 days</option>
@@ -164,7 +162,7 @@ const SecuritySettings = () => {
       />
 
       <div className="bg-gradient-to-br from-gray-800/60 to-gray-900/60 rounded-xl p-6 border border-gray-700/50">
-        <h3 className="text-lg font-semibold text-white mb-4">Allowed IP Addresses</h3>
+        <h3 className="text-lg font-semibold text-accent-content mb-4">Allowed IP Addresses</h3>
         <div className="space-y-2">
           <div className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg">
             <span className="text-gray-300">192.168.1.0/24</span>
@@ -179,7 +177,7 @@ const SecuritySettings = () => {
             </button>
           </div>
         </div>
-        <button className="mt-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-lg hover:from-green-600 hover:to-emerald-600 transition-all duration-300">
+        <button className="mt-4 bg-gradient-to-r from-green-500 to-emerald-500 text-accent-content px-4 py-2 rounded-lg hover:from-green-600 hover:to-emerald-600 transition-all duration-300">
           Add IP Range
         </button>
       </div>
@@ -210,7 +208,7 @@ const SecuritySettings = () => {
       />
 
       <div className="bg-gradient-to-br from-gray-800/60 to-gray-900/60 rounded-xl p-6 border border-gray-700/50">
-        <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+        <h3 className="text-lg font-semibold text-accent-content mb-4 flex items-center">
           <Clock className="mr-2 h-5 w-5 text-blue-400" />
           Recent Security Activities
         </h3>
@@ -218,14 +216,13 @@ const SecuritySettings = () => {
           {recentActivities.map((activity, index) => (
             <div key={index} className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg hover:bg-gray-700/50 transition-all duration-300">
               <div>
-                <p className="text-white font-medium">{activity.action}</p>
+                <p className="text-accent-content font-medium">{activity.action}</p>
                 <p className="text-gray-400 text-sm">IP: {activity.ip} • {activity.time}</p>
               </div>
-              <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                activity.status === 'success' 
-                  ? 'bg-green-500/20 text-green-400' 
+              <div className={`px-2 py-1 rounded-full text-xs font-medium ${activity.status === 'success'
+                  ? 'bg-green-500/20 text-green-400'
                   : 'bg-yellow-500/20 text-yellow-400'
-              }`}>
+                }`}>
                 {activity.status}
               </div>
             </div>
@@ -252,11 +249,11 @@ const SecuritySettings = () => {
       />
 
       <div className="bg-gradient-to-br from-gray-800/60 to-gray-900/60 rounded-xl p-6 border border-gray-700/50">
-        <h3 className="text-lg font-semibold text-white mb-4">API Keys</h3>
+        <h3 className="text-lg font-semibold text-accent-content mb-4">API Keys</h3>
         <div className="space-y-4">
           <div className="flex items-center justify-between p-4 bg-gray-700/30 rounded-lg">
             <div>
-              <p className="text-white font-medium">Production API Key</p>
+              <p className="text-accent-content font-medium">Production API Key</p>
               <p className="text-gray-400 text-sm font-mono">
                 {showApiKey ? 'pk_live_51H7x2cF...' : '••••••••••••••••••••'}
               </p>
@@ -264,22 +261,22 @@ const SecuritySettings = () => {
             <div className="flex space-x-2">
               <button
                 onClick={() => setShowApiKey(!showApiKey)}
-                className="p-2 text-gray-400 hover:text-white transition-colors"
+                className="p-2 text-gray-400 hover:text-accent-content transition-colors"
               >
                 {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
-              <button className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all duration-300">
+              <button className="bg-gradient-to-r from-blue-500 to-purple-500 text-accent-content px-4 py-2 rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all duration-300">
                 Regenerate
               </button>
             </div>
           </div>
-          
+
           <div className="flex items-center justify-between p-4 bg-gray-700/30 rounded-lg">
             <div>
-              <p className="text-white font-medium">Test API Key</p>
+              <p className="text-accent-content font-medium">Test API Key</p>
               <p className="text-gray-400 text-sm font-mono">pk_test_51H7x2cF...</p>
             </div>
-            <button className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-lg hover:from-green-600 hover:to-emerald-600 transition-all duration-300">
+            <button className="bg-gradient-to-r from-green-500 to-emerald-500 text-accent-content px-4 py-2 rounded-lg hover:from-green-600 hover:to-emerald-600 transition-all duration-300">
               Regenerate
             </button>
           </div>
@@ -300,17 +297,17 @@ const SecuritySettings = () => {
               <div className="absolute bottom-6 left-6 w-1 h-1 bg-purple-400 rounded-full animate-pulse"></div>
               <div className="absolute top-1/2 right-1/3 w-1 h-1 bg-cyan-400 rounded-full animate-bounce"></div>
             </div>
-            
+
             <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">
-                  Security <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Settings</span>! 
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-accent-content mb-2">
+                  Security <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Settings</span>!
                 </h1>
                 <p className="text-gray-300 text-sm sm:text-base">
                   EasyShoppingMall Admin Dashboard
                 </p>
               </div>
-             
+
             </div>
           </div>
         </div>
@@ -322,7 +319,7 @@ const SecuritySettings = () => {
               <Check className="h-8 w-8 text-green-400" />
               <span className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm font-medium">Active</span>
             </div>
-            <h3 className="text-white font-semibold mb-2">Security Status</h3>
+            <h3 className="text-accent-content font-semibold mb-2">Security Status</h3>
             <p className="text-gray-400 text-sm">All security measures are active and functioning properly</p>
           </div>
 
@@ -331,7 +328,7 @@ const SecuritySettings = () => {
               <Smartphone className="h-8 w-8 text-blue-400" />
               <span className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-sm font-medium">2FA</span>
             </div>
-            <h3 className="text-white font-semibold mb-2">Two-Factor Auth</h3>
+            <h3 className="text-accent-content font-semibold mb-2">Two-Factor Auth</h3>
             <p className="text-gray-400 text-sm">Additional layer of security enabled</p>
           </div>
 
@@ -340,7 +337,7 @@ const SecuritySettings = () => {
               <AlertTriangle className="h-8 w-8 text-yellow-400" />
               <span className="bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-full text-sm font-medium">3 Alerts</span>
             </div>
-            <h3 className="text-white font-semibold mb-2">Security Alerts</h3>
+            <h3 className="text-accent-content font-semibold mb-2">Security Alerts</h3>
             <p className="text-gray-400 text-sm">Recent security notifications require attention</p>
           </div>
         </div>
@@ -354,11 +351,10 @@ const SecuritySettings = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center transition-all duration-300 ${
-                    activeTab === tab.id
+                  className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center transition-all duration-300 ${activeTab === tab.id
                       ? 'border-purple-500 text-purple-400'
                       : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-300'
-                  }`}
+                    }`}
                 >
                   <tab.icon className="h-4 w-4 mr-2" />
                   {tab.label}
@@ -378,7 +374,7 @@ const SecuritySettings = () => {
 
         {/* Save Button */}
         <div className="mt-8 flex justify-end">
-          <button className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-8 py-3 rounded-xl hover:from-purple-600 hover:to-blue-600 transition-all duration-300 transform hover:scale-105 shadow-xl shadow-purple-500/25 flex items-center">
+          <button className="bg-gradient-to-r from-purple-500 to-blue-500 text-accent-content px-8 py-3 rounded-xl hover:from-purple-600 hover:to-blue-600 transition-all duration-300 transform hover:scale-105 shadow-xl shadow-purple-500/25 flex items-center">
             <Settings className="h-5 w-5 mr-2" />
             Save All Settings
           </button>

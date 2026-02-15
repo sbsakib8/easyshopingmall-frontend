@@ -1,6 +1,6 @@
 "use client";
 import logo from "@/app/icon.png";
-import {Menu, User, X, } from "lucide-react";
+import { Menu, User, X, } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -36,7 +36,7 @@ const DropShippingNavbar = () => {
   return (
     <>
       <div
-        className={`bg-gradient-to-r  from-secondary via-secondary/70 to-secondary text-white text-xs sm:text-sm py-2 sm:py-3 px-2 sm:px-4 relative overflow-hidden transition-all duration-300 ${isScrolled ? "h-0 py-0 opacity-0" : "h-auto lg:h-[60px]"
+        className={`bg-gradient-to-r  from-secondary via-secondary/70 to-secondary text-accent-content text-xs sm:text-sm py-2 sm:py-3 px-2 sm:px-4 relative overflow-hidden transition-all duration-300 ${isScrolled ? "h-0 py-0 opacity-0" : "h-auto lg:h-[60px]"
           } hidden sm:block`}
       >
         {/* Animated background particles */}
@@ -47,7 +47,7 @@ const DropShippingNavbar = () => {
           <div className="absolute top-7 right-40 w-1 h-1 bg-yellow-300 rounded-full animate-bounce delay-500"></div>
         </div>
       </div>
-    
+
 
       {/* Main Header */}
       <header
@@ -83,7 +83,7 @@ const DropShippingNavbar = () => {
                 </div>
               </div>
             </div>
-           
+
 
             <div className="flex items-center space-x-2 sm:space-x-4 lg:space-x-6">
               {data ? (
@@ -131,9 +131,9 @@ const DropShippingNavbar = () => {
                 )}
               </button>
             </div>
-          </div>     
+          </div>
         </div>
-        
+
         {/* Enhanced Mobile Menu - Fully Responsive */}
         {isMobileMenuOpen && (
           <div className=" 
@@ -148,7 +148,7 @@ const DropShippingNavbar = () => {
                 >
                   <span className="text-sm sm:text-base">{item.name}</span>
                   {item.badge && (
-                    <span className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs px-2 sm:px-3 py-0.5 sm:py-1 rounded-full font-bold animate-pulse">
+                    <span className="bg-gradient-to-r from-emerald-500 to-teal-500 text-accent-content text-xs px-2 sm:px-3 py-0.5 sm:py-1 rounded-full font-bold animate-pulse">
                       {item.badge}
                     </span>
                   )}

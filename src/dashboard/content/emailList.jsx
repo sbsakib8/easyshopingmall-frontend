@@ -26,15 +26,15 @@ const ContactInboxDashboard = () => {
   const handleDelete = async (id, e) => {
     e.stopPropagation();
     if (!window.confirm('Are you sure you want to delete this message?')) return;
-    
+
     try {
       setDeleting(id);
       await ContactDelete(id);
-      
+
       if (selectedContact?._id === id) {
         setSelectedContact(null);
       }
-      
+
       await refetch();
       toast.success('Message deleted successfully!');
     } catch (error) {
@@ -47,12 +47,12 @@ const ContactInboxDashboard = () => {
 
   const getTimeAgo = (dateString) => {
     if (!dateString) return 'Unknown';
-    
+
     try {
       const date = new Date(dateString);
       const now = new Date();
       const seconds = Math.floor((now - date) / 1000);
-      
+
       if (seconds < 60) return `${seconds}s ago`;
       if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
       if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
@@ -68,7 +68,7 @@ const ContactInboxDashboard = () => {
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <div className="text-white text-xl">Loading messages...</div>
+          <div className="text-accent-content text-xl">Loading messages...</div>
         </div>
       </div>
     );
@@ -79,11 +79,11 @@ const ContactInboxDashboard = () => {
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
         <div className="text-center bg-red-500/20 backdrop-blur-lg rounded-2xl border border-red-500/50 p-8 max-w-md">
           <div className="text-red-400 text-6xl mb-4">⚠️</div>
-          <h2 className="text-white text-2xl font-bold mb-2">Error Loading Messages</h2>
+          <h2 className="text-accent-content text-2xl font-bold mb-2">Error Loading Messages</h2>
           <p className="text-red-200 mb-4">Failed to fetch contact messages</p>
           <button
             onClick={handleRefresh}
-            className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg transition-colors"
+            className="bg-red-500 hover:bg-red-600 text-accent-content px-6 py-2 rounded-lg transition-colors"
           >
             Try Again
           </button>
@@ -98,13 +98,13 @@ const ContactInboxDashboard = () => {
         {/* Header */}
         <div className="mb-6 animate-fade-in flex items-center justify-between">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Contact Inbox</h1>
+            <h1 className="text-3xl md:text-4xl font-bold text-accent-content mb-2">Contact Inbox</h1>
             <p className="text-purple-200">Manage your customer messages</p>
           </div>
           <button
             onClick={handleRefresh}
             disabled={refreshing}
-            className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-all disabled:opacity-50"
+            className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-accent-content px-4 py-2 rounded-lg transition-all disabled:opacity-50"
           >
             <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
             Refresh
@@ -115,12 +115,12 @@ const ContactInboxDashboard = () => {
           {/* Message List */}
           <div className="lg:col-span-1 bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 overflow-hidden shadow-2xl">
             <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-4">
-              <h2 className="text-white font-semibold flex items-center gap-2">
+              <h2 className="text-accent-content font-semibold flex items-center gap-2">
                 <Mail className="w-5 h-5" />
                 All Messages ({contacts.length})
               </h2>
             </div>
-            
+
             <div className="divide-y divide-white/10 max-h-[600px] overflow-y-auto">
               {contacts.length === 0 ? (
                 <div className="p-8 text-center text-purple-200">
@@ -132,9 +132,8 @@ const ContactInboxDashboard = () => {
                   <div
                     key={contact._id || index}
                     onClick={() => setSelectedContact(contact)}
-                    className={`p-4 cursor-pointer transition-all duration-300 hover:bg-white/20 ${
-                      selectedContact?._id === contact._id ? 'bg-white/20 border-l-4 border-purple-400' : ''
-                    }`}
+                    className={`p-4 cursor-pointer transition-all duration-300 hover:bg-white/20 ${selectedContact?._id === contact._id ? 'bg-white/20 border-l-4 border-purple-400' : ''
+                      }`}
                     style={{
                       animation: `slideIn 0.3s ease-out ${index * 0.1}s both`
                     }}
@@ -143,7 +142,7 @@ const ContactInboxDashboard = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <MailOpen className="w-4 h-4 text-purple-300 flex-shrink-0" />
-                          <h3 className="text-white font-medium truncate">{contact.name}</h3>
+                          <h3 className="text-accent-content font-medium truncate">{contact.name}</h3>
                         </div>
                         <p className="text-purple-200 text-sm truncate mb-1">{contact.subject}</p>
                         <p className="text-purple-300 text-xs truncate">{contact.message}</p>
@@ -178,7 +177,7 @@ const ContactInboxDashboard = () => {
               <div className="animate-fade-in">
                 <div className="bg-gradient-to-r from-pink-600 to-purple-600 p-6">
                   <div className="flex items-start justify-between mb-4">
-                    <h2 className="text-2xl font-bold text-white">{selectedContact.subject}</h2>
+                    <h2 className="text-2xl font-bold text-accent-content">{selectedContact.subject}</h2>
                     <button
                       onClick={(e) => handleDelete(selectedContact._id, e)}
                       disabled={deleting === selectedContact._id}
@@ -211,7 +210,7 @@ const ContactInboxDashboard = () => {
                         <User className="w-5 h-5 text-purple-400" />
                         <span className="text-purple-200 text-sm">Name</span>
                       </div>
-                      <p className="text-white font-medium">{selectedContact.name}</p>
+                      <p className="text-accent-content font-medium">{selectedContact.name}</p>
                     </div>
 
                     <div className="bg-white/5 rounded-xl p-4 border border-white/10">
@@ -219,7 +218,7 @@ const ContactInboxDashboard = () => {
                         <Mail className="w-5 h-5 text-purple-400" />
                         <span className="text-purple-200 text-sm">Email</span>
                       </div>
-                      <p className="text-white font-medium break-all">{selectedContact.email}</p>
+                      <p className="text-accent-content font-medium break-all">{selectedContact.email}</p>
                     </div>
 
                     <div className="bg-white/5 rounded-xl p-4 border border-white/10">
@@ -227,7 +226,7 @@ const ContactInboxDashboard = () => {
                         <Phone className="w-5 h-5 text-purple-400" />
                         <span className="text-purple-200 text-sm">Phone</span>
                       </div>
-                      <p className="text-white font-medium">{selectedContact.phone || 'Not provided'}</p>
+                      <p className="text-accent-content font-medium">{selectedContact.phone || 'Not provided'}</p>
                     </div>
 
                     <div className="bg-white/5 rounded-xl p-4 border border-white/10">
@@ -235,7 +234,7 @@ const ContactInboxDashboard = () => {
                         <Clock className="w-5 h-5 text-purple-400" />
                         <span className="text-purple-200 text-sm">Received</span>
                       </div>
-                      <p className="text-white font-medium">{getTimeAgo(selectedContact.createdAt)}</p>
+                      <p className="text-accent-content font-medium">{getTimeAgo(selectedContact.createdAt)}</p>
                     </div>
                   </div>
 
@@ -245,7 +244,7 @@ const ContactInboxDashboard = () => {
                       <MessageSquare className="w-5 h-5 text-purple-400" />
                       <span className="text-purple-200 font-medium">Message</span>
                     </div>
-                    <p className="text-white leading-relaxed whitespace-pre-wrap">{selectedContact.message}</p>
+                    <p className="text-accent-content leading-relaxed whitespace-pre-wrap">{selectedContact.message}</p>
                   </div>
                 </div>
               </div>

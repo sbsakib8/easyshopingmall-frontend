@@ -92,7 +92,7 @@ const DashboardNebver = ({ children }) => {
         { path: "/order/pending-orders", id: 16, label: "Pending Orders", icon: ShoppingCart },
         { path: "/order/processing-orders", id: 17, label: "Processing Orders", icon: Clock },
         { path: "/order/shipped-orders", id: 18, label: "Shipped Orders", icon: Truck },
-        
+
       ],
     },
     {
@@ -168,12 +168,12 @@ const DashboardNebver = ({ children }) => {
                 onClick={toggleSidebar}
                 className="group p-3 rounded-xl bg-gradient-to-r from-gray-800 to-black hover:from-gray-700 hover:to-gray-900 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border border-gray-700/50"
               >
-                <Menu className="w-5 h-5 text-white group-hover:rotate-180 transition-transform duration-300" />
+                <Menu className="w-5 h-5 text-accent-content group-hover:rotate-180 transition-transform duration-300" />
               </button>
 
               <Link href="/" className="flex items-center space-x-3 animate-fadeIn">
                 <div className="w-10 h-10 bg-gradient-to-r from-gray-700 via-gray-800 to-black rounded-2xl flex items-center justify-center shadow-lg shadow-black/50 animate-pulse border border-gray-600/30">
-                  <ShoppingCart className="w-6 h-6 text-white" />
+                  <ShoppingCart className="w-6 h-6 text-accent-content" />
                 </div>
                 <div className="hidden sm:block">
                   <h1 className="text-xl font-bold bg-gradient-to-r from-white via-gray-200 to-gray-300 bg-clip-text text-transparent">
@@ -188,7 +188,7 @@ const DashboardNebver = ({ children }) => {
             <div className="flex items-center space-x-3">
               {/* Mobile search button */}
               <button className="md:hidden p-3 rounded-xl bg-gradient-to-r from-gray-800 to-black hover:from-gray-700 hover:to-gray-900 transform hover:scale-105 transition-all duration-300 shadow-lg border border-gray-700/50">
-                <Search className="w-5 h-5 text-white" />
+                <Search className="w-5 h-5 text-accent-content" />
               </button>
 
               {/* Notification  */}
@@ -205,7 +205,7 @@ const DashboardNebver = ({ children }) => {
                         alt="image"
                       />
                     ) : (
-                      <span className="text-white font-bold text-sm group-hover:animate-pulse">
+                      <span className="text-accent-content font-bold text-sm group-hover:animate-pulse">
                         {data?.name?.slice(0, 2).toUpperCase()}
                       </span>
                     )}
@@ -213,7 +213,7 @@ const DashboardNebver = ({ children }) => {
                   <div className="absolute -inset-1 bg-gradient-to-r from-gray-600 to-gray-800 rounded-full opacity-0 group-hover:opacity-30 blur transition-all duration-300"></div>
                 </div>
                 <div className="hidden sm:block">
-                  <p className="text-sm font-semibold text-white">{data?.name}</p>
+                  <p className="text-sm font-semibold text-accent-content">{data?.name}</p>
                   <p className="text-xs text-gray-400 font-medium">{data?.email}</p>
                 </div>
               </div>
@@ -253,8 +253,8 @@ const DashboardNebver = ({ children }) => {
                       }
                     }}
                     className={`w-full flex items-center justify-between px-4 py-3 text-sm font-semibold rounded-2xl transition-all duration-300 group relative overflow-hidden ${activeMenu === item.id
-                        ? "bg-gradient-to-r from-gray-700 to-gray-900 text-white shadow-xl shadow-black/50 transform scale-105 border border-gray-600/50"
-                        : "text-gray-300 hover:bg-gradient-to-r hover:from-gray-800/50 hover:to-black/50 hover:shadow-lg hover:shadow-black/20 hover:scale-105 hover:text-white border border-transparent hover:border-gray-700/30"
+                      ? "bg-gradient-to-r from-gray-700 to-gray-900 text-accent-content shadow-xl shadow-black/50 transform scale-105 border border-gray-600/50"
+                      : "text-gray-300 hover:bg-gradient-to-r hover:from-gray-800/50 hover:to-black/50 hover:shadow-lg hover:shadow-black/20 hover:scale-105 hover:text-accent-content border border-transparent hover:border-gray-700/30"
                       }`}
                   >
                     {/* Animated background */}
@@ -270,22 +270,22 @@ const DashboardNebver = ({ children }) => {
                     >
                       <div
                         className={`p-2 rounded-xl transition-all duration-300 ${activeMenu === item.id
-                            ? "bg-white/10 shadow-lg backdrop-blur-sm"
-                            : "group-hover:bg-gray-700/30"
+                          ? "bg-white/10 shadow-lg backdrop-blur-sm"
+                          : "group-hover:bg-gray-700/30"
                           }`}
                       >
                         <item.icon
                           className={`w-5 h-5 transition-all duration-300 ${activeMenu === item.id
-                              ? "text-white scale-110"
-                              : "text-gray-400 group-hover:text-white group-hover:scale-110"
+                            ? "text-accent-content scale-110"
+                            : "text-gray-400 group-hover:text-accent-content group-hover:scale-110"
                             }`}
                         />
                       </div>
                       {(sidebarOpen || isHovered) && (
                         <span
                           className={`transition-all duration-300 ${sidebarOpen || isHovered
-                              ? "opacity-100 transform translate-x-0"
-                              : "opacity-0 transform translate-x-4"
+                            ? "opacity-100 transform translate-x-0"
+                            : "opacity-0 transform translate-x-4"
                             } font-medium`}
                         >
                           {item.label}
@@ -294,8 +294,8 @@ const DashboardNebver = ({ children }) => {
                     </Link>
                     {item.submenu && (sidebarOpen || isHovered) && (
                       <ChevronRight
-                        className={`w-5 h-5 transition-all duration-300 relative z-10 ${expandedMenus[item.id] ? "rotate-90 text-white" : "text-gray-500"
-                          } ${activeMenu === item.id ? "text-white" : ""}`}
+                        className={`w-5 h-5 transition-all duration-300 relative z-10 ${expandedMenus[item.id] ? "rotate-90 text-accent-content" : "text-gray-500"
+                          } ${activeMenu === item.id ? "text-accent-content" : ""}`}
                       />
                     )}
                   </button>
@@ -305,8 +305,8 @@ const DashboardNebver = ({ children }) => {
                     <div
                       onClick={toggleSidebar}
                       className={`mt-3 ml-6 space-y-2 overflow-hidden transition-all duration-500 transform ${expandedMenus[item.id]
-                          ? "max-h-96 opacity-100 translate-y-0"
-                          : "max-h-0 opacity-0 -translate-y-4"
+                        ? "max-h-96 opacity-100 translate-y-0"
+                        : "max-h-0 opacity-0 -translate-y-4"
                         }`}
                     >
                       {item.submenu.map((subItem, subIndex) => (
@@ -318,15 +318,15 @@ const DashboardNebver = ({ children }) => {
                             setActiveMenu(subItem.id);
                           }}
                           className={` group flex items-center space-x-3 px-4 py-2.5 text-sm rounded-xl transition-all duration-300 transform hover:scale-105 ${activeMenu === subItem.id
-                              ? "bg-gradient-to-r from-gray-600 to-gray-800 text-white shadow-lg shadow-black/30 border border-gray-600/50"
-                              : "text-gray-400 hover:bg-gradient-to-r hover:from-gray-800/30 hover:to-black/30 hover:text-white hover:shadow-md border border-transparent hover:border-gray-700/20"
+                            ? "bg-gradient-to-r from-gray-600 to-gray-800 text-accent-content shadow-lg shadow-black/30 border border-gray-600/50"
+                            : "text-gray-400 hover:bg-gradient-to-r hover:from-gray-800/30 hover:to-black/30 hover:text-accent-content hover:shadow-md border border-transparent hover:border-gray-700/20"
                             } animate-slideInRight`}
                           style={{ animationDelay: `${subIndex * 0.05}s` }}
                         >
                           <div
                             className={`p-1.5 rounded-lg transition-all duration-300 ${activeMenu === subItem.id
-                                ? "bg-white/10 backdrop-blur-sm"
-                                : "group-hover:bg-gray-700/20"
+                              ? "bg-white/10 backdrop-blur-sm"
+                              : "group-hover:bg-gray-700/20"
                               }`}
                           >
                             <subItem.icon className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" />
@@ -351,10 +351,10 @@ const DashboardNebver = ({ children }) => {
 
                   <div className="flex items-center space-x-3 relative z-10">
                     <div className="w-10 h-10 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg group-hover:animate-bounce border border-gray-600/30">
-                      <TrendingUp className="w-5 h-5 text-white" />
+                      <TrendingUp className="w-5 h-5 text-accent-content" />
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-white">EasyShoppingMall</p>
+                      <p className="text-sm font-bold text-accent-content">EasyShoppingMall</p>
                       <p className="text-xs text-gray-300">you can manage dashboard</p>
                     </div>
                   </div>

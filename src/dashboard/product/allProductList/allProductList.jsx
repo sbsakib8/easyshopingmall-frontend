@@ -48,7 +48,7 @@ const ProductDashboard = () => {
   );
 
   // product get
-  const { product,totalCount,refetch } = useGetProduct(formData);
+  const { product, totalCount, refetch } = useGetProduct(formData);
   // console.log("totalCount--->",totalCount)
   const allCategorydata = useSelector((state) => state.category.allCategorydata);
   const allsubCategorydata = useSelector((state) => state.subcategory.allsubCategorydata);
@@ -59,7 +59,7 @@ const ProductDashboard = () => {
   useEffect(() => {
     if (product) {
       setProducts(product);
-      
+
     }
   }, [product, allCategorydata, allsubCategorydata]);
   // console.log("allCategorydata---->",allCategorydata)
@@ -90,9 +90,8 @@ const ProductDashboard = () => {
       <Star
         key={i}
         size={12}
-        className={`${
-          i < rating ? "text-yellow-400 fill-yellow-400" : "text-gray-500"
-        } transition-all duration-300`}
+        className={`${i < rating ? "text-yellow-400 fill-yellow-400" : "text-gray-500"
+          } transition-all duration-300`}
       />
     ));
   };
@@ -119,13 +118,13 @@ const ProductDashboard = () => {
     const wb = XLSX.utils.book_new()
     const ws = XLSX.utils.json_to_sheet(products)
     ws["!cols"] = [
-    { wch: 10 },
-    { wch: 10 },
-    { wch: 40 },
-    { wch: 40 },
-  ]
-    XLSX.utils.book_append_sheet(wb,ws,"MyProducts")
-    XLSX.writeFile(wb,"productsData.xlsx")
+      { wch: 10 },
+      { wch: 10 },
+      { wch: 40 },
+      { wch: 40 },
+    ]
+    XLSX.utils.book_append_sheet(wb, ws, "MyProducts")
+    XLSX.writeFile(wb, "productsData.xlsx")
     // const dataStr = JSON.stringify(products, null, 2);
     // const dataBlob = new Blob([dataStr], { type: "application/json" });
     // const url = URL.createObjectURL(dataBlob);
@@ -136,11 +135,11 @@ const ProductDashboard = () => {
   };
 
   // refetch
-  const reFreshData = async() => {
+  const reFreshData = async () => {
     setSpin(true)
-    setPage(page+1)
-   await refetch();
-   setSpin(false)
+    setPage(page + 1)
+    await refetch();
+    setSpin(false)
   };
 
   //  action function click handle
@@ -196,18 +195,18 @@ const ProductDashboard = () => {
     setEditModal({ ...editModal, [field]: value });
   };
 
-// toal sale calculation 
-//  const { allOrders, loading: ordersLoading } = useGetAllOrders()
-//  const completedOrders = allOrders?.filter(order => order.order_status==="completed")
-//  const toalIncome = completedOrders?.reduce((sum,o)=>sum+o.totalAmt,0)
- const {totalRevenue,loading:revenueLoading} = useGetRevenue()
-//  console.log("allOrders--->",allOrders)
-//  console.log("completedOrders--->",completedOrders)
-//  console.log("toalIncome--->",toalIncome)
-//  console.log("totalRevenue--->",totalRevenue)
+  // toal sale calculation 
+  //  const { allOrders, loading: ordersLoading } = useGetAllOrders()
+  //  const completedOrders = allOrders?.filter(order => order.order_status==="completed")
+  //  const toalIncome = completedOrders?.reduce((sum,o)=>sum+o.totalAmt,0)
+  const { totalRevenue, loading: revenueLoading } = useGetRevenue()
+  //  console.log("allOrders--->",allOrders)
+  //  console.log("completedOrders--->",completedOrders)
+  //  console.log("toalIncome--->",toalIncome)
+  //  console.log("totalRevenue--->",totalRevenue)
 
-// if(loading)return <p>Loading...</p>
-// console.log(loading)
+  // if(loading)return <p>Loading...</p>
+  // console.log(loading)
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 relative overflow-hidden">
       {/* Animated Background Elements */}
@@ -229,7 +228,7 @@ const ProductDashboard = () => {
 
             <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-accent-content mb-2">
                   All Product{" "}
                   <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                     Admin
@@ -241,13 +240,13 @@ const ProductDashboard = () => {
               </div>
               <div className="mt-4 sm:mt-0 flex items-center space-x-4">
                 <div className="text-right">
-                  <p className="text-lg font-bold text-white">
+                  <p className="text-lg font-bold text-accent-content">
                     {currentTime.toLocaleDateString("en-BD")}
                   </p>
                   <p className="text-blue-300 text-sm">{currentTime.toLocaleTimeString("en-BD")}</p>
                 </div>
                 <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center shadow-lg animate-pulse">
-                  <Activity className="w-6 h-6 text-white" />
+                  <Activity className="w-6 h-6 text-accent-content" />
                 </div>
               </div>
             </div>
@@ -304,7 +303,7 @@ const ProductDashboard = () => {
                   <div
                     className={`p-3 rounded-2xl bg-gradient-to-r ${card?.gradient} shadow-lg group-hover:scale-110 group-hover:rotate-12 transition-all duration-500`}
                   >
-                    <card.icon className="w-6 h-6 text-white" />
+                    <card.icon className="w-6 h-6 text-accent-content" />
                   </div>
                   <div className="flex items-center space-x-1 text-green-400">
                     <ArrowUp className="w-4 h-4 animate-bounce" />
@@ -314,7 +313,7 @@ const ProductDashboard = () => {
 
                 <div>
                   <p className="text-sm font-medium text-gray-400 mb-2">{card?.title}</p>
-                  <p className="text-3xl font-bold text-white mb-1 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:bg-clip-text group-hover:from-blue-400 group-hover:to-purple-400 transition-all duration-500">
+                  <p className="text-3xl font-bold text-accent-content mb-1 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:bg-clip-text group-hover:from-blue-400 group-hover:to-purple-400 transition-all duration-500">
                     {card?.value}
                   </p>
                   <p className="text-xs text-gray-500">vs last month</p>
@@ -333,10 +332,10 @@ const ProductDashboard = () => {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
               <div className="flex items-center space-x-3">
                 <div className="p-2 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg">
-                  <Package className="w-5 h-5 text-white" />
+                  <Package className="w-5 h-5 text-accent-content" />
                 </div>
                 <div>
-                  <h2 className="text-xl sm:text-2xl font-bold text-white">
+                  <h2 className="text-xl sm:text-2xl font-bold text-accent-content">
                     Best Selling Products
                   </h2>
                   {/* <p className="text-sm text-gray-400">
@@ -362,7 +361,7 @@ const ProductDashboard = () => {
                   <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600/50 rounded-xl text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 hover:bg-gray-700/50"
+                    className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600/50 rounded-xl text-accent-content focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 hover:bg-gray-700/50"
                   >
                     <option value="All">All Categories</option>
                     {allCategorydata?.data.map((cat) => (
@@ -387,7 +386,7 @@ const ProductDashboard = () => {
                       placeholder="Search by name, ID , SKU , Stock , brand, ..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-12 pr-4 py-3 bg-gray-800/50 border border-gray-600/50 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-gray-700/50 transition-all duration-300"
+                      className="w-full pl-12 pr-4 py-3 bg-gray-800/50 border border-gray-600/50 rounded-xl text-accent-content placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-gray-700/50 transition-all duration-300"
                     />
                   </div>
                 </div>
@@ -396,23 +395,23 @@ const ProductDashboard = () => {
               <div className="flex flex-wrap gap-3">
                 <button
                   onClick={addProdcut}
-                  className="flex items-center cursor-pointer space-x-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-green-500/25 font-medium"
+                  className="flex items-center cursor-pointer space-x-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-accent-content rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-green-500/25 font-medium"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Add Product</span>
                 </button>
                 <button
                   onClick={handleExport}
-                  className="flex items-center space-x-2 px-4 py-3 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-600/50 text-gray-300 hover:text-white rounded-xl transition-all duration-300 transform hover:scale-105"
+                  className="flex items-center space-x-2 px-4 py-3 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-600/50 text-gray-300 hover:text-accent-content rounded-xl transition-all duration-300 transform hover:scale-105"
                 >
                   <Download className="w-4 h-4" />
                   <span className="hidden sm:inline">Export</span>
                 </button>
                 <button
-                  onClick={()=>reFreshData()}
-                  className="flex items-center space-x-2 px-4 py-3 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-600/50 text-gray-300 hover:text-white rounded-xl transition-all duration-300 transform hover:scale-105 cursor-pointer"
+                  onClick={() => reFreshData()}
+                  className="flex items-center space-x-2 px-4 py-3 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-600/50 text-gray-300 hover:text-accent-content rounded-xl transition-all duration-300 transform hover:scale-105 cursor-pointer"
                 >
-                  <RefreshCw className={`w-4 h-4 ${spin?'animate-spin':''}`} />
+                  <RefreshCw className={`w-4 h-4 ${spin ? 'animate-spin' : ''}`} />
                   <span className="hidden sm:inline">Refresh</span>
                 </button>
               </div>
@@ -427,7 +426,7 @@ const ProductDashboard = () => {
         >
           {/* Desktop Table Header */}
           <div className="hidden lg:block bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 px-6 py-4 border-b border-gray-700/50">
-            <div className="grid grid-cols-12 gap-4 text-white font-semibold text-sm uppercase tracking-wide">
+            <div className="grid grid-cols-12 gap-4 text-accent-content font-semibold text-sm uppercase tracking-wide">
               <div className="col-span-3">Product Details</div>
               <div className="col-span-2">Category</div>
               <div className="col-span-1">Brand</div>
@@ -441,14 +440,14 @@ const ProductDashboard = () => {
           {/* Mobile Header */}
           <div className="lg:hidden bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 px-6 py-4 border-b border-gray-700/50">
             <div className="flex items-center justify-between">
-              <h3 className="text-white font-semibold text-lg">Products</h3>
+              <h3 className="text-accent-content font-semibold text-lg">Products</h3>
               <span className="text-blue-100 text-sm">{filteredProducts?.length} items</span>
             </div>
           </div>
 
           {/* Table Body */}
           <div className="divide-y divide-gray-700/30 max-h-96 lg:max-h-none overflow-y-auto">
-            {filteredProducts?.slice(0,20)?.sort((a,b)=>a?.productStock-b?.productStock)?.map((product, index) => (
+            {filteredProducts?.slice(0, 20)?.sort((a, b) => a?.productStock - b?.productStock)?.map((product, index) => (
               <div
                 key={index}
                 className="group px-4 sm:px-6 py-4 hover:bg-gradient-to-r hover:from-gray-800/50 hover:to-gray-700/50 transition-all duration-500 transform hover:scale-[1.02] animate-fadeInUp"
@@ -466,7 +465,7 @@ const ProductDashboard = () => {
                       <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     </div>
                     <div>
-                      <h3 className="font-bold text-white group-hover:text-blue-400 transition-colors duration-300 text-sm mb-1">
+                      <h3 className="font-bold text-accent-content group-hover:text-blue-400 transition-colors duration-300 text-sm mb-1">
                         {product?.productName}
                       </h3>
                       <p className="text-xs text-gray-400 mb-1">{product?.sku}</p>
@@ -511,7 +510,7 @@ const ProductDashboard = () => {
                       <span
                         className={`inline-flex items-center px-2 py-1 rounded-lg text-xs font-bold bg-gradient-to-r ${getStatusColor(
                           product?.productStock
-                        )} text-white shadow-md`}
+                        )} text-accent-content shadow-md`}
                       >
                         {product?.productStock}
                       </span>
@@ -532,23 +531,23 @@ const ProductDashboard = () => {
                     <div className="flex items-center space-x-2">
                       <button
                         onClick={() => handleView(product)}
-                        className="p-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-cyan-500/25"
+                        className="p-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-accent-content rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-cyan-500/25"
                       >
                         <Eye size={16} />
                       </button>
                       <button
                         onClick={() => handleEdit(product)}
-                        className="p-2 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-emerald-500/25"
+                        className="p-2 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-accent-content rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-emerald-500/25"
                       >
                         <Edit size={16} />
                       </button>
                       <button
                         onClick={() => handleDelete(product?._id)}
-                        className="p-2 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-400 hover:to-pink-400 text-white rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-red-500/25"
+                        className="p-2 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-400 hover:to-pink-400 text-accent-content rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-red-500/25"
                       >
                         <Trash2 size={16} />
                       </button>
-                      <button className="p-2 bg-gray-700/50 hover:bg-gray-600/50 text-gray-300 hover:text-white rounded-lg transition-all duration-300 transform hover:scale-110">
+                      <button className="p-2 bg-gray-700/50 hover:bg-gray-600/50 text-gray-300 hover:text-accent-content rounded-lg transition-all duration-300 transform hover:scale-110">
                         <MoreVertical size={16} />
                       </button>
                     </div>
@@ -570,7 +569,7 @@ const ProductDashboard = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <h3 className="font-bold text-white group-hover:text-blue-400 transition-colors duration-300 text-sm sm:text-base mb-1">
+                          <h3 className="font-bold text-accent-content group-hover:text-blue-400 transition-colors duration-300 text-sm sm:text-base mb-1">
                             {product?.productName}
                           </h3>
                           <p className="text-xs text-gray-400 mb-2">{product?.brand}</p>
@@ -607,7 +606,7 @@ const ProductDashboard = () => {
                                 <span
                                   className={`inline-flex items-center px-2 py-1 rounded-lg text-xs font-bold bg-gradient-to-r ${getStatusColor(
                                     product?.productStock
-                                  )} text-white`}
+                                  )} text-accent-content`}
                                 >
                                   {product?.productStock} left
                                 </span>
@@ -626,19 +625,19 @@ const ProductDashboard = () => {
                         <div className="flex items-center space-x-2">
                           <button
                             onClick={() => handleView(product)}
-                            className="p-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg"
+                            className="p-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-accent-content rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg"
                           >
                             <Eye size={14} />
                           </button>
                           <button
                             onClick={() => handleEdit(product)}
-                            className="p-2 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg"
+                            className="p-2 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-accent-content rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg"
                           >
                             <Edit size={14} />
                           </button>
                           <button
                             onClick={() => handleDelete(product?._id)}
-                            className="p-2 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-400 hover:to-pink-400 text-white rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg"
+                            className="p-2 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-400 hover:to-pink-400 text-accent-content rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg"
                           >
                             <Trash2 size={14} />
                           </button>
@@ -659,7 +658,7 @@ const ProductDashboard = () => {
               </div>
               <h3 className="text-xl font-bold text-gray-300 mb-2">No products found</h3>
               <p className="text-gray-400 mb-6">Try adjusting your search or filter criteria</p>
-              <button className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg font-medium">
+              <button className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-accent-content rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg font-medium">
                 Clear Filters
               </button>
             </div>
@@ -703,7 +702,7 @@ const ProductDashboard = () => {
           ].map((metric, index) => (
             <div
               key={metric.title}
-              className={`bg-gradient-to-br ${metric.color} rounded-2xl p-6 text-white shadow-xl transform hover:scale-105 transition-all duration-300 relative overflow-hidden animate-slideUp`}
+              className={`bg-gradient-to-br ${metric.color} rounded-2xl p-6 text-accent-content shadow-xl transform hover:scale-105 transition-all duration-300 relative overflow-hidden animate-slideUp`}
               style={{ animationDelay: `${1000 + index * 150}ms` }}
             >
               <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-10 translate-x-10"></div>
@@ -738,7 +737,7 @@ const ProductDashboard = () => {
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
           <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-purple-500/30 max-w-3xl w-full max-h-[90vh] overflow-y-auto animate-slideUp">
             <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-purple-600 p-6 flex justify-between items-center z-10">
-              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+              <h2 className="text-2xl font-bold text-accent-content flex items-center gap-2">
                 <Eye className="w-6 h-6" />
                 Product Details
               </h2>
@@ -746,7 +745,7 @@ const ProductDashboard = () => {
                 onClick={() => setViewModal(null)}
                 className="p-2 hover:bg-white/10 rounded-lg transition-colors"
               >
-                <X className="w-6 h-6 text-white" />
+                <X className="w-6 h-6 text-accent-content" />
               </button>
             </div>
 
@@ -758,10 +757,10 @@ const ProductDashboard = () => {
                   className="w-full md:w-64 h-64 rounded-xl object-cover border-2 border-purple-500/30"
                 />
                 <div className="flex-1">
-                  <h3 className="text-3xl font-bold text-white mb-2">{viewModal?.productName}</h3>
+                  <h3 className="text-3xl font-bold text-accent-content mb-2">{viewModal?.productName}</h3>
                   <div className="flex gap-2 mb-4">
                     {renderStars(viewModal?.ratings)}
-                    <span className="text-white font-semibold">({viewModal?.ratings}.0)</span>
+                    <span className="text-accent-content font-semibold">({viewModal?.ratings}.0)</span>
                   </div>
                   <p className="text-gray-300 mb-4">{viewModal?.description}</p>
                   <div className="flex gap-2 flex-wrap">
@@ -781,7 +780,7 @@ const ProductDashboard = () => {
                     <Package className="w-5 h-5 text-cyan-400" />
                     <span className="text-gray-400 text-sm">SKU</span>
                   </div>
-                  <p className="text-white font-semibold">{viewModal?.sku}</p>
+                  <p className="text-accent-content font-semibold">{viewModal?.sku}</p>
                 </div>
 
                 <div className="bg-slate-700/30 rounded-xl p-4 border border-slate-600/50">
@@ -789,7 +788,7 @@ const ProductDashboard = () => {
                     <DollarSign className="w-5 h-5 text-emerald-400" />
                     <span className="text-gray-400 text-sm">Price</span>
                   </div>
-                  <p className="text-white font-semibold text-2xl">৳{viewModal?.price}</p>
+                  <p className="text-accent-content font-semibold text-2xl">৳{viewModal?.price}</p>
                 </div>
 
                 <div className="bg-slate-700/30 rounded-xl p-4 border border-slate-600/50">
@@ -805,13 +804,13 @@ const ProductDashboard = () => {
                     <Package className="w-5 h-5 text-orange-400" />
                     <span className="text-gray-400 text-sm">Stock</span>
                   </div>
-                  <p className="text-white font-semibold text-2xl">{viewModal?.productStock}</p>
+                  <p className="text-accent-content font-semibold text-2xl">{viewModal?.productStock}</p>
                   <p className="text-gray-400 text-sm">{getStatusText(viewModal?.productStock)}</p>
                 </div>
 
                 <div className="bg-slate-700/30 rounded-xl p-4 border border-slate-600/50">
                   <span className="text-gray-400 text-sm">Brand</span>
-                  <p className="text-white font-semibold mt-2">{viewModal?.brand}</p>
+                  <p className="text-accent-content font-semibold mt-2">{viewModal?.brand}</p>
                 </div>
 
                 <div className="bg-slate-700/30 rounded-xl p-4 border border-slate-600/50">
@@ -822,7 +821,7 @@ const ProductDashboard = () => {
 
               {viewModal?.images?.length > 1 && (
                 <div className="mt-6">
-                  <h4 className="text-white font-semibold mb-3">All Images</h4>
+                  <h4 className="text-accent-content font-semibold mb-3">All Images</h4>
                   <div className="grid grid-cols-3 gap-3">
                     {viewModal?.images.map((img, idx) => (
                       <img
@@ -846,7 +845,7 @@ const ProductDashboard = () => {
           <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
             <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-emerald-500/30 max-w-3xl w-full max-h-[90vh] overflow-y-auto animate-slideUp">
               <div className="sticky top-0 bg-gradient-to-r from-emerald-600 to-teal-600 p-6 flex justify-between items-center z-10">
-                <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                <h2 className="text-2xl font-bold text-accent-content flex items-center gap-2">
                   <Edit className="w-6 h-6" />
                   Edit Product
                 </h2>
@@ -854,7 +853,7 @@ const ProductDashboard = () => {
                   onClick={() => setEditModal(null)}
                   className="p-2 hover:bg-white/10 rounded-lg transition-colors"
                 >
-                  <X className="w-6 h-6 text-white" />
+                  <X className="w-6 h-6 text-accent-content" />
                 </button>
               </div>
 
@@ -868,7 +867,7 @@ const ProductDashboard = () => {
                       type="text"
                       value={editModal?.productName}
                       onChange={(e) => updateEditField("productName", e.target.value)}
-                      className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                      className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500 transition-colors"
                     />
                   </div>
 
@@ -878,7 +877,7 @@ const ProductDashboard = () => {
                       type="text"
                       value={editModal?.sku}
                       onChange={(e) => updateEditField("sku", e.target.value)}
-                      className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                      className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500 transition-colors"
                     />
                   </div>
 
@@ -888,7 +887,7 @@ const ProductDashboard = () => {
                       type="text"
                       value={editModal?.brand}
                       onChange={(e) => updateEditField("brand", e.target.value)}
-                      className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                      className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500 transition-colors"
                     />
                   </div>
 
@@ -898,7 +897,7 @@ const ProductDashboard = () => {
                       type="number"
                       value={editModal?.price}
                       onChange={(e) => updateEditField("price", Number(e.target.value))}
-                      className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                      className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500 transition-colors"
                     />
                   </div>
 
@@ -910,7 +909,7 @@ const ProductDashboard = () => {
                       type="number"
                       value={editModal?.discount}
                       onChange={(e) => updateEditField("discount", Number(e.target.value))}
-                      className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                      className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500 transition-colors"
                     />
                   </div>
 
@@ -920,7 +919,7 @@ const ProductDashboard = () => {
                       type="number"
                       value={editModal?.productStock}
                       onChange={(e) => updateEditField("productStock", Number(e.target.value))}
-                      className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                      className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500 transition-colors"
                     />
                   </div>
 
@@ -933,7 +932,7 @@ const ProductDashboard = () => {
                       max="5"
                       value={editModal?.ratings}
                       onChange={(e) => updateEditField("ratings", Number(e.target.value))}
-                      className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                      className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500 transition-colors"
                     />
                   </div>
 
@@ -951,7 +950,7 @@ const ProductDashboard = () => {
                         )
                       }
                       placeholder="M, L, XL"
-                      className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                      className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500 transition-colors"
                     />
                   </div>
 
@@ -969,7 +968,7 @@ const ProductDashboard = () => {
                         )
                       }
                       placeholder="Black, Brown, Red"
-                      className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                      className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500 transition-colors"
                     />
                   </div>
 
@@ -981,7 +980,7 @@ const ProductDashboard = () => {
                       type="number"
                       value={editModal?.productRank || ""}
                       onChange={(e) => updateEditField("productRank", Number(e.target.value))}
-                      className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                      className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500 transition-colors"
                     />
                   </div>
 
@@ -995,7 +994,7 @@ const ProductDashboard = () => {
                         const val = e.target.value;
                         updateEditField("productStatus", val === "none" ? [] : [val]);
                       }}
-                      className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                      className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500 transition-colors"
                     >
                       <option value="none">None</option>
                       <option value="hot">Hot</option>
@@ -1011,7 +1010,7 @@ const ProductDashboard = () => {
                       value={editModal?.description}
                       onChange={(e) => updateEditField("description", e.target.value)}
                       rows="3"
-                      className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-emerald-500 transition-colors resize-none"
+                      className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500 transition-colors resize-none"
                     ></textarea>
                   </div>
                 </div>
@@ -1019,13 +1018,13 @@ const ProductDashboard = () => {
                 <div className="flex gap-3 mt-6">
                   <button
                     onClick={saveEdit}
-                    className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold rounded-lg transition-all transform hover:scale-105"
+                    className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-accent-content font-semibold rounded-lg transition-all transform hover:scale-105"
                   >
                     {load ? "Saving..." : "Save Changes"}
                   </button>
                   <button
                     onClick={() => setEditModal(null)}
-                    className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition-colors"
+                    className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-accent-content font-semibold rounded-lg transition-colors"
                   >
                     Cancel
                   </button>
@@ -1042,7 +1041,7 @@ const ProductDashboard = () => {
               <div className="p-3 bg-pink-500/20 rounded-full">
                 <Trash2 className="w-8 h-8 text-pink-500" />
               </div>
-              <h2 className="text-2xl font-bold text-white">Delete Product</h2>
+              <h2 className="text-2xl font-bold text-accent-content">Delete Product</h2>
             </div>
 
             <p className="text-gray-300 mb-6">
@@ -1052,13 +1051,13 @@ const ProductDashboard = () => {
             <div className="flex gap-3">
               <button
                 onClick={confirmDelete}
-                className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-semibold rounded-lg transition-all transform hover:scale-105"
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-accent-content font-semibold rounded-lg transition-all transform hover:scale-105"
               >
                 Delete
               </button>
               <button
                 onClick={() => setDeleteModal(null)}
-                className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition-colors"
+                className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-accent-content font-semibold rounded-lg transition-colors"
               >
                 Cancel
               </button>

@@ -93,7 +93,7 @@ const Signin = () => {
 
 
             </div>
-            <button type='submit' className='w-full bg-primary-color text-white py-2 rounded-md hover:bg-[#609283] cursor-pointer transition duration-200'>Sign In</button>
+            <button type='submit' className='w-full bg-primary-color text-accent-content py-2 rounded-md hover:bg-[#609283] cursor-pointer transition duration-200'>Sign In</button>
 
             <span className='flex justify-center items-center'>Or</span>
 

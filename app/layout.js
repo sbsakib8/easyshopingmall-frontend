@@ -27,7 +27,7 @@ export const metadata = {
     template: "%s | EasyShoppingMallBD"
   },
   description: "EasyShoppingMallBD is your premier destination for online shopping in Bangladesh. Find the best products at unbeatable prices with fast delivery.",
-  keywords: ["e-commerce", "online shopping", "Bangladesh", "electronics", "fashion", "EasyShoppingMallBD"],
+  keywords: ["e-commerce", "online shopping", "bangladesh e-commerce","fashion", "EasyShoppingMallBD","easy shopping mall ","shopping mall","Online Shopping"],
   authors: [{ name: "EasyShoppingMallBD Team" }],
   creator: "EasyShoppingMallBD",
   publisher: "EasyShoppingMallBD",
