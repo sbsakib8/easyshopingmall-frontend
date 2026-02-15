@@ -2,8 +2,6 @@
 import { useGetHomeBanner } from '@/src/utlis/useHomeBanner';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import React from 'react';
-import Image from 'next/image';
-import Skeleton from '../../compronent/loading/Skeleton';
 
 const Carousel = ({ initialData }) => {
   const { homebanner: apiBanners, loading: apiLoading, error, refetch } = useGetHomeBanner();
@@ -98,12 +96,10 @@ const Carousel = ({ initialData }) => {
                   : 'opacity-0 translate-x-full'
                 }`}
             >
-              <Image
+              <img
                 src={slide?.images?.[0] || ""}
-                alt={slide?.title || "Banner"}
-                fill
-                priority={index === 0}
-                className="object-cover"
+                alt={slide?.title}
+                className="w-full h-full "
               />
 
 
@@ -183,12 +179,10 @@ const Carousel = ({ initialData }) => {
               : 'opacity-60 hover:opacity-80'
               }`}
           >
-            <Image
-              src={slide?.images?.[0] || slide?.image || ""}
-              alt={slide?.title || "Thumbnail"}
-              width={64}
-              height={40}
-              className="object-cover h-10 w-16"
+            <img
+              src={slide?.images || slide?.image}
+              alt={slide?.title}
+              className="w-16 h-10 "
             />
           </button>
         ))}
