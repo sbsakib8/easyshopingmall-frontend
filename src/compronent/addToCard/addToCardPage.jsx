@@ -244,7 +244,7 @@ const ShoppingCartComponent = () => {
 
   if (!user?._id) {
     return (
-      <div className="min-h-screen lg:mt-24 py-5 flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="min-h-screen lg:mt-24 py-5 flex items-center justify-center bg-bg">
         <div className="bg-white shadow-lg rounded-2xl p-8 text-center max-w-md">
           <h2 className="text-2xl font-bold mb-2 text-gray-900">Please sign in</h2>
           <p className="text-gray-600 mb-4">You need to log in to view your cart.</p>
@@ -261,8 +261,8 @@ const ShoppingCartComponent = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen lg:mt-24 py-5 bg-gradient-to-br from-blue-50 via-white to-purple-50">
-        <div className="bg-white shadow-sm border-b mb-8">
+      <div className="min-h-screen lg:mt-24 py-5 bg-bg">
+        <div className="bg-bg shadow-sm border-b mb-8">
           <div className="max-w-7xl mx-auto px-4 py-6">
             <Skeleton className="h-10 w-64" />
           </div>
@@ -271,7 +271,7 @@ const ShoppingCartComponent = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-4">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="bg-white rounded-2xl shadow-lg p-6">
+                <div key={i} className="bg-bg rounded-2xl shadow-lg p-6">
                   <div className="flex space-x-4">
                     <Skeleton className="w-24 h-24 rounded-xl" />
                     <div className="flex-1 space-y-3">
@@ -290,7 +290,7 @@ const ShoppingCartComponent = () => {
               ))}
             </div>
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-2xl shadow-lg p-6 space-y-6">
+              <div className="bg-bg rounded-2xl shadow-lg p-6 space-y-6">
                 <Skeleton className="h-8 w-full" />
                 <Skeleton className="h-12 w-full" />
                 <div className="space-y-3">
@@ -309,16 +309,16 @@ const ShoppingCartComponent = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen lg:mt-24 py-5 flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="min-h-screen lg:mt-24 py-5 flex items-center justify-center bg-bg">
         <p className="text-red-500 text-lg">{error}</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen  lg:mt-24 py-5 bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen  lg:mt-8 py-5 bg-bg">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-bg shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
@@ -363,7 +363,7 @@ const ShoppingCartComponent = () => {
                 // <Link className=' space-y-10' key={item.id}>
                 <div
                   key={item.productId}
-                  className="bg-white cursor-pointer rounded-2xl shadow-lg py-6 px-3 hover:shadow-xl transition-all duration-300"
+                  className="bg-bg cursor-pointer rounded-2xl shadow-lg py-6 px-3 hover:shadow-xl transition-all duration-300"
                   style={{
                     animation: `slideIn 0.5s ease-out ${index * 0.1}s both`
                   }}
@@ -490,7 +490,7 @@ const ShoppingCartComponent = () => {
             </div>
             {/* Order Summary */}
             <div className="lg:col-span-1 row-span-2">
-              <div className="bg-white rounded-2xl shadow-lg p-6 sticky top-6">
+              <div className="bg-bg rounded-2xl shadow-lg p-6 sticky top-6">
                 <h3 className="font-semibold text-lg text-gray-900 mb-6">Order Summary</h3>
 
                 {/* Coupon Section */}
@@ -611,7 +611,7 @@ const ShoppingCartComponent = () => {
                 {/* Go to Checkout Button */}
                 <Link
                   href="/checkout"
-                  className="w-full cursor-pointer bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 hover:from-teal-600 hover:to-green-700 text-accent-content py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center space-x-2"
+                  className="w-full cursor-pointer bg-btn-color hover:bg-btn-color/70 text-accent-content py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center space-x-2"
                 >
                   <CreditCard className="w-5 h-5" />
                   <span>Proceed to Checkout</span>
@@ -639,7 +639,7 @@ const ShoppingCartComponent = () => {
             {/* Suggested Items */}
             {/* Add-to-cart wise suggestions */}
             {suggestedItems.length > 0 && (
-              <div className="lg:col-span-2 bg-white rounded-2xl shadow-lg p-6 mt-8">
+              <div className="lg:col-span-2 bg-bg rounded-2xl shadow-lg p-6 mt-8">
                 <h3 className="font-semibold text-lg text-gray-900 mb-4 flex items-center">
                   <Gift className="w-5 h-5 mr-2 text-purple-600" />
                   You might also like
@@ -667,7 +667,7 @@ const ShoppingCartComponent = () => {
 
                       <button
                         onClick={() => handleAddToCart(item)}
-                        className="w-full bg-teal-600 text-accent-content text-xs py-1.5 rounded-lg hover:bg-teal-700 transition"
+                        className="w-full bg-btn-color text-accent-content text-xs py-1.5 rounded-lg hover:bg-btn-color/70 transition"
                       >
                         Add to Cart
                       </button>

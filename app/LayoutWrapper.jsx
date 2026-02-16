@@ -24,7 +24,7 @@ export default function LayoutWrapper({ children, initialWebsiteInfo }) {
       dispatch(clearUser());
     }
   }, [user, dispatch]);
-  const role = "USER"
+  const role = "DROPSHIPPING"
   return (
     <BlockedUserRoute>
       {!hideLayout && role !== "DROPSHIPPING" ? <Header /> : ""}
