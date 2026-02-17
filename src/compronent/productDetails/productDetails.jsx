@@ -413,7 +413,7 @@ const ProductDetails = ({ initialProduct }) => {
     );
   }
   return (
-    <div className="min-h-screen lg:mt-6 lg:py-10 bg-bg">
+    <div className="min-h-screen lg:pt-6 lg:py-10 bg-bg">
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumb with Category & SubCategory */}
         <div className="flex items-center space-x-2 text-sm text-gray-600 mb-2 mt-4 flex-wrap">
@@ -484,7 +484,7 @@ const ProductDetails = ({ initialProduct }) => {
                     alt={`${product?.name} `}
                     className="w-20 h-20 object-cover"
                   />
-                  <img onClick={() => setshowVideo(true)} src={product?.video_link} alt="" className="w-10 h-10 object-cover absolute  top-5 right-5 cursor-pointer" />
+                  <img onClick={() => setshowVideo(true)} src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRT7dAm2xeRPWO5PJWhJnhfUeG3Syl3ws8wnw&s' alt="" className="w-10 h-10 object-cover absolute  top-5 right-5 cursor-pointer" />
 
                   {/* details video  */}
                   {showVideo && <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn ">
@@ -725,7 +725,7 @@ const ProductDetails = ({ initialProduct }) => {
                 disabled={product?.stock === 0}
                 className={`w-full py-4 rounded-xl font-semibold text-lg flex items-center justify-center space-x-2 transition-all duration-300 ${product?.stock === 0
                   ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                  : "bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-accent-content hover:shadow-lg hover:scale-102 cursor-pointer"
+                  : "bg-btn-color text-accent-content hover:shadow-lg hover:scale-102 cursor-pointer"
                   }`}
               >
                 <ShoppingCart className="w-5 h-5 " />

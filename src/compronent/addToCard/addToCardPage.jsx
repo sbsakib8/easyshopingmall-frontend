@@ -316,7 +316,7 @@ const ShoppingCartComponent = () => {
   }
 
   return (
-    <div className="min-h-screen  lg:mt-8 py-5 bg-bg">
+    <div className="min-h-screen lg:pt-8 py-5 bg-bg">
       {/* Header */}
       <div className="bg-bg shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 py-6">
@@ -351,7 +351,7 @@ const ShoppingCartComponent = () => {
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Your cart is empty</h2>
             <p className="text-gray-600 mb-8">Add some items to get started</p>
-            <button className="bg-teal-500 hover:bg-green-600 text-accent-content px-8 py-3 rounded-xl font-medium transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1">
+            <button className="bg-secondary hover:bg-secondary/80 hover:text-accent text-accent-content px-8 py-3 rounded-xl font-medium transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1">
               Continue Shopping
             </button>
           </div>
