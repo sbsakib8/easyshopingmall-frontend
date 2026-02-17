@@ -41,7 +41,7 @@ async function getHomeData() {
 export default async function Home() {
   const data = await getHomeData();
 
-  const role = 'DROPSHIPPING'
+  const role = 'USER'
   return (
     <div>
       {role === "DROPSHIPPING" ? <DropShippingHome initialData={data} /> : <Hero initialData={data} />}

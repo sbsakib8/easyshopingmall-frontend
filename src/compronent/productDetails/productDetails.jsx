@@ -484,7 +484,7 @@ const ProductDetails = ({ initialProduct }) => {
                     alt={`${product?.name} `}
                     className="w-20 h-20 object-cover"
                   />
-                  <img onClick={() => setshowVideo(true)} src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRT7dAm2xeRPWO5PJWhJnhfUeG3Syl3ws8wnw&s' alt="" className="w-10 h-10 object-cover absolute  top-5 right-5 cursor-pointer" />
+                  <img onClick={() => setshowVideo(true)} src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRT7dAm2xeRPWO5PJWhJnhfUeG3Syl3ws8wnw&s' alt="" className="w-10 h-10 object-cover absolute  top-5 right-5 cursor-pointer rounded-full" />
 
                   {/* details video  */}
                   {showVideo && <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn ">
@@ -590,7 +590,7 @@ const ProductDetails = ({ initialProduct }) => {
               <div>
                 {product?.rank > product?.price && user?.role !== "DROPSHIPPING" && (
                   <>
-                    <p className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                    <p className="bg-secondary text-white px-3 py-1 rounded-full text-sm font-semibold">
                       Save ৳{(product?.rank - product?.price)?.toFixed(0) || 0}
                     </p>
                   </>
