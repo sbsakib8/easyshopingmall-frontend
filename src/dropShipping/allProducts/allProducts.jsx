@@ -3,10 +3,11 @@ import { useGetSubcategory } from '@/src/utlis/useSubcategory';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
+import { useSelector } from 'react-redux';
 
 const AllProducts = () => {
   const { subcategory, loading } = useGetSubcategory();
-
+ const user = useSelector((state) => state.user.data);
   const menCategory = subcategory?.filter(
     cat => cat?.category?.name === "Men's Fashion"
   );
@@ -16,8 +17,9 @@ const AllProducts = () => {
   const childrenCategory = subcategory?.filter(
     cat => cat?.category?.name === "Children Fashion"
   );
-console.log(childrenCategory)
-  return (
+
+  return (<>
+    {user?.role === "DROPSHIPPING" &&
     <div className="container space-y-16 mb-10">
       {/* Men's Products */}
       <div className="flex flex-col justify-center items-center">
@@ -149,7 +151,8 @@ console.log(childrenCategory)
 
         </div>
       </div>
-    </div>
+    </div>}
+    </>
   );
 };
 

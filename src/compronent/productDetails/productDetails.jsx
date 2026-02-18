@@ -317,7 +317,10 @@ const ProductDetails = ({ initialProduct }) => {
       }
     }
   };
+  console.log(quantity);
+  console.log(product);
   const handleAddToCart = async () => {
+    if(quantity>product.stock) return toast.error("Quantity Not avialable")
     if (!user?._id) {
       toast.error("Please sign in to add items to cart");
       return;

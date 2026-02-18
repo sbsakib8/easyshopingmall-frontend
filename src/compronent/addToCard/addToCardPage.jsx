@@ -29,6 +29,7 @@ import {
   addToWishlistApi,
   removeFromWishlistApi
 } from "../../hook/useWishlist";
+import { useRouter } from 'next/navigation';
 
 
 const ShoppingCartComponent = () => {
@@ -36,7 +37,7 @@ const ShoppingCartComponent = () => {
   const { items: rawItems = [], loading, error } = useSelector((state) => state.cart);
   const { data: wishlistItems } = useSelector((state) => state?.wishlist?.data);
   const user = useSelector((state) => state.user.data);
-
+  const router = useRouter();
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [showCouponInput, setShowCouponInput] = useState(false);
@@ -222,7 +223,14 @@ const ShoppingCartComponent = () => {
   }, [subcategory, cartCategoryIds, cartProductIds]);
 
 
-
+const handleContinueShopping = () => {
+  if(user.role !=="DROPSHIPPING"){
+    router.push('/shop');
+  }
+  else{
+    router.push('/all-products');
+  }
+}
 
   const removeCoupon = () => {
     setAppliedCoupon(null);
@@ -351,7 +359,7 @@ const ShoppingCartComponent = () => {
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Your cart is empty</h2>
             <p className="text-gray-600 mb-8">Add some items to get started</p>
-            <button className="bg-secondary hover:bg-secondary/80 hover:text-accent text-accent-content px-8 py-3 rounded-xl font-medium transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1">
+            <button onClick={handleContinueShopping} className="bg-secondary hover:bg-secondary/80 hover:text-accent text-accent-content px-8 py-3 rounded-xl font-medium transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1">
               Continue Shopping
             </button>
           </div>

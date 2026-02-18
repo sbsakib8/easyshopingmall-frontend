@@ -28,7 +28,6 @@ import { useGetcategory } from "../../utlis/usecategory";
 import { useGetProduct } from "../../utlis/userProduct";
 import { useCategoryWithSubcategories } from "../../utlis/useCategoryWithSubcategories";
 import { useWishlist } from "@/src/utlis/useWishList";
-import Button from "@/src/helper/Buttons/Button";
 import { setQuickViewProduct } from "../../redux/shopSlice";
 
 // Helper function to determine if product is new or old
