@@ -317,10 +317,10 @@ const ProductDetails = ({ initialProduct }) => {
       }
     }
   };
-  console.log(quantity);
-  console.log(product);
+
   const handleAddToCart = async () => {
-    if(quantity>product.stock) return toast.error("Quantity Not avialable")
+    if(quantity>product.stock) return toast.error("Quantity Not avialable")   
+     
     if (!user?._id) {
       toast.error("Please sign in to add items to cart");
       return;
@@ -623,7 +623,7 @@ const ProductDetails = ({ initialProduct }) => {
                     {product?.colors?.map((color, index) => (
                       <button
                         key={index}
-                        onClick={() => setSelectedColor(color)}
+                        onClick={() => setSelectedColor((prev) => (prev === color ? null : color))}
                         className={`w-10 h-10 rounded-full border transition-all duration-300  ${selectedColor === color
                           ? "ring-4 ring-blue-300 scale-110"
                           : "hover:scale-110"
