@@ -512,7 +512,7 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
         <ReactPlayer
           controls
           light={<img
-            src={"https://i.ibb.co.com/bj9sxtv0/Screenshot-2026-01-26-at-4-23-43-PM.png"}
+            src={"https://i.ytimg.com/vi/_qETiv0aTdA/hqdefault.jpg?sqp=-oaymwFBCPYBEIoBSFryq4qpAzMIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB8AEB-AH-CYAC0AWKAgwIABABGBEgcihFMA8=&rs=AOn4CLA03DMupVKsylFc6VGl5wp6b0b4pg"}
             alt={`thumbnel `}
             className=" w-96 h-96  rounded-xl md:rounded-2xl"
           />}

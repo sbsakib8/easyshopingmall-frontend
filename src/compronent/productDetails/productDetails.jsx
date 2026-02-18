@@ -403,7 +403,7 @@ const ProductDetails = ({ initialProduct }) => {
             </button>
             <button
               onClick={() => router.push("/shop")}
-              className="px-8 py-3 bg-white text-gray-700 border-2 border-gray-200 rounded-xl font-bold hover:bg-gray-50 transition-all text-sm uppercase tracking-wider"
+              className="px-8 py-3 bg-accent-content text-gray-700 border-2 border-gray-200 rounded-xl font-bold hover:bg-gray-50 transition-all text-sm uppercase tracking-wider"
             >
               Go to Shop
             </button>
@@ -449,7 +449,7 @@ const ProductDetails = ({ initialProduct }) => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Image Gallery */}
           <div className="space-y-4">
-            <div className="relative overflow-hidden rounded-2xl bg-white shadow-2xl  group">
+            <div className="relative overflow-hidden rounded-2xl bg-accent-content shadow-2xl  group">
               <Image
                 width={1200}
                 height={1400}
