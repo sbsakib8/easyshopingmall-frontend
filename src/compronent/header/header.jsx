@@ -519,7 +519,7 @@ const Header = ({ initialData }) => {
                     />
                     {cartCount > 0 && (
                       <span className="absolute -top-1 -right-1 bg-secondary text-accent-content text-xs rounded-full h-4 w-4 sm:h-6 sm:w-6 flex items-center justify-center font-bold animate-pulse shadow-lg">
-                        {cartCount}
+                        {cartItems.length}
                       </span>
                     )}
                   </div>

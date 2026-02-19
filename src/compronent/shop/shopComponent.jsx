@@ -873,7 +873,7 @@ const ShopPage = ({ initialData, queryParams }) => {
               >
                 {currentProducts.map((product) => (
                   <ProductCard
-                    key={product._id}
+                    key={product.id}
                     product={product}
                     viewMode={viewMode}
                     router={router}

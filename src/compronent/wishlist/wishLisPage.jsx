@@ -1,16 +1,17 @@
 "use client";
 import { CardSkeleton } from "@/src/compronent/loading/Skeleton";
+import { addToCartApi, getCartApi } from "@/src/hook/useCart";
 import { getWishlistApi, removeFromWishlistApi } from "@/src/hook/useWishlist";
 import { Eye, Grid, Heart, List, Share2, ShoppingCart, Star, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 
 const WishlistComponent = () => {
   const dispatch = useDispatch();
   const { data: wishlistItems = [], loading, error } = useSelector((state) => state.wishlist);
   const user = useSelector((state) => state.user.data);
-
   const [viewMode, setViewMode] = useState("grid");
   const [sortBy, setSortBy] = useState("newest");
   const [filterBy, setFilterBy] = useState("all");
@@ -54,17 +55,39 @@ const WishlistComponent = () => {
     }
   };
 
-  const addToCart = (item) => {
-    // Animation effect
-    const button = document.querySelector(`[data-cart-button="${item.id}"]`);
-    if (button) {
-      button.classList.add("animate-pulse");
-      setTimeout(() => {
-        button.classList.remove("animate-pulse");
-      }, 600);
+  const addToCart = useCallback(async (product) => {
+    if(product.colors.length ){
+      toast.error("Select color from details page")
+      return
     }
-    // console.log("Added to cart:", item.name);
-  };
+    if(product.sizes.length ){
+      toast.error("Select size from details page")
+      return
+    }
+    if (!user?._id) {
+      toast.error("Please sign in to add items to cart")
+      return
+    }
+
+    try {
+      await addToCartApi(
+        {
+          userId: user._id,
+          productId: product.id,
+          quantity: 1,
+          price: product.price,
+        },
+        dispatch,
+      )
+      toast.success(`${product.name} added to cart`)
+      // refresh cart
+      await getCartApi(user._id, dispatch)
+    } catch (err) {
+      console.error("Add to cart error:", err)
+      const msg = err?.response?.data?.message || "Failed to add to cart"
+      toast.error(msg)
+    }
+  }, [user?._id, dispatch]);
 
   const sortedAndFilteredItems = () => {
     let items = [...wishlistItems];
@@ -242,11 +265,11 @@ const WishlistComponent = () => {
                   />
 
                   {/* Discount Badge */}
-                  {item.discount && (
+                  {/* {item.discount && (
                     <div className="absolute top-3 left-3 bg-secondary text-accent-content px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
                       -{item.discount}%
                     </div>
-                  )}
+                  )} */}
 
                   {/* Stock Status */}
                   {!item.inStock && (
@@ -297,11 +320,11 @@ const WishlistComponent = () => {
                   {/* Price */}
                   <div className="flex items-center gap-2 mb-4">
                     <span className="text-2xl font-bold text-secondary">
-                      ${item.price}
+                      ৳{item.price}
                     </span>
                     {item.originalPrice && (
                       <span className="text-lg text-gray-400 line-through">
-                        ${item.originalPrice}
+                        ৳{item.originalPrice}
                       </span>
                     )}
                   </div>
