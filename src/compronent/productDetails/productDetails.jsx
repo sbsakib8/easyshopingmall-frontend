@@ -190,8 +190,8 @@ const ProductDetails = ({ initialProduct }) => {
     // If product is already initialized from initialProduct AND matches current ID, don't fetch
     if (product && (product.id === params.id || product._id === params.id)) {
       setLoading(false);
-      if (product.colors?.length > 0 && !selectedColor) setSelectedColor(product.colors[0]);
-      if (product.sizes?.length > 0 && !selectedSize) setSelectedSize(product.sizes[0]);
+      // if (product.colors?.length > 0 && !selectedColor) setSelectedColor(product.colors[0]);
+      // if (product.sizes?.length > 0 && !selectedSize) setSelectedSize(product.sizes[0]);
       return;
     }
 

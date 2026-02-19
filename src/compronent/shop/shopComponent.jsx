@@ -325,6 +325,7 @@ const ShopPage = ({ initialData, queryParams }) => {
   // Use server products directly from Redux OR Fallback to Initial Data
   // This ensures the user sees the cached server data immediately before Redux takes over
   const currentProducts = reduxProducts?.length > 0 || productsLoading ? reduxProducts : (initialData?.products || [])
+  
   const totalCount = reduxTotalCount > 0 || productsLoading ? reduxTotalCount : (initialData?.totalCount || 0)
 
   // Local component state
@@ -421,6 +422,11 @@ const ShopPage = ({ initialData, queryParams }) => {
 
   // Add to cart (uses API + redux)
   const addToCart = useCallback(async (product) => {
+    console.log(product)
+    if(product.size.length && product.color.length ){
+      toast.error("Please select size and color")
+      return
+    }
     if (!user?._id) {
       toast.error("Please sign in to add items to cart")
       return
