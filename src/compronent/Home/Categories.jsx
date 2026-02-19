@@ -4,7 +4,6 @@ import { Star, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { useGetcategory } from "@/src/utlis/usecategory";
 import { HomeBannerAllGet } from "@/src/hook/useHomeBanner";
-import Button from "@/src/helper/Buttons/Button";
 import Image from "next/image";
 import { CategorySkeleton } from "../loading/Skeleton";
 
@@ -98,9 +97,9 @@ function Categories({ initialData }) {
                     />
                   ))}
                 </div>
-                <Button className="w-full bg-gradient-to-r from-btn-color/15 via-btn-color/55 to-btn-color/75 text-accent-content py-1.5 rounded-md text-xs font-medium">
+                <button className="w-full bg-btn-color text-accent-content py-1.5 rounded-md text-xs font-medium">
                   Explore Now
-                </Button>
+                </button>
               </div>
             </Link>
           ))}

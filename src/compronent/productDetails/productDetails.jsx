@@ -190,8 +190,8 @@ const ProductDetails = ({ initialProduct }) => {
     // If product is already initialized from initialProduct AND matches current ID, don't fetch
     if (product && (product.id === params.id || product._id === params.id)) {
       setLoading(false);
-      if (product.colors?.length > 0 && !selectedColor) setSelectedColor(product.colors[0]);
-      if (product.sizes?.length > 0 && !selectedSize) setSelectedSize(product.sizes[0]);
+      // if (product.colors?.length > 0 && !selectedColor) setSelectedColor(product.colors[0]);
+      // if (product.sizes?.length > 0 && !selectedSize) setSelectedSize(product.sizes[0]);
       return;
     }
 
@@ -317,7 +317,10 @@ const ProductDetails = ({ initialProduct }) => {
       }
     }
   };
+
   const handleAddToCart = async () => {
+    if(quantity>product.stock) return toast.error("Quantity Not avialable")   
+     
     if (!user?._id) {
       toast.error("Please sign in to add items to cart");
       return;
@@ -403,7 +406,7 @@ const ProductDetails = ({ initialProduct }) => {
             </button>
             <button
               onClick={() => router.push("/shop")}
-              className="px-8 py-3 bg-white text-gray-700 border-2 border-gray-200 rounded-xl font-bold hover:bg-gray-50 transition-all text-sm uppercase tracking-wider"
+              className="px-8 py-3 bg-accent-content text-gray-700 border-2 border-gray-200 rounded-xl font-bold hover:bg-gray-50 transition-all text-sm uppercase tracking-wider"
             >
               Go to Shop
             </button>
@@ -413,7 +416,7 @@ const ProductDetails = ({ initialProduct }) => {
     );
   }
   return (
-    <div className="min-h-screen lg:mt-6 lg:py-10 bg-bg">
+    <div className="min-h-screen lg:pt-6 lg:py-10 bg-bg">
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumb with Category & SubCategory */}
         <div className="flex items-center space-x-2 text-sm text-gray-600 mb-2 mt-4 flex-wrap">
@@ -449,7 +452,7 @@ const ProductDetails = ({ initialProduct }) => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Image Gallery */}
           <div className="space-y-4">
-            <div className="relative overflow-hidden rounded-2xl bg-white shadow-2xl  group">
+            <div className="relative overflow-hidden rounded-2xl bg-accent-content shadow-2xl  group">
               <Image
                 width={1200}
                 height={1400}
@@ -484,7 +487,7 @@ const ProductDetails = ({ initialProduct }) => {
                     alt={`${product?.name} `}
                     className="w-20 h-20 object-cover"
                   />
-                  <img onClick={() => setshowVideo(true)} src={product?.video_link} alt="" className="w-10 h-10 object-cover absolute  top-5 right-5 cursor-pointer" />
+                  <img onClick={() => setshowVideo(true)} src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRT7dAm2xeRPWO5PJWhJnhfUeG3Syl3ws8wnw&s' alt="" className="w-10 h-10 object-cover absolute  top-5 right-5 cursor-pointer rounded-full" />
 
                   {/* details video  */}
                   {showVideo && <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn ">
@@ -590,7 +593,7 @@ const ProductDetails = ({ initialProduct }) => {
               <div>
                 {product?.rank > product?.price && user?.role !== "DROPSHIPPING" && (
                   <>
-                    <p className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                    <p className="bg-secondary text-white px-3 py-1 rounded-full text-sm font-semibold">
                       Save ৳{(product?.rank - product?.price)?.toFixed(0) || 0}
                     </p>
                   </>
@@ -620,7 +623,7 @@ const ProductDetails = ({ initialProduct }) => {
                     {product?.colors?.map((color, index) => (
                       <button
                         key={index}
-                        onClick={() => setSelectedColor(color)}
+                        onClick={() => setSelectedColor((prev) => (prev === color ? null : color))}
                         className={`w-10 h-10 rounded-full border transition-all duration-300  ${selectedColor === color
                           ? "ring-4 ring-blue-300 scale-110"
                           : "hover:scale-110"
@@ -725,7 +728,7 @@ const ProductDetails = ({ initialProduct }) => {
                 disabled={product?.stock === 0}
                 className={`w-full py-4 rounded-xl font-semibold text-lg flex items-center justify-center space-x-2 transition-all duration-300 ${product?.stock === 0
                   ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                  : "bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-accent-content hover:shadow-lg hover:scale-102 cursor-pointer"
+                  : "bg-btn-color text-accent-content hover:shadow-lg hover:scale-102 cursor-pointer"
                   }`}
               >
                 <ShoppingCart className="w-5 h-5 " />

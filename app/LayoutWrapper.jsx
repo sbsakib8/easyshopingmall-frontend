@@ -24,11 +24,12 @@ export default function LayoutWrapper({ children, initialWebsiteInfo }) {
       dispatch(clearUser());
     }
   }, [user, dispatch]);
-  const role = "USER"
+  const role = user?.role
+
   return (
     <BlockedUserRoute>
       {!hideLayout && role !== "DROPSHIPPING" ? <Header /> : ""}
-      {role==="DROPSHIPPING" &&<DropshippingNavbar />}
+      {role === "DROPSHIPPING" && <DropshippingNavbar />}
       {children}
       {!hideLayout && <Footer initialData={initialWebsiteInfo} />}
     </BlockedUserRoute>
