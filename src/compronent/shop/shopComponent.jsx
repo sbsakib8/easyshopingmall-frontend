@@ -26,6 +26,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 import toast from "react-hot-toast"
 import { useDispatch, useSelector } from "react-redux"
+import AddtoCartBtn from "@/src/helper/Buttons/AddtoCartBtn"
 
 // Helper function to determine if product is new or old
 const isProductNew = (createdDate) => {
@@ -158,7 +159,7 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
             <button
               onClick={(e) => {
                 e.stopPropagation()
-                addToCart(product)
+                // addToCart(product)
               }}
               disabled={!product.inStock}
               className={`w-full py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs ${product.inStock
@@ -167,10 +168,12 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
                 }`}
             >
               {product.inStock ? (
-                <span className="flex items-center justify-center gap-1">
-                  <ShoppingCart className="w-3 h-3" />
-                  Add to Cart
-                </span>
+                
+                 <AddtoCartBtn productId={product.id}> 
+                 <span className="flex items-center justify-center gap-1"><ShoppingCart size={16} /> Add to Cart</span>
+                 
+                 </AddtoCartBtn>
+               
               ) : ("Out of Stock")}
             </button>
           ) : (
@@ -178,7 +181,7 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
               <button
                 onClick={(e) => {
                   e.stopPropagation()
-                  addToCart(product)
+                  // addToCart(product)
                 }}
                 disabled={!product.inStock}
                 className={`py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs ${product.inStock
@@ -188,7 +191,7 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
               >
                 {product.inStock ? (
                   <span className="flex items-center justify-center gap-1">
-                    <ShoppingCart size={16} />
+                   <AddtoCartBtn productId={product.id}> <ShoppingCart size={16} /></AddtoCartBtn>
                   </span>
                 ) : (
                   "Out of Stock"
