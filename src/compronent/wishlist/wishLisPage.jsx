@@ -1,11 +1,10 @@
 "use client";
 import { CardSkeleton } from "@/src/compronent/loading/Skeleton";
-import { addToCartApi, getCartApi } from "@/src/hook/useCart";
+import AddtoCartBtn from "@/src/helper/Buttons/AddtoCartBtn";
 import { getWishlistApi, removeFromWishlistApi } from "@/src/hook/useWishlist";
 import { Eye, Grid, Heart, List, Share2, ShoppingCart, Star, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 const WishlistComponent = () => {
@@ -55,39 +54,7 @@ const WishlistComponent = () => {
     }
   };
 
-  const addToCart = useCallback(async (product) => {
-    if(product.colors.length ){
-      toast.error("Select color from details page")
-      return
-    }
-    if(product.sizes.length ){
-      toast.error("Select size from details page")
-      return
-    }
-    if (!user?._id) {
-      toast.error("Please sign in to add items to cart")
-      return
-    }
 
-    try {
-      await addToCartApi(
-        {
-          userId: user._id,
-          productId: product.id,
-          quantity: 1,
-          price: product.price,
-        },
-        dispatch,
-      )
-      toast.success(`${product.name} added to cart`)
-      // refresh cart
-      await getCartApi(user._id, dispatch)
-    } catch (err) {
-      console.error("Add to cart error:", err)
-      const msg = err?.response?.data?.message || "Failed to add to cart"
-      toast.error(msg)
-    }
-  }, [user?._id, dispatch]);
 
   const sortedAndFilteredItems = () => {
     let items = [...wishlistItems];
@@ -335,7 +302,7 @@ const WishlistComponent = () => {
                       data-cart-button={item.id}
                       onClick={(e) => {
                         e.preventDefault();
-                        addToCart(item);
+                        // addToCart(item);
                       }}
                       disabled={!item.inStock}
                       className={`flex-1 cursor-pointer flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-semibold transition-all duration-300 ${item.inStock
@@ -343,9 +310,13 @@ const WishlistComponent = () => {
                         : "bg-gray-200 text-gray-500 cursor-not-allowed"
                         }`}
                     >
-                      <ShoppingCart className="w-5 h-5" />
-                      {item.inStock ? "Add to Cart" : "Out of Stock"}
+                      <AddtoCartBtn 
+                      productId={item.id} 
+                      className="flex items-center gap-2">
+                        <ShoppingCart className="w-5 h-5" />
+                      {item.inStock ? "Add to Cart" : "Out of Stock"}</AddtoCartBtn>
                     </button>
+                     
                   </div>
                 </div>
               </Link>
