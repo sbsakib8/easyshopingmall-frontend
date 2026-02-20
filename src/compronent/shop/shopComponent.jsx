@@ -197,6 +197,7 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
               <button
                 onClick={(e) => {
                   e.stopPropagation()
+                  console.log(product)
                   handleEdit(product)
                 }}
                 className="p-2 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-accent-content rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg"
@@ -593,6 +594,7 @@ const ShopPage = ({ initialData, queryParams }) => {
   }, [currentProducts])
 
   const saveEdit = async () => {
+    console.log("editModal",editModal)
     setLoad(true);
     try {
       // Transform normalized product back to backend format
@@ -608,10 +610,10 @@ const ShopPage = ({ initialData, queryParams }) => {
         color: editModal.color,
         discount: editModal.discount,
         ratings: editModal.rating,
-        productStock: editModal.stock,
+        productStock: editModal.productStock,
         video_link: editModal.video_link,
       };
-
+console.log("updatePayload",updatePayload)
       const res = await ProductUpdate(updatePayload);
       if (res.success) {
         toast.success("Product updated successfully!");
@@ -722,7 +724,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                   <div className="flex gap-4">
                     <input
                       type="number"
-                      value={priceRange[0]}
+                      defaultValue={priceRange[0]}
                       onChange={(e) => dispatch(setPriceRange([Number.parseInt(e.target.value) || 0, priceRange[1]]))}
                       className="w-20 px-2 py-1 border border-gray-300 rounded text-center"
                       placeholder="0"
@@ -739,7 +741,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                     type="range"
                     min="0"
                     max="300"
-                    value={priceRange[1]}
+                    defaultValue={priceRange[1]}
                     onChange={(e) => dispatch(setPriceRange([priceRange[0], Number.parseInt(e.target.value)]))}
                     className="w-full accent-secondary"
                   />
@@ -990,7 +992,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                     </label>
                     <input
                       type="text"
-                      value={editModal?.productName}
+                      defaultValue={editModal?.name}
                       onChange={(e) => updateEditField("productName", e.target.value)}
                       className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg  focus:outline-none focus:border-emerald-500 transition-colors"
                     />
@@ -1000,7 +1002,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                     <label className="block text-black text-sm font-semibold mb-2">SKU</label>
                     <input
                       type="text"
-                      value={editModal?.sku}
+                      defaultValue={editModal?.sku}
                       onChange={(e) => updateEditField("sku", e.target.value)}
                       className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
                     />
@@ -1010,7 +1012,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                     <label className="block text-black text-sm font-semibold mb-2">Brand</label>
                     <input
                       type="text"
-                      value={editModal?.brand}
+                      defaultValue={editModal?.brand}
                       onChange={(e) => updateEditField("brand", e.target.value)}
                       className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
                     />
@@ -1020,7 +1022,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                     <label className="block text-black text-sm font-semibold mb-2">Price</label>
                     <input
                       type="number"
-                      value={editModal?.price}
+                      defaultValue={editModal?.price}
                       onChange={(e) => updateEditField("price", Number(e.target.value))}
                       className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
                     />
@@ -1032,7 +1034,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                     </label>
                     <input
                       type="number"
-                      value={editModal?.discount}
+                      defaultValue={editModal?.discount}
                       onChange={(e) => updateEditField("discount", Number(e.target.value))}
                       className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
                     />
@@ -1042,7 +1044,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                     <label className="block text-black text-sm font-semibold mb-2">Stock</label>
                     <input
                       type="number"
-                      value={editModal?.productStock}
+                      defaultValue={editModal?.stock}
                       onChange={(e) => updateEditField("productStock", Number(e.target.value))}
                       className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
                     />
@@ -1055,7 +1057,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                       step="0.1"
                       min="0"
                       max="5"
-                      value={editModal?.ratings}
+                      defaultValue={editModal?.rating}
                       onChange={(e) => updateEditField("ratings", Number(e.target.value))}
                       className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
                     />
@@ -1067,7 +1069,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                     </label>
                     <input
                       type="text"
-                      value={editModal?.productSize?.join(", ") || ""}
+                      defaultValue={editModal?.size?.join(", ") || ""}
                       onChange={(e) =>
                         updateEditField(
                           "productSize",
@@ -1085,7 +1087,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                     </label>
                     <input
                       type="text"
-                      value={editModal?.color?.join(", ") || ""}
+                      defaultValue={editModal?.color?.join(", ") || ""}
                       onChange={(e) =>
                         updateEditField(
                           "color",
@@ -1104,7 +1106,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                     </label>
                     <input
                       type="number"
-                      value={editModal?.productRank || ""}
+                      defaultValue={editModal?.retailSale || ""}
                       onChange={(e) => updateEditField("productRank", Number(e.target.value))}
                       className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
                     />
@@ -1133,7 +1135,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                       Video Link
                     </label>
                     <input
-                      value={editModal?.video_link || "https://youtube.com/shorts/example_video"}
+                      defaultValue={editModal?.video_link}
                       onChange={(e) => updateEditField("video_link", e.target.value)}
                       className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors resize-none"
                     ></input>
@@ -1144,7 +1146,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                       Description
                     </label>
                     <textarea
-                      value={editModal?.description}
+                      defaultValue={editModal?.description}
                       onChange={(e) => updateEditField("description", e.target.value)}
                       rows="3"
                       className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors resize-none"
