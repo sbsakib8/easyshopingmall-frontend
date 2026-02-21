@@ -319,7 +319,7 @@ const ProductDetails = ({ initialProduct }) => {
   };
 
   const handleAddToCart = async () => {
-    if(quantity>product.stock) return toast.error("Quantity Not avialable")   
+    if(quantity>product.stock) return toast.error("অতিরিক্ত পরিমাণ যোগ করা হয়েছে")   
      
     if (!user?._id) {
       toast.error("Please sign in to add items to cart");

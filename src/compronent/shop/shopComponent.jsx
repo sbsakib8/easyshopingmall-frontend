@@ -200,7 +200,6 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
               <button
                 onClick={(e) => {
                   e.stopPropagation()
-                  console.log(product)
                   handleEdit(product)
                 }}
                 className="p-2 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-accent-content rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg"
@@ -426,7 +425,7 @@ const ShopPage = ({ initialData, queryParams }) => {
 
   // Add to cart (uses API + redux)
   const addToCart = useCallback(async (product) => {
-    console.log(product)
+    
     if(product.size.length && product.color.length ){
       toast.error("Please select size and color")
       return
@@ -597,7 +596,6 @@ const ShopPage = ({ initialData, queryParams }) => {
   }, [currentProducts])
 
   const saveEdit = async () => {
-    console.log("editModal",editModal)
     setLoad(true);
     try {
       // Transform normalized product back to backend format
@@ -616,7 +614,6 @@ const ShopPage = ({ initialData, queryParams }) => {
         productStock: editModal.productStock,
         video_link: editModal.video_link,
       };
-console.log("updatePayload",updatePayload)
       const res = await ProductUpdate(updatePayload);
       if (res.success) {
         toast.success("Product updated successfully!");
