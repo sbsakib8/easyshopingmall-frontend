@@ -607,7 +607,7 @@ const ShopPage = ({ initialData, queryParams }) => {
         productStatus: editModal.productStatus || [],
         brand: editModal.brand,
         description: editModal.description,
-        productSize: editModal.size,
+        productSize: editModal.productSize,
         color: editModal.color,
         discount: editModal.discount,
         ratings: editModal.rating,

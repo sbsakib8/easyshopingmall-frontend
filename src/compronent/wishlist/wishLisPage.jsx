@@ -324,19 +324,6 @@ const WishlistComponent = () => {
           </div>
         )}
 
-        {/* Summary Footer */}
-        {wishlistItems.length > 0 && (
-          <div className="mt-12 bg-bg rounded-3xl shadow-2xl p-8 text-accent text-center">
-            <h3 className="text-2xl font-bold mb-4">Ready to Shop?</h3>
-            <p className="text-aceent/70 mb-6">
-              You have {wishlistItems.filter((item) => item.inStock).length} items available in
-              stock
-            </p>
-            <button className="bg-btn-color cursor-pointer text-accent-content px-8 py-3 rounded-xl font-semibold hover:bg-btn-color/80 transition-colors duration-300 shadow-lg">
-              Add All to Cart
-            </button>
-          </div>
-        )}
       </div>
 
       <style jsx>{`
