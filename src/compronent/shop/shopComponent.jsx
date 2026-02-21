@@ -291,7 +291,7 @@ const ShopPage = ({ initialData, queryParams }) => {
       sortBy: urlSortBy,
       page: urlPage
     }))
-  }, [dispatch]) // Only run on mount to sync initial URL -> Redux
+  }, [dispatch,urlCategory,urlSubCategory,urlBrand,urlGender,urlMinPrice,urlMaxPrice,urlRating,urlSortBy,urlPage]) // Only run on mount to sync initial URL -> Redux
 
   // Update URL when Filters Change (Redux -> URL)
   useEffect(() => {
@@ -754,7 +754,7 @@ const ShopPage = ({ initialData, queryParams }) => {
               </div>
 
               {/* Product Categories */}
-              <div onClick={() => setShowCategory(!showCategory)} className="bg-white px-6 rounded-lg shadow-md border border-gray-200">
+              <div onClick={() => setShowCategory(!showCategory)} className="bg-bg px-6 rounded-lg shadow-md border border-gray-200">
                 <h3 className="flex justify-between font-bold items-center text-lg mb-4 text-gray-800 border lg:border-none mt-3 p-2 rounded-xl">Product Categories <span className={`${showCategory ? "" : "rotate-180"} lg:hidden`}><ArrowUp /></span> </h3>
                 <div className={`space-y-2 ${categories.length > 4 ? 'max-h-64 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-secondary scrollbar-track-gray-200' : ''}`}>
                   {categories.map((category) => (

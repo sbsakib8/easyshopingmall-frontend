@@ -399,6 +399,7 @@ const Header = ({ initialData }) => {
                                   <div className="py-2">
                                     {category.subcategories.map((sub) => (
                                       <Link
+                                      onClick={()=>setIsCategoriesOpen(false)}
                                         key={sub.name}
                                         href={`/shop?category=${encodeURIComponent(category.name)}&subcategory=${encodeURIComponent(sub.name)}`}
                                         className="block px-6 py-3 text-gray-600 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 font-medium"
