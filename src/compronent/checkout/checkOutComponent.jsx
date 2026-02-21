@@ -1,7 +1,7 @@
 "use client";
 
 import { createManualPaymentOrder, createSslPaymentOrder, submitManualPayment } from "@/src/hook/useOrder";
-import { ProductNotification } from "@/src/hook/useProduct";
+import { ProductNotification, ProductUpdate } from "@/src/hook/useProduct";
 import { cartClear } from "@/src/redux/cartSlice";
 import { AlertTriangle, Copy, MapPin, Shield, ShoppingBag, ShoppingCart, Star, Truck } from "lucide-react";
 import Link from "next/link";
@@ -290,6 +290,9 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
     const { name, phone, email, address, division, district, area, pincode } = customerInfo;
     const { senderNumber, transactionId } = manualPaymentInfo;
 
+
+    
+   
     // 1️⃣ Required fields
     if (!name || !phone || !address || !division || !district || !area) {
       toast.error("অনুগ্রহ করে সকল প্রয়োজনীয় তথ্য পূরণ করুন (ঠিকানা সহ)");
@@ -434,6 +437,18 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
         payment_status: paymentSubmissionRes.order?.payment_status || order.payment_status,
       });
       setManualOrderStep('payment_submitted');
+
+   // update product stock 
+    cartItems.forEach(async item=>{
+      // stock verification 
+      if(item.productId.productStock<item.quantity){
+        toast.error("Quantity is too much")
+        return
+      }
+      const updatedQuantity = item.productId.productStock - item.quantity
+      const res = await ProductUpdate({_id:item.productId._id,productStock:updatedQuantity})
+      console.log(res)
+    })
 
     } catch (err) {
       console.error("Manual order and payment submission error:", err);
