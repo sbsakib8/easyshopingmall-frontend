@@ -8,7 +8,7 @@ export const metadata = {
     title: "Shop Online at EasyShoppingMallBD",
     description: "Discover thousands of products at the best prices. Fashion, home goods and more.",
     type: "website",
-    keywords: ["shop", "online", "products", "fashion", "home goods", "best deals", "fast delivery", "Bangladesh", "EasyShoppingMallBD","men fashion","woman fashion"]
+    keywords: ["shop", "online", "products", "fashion", "home goods", "best deals", "fast delivery", "Bangladesh", "EasyShoppingMallBD", "men fashion", "woman fashion"]
   },
   robots: {
     index: true,
@@ -104,8 +104,31 @@ const shop = async ({ searchParams }) => {
     subcategories
   };
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Shop - Huge Collection of Quality Products",
+    "description": "Browse our extensive collection of high-quality products across multiple categories. Best deals and fast delivery in Bangladesh.",
+    "url": "https://easyshoppingmallbd.com/shop",
+    "mainEntity": {
+      "@type": "ItemList",
+      "numberOfItems": productsData.totalCount,
+      "itemListElement": productsData.products.slice(0, 20).map((product, index) => ({
+        "@type": "ListItem",
+        "position": index + 1,
+        "url": `https://easyshoppingmallbd.com/product/${product._id}`,
+        "name": product.name,
+        "image": product.images?.[0] || product.image || "",
+      }))
+    }
+  };
+
   return (
     <div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <ShopPage initialData={initialData} queryParams={resolvedSearchParams} />
     </div>
   )
