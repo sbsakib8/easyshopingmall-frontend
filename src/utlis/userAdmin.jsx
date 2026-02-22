@@ -10,7 +10,7 @@ const AuthAdminRole = ({ children }) => {
 
   useEffect(() => {
     if (!data) {
-      router.push("/");
+      // router.push("/");
       return;
     }
 

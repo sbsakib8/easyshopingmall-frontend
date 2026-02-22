@@ -2,11 +2,9 @@ import Hero from "@/src/compronent/Home/Hero";
 import { HomeBannerAllGet } from "@/src/hook/useHomeBanner";
 import { CategoryAllGet } from "@/src/hook/usecategory";
 import { ProductAllGet } from "@/src/hook/useProduct";
-import { CenterBannerAllGet } from "@/src/hook/useCernterBanner";
-import { LeftBannerAllGet } from "@/src/hook/useLeftBanner";
-import { RightBannerAllGet } from "@/src/hook/userRightBanner";
-import { SubCategoryAllGet } from "@/src/hook/useSubcategory";
 import DropShippingHome from "@/src/dropShipping/dropShippingHome/dropShippingHome";
+import { cookies } from "next/headers";
+import { UrlBackend } from "@/src/confic/urlExport";
 
 // Enable ISR with 5-minute revalidation for better performance
 export const dynamic = 'force-dynamic';
@@ -38,10 +36,37 @@ async function getHomeData() {
   }
 }
 
-export default async function Home() {
-  const data = await getHomeData();
+async function getUser() {
+  try {
+    const cookieStore = await cookies();
+    const cookieHeader = cookieStore.toString();
 
-  const role = 'USER'
+    if (!cookieHeader) return null;
+
+    const res = await fetch(`${UrlBackend}/users/userprofile`, {
+      headers: {
+        Cookie: cookieHeader,
+      },
+      cache: 'no-store'
+    });
+
+    if (!res.ok) return null;
+
+    const data = await res.json();
+    return data?.user || null;
+  } catch (error) {
+    console.error("Error fetching user profile on server:", error);
+    return null;
+  }
+}
+
+export default async function Home() {
+  const [data, user] = await Promise.all([
+    getHomeData(),
+    getUser(),
+  ]);
+
+  const role = user?.role || 'USER';
   return (
     <div>
       {role === "DROPSHIPPING" ? <DropShippingHome initialData={data} /> : <Hero initialData={data} />}
