@@ -67,8 +67,90 @@ export default async function Home() {
   ]);
 
   const role = user?.role || 'USER';
+  const websiteJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "EasyShoppingMallBD",
+    "url": "https://easyshoppingmallbd.com",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://easyshoppingmallbd.com/shop?search={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  };
+
+  const organizationJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "EasyShoppingMallBD",
+    "url": "https://easyshoppingmallbd.com",
+    "logo": "https://easyshoppingmallbd.com/icon.png",
+    "sameAs": [
+      "https://www.facebook.com/EasyShoppingMallBD",
+    ]
+  };
+
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is EasyShoppingMallBD?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "EasyShoppingMallBD is your trusted partner for premium online shopping in Bangladesh, offering quality products, secured payments, and lightning-fast delivery."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How can I place an order?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "You can place an order by browsing our products, adding them to your cart, and proceeding to checkout with your delivery details."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What are the delivery charges?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Delivery charges vary depending on your location and the size of your order. You can see the exact charge at the checkout page."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do you offer home delivery across Bangladesh?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, we provide fast and reliable home delivery services all across Bangladesh."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What are the available payment methods?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "We support various secured payment methods, including Cash on Delivery and popular mobile banking services in Bangladesh."
+        }
+      }
+    ]
+  };
+
   return (
     <div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       {role === "DROPSHIPPING" ? <DropShippingHome initialData={data} /> : <Hero initialData={data} />}
     </div>
   );
