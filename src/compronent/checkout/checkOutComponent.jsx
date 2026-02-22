@@ -426,7 +426,7 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
           // meta: { category: response.data.category },
         });
       } else {
-        toast.error(response?.message || "Failed to add product");
+        toast.error(response?.message || "পণ্য যোগ করা যায়নি");
       }
 
       // 7️⃣ Clear cart and update state
@@ -442,7 +442,7 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
     cartItems.forEach(async item=>{
       // stock verification 
       if(item.productId.productStock<item.quantity){
-        toast.error("Quantity is too much")
+        toast.error("অতিরিক্ত পরিমাণ যোগ করা হয়েছে")
         return
       }
       const updatedQuantity = item.productId.productStock - item.quantity
@@ -467,7 +467,7 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
         toast.success("Order ID copied to clipboard!");
       })
       .catch(() => {
-        toast.error("Failed to copy Order ID");
+        toast.error("অর্ডার আইডি কপি করা যায়নি");
       });
   };
 
