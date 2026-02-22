@@ -244,16 +244,6 @@ const WishlistComponent = () => {
                       Out of Stock
                     </div>
                   )}
-
-                  {/* Quick Actions Overlay */}
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
-                    <button className="p-3 bg-white/90 cursor-pointer rounded-full hover:bg-white hover:scale-110 transition-all duration-300">
-                      <Eye className="w-5 h-5 text-gray-800" />
-                    </button>
-                    <button className="p-3 cursor-pointer bg-white/90 rounded-full hover:bg-white hover:scale-110 transition-all duration-300">
-                      <Share2 className="w-5 h-5 text-gray-800" />
-                    </button>
-                  </div>
                 </div>
 
                 {/* Content */}
