@@ -6,8 +6,20 @@ export const metadata = {
   description: "Browse our extensive collection of high-quality products across multiple categories. Best deals and fast delivery in Bangladesh.",
   openGraph: {
     title: "Shop Online at EasyShoppingMallBD",
-    description: "Discover thousands of products at the best prices. Fashion, electronics, home goods and more.",
+    description: "Discover thousands of products at the best prices. Fashion, home goods and more.",
     type: "website",
+    keywords: ["shop", "online", "products", "fashion", "home goods", "best deals", "fast delivery", "Bangladesh", "EasyShoppingMallBD","men fashion","woman fashion"]
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 };
 

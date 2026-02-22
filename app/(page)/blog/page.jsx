@@ -10,7 +10,19 @@ export const metadata = {
   openGraph: {
     title: "EasyShoppingMallBD Blog - Tips & Guides",
     description: "Stay updated with the latest shopping trends and expert advice from our blog.",
+    keywords: ["blog", "tips", "guides", "fashion", "electronics", "home goods", "best deals", "fast delivery", "Bangladesh", "EasyShoppingMallBD"],
     type: "website",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
 };
 
