@@ -399,6 +399,7 @@ const Header = ({ initialData }) => {
                                   <div className="py-2">
                                     {category.subcategories.map((sub) => (
                                       <Link
+                                      onClick={()=>setIsCategoriesOpen(false)}
                                         key={sub.name}
                                         href={`/shop?category=${encodeURIComponent(category.name)}&subcategory=${encodeURIComponent(sub.name)}`}
                                         className="block px-6 py-3 text-gray-600 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 font-medium"
@@ -519,7 +520,7 @@ const Header = ({ initialData }) => {
                     />
                     {cartCount > 0 && (
                       <span className="absolute -top-1 -right-1 bg-secondary text-accent-content text-xs rounded-full h-4 w-4 sm:h-6 sm:w-6 flex items-center justify-center font-bold animate-pulse shadow-lg">
-                        {cartCount}
+                        {cartItems.length}
                       </span>
                     )}
                   </div>

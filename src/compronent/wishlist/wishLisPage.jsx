@@ -1,5 +1,6 @@
 "use client";
 import { CardSkeleton } from "@/src/compronent/loading/Skeleton";
+import AddtoCartBtn from "@/src/helper/Buttons/AddtoCartBtn";
 import { getWishlistApi, removeFromWishlistApi } from "@/src/hook/useWishlist";
 import { Eye, Grid, Heart, List, Share2, ShoppingCart, Star, Trash2 } from "lucide-react";
 import Link from "next/link";
@@ -10,7 +11,6 @@ const WishlistComponent = () => {
   const dispatch = useDispatch();
   const { data: wishlistItems = [], loading, error } = useSelector((state) => state.wishlist);
   const user = useSelector((state) => state.user.data);
-
   const [viewMode, setViewMode] = useState("grid");
   const [sortBy, setSortBy] = useState("newest");
   const [filterBy, setFilterBy] = useState("all");
@@ -54,17 +54,7 @@ const WishlistComponent = () => {
     }
   };
 
-  const addToCart = (item) => {
-    // Animation effect
-    const button = document.querySelector(`[data-cart-button="${item.id}"]`);
-    if (button) {
-      button.classList.add("animate-pulse");
-      setTimeout(() => {
-        button.classList.remove("animate-pulse");
-      }, 600);
-    }
-    // console.log("Added to cart:", item.name);
-  };
+
 
   const sortedAndFilteredItems = () => {
     let items = [...wishlistItems];
@@ -242,11 +232,11 @@ const WishlistComponent = () => {
                   />
 
                   {/* Discount Badge */}
-                  {item.discount && (
+                  {/* {item.discount && (
                     <div className="absolute top-3 left-3 bg-secondary text-accent-content px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
                       -{item.discount}%
                     </div>
-                  )}
+                  )} */}
 
                   {/* Stock Status */}
                   {!item.inStock && (
@@ -297,11 +287,11 @@ const WishlistComponent = () => {
                   {/* Price */}
                   <div className="flex items-center gap-2 mb-4">
                     <span className="text-2xl font-bold text-secondary">
-                      ${item.price}
+                      ৳{item.price}
                     </span>
                     {item.originalPrice && (
                       <span className="text-lg text-gray-400 line-through">
-                        ${item.originalPrice}
+                        ৳{item.originalPrice}
                       </span>
                     )}
                   </div>
@@ -312,7 +302,7 @@ const WishlistComponent = () => {
                       data-cart-button={item.id}
                       onClick={(e) => {
                         e.preventDefault();
-                        addToCart(item);
+                        // addToCart(item);
                       }}
                       disabled={!item.inStock}
                       className={`flex-1 cursor-pointer flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-semibold transition-all duration-300 ${item.inStock
@@ -320,9 +310,13 @@ const WishlistComponent = () => {
                         : "bg-gray-200 text-gray-500 cursor-not-allowed"
                         }`}
                     >
-                      <ShoppingCart className="w-5 h-5" />
-                      {item.inStock ? "Add to Cart" : "Out of Stock"}
+                      <AddtoCartBtn 
+                      productId={item.id} 
+                      className="flex items-center gap-2">
+                        <ShoppingCart className="w-5 h-5" />
+                      {item.inStock ? "Add to Cart" : "Out of Stock"}</AddtoCartBtn>
                     </button>
+                     
                   </div>
                 </div>
               </Link>
@@ -330,19 +324,6 @@ const WishlistComponent = () => {
           </div>
         )}
 
-        {/* Summary Footer */}
-        {wishlistItems.length > 0 && (
-          <div className="mt-12 bg-bg rounded-3xl shadow-2xl p-8 text-accent text-center">
-            <h3 className="text-2xl font-bold mb-4">Ready to Shop?</h3>
-            <p className="text-aceent/70 mb-6">
-              You have {wishlistItems.filter((item) => item.inStock).length} items available in
-              stock
-            </p>
-            <button className="bg-btn-color cursor-pointer text-accent-content px-8 py-3 rounded-xl font-semibold hover:bg-btn-color/80 transition-colors duration-300 shadow-lg">
-              Add All to Cart
-            </button>
-          </div>
-        )}
       </div>
 
       <style jsx>{`

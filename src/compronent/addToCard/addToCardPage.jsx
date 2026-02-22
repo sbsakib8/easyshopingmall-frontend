@@ -1,5 +1,5 @@
 "use client";
-import { getCartApi, removeCartItemApi, updateCartItemApi } from '@/src/hook/useCart';
+import { addToCartApi, getCartApi, removeCartItemApi, updateCartItemApi } from '@/src/hook/useCart';
 import Skeleton from '@/src/compronent/loading/Skeleton';
 import { removeItemLocal, updateQuantityLocal } from '@/src/redux/cartSlice';
 import { useGetSubcategory } from "@/src/utlis/useSubcategory";
@@ -679,6 +679,7 @@ const handleContinueShopping = () => {
                       >
                         Add to Cart
                       </button>
+                      
                     </div>
                   ))}
                 </div>
