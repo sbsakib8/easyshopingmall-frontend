@@ -1,6 +1,5 @@
 "use client";
 import socket from '@/src/confic/socket';
-import Button from '@/src/helper/Buttons/AddtoCartBtn';
 import { ContactCreate } from '@/src/hook/content/useContact';
 import { CreateNotification } from '@/src/hook/useNotification';
 import useWebsiteInfo from '@/src/utlis/useWebsiteInfo';
@@ -118,16 +117,16 @@ const ContactPage = ({ initialSiteInfo }) => {
 
 
   return (
-    <div className="min-h-screen lg:mt-12 py-4 bg-gradient-to-br bg-[#2e394a] relative overflow-hidden">
+    <div className="min-h-screen lg:mt-12 py-4 bg-gradient-to-br bg-bg relative overflow-hidden">
 
 
       <div className="relative z-10 container mx-auto px-4 py-12 lg:py-20">
         {/* Header Section */}
         <div className="text-center mb-16 animate-fade-in">
-          <h1 className="text-5xl lg:text-7xl font-bold bg-gradient-to-r from-accent-content via-blue-200 to-purple-200 bg-clip-text text-transparent mb-6 animate-slide-down">
+          <h1 className="text-5xl lg:text-7xl font-bold text-accent mb-6 ">
             Get In Touch
           </h1>
-          <p className="text-xl lg:text-2xl text-accent-content/70 max-w-3xl mx-auto leading-relaxed animate-slide-up">
+          <p className="text-xl lg:text-2xl text-accent/70  max-w-3xl mx-auto leading-relaxed animate-slide-up">
             আমাদের সাথে যোগাযোগ করুন এবং আমরা আপনার সকল প্রশ্নের উত্তর দেওয়ার জন্য প্রস্তুত
           </p>
         </div>
@@ -136,53 +135,53 @@ const ContactPage = ({ initialSiteInfo }) => {
           {/* Contact Info Cards */}
           <div className="lg:col-span-1 space-y-6">
             {/* Phone Card */}
-            <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-500 hover:scale-105 hover:rotate-1 group">
+            <div className="bg-secondary backdrop-blur-lg rounded-3xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-500 hover:scale-105 hover:rotate-1 group">
               <div className="flex items-center space-x-4">
                 <div className="w-14 h-14 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <Phone className="w-7 h-7 text-accent-content" />
+                  <Phone className="w-7 h-7 text-accent" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold text-accent-content mb-2">ফোন</h3>
-                  <p className="text-accent-content/70">{siteInfo?.number}</p>
+                  <h3 className="text-xl font-semibold text-accent mb-2">ফোন</h3>
+                  <p className="text-accent/70">{siteInfo?.number}</p>
                 </div>
               </div>
             </div>
 
             {/* Email Card */}
-            <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-500 hover:scale-105 hover:-rotate-1 group">
+            <div className="bg-secondary backdrop-blur-lg rounded-3xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-500 hover:scale-105 hover:-rotate-1 group">
               <div className="flex items-center space-x-4">
                 <div className="w-14 h-14 bg-gradient-to-r from-pink-400 to-red-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <Mail className="w-7 h-7 text-accent-content" />
+                  <Mail className="w-7 h-7 text-accent" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold text-accent-content mb-2">ইমেইল</h3>
-                  <p className="text-accent-content/70">{siteInfo?.email}</p>
+                  <h3 className="text-xl font-semibold text-accent mb-2">ইমেইল</h3>
+                  <p className="text-accent/70">{siteInfo?.email}</p>
                 </div>
               </div>
             </div>
 
             {/* Location Card */}
-            <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-500 hover:scale-105 hover:rotate-1 group">
+            <div className="bg-secondary backdrop-blur-lg rounded-3xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-500 hover:scale-105 hover:rotate-1 group">
               <div className="flex items-center space-x-4">
                 <div className="w-14 h-14 bg-gradient-to-r from-purple-400 to-pink-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <MapPin className="w-7 h-7 text-accent-content" />
+                  <MapPin className="w-7 h-7 text-accent" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold text-accent-content mb-2">ঠিকানা</h3>
-                  <p className="text-accent-content/70">{siteInfo?.address}</p>
+                  <h3 className="text-xl font-semibold text-accent mb-2">ঠিকানা</h3>
+                  <p className="text-accent/70">{siteInfo?.address}</p>
                 </div>
               </div>
             </div>
 
             {/* Office Hours Card */}
-            <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-500 hover:scale-105 hover:-rotate-1 group">
+            <div className="bg-secondary backdrop-blur-lg rounded-3xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-500 hover:scale-105 hover:-rotate-1 group">
               <div className="flex items-center space-x-4">
                 <div className="w-14 h-14 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <Clock className="w-7 h-7 text-accent-content" />
+                  <Clock className="w-7 h-7 text-accent" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold text-accent-content mb-2">অফিস সময়</h3>
-                  <p className="text-accent-content/70">{siteInfo?.deliveryText}</p>
+                  <h3 className="text-xl font-semibold text-accent mb-2">অফিস সময়</h3>
+                  <p className="text-accent/70">{siteInfo?.deliveryText}</p>
                 </div>
               </div>
             </div>
@@ -190,8 +189,8 @@ const ContactPage = ({ initialSiteInfo }) => {
 
           {/* Contact Form */}
           <div className="lg:col-span-2">
-            <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 lg:p-12 border border-white/20 hover:bg-white/15 transition-all duration-500">
-              <h2 className="text-3xl lg:text-4xl font-bold text-accent-content mb-8 text-center">
+            <div className="bg-secondary backdrop-blur-lg rounded-3xl p-8 lg:p-12 border border-white/20 hover:bg-secondary transition-all duration-500">
+              <h2 className="text-3xl lg:text-4xl font-bold text-accent mb-8 text-center">
                 আমাদের সাথে যোগাযোগ করুন
               </h2>
 
@@ -206,7 +205,7 @@ const ContactPage = ({ initialSiteInfo }) => {
                 <div className="grid md:grid-cols-2 gap-6">
                   {/* Name Input */}
                   <div className="group">
-                    <label className="block text-accent-content/70 text-sm font-medium mb-3">
+                    <label className="block text-accent/70 text-sm font-medium mb-3">
                       <User className="inline w-4 h-4 mr-2" />
                       নাম *
                     </label>
@@ -215,7 +214,7 @@ const ContactPage = ({ initialSiteInfo }) => {
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      className="w-full px-6 py-4 bg-white/5 border border-white/20 rounded-2xl text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 group-hover:bg-white/10"
+                      className="w-full px-6 py-4 bg-accent/5 border border-white/20 rounded-2xl text-accent placeholder-accent focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 group-hover:bg-white/10"
                       placeholder="আপনার নাম লিখুন"
                       required
                     />
@@ -223,7 +222,7 @@ const ContactPage = ({ initialSiteInfo }) => {
 
                   {/* Email Input */}
                   <div className="group">
-                    <label className="block text-accent-content/70 text-sm font-medium mb-3">
+                    <label className="block text-accent/70 text-sm font-medium mb-3">
                       <Mail className="inline w-4 h-4 mr-2" />
                       ইমেইল *
                     </label>
@@ -232,7 +231,7 @@ const ContactPage = ({ initialSiteInfo }) => {
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className="w-full px-6 py-4 bg-white/5 border border-white/20 rounded-2xl text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 group-hover:bg-white/10"
+                      className="w-full px-6 py-4 bg-white/5 border border-white/20 rounded-2xl text-accent-content placeholder-accent focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 group-hover:bg-white/10"
                       placeholder="your@email.com"
                       required
                     />
@@ -242,7 +241,7 @@ const ContactPage = ({ initialSiteInfo }) => {
                 <div className="grid md:grid-cols-2 gap-6">
                   {/* Phone Input */}
                   <div className="group">
-                    <label className="block text-accent-content/70 text-sm font-medium mb-3">
+                    <label className="block text-accent/70 text-sm font-medium mb-3">
                       <Phone className="inline w-4 h-4 mr-2" />
                       ফোন নম্বর
                     </label>
@@ -251,14 +250,14 @@ const ContactPage = ({ initialSiteInfo }) => {
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      className="w-full px-6 py-4 bg-white/5 border border-white/20 rounded-2xl text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 group-hover:bg-white/10"
+                      className="w-full px-6 py-4 bg-white/5 border border-white/20 rounded-2xl text-accent placeholder-accent focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 group-hover:bg-white/10"
                       placeholder="+880 1234-567890"
                     />
                   </div>
 
                   {/* Subject Input */}
                   <div className="group">
-                    <label className="block text-accent-content/70 text-sm font-medium mb-3">
+                    <label className="block text-accent/70 text-sm font-medium mb-3">
                       <MessageSquare className="inline w-4 h-4 mr-2" />
                       বিষয় *
                     </label>
@@ -267,7 +266,7 @@ const ContactPage = ({ initialSiteInfo }) => {
                       name="subject"
                       value={formData.subject}
                       onChange={handleInputChange}
-                      className="w-full px-6 py-4 bg-white/5 border border-white/20 rounded-2xl text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 group-hover:bg-white/10"
+                      className="w-full px-6 py-4 bg-white/5 border border-white/20 rounded-2xl text-accent placeholder-accent focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 group-hover:bg-white/10"
                       placeholder="আপনার বার্তার বিষয়"
                       required
                     />
@@ -276,7 +275,7 @@ const ContactPage = ({ initialSiteInfo }) => {
 
                 {/* Message Textarea */}
                 <div className="group">
-                  <label className="block text-accent-content/70 text-sm font-medium mb-3">
+                  <label className="block text-accent/70 text-sm font-medium mb-3">
                     <MessageSquare className="inline w-4 h-4 mr-2" />
                     বার্তা *
                   </label>
@@ -285,7 +284,7 @@ const ContactPage = ({ initialSiteInfo }) => {
                     value={formData.message}
                     onChange={handleInputChange}
                     rows="6"
-                    className="w-full px-6 py-4 bg-white/5 border border-white/20 rounded-2xl text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 resize-none group-hover:bg-white/10"
+                    className="w-full px-6 py-4 bg-white/5 border border-white/20 rounded-2xl text-accent placeholder-accent focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 resize-none group-hover:bg-white/10"
                     placeholder="আপনার বার্তা বিস্তারিত লিখুন..."
                     required
                   ></textarea>
@@ -293,12 +292,12 @@ const ContactPage = ({ initialSiteInfo }) => {
 
                 {/* Submit Button */}
                 <div className="text-center">
-                  <Button
+                  <button
                     onClick={handleSubmit}
                     disabled={loading}
-                    className={`inline-flex items-center px-12 py-4  font-semibold rounded-2xl 
+                    className={`bg-primary-color text-accent inline-flex items-center px-12 py-4  font-semibold rounded-2xl 
     transition-all duration-300 group cursor-pointer 
-    ${loading ? "opacity-60 cursor-not-allowed" : "hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25"}`}
+    ${loading ? "opacity-60 cursor-not-allowed" : "hover:scale-105 hover:shadow-2xl hover:shadow-primary-color/25"}`}
                   >
                     {loading ? (
                       <svg
@@ -326,7 +325,7 @@ const ContactPage = ({ initialSiteInfo }) => {
                     )}
 
                     {loading ? "Sending..." : "বার্তা পাঠান"}
-                  </Button>
+                  </button>
                 </div>
 
               </div>
@@ -336,10 +335,10 @@ const ContactPage = ({ initialSiteInfo }) => {
 
         {/* Bottom CTA Section */}
         <div className="text-center mt-20 animate-fade-in">
-          <h3 className="text-3xl lg:text-4xl font-bold text-accent-content mb-6">
+          <h3 className="text-3xl lg:text-4xl font-bold text-accent mb-6">
             আমরা আপনার সেবায় নিয়োজিত
           </h3>
-          <p className="text-xl text-accent-content/70 max-w-2xl mx-auto">
+          <p className="text-xl text-accent/70 max-w-2xl mx-auto">
             আমাদের দল ২৪/৭ আপনার সকল প্রয়োজনে সাহায্য করতে প্রস্তুত। যেকোনো প্রশ্ন বা সমস্যার জন্য আমাদের সাথে যোগাযোগ করুন।
           </p>
         </div>
