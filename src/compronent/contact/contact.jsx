@@ -266,7 +266,7 @@ const ContactPage = ({ initialSiteInfo }) => {
                       name="subject"
                       value={formData.subject}
                       onChange={handleInputChange}
-                      className="w-full px-6 py-4 bg-white/5 border border-white/20 rounded-2xl text-accent-content placeholder-accent focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 group-hover:bg-white/10"
+                      className="w-full px-6 py-4 bg-white/5 border border-white/20 rounded-2xl text-accent placeholder-accent focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 group-hover:bg-white/10"
                       placeholder="আপনার বার্তার বিষয়"
                       required
                     />
@@ -284,7 +284,7 @@ const ContactPage = ({ initialSiteInfo }) => {
                     value={formData.message}
                     onChange={handleInputChange}
                     rows="6"
-                    className="w-full px-6 py-4 bg-white/5 border border-white/20 rounded-2xl text-accent-content placeholder-accent focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 resize-none group-hover:bg-white/10"
+                    className="w-full px-6 py-4 bg-white/5 border border-white/20 rounded-2xl text-accent placeholder-accent focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 resize-none group-hover:bg-white/10"
                     placeholder="আপনার বার্তা বিস্তারিত লিখুন..."
                     required
                   ></textarea>
