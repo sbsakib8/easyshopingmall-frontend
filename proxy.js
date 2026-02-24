@@ -1,15 +1,15 @@
 import { NextResponse } from 'next/server'
 
-export async function proxy(request) {
-    const { pathname } = request.nextUrl;
+// Define paths to protect (must match the matcher below)
+const dropshippingPaths = ['/all-products', '/sub-category'];
 
-    // Define paths to protect (must match the matcher below)
-    const dropshippingPaths = ['/all-products', '/sub-category'];
+export async function proxy(req) {
 
+    const { pathname } = req.nextUrl;
     const isDropshippingPath = dropshippingPaths.some(path => pathname.startsWith(path));
 
     if (isDropshippingPath) {
-        const cookieHeader = request.headers.get('cookie') || '';
+        const cookieHeader = req.headers.get('cookie') || '';
 
         try {
             // Fetch user profile from backend to check role
@@ -32,11 +32,11 @@ export async function proxy(request) {
             }
 
             // If unauthorized, redirect to forbidden page
-            return NextResponse.redirect(new URL('/forbidden', request.url));
+            return NextResponse.redirect(new URL('/forbidden', req.url));
         } catch (error) {
             console.error("Auth Middleware Error:", error);
             // Safety redirect on error
-            return NextResponse.redirect(new URL('/forbidden', request.url));
+            return NextResponse.redirect(new URL('/forbidden', req.url));
         }
     }
 
