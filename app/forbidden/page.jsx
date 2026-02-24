@@ -6,7 +6,7 @@ export default function Forbidden() {
             <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
                 <h1 className="text-4xl font-bold text-secondary mb-4">Access Denied</h1>
                 <p className="text-gray-600 mb-8">
-                    Sorry, this page is restricted to Dropshipping users only. If you believe this is an error, please contact support.
+                    দুঃখিত, এই পেজটি শুধুমাত্র ড্রপশিপিং ব্যবহারকারীদের জন্য সীমাবদ্ধ। যদি আপনি মনে করেন এটি একটি ভুল, তাহলে অনুগ্রহ করে সাপোর্টের সাথে যোগাযোগ করুন।
                 </p>
                 <Link
                     href="/"

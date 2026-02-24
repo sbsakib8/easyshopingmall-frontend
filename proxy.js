@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { UrlBackend } from './src/confic/urlExport';
 
 // Define paths to protect (must match the matcher below)
 const dropshippingPaths = ['/all-products', '/sub-category'];
