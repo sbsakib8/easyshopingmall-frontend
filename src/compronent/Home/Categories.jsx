@@ -1,29 +1,26 @@
 "use client";
-import React, { useState } from "react";
+import  { useState,useEffect } from "react";
 import { Star, TrendingUp } from "lucide-react";
 import Link from "next/link";
-import { useGetcategory } from "@/src/utlis/usecategory";
-import { HomeBannerAllGet } from "@/src/hook/useHomeBanner";
 import Image from "next/image";
-import { CategorySkeleton } from "../loading/Skeleton";
-
+import { useGetSubcategory } from "@/src/utlis/useSubcategory";
 
 function Categories({ initialData }) {
-  const { category: apiCategory, loading: apiLoading, error } = useGetcategory();
-  const [category, setCategory] = useState(initialData || null);
+  const { subcategory:apiCategory, loading:apiLoading } = useGetSubcategory();
+  const [subCategory, setCategory] = useState(initialData || null);
   const [loading, setLoading] = useState(!initialData);
   const [paused, setPaused] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (apiCategory) {
       setCategory(apiCategory);
       setLoading(false);
     }
   }, [apiCategory]);
 
-  const loopData = [...(category || []), ...(category || [])];
+  const loopData = [...(subCategory || []), ...(subCategory || [])];
 
-  if (loading) {
+  if (loading || apiLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="flex gap-4 overflow-x-auto py-6">
@@ -61,13 +58,13 @@ function Categories({ initialData }) {
           className={`flex gap-4 ${!paused ? "animate-marquee" : ""}`}
         >
           {loopData.map((item, idx) => (
-            <Link href={"/shop"}
+            <Link href={`/shop?category=${encodeURIComponent(item?.category?.name)}&subcategory=${encodeURIComponent(item?.name)}`}
               key={idx}
               className="w-48 flex-shrink-0 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden cursor-pointer relative"
             >
               {/* Trending Badge */}
               {item.trending && (
-                <div className="absolute top-3 right-3 z-10 bg-gradient-to-r from-orange-400 to-red-500 text-accent-content text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                <div className="absolute top-3 right-3 z-10 bg-gradient-to-r from-primary-color to-secondary text-accent-content text-xs px-2 py-1 rounded-full flex items-center gap-1">
                   <TrendingUp className="w-3 h-3" /> Hot
                 </div>
               )}
@@ -110,7 +107,7 @@ function Categories({ initialData }) {
       <style jsx>{`
         .animate-marquee {
           display: flex;
-          animation: marquee 30s linear infinite;
+          animation: marquee 60s linear infinite;
         }
         @keyframes marquee {
           0% {
