@@ -3,7 +3,6 @@ import logo from "@/app/icon.png";
 import { getCartApi } from "@/src/hook/useCart";
 import { getWishlistApi } from "@/src/hook/useWishlist";
 import { useCategoryWithSubcategories } from "@/src/utlis/useCategoryWithSubcategories";
-import { useGetProduct } from "@/src/utlis/userProduct";
 import { useSearchProduct } from "@/src/utlis/useSearchProduct";
 import useWebsiteInfo from "@/src/utlis/useWebsiteInfo";
 import { Camera, ChevronDown, Heart, Menu, Search, ShoppingCart, Star, User, X, Zap } from "lucide-react";
