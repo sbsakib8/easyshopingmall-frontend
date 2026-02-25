@@ -29,7 +29,8 @@ export const getWishlistApi = async (dispatch) => {
                 rating: product?.ratings,
                 inStock: (product?.productStock || 0) > 0,
                 category: product?.brand || "General",
-
+                colors:product.color,
+                sizes:product.productSize,
                 // Only if discount exists
                 originalPrice: product?.discount
                     ? Math.round(product.price / (1 - product.discount / 100))

@@ -18,7 +18,7 @@ export const ProductCreate = async (formData,) => {
 
 // all product get 
 export const ProductAllGet = async (formData,) => {
-  console.log("ProductAllGet called with:", formData);
+  // console.log("ProductAllGet called with:", formData);
   try {
 
     const response = await axios.post(`${UrlBackend}/products/get`, formData, {
