@@ -41,10 +41,10 @@ function Categories({ initialData }) {
       {/* Header */}
       <div className="text-center mb-8">
         <h2 className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-2">
-          Featured Categories
+          Featured  Sub-categories
         </h2>
         <p className="text-gray-500 text-sm">
-          Discover amazing products across all categories
+          Discover amazing products across all sub-categories
         </p>
       </div>
 
