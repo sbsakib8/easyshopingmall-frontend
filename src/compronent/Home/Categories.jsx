@@ -1,12 +1,12 @@
 "use client";
-import  { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Star, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useGetSubcategory } from "@/src/utlis/useSubcategory";
 
 function Categories({ initialData }) {
-  const { subcategory:apiCategory, loading:apiLoading } = useGetSubcategory();
+  const { subcategory: apiCategory, loading: apiLoading } = useGetSubcategory();
   const [subCategory, setCategory] = useState(initialData || null);
   const [loading, setLoading] = useState(!initialData);
   const [paused, setPaused] = useState(false);
@@ -25,7 +25,7 @@ function Categories({ initialData }) {
       <div className="container mx-auto px-4 py-8">
         <div className="flex gap-4 overflow-x-auto py-6">
           {[...Array(8)].map((_, i) => (
-            <div key={i} className="w-48 flex-shrink-0 bg-white p-4 rounded-xl shadow-md space-y-3">
+            <div key={i} className="w-48 flex-shrink-0 bg-bg p-4 rounded-xl shadow-md space-y-3">
               <div className="h-32 bg-gray-200 animate-pulse rounded-lg w-full"></div>
               <div className="h-4 bg-gray-200 animate-pulse rounded-md w-3/4 mx-auto"></div>
               <div className="h-8 bg-gray-200 animate-pulse rounded-md w-full mt-2"></div>
@@ -58,9 +58,10 @@ function Categories({ initialData }) {
           className={`flex gap-4 ${!paused ? "animate-marquee" : ""}`}
         >
           {loopData.map((item, idx) => (
+            console.log(item),
             <Link href={`/shop?category=${encodeURIComponent(item?.category?.name)}&subcategory=${encodeURIComponent(item?.name)}`}
               key={idx}
-              className="w-48 flex-shrink-0 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden cursor-pointer relative"
+              className="w-48 flex-shrink-0 flex flex-col bg-bg rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden cursor-pointer relative"
             >
               {/* Trending Badge */}
               {item.trending && (
@@ -69,7 +70,7 @@ function Categories({ initialData }) {
                 </div>
               )}
               {/* Image */}
-              <div className="h-32 overflow-hidden relative">
+              <div className="h-32 flex-shrink-0 overflow-hidden relative">
                 <Image
                   src={item.image}
                   alt={item.name}
@@ -80,9 +81,9 @@ function Categories({ initialData }) {
                 />
               </div>
               {/* Content */}
-              <div className="p-3 text-center">
-                <h3 className="text-sm font-bold text-gray-800">{item.name}</h3>
-                <p className="text-xs text-gray-500">{item.metaDescription} items</p>
+              <div className="p-3 text-center flex-grow flex flex-col">
+                <h3 className="text-sm font-bold text-gray-800 line-clamp-1">{item.name}</h3>
+                {/* <p className="text-xs text-gray-500 line-clamp-4">{item.metaDescription} items</p> */}
                 <div className="flex justify-center gap-1 my-2">
                   {[...Array(5)].map((_, i) => (
                     <Star
@@ -94,9 +95,11 @@ function Categories({ initialData }) {
                     />
                   ))}
                 </div>
-                <button className="w-full bg-btn-color text-accent-content py-1.5 rounded-md text-xs font-medium">
-                  Explore Now
-                </button>
+                <div className="mt-auto">
+                  <button className="w-full bg-btn-color text-accent-content py-1.5 rounded-md text-xs font-medium">
+                    Explore Now
+                  </button>
+                </div>
               </div>
             </Link>
           ))}
