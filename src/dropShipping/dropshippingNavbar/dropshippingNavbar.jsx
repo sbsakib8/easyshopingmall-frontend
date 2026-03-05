@@ -1,6 +1,6 @@
 "use client";
 import logo from "@/app/icon.png";
-import { Heart, Menu, ShoppingCart, User, X, } from "lucide-react";
+import { ChevronDown, ChevronRight, Heart, Menu, ShoppingCart, User, X, } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -9,6 +9,7 @@ import { useSelector } from "react-redux";
 
 const DropShippingNavbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [expandedItem, setExpandedItem] = useState(null);
   const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const { data: wishlistItems } = useSelector((state) => state.wishlist);
@@ -188,7 +189,7 @@ const DropShippingNavbar = () => {
 
           {/* Side Menu */}
           <div
-            className={`absolute top-0 left-0 h-screen w-[280px] sm:w-[320px] bg-bg shadow-2xl transition-transform duration-500 ease-in-out transform ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+            className={`absolute top-0 left-0 h-screen w-screen sm:w-[320px] bg-bg shadow-2xl transition-transform duration-500 ease-in-out transform ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
               } overflow-y-auto`}
           >
             <div className="p-4 border-b border-gray-100 flex items-center justify-between">
@@ -207,21 +208,66 @@ const DropShippingNavbar = () => {
             </div>
 
             <nav className="p-4 space-y-2">
-              {navItems.map((item, index) => (
-                <Link
-                  onClick={toggleMobileMenu}
-                  key={index}
-                  href={item.href}
-                  className="flex items-center justify-between py-3 px-4 text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-xl transition-all duration-300 font-medium group"
-                >
-                  <span className="text-base group-hover:translate-x-1 transition-transform duration-300">{item.name}</span>
-                  {item.badge && (
-                    <span className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">
-                      {item.badge}
-                    </span>
-                  )}
-                </Link>
-              ))}
+              {navItems.map((item, index) => {
+                const hasSubLinks = item.subLink && item.subLink.length > 0;
+                const isExpanded = expandedItem === item.name;
+
+                return (
+                  <div key={index} className="space-y-1">
+                    {hasSubLinks ? (
+                      <button
+                        onClick={() => setExpandedItem(isExpanded ? null : item.name)}
+                        className={`w-full flex items-center justify-between py-3 px-4 rounded-xl transition-all duration-300 font-medium border border-transparent shadow-sm ${isExpanded
+                          ? "bg-emerald-50 text-emerald-600 border-emerald-100"
+                          : "text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-50"
+                          }`}
+                      >
+                        <span className="text-base">{item.name}</span>
+                        {isExpanded ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                      </button>
+                    ) : (
+                      <Link
+                        onClick={() => {
+                          toggleMobileMenu();
+                          setExpandedItem(null);
+                        }}
+                        href={item.href}
+                        className="w-full flex items-center justify-between py-3 px-4 text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-xl transition-all duration-300 font-medium border border-transparent hover:border-emerald-50 shadow-sm group"
+                      >
+                        <span className="text-base group-hover:translate-x-1 transition-transform duration-300">{item.name}</span>
+                        {item.badge && (
+                          <span className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">
+                            {item.badge}
+                          </span>
+                        )}
+                      </Link>
+                    )}
+
+                    {/* Sub-links with Animation */}
+                    <div
+                      className={`overflow-hidden transition-all duration-500 ease-in-out ${isExpanded ? "max-height-96 opacity-100 mt-2" : "max-h-0 opacity-0"
+                        }`}
+                      style={{ maxHeight: isExpanded ? '400px' : '0' }}
+                    >
+                      <div className="pl-4 space-y-1 border-l-2 border-emerald-100 ml-4">
+                        {item.subLink?.map((sub, sIndex) => (
+                          <Link
+                            key={sIndex}
+                            href={sub.href}
+                            onClick={() => {
+                              toggleMobileMenu();
+                              setExpandedItem(null);
+                            }}
+                            className="block py-2.5 px-4 text-sm text-gray-600 hover:text-emerald-600 hover:bg-emerald-50/50 rounded-lg transition-all duration-200"
+                          >
+                            {sub.name}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </nav>
           </div>
         </div>
