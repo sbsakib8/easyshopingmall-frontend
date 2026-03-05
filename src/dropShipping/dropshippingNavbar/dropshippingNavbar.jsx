@@ -76,7 +76,7 @@ const DropShippingNavbar = () => {
                   </div>
                   <div className="absolute -top-0.5 sm:-top-1 -right-0.5 sm:-right-1 w-2 h-2 sm:w-3 sm:h-3 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full animate-pulse"></div>
                 </div>
-                <div className="transform group-hover:scale-105 transition-transform duration-300 flex items-center">
+                <div className="hidden lg:flex transform group-hover:scale-105 transition-transform duration-300  items-center">
 
                   <Link href={"/"} className="flex flex-row ">
                     <span className="text-[13px] sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
@@ -99,21 +99,25 @@ const DropShippingNavbar = () => {
               {/* Balance Box */}
               <div
                 onClick={() => setShowBalance(!showBalance)}
-                className="hidden lg:flex items-center bg-white border border-gray-200 rounded-full p-1 pr-3 cursor-pointer hover:shadow-md transition-all duration-300 group select-none"
+                className="flex items-center bg-white border border-gray-200 rounded-full p-1 cursor-pointer hover:shadow-md transition-all duration-300 group select-none relative overflow-hidden min-w-[150px] h-10"
               >
                 {/* coin icon  */}
-                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary-color to-secondary flex items-center justify-center text-white shrink-0 shadow-sm group-hover:scale-105 transition-transform duration-300">
+                <div
+                  className={`w-8 h-8 rounded-full bg-gradient-to-r from-primary-color to-secondary flex items-center justify-center text-white shrink-0 shadow-sm transition-all duration-500 ease-in-out z-10 ${showBalance ? "translate-x-[108px]" : "translate-x-0"
+                    }`}
+                >
                   ৳
                 </div>
-                <div className="ml-2 relative h-5 flex items-center min-w-[100px] overflow-hidden">
+
+                <div className="absolute left-10 right-10 flex items-center justify-center">
                   <span
-                    className={`text-[13.5px] font-bold text-gray-700 absolute transition-all duration-500 ease-in-out ${showBalance ? "-translate-y-full opacity-0" : "translate-y-0 opacity-100"
+                    className={`text-[13.5px] pl-2 font-bold text-gray-700 transition-all duration-500 ease-in-out whitespace-nowrap ${showBalance ? "opacity-0 -translate-x-4" : "opacity-100 translate-x-0"
                       }`}
                   >
                     ব্যালেন্স দে...
                   </span>
                   <span
-                    className={`text-[13.5px] font-bold text-emerald-600 absolute transition-all duration-500 ease-in-out ${showBalance ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
+                    className={`text-[13.5px] font-bold text-accent absolute transition-all duration-500 ease-in-out whitespace-nowrap ${showBalance ? "opacity-100 translate-x-[-28px]" : "opacity-0 translate-x-4"
                       }`}
                   >
                     ৳ 5000.00
@@ -244,20 +248,24 @@ const DropShippingNavbar = () => {
 
               <div
                 onClick={() => setShowBalance(!showBalance)}
-                className="flex items-center bg-white border border-gray-200 rounded-full p-1.5 pr-4 cursor-pointer hover:shadow-md transition-all duration-300 w-full select-none"
+                className="flex items-center bg-white border border-gray-200 rounded-full p-1.5 cursor-pointer hover:shadow-md transition-all duration-300 w-full select-none relative overflow-hidden h-14"
               >
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 flex items-center justify-center text-white shrink-0 shadow-sm">
+                <div
+                  className={`w-11 h-11 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 flex items-center justify-center text-white shrink-0 shadow-sm transition-all duration-500 ease-in-out z-10 ${showBalance ? "translate-x-[calc(100vw-88px)] sm:translate-x-[230px]" : "translate-x-0"
+                    }`}
+                >
                   ৳
                 </div>
-                <div className="ml-3 relative h-6 flex items-center flex-1 overflow-hidden">
+
+                <div className="absolute left-14 right-14 flex items-center justify-center">
                   <span
-                    className={`text-base font-bold text-gray-700 absolute transition-all duration-500 ease-in-out ${showBalance ? "-translate-y-full opacity-0" : "translate-y-0 opacity-100"
+                    className={`text-base font-bold text-gray-700 transition-all duration-500 ease-in-out whitespace-nowrap ${showBalance ? "opacity-0 -translate-x-6" : "opacity-100 translate-x-0"
                       }`}
                   >
                     ব্যালেন্স দে...
                   </span>
                   <span
-                    className={`text-base font-bold text-emerald-600 absolute transition-all duration-500 ease-in-out ${showBalance ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
+                    className={`text-base font-bold text-emerald-600 absolute transition-all duration-500 ease-in-out whitespace-nowrap ${showBalance ? "opacity-100 translate-x-[-100px] sm:translate-x-[-80px]" : "opacity-0 translate-x-6"
                       }`}
                   >
                     ৳ 5000.00
