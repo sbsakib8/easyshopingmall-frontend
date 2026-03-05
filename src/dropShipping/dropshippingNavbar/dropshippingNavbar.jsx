@@ -12,6 +12,7 @@ const DropShippingNavbar = () => {
   const [expandedItem, setExpandedItem] = useState(null);
   const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [showBalance, setShowBalance] = useState(false);
   const { data: wishlistItems } = useSelector((state) => state.wishlist);
   const { items: cartItems } = useSelector((state) => state.cart);
   const wishlistCount = wishlistItems?.length || 0;
@@ -95,6 +96,31 @@ const DropShippingNavbar = () => {
 
 
             <div className="flex items-center space-x-2 sm:space-x-4 lg:space-x-6">
+              {/* Balance Box */}
+              <div
+                onClick={() => setShowBalance(!showBalance)}
+                className="hidden lg:flex items-center bg-white border border-gray-200 rounded-full p-1 pr-3 cursor-pointer hover:shadow-md transition-all duration-300 group select-none"
+              >
+                {/* coin icon  */}
+                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary-color to-secondary flex items-center justify-center text-white shrink-0 shadow-sm group-hover:scale-105 transition-transform duration-300">
+                  ৳
+                </div>
+                <div className="ml-2 relative h-5 flex items-center min-w-[100px] overflow-hidden">
+                  <span
+                    className={`text-[13.5px] font-bold text-gray-700 absolute transition-all duration-500 ease-in-out ${showBalance ? "-translate-y-full opacity-0" : "translate-y-0 opacity-100"
+                      }`}
+                  >
+                    ব্যালেন্স দে...
+                  </span>
+                  <span
+                    className={`text-[13.5px] font-bold text-emerald-600 absolute transition-all duration-500 ease-in-out ${showBalance ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
+                      }`}
+                  >
+                    ৳ 5000.00
+                  </span>
+                </div>
+              </div>
+
               {data ? (
                 <Link
                   href="/account"
@@ -205,6 +231,39 @@ const DropShippingNavbar = () => {
               >
                 <X size={24} className="text-gray-500" />
               </button>
+            </div>
+
+            {/* Mobile User/Balance Section */}
+            <div className="p-4 bg-gradient-to-br from-emerald-50 via-teal-50 to-white border-b border-gray-100">
+              <div className="mb-4">
+                <div className="text-sm font-medium text-gray-500">Welcome back,</div>
+                <div className="text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                  {data?.username || "Guest User"}
+                </div>
+              </div>
+
+              <div
+                onClick={() => setShowBalance(!showBalance)}
+                className="flex items-center bg-white border border-gray-200 rounded-full p-1.5 pr-4 cursor-pointer hover:shadow-md transition-all duration-300 w-full select-none"
+              >
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 flex items-center justify-center text-white shrink-0 shadow-sm">
+                  ৳
+                </div>
+                <div className="ml-3 relative h-6 flex items-center flex-1 overflow-hidden">
+                  <span
+                    className={`text-base font-bold text-gray-700 absolute transition-all duration-500 ease-in-out ${showBalance ? "-translate-y-full opacity-0" : "translate-y-0 opacity-100"
+                      }`}
+                  >
+                    ব্যালেন্স দে...
+                  </span>
+                  <span
+                    className={`text-base font-bold text-emerald-600 absolute transition-all duration-500 ease-in-out ${showBalance ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
+                      }`}
+                  >
+                    ৳ 5000.00
+                  </span>
+                </div>
+              </div>
             </div>
 
             <nav className="p-4 space-y-2">
