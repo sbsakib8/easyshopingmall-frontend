@@ -38,20 +38,6 @@ const DropShippingNavbar = () => {
 
   return (
     <>
-      <div
-        className={`bg-gradient-to-r  from-secondary via-secondary/70 to-secondary text-accent-content text-xs sm:text-sm py-2 sm:py-3 px-2 sm:px-4 relative overflow-hidden transition-all duration-300 ${isScrolled ? "h-0 py-0 opacity-0" : "h-auto lg:h-[60px]"
-          } hidden sm:block`}
-      >
-        {/* Animated background particles */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-2 left-10 w-2 h-2 bg-white rounded-full animate-pulse"></div>
-          <div className="absolute top-8 left-32 w-1 h-1 bg-yellow-300 rounded-full animate-bounce"></div>
-          <div className="absolute top-4 right-20 w-1.5 h-1.5 bg-white rounded-full animate-pulse delay-300"></div>
-          <div className="absolute top-7 right-40 w-1 h-1 bg-yellow-300 rounded-full animate-bounce delay-500"></div>
-        </div>
-      </div>
-
-
       {/* Main Header */}
       <header
         className={`bg-bg backdrop-blur-md shadow-lg sticky top-0 z-40 border-b border-gray-200/50 transition-all duration-300 ${isScrolled ? "h-16 sm:h-20" : "h-20 sm:h-24 lg:h-[100px]"
@@ -62,16 +48,29 @@ const DropShippingNavbar = () => {
             {/* Enhanced Logo - Responsive */}
             <div className="flex items-center">
               <div className="flex items-center space-x-2 sm:space-x-3 group cursor-pointer">
+                 {/* Mobile Menu Button */}
+              <button
+                onClick={toggleMobileMenu}
+                className=" p-2 sm:p-3 rounded-lg sm:rounded-xl bg-gradient-to-r from-gray-100 to-gray-50 hover:from-emerald-100 hover:to-teal-100 text-gray-700 hover:text-emerald-600 transition-all duration-300 shadow-sm"
+              >
+                {isMobileMenuOpen ? (
+                  <X size={20} className="sm:w-6 sm:h-6" />
+                ) : (
+                  <Menu size={20} className="sm:w-6 sm:h-6" />
+                )}
+              </button>
                 <div className="relative">
                   <div
                     className={`w-6 h-6 sm:w-10 sm:h-10 lg:w-12 lg:h-12  from-emerald-500 via-green-500 to-teal-500 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 ${isScrolled ? "animate-pulse" : ""
                       }`}
                   >
+                    
                     <Image src={logo} width={60} height={100} alt="Easy Shopping Mall Logo" />
                   </div>
                   <div className="absolute -top-0.5 sm:-top-1 -right-0.5 sm:-right-1 w-2 h-2 sm:w-3 sm:h-3 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full animate-pulse"></div>
                 </div>
-                <div className="transform group-hover:scale-105 transition-transform duration-300">
+                <div className="transform group-hover:scale-105 transition-transform duration-300 flex items-center">
+                  
                   <Link href={"/"} className="flex flex-row ">
                     <span className="text-[13px] sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
                       EASY
@@ -83,6 +82,7 @@ const DropShippingNavbar = () => {
                       MALL
                     </span>
                   </Link>
+                  
                 </div>
               </div>
             </div>
@@ -165,27 +165,15 @@ const DropShippingNavbar = () => {
                     <div className="text-xs text-accent font-bold">Cart</div>
                   </div>
                 </Link>
-              </div>
-              {/* Mobile Menu Button */}
-              <button
-                onClick={toggleMobileMenu}
-                className=" p-2 sm:p-3 rounded-lg sm:rounded-xl bg-gradient-to-r from-gray-100 to-gray-50 hover:from-emerald-100 hover:to-teal-100 text-gray-700 hover:text-emerald-600 transition-all duration-300 shadow-sm"
-              >
-                {isMobileMenuOpen ? (
-                  <X size={20} className="sm:w-6 sm:h-6" />
-                ) : (
-                  <Menu size={20} className="sm:w-6 sm:h-6" />
-                )}
-              </button>
+              </div>           
             </div>
           </div>
         </div>
 
         {/* Enhanced Mobile Menu - Fully Responsive */}
         {isMobileMenuOpen && (
-          <div className=" 
- backdrop-blur-md border-t border-gray-200/60 animate-in slide-in-from-top-5 duration-300 lg:flex lg:justify-center ">
-            <nav className="px-2 sm:px-4 py-3 sm:py-4 space-y-1 sm:space-y-2 overflow-visible lg:border lg:border-gray-200/60 lg:rounded-2xl lg:w-1/2 bg-white">
+          <div className={` backdrop-blur-md border-t border-gray-200/60 ${isMobileMenuOpen ? "translate-x-0" : "translate-x-[-200px]"} transition-all duration-700 ease-in-out  `}>
+            <nav className="px-2 sm:px-4 py-3 sm:py-4 space-y-1 sm:space-y-2 overflow-visible lg:border lg:border-gray-200/60 lg:rounded-2xl lg:w-50 bg-bg">
               {navItems.map((item, index) => (
                 <Link
                   onClick={toggleMobileMenu}
