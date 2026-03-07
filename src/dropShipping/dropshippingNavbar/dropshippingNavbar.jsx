@@ -236,44 +236,7 @@ const DropShippingNavbar = () => {
                 <X size={24} className="text-gray-500" />
               </button>
             </div>
-
-            {/* Mobile User/Balance Section */}
-            <div className="p-4 bg-gradient-to-br from-emerald-50 via-teal-50 to-white border-b border-gray-100">
-              <div className="mb-4">
-                <div className="text-sm font-medium text-gray-500">Welcome back,</div>
-                <div className="text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-                  {data?.username || "Guest User"}
-                </div>
-              </div>
-
-              <div
-                onClick={() => setShowBalance(!showBalance)}
-                className="flex items-center bg-white border border-gray-200 rounded-full p-1.5 cursor-pointer hover:shadow-md transition-all duration-300 w-full select-none relative overflow-hidden h-14"
-              >
-                <div
-                  className={`w-11 h-11 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 flex items-center justify-center text-white shrink-0 shadow-sm transition-all duration-500 ease-in-out z-10 ${showBalance ? "translate-x-[calc(100vw-88px)] sm:translate-x-[230px]" : "translate-x-0"
-                    }`}
-                >
-                  ৳
-                </div>
-
-                <div className="absolute left-14 right-14 flex items-center justify-center">
-                  <span
-                    className={`text-base font-bold text-gray-700 transition-all duration-500 ease-in-out whitespace-nowrap ${showBalance ? "opacity-0 -translate-x-6" : "opacity-100 translate-x-0"
-                      }`}
-                  >
-                    ব্যালেন্স দে...
-                  </span>
-                  <span
-                    className={`text-base font-bold text-emerald-600 absolute transition-all duration-500 ease-in-out whitespace-nowrap ${showBalance ? "opacity-100 translate-x-[-100px] sm:translate-x-[-80px]" : "opacity-0 translate-x-6"
-                      }`}
-                  >
-                    ৳ 5000.00
-                  </span>
-                </div>
-              </div>
-            </div>
-
+            
             <nav className="p-4 space-y-2">
               {navItems.map((item, index) => {
                 const hasSubLinks = item.subLink && item.subLink.length > 0;
