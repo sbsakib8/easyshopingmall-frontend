@@ -89,7 +89,7 @@ const NewProducts = () => {
             womenCategory?.map(cat => (
               <Link
                 key={cat?._id}
-                href={`/sub-category/${cat?._id}`}
+                href={`/sub-category/${cat?._id}?pageType=new-products`}
                 className="shadow-md rounded-2xl px-3 py-2 min-h-40 hover:scale-105 duration-75"
               >
                 <Image
@@ -133,7 +133,7 @@ const NewProducts = () => {
             childrenCategory?.map(cat => (
               <Link
                 key={cat?._id}
-                href={`/sub-category/${cat?._id}`}
+                href={`/sub-category/${cat?._id}?pageType=new-products`}
                 className="shadow-md rounded-2xl px-3 py-2 min-h-40 hover:scale-105 duration-75"
               >
                 <Image
