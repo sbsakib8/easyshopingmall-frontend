@@ -26,7 +26,7 @@ const Signin = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    if (!email || !password) return toast.error("Please fill all the fields");
     const user = { email, password };
 
     try {
@@ -45,8 +45,8 @@ const Signin = () => {
 
 
   // google sign in
-  const handleGoogleSignIn = async () => {
-
+  const handleGoogleSignIn = async (e) => {
+    e.preventDefault();
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
