@@ -1,9 +1,10 @@
 "use client"
 import { addToWishlistApi, removeFromWishlistApi } from '@/src/hook/useWishlist';
+import { isProductNew } from '@/src/utlis/filterHelpers';
 import { useGetProduct } from '@/src/utlis/userProduct';
 import { useWishlist } from '@/src/utlis/useWishList';
 import { ArrowDownToLine, Heart, Star } from 'lucide-react';
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import React, { useCallback, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
@@ -190,10 +191,11 @@ const ProductSkeleton = ({ viewMode }) => {
     );
 };
 
-
 const SubCategoryProducts = ({ id }) => {
     const router = useRouter()
     const [favorite, setFavorite] = useState([])
+    const params = useSearchParams()
+    const pageType = params.get('pageType')
     const dispatch = useDispatch()
     // Get all filter states from Redux
     const shopState = useSelector((state) => state.shop)
@@ -209,7 +211,13 @@ const SubCategoryProducts = ({ id }) => {
     );
     // product get
     const { product: products, loading: productsLoading } = useGetProduct(formData);
-    const filteredProducts = products?.filter(p => p?.subCategory[0]?._id === id)
+    let filteredProducts;
+    if (pageType === 'new-products') {
+        filteredProducts = products?.filter(product => product?.subCategory[0]?._id === id && isProductNew(product.createdAt))
+    } else {
+        filteredProducts = products?.filter(p => p?.subCategory[0]?._id === id)
+    }
+
     const { wishlist } = useWishlist()
     const user = useSelector((state) => state.user?.data)
     // Toggle wishlist (uses API + redux)
@@ -232,7 +240,7 @@ const SubCategoryProducts = ({ id }) => {
             toast.error("Failed to update wishlist")
         }
     }, [wishlist, favorite, dispatch]);
-
+    if (filteredProducts?.length < 1) return <div className="flex justify-center items-center text-2xl font-bold min-h-screen">No products found</div>
     return (
         <div className="container grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
 
