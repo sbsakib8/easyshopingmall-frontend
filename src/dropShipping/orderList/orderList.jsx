@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useMemo } from 'react';
-import { Search, ChevronRight, Package, Calendar, User, Phone, DollarSign, TrendingUp, Filter } from 'lucide-react';
+import { Search, ChevronRight, Package, Calendar, User, Phone, TrendingUp, Filter } from 'lucide-react';
 
 const FAKE_ORDERS = [
   {
@@ -220,20 +220,20 @@ const OrderList = () => {
                     <div className="space-y-1">
                       <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Product Price</p>
                       <p className="text-sm font-bold text-slate-700 flex items-center lg:justify-end gap-1">
-                        <DollarSign className="w-3 h-3" /> {order.productPrice}
+                        <span className="text-xs text-slate-500 font-bold">৳</span> {order.productPrice}
                       </p>
                     </div>
                     <div className="space-y-1">
                       <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Sell Price</p>
                       <p className="text-sm font-bold text-slate-900 flex items-center lg:justify-end gap-1">
-                        <DollarSign className="w-3 h-3 text-emerald-500" /> {order.sellPrice}
+                        <span className="text-xs text-emerald-600 font-bold">৳</span> {order.sellPrice}
                       </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-[10px] uppercase tracking-widest text-primary-color opacity-70 font-bold">Profit</p>
-                      <div className="bg-primary-color/10 px-3 py-1 rounded-lg border border-primary-color/20 inline-flex items-center gap-1.5 transform group-hover:scale-105 transition-transform">
-                        <TrendingUp className="w-4 h-4 text-primary-color" />
-                        <span className="text-base font-black text-accent">Tk {order.profit}</span>
+                      <p className="text-[10px] uppercase tracking-widest text-secondary font-bold">Profit</p>
+                      <div className="bg-secondary/10 px-3 py-1 rounded-lg border border-secondary/20 inline-flex items-center gap-1.5 transform group-hover:scale-105 transition-transform">
+                        <TrendingUp className="w-4 h-4 text-secondary" />
+                        <span className="text-base font-black text-accent">৳ {order.profit}</span>
                       </div>
                     </div>
                   </div>
@@ -284,7 +284,7 @@ const OrderList = () => {
                   onClick={() => setCurrentPage(num)}
                   className={`w-10 h-10 rounded-lg text-sm font-bold transition-all border ${currentPage === num
                     ? "bg-secondary text-accent border-secondary shadow-lg shadow-secondary/20"
-                    : "bg-white text-slate-600 border-slate-200 hover:border-scondary hover:bg-scondary/5"
+                    : "bg-white text-slate-600 border-slate-200 hover:border-secondary hover:bg-secondary/5"
                     }`}
                 >
                   {num}
@@ -297,7 +297,7 @@ const OrderList = () => {
               disabled={currentPage === totalPages}
               className={`p-2 rounded-lg border transition-all ${currentPage === totalPages
                 ? "bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed"
-                : "bg-white text-slate-600 border-slate-200 hover:border-scondary hover:text-scondary"
+                : "bg-white text-slate-600 border-slate-200 hover:border-secondary hover:text-secondary"
                 }`}
             >
               <ChevronRight className="w-5 h-5" />
