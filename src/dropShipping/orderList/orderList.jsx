@@ -1,6 +1,7 @@
 "use client"
 import React, { useState, useMemo } from 'react';
 import { Search, ChevronRight, Package, Calendar, User, Phone, TrendingUp, Filter } from 'lucide-react';
+import Link from 'next/link';
 
 const FAKE_ORDERS = [
   {
@@ -210,9 +211,9 @@ const OrderList = () => {
 
                   {/* Middle: Details Button */}
                   <div className="hidden lg:flex flex-1 justify-center">
-                    <button className="flex items-center gap-1 px-5 py-2 rounded-full border border-btn-color/20 bg-btn-color/5 text-btn-color text-sm font-bold hover:bg-btn-color hover:text-white transition-all duration-300 transform hover:scale-105">
+                    <Link href={`order-details/${order.id}`} className="flex items-center gap-1 px-5 py-2 rounded-full border border-btn-color/20 bg-btn-color/5 text-btn-color text-sm font-bold hover:bg-btn-color hover:text-white transition-all duration-300 transform hover:scale-105">
                       Details <ChevronRight className="w-4 h-4" />
-                    </button>
+                    </Link>
                   </div>
 
                   {/* Right: Pricing & Profit */}
