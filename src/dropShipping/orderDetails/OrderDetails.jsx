@@ -29,7 +29,7 @@ const OrderDetails = () => {
 
                     {/* Brand Logo - Orange E */}
                     <div className="flex justify-center mb-4">
-                        <div className="w-16 h-16 bg-orange-600 rounded-2xl flex items-center justify-center shadow-lg transform rotate-3 hover:rotate-0 transition-transform duration-300">
+                        <div className="w-16 h-16 bg-primary-color rounded-2xl flex items-center justify-center shadow-lg transform rotate-3 hover:rotate-0 transition-transform duration-300">
                             <span className="text-white text-4xl font-black italic">E</span>
                         </div>
                     </div>
@@ -80,7 +80,7 @@ const OrderDetails = () => {
                         <span className="text-slate-600 font-medium uppercase text-sm">COD TK</span>
                         <div className="flex items-center gap-2">
                             <span className="text-slate-400">:</span>
-                            <span className="text-[#E91E63] font-black text-lg"> {orderData?.codTk}</span>
+                            <span className="text-secondary font-black text-lg"> {orderData?.codTk}</span>
                         </div>
                     </div>
                 </div>
@@ -125,7 +125,7 @@ const OrderDetails = () => {
                                             </div>
                                         </td>
                                         <td className="px-4 py-4 align-middle text-center md:text-left">
-                                            <span className="text-[#E91E63] font-bold text-lg">{product.price}</span>
+                                            <span className="text-secondary font-bold text-lg">{product.price}</span>
                                         </td>
                                     </tr>
                                 ))}
@@ -140,6 +140,34 @@ const OrderDetails = () => {
                         {orderData?.footerMessage}
                     </p>
                 </div>
+            </div>
+
+            {/* Payment Prompt Section */}
+            <div className="max-w-2xl mx-auto mt-6 bg-bg shadow-sm rounded-lg overflow-hidden border border-slate-100 animate-fade-up p-8 text-center space-y-6">
+                <p className="text-secondary font-bold text-xl md:text-2xl">
+                    অর্ডার টি অ্যাপ্রুভ করতে ডেলিভারি চার্জ পে করুন।
+                </p>
+
+                <div className="flex justify-center">
+                    <button className="bg-btn-color hover:bg-btn-color text-accent-content font-bold py-3 px-8 rounded-lg flex items-center gap-2 transition-all duration-300 transform hover:scale-105 shadow-md">
+                        ডেলিভারি চার্জ পেমেন্ট করুন <span className="text-xl">»</span>
+                    </button>
+                </div>
+
+                <p className="text-slate-500 font-medium text-lg">অথবা</p>
+
+                <div className="flex flex-col md:flex-row justify-center gap-4">
+                    <button className="bg-btn-color hover:bg-btn-color text-accent-content font-bold py-3 px-6 rounded-lg flex items-center justify-center gap-2 transition-all duration-300 transform hover:scale-105 shadow-md flex-1">
+                        ফুল পেমেন্ট করুন <span className="text-xl">»</span>
+                    </button>
+                    <button className="bg-btn-color hover:bg-btn-color text-accent-content font-bold py-3 px-6 rounded-lg flex items-center justify-center gap-2 transition-all duration-300 transform hover:scale-105 shadow-md flex-1">
+                        আংশিক পেমেন্ট করুন <span className="text-xl">»</span>
+                    </button>
+                </div>
+
+                <p className="text-secondary font-medium text-lg">
+                    অ্যাপস এর ব্যালান্স থেকেও পেমেন্ট করতে পারবেন।
+                </p>
             </div>
         </div>
   )
