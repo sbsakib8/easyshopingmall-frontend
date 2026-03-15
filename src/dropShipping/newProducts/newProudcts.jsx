@@ -5,7 +5,7 @@ import Link from 'next/link';
 import React from 'react';
 import { useSelector } from 'react-redux';
 
-const AllProducts = () => {
+const NewProducts = () => {
   const { subcategory, loading } = useGetSubcategory();
  const user = useSelector((state) => state.user.data);
   const menCategory = subcategory?.filter(
@@ -46,7 +46,7 @@ const AllProducts = () => {
             menCategory?.map(cat => (
               <Link
                 key={cat?._id}
-                href={`/sub-category/${cat?._id}?pageType=all-proudcts`}
+                href={`/sub-category/${cat?._id}?pageType=new-products`}
                 className="shadow-md rounded-2xl px-3 py-2 min-h-40 hover:scale-105 duration-75"
               >
                 <Image
@@ -89,7 +89,7 @@ const AllProducts = () => {
             womenCategory?.map(cat => (
               <Link
                 key={cat?._id}
-                href={`/sub-category/${cat?._id}?pageType=all-proudcts`}
+                href={`/sub-category/${cat?._id}?pageType=new-products`}
                 className="shadow-md rounded-2xl px-3 py-2 min-h-40 hover:scale-105 duration-75"
               >
                 <Image
@@ -133,7 +133,7 @@ const AllProducts = () => {
             childrenCategory?.map(cat => (
               <Link
                 key={cat?._id}
-                href={`/sub-category/${cat?._id}?pageType=all-products`}
+                href={`/sub-category/${cat?._id}?pageType=new-products`}
                 className="shadow-md rounded-2xl px-3 py-2 min-h-40 hover:scale-105 duration-75"
               >
                 <Image
@@ -156,4 +156,4 @@ const AllProducts = () => {
   );
 };
 
-export default AllProducts;
+export default NewProducts;

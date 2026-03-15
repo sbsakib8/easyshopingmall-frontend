@@ -266,7 +266,7 @@ const AddCategoriesComponent = () => {
   const mainCategories = categories.filter(cat => !cat.parentId);
   const activeCategories = categories.filter(cat => cat.isActive);
   const totalSubcategories = categories.reduce((total, cat) => total + (cat.subcategories?.length || 0), 0);
-
+console.log(formData)
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 p-4 overflow-hidden">
       <div className={`transition-all  duration-500  lg:ml-10 lg:px-9`}>
@@ -491,9 +491,9 @@ const AddCategoriesComponent = () => {
                     {formData.image ? (
                       <div className="relative">
                         <img
-                          src={formData.image}
+                          src={formData.previewImage}
                           alt="Category"
-                          className="w-full h-32 object-cover rounded-lg"
+                          className="w-full h-80 object-cover rounded-lg"
                         />
                         <button
                           type="button"

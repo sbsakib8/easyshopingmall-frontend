@@ -545,13 +545,13 @@ const AddSubcategoriesComponent = () => {
 
                 <div className="space-y-2">
                   <label className="text-accent-content font-medium">Subcategory Image</label>
-                  <div className="border-2 border-dashed border-white/30 rounded-xl p-4 text-center hover:border-white/50 transition-all duration-300">
+                  <div className="border-2 border-dashed border-white/30 rounded-xl p-4 text-center hover:border-white/50 transition-all duration-300 ">
                     {formData.image ? (
                       <div className="relative">
                         <img
-                          src={formData.image}
+                          src={formData.previewImage}
                           alt="Subcategory"
-                          className="w-full h-32 object-cover rounded-lg"
+                          className="w-full h-80 object-cover rounded-lg"
                         />
                         <button
                           type="button"

@@ -1,35 +1,31 @@
 "use client";
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import { Star, TrendingUp } from "lucide-react";
 import Link from "next/link";
-import { useGetcategory } from "@/src/utlis/usecategory";
-import { HomeBannerAllGet } from "@/src/hook/useHomeBanner";
-import Button from "@/src/helper/Buttons/Button";
 import Image from "next/image";
-import { CategorySkeleton } from "../loading/Skeleton";
-
+import { useGetSubcategory } from "@/src/utlis/useSubcategory";
 
 function Categories({ initialData }) {
-  const { category: apiCategory, loading: apiLoading, error } = useGetcategory();
-  const [category, setCategory] = useState(initialData || null);
+  const { subcategory: apiCategory, loading: apiLoading } = useGetSubcategory();
+  const [subCategory, setCategory] = useState(initialData || null);
   const [loading, setLoading] = useState(!initialData);
   const [paused, setPaused] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (apiCategory) {
       setCategory(apiCategory);
       setLoading(false);
     }
   }, [apiCategory]);
 
-  const loopData = [...(category || []), ...(category || [])];
+  const loopData = [...(subCategory || []), ...(subCategory || [])];
 
-  if (loading) {
+  if (loading || apiLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="flex gap-4 overflow-x-auto py-6">
           {[...Array(8)].map((_, i) => (
-            <div key={i} className="w-48 flex-shrink-0 bg-white p-4 rounded-xl shadow-md space-y-3">
+            <div key={i} className="w-48 flex-shrink-0 bg-bg p-4 rounded-xl shadow-md space-y-3">
               <div className="h-32 bg-gray-200 animate-pulse rounded-lg w-full"></div>
               <div className="h-4 bg-gray-200 animate-pulse rounded-md w-3/4 mx-auto"></div>
               <div className="h-8 bg-gray-200 animate-pulse rounded-md w-full mt-2"></div>
@@ -45,10 +41,10 @@ function Categories({ initialData }) {
       {/* Header */}
       <div className="text-center mb-8">
         <h2 className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-2">
-          Featured Categories
+          Featured  Sub-categories
         </h2>
         <p className="text-gray-500 text-sm">
-          Discover amazing products across all categories
+          Discover amazing products across all sub-categories
         </p>
       </div>
 
@@ -62,18 +58,19 @@ function Categories({ initialData }) {
           className={`flex gap-4 ${!paused ? "animate-marquee" : ""}`}
         >
           {loopData.map((item, idx) => (
-            <Link href={"/shop"}
+            console.log(item),
+            <Link href={`/shop?category=${encodeURIComponent(item?.category?.name)}&subcategory=${encodeURIComponent(item?.name)}`}
               key={idx}
-              className="w-48 flex-shrink-0 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden cursor-pointer relative"
+              className="w-48 flex-shrink-0 flex flex-col bg-bg rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden cursor-pointer relative"
             >
               {/* Trending Badge */}
               {item.trending && (
-                <div className="absolute top-3 right-3 z-10 bg-gradient-to-r from-orange-400 to-red-500 text-accent-content text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                <div className="absolute top-3 right-3 z-10 bg-gradient-to-r from-primary-color to-secondary text-accent-content text-xs px-2 py-1 rounded-full flex items-center gap-1">
                   <TrendingUp className="w-3 h-3" /> Hot
                 </div>
               )}
               {/* Image */}
-              <div className="h-32 overflow-hidden relative">
+              <div className="h-32 flex-shrink-0 overflow-hidden relative">
                 <Image
                   src={item.image}
                   alt={item.name}
@@ -84,9 +81,9 @@ function Categories({ initialData }) {
                 />
               </div>
               {/* Content */}
-              <div className="p-3 text-center">
-                <h3 className="text-sm font-bold text-gray-800">{item.name}</h3>
-                <p className="text-xs text-gray-500">{item.metaDescription} items</p>
+              <div className="p-3 text-center flex-grow flex flex-col">
+                <h3 className="text-sm font-bold text-gray-800 line-clamp-1">{item.name}</h3>
+                {/* <p className="text-xs text-gray-500 line-clamp-4">{item.metaDescription} items</p> */}
                 <div className="flex justify-center gap-1 my-2">
                   {[...Array(5)].map((_, i) => (
                     <Star
@@ -98,9 +95,11 @@ function Categories({ initialData }) {
                     />
                   ))}
                 </div>
-                <Button className="w-full bg-gradient-to-r from-btn-color/15 via-btn-color/55 to-btn-color/75 text-accent-content py-1.5 rounded-md text-xs font-medium">
-                  Explore Now
-                </Button>
+                <div className="mt-auto">
+                  <button className="w-full bg-btn-color text-accent-content py-1.5 rounded-md text-xs font-medium">
+                    Explore Now
+                  </button>
+                </div>
               </div>
             </Link>
           ))}
@@ -111,7 +110,7 @@ function Categories({ initialData }) {
       <style jsx>{`
         .animate-marquee {
           display: flex;
-          animation: marquee 30s linear infinite;
+          animation: marquee 60s linear infinite;
         }
         @keyframes marquee {
           0% {

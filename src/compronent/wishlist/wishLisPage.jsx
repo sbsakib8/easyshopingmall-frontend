@@ -1,5 +1,6 @@
 "use client";
 import { CardSkeleton } from "@/src/compronent/loading/Skeleton";
+import AddtoCartBtn from "@/src/helper/Buttons/AddtoCartBtn";
 import { getWishlistApi, removeFromWishlistApi } from "@/src/hook/useWishlist";
 import { Eye, Grid, Heart, List, Share2, ShoppingCart, Star, Trash2 } from "lucide-react";
 import Link from "next/link";
@@ -10,7 +11,6 @@ const WishlistComponent = () => {
   const dispatch = useDispatch();
   const { data: wishlistItems = [], loading, error } = useSelector((state) => state.wishlist);
   const user = useSelector((state) => state.user.data);
-
   const [viewMode, setViewMode] = useState("grid");
   const [sortBy, setSortBy] = useState("newest");
   const [filterBy, setFilterBy] = useState("all");
@@ -26,7 +26,7 @@ const WishlistComponent = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen lg:mt-24 py-5 flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="min-h-screen lg:pt-24 py-5 flex items-center justify-center bg-bg">
         <div className="bg-white shadow-lg rounded-2xl p-8 text-center max-w-md">
           <h2 className="text-2xl font-bold mb-2 text-gray-900">Please sign in</h2>
           <p className="text-gray-600 mb-4">You need to log in to view your wishlist.</p>
@@ -54,17 +54,7 @@ const WishlistComponent = () => {
     }
   };
 
-  const addToCart = (item) => {
-    // Animation effect
-    const button = document.querySelector(`[data-cart-button="${item.id}"]`);
-    if (button) {
-      button.classList.add("animate-pulse");
-      setTimeout(() => {
-        button.classList.remove("animate-pulse");
-      }, 600);
-    }
-    // console.log("Added to cart:", item.name);
-  };
+
 
   const sortedAndFilteredItems = () => {
     let items = [...wishlistItems];
@@ -117,7 +107,7 @@ const WishlistComponent = () => {
   // Loading + Error
   if (loading)
     return (
-      <div className="min-h-screen lg:mt-24 py-6 bg-gray-50 p-4 sm:p-6 lg:p-8">
+      <div className="min-h-screen lg:pt-24 py-6 bg-bg p-4 sm:p-6 lg:p-8">
         <div className="max-w-7xl mx-auto space-y-8">
           <div className="flex flex-col items-center space-y-4">
             <div className="h-10 w-64 bg-gray-200 rounded-lg animate-pulse" />
@@ -135,17 +125,17 @@ const WishlistComponent = () => {
 
   if (error)
     return (
-      <div className="min-h-screen flex items-center justify-center text-red-500 text-lg">
+      <div className="min-h-screen flex items-center justify-center text-secondary text-lg">
         {error}
       </div>
     );
 
   return (
-    <div className="min-h-screen lg:mt-24 py-6 bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen lg:pt-24 py-6 bg-bg p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb  -8">
-          <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 bg-clip-text text-transparent mb-4 animate-fade-in">
+          <h1 className="text-4xl sm:text-5xl font-bold bg-btn-color bg-clip-text text-transparent mb-4 animate-fade-in">
             My Wishlist
           </h1>
           <p className="text-gray-600 text-lg">{wishlistItems.length} items waiting for you</p>
@@ -242,28 +232,18 @@ const WishlistComponent = () => {
                   />
 
                   {/* Discount Badge */}
-                  {item.discount && (
-                    <div className="absolute top-3 left-3 bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 text-accent-content px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
+                  {/* {item.discount && (
+                    <div className="absolute top-3 left-3 bg-secondary text-accent-content px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
                       -{item.discount}%
                     </div>
-                  )}
+                  )} */}
 
                   {/* Stock Status */}
                   {!item.inStock && (
-                    <div className="absolute top-3 right-3 bg-red-700/80 text-accent-content px-3 py-1 rounded-full text-sm font-medium">
+                    <div className="absolute top-3 right-3 bg-secondary text-accent-content px-3 py-1 rounded-full text-sm font-medium">
                       Out of Stock
                     </div>
                   )}
-
-                  {/* Quick Actions Overlay */}
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
-                    <button className="p-3 bg-white/90 cursor-pointer rounded-full hover:bg-white hover:scale-110 transition-all duration-300">
-                      <Eye className="w-5 h-5 text-gray-800" />
-                    </button>
-                    <button className="p-3 cursor-pointer bg-white/90 rounded-full hover:bg-white hover:scale-110 transition-all duration-300">
-                      <Share2 className="w-5 h-5 text-gray-800" />
-                    </button>
-                  </div>
                 </div>
 
                 {/* Content */}
@@ -296,12 +276,12 @@ const WishlistComponent = () => {
 
                   {/* Price */}
                   <div className="flex items-center gap-2 mb-4">
-                    <span className="text-2xl font-bold text-teal-600">
-                      ${item.price}
+                    <span className="text-2xl font-bold text-secondary">
+                      ৳{item.price}
                     </span>
                     {item.originalPrice && (
                       <span className="text-lg text-gray-400 line-through">
-                        ${item.originalPrice}
+                        ৳{item.originalPrice}
                       </span>
                     )}
                   </div>
@@ -312,17 +292,21 @@ const WishlistComponent = () => {
                       data-cart-button={item.id}
                       onClick={(e) => {
                         e.preventDefault();
-                        addToCart(item);
+                        // addToCart(item);
                       }}
                       disabled={!item.inStock}
                       className={`flex-1 cursor-pointer flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-semibold transition-all duration-300 ${item.inStock
-                        ? "bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 hover:from-teal-700 hover:to-green-700 text-accent-content shadow-lg hover:shadow-xl transform hover:scale-105"
+                        ? "bg-btn-color hover:to-btn-color/80 text-accent-content shadow-lg hover:shadow-xl transform hover:scale-105"
                         : "bg-gray-200 text-gray-500 cursor-not-allowed"
                         }`}
                     >
-                      <ShoppingCart className="w-5 h-5" />
-                      {item.inStock ? "Add to Cart" : "Out of Stock"}
+                      <AddtoCartBtn 
+                      productId={item.id} 
+                      className="flex items-center gap-2">
+                        <ShoppingCart className="w-5 h-5" />
+                      {item.inStock ? "Add to Cart" : "Out of Stock"}</AddtoCartBtn>
                     </button>
+                     
                   </div>
                 </div>
               </Link>
@@ -330,19 +314,6 @@ const WishlistComponent = () => {
           </div>
         )}
 
-        {/* Summary Footer */}
-        {wishlistItems.length > 0 && (
-          <div className="mt-12 bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 rounded-3xl shadow-2xl p-8 text-accent-content text-center">
-            <h3 className="text-2xl font-bold mb-4">Ready to Shop?</h3>
-            <p className="text-purple-100 mb-6">
-              You have {wishlistItems.filter((item) => item.inStock).length} items available in
-              stock
-            </p>
-            <button className="bg-white cursor-pointer text-teal-600 px-8 py-3 rounded-xl font-semibold hover:bg-gray-100 transition-colors duration-300 shadow-lg">
-              Add All to Cart
-            </button>
-          </div>
-        )}
       </div>
 
       <style jsx>{`

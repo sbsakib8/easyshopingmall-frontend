@@ -10,11 +10,11 @@ const AuthAdminRole = ({ children }) => {
 
   useEffect(() => {
     if (!data) {
-      router.push("/");
+      // router.push("/");
       return;
     }
 
-    if (pathname.startsWith("/dashboard") && data.role === "USER" ) {
+    if (pathname.startsWith("/dashboard") && data.role !== "ADMIN" ) {
       router.push("/");
     }
   }, [data, pathname, router]);

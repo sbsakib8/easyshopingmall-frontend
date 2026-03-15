@@ -67,8 +67,36 @@ const productdetailsid = async (props) => {
     }
   }
 
+  const baseUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3000";
+  const jsonLd = initialProduct ? {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": initialProduct.productName || initialProduct.name,
+    "description": initialProduct.description || initialProduct.productDescription,
+    "image": (initialProduct.images || []).map(img => img.startsWith("http") ? img : `${baseUrl}${img}`),
+    "sku": initialProduct.sku || id,
+    "brand": {
+      "@type": "Brand",
+      "name": initialProduct.brand || "EasyShoppingMallBD"
+    },
+    "offers": {
+      "@type": "Offer",
+      "url": `${baseUrl}/productdetails/${id}`,
+      "priceCurrency": "BDT",
+      "price": initialProduct.price || initialProduct.sell_price,
+      "availability": initialProduct.productStock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      "itemCondition": "https://schema.org/NewCondition"
+    }
+  } : null;
+
   return (
     <div>
+      {jsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      )}
       <ProductDetails initialProduct={initialProduct} productId={id} />
     </div>
   )

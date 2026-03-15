@@ -28,8 +28,8 @@ import { useGetcategory } from "../../utlis/usecategory";
 import { useGetProduct } from "../../utlis/userProduct";
 import { useCategoryWithSubcategories } from "../../utlis/useCategoryWithSubcategories";
 import { useWishlist } from "@/src/utlis/useWishList";
-import Button from "@/src/helper/Buttons/Button";
 import { setQuickViewProduct } from "../../redux/shopSlice";
+import AddtoCartBtn from "@/src/helper/Buttons/AddtoCartBtn";
 
 // Helper function to determine if product is new or old
 const isProductNew = (createdDate) => {
@@ -482,19 +482,23 @@ const PopularProducts = ({ initialData }) => {
                   </div>
 
                   {/* Add to Cart */}
-
                   <button
                     onClick={(e) => {
-                      e.preventDefault();
-                      handleAddToCart(product);
+                      e.stopPropagation();
                     }}
-                    className="w-full py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs bg-btn-color text-accent-content hover:bg-green-700 transform hover:scale-105 cursor-pointer"
-                  >
-                    <span className="flex items-center justify-center gap-1">
-                      <ShoppingCart className="w-3 h-3" />
-                      Add to Cart
-                    </span>
+                    className="w-full py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs bg-btn-color text-accent-content hover:bg-btn-color/80 transform hover:scale-105 cursor-pointer"
+                 >
+                    <AddtoCartBtn
+                      productId={product.id}
+                      
+                    >
+                      <span className="flex items-center justify-center gap-1">
+                        <ShoppingCart className="w-3 h-3" />
+                        Add to Cart
+                      </span>
+                    </AddtoCartBtn>
                   </button>
+
                 </div>
               </div>
             </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { createManualPaymentOrder, createSslPaymentOrder, submitManualPayment } from "@/src/hook/useOrder";
-import { ProductNotification } from "@/src/hook/useProduct";
+import { ProductNotification, ProductUpdate } from "@/src/hook/useProduct";
 import { cartClear } from "@/src/redux/cartSlice";
 import { AlertTriangle, Copy, MapPin, Shield, ShoppingBag, ShoppingCart, Star, Truck } from "lucide-react";
 import Link from "next/link";
@@ -290,6 +290,9 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
     const { name, phone, email, address, division, district, area, pincode } = customerInfo;
     const { senderNumber, transactionId } = manualPaymentInfo;
 
+
+    
+   
     // 1️⃣ Required fields
     if (!name || !phone || !address || !division || !district || !area) {
       toast.error("অনুগ্রহ করে সকল প্রয়োজনীয় তথ্য পূরণ করুন (ঠিকানা সহ)");
@@ -423,7 +426,7 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
           // meta: { category: response.data.category },
         });
       } else {
-        toast.error(response?.message || "Failed to add product");
+        toast.error(response?.message || "পণ্য যোগ করা যায়নি");
       }
 
       // 7️⃣ Clear cart and update state
@@ -434,6 +437,18 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
         payment_status: paymentSubmissionRes.order?.payment_status || order.payment_status,
       });
       setManualOrderStep('payment_submitted');
+
+   // update product stock 
+    cartItems.forEach(async item=>{
+      // stock verification 
+      if(item.productId.productStock<item.quantity){
+        toast.error("অতিরিক্ত পরিমাণ যোগ করা হয়েছে")
+        return
+      }
+      const updatedQuantity = item.productId.productStock - item.quantity
+      const res = await ProductUpdate({_id:item.productId._id,productStock:updatedQuantity})
+      console.log(res)
+    })
 
     } catch (err) {
       console.error("Manual order and payment submission error:", err);
@@ -452,7 +467,7 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
         toast.success("Order ID copied to clipboard!");
       })
       .catch(() => {
-        toast.error("Failed to copy Order ID");
+        toast.error("অর্ডার আইডি কপি করা যায়নি");
       });
   };
 
@@ -484,9 +499,9 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-bg">
       {/* Header */}
-      <div className="bg-white shadow-lg border-b border-gray-100">
+      {/* <div className="bg-white shadow-lg border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center justify-center">
             <div className="flex items-center space-x-3">
@@ -502,9 +517,9 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
             </div>
           </div>
         </div>
-      </div>
-      <div className="w-full px-5 flex justify-center items-center mt-8 gap-2 ">
-        <button className="text-sm bg-orange-300 px-3 py-2 rounded-2xl">সম্পূর্ণ অর্ডার গাইডলাইন এখানে দেখুন</button>
+      </div> */}
+      <div className="w-full px-5 flex justify-center items-center pt-16 gap-2 ">
+        <button className="text-sm bg-primary-color px-3 py-2 rounded-2xl">সম্পূর্ণ অর্ডার গাইডলাইন এখানে দেখুন</button>
         <img onClick={() => setShowGuideVideo(!showGuideVideo)} src="https://cdn-icons-png.freepik.com/256/13983/13983898.png?semt=ais_white_label" className="w-10 h-10 cursor-pointer" alt="" />
       </div>
       {/* guide video  */}
@@ -512,7 +527,7 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
         <ReactPlayer
           controls
           light={<img
-            src={"https://i.ibb.co.com/bj9sxtv0/Screenshot-2026-01-26-at-4-23-43-PM.png"}
+            src={"https://i.ytimg.com/vi/_qETiv0aTdA/hqdefault.jpg?sqp=-oaymwFBCPYBEIoBSFryq4qpAzMIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB8AEB-AH-CYAC0AWKAgwIABABGBEgcihFMA8=&rs=AOn4CLA03DMupVKsylFc6VGl5wp6b0b4pg"}
             alt={`thumbnel `}
             className=" w-96 h-96  rounded-xl md:rounded-2xl"
           />}
@@ -523,7 +538,7 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
           playing={true}
           src="https://youtu.be/_qETiv0aTdA?feature=shared"
         />
-        <button onClick={() => setShowGuideVideo(!showGuideVideo)} className="text-xl bg-red-400 py-1 px-3 rounded-full absolute top-10 right-10 cursor-pointer">X</button>
+        <button onClick={() => setShowGuideVideo(!showGuideVideo)} className="text-xl bg-secondary py-1 px-3 rounded-full absolute top-10 right-10 cursor-pointer">X</button>
       </div>}
 
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -531,10 +546,10 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
           {/* Left Column */}
           <div className="lg:col-span-2 space-y-6">
             {/* Customer Details */}
-            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-              <div className="bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 p-6">
+            <div className="bg-bg rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+              <div className="bg-btn-color p-6">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                  <div className="w-10 h-10 bg-bg bg-opacity-20 rounded-lg flex items-center justify-center">
                     <MapPin className="w-5 h-5 text-accent-content" />
                   </div>
                   <h2 className="text-xl font-semibold text-accent-content">গ্রাহকের তথ্য</h2>
@@ -561,10 +576,10 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
             {/* Delivery Address */}
 
 
-            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-              <div className="bg-gradient-to-r from-green-600 to-teal-600 p-6">
+            <div className="bg-bg rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+              <div className="bg-btn-color p-6">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                  <div className="w-10 h-10 bg-bg bg-opacity-20 rounded-lg flex items-center justify-center">
                     <Truck className="w-5 h-5 text-accent-content" />
                   </div>
                   <h2 className="text-xl font-semibold text-accent-content">ডেলিভারি ঠিকানা</h2>
@@ -574,11 +589,11 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
                 <div className="space-y-6">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">সম্পূর্ণ ঠিকানা *</label>
-                    <textarea value={customerInfo.address} onChange={(e) => handleInputChange("address", e.target.value)} placeholder="বাড়ি/ফ্ল্যাট নম্বর, রোড নম্বর, এলাকার নাম" className="w-full px-4 py-3 border rounded-xl bg-gray-50" rows={3} />
+                    <textarea value={customerInfo.address} onChange={(e) => handleInputChange("address", e.target.value)} placeholder="বাড়ি/ফ্ল্যাট নম্বর, রোড নম্বর, এলাকার নাম" className="w-full px-4 py-3 border rounded-xl bg-bg" rows={3} />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">পোস্ট কোড </label>
-                    <input value={customerInfo?.pincode} onChange={(e) => handleInputChange("pincode", e.target.value)} placeholder="পোস্ট কোড দিন" className="w-full px-4 py-3 border rounded-xl bg-gray-50" />
+                    <input value={customerInfo?.pincode} onChange={(e) => handleInputChange("pincode", e.target.value)} placeholder="পোস্ট কোড দিন" className="w-full px-4 py-3 border rounded-xl bg-bg" />
                   </div>
 
                 </div>
@@ -589,13 +604,13 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
 
           {/* Right Column */}
           <div>
-            <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden sticky top-8">
-              <div className="bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 p-6">
+            <div className="bg-bg rounded-2xl shadow-xl border border-gray-100 overflow-hidden sticky top-8">
+              <div className="bg-bg p-6">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                    <ShoppingCart className="w-5 h-5 text-accent-content" />
+                  <div className="w-10 h-10 bg-accent-content rounded-lg flex items-center justify-center">
+                    <ShoppingCart className="w-5 h-5 text-accent" />
                   </div>
-                  <h2 className="text-xl font-semibold text-accent-content">অর্ডার সামারি</h2>
+                  <h2 className="text-xl font-semibold text-accent">অর্ডার সামারি</h2>
                 </div>
               </div>
 
@@ -604,7 +619,7 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
                   {cartItems.length === 0 && <div className="text-center py-6 text-gray-500">কার্ট খালি।</div>}
 
                   {cartItems.map((item) => (
-                    <div key={item._id || item.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-xl">
+                    <div key={item._id || item.id} className="flex items-center space-x-4 p-4 bg-bg shadow-xl rounded-xl">
                       <div className="relative">
                         <img src={item.productId.images?.[0] || item.image || "/placeholder.svg"} alt={item.productId?.productName || item.name || "Product"} className="w-16 h-16 object-cover rounded-xl" />
                         <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-xs text-accent-content font-bold">{item.quantity}</div>
@@ -623,7 +638,7 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
                   ))}
                 </div>
 
-                <div className="space-y-3 mb-6 p-4 bg-gray-50 rounded-xl">
+                <div className="space-y-3 mb-6 p-4 bg-bg shadow-xl rounded-xl">
                   <div className="flex justify-between text-gray-700"><span>সাবটোটাল</span><span className="font-medium">৳{subtotal.toLocaleString()}</span></div>
                   <div className="flex justify-between text-gray-700"><span className="flex items-center space-x-1"><Truck className="w-4 h-4" /><span>ডেলিভারি চার্জ</span></span><span className="font-medium">৳{deliveryCharge}</span></div>
                   <div className="border-t border-gray-200 pt-3"><div className="flex justify-between text-xl font-bold text-gray-900"><span>মোট</span><span className="text-blue-600">৳{(subtotal + deliveryCharge).toLocaleString()}</span></div></div>
@@ -642,7 +657,7 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
                       className={`manual-payment-section p-3 rounded-xl border cursor-pointer
         ${selectedPayment === 'manual'
                           ? 'border-blue-400 bg-blue-50'
-                          : 'border-gray-200 bg-white'}
+                          : 'border-gray-200 bg-bg'}
       `}
                       onClick={() => setSelectedPayment('manual')}
                     >
@@ -688,7 +703,7 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
                                 onClick={() => setSelectedManualMethod(method.id)}
                                 className={`w-full flex items-center justify-between p-4 rounded-xl border transition
                   ${isActive
-                                    ? 'border-green-500 bg-green-50'
+                                    ? 'border-btn-color bg-green-50'
                                     : 'border-gray-200 bg-white hover:border-green-400'}
                 `}
                               >

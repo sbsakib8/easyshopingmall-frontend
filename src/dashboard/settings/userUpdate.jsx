@@ -26,6 +26,7 @@ export default function UserRoleManager() {
 
   const roles = [
     { value: 'USER', label: 'User', color: 'bg-blue-500', icon: '👤' },
+    { value: 'DROPSHIPPING', label: 'Dropshipping', color: 'bg-blue-500', icon: '📦' },
     { value: 'ADMIN', label: 'Admin', color: 'bg-red-500', icon: '👑' }
   ];
 
