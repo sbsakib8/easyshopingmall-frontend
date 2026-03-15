@@ -85,7 +85,7 @@ const OrderList = () => {
   const [filter, setFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const ordersPerPage = 2;
+  const ordersPerPage = 100;
 
   const filteredOrders = useMemo(() => {
     return FAKE_ORDERS.filter(order => {

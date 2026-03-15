@@ -20,8 +20,36 @@ const OrderDetails = () => {
         footerMessage: "Dear মোঃ শাহিদ মাহমুদ thanks for confirm the order."
     };
   return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4 md:px-0">
-            <div className="max-w-2xl mx-auto bg-bg shadow-sm rounded-lg overflow-hidden border border-slate-100 animate-fade-up">
+    <div className="min-h-screen bg-bg py-10 px-4 md:px-0">
+         {/* Payment Prompt Section */}
+            <div className="max-w-2xl mx-auto mt-6 bg-accent-content/80 shadow-sm rounded-lg overflow-hidden border border-slate-100 animate-fade-up p-8 text-center space-y-6">
+                <p className="text-secondary font-bold text-xl md:text-2xl">
+                    অর্ডার টি অ্যাপ্রুভ করতে ডেলিভারি চার্জ পে করুন।
+                </p>
+
+                <div className="flex justify-center">
+                    <button className="bg-btn-color hover:bg-btn-color text-accent-content font-bold py-3 px-8 rounded-lg flex items-center gap-2 transition-all duration-300 transform hover:scale-105 shadow-md">
+                        ডেলিভারি চার্জ পেমেন্ট করুন <span className="text-xl">»</span>
+                    </button>
+                </div>
+
+                <p className="text-slate-500 font-medium text-lg">অথবা</p>
+
+                <div className="flex flex-col md:flex-row justify-center gap-4">
+                    <button className="bg-btn-color hover:bg-btn-color text-accent-content font-bold py-3 px-6 rounded-lg flex items-center justify-center gap-2 transition-all duration-300 transform hover:scale-105 shadow-md flex-1">
+                        ফুল পেমেন্ট করুন <span className="text-xl">»</span>
+                    </button>
+                    <button className="bg-btn-color hover:bg-btn-color text-accent-content font-bold py-3 px-6 rounded-lg flex items-center justify-center gap-2 transition-all duration-300 transform hover:scale-105 shadow-md flex-1">
+                        আংশিক পেমেন্ট করুন <span className="text-xl">»</span>
+                    </button>
+                </div>
+
+                <p className="text-secondary font-medium text-lg">
+                    অ্যাপস এর ব্যালান্স থেকেও পেমেন্ট করতে পারবেন।
+                </p>
+            </div>
+
+            <div className="max-w-2xl mx-auto bg-accent-content/80 shadow-sm rounded-lg overflow-hidden border border-slate-100 animate-fade-up">
 
                 {/* Header section */}
                 <div className="text-center py-8">
@@ -142,33 +170,7 @@ const OrderDetails = () => {
                 </div>
             </div>
 
-            {/* Payment Prompt Section */}
-            <div className="max-w-2xl mx-auto mt-6 bg-bg shadow-sm rounded-lg overflow-hidden border border-slate-100 animate-fade-up p-8 text-center space-y-6">
-                <p className="text-secondary font-bold text-xl md:text-2xl">
-                    অর্ডার টি অ্যাপ্রুভ করতে ডেলিভারি চার্জ পে করুন।
-                </p>
-
-                <div className="flex justify-center">
-                    <button className="bg-btn-color hover:bg-btn-color text-accent-content font-bold py-3 px-8 rounded-lg flex items-center gap-2 transition-all duration-300 transform hover:scale-105 shadow-md">
-                        ডেলিভারি চার্জ পেমেন্ট করুন <span className="text-xl">»</span>
-                    </button>
-                </div>
-
-                <p className="text-slate-500 font-medium text-lg">অথবা</p>
-
-                <div className="flex flex-col md:flex-row justify-center gap-4">
-                    <button className="bg-btn-color hover:bg-btn-color text-accent-content font-bold py-3 px-6 rounded-lg flex items-center justify-center gap-2 transition-all duration-300 transform hover:scale-105 shadow-md flex-1">
-                        ফুল পেমেন্ট করুন <span className="text-xl">»</span>
-                    </button>
-                    <button className="bg-btn-color hover:bg-btn-color text-accent-content font-bold py-3 px-6 rounded-lg flex items-center justify-center gap-2 transition-all duration-300 transform hover:scale-105 shadow-md flex-1">
-                        আংশিক পেমেন্ট করুন <span className="text-xl">»</span>
-                    </button>
-                </div>
-
-                <p className="text-secondary font-medium text-lg">
-                    অ্যাপস এর ব্যালান্স থেকেও পেমেন্ট করতে পারবেন।
-                </p>
-            </div>
+           
         </div>
   )
 }
