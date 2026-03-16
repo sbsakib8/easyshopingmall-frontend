@@ -18,13 +18,11 @@ const VideoPage = () => {
                 <div className='container grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 '>
 
                     {Array(8).fill().map((_, i) => <div key={i} className=''>
-                        <div className='relative  h-80 shadow-2xl rounded-xl md:rounded-2xl'>
-                            <img src={"https://i.ytimg.com/vi/_qETiv0aTdA/hqdefault.jpg?sqp=-oaymwFBCPYBEIoBSFryq4qpAzMIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB8AEB-AH-CYAC0AWKAgwIABABGBEgcihFMA8=&rs=AOn4CLA03DMupVKsylFc6VGl5wp6b0b4pg"}
-                                alt={`thumbnel `}
-                                className='w-full h-full rounded-2xl' />
+                        <div className='relative h-40 shadow-2xl rounded-xl md:rounded-2xl bg-primary-color'>
+                            
 
                             {/* playIcon  */}
-                            <img onClick={() => setShowVideo(!showVideo)} className='w-12 h-12 absolute top-1/2 right-1/2 rounded-full' src={"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRT7dAm2xeRPWO5PJWhJnhfUeG3Syl3ws8wnw&s"} />
+                            <img onClick={() => setShowVideo(!showVideo)} className='w-15 h-15 absolute top-2/3 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full cursor-pointer hover:scale-110 transition-transform' src={"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRT7dAm2xeRPWO5PJWhJnhfUeG3Syl3ws8wnw&s"} />
                             {/* video player  */}
                             {showVideo && <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn ">
                                 <ReactPlayer
@@ -45,7 +43,7 @@ const VideoPage = () => {
                                 <button onClick={() => setShowVideo(!showVideo)} className="text-xl bg-secondary py-1 px-3 rounded-full absolute top-10 right-10 cursor-pointer">X</button>
                             </div>}
                             <div className='absolute top-3 left-3'>
-                                <button className=' text-accent text-xl font-semibold'>{i + 1}.Manual Payment System</button>
+                                <button className=' text-accent text-sm md:text-xl font-semibold'>{i + 1}.Manual Payment System</button>
                             </div>
                         </div>
                     </div>)}
