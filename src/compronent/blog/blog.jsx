@@ -50,7 +50,7 @@ const BlogPage = ({ initialData }) => {
   });
 
   return (
-    <div className="min-h-screen lg:mt-12 py-5 bg-bg">
+    <div className="min-h-screen lg:pt-12 py-5 bg-bg">
       {/* Header Section */}
       <div className="relative overflow-hidden text-accent">
         <div className="absolute inset-0"></div>
