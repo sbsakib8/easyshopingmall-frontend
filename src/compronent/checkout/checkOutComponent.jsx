@@ -1,8 +1,9 @@
 "use client";
 
 import { createManualPaymentOrder, createSslPaymentOrder, submitManualPayment } from "@/src/hook/useOrder";
+import { applyCouponCode } from "@/src/hook/useCoupon";
 import { ProductNotification, ProductUpdate } from "@/src/hook/useProduct";
-import { cartClear } from "@/src/redux/cartSlice";
+import { cartClear, setCoupon, clearCoupon } from "@/src/redux/cartSlice";
 import { AlertTriangle, Copy, MapPin, Shield, ShoppingBag, ShoppingCart, Star, Truck } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -19,7 +20,7 @@ import { cartSuccess } from "@/src/redux/cartSlice";
 export default function CheckoutComponent({ initialUser, initialCartItems }) {
   const user = useSelector((state) => state.user?.data) || initialUser;
   const dispatch = useDispatch();
-  const { items } = useSelector((state) => state.cart || {});
+  const { items, appliedCoupon, couponDiscount } = useSelector((state) => state.cart || {});
   // Use Redux items if available (client updates), otherwise fall back to server initial items
   const cartItems = items?.length > 0 ? items : (initialCartItems || []);
 
@@ -59,6 +60,10 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
   const [manualPaymentInfo, setManualPaymentInfo] = useState({ senderNumber: "", transactionId: "" })
   const [usedTransactionIds, setUsedTransactionIds] = useState([]);
 
+  // Coupon state
+  const [couponCode, setCouponCode] = useState("");
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+
   const isValidBDPhone = (phone) => /^01[3-9]\d{8}$/.test(phone);
   const isValidEmail = (email) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); // simple email regex
@@ -70,7 +75,15 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
 
   // subtotal
   const subtotal = cartItems.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 0), 0);
-  const total = subtotal + deliveryCharge;
+
+  // Calculate total with discount
+  const [total, setTotal] = useState(subtotal + deliveryCharge);
+
+  useEffect(() => {
+    let tmpTotal = subtotal + deliveryCharge - couponDiscount;
+    if (tmpTotal < 0) tmpTotal = 0;
+    setTotal(tmpTotal);
+  }, [subtotal, deliveryCharge, couponDiscount]);
   // console.log('cartItems', cartItems);
 
 
@@ -132,6 +145,45 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
     setCustomerInfo((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleApplyCoupon = async () => {
+    if (!couponCode) {
+      toast.error("Please enter a coupon code");
+      return;
+    }
+
+    // Minimal subtotal requirement to apply ANY coupon? Logic handled at backend mostly
+    setIsApplyingCoupon(true);
+    try {
+      const resp = await applyCouponCode({
+        code: couponCode,
+        checkoutAmount: subtotal,
+        cartItems: cartItems
+      });
+
+      if (resp.success) {
+        toast.success(resp.message || "Coupon applied!");
+        dispatch(setCoupon({
+          coupon: resp.coupon,
+          discountAmount: resp.discountAmount
+        }));
+      } else {
+        toast.error(resp.message || "Invalid or inactive coupon");
+        dispatch(clearCoupon());
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Error applying coupon");
+      dispatch(clearCoupon());
+    } finally {
+      setIsApplyingCoupon(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setCouponCode("");
+    dispatch(clearCoupon());
+    toast.success("Coupon removed");
+  }
+
 
 
   // Create order helper
@@ -173,11 +225,12 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
       delivery_address,
       deliveryCharge,
       subTotalAmt: subtotal,
-      totalAmt: subtotal + deliveryCharge, // Total amount is always full order value
+      totalAmt: total, // Total amount is always full order value
 
       payment_method: override.payment_method || (selectedPayment === 'manual' ? 'manual' : 'sslcommerz'),
       payment_type: paymentType, // Set payment_type here
       payment_details: (override.payment_method === 'manual' || selectedPayment === 'manual') ? null : (override.payment_details || {}),
+      appliedCoupon: appliedCoupon?.code || null,
     };
 
     if (payload.payment_method === 'manual') {
@@ -291,8 +344,8 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
     const { senderNumber, transactionId } = manualPaymentInfo;
 
 
-    
-   
+
+
     // 1️⃣ Required fields
     if (!name || !phone || !address || !division || !district || !area) {
       toast.error("অনুগ্রহ করে সকল প্রয়োজনীয় তথ্য পূরণ করুন (ঠিকানা সহ)");
@@ -382,7 +435,7 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
         delivery_address,
         deliveryCharge,
         subTotalAmt: subtotal,
-        totalAmt: subtotal + deliveryCharge,
+        totalAmt: total,
         payment_method: "manual",
         payment_type: payDeliveryOnly ? "delivery" : "full",
         payment_details: {
@@ -390,6 +443,7 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
           senderNumber,
           transactionId,
         },
+        appliedCoupon: appliedCoupon?.code || null,
       };
 
       // 5️⃣ Send order creation request
@@ -438,17 +492,17 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
       });
       setManualOrderStep('payment_submitted');
 
-   // update product stock 
-    cartItems.forEach(async item=>{
-      // stock verification 
-      if(item.productId.productStock<item.quantity){
-        toast.error("অতিরিক্ত পরিমাণ যোগ করা হয়েছে")
-        return
-      }
-      const updatedQuantity = item.productId.productStock - item.quantity
-      const res = await ProductUpdate({_id:item.productId._id,productStock:updatedQuantity})
-      console.log(res)
-    })
+      // update product stock 
+      cartItems.forEach(async item => {
+        // stock verification 
+        if (item.productId.productStock < item.quantity) {
+          toast.error("অতিরিক্ত পরিমাণ যোগ করা হয়েছে")
+          return
+        }
+        const updatedQuantity = item.productId.productStock - item.quantity
+        const res = await ProductUpdate({ _id: item.productId._id, productStock: updatedQuantity })
+        console.log(res)
+      })
 
     } catch (err) {
       console.error("Manual order and payment submission error:", err);
@@ -641,7 +695,38 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
                 <div className="space-y-3 mb-6 p-4 bg-bg shadow-xl rounded-xl">
                   <div className="flex justify-between text-gray-700"><span>সাবটোটাল</span><span className="font-medium">৳{subtotal.toLocaleString()}</span></div>
                   <div className="flex justify-between text-gray-700"><span className="flex items-center space-x-1"><Truck className="w-4 h-4" /><span>ডেলিভারি চার্জ</span></span><span className="font-medium">৳{deliveryCharge}</span></div>
-                  <div className="border-t border-gray-200 pt-3"><div className="flex justify-between text-xl font-bold text-gray-900"><span>মোট</span><span className="text-blue-600">৳{(subtotal + deliveryCharge).toLocaleString()}</span></div></div>
+
+                  {/* Coupon section calculation */}
+                  {appliedCoupon && (
+                    <div className="flex justify-between text-green-600">
+                      <span>ডিসকাউন্ট ({appliedCoupon.code}) <button onClick={removeCoupon} className="text-red-500 text-xs ml-2 underline">সরান</button></span>
+                      <span className="font-medium">- ৳{couponDiscount.toLocaleString()}</span>
+                    </div>
+                  )}
+
+                  <div className="border-t border-gray-200 pt-3"><div className="flex justify-between text-xl font-bold text-gray-900"><span>মোট</span><span className="text-blue-600">৳{total.toLocaleString()}</span></div></div>
+                </div>
+
+                {/* Coupon Input UI */}
+                <div className="mb-6 p-4 bg-bg shadow-xl rounded-xl">
+                  <h4 className="text-sm font-semibold text-gray-700 mb-2">কুপন কোড (যদি থাকে)</h4>
+                  <div className="flex gap-2">
+                    <input
+                      disabled={appliedCoupon != null}
+                      type="text"
+                      placeholder="কুপন লিখুন"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value)}
+                      className="w-full px-4 py-2 border rounded-lg text-sm bg-gray-50 focus:outline-none focus:border-blue-500"
+                    />
+                    <button
+                      disabled={!couponCode || isApplyingCoupon || appliedCoupon != null}
+                      onClick={handleApplyCoupon}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+                    >
+                      {isApplyingCoupon ? "Applying..." : "Apply"}
+                    </button>
+                  </div>
                 </div>
 
                 {/* Payment Methods */}
@@ -681,7 +766,7 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
                           </div>
 
                           <div className="text-sm font-semibold text-gray-700">
-                            ৳{(subtotal + deliveryCharge).toLocaleString()}
+                            ৳{total.toLocaleString()}
                           </div>
                         </div>
                       </div>
@@ -770,7 +855,7 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
                               disabled={isProcessing || !selectedManualMethod}
                               className="flex-1 bg-green-600 text-accent-content py-3 rounded-xl font-semibold disabled:opacity-60"
                             >
-                              {isProcessing ? 'প্রসেসিং হচ্ছে...' : `সম্পূর্ণ পেমেন্ট দিন ৳${(subtotal + deliveryCharge).toLocaleString()}`}
+                              {isProcessing ? 'প্রসেসিং হচ্ছে...' : `সম্পূর্ণ পেমেন্ট দিন ৳${total.toLocaleString()}`}
                             </button>
                           </div>
                         </div>

@@ -1,8 +1,10 @@
 "use client";
 import { addToCartApi, getCartApi, removeCartItemApi, updateCartItemApi } from '@/src/hook/useCart';
+import { applyCouponCode } from "@/src/hook/useCoupon";
 import Skeleton from '@/src/compronent/loading/Skeleton';
-import { removeItemLocal, updateQuantityLocal } from '@/src/redux/cartSlice';
+import { removeItemLocal, updateQuantityLocal, setCoupon, clearCoupon } from '@/src/redux/cartSlice';
 import { useGetSubcategory } from "@/src/utlis/useSubcategory";
+import toast from "react-hot-toast";
 import {
   AlertCircle,
   ArrowRight,
@@ -34,12 +36,12 @@ import { useRouter } from 'next/navigation';
 
 const ShoppingCartComponent = () => {
   const dispatch = useDispatch();
-  const { items: rawItems = [], loading, error } = useSelector((state) => state.cart);
+  const { items: rawItems = [], loading, error, appliedCoupon, couponDiscount } = useSelector((state) => state.cart);
   const { data: wishlistItems } = useSelector((state) => state?.wishlist?.data);
   const user = useSelector((state) => state.user.data);
   const router = useRouter();
   const [couponCode, setCouponCode] = useState('');
-  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
   const [showCouponInput, setShowCouponInput] = useState(false);
   const [localWishlist, setLocalWishlist] = useState(new Set());
   const { subcategory, loading: subcategoryLoading } = useGetSubcategory();
@@ -173,23 +175,35 @@ const ShoppingCartComponent = () => {
   };
 
 
-  const applyCoupon = () => {
-    if (couponCode.toLowerCase() === 'save20') {
-      setAppliedCoupon({
-        code: 'SAVE20',
-        discount: 20,
-        type: 'percentage'
+  const applyCoupon = async () => {
+    if (!couponCode) {
+      toast.error("Please enter a coupon code");
+      return;
+    }
+
+    setIsApplyingCoupon(true);
+    try {
+      const resp = await applyCouponCode({
+        code: couponCode,
+        checkoutAmount: subtotal,
+        cartItems: cartItems
       });
-      setShowCouponInput(false);
-      setCouponCode('');
-    } else if (couponCode.toLowerCase() === 'flat500') {
-      setAppliedCoupon({
-        code: 'FLAT500',
-        discount: 500,
-        type: 'fixed'
-      });
-      setShowCouponInput(false);
-      setCouponCode('');
+
+      if (resp.success) {
+        toast.success(resp.message || "Coupon applied!");
+        dispatch(setCoupon({
+          coupon: resp.coupon,
+          discountAmount: resp.discountAmount
+        }));
+        setShowCouponInput(false);
+        setCouponCode('');
+      } else {
+        toast.error(resp.message || "Invalid or inactive coupon");
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Error applying coupon");
+    } finally {
+      setIsApplyingCoupon(false);
     }
   };
 
@@ -233,21 +247,14 @@ const handleContinueShopping = () => {
 }
 
   const removeCoupon = () => {
-    setAppliedCoupon(null);
+    dispatch(clearCoupon());
   };
 
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const savings = cartItems.reduce((sum, item) => sum + ((item.originalPrice - item.price) * item.quantity), 0);
   const shipping = subtotal > 2000 ? 0 : 100;
 
-  let couponDiscount = 0;
-  if (appliedCoupon) {
-    couponDiscount = appliedCoupon.type === 'percentage'
-      ? (subtotal * appliedCoupon.discount) / 100
-      : appliedCoupon.discount;
-  }
-
-  const total = subtotal - couponDiscount + shipping;
+  const total = subtotal - (couponDiscount || 0) + shipping;
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   if (!user?._id) {
@@ -524,15 +531,17 @@ const handleContinueShopping = () => {
                           className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                         />
                         <button
+                          disabled={!couponCode || isApplyingCoupon}
                           onClick={applyCoupon}
-                          className="px-4 py-2 bg-teal-500 hover:bg-green-600 text-accent-content rounded-lg font-medium transition-all duration-300"
+                          className="px-4 py-2 bg-teal-500 hover:bg-green-600 text-accent-content rounded-lg font-medium transition-all duration-300 disabled:opacity-50"
                         >
-                          Apply
+                          {isApplyingCoupon ? "Applying..." : "Apply"}
                         </button>
                       </div>
                       <button
+                        disabled={isApplyingCoupon}
                         onClick={() => setShowCouponInput(false)}
-                        className="text-sm cursor-pointer text-gray-500 hover:text-gray-700"
+                        className="text-sm cursor-pointer text-gray-500 hover:text-gray-700 disabled:opacity-50"
                       >
                         Cancel
                       </button>
@@ -593,7 +602,7 @@ const handleContinueShopping = () => {
 
                   <div className="flex justify-between text-lg font-bold text-gray-900">
                     <span>Total</span>
-                    <span>৳{subtotal?.toLocaleString()}</span>
+                    <span>৳{total?.toLocaleString()}</span>
                   </div>
                 </div>
 
