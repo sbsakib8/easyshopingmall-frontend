@@ -27,6 +27,9 @@ export default function UserRoleManager() {
   const roles = [
     { value: 'USER', label: 'User', color: 'bg-blue-500', icon: '👤' },
     { value: 'DROPSHIPPING', label: 'Dropshipping', color: 'bg-blue-500', icon: '📦' },
+    { value: 'INVESTMENT', label: 'Investment', color: 'bg-green-600', icon: '💰' },
+    { value: 'SELLERPROGRAM', label: 'Seller Program', color: 'bg-purple-600', icon: '📢' },
+    { value: 'BOXLEADER', label: 'Box Leader', color: 'bg-indigo-600', icon: '🏆' },
     { value: 'ADMIN', label: 'Admin', color: 'bg-red-500', icon: '👑' }
   ];
 
@@ -72,7 +75,8 @@ export default function UserRoleManager() {
           user._id?.toString().includes(term) ||
           user.role?.toLowerCase().includes(term) ||
           user.status?.toLowerCase().includes(term) ||
-          user.customerstatus?.toLowerCase().includes(term)
+          user.customerstatus?.toLowerCase().includes(term) ||
+          user.referralCode?.toLowerCase().includes(term)
         );
       });
       setDisplayedUsers(filtered);
@@ -106,6 +110,7 @@ export default function UserRoleManager() {
         status: editingUser.status,
         customerstatus: editingUser.customerstatus,
         role: editingUser.role,
+        referralCode: editingUser.referralCode || null,
         last_login_date: editingUser.last_login_date || null
       };
 
@@ -541,6 +546,17 @@ export default function UserRoleManager() {
                       </option>
                     ))}
                   </select>
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-gray-300 text-sm font-medium mb-2">Referral Code</label>
+                  <input
+                    type="text"
+                    value={editingUser?.referralCode || ''}
+                    onChange={(e) => setEditingUser({ ...editingUser, referralCode: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-xl text-accent-content focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="DS-REFER-2024"
+                  />
                 </div>
 
                 <div className="md:col-span-2">

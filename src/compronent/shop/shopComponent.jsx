@@ -21,7 +21,8 @@ import {
 import { getCategoryId, getSubCategoryId } from "@/src/utlis/filterHelpers"
 import { useCategoryWithSubcategories } from "@/src/utlis/useCategoryWithSubcategories"
 import { useWishlist } from "@/src/utlis/useWishList"
-import { ArrowUp, ChevronDown, Edit, Filter, Grid, Heart, List, Search, ShoppingCart, SlidersHorizontal, Star, Trash2, X } from "lucide-react"
+import { createCouponCode, getAllCoupons, updateCouponCode } from "@/src/hook/useCoupon"
+import { ArrowUp, CheckCircle, ChevronDown, Edit, Filter, Grid, Heart, Info, List, Search, ShoppingCart, SlidersHorizontal, Star, Tag, Trash2, X } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
 import React, { useCallback, useEffect, useMemo, useState, useRef } from "react"
 import toast from "react-hot-toast"
@@ -604,11 +605,40 @@ const ShopPage = ({ initialData, queryParams }) => {
     }
   };
   const [load, setLoad] = useState(false);
+  const [productCoupon, setProductCoupon] = useState(null);
+  const [subCategoryCoupon, setSubCategoryCoupon] = useState(null);
+
   // handle edit functionality 
-  const handleEdit = useCallback((p) => {
+  const handleEdit = useCallback(async (p) => {
     const productId = p._id || p.id;
-    const selectedProudct = currentProducts.find(item => (item._id || item.id) === productId)
-    setEditModal(selectedProudct)
+    const selectedProduct = currentProducts.find(item => (item._id || item.id) === productId);
+    setEditModal(selectedProduct);
+    
+    // Fetch coupon for this product or its subcategories
+    try {
+      const couponsData = await getAllCoupons();
+      const foundProductCoupon = couponsData?.data?.find(c => c.applicableProduct?._id === productId || c.applicableProduct === productId);
+      
+      // Identify subcategories of the product (can be array of IDs or objects)
+      const productSubCats = Array.isArray(selectedProduct?.subCategory) 
+        ? selectedProduct.subCategory.map(sc => (sc._id || sc).toString())
+        : (selectedProduct?.subCategory ? [(selectedProduct.subCategory._id || selectedProduct.subCategory).toString()] : []);
+      
+      const foundSubCatCoupon = couponsData?.data?.find(c => 
+        c.applicableSubCategory && productSubCats.includes((c.applicableSubCategory?._id || c.applicableSubCategory).toString())
+      );
+
+      setProductCoupon(foundProductCoupon || {
+        code: '',
+        discountType: 'percentage',
+        discountAmount: 0,
+        isActive: true,
+        applicableProduct: productId
+      });
+      setSubCategoryCoupon(foundSubCatCoupon);
+    } catch (error) {
+      console.error("Failed to fetch coupon:", error);
+    }
 
   }, [currentProducts])
 
@@ -633,6 +663,25 @@ const ShopPage = ({ initialData, queryParams }) => {
       };
       const res = await ProductUpdate(updatePayload);
       if (res.success) {
+        // Update/Create Coupon if code is provided
+        if (productCoupon && productCoupon.code) {
+          try {
+            if (productCoupon._id) {
+              await updateCouponCode(productCoupon._id, productCoupon);
+            } else {
+              await createCouponCode({
+                ...productCoupon,
+                applicableProduct: updatePayload._id,
+                validFrom: new Date().toISOString(),
+                validUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString() // Default 1 year
+              });
+            }
+          } catch (couponError) {
+            console.error("Coupon update error:", couponError);
+            toast.error("Product updated, but coupon update failed.");
+          }
+        }
+
         toast.success("Product updated successfully!");
         dispatch(fetchShopProducts({
           search: debouncedSearchTerm,
@@ -660,6 +709,9 @@ const ShopPage = ({ initialData, queryParams }) => {
   };
   const updateEditField = (field, value) => {
     setEditModal({ ...editModal, [field]: value });
+  };
+  const updateCouponField = (field, value) => {
+    setProductCoupon({ ...productCoupon, [field]: value });
   };
 
   return (
@@ -1133,14 +1185,14 @@ const ShopPage = ({ initialData, queryParams }) => {
                       Product Status
                     </label>
                     <select
-                      defaultValue={editModal.productStatus.length > 0 ? editModal.productStatus[0] : "none"}
+                      defaultValue={editModal?.productStatus?.length > 0 ? editModal?.productStatus[0] : "none"}
                       onChange={(e) => {
                         const val = e.target.value;
                         updateEditField("productStatus", val === "none" ? [] : [val]);
                       }}
                       className="appearance-none border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-secondary bg-white"
                     >
-                      <option disabled selected defaultValue={editModal.productStatus.length > 0 ? editModal.productStatus[0] : "none"}>{editModal.productStatus.length > 0 ? editModal.productStatus[0] : "none"}</option>
+                      <option disabled selected defaultValue={editModal.productStatus?.length > 0 ? editModal?.productStatus[0] : "none"}>{editModal?.productStatus?.length > 0 ? editModal?.productStatus[0] : "none"}</option>
                       <option defaultValue="none">none</option>
                       <option defaultValue="hot">hot</option>
                       <option defaultValue="cold">cold</option>
@@ -1168,6 +1220,62 @@ const ShopPage = ({ initialData, queryParams }) => {
                       rows="3"
                       className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors resize-none"
                     ></textarea>
+                  </div>
+
+                  {/* Coupon Section */}
+                  <div className="md:col-span-2 border-t border-slate-200 pt-6 mt-6">
+                    <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Tag className="w-5 h-5 text-emerald-500" />
+                        Coupon Information
+                      </div>
+                      {productCoupon?._id ? (
+                        <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full flex items-center gap-1">
+                          <CheckCircle className="w-3 h-3" /> Product Coupon
+                        </span>
+                      ) : (
+                        <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full flex items-center gap-1">
+                          <Info className="w-3 h-3" /> No Direct Coupon
+                        </span>
+                      )}
+                      {subCategoryCoupon && (
+                        <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full flex items-center gap-1">
+                          <Tag className="w-3 h-3" /> Subcat Coupon ({subCategoryCoupon.code}) Active
+                        </span>
+                      )}
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-black text-sm font-semibold mb-2">Coupon Code</label>
+                        <input
+                          type="text"
+                          defaultValue={productCoupon?.code || ""}
+                          placeholder="PROMO2024"
+                          onChange={(e) => updateCouponField("code", e.target.value)}
+                          className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-black text-sm font-semibold mb-2">Discount Type</label>
+                        <select
+                          defaultValue={productCoupon?.discountType || "percentage"}
+                          onChange={(e) => updateCouponField("discountType", e.target.value)}
+                          className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                        >
+                          <option value="percentage">Percentage (%)</option>
+                          <option value="flat">Fixed Amount (৳)</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-black text-sm font-semibold mb-2">Discount Amount</label>
+                        <input
+                          type="number"
+                          defaultValue={productCoupon?.discountAmount || 0}
+                          onChange={(e) => updateCouponField("discountAmount", Number(e.target.value))}
+                          className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
 

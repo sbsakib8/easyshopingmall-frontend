@@ -57,6 +57,7 @@ const AccountPage = () => {
     phone: data?.mobile,
     dateOfBirth: "1995-05-15",
     gender: "Male",
+    referralCode: data?.referralCode || "",
   });
 
   const [addressData, setAddressData] = useState({
@@ -156,6 +157,7 @@ const AccountPage = () => {
         phone: data.mobile || "",
         dateOfBirth: formatDateForInput(data.date_of_birth),
         gender: data.gender || "",
+        referralCode: data.referralCode || "",
       });
 
       // console.log("Address Details from Redux:", data.address_details);
@@ -321,6 +323,7 @@ const AccountPage = () => {
         name: profileData.name || "",
         email: profileData.email || "",
         mobile: profileData.phone || "",
+        referralCode: profileData.referralCode || "",
       };
 
       // Only add date_of_birth if it has a valid value
@@ -606,6 +609,23 @@ const AccountPage = () => {
                           </select>
                         </div>
                       </div>
+                      
+                      {data?.role === "DROPSHIPPING" && (
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-gray-700">Referral Code</label>
+                          <div className="relative">
+                            <Package className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                            <input
+                              type="text"
+                              value={profileData.referralCode || ""}
+                              onChange={(e) => handleInputChange("referralCode", e.target.value)}
+                              disabled={!isEditing}
+                              placeholder="Your referral code"
+                              className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-teal-500 transition-all duration-300 ${!isEditing ? "bg-gray-50 text-gray-500 font-bold" : "bg-white hover:border-gray-300"}`}
+                            />
+                          </div>
+                        </div>
+                      )}
 
                       <div className="md:col-span-2 space-y-2">
                         <label className="text-sm font-medium text-gray-700">Address Line</label>

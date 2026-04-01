@@ -54,3 +54,17 @@ export const deleteCoupon = async (id) => {
         throw error;
     }
 };
+
+// Update coupon (admin)
+export const updateCouponCode = async (id, data) => {
+    try {
+        const response = await axios.patch(`${UrlBackend}/coupon/update/${id}`, data, {
+            withCredentials: true,
+            headers: { "Content-Type": "application/json" },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Coupon update error:", error.response?.data || error.message);
+        throw error;
+    }
+};
