@@ -21,9 +21,10 @@ import {
 import { getCategoryId, getSubCategoryId } from "@/src/utlis/filterHelpers"
 import { useCategoryWithSubcategories } from "@/src/utlis/useCategoryWithSubcategories"
 import { useWishlist } from "@/src/utlis/useWishList"
-import { ArrowUp, ChevronDown, Edit, Filter, Grid, Heart, List, Search, ShoppingCart, SlidersHorizontal, Star, Trash2, X } from "lucide-react"
+import { createCouponCode, getAllCoupons, updateCouponCode } from "@/src/hook/useCoupon"
+import { ArrowUp, CheckCircle, ChevronDown, Edit, Filter, Grid, Heart, Info, List, Search, ShoppingCart, SlidersHorizontal, Star, Tag, Trash2, X } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
-import React, { useCallback, useEffect, useMemo, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useState, useRef } from "react"
 import toast from "react-hot-toast"
 import { useDispatch, useSelector } from "react-redux"
 import AddtoCartBtn from "@/src/helper/Buttons/AddtoCartBtn"
@@ -43,8 +44,17 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
   const dispatch = useDispatch();
   if (!product) return null;
 
-  // Render Stars Helper
+  const productId = product._id || product.id;
+  const productName = product.productName || product.name;
+  const productImage = product.image || product.images?.[0] || "/img/product.jpg";
+  const productPrice = Number(product.price ?? product.sell_price) || 0;
+  const productRank = Number(product.productRank ?? product.retailSale) || 0;
+  const inStock = (product.productStock ?? product.stock ?? 1) > 0;
+  const isNew = isProductNew(product.createdAt || product.created_at || product.createdDate);
   const ratingValue = product.rating || product.ratings || 0;
+  const productBrand = product.brand || product.manufacturer || "";
+
+  // Render Stars Helper
   const renderStars = (rating) => {
     return [...Array(5)].map((_, i) => (
       <Star
@@ -61,14 +71,14 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
     <div
       onClick={() => {
         dispatch(setQuickViewProduct(product));
-        router.push(`/productdetails/${product.id}`);
+        router.push(`/productdetails/${productId}`);
       }}
       className={`group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 cursor-pointer ${viewMode === "list" ? "flex" : ""}`}
     >
       <div className={`relative ${viewMode === "list" ? "w-48" : ""}`}>
         <Image
-          src={product.image || "/img/product.jpg"}
-          alt={product.name}
+          src={productImage}
+          alt={productName || "Product"}
           width={400}
           height={400}
           loading="lazy"
@@ -78,12 +88,12 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
         {/* Badges */}
         <div className="absolute top-0 left-0 flex justify-between w-full">
           <div className="flex items-start">
-            {product.isNew && (
+            {isNew && (
               <span className="bg-btn-color text-accent-content px-1 py-1 rounded text-[8px] font-semibold">NEW</span>
             )}
-            {product.retailSale > product.price ? <span className="bg-yellow-500 text-black px-1 py-1 mx-[2px] rounded text-[8px] font-semibold">
-              -{(product.retailSale - product.price)}৳
-            </span> : 0}
+            {productRank > productPrice ? <span className="bg-yellow-500 text-black px-1 py-1 mx-[2px] rounded text-[8px] font-semibold">
+              -{(productRank - productPrice)}৳
+            </span> : null}
           </div>
           {product.productStatus && product.productStatus.length > 0 && !product.productStatus.includes("none") && (
             <span className={` ${product.productStatus.includes("hot") ? 'text-red-500' : 'text-blue-400 '} max-h-6  bg-black px-1 py-1 rounded-md text-xs font-bold`}>
@@ -99,27 +109,27 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
               e.stopPropagation()
               toggleWishlist(product)
               // Local update for immediate feedback if needed, distinct from prop check
-              if ((favorite && favorite.includes(product.id)) || (wishlist && wishlist.some(i => i.id === product.id))) {
-                const removeItem = favorite ? favorite.filter(item => item !== product.id) : []
+              if ((favorite && favorite.includes(productId)) || (wishlist && wishlist.some(i => i.id === productId || i._id === productId))) {
+                const removeItem = favorite ? favorite.filter(item => item !== productId) : []
                 return setFavorite(removeItem)
               }
-              setFavorite([...favorite, product.id])
+              setFavorite([...favorite, productId])
             }}
             className={`p-1 cursor-pointer rounded-lg transition-all duration-300
-              ${(wishlist && wishlist.some((item) => item.id === product.id))
+              ${(wishlist && wishlist.some((item) => item.id === productId || item._id === productId))
                 ? "text-red-500 bg-red-100"
                 : "text-gray-400 bg-bg hover:text-red-500 hover:bg-red-50"
               }`}
           >
             <Heart
               className="w-3 h-3"
-              fill={(wishlist && wishlist.some((item) => item.id === product.id)) || (favorite && favorite.includes(product.id)) ? "red" : "none"}
+              fill={(wishlist && wishlist.some((item) => item.id === productId || item._id === productId)) || (favorite && favorite.includes(productId)) ? "red" : "none"}
               strokeWidth={2}
             />
           </button>
         </div>
 
-        {!product.inStock && (
+        {!inStock && (
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
             <span className="bg-red-500 text-accent-content px-3 py-1 rounded font-semibold text-xs">Out of Stock</span>
           </div>
@@ -129,16 +139,16 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
       <div className={`p-3 ${viewMode === "list" ? "flex-1 flex flex-col justify-between" : ""}`}>
         <div>
           <h3 className={`font-semibold text-sm text-gray-800 mb-1 group-hover:text-secondary transition-colors duration-300 line-clamp-2`}>
-            {product.name}
+            {productName}
           </h3>
-          <p className="text-xs text-gray-500 mb-2">{product.brand}</p>
+          <p className="text-xs text-gray-500 mb-2">{productBrand}</p>
 
           {/* Rating */}
           <div className="flex items-center gap-1 mb-2">
             <div className="flex items-center">
               {renderStars(ratingValue)}
             </div>
-            <span className="text-xs text-gray-500">({product.rating})</span>
+            <span className="text-xs text-gray-500">({ratingValue})</span>
           </div>
         </div>
 
@@ -146,11 +156,11 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
           {/* Price */}
           <div className="flex items-center gap-2 mb-2">
             <span className="text-base font-bold text-red-600">
-              Tk {product.price}
+              Tk {productPrice}
             </span>
-            {product.retailSale > product.price && (
+            {productRank > productPrice && (
               <span className="text-xs font-semibold text-gray-400 line-through">
-                {product.retailSale.toFixed(2)}
+                {productRank.toFixed(2)}
               </span>
             )}
           </div>
@@ -161,19 +171,19 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
                 e.stopPropagation()
                 // addToCart(product)
               }}
-              disabled={!product.inStock}
-              className={`w-full py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs ${product.inStock
+              disabled={!inStock}
+              className={`w-full py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs ${inStock
                 ? "bg-btn-color text-accent-content hover:bg-btn-color/80 transform hover:scale-105"
                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
                 }`}
             >
               {product.inStock ? (
-                
-                 <AddtoCartBtn productId={product.id}> 
-                 <span className="flex items-center justify-center gap-1"><ShoppingCart size={16} /> Add to Cart</span>
-                 
-                 </AddtoCartBtn>
-               
+
+                <AddtoCartBtn productId={product.id}>
+                  <span className="flex items-center justify-center gap-1"><ShoppingCart size={16} /> Add to Cart</span>
+
+                </AddtoCartBtn>
+
               ) : ("Out of Stock")}
             </button>
           ) : (
@@ -183,15 +193,15 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
                   e.stopPropagation()
                   // addToCart(product)
                 }}
-                disabled={!product.inStock}
-                className={`py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs ${product.inStock
+                disabled={!inStock}
+                className={`py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs ${inStock
                   ? "bg-btn-color text-accent-content hover:bg-green-700 transform hover:scale-105"
                   : "bg-gray-300 text-gray-500 cursor-not-allowed"
                   }`}
               >
-                {product.inStock ? (
+                {inStock ? (
                   <span className="flex items-center justify-center gap-1">
-                   <AddtoCartBtn productId={product.id}> <ShoppingCart size={16} /></AddtoCartBtn>
+                    <AddtoCartBtn productId={product.id}> <ShoppingCart size={16} /></AddtoCartBtn>
                   </span>
                 ) : (
                   "Out of Stock"
@@ -209,7 +219,7 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
               <button
                 onClick={(e) => {
                   e.stopPropagation()
-                  setDeleteModal(product)
+                  setDeleteModal({ ...product, id: productId })
                 }}
                 className="p-2 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-400 hover:to-pink-400 text-accent-content rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg cursor-pointer"
               >
@@ -291,7 +301,7 @@ const ShopPage = ({ initialData, queryParams }) => {
       sortBy: urlSortBy,
       page: urlPage
     }))
-  }, [dispatch,urlCategory,urlSubCategory,urlBrand,urlGender,urlMinPrice,urlMaxPrice,urlRating,urlSortBy,urlPage]) // Only run on mount to sync initial URL -> Redux
+  }, [dispatch, urlCategory, urlSubCategory, urlBrand, urlGender, urlMinPrice, urlMaxPrice, urlRating, urlSortBy, urlPage]) // Only run on mount to sync initial URL -> Redux
 
   // Update URL when Filters Change (Redux -> URL)
   useEffect(() => {
@@ -328,7 +338,7 @@ const ShopPage = ({ initialData, queryParams }) => {
   // Use server products directly from Redux OR Fallback to Initial Data
   // This ensures the user sees the cached server data immediately before Redux takes over
   const currentProducts = reduxProducts?.length > 0 || productsLoading ? reduxProducts : (initialData?.products || [])
-  
+
   const totalCount = reduxTotalCount > 0 || productsLoading ? reduxTotalCount : (initialData?.totalCount || 0)
 
   // Local component state
@@ -371,8 +381,8 @@ const ShopPage = ({ initialData, queryParams }) => {
   const user = useSelector((state) => state.user?.data)
   const { wishlist } = useWishlist()
 
-  // Fetch categories and subcategories from API
-  const { categories: apiCategories, subcategories: apiSubcategories, loading: categoriesLoading } = useCategoryWithSubcategories()
+  // Fetch categories and subcategories from API if not provided in initialData
+  const { categories: apiCategories, subcategories: apiSubcategories, loading: categoriesLoading } = useCategoryWithSubcategories(initialData?.categories, initialData?.subcategories)
 
   // Load cart for logged-in user
   useEffect(() => {
@@ -383,8 +393,15 @@ const ShopPage = ({ initialData, queryParams }) => {
 
   const totalPages = Math.ceil(totalCount / productsPerPage)
 
+  const isFirstRender = useRef(true);
+
   // Fetch products when any filter changes
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
     const fetchParams = {
       search: debouncedSearchTerm,
       categoryId: getCategoryId(filterCategory, apiCategories),
@@ -411,8 +428,6 @@ const ShopPage = ({ initialData, queryParams }) => {
     filterBrand,
     ratingFilter,
     filterGender,
-    apiCategories,
-    apiSubcategories
   ]);
 
   // Debounce search term
@@ -425,8 +440,8 @@ const ShopPage = ({ initialData, queryParams }) => {
 
   // Add to cart (uses API + redux)
   const addToCart = useCallback(async (product) => {
-    
-    if(product.size.length && product.color.length ){
+
+    if (product.size.length && product.color.length) {
       toast.error("Please select size and color")
       return
     }
@@ -588,24 +603,54 @@ const ShopPage = ({ initialData, queryParams }) => {
     }
   };
   const [load, setLoad] = useState(false);
+  const [productCoupon, setProductCoupon] = useState(null);
+  const [subCategoryCoupon, setSubCategoryCoupon] = useState(null);
+
   // handle edit functionality 
-  const handleEdit = useCallback((p) => {
-    const selectedProudct = currentProducts.find(item => item.id == p.id)
-    setEditModal(selectedProudct)
+  const handleEdit = useCallback(async (p) => {
+    const productId = p._id || p.id;
+    const selectedProduct = currentProducts.find(item => (item._id || item.id) === productId);
+    setEditModal(selectedProduct);
+    
+    // Fetch coupon for this product or its subcategories
+    try {
+      const couponsData = await getAllCoupons();
+      const foundProductCoupon = couponsData?.data?.find(c => c.applicableProduct?._id === productId || c.applicableProduct === productId);
+      
+      // Identify subcategories of the product (can be array of IDs or objects)
+      const productSubCats = Array.isArray(selectedProduct?.subCategory) 
+        ? selectedProduct.subCategory.map(sc => (sc._id || sc).toString())
+        : (selectedProduct?.subCategory ? [(selectedProduct.subCategory._id || selectedProduct.subCategory).toString()] : []);
+      
+      const foundSubCatCoupon = couponsData?.data?.find(c => 
+        c.applicableSubCategory && productSubCats.includes((c.applicableSubCategory?._id || c.applicableSubCategory).toString())
+      );
+
+      setProductCoupon(foundProductCoupon || {
+        code: '',
+        discountType: 'percentage',
+        discountAmount: 0,
+        isActive: true,
+        applicableProduct: productId
+      });
+      setSubCategoryCoupon(foundSubCatCoupon);
+    } catch (error) {
+      console.error("Failed to fetch coupon:", error);
+    }
 
   }, [currentProducts])
 
   const saveEdit = async () => {
     setLoad(true);
     try {
-      // Transform normalized product back to backend format
+      // Transform raw product back to backend format for updating (handling any naming fallbacks)
       const updatePayload = {
-        _id: editModal.id || editModal._id, // Backend expects _id
-        productName: editModal.name,
-        price: editModal.price,
-        productRank: editModal.retailSale,
+        _id: editModal._id || editModal.id, // Backend expects _id
+        productName: editModal.productName || editModal.name,
+        price: editModal.price || editModal.sell_price,
+        productRank: editModal.productRank || editModal.retailSale,
         productStatus: editModal.productStatus || [],
-        brand: editModal.brand,
+        brand: editModal.brand || editModal.manufacturer,
         description: editModal.description,
         productSize: editModal.productSize,
         color: editModal.color,
@@ -616,6 +661,25 @@ const ShopPage = ({ initialData, queryParams }) => {
       };
       const res = await ProductUpdate(updatePayload);
       if (res.success) {
+        // Update/Create Coupon if code is provided
+        if (productCoupon && productCoupon.code) {
+          try {
+            if (productCoupon._id) {
+              await updateCouponCode(productCoupon._id, productCoupon);
+            } else {
+              await createCouponCode({
+                ...productCoupon,
+                applicableProduct: updatePayload._id,
+                validFrom: new Date().toISOString(),
+                validUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString() // Default 1 year
+              });
+            }
+          } catch (couponError) {
+            console.error("Coupon update error:", couponError);
+            toast.error("Product updated, but coupon update failed.");
+          }
+        }
+
         toast.success("Product updated successfully!");
         dispatch(fetchShopProducts({
           search: debouncedSearchTerm,
@@ -643,6 +707,9 @@ const ShopPage = ({ initialData, queryParams }) => {
   };
   const updateEditField = (field, value) => {
     setEditModal({ ...editModal, [field]: value });
+  };
+  const updateCouponField = (field, value) => {
+    setProductCoupon({ ...productCoupon, [field]: value });
   };
 
   return (
@@ -1116,14 +1183,14 @@ const ShopPage = ({ initialData, queryParams }) => {
                       Product Status
                     </label>
                     <select
-                      defaultValue={editModal.productStatus.length > 0 ? editModal.productStatus[0] : "none"}
+                      defaultValue={editModal?.productStatus?.length > 0 ? editModal?.productStatus[0] : "none"}
                       onChange={(e) => {
                         const val = e.target.value;
                         updateEditField("productStatus", val === "none" ? [] : [val]);
                       }}
                       className="appearance-none border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-secondary bg-white"
                     >
-                      <option disabled selected defaultValue={editModal.productStatus.length > 0 ? editModal.productStatus[0] : "none"}>{editModal.productStatus.length > 0 ? editModal.productStatus[0] : "none"}</option>
+                      <option disabled selected defaultValue={editModal.productStatus?.length > 0 ? editModal?.productStatus[0] : "none"}>{editModal?.productStatus?.length > 0 ? editModal?.productStatus[0] : "none"}</option>
                       <option defaultValue="none">none</option>
                       <option defaultValue="hot">hot</option>
                       <option defaultValue="cold">cold</option>
@@ -1151,6 +1218,62 @@ const ShopPage = ({ initialData, queryParams }) => {
                       rows="3"
                       className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors resize-none"
                     ></textarea>
+                  </div>
+
+                  {/* Coupon Section */}
+                  <div className="md:col-span-2 border-t border-slate-200 pt-6 mt-6">
+                    <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Tag className="w-5 h-5 text-emerald-500" />
+                        Coupon Information
+                      </div>
+                      {productCoupon?._id ? (
+                        <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full flex items-center gap-1">
+                          <CheckCircle className="w-3 h-3" /> Product Coupon
+                        </span>
+                      ) : (
+                        <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full flex items-center gap-1">
+                          <Info className="w-3 h-3" /> No Direct Coupon
+                        </span>
+                      )}
+                      {subCategoryCoupon && (
+                        <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full flex items-center gap-1">
+                          <Tag className="w-3 h-3" /> Subcat Coupon ({subCategoryCoupon.code}) Active
+                        </span>
+                      )}
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-black text-sm font-semibold mb-2">Coupon Code</label>
+                        <input
+                          type="text"
+                          defaultValue={productCoupon?.code || ""}
+                          placeholder="PROMO2024"
+                          onChange={(e) => updateCouponField("code", e.target.value)}
+                          className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-black text-sm font-semibold mb-2">Discount Type</label>
+                        <select
+                          defaultValue={productCoupon?.discountType || "percentage"}
+                          onChange={(e) => updateCouponField("discountType", e.target.value)}
+                          className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                        >
+                          <option value="percentage">Percentage (%)</option>
+                          <option value="flat">Fixed Amount (৳)</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-black text-sm font-semibold mb-2">Discount Amount</label>
+                        <input
+                          type="number"
+                          defaultValue={productCoupon?.discountAmount || 0}
+                          onChange={(e) => updateCouponField("discountAmount", Number(e.target.value))}
+                          className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
 

@@ -154,6 +154,12 @@ const DashboardNebver = ({ children }) => {
         { path: "/settings/securitysettings", id: 36, label: "Security", icon: Shield },
       ],
     },
+    {
+      id: 9,
+      label: "Coupons",
+      icon: Tag,
+      path: "/dashboard/coupons/manage",
+    },
   ];
 
   return (

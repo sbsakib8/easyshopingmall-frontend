@@ -6,7 +6,8 @@ import {
   Search,
   ShoppingCart,
   Sparkles,
-  Star
+  Star,
+  Tag
 } from "lucide-react";
 import CustomLoader from '@/src/compronent/loading/CustomLoader';
 import { ProductGridSkeleton } from '@/src/compronent/loading/ProductGridSkeleton';
@@ -487,10 +488,10 @@ const PopularProducts = ({ initialData }) => {
                       e.stopPropagation();
                     }}
                     className="w-full py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs bg-btn-color text-accent-content hover:bg-btn-color/80 transform hover:scale-105 cursor-pointer"
-                 >
+                  >
                     <AddtoCartBtn
                       productId={product.id}
-                      
+
                     >
                       <span className="flex items-center justify-center gap-1">
                         <ShoppingCart className="w-3 h-3" />

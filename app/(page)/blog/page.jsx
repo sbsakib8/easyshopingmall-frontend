@@ -2,7 +2,8 @@ import BlogPage from "@/src/compronent/blog/blog"
 import { BlogAllGet } from "@/src/hook/content/userBlogs";
 import { CategoryAllGet } from "@/src/hook/usecategory";
 
-export const dynamic = 'force-dynamic';
+// Enable ISR with 10-minute revalidation
+export const revalidate = 600; 
 
 export const metadata = {
   title: "Blog - Expert Tips & Shopping Guides",

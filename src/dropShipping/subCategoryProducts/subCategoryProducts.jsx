@@ -1,9 +1,10 @@
 "use client"
 import { addToWishlistApi, removeFromWishlistApi } from '@/src/hook/useWishlist';
+import { isProductNew } from '@/src/utlis/filterHelpers';
 import { useGetProduct } from '@/src/utlis/userProduct';
 import { useWishlist } from '@/src/utlis/useWishList';
 import { ArrowDownToLine, Heart, Star } from 'lucide-react';
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import React, { useCallback, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
@@ -190,26 +191,57 @@ const ProductSkeleton = ({ viewMode }) => {
     );
 };
 
-
 const SubCategoryProducts = ({ id }) => {
     const router = useRouter()
     const [favorite, setFavorite] = useState([])
+    const params = useSearchParams()
+    const pageType = params.get('pageType')
     const dispatch = useDispatch()
     // Get all filter states from Redux
     const shopState = useSelector((state) => state.shop)
     const { viewMode } = shopState
     const [page, setPage] = useState(1);
+    const limit = 30
     const formData = useMemo(
         () => ({
             page,
-            limit: 5000,
+            limit,
             search: "",
+            subCategoryId: id,
         }),
-        [page]
+        [page, id]
     );
     // product get
-    const { product: products, loading: productsLoading } = useGetProduct(formData);
-    const filteredProducts = products?.filter(p => p?.subCategory[0]?._id === id)
+    const { product: products, totalCount, loading: productsLoading } = useGetProduct(formData);
+    let filteredProducts;
+    if (pageType === 'new-products') {
+        filteredProducts = products?.filter(product => isProductNew(product.createdAt))
+    } else {
+        filteredProducts = products
+    }
+
+    const totalPages = Math.ceil(totalCount / limit)
+
+    const getPageNumbers = () => {
+        const pages = [];
+        if (currentPage <= 5) {
+            for (let i = 1; i <= Math.min(5, totalPages); i++) {
+                pages.push(i);
+            }
+        } else {
+            const startPage = currentPage - 4;
+            for (let i = startPage; i <= Math.min(startPage + 4, totalPages); i++) {
+                pages.push(i);
+            }
+        }
+        return pages;
+    };
+
+    const currentPage = page;
+    const pageNumbers = getPageNumbers();
+    const showStartDots = currentPage > 5;
+    const showEndDots = pageNumbers.length > 0 && pageNumbers[pageNumbers.length - 1] < totalPages;
+
     const { wishlist } = useWishlist()
     const user = useSelector((state) => state.user?.data)
     // Toggle wishlist (uses API + redux)
@@ -232,27 +264,98 @@ const SubCategoryProducts = ({ id }) => {
             toast.error("Failed to update wishlist")
         }
     }, [wishlist, favorite, dispatch]);
-
+    if (filteredProducts?.length < 1) return <div className="flex justify-center items-center text-2xl font-bold min-h-screen">No products found</div>
     return (
-        <div className="container grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
+        <>
+            <div className="container grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
 
-            {productsLoading
-                ? [...Array(10)].map((_, i) => (
-                    <ProductSkeleton key={i} viewMode={viewMode} />
-                ))
-                : filteredProducts?.map((product) => (
-                    <ProductCard
-                        key={product._id}
-                        viewMode={viewMode}
-                        product={product}
-                        toggleWishlist={toggleWishlist}
-                        wishlist={wishlist}
-                        favorite={favorite}
-                        setFavorite={setFavorite}
-                        router={router}
-                    />
-                ))}
-        </div>
+                {productsLoading
+                    ? [...Array(10)].map((_, i) => (
+                        <ProductSkeleton key={i} viewMode={viewMode} />
+                    ))
+                    : filteredProducts?.map((product) => (
+                        <ProductCard
+                            key={product._id}
+                            viewMode={viewMode}
+                            product={product}
+                            toggleWishlist={toggleWishlist}
+                            wishlist={wishlist}
+                            favorite={favorite}
+                            setFavorite={setFavorite}
+                            router={router}
+                        />
+                    ))}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+                <div className="flex justify-center items-center space-x-2 mt-12 flex-wrap gap-2 pb-10">
+                    {/* Previous Button */}
+                    <button
+                        onClick={() => setPage(Math.max(1, page - 1))}
+                        disabled={page === 1}
+                        className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${page === 1
+                            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                            : "bg-purple-600 text-white hover:bg-purple-700"
+                            }`}
+                    >
+                        Previous
+                    </button>
+
+                    {/* First Page + Dots (if needed) */}
+                    {showStartDots && (
+                        <>
+                            <button
+                                onClick={() => setPage(1)}
+                                className="px-4 py-2 rounded-lg font-medium bg-white border border-gray-300 hover:bg-purple-50 transition-colors duration-300"
+                            >
+                                1
+                            </button>
+                            <span className="px-2 text-gray-500 font-bold">...</span>
+                        </>
+                    )}
+
+                    {/* Page Numbers */}
+                    {pageNumbers.map((p) => (
+                        <button
+                            key={p}
+                            onClick={() => setPage(p)}
+                            className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${page === p
+                                ? "bg-purple-600 text-white transform scale-110"
+                                : "bg-white border border-gray-300 hover:bg-purple-50"
+                                }`}
+                        >
+                            {p}
+                        </button>
+                    ))}
+
+                    {/* End Dots + Last Page (if needed) */}
+                    {showEndDots && (
+                        <>
+                            <span className="px-2 text-gray-500 font-bold">...</span>
+                            <button
+                                onClick={() => setPage(totalPages)}
+                                className="px-4 py-2 rounded-lg font-medium bg-white border border-gray-300 hover:bg-purple-50 transition-colors duration-300"
+                            >
+                                {totalPages}
+                            </button>
+                        </>
+                    )}
+
+                    {/* Next Button */}
+                    <button
+                        onClick={() => setPage(Math.min(totalPages, page + 1))}
+                        disabled={page === totalPages}
+                        className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${page === totalPages
+                            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                            : "bg-purple-600 text-white hover:bg-purple-700"
+                            }`}
+                    >
+                        Next
+                    </button>
+                </div>
+            )}
+        </>
     );
 
 };

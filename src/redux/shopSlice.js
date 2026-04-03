@@ -1,7 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { ProductAllGet } from "../hook/useProduct";
-import { normalizeProduct } from "../utlis/filterHelpers";
-
 export const fetchShopProducts = createAsyncThunk(
     "shop/fetchProducts",
     async (params, { rejectWithValue }) => {
@@ -11,7 +9,7 @@ export const fetchShopProducts = createAsyncThunk(
             const count = data?.totalCount || data?.total || (Array.isArray(data) ? data.length : 0);
 
             return {
-                products: rawProducts.map(normalizeProduct),
+                products: rawProducts,
                 totalCount: count
             };
         } catch (error) {

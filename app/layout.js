@@ -1,9 +1,9 @@
 import { Providers } from "@/src/helper/providers";
+import { GoogleAnalytics } from '@next/third-parties/google';
 import { Lato, Roboto } from "next/font/google";
 import "./globals.css";
 import LayoutWrapper from "./LayoutWrapper";
 import ToasterClient from "./ToasterClient";
-import { GoogleAnalytics } from '@next/third-parties/google'
 
 const lato = Lato({
   subsets: ["latin"],
@@ -19,7 +19,7 @@ const roboto = Roboto({
   display: "swap",
 });
 
-export const dynamic = 'force-dynamic';
+// export const dynamic = 'force-dynamic';
 
 export const metadata = {
   title: {
@@ -27,7 +27,7 @@ export const metadata = {
     template: "%s | EasyShoppingMallBD"
   },
   description: "EasyShoppingMallBD is your premier destination for online shopping in Bangladesh. Find the best products at unbeatable prices with fast delivery.",
-  keywords: ["e-commerce", "online shopping", "bangladesh e-commerce","fashion", "EasyShoppingMallBD","easy shopping mall ","shopping mall","Online Shopping"],
+  keywords: ["e-commerce", "online shopping", "bangladesh e-commerce", "fashion", "EasyShoppingMallBD", "easy shopping mall ", "shopping mall", "Online Shopping"],
   authors: [{ name: "EasyShoppingMallBD Team" }],
   creator: "EasyShoppingMallBD",
   publisher: "EasyShoppingMallBD",
@@ -86,7 +86,7 @@ export default async function RootLayout({ children }) {
         <Providers>
           <LayoutWrapper initialWebsiteInfo={websiteInfo}>{children}</LayoutWrapper>
         </Providers>
-        < ToasterClient  />
+        < ToasterClient />
       </body>
       <GoogleAnalytics gaId="G-5MQNQRZC5T" />
     </html>

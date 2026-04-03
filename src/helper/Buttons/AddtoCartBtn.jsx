@@ -60,13 +60,13 @@ const handleAddToCart = async (productId, e, user, dispatch) => {
   }
 };
   return (
-    <button
+    <div
     disabled={isClicked}
       onClick={(e) => handleAddToCart(productId, e, user, dispatch)}
       className={`text-accent-content cursor-pointer ${className}`}
     >
       {children}
-    </button>
+    </div>
   );
 };
 

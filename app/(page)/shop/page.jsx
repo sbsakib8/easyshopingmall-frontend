@@ -57,7 +57,7 @@ async function getProducts(searchParams) {
 
     // Construct the body for the POST request (matching your backend expectation)
     const body = {
-      limit: 100, // Optimized limit for initial server render
+      limit: 50, // Optimized limit for initial server render
       search: search || "",
       categoryId: category || "all",
       subCategoryId: subcategory || "all",
