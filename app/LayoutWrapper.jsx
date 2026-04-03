@@ -25,7 +25,7 @@ export default function LayoutWrapper({ children, initialWebsiteInfo }) {
     }
   }, [user, dispatch]);
   const role = user?.role
-  if (loading || !role) return <>
+  if (loading) return <>
   <div className="w-full animate-pulse">
 
   {/* NAVBAR */}

@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import OrderDetailsModal from "../productDetails/OrderDetailsModal";
@@ -57,6 +57,7 @@ const AccountPage = () => {
     phone: data?.mobile,
     dateOfBirth: "1995-05-15",
     gender: "Male",
+    referralCode: data?.referralCode || "",
   });
 
   const [addressData, setAddressData] = useState({
@@ -156,6 +157,7 @@ const AccountPage = () => {
         phone: data.mobile || "",
         dateOfBirth: formatDateForInput(data.date_of_birth),
         gender: data.gender || "",
+        referralCode: data.referralCode || "",
       });
 
       // console.log("Address Details from Redux:", data.address_details);
@@ -321,6 +323,7 @@ const AccountPage = () => {
         name: profileData.name || "",
         email: profileData.email || "",
         mobile: profileData.phone || "",
+        referralCode: profileData.referralCode || "",
       };
 
       // Only add date_of_birth if it has a valid value
@@ -604,6 +607,40 @@ const AccountPage = () => {
                             <option value="Female">Female</option>
                             <option value="Other">Other</option>
                           </select>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-4 md:col-span-1">
+                        <label className="text-sm font-medium text-gray-700 font-bold">Referral Program</label>
+                        <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-4">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-gray-600">Your Code</span>
+                            <span className="font-bold text-teal-600 tracking-wider">
+                              {profileData.referralCode || "No code assigned"}
+                            </span>
+                          </div>
+                          
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-gray-600">Successful Referrals</span>
+                            <span className="font-bold text-gray-900 bg-teal-100 px-3 py-1 rounded-full text-xs">
+                              {data?.referralCount || 0}
+                            </span>
+                          </div>
+
+                          {profileData.referralCode && (
+                            <button
+                              onClick={() => {
+                                const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+                                const referralLink = `${baseUrl}/signup?ref=${profileData.referralCode}`;
+                                navigator.clipboard.writeText(referralLink);
+                                toast.success("Referral link copied to clipboard!");
+                              }}
+                              className="w-full flex items-center justify-center gap-2 py-2 px-4 bg-white border border-teal-200 text-teal-600 rounded-lg hover:bg-teal-50 transition-colors text-sm font-medium cursor-pointer"
+                            >
+                              <CreditCard className="w-4 h-4" />
+                              Copy Referral Link
+                            </button>
+                          )}
                         </div>
                       </div>
 
