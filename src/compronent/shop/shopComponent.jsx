@@ -428,8 +428,6 @@ const ShopPage = ({ initialData, queryParams }) => {
     filterBrand,
     ratingFilter,
     filterGender,
-    apiCategories,
-    apiSubcategories
   ]);
 
   // Debounce search term

@@ -4,9 +4,9 @@ import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import { FaRegEye } from "react-icons/fa";
 import { FaEyeSlash } from "react-icons/fa";
-import { useState } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { googleSignIn, UseAuth } from "@/src/hook/useAuth";
 import toast from "react-hot-toast";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
@@ -14,17 +14,23 @@ import { auth } from "@/firebase";
 import AuthRedirect from "@/src/utlis/authRedirect";
 import { useDispatch } from "react-redux";
 
-
-
 function Signup() {
-
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [number, setNumber] = useState('');
   const [password, setpassword] = useState('');
+  const [referralCode, setReferralCode] = useState('');
   const [showpassword, setShowPassword] = useState(false);
   const router = useRouter()
+  const searchParams = useSearchParams();
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    const ref = searchParams.get('ref');
+    if (ref) {
+      setReferralCode(ref);
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,8 +38,9 @@ function Signup() {
     const user = {
       name,
       email,
-      number,
+      mobile: number,
       password,
+      referralCode,
     };
 
     try {
@@ -64,6 +71,7 @@ function Signup() {
         name: user.reloadUserInfo.displayName,
         email: user.reloadUserInfo.email,
         mobile: number,
+        referralCode,
         image: user.reloadUserInfo.photoUrl
       }, router, dispatch);
     } catch (error) {
@@ -100,6 +108,9 @@ function Signup() {
                   <div onClick={() => setShowPassword(!showpassword)} className='absolute right-3 top-[50%] transform -translate-y-1/2 cursor-pointer text-gray-500'>
                     {showpassword ? <FaRegEye className='text-xl' /> : <FaEyeSlash className='text-xl' />}
                   </div>
+                </div>
+                <div className=' h-[60px] '>
+                  <TextField type='text' className=' w-full!' value={referralCode} onChange={(e) => setReferralCode(e.target.value)} id="referralCode" label="Referral Code (Optional)" variant="outlined" />
                 </div>
 
 

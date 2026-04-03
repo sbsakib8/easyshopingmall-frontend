@@ -611,6 +611,10 @@ export default function UserRoleManager() {
                     <p className="text-gray-400 text-xs mb-1">Orders</p>
                     <p className="text-accent-content text-xl font-bold">{editingUser.orderHistory?.length || 0}</p>
                   </div>
+                  <div>
+                    <p className="text-gray-400 text-xs mb-1">Referrals</p>
+                    <p className="text-accent-content text-xl font-bold">{editingUser.referralCount || 0}</p>
+                  </div>
                 </div>
               </div>
             </div>

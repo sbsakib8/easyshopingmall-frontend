@@ -1,7 +1,8 @@
 import ProductDetails from "@/src/compronent/productDetails/productDetails"
 import { getProductDetailsApi } from "@/src/hook/useProductDetails";
 
-export const dynamic = 'force-dynamic';
+// Enable ISR with 1-hour revalidation
+export const revalidate = 3600; 
 
 export async function generateMetadata(props) {
   const params = await props.params;
