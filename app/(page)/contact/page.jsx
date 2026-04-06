@@ -1,10 +1,13 @@
 import ContactPage from "@/src/compronent/contact/contact"
 import { UrlBackend } from "@/src/confic/urlExport";
 
+// Enable ISR with 1-hour revalidation
+export const revalidate = 3600; 
+
 async function getWebsiteInfo() {
   try {
     const res = await fetch(`${UrlBackend}/websiteinfo/get`, {
-      cache: 'no-store'
+      next: { revalidate: 3600 }
     });
     const data = await res.json();
     return data?.data?.[0] ?? null;
