@@ -40,9 +40,8 @@ export default function HomeContent() {
     fetchHomeData();
   }, []);
 
-  if (loading) {
-    return <HomeSkeleton />;
-  }
+  // Removed initial loading skeleton to provide immediate page structure
+
 
   return (
     <>

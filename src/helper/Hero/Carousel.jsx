@@ -1,4 +1,5 @@
 "use client";
+import Skeleton from '@/src/compronent/loading/Skeleton';
 import { useGetHomeBanner } from '@/src/utlis/useHomeBanner';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import React from 'react';

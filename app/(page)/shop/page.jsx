@@ -136,8 +136,6 @@ async function ShopContent({ searchParams }) {
 
 export default function Shop({ searchParams }) {
   return (
-    <Suspense fallback={<ShopPageSkeleton />}>
-      <ShopContent searchParams={searchParams} />
-    </Suspense>
+    <ShopContent searchParams={searchParams} />
   );
 }
