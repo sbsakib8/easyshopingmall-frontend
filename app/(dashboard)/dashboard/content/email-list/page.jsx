@@ -1,9 +1,9 @@
-import ContactInboxDashboard from '@/src/dashboard/content/emailList'
+import ContactInboxDashboard from'@/src/dashboard/content/emailList'
 
 const email = ()=> {
-  return (
-    <div><ContactInboxDashboard/></div>
-  )
+ return (
+ <div><ContactInboxDashboard/></div>
+ )
 }
 
 export default email

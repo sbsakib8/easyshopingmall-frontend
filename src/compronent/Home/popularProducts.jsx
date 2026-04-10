@@ -55,28 +55,10 @@ const PopularProducts = ({ initialData }) => {
   const { wishlist } = useWishlist()
   const user = useSelector((state) => state.user.data);
 
-  const productParams = useMemo(() => ({ page: 1, limit: 1000, search: "" }), []);
-
-  // ✅ Fetch data dynamically (same as shop component)
-  const { category: apiCategory, loading: categoryLoading } = useGetcategory();
-  const { product: apiProduct, loading: productLoading, error } = useGetProduct(productParams);
-
-  // ✅ Fetch categories and subcategories from API (same as shop)
-  const { categories: shopCategoriesApi, subcategories: shopSubcategoriesApi, loading: shopCategoriesLoading } = useCategoryWithSubcategories();
-
-  const [category, setCategory] = useState(initialData?.categories || null);
-  const [product, setProduct] = useState(initialData?.products || null);
-  const [shopCategories, setShopCategories] = useState(initialData?.categories || null);
-  const [shopSubcategories, setShopSubcategories] = useState(initialData?.subcategories || null);
-
-  useEffect(() => {
-    if (apiCategory) setCategory(apiCategory);
-    if (apiProduct) setProduct(apiProduct);
-    if (shopCategoriesApi) setShopCategories(shopCategoriesApi);
-    if (shopSubcategoriesApi) setShopSubcategories(shopSubcategoriesApi);
-  }, [apiCategory, apiProduct, shopCategoriesApi, shopSubcategoriesApi]);
-
-
+  const category = initialData?.categories || [];
+  const product = initialData?.products || [];
+  const shopCategories = initialData?.categories || [];
+  const shopSubcategories = initialData?.subcategories || [];
 
   // ✅ Fetch wishlist once (for logged-in user)
   useEffect(() => {
@@ -95,9 +77,8 @@ const PopularProducts = ({ initialData }) => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-
-
-  const loading = !initialData && (categoryLoading || productLoading || shopCategoriesLoading);
+  const loading = false;
+  const error = false;
 
   // 🧩 Merge structured dataset using shop categories
   const mergedData = useMemo(() => {
@@ -306,30 +287,15 @@ const PopularProducts = ({ initialData }) => {
     }
   };
 
-  if (loading)
-    return (
-      <div className="container mx-auto px-4 py-12">
-        <div className="text-center mb-10">
-          <div className="h-10 bg-gray-200 animate-pulse rounded-lg w-64 mx-auto mb-4"></div>
-          <div className="h-4 bg-gray-200 animate-pulse rounded-lg w-48 mx-auto"></div>
-        </div>
-        <ProductGridSkeleton count={12} />
-      </div>
-    );
+  // Removed internal loading/error skeletons
 
-  if (error)
-    return (
-      <div className="min-h-screen flex justify-center items-center text-lg font-semibold text-red-500">
-        Error loading products
-      </div>
-    );
 
   return (
     <div className="min-h-screen bg-bg">
       {/* Header & Categories */}
       <div className=" backdrop-blur-lg border-b border-white/20 shadow-xl">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="text-center mb-6 animate-[fadeInUp_0.6s_ease-out]">
+          <div className="text-center mb-6">
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 bg-clip-text text-transparent mb-2">
               Popular Products
             </h1>
@@ -339,7 +305,7 @@ const PopularProducts = ({ initialData }) => {
           </div>
 
           {/* Search */}
-          <div className="max-w-md mx-auto mb-6 animate-[slideInUp_0.6s_ease-out]">
+          <div className="max-w-md mx-auto mb-6">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
@@ -356,7 +322,7 @@ const PopularProducts = ({ initialData }) => {
           <div className="flex justify-center">
             <button
               onClick={() => setShowCategories(!showCategories)}
-              className={`flex sm:hidden items-center space-x-2 px-4 py-2 sm:py-3 rounded-full font-medium transition-all duration-300 ${activeCategory === "ALL"
+              className={`flex sm:hidden items-center space-x-2 px-4 py-2 sm:py-3 rounded-full font-medium ${activeCategory === "ALL"
                 ? "bg-secondary text-accent-content shadow-lg"
                 : "bg-accent-content hover:bg-white/90 border border-gray-200"
                 } mb-5 md:mb-0 gap-2`}
@@ -367,10 +333,10 @@ const PopularProducts = ({ initialData }) => {
             </button>
           </div>
 
-          <div className={` ${showCategories ? "flex" : "hidden"} sm:flex flex-col sm:flex-row sm:flex-wrap overflow-x-auto pt-20 sm:pt-0 justify-center gap-2 sm:gap-3 animate-[fadeInUp_0.8s_ease-out] max-h-60 sm:max-h-full scroll-auto `}>
+          <div className={` ${showCategories ? "flex" : "hidden"} sm:flex flex-col sm:flex-row sm:flex-wrap overflow-x-auto pt-20 sm:pt-0 justify-center gap-2 sm:gap-3 max-h-60 sm:max-h-full scroll-auto `}>
             <button
               onClick={() => setActiveCategory("ALL")}
-              className={`flex items-center space-x-2 px-4 py-2 sm:py-3 rounded-full font-medium transition-all duration-300 ${activeCategory === "ALL"
+              className={`flex items-center space-x-2 px-4 py-2 sm:py-3 rounded-full font-medium ${activeCategory === "ALL"
                 ? "bg-secondary text-accent-content shadow-lg"
                 : "bg-accent-content hover:bg-white/90 border border-gray-200"
                 }`}
@@ -381,7 +347,7 @@ const PopularProducts = ({ initialData }) => {
               <button
                 key={cat.id}
                 onClick={() => setActiveCategory(cat.id)}
-                className={`flex items-center space-x-2 px-4 py-2 sm:py-3 rounded-full font-medium transition-all duration-300 ${activeCategory === cat.id
+                className={`flex items-center space-x-2 px-4 py-2 sm:py-3 rounded-full font-medium ${activeCategory === cat.id
                   ? `bg-secondary text-accent-content shadow-lg`
                   : "bg-white/70 text-gray-700 hover:bg-white/90 border border-gray-200"
                   }`}
@@ -404,7 +370,7 @@ const PopularProducts = ({ initialData }) => {
                 dispatch(setQuickViewProduct(product));
                 router.push(`/productdetails/${product.id}`);
               }}
-              className="group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 cursor-pointer"
+              className="group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl cursor-pointer"
             >
               <div className="relative">
                 <Image
@@ -413,7 +379,7 @@ const PopularProducts = ({ initialData }) => {
                   width={400}
                   height={400}
                   loading="lazy"
-                  className="w-full h-40 sm:h-44 object-cover group-hover:scale-105 transition-transform duration-500"
+                  className="w-full h-40 sm:h-44 object-cover"
                 />
 
                 {/* Badges */}
@@ -432,13 +398,13 @@ const PopularProducts = ({ initialData }) => {
                 </div>
 
                 {/* Action Buttons */}
-                <div className={`absolute ${product.productStatus?.length > 0 ? "top-6" : "top-0"}  bg-white rounded-md right-0 space-y-2 transition-opacity duration-300`}>
+                <div className={`absolute ${product.productStatus?.length > 0 ? "top-6" : "top-0"}  bg-white rounded-md right-0 space-y-2`}>
                   <button
                     onClick={(e) => {
                       e.preventDefault();
                       toggleWishlist(product.id); // Call our fixed toggle function
                     }}
-                    className={`p-2 cursor-pointer rounded-lg transition-all duration-300
+                    className={`p-2 cursor-pointer rounded-lg
       ${localWishlist.has(product.id)
                         ? "text-red-500 bg-red-100"
                         : "text-gray-400 hover:text-red-500 hover:bg-red-50"
@@ -487,7 +453,7 @@ const PopularProducts = ({ initialData }) => {
                     onClick={(e) => {
                       e.stopPropagation();
                     }}
-                    className="w-full py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs bg-btn-color text-accent-content hover:bg-btn-color/80 transform hover:scale-105 cursor-pointer"
+                    className="w-full py-1.5 px-2 rounded font-medium text-xs bg-btn-color text-accent-content hover:bg-btn-color/80 cursor-pointer"
                   >
                     <AddtoCartBtn
                       productId={product.id}
@@ -516,26 +482,6 @@ const PopularProducts = ({ initialData }) => {
 
       {/* ✨ Animations + Glassmorphism + Scrollbar Hide */}
       <style jsx>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        @keyframes slideInUp {
-          from {
-            opacity: 0;
-            transform: translateY(50px) scale(0.9);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
         .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;

@@ -4,13 +4,27 @@ export const fetchShopProducts = createAsyncThunk(
     "shop/fetchProducts",
     async (params, { rejectWithValue }) => {
         try {
-            const data = await ProductAllGet(params);
-            const rawProducts = data?.data || data?.products || (Array.isArray(data) ? data : []);
-            const count = data?.totalCount || data?.total || (Array.isArray(data) ? data.length : 0);
+            const allProducts = [];
+            let page = 1;
+            let limit = 100;
+            let totalFetched = 0;
+            let totalCount = 0;
+
+            do {
+                const res = await ProductAllGet({ ...params, page, limit });
+                const products = res.data || res.products || (Array.isArray(res) ? res : []);
+                if (products.length === 0) break;
+                allProducts.push(...products);
+
+                totalFetched += products.length;
+                totalCount = res.totalCount || totalFetched;
+
+                page++;
+            } while (totalFetched < totalCount);
 
             return {
-                products: rawProducts,
-                totalCount: count
+                products: allProducts,
+                totalCount: allProducts.length
             };
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || error.message || "Failed to fetch products");
@@ -124,12 +138,19 @@ const shopSlice = createSlice({
             if (rating !== undefined) state.ratingFilter = Number(rating) || 0;
             if (sortBy !== undefined) state.sortBy = sortBy || "name";
             if (page !== undefined) state.currentPage = Number(page) || 1;
+        },
+        hydrate: (state, action) => {
+            state.products = action.payload.products || [];
+            state.totalCount = action.payload.totalCount || 0;
+            state.loading = false;
         }
     },
     extraReducers: (builder) => {
         builder
             .addCase(fetchShopProducts.pending, (state) => {
-                state.loading = true;
+                if (state.products.length === 0) {
+                    state.loading = true;
+                }
                 state.error = null;
             })
             .addCase(fetchShopProducts.fulfilled, (state, action) => {
@@ -161,7 +182,8 @@ export const {
     setQuickViewProduct,
     setDetailsError,
     clearDetailsError,
-    syncFromUrl
+    syncFromUrl,
+    hydrate
 } = shopSlice.actions;
 
 export default shopSlice.reducer;

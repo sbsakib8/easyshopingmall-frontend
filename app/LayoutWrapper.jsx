@@ -6,7 +6,7 @@ import Footer from "@/src/compronent/Home/Footer";
 import { useGetUser } from "@/src/utlis/useGetuser";
 import { useDispatch } from "react-redux";
 import { userget, clearUser } from "@/src/redux/userSlice";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import BlockedUserRoute from "@/src/utlis/BlockedUserRoute";
 import DropshippingNavbar from "@/src/dropShipping/dropshippingNavbar/dropshippingNavbar";
 
@@ -29,8 +29,10 @@ export default function LayoutWrapper({ children, initialWebsiteInfo }) {
   return (
 
     <BlockedUserRoute>
-      {!hideLayout && role !== "DROPSHIPPING" ? <Header /> : ""}
-      {role === "DROPSHIPPING" && <DropshippingNavbar />}
+      <Suspense fallback={null}>
+        {!hideLayout && role !== "DROPSHIPPING" ? <Header /> : ""}
+        {role === "DROPSHIPPING" && <DropshippingNavbar />}
+      </Suspense>
       {children}
       {!hideLayout && <Footer initialData={initialWebsiteInfo} />}
     </BlockedUserRoute>

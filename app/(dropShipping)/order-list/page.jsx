@@ -1,7 +1,7 @@
-import OrderList from '@/src/dropShipping/orderList/orderList'
+import OrderList from'@/src/dropShipping/orderList/orderList'
 
 const orderList = () => {
-  return <OrderList/>
+ return <OrderList/>
 }
 
 export default orderList

@@ -1,11 +1,11 @@
-import OrderManagement from "@/src/dashboard/order/orderList"
+import OrderManagement from"@/src/dashboard/order/orderList"
 
 const allorder=()=> {
-  return (
-    <div>
-        <OrderManagement/>
-    </div>
-  )
+ return (
+ <div>
+ <OrderManagement/>
+ </div>
+ )
 }
 
 export default allorder

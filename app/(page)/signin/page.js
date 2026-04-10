@@ -72,7 +72,7 @@ const Signin = () => {
           <form onSubmit={handleSubmit} className='space-y-4 mt-16'>
             <div className=" w-full">
               <Box
-                component="form"
+                component="div"
                 className=' w-full! space-y-4!'
                 noValidate
                 autoComplete="off"

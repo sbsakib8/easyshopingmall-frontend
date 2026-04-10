@@ -53,34 +53,38 @@ async function getSubCategories() {
   }
 }
 
-async function getProducts(searchParams) {
+async function getProducts() {
   try {
-    const { search, category, subcategory, sortBy } = searchParams || {};
+    const allProducts = [];
+    let page = 1;
+    let limit = 100;
+    let totalFetched = 0;
+    let totalCount = 0;
 
-    const body = {
-      limit: 50, 
-      search: search || "",
-      categoryId: category || "all",
-      subCategoryId: subcategory || "all",
-      sortBy: sortBy || "name"
-    };
+    do {
+      const res = await fetch(`${UrlBackend}/products/get`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ page, limit }),
+        next: { revalidate: 60 }
+      });
 
-    const res = await fetch(`${UrlBackend}/products/get`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-      next: { revalidate: 60, tags: ['products'] } 
-    });
+      if (!res.ok) break;
 
-    if (!res.ok) return { products: [], totalCount: 0 };
+      const json = await res.json();
+      const products = json.data || json.products || (Array.isArray(json) ? json : []);
+      if (products.length === 0) break;
 
-    const json = await res.json();
-    const products = json.products || json.data || json || [];
-    const totalCount = json.totalCount || products.length || 0;
+      allProducts.push(...products);
+      totalFetched += products.length;
+      totalCount = json.totalCount || totalFetched;
+      page++;
+      
+      // Prevent accidental infinite loops or excessive payload on server
+      if (page > 50) break; 
+    } while (totalFetched < totalCount);
 
-    return { products, totalCount };
+    return { products: allProducts, totalCount: allProducts.length };
 
   } catch (error) {
     console.error("Error fetching products:", error);
@@ -91,8 +95,9 @@ async function getProducts(searchParams) {
 async function ShopContent({ searchParams }) {
   const resolvedSearchParams = await searchParams;
 
+  // Prefetch ALL products, categories and subcategories on the server for instant client-side experience
   const [productsData, categories, subcategories] = await Promise.all([
-    getProducts(resolvedSearchParams),
+    getProducts(),
     getCategories(),
     getSubCategories()
   ]);
@@ -100,8 +105,8 @@ async function ShopContent({ searchParams }) {
   const initialData = {
     products: productsData.products,
     totalCount: productsData.totalCount,
-    categories,
-    subcategories
+    categories: categories,
+    subcategories: subcategories
   };
 
   const jsonLd = {
@@ -136,6 +141,8 @@ async function ShopContent({ searchParams }) {
 
 export default function Shop({ searchParams }) {
   return (
-    <ShopContent searchParams={searchParams} />
+    <Suspense fallback={<ShopPageSkeleton />}>
+      <ShopContent searchParams={searchParams} />
+    </Suspense>
   );
 }

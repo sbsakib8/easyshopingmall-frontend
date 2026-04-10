@@ -1,14 +1,31 @@
+import { CategoryAllGet } from "@/src/hook/usecategory";
+import { HomeBannerAllGet } from "@/src/hook/useHomeBanner";
+import { ProductAllGet } from "@/src/hook/useProduct";
 import HomeContent from "./HomeContent";
 
 // Enable revalidation
 export const revalidate = 300; 
 
-export const metadata = {
-  title: "Home - Best Online Shopping Experience in BD",
-  description: "Welcome to EasyShoppingMallBD, your trusted partner for premium online shopping in Bangladesh. Quality products, secured payments, and lightning-fast delivery.",
-};
+export default async function Home() {
+  // Server-side pre-fetching (Essential data only for high-speed TTFB)
+  let initialData = null;
+  try {
+    const [banners, categoriesRes, productsRes] = await Promise.all([
+      HomeBannerAllGet(),
+      CategoryAllGet(),
+      ProductAllGet({ page: 1, limit: 12 }) // Fetch only the first 12 products for initial display
+    ]);
 
-export default function Home() {
+    initialData = {
+      banners: banners?.data || [],
+      categories: categoriesRes?.data || [],
+      products: productsRes?.data || productsRes?.products || [],
+      ads: { center: [], left: [], right: [] },
+    };
+  } catch (error) {
+    console.error("Server-side pre-fetch error:", error);
+  }
+
   const websiteJsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -149,7 +166,7 @@ export default function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
-      <HomeContent />
+      <HomeContent initialData={initialData} />
     </div>
   );
 }

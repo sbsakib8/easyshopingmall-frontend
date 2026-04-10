@@ -19,7 +19,6 @@ const NotificationDropdown = () => {
   useEffect(() => {
     if (notification && Array.isArray(notification)) {
       setNotifications(notification);
-      refetch();
     }
   }, [notification]);
 
@@ -122,13 +121,13 @@ const NotificationDropdown = () => {
         hover:from-gray-600 hover:to-gray-800 transform hover:scale-105 transition-all duration-300 
         shadow-lg hover:shadow-xl border border-gray-600/50 group"
       >
-        <Bell className="w-5 h-5 text-accent-content group-hover:animate-bounce" />
+        <Bell className="w-5 h-5 text-accent-content" />
 
         {unreadCount > 0 && (
           <span
             className="absolute -top-2 -right-2 w-6 h-6 
           bg-gradient-to-r from-red-600 to-red-700 text-accent-content text-xs rounded-full 
-          flex items-center justify-center animate-pulse shadow-lg 
+          flex items-center justify-center shadow-lg 
           border border-red-500/50"
           >
             {unreadCount}

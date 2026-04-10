@@ -1,11 +1,14 @@
-import ManageCoupons from "@/src/dashboard/coupons/manageCoupons";
+import ManageCoupons from"@/src/dashboard/coupons/manageCoupons";
+import { Suspense } from "react";
 
 const CouponsPage = () => {
-  return (
-    <>
-      <ManageCoupons />
-    </>
-  );
+ return (
+ <>
+  <Suspense fallback={null}>
+    <ManageCoupons />
+  </Suspense>
+ </>
+ );
 };
 
 export default CouponsPage;

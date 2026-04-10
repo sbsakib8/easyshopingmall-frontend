@@ -1,11 +1,11 @@
-import ProductAnalytics from "@/src/dashboard/analytics/productAnalytics"
+import ProductAnalytics from"@/src/dashboard/analytics/productAnalytics"
 
 const page=()=> {
-  return (
-    <div>
-      <ProductAnalytics/>
-    </div>
-  )
+ return (
+ <div>
+ <ProductAnalytics/>
+ </div>
+ )
 }
 
 export default page
