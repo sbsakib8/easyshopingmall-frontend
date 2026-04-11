@@ -1,11 +1,11 @@
-import AddProductComponent from "@/src/dashboard/product/addproduct/addProduct"
+import AddProductComponent from"@/src/dashboard/product/addproduct/addProduct"
 
 const addproduct=()=> {
-  return (
-    <div>
-        <AddProductComponent/>
-    </div>
-  )
+ return (
+ <div>
+ <AddProductComponent/>
+ </div>
+ )
 }
 
 export default addproduct

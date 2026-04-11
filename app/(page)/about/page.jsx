@@ -1,7 +1,7 @@
 import AboutPage from "@/src/compronent/about/about"
 
-// Enable ISR with 1-hour revalidation
-export const revalidate = 3600; 
+// Enable ISR with 24-hour revalidation
+export const revalidate = 86400; 
 
 export const metadata = {
   title: "About Us - Our Story & Mission",

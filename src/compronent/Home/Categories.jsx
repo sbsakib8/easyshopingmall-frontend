@@ -20,21 +20,8 @@ function Categories({ initialData }) {
 
   const loopData = [...(subCategory || []), ...(subCategory || [])];
 
-  if (loading || apiLoading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex gap-4 overflow-x-auto py-6">
-          {[...Array(8)].map((_, i) => (
-            <div key={i} className="w-48 flex-shrink-0 bg-bg p-4 rounded-xl shadow-md space-y-3">
-              <div className="h-32 bg-gray-200 animate-pulse rounded-lg w-full"></div>
-              <div className="h-4 bg-gray-200 animate-pulse rounded-md w-3/4 mx-auto"></div>
-              <div className="h-8 bg-gray-200 animate-pulse rounded-md w-full mt-2"></div>
-            </div>
-          ))}
-        </div>
-      </div>
-    )
-  }
+  if (loading || apiLoading) return <div className="container mx-auto px-4 py-8 h-[200px]"></div>;
+
 
   return (
     <div className="container mx-auto px-4 py-8">

@@ -1,6 +1,6 @@
-import React from 'react';
-import Skeleton, { CardSkeleton, CategorySkeleton } from './Skeleton';
+'use client'
 import ProductGridSkeleton from './ProductGridSkeleton';
+import Skeleton from './Skeleton';
 
 const HomeSkeleton = () => {
     return (

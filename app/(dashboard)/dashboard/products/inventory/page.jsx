@@ -1,11 +1,11 @@
-import InventoryDashboard from "@/src/dashboard/product/inventory/inventoryComponent"
+import InventoryDashboard from"@/src/dashboard/product/inventory/inventoryComponent"
 
 const inventory=()=> {
-  return (
-    <div>
-      <InventoryDashboard/>
-    </div>
-  )
+ return (
+ <div>
+ <InventoryDashboard/>
+ </div>
+ )
 }
 
 export default inventory

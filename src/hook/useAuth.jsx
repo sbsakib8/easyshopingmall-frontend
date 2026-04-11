@@ -27,7 +27,11 @@ export const UserSignin = async (formData, route, dispatch) => {
 
     if (response.data.success) {
       // Backend returns { success, message, user: { ... } }
-      dispatch(userget(response.data.user));
+      const userData = response.data.user;
+      dispatch(userget(userData));
+      if (typeof window !== "undefined") {
+        localStorage.setItem("user", JSON.stringify(userData));
+      }
       route.push("/");
     }
 
@@ -45,6 +49,9 @@ export const Logout = async (route) => {
       withCredentials: true,
     });
     if (response.data.success) {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("user");
+      }
       route.push("/signin");
     }
     return response.data;
@@ -98,7 +105,11 @@ export const googleSignIn = async (formData, route, dispatch) => {
     if (response.data.success) {
       // Backend returns flat object: { success, message, id, name, email, ... }
       const { success, message, id, ...rest } = response.data;
-      dispatch(userget({ ...rest, _id: id, id }));
+      const userData = { ...rest, _id: id, id };
+      dispatch(userget(userData));
+      if (typeof window !== "undefined") {
+        localStorage.setItem("user", JSON.stringify(userData));
+      }
       route.push("/");
     }
     return response.data;

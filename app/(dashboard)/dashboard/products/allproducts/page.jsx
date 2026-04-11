@@ -1,11 +1,11 @@
-import ProductDashboard from "@/src/dashboard/product/allProductList/allProductList"
+import ProductDashboard from"@/src/dashboard/product/allProductList/allProductList"
 
 const PoductList=()=> {
-  return (
-    <>
-      <ProductDashboard/>
-    </>
-  )
+ return (
+ <>
+ <ProductDashboard/>
+ </>
+ )
 }
 
 export default PoductList

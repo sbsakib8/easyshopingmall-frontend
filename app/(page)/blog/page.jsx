@@ -2,8 +2,8 @@ import BlogPage from "@/src/compronent/blog/blog"
 import { BlogAllGet } from "@/src/hook/content/userBlogs";
 import { CategoryAllGet } from "@/src/hook/usecategory";
 
-// Enable ISR with 10-minute revalidation
-export const revalidate = 600; 
+// Enable ISR with 5-minute revalidation
+export const revalidate = 300; 
 
 export const metadata = {
   title: "Blog - Expert Tips & Shopping Guides",
@@ -39,7 +39,11 @@ async function getBlogData() {
       categories: categoriesResponse?.data || []
     };
   } catch (error) {
-    console.error("Error fetching blog data:", error);
+    if (error.code === 'ECONNREFUSED' || error.message?.includes('ECONNREFUSED')) {
+      console.warn("⚠️ [Build Warning] Backend unreachable. Blog pre-fetch will be empty.");
+    } else {
+      console.error("Error fetching blog data:", error);
+    }
     return { blogs: [], categories: [] };
   }
 }

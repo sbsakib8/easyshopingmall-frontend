@@ -1,8 +1,8 @@
-import AllProducts from '@/src/dropShipping/allProducts/allProducts';
-import React from 'react';
+import AllProducts from'@/src/dropShipping/allProducts/allProducts';
+import React from'react';
 
 const allProducts = () => {
-    return <AllProducts/>
+ return <AllProducts/>
 };
 
 export default allProducts;

@@ -1,11 +1,11 @@
-import ReviewsPage from "@/src/dashboard/customers/reviewsComponent"
+import ReviewsPage from"@/src/dashboard/customers/reviewsComponent"
 
 const page=()=> {
-  return (
-    <div>
-        <ReviewsPage/>
-    </div>
-  )
+ return (
+ <div>
+ <ReviewsPage/>
+ </div>
+ )
 }
 
 export default page

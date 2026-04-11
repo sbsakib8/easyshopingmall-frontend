@@ -16,7 +16,8 @@ import {
   setSortBy,
   setViewMode,
   syncFromUrl,
-  toggleFilters
+  toggleFilters,
+  hydrate
 } from "@/src/redux/shopSlice"
 import { getCategoryId, getSubCategoryId } from "@/src/utlis/filterHelpers"
 import { useCategoryWithSubcategories } from "@/src/utlis/useCategoryWithSubcategories"
@@ -73,7 +74,7 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
         dispatch(setQuickViewProduct(product));
         router.push(`/productdetails/${productId}`);
       }}
-      className={`group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 cursor-pointer ${viewMode === "list" ? "flex" : ""}`}
+      className={`group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl cursor-pointer ${viewMode === "list" ? "flex" : ""}`}
     >
       <div className={`relative ${viewMode === "list" ? "w-48" : ""}`}>
         <Image
@@ -82,7 +83,7 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
           width={400}
           height={400}
           loading="lazy"
-          className={`w-full object-cover group-hover:scale-105 transition-transform duration-500 ${viewMode === "list" ? "h-full" : "h-40 sm:h-44"}`}
+          className={`w-full object-cover ${viewMode === "list" ? "h-full" : "h-40 sm:h-44"}`}
         />
 
         {/* Badges */}
@@ -103,7 +104,7 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
         </div>
 
         {/* Action Buttons (Wishlist) */}
-        <div className={`absolute ${product.productStatus?.length > 0 ? "top-6" : "top-0"} bg-accent-content rounded-md right-0 space-y-2 transition-opacity duration-300`}>
+        <div className={`absolute ${product.productStatus?.length > 0 ? "top-6" : "top-0"} bg-accent-content rounded-md right-0 space-y-2`}>
           <button
             onClick={(e) => {
               e.stopPropagation()
@@ -115,7 +116,7 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
               }
               setFavorite([...favorite, productId])
             }}
-            className={`p-1 cursor-pointer rounded-lg transition-all duration-300
+            className={`p-1 cursor-pointer rounded-lg
               ${(wishlist && wishlist.some((item) => item.id === productId || item._id === productId))
                 ? "text-red-500 bg-red-100"
                 : "text-gray-400 bg-bg hover:text-red-500 hover:bg-red-50"
@@ -138,7 +139,7 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
 
       <div className={`p-3 ${viewMode === "list" ? "flex-1 flex flex-col justify-between" : ""}`}>
         <div>
-          <h3 className={`font-semibold text-sm text-gray-800 mb-1 group-hover:text-secondary transition-colors duration-300 line-clamp-2`}>
+          <h3 className={`font-semibold text-sm text-gray-800 mb-1 group-hover:text-secondary line-clamp-2`}>
             {productName}
           </h3>
           <p className="text-xs text-gray-500 mb-2">{productBrand}</p>
@@ -172,8 +173,8 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
                 // addToCart(product)
               }}
               disabled={!inStock}
-              className={`w-full py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs ${inStock
-                ? "bg-btn-color text-accent-content hover:bg-btn-color/80 transform hover:scale-105"
+              className={`w-full py-1.5 px-2 rounded font-medium text-xs ${inStock
+                ? "bg-btn-color text-accent-content hover:bg-btn-color/80"
                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
                 }`}
             >
@@ -194,8 +195,8 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
                   // addToCart(product)
                 }}
                 disabled={!inStock}
-                className={`py-1.5 px-2 rounded font-medium transition-all duration-300 text-xs ${inStock
-                  ? "bg-btn-color text-accent-content hover:bg-green-700 transform hover:scale-105"
+                className={`py-1.5 px-2 rounded font-medium text-xs ${inStock
+                  ? "bg-btn-color text-accent-content hover:bg-green-700"
                   : "bg-gray-300 text-gray-500 cursor-not-allowed"
                   }`}
               >
@@ -212,7 +213,7 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
                   e.stopPropagation()
                   handleEdit(product)
                 }}
-                className="p-2 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-accent-content rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg"
+                className="p-2 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-accent-content rounded-lg shadow-lg"
               >
                 <Edit size={16} />
               </button>
@@ -221,7 +222,7 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
                   e.stopPropagation()
                   setDeleteModal({ ...product, id: productId })
                 }}
-                className="p-2 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-400 hover:to-pink-400 text-accent-content rounded-lg transition-all duration-300 transform hover:scale-110 shadow-lg cursor-pointer"
+                className="p-2 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-400 hover:to-pink-400 text-accent-content rounded-lg shadow-lg cursor-pointer"
               >
                 <Trash2 size={16} />
               </button>
@@ -262,19 +263,10 @@ const ShopPage = ({ initialData, queryParams }) => {
 
   // Hydrate Redux with Server Data on Mount
   useEffect(() => {
-    if (initialData) {
-      // Dispatch actions to sync Redux with Server Data
-      // We use a custom action type or existing ones. Assuming fetchShopProducts.fulfilled like behavior or direct setters.
-      // For now, let's assume we can dispatch a hydration action or manually set data if your slice supports it.
-      // If not, we'll rely on the Fallback Logic below for rendering.
-
-      // However, to ensure filters work, we definitely need to populate Redux if it's empty.
-      if (!reduxProducts.length && initialData.products?.length) {
-        // Check if we have an action to set products directly. If not, this is a conceptual step.
-        // Let's rely on the fallback below for view, but dispatch syncFromUrl to set filters.
-      }
+    if (initialData?.products?.length && !reduxProducts.length) {
+      dispatch(hydrate(initialData));
     }
-  }, [initialData, reduxProducts.length]);
+  }, [initialData, dispatch, reduxProducts.length]);
 
   // Sync URL params to Redux state on mount (Enhanced with Props)
   const urlSearch = queryParams?.search || searchParams?.get("search") || ""
@@ -337,9 +329,7 @@ const ShopPage = ({ initialData, queryParams }) => {
 
   // Use server products directly from Redux OR Fallback to Initial Data
   // This ensures the user sees the cached server data immediately before Redux takes over
-  const currentProducts = reduxProducts?.length > 0 || productsLoading ? reduxProducts : (initialData?.products || [])
-
-  const totalCount = reduxTotalCount > 0 || productsLoading ? reduxTotalCount : (initialData?.totalCount || 0)
+  // Removed derived currentProducts and totalCount as they are now computed locally for performance
 
   // Local component state
   const [deleteModal, setDeleteModal] = useState(null)
@@ -391,44 +381,76 @@ const ShopPage = ({ initialData, queryParams }) => {
     }
   }, [user, dispatch])
 
-  const totalPages = Math.ceil(totalCount / productsPerPage)
+  // totalPages computed locally now
 
-  const isFirstRender = useRef(true);
-
-  // Fetch products when any filter changes
+  // Fetch ALL products once on mount
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
+    dispatch(fetchShopProducts({ limit: 10000 }));
+  }, [dispatch]);
 
-    const fetchParams = {
-      search: debouncedSearchTerm,
-      categoryId: getCategoryId(filterCategory, apiCategories),
-      subCategoryId: getSubCategoryId(filterSubCategory, apiSubcategories),
-      minPrice: priceRange[0],
-      maxPrice: priceRange[1],
-      sortBy: sortBy,
-      page: currentPage,
-      limit: productsPerPage,
-      brand: filterBrand,
-      rating: ratingFilter,
-      gender: filterGender,
-    };
+  // Client-side filtering logic (Instant response)
+  const filteredProductsLocal = useMemo(() => {
+    if (!reduxProducts) return [];
+    
+    return reduxProducts.filter(p => {
+      const productName = (p.productName || p.name || "").toLowerCase();
+      const productBrand = (p.brand || "").toLowerCase();
+      const productSKU = (p.sku || "").toLowerCase();
+      const search = (debouncedSearchTerm || "").toLowerCase();
 
-    dispatch(fetchShopProducts(fetchParams));
-  }, [
-    dispatch,
-    debouncedSearchTerm,
-    filterCategory,
-    filterSubCategory,
-    priceRange,
-    sortBy,
-    currentPage,
-    filterBrand,
-    ratingFilter,
-    filterGender,
-  ]);
+      // Search
+      const matchesSearch = !search || 
+        productName.includes(search) ||
+        productBrand.includes(search) ||
+        productSKU.includes(search) ||
+        (p._id || "").toLowerCase().includes(search);
+
+      // Category
+      const matchesCategory = filterCategory === "all" || 
+        (Array.isArray(p.category) ? p.category.some(c => (c.name || c) === filterCategory) : (p.category?.name || p.category) === filterCategory);
+
+      // SubCategory
+      const matchesSubCategory = filterSubCategory === "all" || 
+        (Array.isArray(p.subCategory) ? p.subCategory.some(s => (s.name || s) === filterSubCategory) : (p.subCategory?.name || p.subCategory) === filterSubCategory);
+
+      // Price
+      const price = Number(p.price) || 0;
+      const matchesPrice = price >= priceRange[0] && price <= priceRange[1];
+
+      // Rating
+      const rating = Number(p.ratings || p.rating || 0);
+      const matchesRating = rating >= ratingFilter;
+
+      // Brand
+      const matchesBrand = filterBrand === "all" || p.brand === filterBrand;
+
+      // Gender
+      const matchesGender = filterGender === "all" || p.gender === filterGender;
+
+      return matchesSearch && matchesCategory && matchesSubCategory && matchesPrice && matchesRating && matchesBrand && matchesGender;
+    });
+  }, [reduxProducts, debouncedSearchTerm, filterCategory, filterSubCategory, priceRange, ratingFilter, filterBrand, filterGender]);
+
+  // Client-side Sorting
+  const sortedProducts = useMemo(() => {
+    const list = [...filteredProductsLocal];
+    if (sortBy === "price-low") return list.sort((a, b) => (Number(a.price) || 0) - (Number(b.price) || 0));
+    if (sortBy === "price-high") return list.sort((a, b) => (Number(b.price) || 0) - (Number(a.price) || 0));
+    if (sortBy === "rating") return list.sort((a, b) => (Number(b.ratings || b.rating) || 0) - (Number(a.ratings || a.rating) || 0));
+    if (sortBy === "newest") return list.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+    if (sortBy === "discount") return list.sort((a, b) => (Number(b.discount) || 0) - (Number(a.discount) || 0));
+    return list; // name/latest (default)
+  }, [filteredProductsLocal, sortBy]);
+
+  // Client-side Pagination
+  const paginatedProducts = useMemo(() => {
+    const startIndex = (currentPage - 1) * productsPerPage;
+    return sortedProducts.slice(startIndex, startIndex + productsPerPage);
+  }, [sortedProducts, currentPage, productsPerPage]);
+
+  const currentProducts = paginatedProducts;
+  const totalCountComputed = sortedProducts.length;
+  const totalPages = Math.ceil(totalCountComputed / productsPerPage);
 
   // Debounce search term
   useEffect(() => {
@@ -583,19 +605,7 @@ const ShopPage = ({ initialData, queryParams }) => {
       if (!deleteModal) return;
       await ProductDelete(deleteModal.id);
       setDeleteModal(null);
-      dispatch(fetchShopProducts({
-        search: debouncedSearchTerm,
-        categoryId: getCategoryId(filterCategory, apiCategories),
-        subCategoryId: getSubCategoryId(filterSubCategory, apiSubcategories),
-        minPrice: priceRange[0],
-        maxPrice: priceRange[1],
-        sortBy: sortBy,
-        page: currentPage,
-        limit: productsPerPage,
-        brand: filterBrand,
-        rating: ratingFilter,
-        gender: filterGender,
-      })); // Refetch filtered products
+      dispatch(fetchShopProducts({ limit: 10000 })); // Refresh full list
       toast.success("Product deleted successfully");
     } catch (error) {
       console.log(error);
@@ -681,19 +691,7 @@ const ShopPage = ({ initialData, queryParams }) => {
         }
 
         toast.success("Product updated successfully!");
-        dispatch(fetchShopProducts({
-          search: debouncedSearchTerm,
-          categoryId: getCategoryId(filterCategory, apiCategories),
-          subCategoryId: getSubCategoryId(filterSubCategory, apiSubcategories),
-          minPrice: priceRange[0],
-          maxPrice: priceRange[1],
-          sortBy: sortBy,
-          page: currentPage,
-          limit: productsPerPage,
-          brand: filterBrand,
-          rating: ratingFilter,
-          gender: filterGender,
-        })); // Refetch filtered products
+        dispatch(fetchShopProducts({ limit: 10000 })); // Refresh full list
         setEditModal(null);
       } else {
         toast.error(res.message);
@@ -720,7 +718,7 @@ const ShopPage = ({ initialData, queryParams }) => {
         <div className="bg-white lg:mt-28 rounded-lg shadow-md p-4 mb-6">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
             <div className="flex items-center gap-4 flex-wrap">
-              <span className="text-gray-600 font-medium">Showing {totalCount} results</span>
+              <span className="text-gray-600 font-medium">Showing {totalCountComputed} results</span>
               {/* Quick Filters */}
 
             </div>
@@ -747,14 +745,14 @@ const ShopPage = ({ initialData, queryParams }) => {
               <div className="flex border border-gray-300 rounded-lg overflow-hidden">
                 <button
                   onClick={() => dispatch(setViewMode("grid"))}
-                  className={`p-2 transition-colors duration-300 ${viewMode === "grid" ? "bg-secondary text-accent-content" : "bg-white text-gray-600 hover:bg-gray-50"
+                  className={`p-2 ${viewMode === "grid" ? "bg-secondary text-accent-content" : "bg-white text-gray-600 hover:bg-gray-50"
                     }`}
                 >
                   <Grid className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => dispatch(setViewMode("list"))}
-                  className={`p-2 transition-colors duration-300 ${viewMode === "list" ? "bg-secondary text-accent-content" : "bg-white text-gray-600 hover:bg-gray-50"
+                  className={`p-2 ${viewMode === "list" ? "bg-secondary text-accent-content" : "bg-white text-gray-600 hover:bg-gray-50"
                     }`}
                 >
                   <List className="w-5 h-5" />
@@ -770,7 +768,7 @@ const ShopPage = ({ initialData, queryParams }) => {
             {/* Filter Toggle for Mobile */}
             <button
               onClick={() => dispatch(toggleFilters())}
-              className="lg:hidden w-full flex items-center justify-between bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 border"
+              className="lg:hidden w-full flex items-center justify-between bg-white p-4 rounded-lg shadow-md border"
             >
               <span className="font-semibold flex items-center gap-2">
                 <SlidersHorizontal className="w-5 h-5" />
@@ -821,13 +819,18 @@ const ShopPage = ({ initialData, queryParams }) => {
               </div>
 
               {/* Product Categories */}
-              <div onClick={() => setShowCategory(!showCategory)} className="bg-bg px-6 rounded-lg shadow-md border border-gray-200">
-                <h3 className="flex justify-between font-bold items-center text-lg mb-4 text-gray-800 border lg:border-none mt-3 p-2 rounded-xl">Product Categories <span className={`${showCategory ? "" : "rotate-180"} lg:hidden`}><ArrowUp /></span> </h3>
+              <div onClick={() => setShowCategory(!showCategory)} className="bg-white p-6 rounded-lg shadow-md cursor-pointer transition-all">
+                <h3 className="flex justify-between font-bold items-center text-lg mb-4 text-gray-800">
+                  Product Categories 
+                  <span className={`${showCategory ? "" : "rotate-180 transition-transform"} lg:hidden`}>
+                    <ArrowUp />
+                  </span>
+                </h3>
                 <div className={`space-y-2 ${categories.length > 4 ? 'max-h-64 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-secondary scrollbar-track-gray-200' : ''}`}>
                   {categories.map((category) => (
                     <label
                       key={category}
-                      className={` items-center space-x-2 hover:bg-gray-50 p-2 rounded cursor-pointer ${showCategory ? "flex" : "hidden"} lg:flex`}
+                      className={`flex items-center space-x-2 hover:bg-gray-50 p-2 rounded cursor-pointer ${showCategory ? "flex" : "hidden"} lg:flex transition-colors`}
                     >
                       <input
                         type="radio"
@@ -839,9 +842,9 @@ const ShopPage = ({ initialData, queryParams }) => {
                           setShowSubCategory(true)
                           setShowCategory(false)
                         }}
-                        className="text-secondary focus:ring-secondary"
+                        className="text-secondary focus:ring-secondary w-4 h-4"
                       />
-                      <span className="capitalize text-gray-700">
+                      <span className="capitalize text-gray-700 font-medium">
                         {category === "all" ? "All Categories" : category.replace("-", " ")}
                       </span>
                     </label>
@@ -851,8 +854,9 @@ const ShopPage = ({ initialData, queryParams }) => {
 
               {/* Subcategories */}
               {subCategories.length > 1 && (
-                <div className={`bg-white p-6 rounded-lg shadow-md ${showSubCategory & !showCategory ? "block" : "hidden"} lg:block`}>
-                  <h3 className="font-bold text-lg mb-4 text-gray-800 flex justify-between ">Subcategories
+                <div className={`bg-white p-6 rounded-lg shadow-md ${showSubCategory && !showCategory ? "block" : "hidden"} lg:block transition-all`}>
+                  <h3 className="font-bold text-lg mb-4 text-gray-800 flex justify-between ">
+                    Subcategories
                     <span className="lg:hidden">
                       <X onClick={() => setShowSubCategory(false)} size={30} />
                     </span>
@@ -861,16 +865,16 @@ const ShopPage = ({ initialData, queryParams }) => {
                     {subCategories.map((subcat) => (
                       <label
                         key={subcat}
-                        className="flex items-center space-x-2 hover:bg-gray-50 p-2 rounded cursor-pointer"
+                        className="flex items-center space-x-2 hover:bg-gray-50 p-2 rounded cursor-pointer transition-colors"
                       >
                         <input
                           type="radio"
                           name="subcategory"
                           checked={filterSubCategory === subcat}
                           onChange={() => dispatch(setFilterSubCategory(subcat))}
-                          className="text-secondary focus:ring-secondary"
+                          className="text-secondary focus:ring-secondary w-4 h-4"
                         />
-                        <span className="capitalize text-gray-700">
+                        <span className="capitalize text-gray-700 font-medium">
                           {subcat === "all" ? "All Subcategories" : subcat.replace("-", " ")}
                         </span>
                       </label>
@@ -895,19 +899,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                 <p className="font-semibold mb-2 text-lg italic">Error loading products!</p>
                 <p className="text-sm mb-4">{productsError.message || "Check your internet or try again."}</p>
                 <button
-                  onClick={() => dispatch(fetchShopProducts({
-                    search: debouncedSearchTerm,
-                    categoryId: getCategoryId(filterCategory, apiCategories),
-                    subCategoryId: getSubCategoryId(filterSubCategory, apiSubcategories),
-                    minPrice: priceRange[0],
-                    maxPrice: priceRange[1],
-                    sortBy: sortBy,
-                    page: currentPage,
-                    limit: productsPerPage,
-                    brand: filterBrand,
-                    rating: ratingFilter,
-                    gender: filterGender,
-                  }))}
+                  onClick={() => dispatch(fetchShopProducts({ limit: 10000 }))}
                   className="bg-red-500 hover:bg-red-600 text-accent-content px-6 py-2 rounded-lg transition-colors font-medium shadow-md"
                 >
                   Retry Loading
@@ -1036,8 +1028,8 @@ const ShopPage = ({ initialData, queryParams }) => {
       {/* Edit Modal */}
       {
         editModal && (
-          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
-            <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-emerald-500/30 max-w-3xl w-full max-h-[90vh] overflow-y-auto animate-slideUp">
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-emerald-500/30 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
               <div className="sticky top-0 bg-gradient-to-r from-emerald-600 to-teal-600 p-6 flex justify-between items-center z-10">
                 <h2 className="text-2xl font-bold text-accent-content flex items-center gap-2">
                   <Edit className="w-6 h-6" />
@@ -1359,42 +1351,22 @@ const ShopPage = ({ initialData, queryParams }) => {
         }
         
         .scrollbar-thin::-webkit-scrollbar-thumb {
-          background: #a855f7;
+          background: #FFC900;
           border-radius: 10px;
         }
         
         .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-          background: #9333ea;
+          background: #ffe100;
         }
         
         /* Firefox */
         .scrollbar-thin {
           scrollbar-width: thin;
-          scrollbar-color: #a855f7 #e5e7eb;
+          scrollbar-color: #FFC900 #e5e7eb;
         }
       `}</style>
       {/* ✨ Animations + Glassmorphism + Scrollbar Hide */}
       <style jsx>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        @keyframes slideInUp {
-          from {
-            opacity: 0;
-            transform: translateY(50px) scale(0.9);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
         .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;

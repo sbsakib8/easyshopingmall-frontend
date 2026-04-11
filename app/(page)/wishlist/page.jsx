@@ -1,3 +1,5 @@
+export const revalidate = 86400;
+
 import WishlistComponent from '@/src/compronent/wishlist/wishLisPage'
 import React from 'react'
 

@@ -1,11 +1,11 @@
-import AddSubcategoriesComponent from "@/src/dashboard/product/categories/subCategory"
+import AddSubcategoriesComponent from"@/src/dashboard/product/categories/subCategory"
 
 const categorieslist=()=> {
-  return (
-    <div>
-      <AddSubcategoriesComponent/>
-    </div>
-  )
+ return (
+ <div>
+ <AddSubcategoriesComponent/>
+ </div>
+ )
 }
 
 export default categorieslist

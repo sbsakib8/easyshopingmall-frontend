@@ -1,5 +1,7 @@
 import ShopPage from "@/src/compronent/shop/shopComponent";
 import { UrlBackend } from "@/src/confic/urlExport";
+import { Suspense } from "react";
+import { ShopPageSkeleton } from "@/src/compronent/loading/ProductGridSkeleton";
 
 export const metadata = {
   title: "Shop - Huge Collection of Quality Products",
@@ -51,35 +53,38 @@ async function getSubCategories() {
   }
 }
 
-async function getProducts(searchParams) {
+async function getProducts() {
   try {
-    const { search, category, subcategory, sortBy } = searchParams || {};
+    const allProducts = [];
+    let page = 1;
+    let limit = 100;
+    let totalFetched = 0;
+    let totalCount = 0;
 
-    // Construct the body for the POST request (matching your backend expectation)
-    const body = {
-      limit: 50, // Optimized limit for initial server render
-      search: search || "",
-      categoryId: category || "all",
-      subCategoryId: subcategory || "all",
-      sortBy: sortBy || "name"
-    };
+    do {
+      const res = await fetch(`${UrlBackend}/products/get`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ page, limit }),
+        next: { revalidate: 60 }
+      });
 
-    const res = await fetch(`${UrlBackend}/products/get`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-      next: { revalidate: 60, tags: ['products'] } // Cache for 60 seconds
-    });
+      if (!res.ok) break;
 
-    if (!res.ok) return { products: [], totalCount: 0 };
+      const json = await res.json();
+      const products = json.data || json.products || (Array.isArray(json) ? json : []);
+      if (products.length === 0) break;
 
-    const json = await res.json();
-    const products = json.products || json.data || json || [];
-    const totalCount = json.totalCount || products.length || 0;
+      allProducts.push(...products);
+      totalFetched += products.length;
+      totalCount = json.totalCount || totalFetched;
+      page++;
+      
+      // Prevent accidental infinite loops or excessive payload on server
+      if (page > 50) break; 
+    } while (totalFetched < totalCount);
 
-    return { products, totalCount };
+    return { products: allProducts, totalCount: allProducts.length };
 
   } catch (error) {
     console.error("Error fetching products:", error);
@@ -87,12 +92,12 @@ async function getProducts(searchParams) {
   }
 }
 
-const shop = async ({ searchParams }) => {
-  // Await searchParams if it's a promise (Next.js 15+ changes, but safe to await in recent versions)
+async function ShopContent({ searchParams }) {
   const resolvedSearchParams = await searchParams;
 
+  // Prefetch ALL products, categories and subcategories on the server for instant client-side experience
   const [productsData, categories, subcategories] = await Promise.all([
-    getProducts(resolvedSearchParams),
+    getProducts(),
     getCategories(),
     getSubCategories()
   ]);
@@ -100,8 +105,8 @@ const shop = async ({ searchParams }) => {
   const initialData = {
     products: productsData.products,
     totalCount: productsData.totalCount,
-    categories,
-    subcategories
+    categories: categories,
+    subcategories: subcategories
   };
 
   const jsonLd = {
@@ -116,22 +121,28 @@ const shop = async ({ searchParams }) => {
       "itemListElement": productsData.products.slice(0, 20).map((product, index) => ({
         "@type": "ListItem",
         "position": index + 1,
-        "url": `https://easyshoppingmallbd.com/product/${product._id}`,
-        "name": product.name,
+        "url": `https://easyshoppingmallbd.com/product/${product._id || product.id}`,
+        "name": product.productName || product.name,
         "image": product.images?.[0] || product.image || "",
       }))
     }
   };
 
   return (
-    <div>
+    <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <ShopPage initialData={initialData} queryParams={resolvedSearchParams} />
-    </div>
-  )
+    </>
+  );
 }
 
-export default shop
+export default function Shop({ searchParams }) {
+  return (
+    <Suspense fallback={<ShopPageSkeleton />}>
+      <ShopContent searchParams={searchParams} />
+    </Suspense>
+  );
+}

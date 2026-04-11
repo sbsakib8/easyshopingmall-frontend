@@ -1,38 +1,34 @@
-import { HomeBannerAllGet } from "@/src/hook/useHomeBanner";
 import { CategoryAllGet } from "@/src/hook/usecategory";
+import { HomeBannerAllGet } from "@/src/hook/useHomeBanner";
 import { ProductAllGet } from "@/src/hook/useProduct";
 import HomeContent from "./HomeContent";
 
-// Enable ISR with 5-minute revalidation for better performance
+// Enable revalidation
 export const revalidate = 300; 
 
-export const metadata = {
-  title: "Home - Best Online Shopping Experience in BD",
-  description: "Welcome to EasyShoppingMallBD, your trusted partner for premium online shopping in Bangladesh. Quality products, secured payments, and lightning-fast delivery.",
-};
-
-async function getHomeData() {
+export default async function Home() {
+  // Server-side pre-fetching (Essential data only for high-speed TTFB)
+  let initialData = null;
   try {
-    const [banners, categories, productsResponse] = await Promise.all([
+    const [banners, categoriesRes, productsRes] = await Promise.all([
       HomeBannerAllGet(),
       CategoryAllGet(),
-      ProductAllGet({ page: 1, limit: 20 }),
+      ProductAllGet({ page: 1, limit: 12 }) // Fetch only the first 12 products for initial display
     ]);
 
-    return {
+    initialData = {
       banners: banners?.data || [],
-      categories: categories?.data || [],
-      products: productsResponse?.products || productsResponse?.data || productsResponse || [],
+      categories: categoriesRes?.data || [],
+      products: productsRes?.data || productsRes?.products || [],
       ads: { center: [], left: [], right: [] },
     };
   } catch (error) {
-    console.error("Error fetching home data:", error);
-    return { banners: [], categories: [], products: [], ads: { center: [], left: [], right: [] } };
+    if (error.code === 'ECONNREFUSED' || error.message?.includes('ECONNREFUSED')) {
+      console.warn("⚠️ [Build Warning] Backend unreachable. Home page pre-fetch will be empty.");
+    } else {
+      console.error("Server-side pre-fetch error:", error);
+    }
   }
-}
-
-export default async function Home() {
-  const data = await getHomeData();
 
   const websiteJsonLd = {
     "@context": "https://schema.org",
@@ -174,7 +170,7 @@ export default async function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
-      <HomeContent initialData={data} />
+      <HomeContent initialData={initialData} />
     </div>
   );
 }

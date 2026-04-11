@@ -12,7 +12,7 @@ export const HomeBannerCreate = async (formData, ) => {
     });
     return response.data; 
   } catch (error) {
-    console.error("Registration error:", error.response?.data || error.message);
+    console.error("Home Banner error:", error.response?.data || error.message);
     throw error; 
   }
 };
@@ -25,7 +25,10 @@ export const HomeBannerAllGet = async () => {
     });
     return response.data; 
   } catch (error) {
-    console.error("Registration error:", error.response?.data || error.message);
+    if (error.code === 'ECONNREFUSED' || error.message?.includes('ECONNREFUSED')) {
+      return { success: false, data: [], message: "Backend unreachable during build" };
+    }
+    console.error("Home Banner fetch error:", error.response?.data || error.message);
     throw error; 
   }
 };

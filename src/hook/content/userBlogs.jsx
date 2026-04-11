@@ -12,7 +12,7 @@ export const BlogCreate = async (formData, ) => {
     });
     return response.data; 
   } catch (error) {
-    console.error("blog error:", error.response?.data || error.message);
+    console.error("Blog creation error:", error.response?.data || error.message);
     throw error; 
   }
 };
@@ -25,7 +25,10 @@ export const BlogAllGet = async () => {
     });
     return response.data; 
   } catch (error) {
-    console.error("blog error:", error.response?.data || error.message);
+    if (error.code === 'ECONNREFUSED' || error.message?.includes('ECONNREFUSED')) {
+      return { success: false, data: [], blogs: [], message: "Backend unreachable during build" };
+    }
+    console.error("Blog fetch error:", error.response?.data || error.message);
     throw error; 
   }
 };
