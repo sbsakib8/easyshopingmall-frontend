@@ -1,9 +1,12 @@
 import AccountPage from "@/src/compronent/account/accountPage"
+import { Suspense } from "react";
 
 const account=()=> {
   return (
     <div>
-        <AccountPage/>
+        <Suspense fallback={null}>
+            <AccountPage/>
+        </Suspense>
     </div>
   )
 }

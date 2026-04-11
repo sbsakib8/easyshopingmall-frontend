@@ -1,9 +1,9 @@
 
-export default function LayoutWrapDashboard({ children }) {
+export default function LayoutWrapDashboard({children}) {
 
-  return (
-    <>
-      {children}
-    </>
-  );
+ return (
+ <>
+ {children}
+ </>
+ );
 }

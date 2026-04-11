@@ -4,7 +4,7 @@ import { UrlBackend } from "../confic/urlExport";
 export const getWebsiteInfoApi = async () => {
     try {
         const res = await fetch(`${UrlBackend}/websiteinfo/get`, {
-            cache: 'no-store'
+            next: { revalidate: 3600 } // Cache for 1 hour
         });
         const result = await res.json();
         return result?.data?.[0] ?? null;

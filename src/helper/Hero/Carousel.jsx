@@ -1,40 +1,28 @@
 "use client";
+import Skeleton from '@/src/compronent/loading/Skeleton';
 import { useGetHomeBanner } from '@/src/utlis/useHomeBanner';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import React from 'react';
 
 const Carousel = ({ initialData }) => {
-  const { homebanner: apiBanners, loading: apiLoading, error, refetch } = useGetHomeBanner();
-  const [homebanner, setHomeBanner] = React.useState(initialData || null);
-  const [loading, setLoading] = React.useState(!initialData);
   const [currentSlide, setCurrentSlide] = React.useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = React.useState(true);
 
-  React.useEffect(() => {
-    if (apiBanners) {
-      setHomeBanner(apiBanners);
-      setLoading(false);
-    }
-  }, [apiBanners]);
-
-  React.useEffect(() => {
-    if (apiLoading && !initialData) {
-      setLoading(true);
-    }
-  }, [apiLoading, initialData]);
-
   // Filter only active banners from API
   const slides = React.useMemo(() => {
-    if (!homebanner || !Array.isArray(homebanner)) return [];
-    return homebanner.filter(banner => banner.active === true);
-  }, [homebanner]);
+    const data = initialData || [];
+    if (!Array.isArray(data)) return [];
+    return data.filter(banner => banner.active === true);
+  }, [initialData]);
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % slides?.length);
+    if (slides.length <= 1) return;
+    setCurrentSlide((prev) => (prev + 1) % slides.length);
   };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + slides?.length) % slides?.length);
+    if (slides.length <= 1) return;
+    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
   };
 
   const goToSlide = (index) => {
@@ -43,37 +31,18 @@ const Carousel = ({ initialData }) => {
 
   // Auto play functionality
   React.useEffect(() => {
-    if (!isAutoPlaying || slides.length === 0) return;
+    if (!isAutoPlaying || slides.length <= 1) return;
     const interval = setInterval(() => nextSlide(), 4000);
     return () => clearInterval(interval);
   }, [isAutoPlaying, slides.length]);
-
 
   // Pause autoplay on hover
   const handleMouseEnter = () => setIsAutoPlaying(false);
   const handleMouseLeave = () => setIsAutoPlaying(true);
 
-
-  if (loading)
-    return (
-      <div className="relative h-[200px] sm:h-[400px] lg:h-[600px] w-[98%] mx-auto">
-        <Skeleton className="w-full h-full rounded-2xl" />
-      </div>
-    );
-
-  if (error)
-    return (
-      <div className="flex items-center justify-center h-[400px]">
-        <p className="text-red-500">Failed to load banners</p>
-      </div>
-    );
-
-  if (!slides?.length)
-    return (
-      <div className="flex items-center justify-center h-[400px]">
-        <p className="text-gray-500">No banners found</p>
-      </div>
-    );
+  if (!slides || slides.length === 0) {
+    return <div className="relative h-[200px] sm:h-[400px] lg:h-[600px] w-[98%] mx-auto bg-gray-50/50 rounded-2xl animate-pulse"></div>;
+  }
 
 
   return (

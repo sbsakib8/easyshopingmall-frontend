@@ -1,11 +1,11 @@
-import ShippingSettings from "@/src/dashboard/settings/shippingSetting"
+import ShippingSettings from"@/src/dashboard/settings/shippingSetting"
 
 const shippingSettings=()=> {
-  return (
-    <div>
-        <ShippingSettings/>
-    </div>
-  )
+ return (
+ <div>
+ <ShippingSettings/>
+ </div>
+ )
 }
 
 export default shippingSettings

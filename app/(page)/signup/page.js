@@ -136,4 +136,10 @@ function Signup() {
   )
 }
 
-export default Signup
+export default function SignupPage() {
+  return (
+    <Suspense fallback={<div className="h-screen bg-gray-100 flex items-center justify-center">Loading...</div>}>
+      <Signup />
+    </Suspense>
+  )
+}

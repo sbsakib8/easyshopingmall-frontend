@@ -1,8 +1,8 @@
-import OrderDetails from "@/src/dropShipping/orderDetails/OrderDetails";
+import OrderDetails from"@/src/dropShipping/orderDetails/OrderDetails";
 
-const orderDetailspage =  () => {
+const orderDetailspage = () => {
 
-    return <OrderDetails/>
+ return <OrderDetails/>
 }
 
 export default orderDetailspage;

@@ -1,6 +1,6 @@
-import NewProducts from '@/src/dropShipping/newProducts/newProudcts'
+import NewProducts from'@/src/dropShipping/newProducts/newProudcts'
 const newProducts = () => {
-  return <NewProducts/>
+ return <NewProducts/>
 }
 
 export default newProducts

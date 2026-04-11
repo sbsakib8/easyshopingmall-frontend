@@ -1,11 +1,11 @@
-import TrafficAnalyticsDashboard from "@/src/dashboard/analytics/trafficAnalytics"
+import TrafficAnalyticsDashboard from"@/src/dashboard/analytics/trafficAnalytics"
 
 const page=()=>{
-  return (
-    <div>
-      <TrafficAnalyticsDashboard/>
-    </div>
-  )
+ return (
+ <div>
+ <TrafficAnalyticsDashboard/>
+ </div>
+ )
 }
 
 export default page

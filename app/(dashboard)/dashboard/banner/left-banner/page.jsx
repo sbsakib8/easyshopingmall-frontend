@@ -1,11 +1,11 @@
-import LeftBanner from "@/src/dashboard/Banners/leftBanner"
+import LeftBanner from"@/src/dashboard/Banners/leftBanner"
 
 const leftbanner=()=> {
-  return (
-    <div>
-      <LeftBanner/>
-    </div>
-  )
+ return (
+ <div>
+ <LeftBanner/>
+ </div>
+ )
 }
 
 export default leftbanner

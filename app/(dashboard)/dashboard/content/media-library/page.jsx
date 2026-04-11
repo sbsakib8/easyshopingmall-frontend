@@ -1,11 +1,11 @@
-import MediaLibrary from "@/src/dashboard/content/media-Library"
+import MediaLibrary from"@/src/dashboard/content/media-Library"
 
 const media=()=> {
-  return (
-    <div>
-        <MediaLibrary/>
-    </div>
-  )
+ return (
+ <div>
+ <MediaLibrary/>
+ </div>
+ )
 }
 
 export default media
