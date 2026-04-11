@@ -23,7 +23,11 @@ export default async function Home() {
       ads: { center: [], left: [], right: [] },
     };
   } catch (error) {
-    console.error("Server-side pre-fetch error:", error);
+    if (error.code === 'ECONNREFUSED' || error.message?.includes('ECONNREFUSED')) {
+      console.warn("⚠️ [Build Warning] Backend unreachable. Home page pre-fetch will be empty.");
+    } else {
+      console.error("Server-side pre-fetch error:", error);
+    }
   }
 
   const websiteJsonLd = {

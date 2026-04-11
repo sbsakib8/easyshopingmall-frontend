@@ -819,13 +819,18 @@ const ShopPage = ({ initialData, queryParams }) => {
               </div>
 
               {/* Product Categories */}
-              <div onClick={() => setShowCategory(!showCategory)} className="bg-bg px-6 rounded-lg shadow-md border border-gray-200">
-                <h3 className="flex justify-between font-bold items-center text-lg mb-4 text-gray-800 border lg:border-none mt-3 p-2 rounded-xl">Product Categories <span className={`${showCategory ? "" : "rotate-180"} lg:hidden`}><ArrowUp /></span> </h3>
+              <div onClick={() => setShowCategory(!showCategory)} className="bg-white p-6 rounded-lg shadow-md cursor-pointer transition-all">
+                <h3 className="flex justify-between font-bold items-center text-lg mb-4 text-gray-800">
+                  Product Categories 
+                  <span className={`${showCategory ? "" : "rotate-180 transition-transform"} lg:hidden`}>
+                    <ArrowUp />
+                  </span>
+                </h3>
                 <div className={`space-y-2 ${categories.length > 4 ? 'max-h-64 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-secondary scrollbar-track-gray-200' : ''}`}>
                   {categories.map((category) => (
                     <label
                       key={category}
-                      className={` items-center space-x-2 hover:bg-gray-50 p-2 rounded cursor-pointer ${showCategory ? "flex" : "hidden"} lg:flex`}
+                      className={`flex items-center space-x-2 hover:bg-gray-50 p-2 rounded cursor-pointer ${showCategory ? "flex" : "hidden"} lg:flex transition-colors`}
                     >
                       <input
                         type="radio"
@@ -837,9 +842,9 @@ const ShopPage = ({ initialData, queryParams }) => {
                           setShowSubCategory(true)
                           setShowCategory(false)
                         }}
-                        className="text-secondary focus:ring-secondary"
+                        className="text-secondary focus:ring-secondary w-4 h-4"
                       />
-                      <span className="capitalize text-gray-700">
+                      <span className="capitalize text-gray-700 font-medium">
                         {category === "all" ? "All Categories" : category.replace("-", " ")}
                       </span>
                     </label>
@@ -849,8 +854,9 @@ const ShopPage = ({ initialData, queryParams }) => {
 
               {/* Subcategories */}
               {subCategories.length > 1 && (
-                <div className={`bg-white p-6 rounded-lg shadow-md ${showSubCategory & !showCategory ? "block" : "hidden"} lg:block`}>
-                  <h3 className="font-bold text-lg mb-4 text-gray-800 flex justify-between ">Subcategories
+                <div className={`bg-white p-6 rounded-lg shadow-md ${showSubCategory && !showCategory ? "block" : "hidden"} lg:block transition-all`}>
+                  <h3 className="font-bold text-lg mb-4 text-gray-800 flex justify-between ">
+                    Subcategories
                     <span className="lg:hidden">
                       <X onClick={() => setShowSubCategory(false)} size={30} />
                     </span>
@@ -859,16 +865,16 @@ const ShopPage = ({ initialData, queryParams }) => {
                     {subCategories.map((subcat) => (
                       <label
                         key={subcat}
-                        className="flex items-center space-x-2 hover:bg-gray-50 p-2 rounded cursor-pointer"
+                        className="flex items-center space-x-2 hover:bg-gray-50 p-2 rounded cursor-pointer transition-colors"
                       >
                         <input
                           type="radio"
                           name="subcategory"
                           checked={filterSubCategory === subcat}
                           onChange={() => dispatch(setFilterSubCategory(subcat))}
-                          className="text-secondary focus:ring-secondary"
+                          className="text-secondary focus:ring-secondary w-4 h-4"
                         />
-                        <span className="capitalize text-gray-700">
+                        <span className="capitalize text-gray-700 font-medium">
                           {subcat === "all" ? "All Subcategories" : subcat.replace("-", " ")}
                         </span>
                       </label>
@@ -1345,18 +1351,18 @@ const ShopPage = ({ initialData, queryParams }) => {
         }
         
         .scrollbar-thin::-webkit-scrollbar-thumb {
-          background: #a855f7;
+          background: #FFC900;
           border-radius: 10px;
         }
         
         .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-          background: #9333ea;
+          background: #ffe100;
         }
         
         /* Firefox */
         .scrollbar-thin {
           scrollbar-width: thin;
-          scrollbar-color: #a855f7 #e5e7eb;
+          scrollbar-color: #FFC900 #e5e7eb;
         }
       `}</style>
       {/* ✨ Animations + Glassmorphism + Scrollbar Hide */}

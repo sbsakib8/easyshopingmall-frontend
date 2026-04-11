@@ -39,7 +39,11 @@ async function getBlogData() {
       categories: categoriesResponse?.data || []
     };
   } catch (error) {
-    console.error("Error fetching blog data:", error);
+    if (error.code === 'ECONNREFUSED' || error.message?.includes('ECONNREFUSED')) {
+      console.warn("⚠️ [Build Warning] Backend unreachable. Blog pre-fetch will be empty.");
+    } else {
+      console.error("Error fetching blog data:", error);
+    }
     return { blogs: [], categories: [] };
   }
 }

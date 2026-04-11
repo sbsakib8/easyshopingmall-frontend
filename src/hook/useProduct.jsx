@@ -10,7 +10,7 @@ export const ProductCreate = async (formData,) => {
     });
     return response.data;
   } catch (error) {
-    console.error("Registration error:", error.response?.data || error.message);
+    console.error("Product upload error:", error.response?.data || error.message);
     throw error;
   }
 };
@@ -66,7 +66,10 @@ export const ProductAllGet = async (formData,) => {
 
     return response.data;
   } catch (error) {
-    console.error("Registration error:", error.response?.data || error.message);
+    if (error.code === 'ECONNREFUSED' || error.message?.includes('ECONNREFUSED')) {
+      return { success: false, products: [], data: [], message: "Backend unreachable during build" };
+    }
+    console.error("Product fetch error:", error.response?.data || error.message);
     throw error;
   }
 };

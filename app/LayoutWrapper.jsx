@@ -15,15 +15,6 @@ export default function LayoutWrapper({ children, initialWebsiteInfo }) {
   const pathname = usePathname();
   const hideLayout = pathname.startsWith("/dashboard");
   const { user, loading } = useGetUser();
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    if (user) {
-      dispatch(userget(user));
-    } else {
-      dispatch(clearUser());
-    }
-  }, [user, dispatch]);
   const role = user?.role;
 
   return (
