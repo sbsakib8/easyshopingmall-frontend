@@ -8,14 +8,10 @@ export const metadata = {
 
 export default function DashboardLayout({children}) {
  return (
- <html lang="en">
- <body>
  <AuthAdminRole>
  <DashboardNebver>
  {children} 
  </DashboardNebver>
  </AuthAdminRole>
- </body>
- </html>
  )
 }

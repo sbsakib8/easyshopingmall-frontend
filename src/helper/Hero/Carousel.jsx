@@ -41,7 +41,11 @@ const Carousel = ({ initialData }) => {
   const handleMouseLeave = () => setIsAutoPlaying(true);
 
   if (!slides || slides.length === 0) {
-    return <div className="relative h-[200px] sm:h-[400px] lg:h-[600px] w-[98%] mx-auto bg-gray-50/50 rounded-2xl animate-pulse"></div>;
+    return (
+      <div className="relative h-[200px] sm:h-[400px] lg:h-[600px] w-[98%] mx-auto">
+        <Skeleton className="w-full h-full lg:rounded-2xl" />
+      </div>
+    );
   }
 
 

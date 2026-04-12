@@ -27,7 +27,7 @@ export const metadata = {
 
 async function getCategories() {
   try {
-    const res = await fetch(`${UrlBackend}/category/get`, {
+    const res = await fetch(`${UrlBackend}/categories`, {
       next: { revalidate: 3600 } // Cache for 1 hour
     });
     if (!res.ok) return [];
@@ -41,7 +41,7 @@ async function getCategories() {
 
 async function getSubCategories() {
   try {
-    const res = await fetch(`${UrlBackend}/sub_category/get`, {
+    const res = await fetch(`${UrlBackend}/subcategories`, {
       next: { revalidate: 3600 } // Cache for 1 hour
     });
     if (!res.ok) return [];
@@ -55,36 +55,21 @@ async function getSubCategories() {
 
 async function getProducts() {
   try {
-    const allProducts = [];
-    let page = 1;
-    let limit = 100;
-    let totalFetched = 0;
-    let totalCount = 0;
+    const limit = 50;
+    const res = await fetch(`${UrlBackend}/products/get`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ page: 1, limit }),
+      next: { revalidate: 60 }
+    });
 
-    do {
-      const res = await fetch(`${UrlBackend}/products/get`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ page, limit }),
-        next: { revalidate: 60 }
-      });
+    if (!res.ok) return { products: [], totalCount: 0 };
 
-      if (!res.ok) break;
+    const json = await res.json();
+    const products = json.data || json.products || (Array.isArray(json) ? json : []);
+    const totalCount = json.totalCount || products.length;
 
-      const json = await res.json();
-      const products = json.data || json.products || (Array.isArray(json) ? json : []);
-      if (products.length === 0) break;
-
-      allProducts.push(...products);
-      totalFetched += products.length;
-      totalCount = json.totalCount || totalFetched;
-      page++;
-      
-      // Prevent accidental infinite loops or excessive payload on server
-      if (page > 50) break; 
-    } while (totalFetched < totalCount);
-
-    return { products: allProducts, totalCount: allProducts.length };
+    return { products, totalCount };
 
   } catch (error) {
     console.error("Error fetching products:", error);

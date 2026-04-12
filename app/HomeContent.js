@@ -15,60 +15,33 @@ export default function HomeContent({ initialData }) {
   const [loading, setLoading] = useState(!initialData);
 
   useEffect(() => {
-    async function fetchRemainingProducts() {
-      try {
-        let page = 2; // Start from page 2 since page 1 (first 12) is already display
-        let limit = 40;
-        let fetchedCount = 0;
-        const maxBackgroundProducts = 200; // Limit background fetch to keep things fast
-
-        while (fetchedCount < maxBackgroundProducts) {
-          const res = await ProductAllGet({ page, limit });
-          const products = res.data || res.products || [];
-          if (products.length === 0) break;
-
-          setData(prev => ({
-            ...prev,
-            products: [...prev.products, ...products]
-          }));
-
-          fetchedCount += products.length;
-          page++;
-          if (products.length < limit) break;
-        }
-      } catch (error) {
-        console.error("Background product fetch failed:", error);
-      }
-    }
-
+    // If we have initialData skip client-side fetch as it was exhaustively pre-fetched on server
     if (initialData) {
-      // If we have initial data, render it immediately and then fetch more in background
-      fetchRemainingProducts();
+      setData(initialData);
+      setLoading(false);
       return;
     }
 
+    // Fallback fetch only if initialData was not provided (e.g. client-side navigation issues)
     async function fetchHomeData() {
       try {
+        setLoading(true);
         const [banners, categories, productsRes] = await Promise.all([
           HomeBannerAllGet(),
           CategoryAllGet(),
-          ProductAllGet({ page: 1, limit: 12 })
+          ProductAllGet({ page: 1, limit: 100 }) 
         ]);
 
-        const initialProducts = productsRes?.data || productsRes?.products || [];
+        const products = productsRes?.data || productsRes?.products || [];
         setData({
           banners: banners?.data || [],
           categories: categories?.data || [],
-          products: initialProducts,
+          products: products,
           ads: { center: [], left: [], right: [] },
         });
         setLoading(false);
-
-        // After initial fetch, get more
-        fetchRemainingProducts();
       } catch (error) {
         console.error("Error fetching home data:", error);
-        setData({ banners: [], categories: [], products: [], ads: { center: [], left: [], right: [] } });
         setLoading(false);
       }
     }
@@ -76,8 +49,7 @@ export default function HomeContent({ initialData }) {
     fetchHomeData();
   }, [initialData]);
 
-  // Removed initial loading skeleton to provide immediate page structure
-
+  if (loading && !data) return <HomeSkeleton />;
 
   return (
     <>

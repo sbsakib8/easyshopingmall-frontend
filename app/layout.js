@@ -86,9 +86,9 @@ export default async function RootLayout({ children }) {
         <Providers>
           <LayoutWrapper initialWebsiteInfo={websiteInfo}>{children}</LayoutWrapper>
         </Providers>
-        < ToasterClient />
+        <ToasterClient />
+        <GoogleAnalytics gaId="G-5MQNQRZC5T" />
       </body>
-      <GoogleAnalytics gaId="G-5MQNQRZC5T" />
     </html>
   );
 }

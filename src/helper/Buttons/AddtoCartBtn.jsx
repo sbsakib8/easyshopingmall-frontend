@@ -20,18 +20,15 @@ const handleAddToCart = async (productId, e, user, dispatch) => {
  }, 1000);
   const product = await getProductDetailsApi(productId);
 
-  if (product.color.length) {
-    toast.error("দয়া করে প্রোডাক্টের রং নির্বাচন করুন");
-    return;
-  }
-
-  if (product.productSize.length) {
-    toast.error("দয়া করে প্রোডাক্টের সাইজ নির্বাচন করুন");
+  if (!product) {
+    toast.error("প্রোডাক্টের তথ্য পাওয়া যায়নি");
+    setisClicked(false);
     return;
   }
 
   if (!user?._id) {
     toast.error("কার্টে যোগ করতে হলে আগে লগইন করুন");
+    setisClicked(false);
     return;
   }
 
@@ -39,9 +36,9 @@ const handleAddToCart = async (productId, e, user, dispatch) => {
     await addToCartApi(
       {
         userId: user._id,
-        productId: product._id,
+        productId: product._id || product.id,
         quantity: 1,
-        price: product.price,
+        price: product.price || product.sell_price || 0,
       },
       dispatch,
     );

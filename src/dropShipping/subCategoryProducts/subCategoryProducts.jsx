@@ -3,7 +3,7 @@ import {addToWishlistApi, removeFromWishlistApi} from'@/src/hook/useWishlist';
 import {isProductNew} from'@/src/utlis/filterHelpers';
 import {useGetProduct} from'@/src/utlis/userProduct';
 import {useWishlist} from'@/src/utlis/useWishList';
-import {ArrowDownToLine, Heart, Star} from'lucide-react';
+import {ArrowDownToLine, Heart, Star, Search, Sparkles} from'lucide-react';
 import {useRouter, useSearchParams} from"next/navigation"
 import React, {useCallback, useMemo, useState} from'react';
 import toast from'react-hot-toast';
@@ -264,7 +264,43 @@ const SubCategoryProducts = ({id}) => {
  toast.error("Failed to update wishlist")
 }
 }, [wishlist, favorite, dispatch]);
- if (filteredProducts?.length < 1) return <div className="flex justify-center items-center text-2xl font-bold min-h-screen">No products found</div>
+  if (filteredProducts?.length < 1 && !productsLoading) {
+    return (
+      <div className="container mx-auto px-4 py-20 flex flex-col items-center justify-center bg-gradient-to-br from-white/90 to-slate-50/80 backdrop-blur-xl rounded-[3rem] border border-white/40 shadow-2xl relative overflow-hidden group min-h-[60vh]">
+        {/* Animated Background Glows */}
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-emerald-500/10 blur-[120px] rounded-full animate-pulse" />
+          <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-teal-500/10 blur-[120px] rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
+        </div>
+
+        <div className="relative z-10 flex flex-col items-center">
+          <div className="mb-10 relative">
+            <div className="absolute inset-0 bg-emerald-200/50 rounded-full blur-3xl opacity-30 group-hover:scale-150 transition-transform duration-1000" />
+            <div className="relative bg-white p-10 rounded-[2.5rem] shadow-xl border border-emerald-50 transform group-hover:rotate-3 transition-all duration-500">
+              <Search className="w-16 h-16 text-emerald-600 animate-[bounce_3s_infinite]" />
+              <Sparkles className="absolute -top-4 -right-4 w-10 h-10 text-yellow-400 animate-pulse" />
+            </div>
+          </div>
+
+          <div className="text-center space-y-4 max-w-lg">
+            <h3 className="text-3xl font-extrabold text-slate-800 tracking-tight">
+              Data is Coming! <span className="inline-block animate-bounce">✨</span>
+            </h3>
+            <p className="text-slate-500 text-lg font-medium leading-relaxed">
+              We're meticulously curating our latest collection. Stay tuned! New items are arriving soon.
+            </p>
+          </div>
+
+          <button
+            onClick={() => router.push('/shop')}
+            className="mt-10 px-10 py-4 bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-2xl font-bold shadow-lg shadow-emerald-200 hover:shadow-emerald-300 hover:-translate-y-1 active:scale-95 transition-all duration-300"
+          >
+            Explore Shop
+          </button>
+        </div>
+      </div>
+    );
+  }
  return (
  <>
  <div className="container grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">

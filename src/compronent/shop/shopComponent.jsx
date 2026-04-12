@@ -23,7 +23,7 @@ import { getCategoryId, getSubCategoryId } from "@/src/utlis/filterHelpers"
 import { useCategoryWithSubcategories } from "@/src/utlis/useCategoryWithSubcategories"
 import { useWishlist } from "@/src/utlis/useWishList"
 import { createCouponCode, getAllCoupons, updateCouponCode } from "@/src/hook/useCoupon"
-import { ArrowUp, CheckCircle, ChevronDown, Edit, Filter, Grid, Heart, Info, List, Search, ShoppingCart, SlidersHorizontal, Star, Tag, Trash2, X } from "lucide-react"
+import { ArrowUp, CheckCircle, ChevronDown, Edit, Filter, Grid, Heart, Info, List, Search, ShoppingCart, SlidersHorizontal, Sparkles, Star, Tag, Trash2, X } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
 import React, { useCallback, useEffect, useMemo, useState, useRef } from "react"
 import toast from "react-hot-toast"
@@ -178,9 +178,9 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
                 }`}
             >
-              {product.inStock ? (
+              {inStock ? (
 
-                <AddtoCartBtn productId={product.id}>
+                <AddtoCartBtn productId={productId}>
                   <span className="flex items-center justify-center gap-1"><ShoppingCart size={16} /> Add to Cart</span>
 
                 </AddtoCartBtn>
@@ -202,7 +202,7 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
               >
                 {inStock ? (
                   <span className="flex items-center justify-center gap-1">
-                    <AddtoCartBtn productId={product.id}> <ShoppingCart size={16} /></AddtoCartBtn>
+                    <AddtoCartBtn productId={productId}> <ShoppingCart size={16} /></AddtoCartBtn>
                   </span>
                 ) : (
                   "Out of Stock"
@@ -383,73 +383,27 @@ const ShopPage = ({ initialData, queryParams }) => {
 
   // totalPages computed locally now
 
-  // Fetch ALL products once on mount
+  // Server-side Pagination & Filtering
   useEffect(() => {
-    dispatch(fetchShopProducts({ limit: 10000 }));
-  }, [dispatch]);
+    // Only fetch if handled by client
+    const params = {
+      page: currentPage,
+      limit: productsPerPage,
+      search: debouncedSearchTerm,
+      category: filterCategory === "all" ? undefined : filterCategory,
+      subcategory: filterSubCategory === "all" ? undefined : filterSubCategory,
+      brand: filterBrand === "all" ? undefined : filterBrand,
+      gender: filterGender === "all" ? undefined : filterGender,
+      minPrice: priceRange[0],
+      maxPrice: priceRange[1],
+      sortBy: sortBy
+    };
 
-  // Client-side filtering logic (Instant response)
-  const filteredProductsLocal = useMemo(() => {
-    if (!reduxProducts) return [];
-    
-    return reduxProducts.filter(p => {
-      const productName = (p.productName || p.name || "").toLowerCase();
-      const productBrand = (p.brand || "").toLowerCase();
-      const productSKU = (p.sku || "").toLowerCase();
-      const search = (debouncedSearchTerm || "").toLowerCase();
+    dispatch(fetchShopProducts(params));
+  }, [dispatch, currentPage, productsPerPage, debouncedSearchTerm, filterCategory, filterSubCategory, filterBrand, filterGender, priceRange, sortBy]);
 
-      // Search
-      const matchesSearch = !search || 
-        productName.includes(search) ||
-        productBrand.includes(search) ||
-        productSKU.includes(search) ||
-        (p._id || "").toLowerCase().includes(search);
-
-      // Category
-      const matchesCategory = filterCategory === "all" || 
-        (Array.isArray(p.category) ? p.category.some(c => (c.name || c) === filterCategory) : (p.category?.name || p.category) === filterCategory);
-
-      // SubCategory
-      const matchesSubCategory = filterSubCategory === "all" || 
-        (Array.isArray(p.subCategory) ? p.subCategory.some(s => (s.name || s) === filterSubCategory) : (p.subCategory?.name || p.subCategory) === filterSubCategory);
-
-      // Price
-      const price = Number(p.price) || 0;
-      const matchesPrice = price >= priceRange[0] && price <= priceRange[1];
-
-      // Rating
-      const rating = Number(p.ratings || p.rating || 0);
-      const matchesRating = rating >= ratingFilter;
-
-      // Brand
-      const matchesBrand = filterBrand === "all" || p.brand === filterBrand;
-
-      // Gender
-      const matchesGender = filterGender === "all" || p.gender === filterGender;
-
-      return matchesSearch && matchesCategory && matchesSubCategory && matchesPrice && matchesRating && matchesBrand && matchesGender;
-    });
-  }, [reduxProducts, debouncedSearchTerm, filterCategory, filterSubCategory, priceRange, ratingFilter, filterBrand, filterGender]);
-
-  // Client-side Sorting
-  const sortedProducts = useMemo(() => {
-    const list = [...filteredProductsLocal];
-    if (sortBy === "price-low") return list.sort((a, b) => (Number(a.price) || 0) - (Number(b.price) || 0));
-    if (sortBy === "price-high") return list.sort((a, b) => (Number(b.price) || 0) - (Number(a.price) || 0));
-    if (sortBy === "rating") return list.sort((a, b) => (Number(b.ratings || b.rating) || 0) - (Number(a.ratings || a.rating) || 0));
-    if (sortBy === "newest") return list.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-    if (sortBy === "discount") return list.sort((a, b) => (Number(b.discount) || 0) - (Number(a.discount) || 0));
-    return list; // name/latest (default)
-  }, [filteredProductsLocal, sortBy]);
-
-  // Client-side Pagination
-  const paginatedProducts = useMemo(() => {
-    const startIndex = (currentPage - 1) * productsPerPage;
-    return sortedProducts.slice(startIndex, startIndex + productsPerPage);
-  }, [sortedProducts, currentPage, productsPerPage]);
-
-  const currentProducts = paginatedProducts;
-  const totalCountComputed = sortedProducts.length;
+  const currentProducts = reduxProducts;
+  const totalCountComputed = reduxTotalCount;
   const totalPages = Math.ceil(totalCountComputed / productsPerPage);
 
   // Debounce search term
@@ -621,18 +575,18 @@ const ShopPage = ({ initialData, queryParams }) => {
     const productId = p._id || p.id;
     const selectedProduct = currentProducts.find(item => (item._id || item.id) === productId);
     setEditModal(selectedProduct);
-    
+
     // Fetch coupon for this product or its subcategories
     try {
       const couponsData = await getAllCoupons();
       const foundProductCoupon = couponsData?.data?.find(c => c.applicableProduct?._id === productId || c.applicableProduct === productId);
-      
+
       // Identify subcategories of the product (can be array of IDs or objects)
-      const productSubCats = Array.isArray(selectedProduct?.subCategory) 
+      const productSubCats = Array.isArray(selectedProduct?.subCategory)
         ? selectedProduct.subCategory.map(sc => (sc._id || sc).toString())
         : (selectedProduct?.subCategory ? [(selectedProduct.subCategory._id || selectedProduct.subCategory).toString()] : []);
-      
-      const foundSubCatCoupon = couponsData?.data?.find(c => 
+
+      const foundSubCatCoupon = couponsData?.data?.find(c =>
         c.applicableSubCategory && productSubCats.includes((c.applicableSubCategory?._id || c.applicableSubCategory).toString())
       );
 
@@ -779,7 +733,7 @@ const ShopPage = ({ initialData, queryParams }) => {
 
             <div className={`space-y-6 ${showFilters ? "block" : "hidden lg:block"}`}>
               {/* Price Filter */}
-              <div className="bg-white p-6 rounded-lg shadow-md">
+              <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
                 <h3 className="font-bold text-lg mb-4 text-gray-800">Price Filter</h3>
                 <div className="space-y-4">
                   <div className="flex justify-between text-sm text-gray-600">
@@ -819,8 +773,11 @@ const ShopPage = ({ initialData, queryParams }) => {
               </div>
 
               {/* Product Categories */}
-              <div onClick={() => setShowCategory(!showCategory)} className="bg-bg px-6 rounded-lg shadow-md border border-gray-200">
-                <h3 className="flex justify-between font-bold items-center text-lg mb-4 text-gray-800 border lg:border-none mt-3 p-2 rounded-xl">Product Categories <span className={`${showCategory ? "" : "rotate-180"} lg:hidden`}><ArrowUp /></span> </h3>
+              <div onClick={() => setShowCategory(!showCategory)} className="bg-white p-6 rounded-lg shadow-md border border-gray-200 cursor-pointer lg:cursor-default">
+                <h3 className="flex justify-between font-bold items-center text-lg mb-4 text-gray-800">
+                  Product Categories
+                  <span className={`${showCategory ? "" : "rotate-180"} lg:hidden`}><ArrowUp /></span>
+                </h3>
                 <div className={`space-y-2 ${categories.length > 4 ? 'max-h-64 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-secondary scrollbar-track-gray-200' : ''}`}>
                   {categories.map((category) => (
                     <label
@@ -849,8 +806,9 @@ const ShopPage = ({ initialData, queryParams }) => {
 
               {/* Subcategories */}
               {subCategories.length > 1 && (
-                <div className={`bg-white p-6 rounded-lg shadow-md ${showSubCategory & !showCategory ? "block" : "hidden"} lg:block`}>
-                  <h3 className="font-bold text-lg mb-4 text-gray-800 flex justify-between ">Subcategories
+                <div className={`bg-white p-6 rounded-lg shadow-md border border-gray-200 ${showSubCategory & !showCategory ? "block" : "hidden"} lg:block`}>
+                  <h3 className="font-bold text-lg mb-4 text-gray-800 flex justify-between ">
+                    Subcategories
                     <span className="lg:hidden">
                       <X onClick={() => setShowSubCategory(false)} size={30} />
                     </span>
@@ -903,18 +861,37 @@ const ShopPage = ({ initialData, queryParams }) => {
 
             {/* No Products Found */}
             {!productsLoading && currentProducts.length === 0 && (
-              <div className="text-center py-12">
-                <div className="text-gray-400 mb-4">
-                  <Search className="w-16 h-16 mx-auto" />
+              <div className="flex flex-col items-center justify-center py-20 px-4 bg-gradient-to-br from-white/90 to-slate-50/80 backdrop-blur-xl rounded-[2.5rem] border border-white/40 shadow-xl relative overflow-hidden group">
+                <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+                  <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-emerald-500/5 blur-[100px] rounded-full animate-pulse" />
+                  <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-teal-500/5 blur-[100px] rounded-full animate-pulse" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-600 mb-2">No products found</h3>
-                <p className="text-gray-500 mb-4">Try adjusting your filters or search terms</p>
-                <button
-                  onClick={clearFilters}
-                  className="bg-secondary text-accent-content px-6 py-2 rounded-lg hover:bg-secondary transition-colors duration-300"
-                >
-                  Clear All Filters
-                </button>
+
+                <div className="relative z-10 flex flex-col items-center">
+                  <div className="mb-8 relative">
+                    <div className="absolute inset-0 bg-emerald-200/40 rounded-full blur-2xl opacity-40 group-hover:scale-125 transition-transform duration-700" />
+                    <div className="relative bg-white p-8 rounded-[2rem] shadow-lg border border-emerald-50 transform group-hover:rotate-6 transition-all duration-500">
+                      <Search className="w-16 h-16 text-emerald-600 animate-[bounce_2.5s_infinite]" />
+                      <Sparkles className="absolute -top-3 -right-3 w-10 h-10 text-yellow-400 animate-pulse" />
+                    </div>
+                  </div>
+
+                  <div className="text-center space-y-3 max-w-lg mb-10">
+                    <h3 className="text-3xl font-extrabold text-slate-800 tracking-tight">
+                      Data is Coming! <span className="inline-block animate-bounce">✨</span>
+                    </h3>
+                    <p className="text-slate-500 text-lg font-medium leading-relaxed">
+                      We're refreshing our stock with premium new arrivals. Stay tuned! Try clearing your filters or exploring a different category.
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={clearFilters}
+                    className="px-10 py-4 bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-2xl font-bold shadow-[0_12px_25px_-10px_rgba(16,185,129,0.5)] hover:shadow-[0_18px_35px_-5px_rgba(16,185,129,0.6)] hover:-translate-y-1 active:scale-95 transition-all duration-300"
+                  >
+                    Clear All Filters
+                  </button>
+                </div>
               </div>
             )}
 
@@ -928,7 +905,7 @@ const ShopPage = ({ initialData, queryParams }) => {
               >
                 {currentProducts.map((product) => (
                   <ProductCard
-                    key={product.id}
+                    key={product._id || product.id}
                     product={product}
                     viewMode={viewMode}
                     router={router}

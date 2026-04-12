@@ -4,27 +4,18 @@ export const fetchShopProducts = createAsyncThunk(
     "shop/fetchProducts",
     async (params, { rejectWithValue }) => {
         try {
-            const allProducts = [];
-            let page = 1;
-            let limit = 100;
-            let totalFetched = 0;
-            let totalCount = 0;
-
-            do {
-                const res = await ProductAllGet({ ...params, page, limit });
-                const products = res.data || res.products || (Array.isArray(res) ? res : []);
-                if (products.length === 0) break;
-                allProducts.push(...products);
-
-                totalFetched += products.length;
-                totalCount = res.totalCount || totalFetched;
-
-                page++;
-            } while (totalFetched < totalCount);
+            // Traditional single-page fetch for better performance
+            const limit = params.limit || 50;
+            const page = params.page || 1;
+            
+            const res = await ProductAllGet({ ...params, page, limit });
+            
+            const products = res.data || res.products || (Array.isArray(res) ? res : []);
+            const totalCount = res.totalCount || products.length;
 
             return {
-                products: allProducts,
-                totalCount: allProducts.length
+                products,
+                totalCount: Number(totalCount)
             };
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || error.message || "Failed to fetch products");
