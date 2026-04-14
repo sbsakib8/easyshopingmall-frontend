@@ -35,7 +35,7 @@ const DropShippingNavbar = () => {
  {name:"Referral Profile", href:"/referral-profile", subLink: [{name:"Referral Profit", href:"/referral-profit"}]},
  ];
 
- if (data?.role ==="DROP-SHIPPING") {
+ if (data?.role === "DROPSHIPPING") {
  navItems.push({name:"Dashboard", href:"/"});
 }
 

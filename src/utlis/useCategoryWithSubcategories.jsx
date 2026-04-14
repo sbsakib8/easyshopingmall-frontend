@@ -8,12 +8,14 @@ export const useCategoryWithSubcategories = (initialCategories = null, initialSu
     const normalizeCategories = (data) => (data || []).map(cat => ({
         id: cat._id,
         name: cat.categoryName || cat.name,
+        slug: cat.slug || cat.categorySlug || '',
         image: cat.categoryImage || '',
     }));
 
     const normalizeSubcats = (data) => (data || []).map(subcat => ({
         id: subcat._id,
         name: subcat.subcategoryName || subcat.name,
+        slug: subcat.slug || subcat.subcategorySlug || '',
         categoryId: subcat.categoryId || subcat.category,
         image: subcat.subcategoryImage || '',
     }));

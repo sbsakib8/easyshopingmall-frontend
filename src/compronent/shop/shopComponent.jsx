@@ -23,7 +23,7 @@ import { getCategoryId, getSubCategoryId } from "@/src/utlis/filterHelpers"
 import { useCategoryWithSubcategories } from "@/src/utlis/useCategoryWithSubcategories"
 import { useWishlist } from "@/src/utlis/useWishList"
 import { createCouponCode, getAllCoupons, updateCouponCode } from "@/src/hook/useCoupon"
-import { ArrowUp, CheckCircle, ChevronDown, Edit, Filter, Grid, Heart, Info, List, Search, ShoppingCart, SlidersHorizontal, Star, Tag, Trash2, X } from "lucide-react"
+import { ArrowUp, CheckCircle, ChevronDown, Edit, Filter, Grid, Heart, Info, List, RotateCcw, Search, ShoppingCart, SlidersHorizontal, Sparkles, Star, Tag, Trash2, X } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
 import React, { useCallback, useEffect, useMemo, useState, useRef } from "react"
 import toast from "react-hot-toast"
@@ -178,9 +178,9 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
                 }`}
             >
-              {product.inStock ? (
+              {inStock ? (
 
-                <AddtoCartBtn productId={product.id}>
+                <AddtoCartBtn productId={productId}>
                   <span className="flex items-center justify-center gap-1"><ShoppingCart size={16} /> Add to Cart</span>
 
                 </AddtoCartBtn>
@@ -202,7 +202,7 @@ const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wis
               >
                 {inStock ? (
                   <span className="flex items-center justify-center gap-1">
-                    <AddtoCartBtn productId={product.id}> <ShoppingCart size={16} /></AddtoCartBtn>
+                    <AddtoCartBtn productId={productId}> <ShoppingCart size={16} /></AddtoCartBtn>
                   </span>
                 ) : (
                   "Out of Stock"
@@ -260,6 +260,19 @@ const ShopPage = ({ initialData, queryParams }) => {
     error: productsError,
     debouncedSearchTerm
   } = shopState
+
+  const hasActiveFilters = useMemo(() => {
+    return (
+      searchTerm !== "" ||
+      filterCategory !== "all" ||
+      filterSubCategory !== "all" ||
+      filterBrand !== "all" ||
+      filterGender !== "all" ||
+      priceRange[0] > 0 ||
+      priceRange[1] < 100000 ||
+      sortBy !== "name"
+    );
+  }, [searchTerm, filterCategory, filterSubCategory, filterBrand, filterGender, priceRange, sortBy]);
 
   // Hydrate Redux with Server Data on Mount
   useEffect(() => {
@@ -383,73 +396,27 @@ const ShopPage = ({ initialData, queryParams }) => {
 
   // totalPages computed locally now
 
-  // Fetch ALL products once on mount
+  // Server-side Pagination & Filtering
   useEffect(() => {
-    dispatch(fetchShopProducts({ limit: 10000 }));
-  }, [dispatch]);
+    // Only fetch if handled by client
+    const params = {
+      page: currentPage,
+      limit: productsPerPage,
+      search: debouncedSearchTerm,
+      categoryId: filterCategory === "all" ? undefined : filterCategory,
+      subCategoryId: filterSubCategory === "all" ? undefined : filterSubCategory,
+      brand: filterBrand === "all" ? undefined : filterBrand,
+      gender: filterGender === "all" ? undefined : filterGender,
+      minPrice: priceRange[0],
+      maxPrice: priceRange[1],
+      sortBy: sortBy
+    };
 
-  // Client-side filtering logic (Instant response)
-  const filteredProductsLocal = useMemo(() => {
-    if (!reduxProducts) return [];
-    
-    return reduxProducts.filter(p => {
-      const productName = (p.productName || p.name || "").toLowerCase();
-      const productBrand = (p.brand || "").toLowerCase();
-      const productSKU = (p.sku || "").toLowerCase();
-      const search = (debouncedSearchTerm || "").toLowerCase();
+    dispatch(fetchShopProducts(params));
+  }, [dispatch, currentPage, productsPerPage, debouncedSearchTerm, filterCategory, filterSubCategory, filterBrand, filterGender, priceRange, sortBy]);
 
-      // Search
-      const matchesSearch = !search || 
-        productName.includes(search) ||
-        productBrand.includes(search) ||
-        productSKU.includes(search) ||
-        (p._id || "").toLowerCase().includes(search);
-
-      // Category
-      const matchesCategory = filterCategory === "all" || 
-        (Array.isArray(p.category) ? p.category.some(c => (c.name || c) === filterCategory) : (p.category?.name || p.category) === filterCategory);
-
-      // SubCategory
-      const matchesSubCategory = filterSubCategory === "all" || 
-        (Array.isArray(p.subCategory) ? p.subCategory.some(s => (s.name || s) === filterSubCategory) : (p.subCategory?.name || p.subCategory) === filterSubCategory);
-
-      // Price
-      const price = Number(p.price) || 0;
-      const matchesPrice = price >= priceRange[0] && price <= priceRange[1];
-
-      // Rating
-      const rating = Number(p.ratings || p.rating || 0);
-      const matchesRating = rating >= ratingFilter;
-
-      // Brand
-      const matchesBrand = filterBrand === "all" || p.brand === filterBrand;
-
-      // Gender
-      const matchesGender = filterGender === "all" || p.gender === filterGender;
-
-      return matchesSearch && matchesCategory && matchesSubCategory && matchesPrice && matchesRating && matchesBrand && matchesGender;
-    });
-  }, [reduxProducts, debouncedSearchTerm, filterCategory, filterSubCategory, priceRange, ratingFilter, filterBrand, filterGender]);
-
-  // Client-side Sorting
-  const sortedProducts = useMemo(() => {
-    const list = [...filteredProductsLocal];
-    if (sortBy === "price-low") return list.sort((a, b) => (Number(a.price) || 0) - (Number(b.price) || 0));
-    if (sortBy === "price-high") return list.sort((a, b) => (Number(b.price) || 0) - (Number(a.price) || 0));
-    if (sortBy === "rating") return list.sort((a, b) => (Number(b.ratings || b.rating) || 0) - (Number(a.ratings || a.rating) || 0));
-    if (sortBy === "newest") return list.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-    if (sortBy === "discount") return list.sort((a, b) => (Number(b.discount) || 0) - (Number(a.discount) || 0));
-    return list; // name/latest (default)
-  }, [filteredProductsLocal, sortBy]);
-
-  // Client-side Pagination
-  const paginatedProducts = useMemo(() => {
-    const startIndex = (currentPage - 1) * productsPerPage;
-    return sortedProducts.slice(startIndex, startIndex + productsPerPage);
-  }, [sortedProducts, currentPage, productsPerPage]);
-
-  const currentProducts = paginatedProducts;
-  const totalCountComputed = sortedProducts.length;
+  const currentProducts = reduxProducts;
+  const totalCountComputed = reduxTotalCount;
   const totalPages = Math.ceil(totalCountComputed / productsPerPage);
 
   // Debounce search term
@@ -575,21 +542,30 @@ const ShopPage = ({ initialData, queryParams }) => {
   const showStartDots = currentPage > 5;
   const showEndDots = pageNumbers.length > 0 && pageNumbers[pageNumbers.length - 1] < totalPages;
 
-  // Use API categories if available, otherwise fall back to product categories
-  const categories = apiCategories.length > 0
-    ? ["all", ...apiCategories.map(cat => cat.name)]
-    : ["all"]
+  // Use API categories if available
+  const sidebarCategories = apiCategories.map(cat => ({
+    name: cat.name,
+    slug: cat.slug || cat.name.toLowerCase().replace(/ /g, "-")
+  }));
 
-  const subCategories = apiSubcategories.length > 0
-    ? (filterCategory === "all"
-      ? ["all", ...apiSubcategories.map(sub => sub.name)]
-      : ["all", ...apiSubcategories
-        .filter(sub => {
-          const category = apiCategories.find(cat => cat.id === sub.categoryId || cat.id === sub.categoryId?._id)
-          return category?.name === filterCategory
-        })
-        .map(sub => sub.name)])
-    : ["all"]
+  const categories = ["all", ...sidebarCategories];
+
+  const sidebarSubCategories = apiSubcategories
+    .filter(sub => {
+      if (filterCategory === "all") return true;
+      const category = apiCategories.find(cat =>
+        cat.id === (sub.categoryId?._id || sub.categoryId) ||
+        cat.slug === filterCategory ||
+        cat.name === filterCategory
+      );
+      return category?.slug === filterCategory || category?.name === filterCategory;
+    })
+    .map(sub => ({
+      name: sub.name,
+      slug: sub.slug || sub.name.toLowerCase().replace(/ /g, "-")
+    }));
+
+  const subCategories = ["all", ...sidebarSubCategories];
 
   const brands = ["all"] // Can be populated from API if needed
   const genders = ["all", "men", "women", "unisex"]
@@ -621,18 +597,18 @@ const ShopPage = ({ initialData, queryParams }) => {
     const productId = p._id || p.id;
     const selectedProduct = currentProducts.find(item => (item._id || item.id) === productId);
     setEditModal(selectedProduct);
-    
+
     // Fetch coupon for this product or its subcategories
     try {
       const couponsData = await getAllCoupons();
       const foundProductCoupon = couponsData?.data?.find(c => c.applicableProduct?._id === productId || c.applicableProduct === productId);
-      
+
       // Identify subcategories of the product (can be array of IDs or objects)
-      const productSubCats = Array.isArray(selectedProduct?.subCategory) 
+      const productSubCats = Array.isArray(selectedProduct?.subCategory)
         ? selectedProduct.subCategory.map(sc => (sc._id || sc).toString())
         : (selectedProduct?.subCategory ? [(selectedProduct.subCategory._id || selectedProduct.subCategory).toString()] : []);
-      
-      const foundSubCatCoupon = couponsData?.data?.find(c => 
+
+      const foundSubCatCoupon = couponsData?.data?.find(c =>
         c.applicableSubCategory && productSubCats.includes((c.applicableSubCategory?._id || c.applicableSubCategory).toString())
       );
 
@@ -718,9 +694,61 @@ const ShopPage = ({ initialData, queryParams }) => {
         <div className="bg-white lg:mt-28 rounded-lg shadow-md p-4 mb-6">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
             <div className="flex items-center gap-4 flex-wrap">
-              <span className="text-gray-600 font-medium">Showing {totalCountComputed} results</span>
-              {/* Quick Filters */}
+              <span className="text-gray-600 font-medium whitespace-nowrap">Showing {totalCountComputed} results</span>
 
+              {/* Active Filter Chips */}
+              <div className="flex flex-wrap gap-2 items-center">
+                {filterCategory !== "all" && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-lg border border-emerald-100 shadow-sm animate-in fade-in zoom-in duration-300">
+                    <span className="capitalize">{filterCategory.replace(/-/g, " ")}</span>
+                    <button onClick={() => dispatch(setFilterCategory("all"))} className="hover:text-red-500 transition-colors">
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+                {filterSubCategory !== "all" && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-sky-50 text-sky-700 text-xs font-bold rounded-lg border border-sky-100 shadow-sm animate-in fade-in zoom-in duration-300">
+                    <span className="capitalize">{filterSubCategory.replace(/-/g, " ")}</span>
+                    <button onClick={() => dispatch(setFilterSubCategory("all"))} className="hover:text-red-500 transition-colors">
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+                {searchTerm && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 text-amber-700 text-xs font-bold rounded-lg border border-amber-100 shadow-sm animate-in fade-in zoom-in duration-300">
+                    <span>Search: {searchTerm}</span>
+                    <button onClick={() => dispatch(setSearchTerm(""))} className="hover:text-red-500 transition-colors">
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+                {(priceRange[0] > 0 || priceRange[1] < 100000) && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-rose-50 text-rose-700 text-xs font-bold rounded-lg border border-rose-100 shadow-sm animate-in fade-in zoom-in duration-300">
+                    <span>৳{priceRange[0]} - ৳{priceRange[1]}</span>
+                    <button onClick={() => dispatch(setPriceRange([0, 100000]))} className="hover:text-red-500 transition-colors">
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+                {sortBy !== "name" && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-lg border border-indigo-100 shadow-sm animate-in fade-in zoom-in duration-300">
+                    <span>Sorted: {sortBy.replace(/-/g, " ")}</span>
+                    <button onClick={() => dispatch(setSortBy("name"))} className="hover:text-red-500 transition-colors">
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+
+                {hasActiveFilters && (
+                  <button
+                    onClick={clearFilters}
+                    className="flex items-center gap-1.5 text-xs font-bold text-red-500 hover:text-red-700 transition-all duration-300 group px-2 py-1.5"
+                  >
+                    <Trash2 className="w-3.5 h-3.5 group-hover:scale-110" />
+                    <span className="underline decoration-dotted underline-offset-4">Clear All</span>
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="flex items-center gap-4">
@@ -778,8 +806,19 @@ const ShopPage = ({ initialData, queryParams }) => {
             </button>
 
             <div className={`space-y-6 ${showFilters ? "block" : "hidden lg:block"}`}>
+              {/* Reset All Filters Button */}
+              <div className="bg-white p-2 sm:p-4 rounded-2xl shadow-sm border border-gray-100 group transition-all duration-300 hover:shadow-md">
+                <button
+                  onClick={clearFilters}
+                  className="w-full flex items-center justify-center gap-3 py-3 px-4 bg-gradient-to-r from-red-50 to-rose-50 text-red-600 font-bold rounded-xl border border-red-100 hover:from-red-600 hover:to-rose-600 hover:text-white transition-all duration-500 group-hover:scale-[1.02] shadow-sm hover:shadow-red-200"
+                >
+                  <RotateCcw className="w-5 h-5 group-hover:rotate-[-180deg] transition-transform duration-700" />
+                  <span className="text-sm sm:text-base">Reset All Filters</span>
+                </button>
+              </div>
+
               {/* Price Filter */}
-              <div className="bg-white p-6 rounded-lg shadow-md">
+              <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
                 <h3 className="font-bold text-lg mb-4 text-gray-800">Price Filter</h3>
                 <div className="space-y-4">
                   <div className="flex justify-between text-sm text-gray-600">
@@ -819,42 +858,44 @@ const ShopPage = ({ initialData, queryParams }) => {
               </div>
 
               {/* Product Categories */}
-              <div onClick={() => setShowCategory(!showCategory)} className="bg-white p-6 rounded-lg shadow-md cursor-pointer transition-all">
+              <div onClick={() => setShowCategory(!showCategory)} className="bg-white p-6 rounded-lg shadow-md border border-gray-200 cursor-pointer lg:cursor-default">
                 <h3 className="flex justify-between font-bold items-center text-lg mb-4 text-gray-800">
-                  Product Categories 
-                  <span className={`${showCategory ? "" : "rotate-180 transition-transform"} lg:hidden`}>
-                    <ArrowUp />
-                  </span>
+                  Product Categories
+                  <span className={`${showCategory ? "" : "rotate-180"} lg:hidden`}><ArrowUp /></span>
                 </h3>
                 <div className={`space-y-2 ${categories.length > 4 ? 'max-h-64 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-secondary scrollbar-track-gray-200' : ''}`}>
-                  {categories.map((category) => (
-                    <label
-                      key={category}
-                      className={`flex items-center space-x-2 hover:bg-gray-50 p-2 rounded cursor-pointer ${showCategory ? "flex" : "hidden"} lg:flex transition-colors`}
-                    >
-                      <input
-                        type="radio"
-                        name="category"
-                        checked={filterCategory === category}
-                        onChange={() => {
-                          dispatch(setFilterCategory(category))
-                          dispatch(setFilterSubCategory("all"))
-                          setShowSubCategory(true)
-                          setShowCategory(false)
-                        }}
-                        className="text-secondary focus:ring-secondary w-4 h-4"
-                      />
-                      <span className="capitalize text-gray-700 font-medium">
-                        {category === "all" ? "All Categories" : category.replace("-", " ")}
-                      </span>
-                    </label>
-                  ))}
+                  {categories.map((cat) => {
+                    const catName = typeof cat === 'string' ? cat : cat.name;
+                    const catSlug = typeof cat === 'string' ? cat : cat.slug;
+                    return (
+                      <label
+                        key={catSlug}
+                        className={` items-center space-x-2 hover:bg-gray-50 p-2 rounded cursor-pointer ${showCategory ? "flex" : "hidden"} lg:flex`}
+                      >
+                        <input
+                          type="radio"
+                          name="category"
+                          checked={filterCategory === catSlug || filterCategory === catName}
+                          onChange={() => {
+                            dispatch(setFilterCategory(catSlug))
+                            dispatch(setFilterSubCategory("all"))
+                            setShowSubCategory(true)
+                            setShowCategory(false)
+                          }}
+                          className="text-secondary focus:ring-secondary"
+                        />
+                        <span className="capitalize text-gray-700">
+                          {catName === "all" ? "All Categories" : catName.replace("-", " ")}
+                        </span>
+                      </label>
+                    );
+                  })}
                 </div>
               </div>
 
               {/* Subcategories */}
               {subCategories.length > 1 && (
-                <div className={`bg-white p-6 rounded-lg shadow-md ${showSubCategory && !showCategory ? "block" : "hidden"} lg:block transition-all`}>
+                <div className={`bg-white p-6 rounded-lg shadow-md border border-gray-200 ${showSubCategory & !showCategory ? "block" : "hidden"} lg:block`}>
                   <h3 className="font-bold text-lg mb-4 text-gray-800 flex justify-between ">
                     Subcategories
                     <span className="lg:hidden">
@@ -862,168 +903,203 @@ const ShopPage = ({ initialData, queryParams }) => {
                     </span>
                   </h3>
                   <div className={`space-y-2 ${subCategories.length > 4 ? 'max-h-64 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-secondary scrollbar-track-gray-200' : ''}`}>
-                    {subCategories.map((subcat) => (
-                      <label
-                        key={subcat}
-                        className="flex items-center space-x-2 hover:bg-gray-50 p-2 rounded cursor-pointer transition-colors"
-                      >
-                        <input
-                          type="radio"
-                          name="subcategory"
-                          checked={filterSubCategory === subcat}
-                          onChange={() => dispatch(setFilterSubCategory(subcat))}
-                          className="text-secondary focus:ring-secondary w-4 h-4"
-                        />
-                        <span className="capitalize text-gray-700 font-medium">
-                          {subcat === "all" ? "All Subcategories" : subcat.replace("-", " ")}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
+                    {
+                      subCategories.map((sub) => {
+                        const subName = typeof sub === 'string' ? sub : sub.name;
+                        const subSlug = typeof sub === 'string' ? sub : sub.slug;
+                        return (
+                          <label
+                            key={subSlug}
+                            className="flex items-center space-x-2 hover:bg-gray-50 p-2 rounded cursor-pointer"
+                          >
+                            <input
+                              type="radio"
+                              name="subcategory"
+                              checked={filterSubCategory === subSlug || filterSubCategory === subName}
+                              onChange={() => dispatch(setFilterSubCategory(subSlug))}
+                              className="text-secondary focus:ring-secondary"
+                            />
+                            <span className="capitalize text-gray-700">
+                              {subName === "all" ? "All Subcategories" : subName.replace("-", " ")}
+                            </span>
+                          </label>
+                        );
+                      })
+                    }
+                  </div >
+                </div >
               )}
 
-            </div>
-          </div>
+            </div >
+          </div >
 
           {/* Products Grid */}
-          <div className="flex-1">
+          < div className="flex-1" >
             {/* Loading State */}
-            {productsLoading && (
-              <ProductGridSkeleton count={productsPerPage} viewMode={viewMode} />
-            )}
+            {
+              productsLoading && (
+                <ProductGridSkeleton count={productsPerPage} viewMode={viewMode} />
+              )
+            }
 
             {/* Error State */}
-            {!productsLoading && productsError && (
-              <div className="text-center py-12 text-red-500 bg-red-50 rounded-lg border border-red-200 mb-6">
-                <p className="font-semibold mb-2 text-lg italic">Error loading products!</p>
-                <p className="text-sm mb-4">{productsError.message || "Check your internet or try again."}</p>
-                <button
-                  onClick={() => dispatch(fetchShopProducts({ limit: 10000 }))}
-                  className="bg-red-500 hover:bg-red-600 text-accent-content px-6 py-2 rounded-lg transition-colors font-medium shadow-md"
-                >
-                  Retry Loading
-                </button>
-              </div>
-            )}
+            {
+              !productsLoading && productsError && (
+                <div className="text-center py-12 text-red-500 bg-red-50 rounded-lg border border-red-200 mb-6">
+                  <p className="font-semibold mb-2 text-lg italic">Error loading products!</p>
+                  <p className="text-sm mb-4">{productsError.message || "Check your internet or try again."}</p>
+                  <button
+                    onClick={() => dispatch(fetchShopProducts({ limit: 10000 }))}
+                    className="bg-red-500 hover:bg-red-600 text-accent-content px-6 py-2 rounded-lg transition-colors font-medium shadow-md"
+                  >
+                    Retry Loading
+                  </button>
+                </div>
+              )
+            }
 
             {/* No Products Found */}
-            {!productsLoading && currentProducts.length === 0 && (
-              <div className="text-center py-12">
-                <div className="text-gray-400 mb-4">
-                  <Search className="w-16 h-16 mx-auto" />
+            {
+              !productsLoading && currentProducts.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-20 px-4 bg-gradient-to-br from-white/90 to-slate-50/80 backdrop-blur-xl rounded-[2.5rem] border border-white/40 shadow-xl relative overflow-hidden group">
+                  <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+                    <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-emerald-500/5 blur-[100px] rounded-full animate-pulse" />
+                    <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-teal-500/5 blur-[100px] rounded-full animate-pulse" />
+                  </div>
+
+                  <div className="relative z-10 flex flex-col items-center">
+                    <div className="mb-8 relative">
+                      <div className="absolute inset-0 bg-emerald-200/40 rounded-full blur-2xl opacity-40 group-hover:scale-125 transition-transform duration-700" />
+                      <div className="relative bg-white p-8 rounded-[2rem] shadow-lg border border-emerald-50 transform group-hover:rotate-6 transition-all duration-500">
+                        <Search className="w-16 h-16 text-emerald-600 animate-[bounce_2.5s_infinite]" />
+                        <Sparkles className="absolute -top-3 -right-3 w-10 h-10 text-yellow-400 animate-pulse" />
+                      </div>
+                    </div>
+
+                    <div className="text-center space-y-3 max-w-lg mb-10">
+                      <h3 className="text-3xl font-extrabold text-slate-800 tracking-tight">
+                        Data is Coming! <span className="inline-block animate-bounce">✨</span>
+                      </h3>
+                      <p className="text-slate-500 text-lg font-medium leading-relaxed">
+                        We're refreshing our stock with premium new arrivals. Stay tuned! Try clearing your filters or exploring a different category.
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={clearFilters}
+                      className="px-10 py-4 bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-2xl font-bold shadow-[0_12px_25px_-10px_rgba(16,185,129,0.5)] hover:shadow-[0_18px_35px_-5px_rgba(16,185,129,0.6)] hover:-translate-y-1 active:scale-95 transition-all duration-300"
+                    >
+                      Clear All Filters
+                    </button>
+                  </div>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-600 mb-2">No products found</h3>
-                <p className="text-gray-500 mb-4">Try adjusting your filters or search terms</p>
-                <button
-                  onClick={clearFilters}
-                  className="bg-secondary text-accent-content px-6 py-2 rounded-lg hover:bg-secondary transition-colors duration-300"
-                >
-                  Clear All Filters
-                </button>
-              </div>
-            )}
+              )
+            }
 
             {/* Products */}
-            {!productsLoading && currentProducts.length > 0 && (
-              <div
-                className={`${viewMode === "grid"
-                  ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6"
-                  : "space-y-6"
-                  }`}
-              >
-                {currentProducts.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    viewMode={viewMode}
-                    router={router}
-                    toggleWishlist={toggleWishlist}
-                    wishlist={wishlist}
-                    favorite={favorite}
-                    setFavorite={setFavorite}
-                    addToCart={addToCart}
-                    user={user}
-                    handleEdit={handleEdit}
-                    setDeleteModal={setDeleteModal}
-                  />
-                ))}
-              </div>
-            )}
+            {
+              !productsLoading && currentProducts.length > 0 && (
+                <div
+                  className={`${viewMode === "grid"
+                    ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6"
+                    : "space-y-6"
+                    }`}
+                >
+                  {currentProducts.map((product) => (
+                    <ProductCard
+                      key={product._id || product.id}
+                      product={product}
+                      viewMode={viewMode}
+                      router={router}
+                      toggleWishlist={toggleWishlist}
+                      wishlist={wishlist}
+                      favorite={favorite}
+                      setFavorite={setFavorite}
+                      addToCart={addToCart}
+                      user={user}
+                      handleEdit={handleEdit}
+                      setDeleteModal={setDeleteModal}
+                    />
+                  ))}
+                </div>
+              )
+            }
 
 
 
             {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex justify-center items-center space-x-2 mt-12 flex-wrap gap-2">
-                {/* Previous Button */}
-                <button
-                  onClick={() => dispatch(setCurrentPage(Math.max(1, currentPage - 1)))}
-                  disabled={currentPage === 1}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${currentPage === 1
-                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                    : "bg-secondary text-accent-content hover:bg-secondary"
-                    }`}
-                >
-                  Previous
-                </button>
-
-                {/* First Page + Dots (if needed) */}
-                {showStartDots && (
-                  <>
-                    <button
-                      onClick={() => dispatch(setCurrentPage(1))}
-                      className="px-4 py-2 rounded-lg font-medium bg-white border border-gray-300 hover:bg-purple-50 transition-colors duration-300"
-                    >
-                      1
-                    </button>
-                    <span className="px-2 text-gray-500 font-bold">...</span>
-                  </>
-                )}
-
-                {/* Page Numbers */}
-                {pageNumbers.map((page) => (
+            {
+              totalPages > 1 && (
+                <div className="flex justify-center items-center space-x-2 mt-12 flex-wrap gap-2">
+                  {/* Previous Button */}
                   <button
-                    key={page}
-                    onClick={() => dispatch(setCurrentPage(page))}
-                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${currentPage === page
-                      ? "bg-secondary text-accent-content transform scale-110"
-                      : "bg-white border border-gray-300 hover:bg-purple-50"
+                    onClick={() => dispatch(setCurrentPage(Math.max(1, currentPage - 1)))}
+                    disabled={currentPage === 1}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${currentPage === 1
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      : "bg-secondary text-accent-content hover:bg-secondary"
                       }`}
                   >
-                    {page}
+                    Previous
                   </button>
-                ))}
 
-                {/* End Dots + Last Page (if needed) */}
-                {showEndDots && (
-                  <>
-                    <span className="px-2 text-gray-500 font-bold">...</span>
+                  {/* First Page + Dots (if needed) */}
+                  {showStartDots && (
+                    <>
+                      <button
+                        onClick={() => dispatch(setCurrentPage(1))}
+                        className="px-4 py-2 rounded-lg font-medium bg-white border border-gray-300 hover:bg-purple-50 transition-colors duration-300"
+                      >
+                        1
+                      </button>
+                      <span className="px-2 text-gray-500 font-bold">...</span>
+                    </>
+                  )}
+
+                  {/* Page Numbers */}
+                  {pageNumbers.map((page) => (
                     <button
-                      onClick={() => dispatch(setCurrentPage(totalPages))}
-                      className="px-4 py-2 rounded-lg font-medium bg-white border border-gray-300 hover:bg-purple-50 transition-colors duration-300"
+                      key={page}
+                      onClick={() => dispatch(setCurrentPage(page))}
+                      className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${currentPage === page
+                        ? "bg-secondary text-accent-content transform scale-110"
+                        : "bg-white border border-gray-300 hover:bg-purple-50"
+                        }`}
                     >
-                      {totalPages}
+                      {page}
                     </button>
-                  </>
-                )}
+                  ))}
 
-                {/* Next Button */}
-                <button
-                  onClick={() => dispatch(setCurrentPage(Math.min(totalPages, currentPage + 1)))}
-                  disabled={currentPage === totalPages}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${currentPage === totalPages
-                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                    : "bg-secondary text-accent-content hover:bg-secondary"
-                    }`}
-                >
-                  Next
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+                  {/* End Dots + Last Page (if needed) */}
+                  {showEndDots && (
+                    <>
+                      <span className="px-2 text-gray-500 font-bold">...</span>
+                      <button
+                        onClick={() => dispatch(setCurrentPage(totalPages))}
+                        className="px-4 py-2 rounded-lg font-medium bg-white border border-gray-300 hover:bg-purple-50 transition-colors duration-300"
+                      >
+                        {totalPages}
+                      </button>
+                    </>
+                  )}
+
+                  {/* Next Button */}
+                  <button
+                    onClick={() => dispatch(setCurrentPage(Math.min(totalPages, currentPage + 1)))}
+                    disabled={currentPage === totalPages}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${currentPage === totalPages
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      : "bg-secondary text-accent-content hover:bg-secondary"
+                      }`}
+                  >
+                    Next
+                  </button>
+                </div>
+              )
+            }
+          </div >
+        </div >
+      </div >
 
       {/* Edit Modal */}
       {
@@ -1387,7 +1463,7 @@ const ShopPage = ({ initialData, queryParams }) => {
           overflow: hidden;
         }
       `}</style>
-    </div>
+    </div >
   );
 };
 

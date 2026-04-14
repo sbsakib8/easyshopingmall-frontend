@@ -13,7 +13,7 @@ import CustomLoader from '@/src/compronent/loading/CustomLoader';
 import { ProductGridSkeleton } from '@/src/compronent/loading/ProductGridSkeleton';
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation"; // Import useRouter
@@ -30,6 +30,7 @@ import { useGetProduct } from "../../utlis/userProduct";
 import { useCategoryWithSubcategories } from "../../utlis/useCategoryWithSubcategories";
 import { useWishlist } from "@/src/utlis/useWishList";
 import { setQuickViewProduct } from "../../redux/shopSlice";
+import Skeleton, { CardSkeleton } from "@/src/compronent/loading/Skeleton";
 import AddtoCartBtn from "@/src/helper/Buttons/AddtoCartBtn";
 
 // Helper function to determine if product is new or old
@@ -48,17 +49,48 @@ const PopularProducts = ({ initialData }) => {
   const [showCategories, setShowCategories] = useState(false);
   const [localWishlist, setLocalWishlist] = useState(new Set());
 
+  // Internal state for retry support
+  const [products, setProducts] = useState(initialData?.products || []);
+  const [errorState, setErrorState] = useState(false);
+  const [loadingLocal, setLoadingLocal] = useState(!initialData?.products?.length);
 
   const dispatch = useDispatch();
-  const router = useRouter(); // Initialize useRouter
-  const { data: wishlistItems } = useSelector((state) => state?.wishlist?.data);
+  const router = useRouter();
   const { wishlist } = useWishlist()
   const user = useSelector((state) => state.user.data);
 
-  const category = initialData?.categories || [];
-  const product = initialData?.products || [];
   const shopCategories = initialData?.categories || [];
   const shopSubcategories = initialData?.subcategories || [];
+
+  const manualFetch = useCallback(async () => {
+    try {
+      setLoadingLocal(true);
+      setErrorState(false);
+      const res = await ProductAllGet({ page: 1, limit: 100 });
+      const fetchedProducts = res.data || res.products || (Array.isArray(res) ? res : []);
+      setProducts(fetchedProducts);
+    } catch (err) {
+      console.error("Manual fetch error:", err);
+      setErrorState(true);
+    } finally {
+      setLoadingLocal(false);
+    }
+  }, []);
+
+  // Hydrate from initialData IF it arrives late or changes
+  useEffect(() => {
+    if (initialData?.products?.length) {
+      setProducts(initialData.products);
+      setLoadingLocal(false);
+    }
+  }, [initialData]);
+
+  // Fallback fetch if no initial data
+  useEffect(() => {
+    if (!products.length && !errorState && !loadingLocal) {
+      manualFetch();
+    }
+  }, [products.length, errorState, loadingLocal, manualFetch]);
 
   // ✅ Fetch wishlist once (for logged-in user)
   useEffect(() => {
@@ -77,12 +109,28 @@ const PopularProducts = ({ initialData }) => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  const loading = false;
-  const error = false;
+  const loading = loadingLocal;
+  const isError = errorState;
+
+  if (loading && !isError) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center gap-2 mb-8">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-6 w-12" />
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+          {[...Array(10)].map((_, i) => (
+            <CardSkeleton key={i} />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   // 🧩 Merge structured dataset using shop categories
   const mergedData = useMemo(() => {
-    if (!product || !shopCategories) return { products: [], categories: [] };
+    if (!products || !shopCategories) return { products: [], categories: [] };
 
     // Use shop categories instead of old category data
     const categories = shopCategories.map((c) => ({
@@ -92,7 +140,7 @@ const PopularProducts = ({ initialData }) => {
       color: c.color || "from-slate-500 to-gray-600",
     }));
 
-    const products = product.map((p) => {
+    const productsData = products.map((p) => {
       // Handle category - can be array or object
       let categoryName = "GENERAL";
       if (Array.isArray(p.category) && p.category.length > 0) {
@@ -133,8 +181,8 @@ const PopularProducts = ({ initialData }) => {
       };
     });
 
-    return { products, categories };
-  }, [product, shopCategories]);
+    return { products: productsData, categories };
+  }, [products, shopCategories]);
 
   const currentProducts = useMemo(() => {
     if (activeCategory === "ALL") {
@@ -165,7 +213,14 @@ const PopularProducts = ({ initialData }) => {
 
 
 
-      return result;
+      // Ensure absolute uniqueness before returning to avoid React key errors
+      const seen = new Set();
+      return result.filter(p => {
+        const id = p.id || p._id;
+        if (seen.has(id)) return false;
+        seen.add(id);
+        return true;
+      });
     }
 
     // When a specific category is selected, get 5 products from each subcategory
@@ -470,11 +525,66 @@ const PopularProducts = ({ initialData }) => {
               </div>
             </div>
           ))}
-          {filteredProducts.length === 0 && (
-            <div className="col-span-full text-center py-16">
-              <Search className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-              <h3 className="text-xl font-semibold text-gray-600 mb-2">No products found</h3>
-              <p className="text-gray-500">Try adjusting your search terms</p>
+          {filteredProducts.length === 0 && !isError && (
+            <div className="col-span-full flex flex-col items-center justify-center py-24 px-4 bg-gradient-to-br from-white/90 to-slate-50/80 backdrop-blur-xl rounded-[3rem] border border-white/40 shadow-2xl relative overflow-hidden group">
+              {/* Animated Background Glows */}
+              <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+                <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-emerald-500/10 blur-[120px] rounded-full animate-pulse" />
+                <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-teal-500/10 blur-[120px] rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
+              </div>
+
+              <div className="relative z-10 flex flex-col items-center">
+                <div className="mb-10 relative">
+                  <div className="absolute inset-0 bg-emerald-200/50 rounded-full blur-3xl opacity-30 group-hover:scale-150 transition-transform duration-1000" />
+                  <div className="relative bg-white p-10 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-emerald-50 transform group-hover:scale-105 group-hover:-rotate-3 transition-all duration-500">
+                    <Search className="w-20 h-20 text-emerald-600 animate-[bounce_3s_infinite]" />
+                    <Sparkles className="absolute -top-4 -right-4 w-12 h-12 text-yellow-400 animate-pulse" />
+                  </div>
+                </div>
+
+                <div className="text-center space-y-4 max-w-lg px-6">
+                  <h3 className="text-4xl font-extrabold text-slate-800 tracking-tight">
+                    Data is Coming! <span className="inline-block animate-bounce">✨</span>
+                  </h3>
+                  <p className="text-slate-500 text-lg sm:text-xl font-medium leading-relaxed">
+                    We're meticulously curating our latest collection. Stay tuned! In the meantime, try adjusting your search or explore other categories.
+                  </p>
+                </div>
+
+                <div className="mt-12 flex flex-wrap justify-center gap-6">
+                  <button
+                    onClick={() => {
+                      setSearchTerm("");
+                      setActiveCategory("ALL");
+                    }}
+                    className="px-12 py-5 bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-2xl font-bold text-lg shadow-[0_15px_30px_-10px_rgba(16,185,129,0.5)] hover:shadow-[0_20px_40px_-5px_rgba(16,185,129,0.6)] hover:-translate-y-1 active:scale-95 transition-all duration-400"
+                  >
+                    Check All Products
+                  </button>
+                  <button
+                    onClick={() => setSearchTerm("")}
+                    className="px-12 py-5 bg-white/50 border border-slate-200 text-slate-700 backdrop-blur-sm rounded-2xl font-bold text-lg hover:bg-white hover:border-emerald-200 transition-all duration-400 shadow-sm"
+                  >
+                    Clear Filters
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {isError && (
+            <div className="col-span-full text-center py-16 bg-red-50/50 backdrop-blur-sm rounded-3xl border border-dashed border-red-200">
+              <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Search className="w-10 h-10 text-red-500" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">Failed to load products</h3>
+              <p className="text-gray-600 mb-8">There was a problem connecting to the server. Please try again.</p>
+              <button
+                onClick={manualFetch}
+                className="px-8 py-3 bg-red-500 text-accent-content rounded-xl hover:bg-red-600 transform hover:scale-105 transition-all shadow-lg shadow-red-200 font-bold"
+              >
+                Retry Fetching Data
+              </button>
             </div>
           )}
         </div>
