@@ -553,9 +553,9 @@ const ShopPage = ({ initialData, queryParams }) => {
   const sidebarSubCategories = apiSubcategories
     .filter(sub => {
       if (filterCategory === "all") return true;
-      const category = apiCategories.find(cat => 
-        cat.id === (sub.categoryId?._id || sub.categoryId) || 
-        cat.slug === filterCategory || 
+      const category = apiCategories.find(cat =>
+        cat.id === (sub.categoryId?._id || sub.categoryId) ||
+        cat.slug === filterCategory ||
         cat.name === filterCategory
       );
       return category?.slug === filterCategory || category?.name === filterCategory;
@@ -695,7 +695,7 @@ const ShopPage = ({ initialData, queryParams }) => {
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
             <div className="flex items-center gap-4 flex-wrap">
               <span className="text-gray-600 font-medium whitespace-nowrap">Showing {totalCountComputed} results</span>
-              
+
               {/* Active Filter Chips */}
               <div className="flex flex-wrap gap-2 items-center">
                 {filterCategory !== "all" && (
@@ -903,191 +903,203 @@ const ShopPage = ({ initialData, queryParams }) => {
                     </span>
                   </h3>
                   <div className={`space-y-2 ${subCategories.length > 4 ? 'max-h-64 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-secondary scrollbar-track-gray-200' : ''}`}>
-                    {subCategories.map((sub) => {
-                      const subName = typeof sub === 'string' ? sub : sub.name;
-                      const subSlug = typeof sub === 'string' ? sub : sub.slug;
-                      return (
-                        <label
-                          key={subSlug}
-                          className="flex items-center space-x-2 hover:bg-gray-50 p-2 rounded cursor-pointer"
-                        >
-                          <input
-                            type="radio"
-                            name="subcategory"
-                            checked={filterSubCategory === subSlug || filterSubCategory === subName}
-                            onChange={() => dispatch(setFilterSubCategory(subSlug))}
-                            className="text-secondary focus:ring-secondary"
-                          />
-                          <span className="capitalize text-gray-700">
-                            {subName === "all" ? "All Subcategories" : subName.replace("-", " ")}
-                          </span>
-                        </label>
-                      );
-                    })}
-                  </div>
-                </div>
+                    {
+                      subCategories.map((sub) => {
+                        const subName = typeof sub === 'string' ? sub : sub.name;
+                        const subSlug = typeof sub === 'string' ? sub : sub.slug;
+                        return (
+                          <label
+                            key={subSlug}
+                            className="flex items-center space-x-2 hover:bg-gray-50 p-2 rounded cursor-pointer"
+                          >
+                            <input
+                              type="radio"
+                              name="subcategory"
+                              checked={filterSubCategory === subSlug || filterSubCategory === subName}
+                              onChange={() => dispatch(setFilterSubCategory(subSlug))}
+                              className="text-secondary focus:ring-secondary"
+                            />
+                            <span className="capitalize text-gray-700">
+                              {subName === "all" ? "All Subcategories" : subName.replace("-", " ")}
+                            </span>
+                          </label>
+                        );
+                      })
+                    }
+                  </div >
+                </div >
               )}
 
-            </div>
-          </div>
+            </div >
+          </div >
 
           {/* Products Grid */}
-          <div className="flex-1">
+          < div className="flex-1" >
             {/* Loading State */}
-            {productsLoading && (
-              <ProductGridSkeleton count={productsPerPage} viewMode={viewMode} />
-            )}
+            {
+              productsLoading && (
+                <ProductGridSkeleton count={productsPerPage} viewMode={viewMode} />
+              )
+            }
 
             {/* Error State */}
-            {!productsLoading && productsError && (
-              <div className="text-center py-12 text-red-500 bg-red-50 rounded-lg border border-red-200 mb-6">
-                <p className="font-semibold mb-2 text-lg italic">Error loading products!</p>
-                <p className="text-sm mb-4">{productsError.message || "Check your internet or try again."}</p>
-                <button
-                  onClick={() => dispatch(fetchShopProducts({ limit: 10000 }))}
-                  className="bg-red-500 hover:bg-red-600 text-accent-content px-6 py-2 rounded-lg transition-colors font-medium shadow-md"
-                >
-                  Retry Loading
-                </button>
-              </div>
-            )}
-
-            {/* No Products Found */}
-            {!productsLoading && currentProducts.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-20 px-4 bg-gradient-to-br from-white/90 to-slate-50/80 backdrop-blur-xl rounded-[2.5rem] border border-white/40 shadow-xl relative overflow-hidden group">
-                <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-                  <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-emerald-500/5 blur-[100px] rounded-full animate-pulse" />
-                  <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-teal-500/5 blur-[100px] rounded-full animate-pulse" />
-                </div>
-
-                <div className="relative z-10 flex flex-col items-center">
-                  <div className="mb-8 relative">
-                    <div className="absolute inset-0 bg-emerald-200/40 rounded-full blur-2xl opacity-40 group-hover:scale-125 transition-transform duration-700" />
-                    <div className="relative bg-white p-8 rounded-[2rem] shadow-lg border border-emerald-50 transform group-hover:rotate-6 transition-all duration-500">
-                      <Search className="w-16 h-16 text-emerald-600 animate-[bounce_2.5s_infinite]" />
-                      <Sparkles className="absolute -top-3 -right-3 w-10 h-10 text-yellow-400 animate-pulse" />
-                    </div>
-                  </div>
-
-                  <div className="text-center space-y-3 max-w-lg mb-10">
-                    <h3 className="text-3xl font-extrabold text-slate-800 tracking-tight">
-                      Data is Coming! <span className="inline-block animate-bounce">✨</span>
-                    </h3>
-                    <p className="text-slate-500 text-lg font-medium leading-relaxed">
-                      We're refreshing our stock with premium new arrivals. Stay tuned! Try clearing your filters or exploring a different category.
-                    </p>
-                  </div>
-
+            {
+              !productsLoading && productsError && (
+                <div className="text-center py-12 text-red-500 bg-red-50 rounded-lg border border-red-200 mb-6">
+                  <p className="font-semibold mb-2 text-lg italic">Error loading products!</p>
+                  <p className="text-sm mb-4">{productsError.message || "Check your internet or try again."}</p>
                   <button
-                    onClick={clearFilters}
-                    className="px-10 py-4 bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-2xl font-bold shadow-[0_12px_25px_-10px_rgba(16,185,129,0.5)] hover:shadow-[0_18px_35px_-5px_rgba(16,185,129,0.6)] hover:-translate-y-1 active:scale-95 transition-all duration-300"
+                    onClick={() => dispatch(fetchShopProducts({ limit: 10000 }))}
+                    className="bg-red-500 hover:bg-red-600 text-accent-content px-6 py-2 rounded-lg transition-colors font-medium shadow-md"
                   >
-                    Clear All Filters
+                    Retry Loading
                   </button>
                 </div>
-              </div>
-            )}
+              )
+            }
+
+            {/* No Products Found */}
+            {
+              !productsLoading && currentProducts.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-20 px-4 bg-gradient-to-br from-white/90 to-slate-50/80 backdrop-blur-xl rounded-[2.5rem] border border-white/40 shadow-xl relative overflow-hidden group">
+                  <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+                    <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-emerald-500/5 blur-[100px] rounded-full animate-pulse" />
+                    <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-teal-500/5 blur-[100px] rounded-full animate-pulse" />
+                  </div>
+
+                  <div className="relative z-10 flex flex-col items-center">
+                    <div className="mb-8 relative">
+                      <div className="absolute inset-0 bg-emerald-200/40 rounded-full blur-2xl opacity-40 group-hover:scale-125 transition-transform duration-700" />
+                      <div className="relative bg-white p-8 rounded-[2rem] shadow-lg border border-emerald-50 transform group-hover:rotate-6 transition-all duration-500">
+                        <Search className="w-16 h-16 text-emerald-600 animate-[bounce_2.5s_infinite]" />
+                        <Sparkles className="absolute -top-3 -right-3 w-10 h-10 text-yellow-400 animate-pulse" />
+                      </div>
+                    </div>
+
+                    <div className="text-center space-y-3 max-w-lg mb-10">
+                      <h3 className="text-3xl font-extrabold text-slate-800 tracking-tight">
+                        Data is Coming! <span className="inline-block animate-bounce">✨</span>
+                      </h3>
+                      <p className="text-slate-500 text-lg font-medium leading-relaxed">
+                        We're refreshing our stock with premium new arrivals. Stay tuned! Try clearing your filters or exploring a different category.
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={clearFilters}
+                      className="px-10 py-4 bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-2xl font-bold shadow-[0_12px_25px_-10px_rgba(16,185,129,0.5)] hover:shadow-[0_18px_35px_-5px_rgba(16,185,129,0.6)] hover:-translate-y-1 active:scale-95 transition-all duration-300"
+                    >
+                      Clear All Filters
+                    </button>
+                  </div>
+                </div>
+              )
+            }
 
             {/* Products */}
-            {!productsLoading && currentProducts.length > 0 && (
-              <div
-                className={`${viewMode === "grid"
-                  ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6"
-                  : "space-y-6"
-                  }`}
-              >
-                {currentProducts.map((product) => (
-                  <ProductCard
-                    key={product._id || product.id}
-                    product={product}
-                    viewMode={viewMode}
-                    router={router}
-                    toggleWishlist={toggleWishlist}
-                    wishlist={wishlist}
-                    favorite={favorite}
-                    setFavorite={setFavorite}
-                    addToCart={addToCart}
-                    user={user}
-                    handleEdit={handleEdit}
-                    setDeleteModal={setDeleteModal}
-                  />
-                ))}
-              </div>
-            )}
+            {
+              !productsLoading && currentProducts.length > 0 && (
+                <div
+                  className={`${viewMode === "grid"
+                    ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6"
+                    : "space-y-6"
+                    }`}
+                >
+                  {currentProducts.map((product) => (
+                    <ProductCard
+                      key={product._id || product.id}
+                      product={product}
+                      viewMode={viewMode}
+                      router={router}
+                      toggleWishlist={toggleWishlist}
+                      wishlist={wishlist}
+                      favorite={favorite}
+                      setFavorite={setFavorite}
+                      addToCart={addToCart}
+                      user={user}
+                      handleEdit={handleEdit}
+                      setDeleteModal={setDeleteModal}
+                    />
+                  ))}
+                </div>
+              )
+            }
 
 
 
             {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex justify-center items-center space-x-2 mt-12 flex-wrap gap-2">
-                {/* Previous Button */}
-                <button
-                  onClick={() => dispatch(setCurrentPage(Math.max(1, currentPage - 1)))}
-                  disabled={currentPage === 1}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${currentPage === 1
-                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                    : "bg-secondary text-accent-content hover:bg-secondary"
-                    }`}
-                >
-                  Previous
-                </button>
-
-                {/* First Page + Dots (if needed) */}
-                {showStartDots && (
-                  <>
-                    <button
-                      onClick={() => dispatch(setCurrentPage(1))}
-                      className="px-4 py-2 rounded-lg font-medium bg-white border border-gray-300 hover:bg-purple-50 transition-colors duration-300"
-                    >
-                      1
-                    </button>
-                    <span className="px-2 text-gray-500 font-bold">...</span>
-                  </>
-                )}
-
-                {/* Page Numbers */}
-                {pageNumbers.map((page) => (
+            {
+              totalPages > 1 && (
+                <div className="flex justify-center items-center space-x-2 mt-12 flex-wrap gap-2">
+                  {/* Previous Button */}
                   <button
-                    key={page}
-                    onClick={() => dispatch(setCurrentPage(page))}
-                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${currentPage === page
-                      ? "bg-secondary text-accent-content transform scale-110"
-                      : "bg-white border border-gray-300 hover:bg-purple-50"
+                    onClick={() => dispatch(setCurrentPage(Math.max(1, currentPage - 1)))}
+                    disabled={currentPage === 1}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${currentPage === 1
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      : "bg-secondary text-accent-content hover:bg-secondary"
                       }`}
                   >
-                    {page}
+                    Previous
                   </button>
-                ))}
 
-                {/* End Dots + Last Page (if needed) */}
-                {showEndDots && (
-                  <>
-                    <span className="px-2 text-gray-500 font-bold">...</span>
+                  {/* First Page + Dots (if needed) */}
+                  {showStartDots && (
+                    <>
+                      <button
+                        onClick={() => dispatch(setCurrentPage(1))}
+                        className="px-4 py-2 rounded-lg font-medium bg-white border border-gray-300 hover:bg-purple-50 transition-colors duration-300"
+                      >
+                        1
+                      </button>
+                      <span className="px-2 text-gray-500 font-bold">...</span>
+                    </>
+                  )}
+
+                  {/* Page Numbers */}
+                  {pageNumbers.map((page) => (
                     <button
-                      onClick={() => dispatch(setCurrentPage(totalPages))}
-                      className="px-4 py-2 rounded-lg font-medium bg-white border border-gray-300 hover:bg-purple-50 transition-colors duration-300"
+                      key={page}
+                      onClick={() => dispatch(setCurrentPage(page))}
+                      className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${currentPage === page
+                        ? "bg-secondary text-accent-content transform scale-110"
+                        : "bg-white border border-gray-300 hover:bg-purple-50"
+                        }`}
                     >
-                      {totalPages}
+                      {page}
                     </button>
-                  </>
-                )}
+                  ))}
 
-                {/* Next Button */}
-                <button
-                  onClick={() => dispatch(setCurrentPage(Math.min(totalPages, currentPage + 1)))}
-                  disabled={currentPage === totalPages}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${currentPage === totalPages
-                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                    : "bg-secondary text-accent-content hover:bg-secondary"
-                    }`}
-                >
-                  Next
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+                  {/* End Dots + Last Page (if needed) */}
+                  {showEndDots && (
+                    <>
+                      <span className="px-2 text-gray-500 font-bold">...</span>
+                      <button
+                        onClick={() => dispatch(setCurrentPage(totalPages))}
+                        className="px-4 py-2 rounded-lg font-medium bg-white border border-gray-300 hover:bg-purple-50 transition-colors duration-300"
+                      >
+                        {totalPages}
+                      </button>
+                    </>
+                  )}
+
+                  {/* Next Button */}
+                  <button
+                    onClick={() => dispatch(setCurrentPage(Math.min(totalPages, currentPage + 1)))}
+                    disabled={currentPage === totalPages}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${currentPage === totalPages
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      : "bg-secondary text-accent-content hover:bg-secondary"
+                      }`}
+                  >
+                    Next
+                  </button>
+                </div>
+              )
+            }
+          </div >
+        </div >
+      </div >
 
       {/* Edit Modal */}
       {
@@ -1415,18 +1427,18 @@ const ShopPage = ({ initialData, queryParams }) => {
         }
         
         .scrollbar-thin::-webkit-scrollbar-thumb {
-          background: #a855f7;
+          background: #FFC900;
           border-radius: 10px;
         }
         
         .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-          background: #9333ea;
+          background: #ffe100;
         }
         
         /* Firefox */
         .scrollbar-thin {
           scrollbar-width: thin;
-          scrollbar-color: #a855f7 #e5e7eb;
+          scrollbar-color: #FFC900 #e5e7eb;
         }
       `}</style>
       {/* ✨ Animations + Glassmorphism + Scrollbar Hide */}
@@ -1451,7 +1463,7 @@ const ShopPage = ({ initialData, queryParams }) => {
           overflow: hidden;
         }
       `}</style>
-    </div>
+    </div >
   );
 };
 

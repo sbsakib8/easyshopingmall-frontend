@@ -20,16 +20,15 @@ export const useCategoryWithSubcategories = (initialCategories = null, initialSu
         image: subcat.subcategoryImage || '',
     }));
 
-    const [categories, setCategories] = useState(initialCategories ? normalizeCategories(initialCategories) : []);
-    const [subcategories, setSubcategories] = useState(initialSubcategories ? normalizeSubcats(initialSubcategories) : []);
-    const [loading, setLoading] = useState(!initialCategories || !initialSubcategories);
+    const [categories, setCategories] = useState(initialCategories?.length > 0 ? normalizeCategories(initialCategories) : []);
+    const [subcategories, setSubcategories] = useState(initialSubcategories?.length > 0 ? normalizeSubcats(initialSubcategories) : []);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const dispatch = useDispatch();
 
     const fetchCategoriesAndSubcategories = useCallback(async () => {
-        // Skip if we already used initial data
-        if (initialCategories && initialCategories !== null && subcategories.length > 0) {
-            setLoading(false);
+        // Skip if we already have initial data or are already fetching
+        if (categories.length > 0 && subcategories.length > 0) {
             return;
         }
         try {

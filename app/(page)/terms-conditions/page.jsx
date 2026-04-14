@@ -20,8 +20,6 @@ import {
 } from "lucide-react";
 import { UrlBackend } from "@/src/confic/urlExport";
 
-export const dynamic = "force-dynamic";
-
 export const metadata = {
     title: "Terms & Conditions - EasyShoppingMallBD",
     description: "Read the Terms & Conditions of EasyShoppingMallBD to understand the rules and guidelines for using our platform.",
@@ -30,7 +28,9 @@ export const metadata = {
 const TermsConditions = async () => {
     let siteInfo = null;
     try {
-        const res = await fetch(`${UrlBackend}/websiteinfo/get`, { cache: 'no-store' });
+        const res = await fetch(`${UrlBackend}/websiteinfo/get`, {
+            next: { revalidate: 3600 } // Cache for 1 hour
+        });
         const result = await res.json();
         siteInfo = result?.data?.[0] ?? null;
     } catch (error) {

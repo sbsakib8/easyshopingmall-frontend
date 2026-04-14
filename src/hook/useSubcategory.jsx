@@ -8,9 +8,14 @@ export const SubCategoryCreate = async (formData,) => {
       withCredentials: true,
       headers: { "Content-Type": "multipart/form-data" },
     });
-    return response.data;
+    if (response) {
+      return response.data;
+    }
   } catch (error) {
-    console.error("Registration error:", error.response?.data || error.message);
+    if (error.code === 'ECONNREFUSED' || error.message?.includes('ECONNREFUSED')) {
+      return { success: false, data: [], message: "Backend unreachable during build" };
+    }
+    console.error("Subcategory fetch error:", error.response?.data || error.message);
     throw error;
   }
 };

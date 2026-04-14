@@ -7,8 +7,9 @@ const nextConfig = {
                 hostname: "res.cloudinary.com",
             },
         ],
-        // OR (older syntax)
-        // domains: ["res.cloudinary.com"],
+    },
+    experimental: {
+        // Removed invalid turbopack key to resolve configuration warnings
     },
 };
 

@@ -17,8 +17,6 @@ import {
 } from "lucide-react";
 import { UrlBackend } from "@/src/confic/urlExport";
 
-export const dynamic = "force-dynamic";
-
 export const metadata = {
     title: "Privacy Policy - EasyShoppingMallBD",
     description: "Read the Privacy Policy of EasyShoppingMallBD to understand how we collect, use, and protect your personal information.",
@@ -27,7 +25,9 @@ export const metadata = {
 const PrivacyPolicy = async () => {
     let siteInfo = null;
     try {
-        const res = await fetch(`${UrlBackend}/websiteinfo/get`, { cache: 'no-store' });
+        const res = await fetch(`${UrlBackend}/websiteinfo/get`, {
+            next: { revalidate: 3600 } // Cache for 1 hour
+        });
         const result = await res.json();
         siteInfo = result?.data?.[0] ?? null;
     } catch (error) {

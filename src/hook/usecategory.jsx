@@ -13,7 +13,7 @@ export const CategoryCreate = async (formData,) => {
     });
     return response.data;
   } catch (error) {
-    console.error("Registration error:", error.response?.data || error.message);
+    console.error("Category creation error:", error.response?.data || error.message);
     throw error;
   }
 };
@@ -29,6 +29,9 @@ export const CategoryAllGet = async (dispatch) => {
     }
     return response.data;
   } catch (error) {
+    if (error.code === 'ECONNREFUSED' || error.message?.includes('ECONNREFUSED')) {
+      return { success: false, data: [], message: "Backend unreachable during build" };
+    }
     console.error("Category fetch error:", error.response?.data || error.message);
     throw error;
   }

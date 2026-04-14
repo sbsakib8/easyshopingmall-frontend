@@ -81,8 +81,8 @@ async function getProducts() {
       totalFetched += products.length;
       totalCount = json.totalCount || totalFetched;
       page++;
-      
-      if (page > 30) break; 
+
+      if (page > 30) break;
     } while (totalFetched < totalCount);
 
     return { products: allProducts, totalCount: allProducts.length };
