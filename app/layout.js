@@ -19,7 +19,7 @@ const roboto = Roboto({
   display: "swap",
 });
 
-// export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic';
 
 export const metadata = {
   title: {
@@ -86,9 +86,9 @@ export default async function RootLayout({ children }) {
         <Providers>
           <LayoutWrapper initialWebsiteInfo={websiteInfo}>{children}</LayoutWrapper>
         </Providers>
-        < ToasterClient />
+        <ToasterClient />
+        <GoogleAnalytics gaId="G-5MQNQRZC5T" />
       </body>
-      <GoogleAnalytics gaId="G-5MQNQRZC5T" />
     </html>
   );
 }

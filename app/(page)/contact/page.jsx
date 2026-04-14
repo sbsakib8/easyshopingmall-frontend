@@ -2,8 +2,7 @@ import ContactPage from "@/src/compronent/contact/contact"
 import { UrlBackend } from "@/src/confic/urlExport";
 
 // Enable ISR with 24-hour revalidation
-export const revalidate = 86400; 
-
+export const dynamic = 'force-dynamic';
 async function getWebsiteInfo() {
   try {
     const res = await fetch(`${UrlBackend}/websiteinfo/get`, {

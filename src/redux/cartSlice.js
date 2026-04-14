@@ -62,20 +62,13 @@ const cartSlice = createSlice({
         // -------- Add item from API
         cartAdd: (state, action) => {
             state.loading = false;
-            state.items.push(action.payload);
+            state.items = action.payload.products || [];
         },
 
-        // -------- Backend update (overwrite updated item)
+        // -------- Backend update (overwrite updated items)
         cartUpdate: (state, action) => {
             state.loading = false;
-            const updated = action.payload;
-
-            state.items = state.items.map(item =>
-                (item.productId._id || item.productId) === updated.productId
-                    ? updated
-                    : item
-            );
-
+            state.items = action.payload.products || [];
         },
 
         // -------- Remove item based on productId

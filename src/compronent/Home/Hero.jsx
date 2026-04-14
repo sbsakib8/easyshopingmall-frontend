@@ -14,7 +14,7 @@ function Hero({ initialData }) {
       </div>
 
       <div className='mt-5 bg-bg'>
-        <Categories initialData={initialData?.categories} />
+        <Categories initialData={initialData?.subcategories} />
       </div>
       <Ads initialData={initialData?.ads} />
       <PopularProducts initialData={initialData} />
