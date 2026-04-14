@@ -1,4 +1,4 @@
-export const revalidate = 86400;
+export const dynamic = 'force-dynamic';
 
 import WishlistComponent from '@/src/compronent/wishlist/wishLisPage'
 import React from 'react'

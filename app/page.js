@@ -2,7 +2,7 @@ import { UrlBackend } from "@/src/confic/urlExport";
 import HomeContent from "./HomeContent";
 
 // Enable revalidation
-export const revalidate = 300;
+export const dynamic = 'force-dynamic';
 
 async function getCategories() {
   try {

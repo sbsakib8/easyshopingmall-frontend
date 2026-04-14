@@ -1,4 +1,4 @@
-export const revalidate = 86400;
+export const dynamic = 'force-dynamic';
 
 import ShoppingCartComponent from "@/src/compronent/addToCard/addToCardPage"
 

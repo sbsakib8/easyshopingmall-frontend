@@ -367,7 +367,7 @@ const Header = ({ initialData }) => {
                               >
                                 <button
                                   onClick={() => {
-                                    router.push(`/shop?category=${encodeURIComponent(category.name)}`);
+                                    router.push(`/shop?category=${encodeURIComponent(category.slug || category.name)}`);
                                     setIsCategoriesOpen(false);
                                   }}
                                   className={`flex items-center space-x-3 w-full px-6 py-4 transition-all duration-300 ${isActiveCategory
@@ -400,7 +400,7 @@ const Header = ({ initialData }) => {
                                       <Link
                                       onClick={()=>setIsCategoriesOpen(false)}
                                         key={sub.name}
-                                        href={`/shop?category=${encodeURIComponent(category.name)}&subcategory=${encodeURIComponent(sub.name)}`}
+                                        href={`/shop?category=${encodeURIComponent(category.slug || category.name)}&subcategory=${encodeURIComponent(sub.slug || sub.name)}`}
                                         className="block px-6 py-3 text-gray-600 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 font-medium"
                                       >
                                         {sub.name}
@@ -668,7 +668,7 @@ const Header = ({ initialData }) => {
                               {/* Option to view all in this category */}
                               <Link
                                 onClick={toggleMobileMenu}
-                                href={`/shop?category=${encodeURIComponent(category.name)}`}
+                                href={`/shop?category=${encodeURIComponent(category.slug || category.name)}`}
                                 className="block py-2 px-2 rounded-md text-sm font-bold text-emerald-600 hover:bg-emerald-50 transition-all underline"
                               >
                                 View All {category.name}
@@ -678,7 +678,7 @@ const Header = ({ initialData }) => {
                                 <Link
                                   key={sub.name}
                                   onClick={toggleMobileMenu}
-                                  href={`/shop?category=${encodeURIComponent(category.name)}&subcategory=${encodeURIComponent(sub.name)}`}
+                                  href={`/shop?category=${encodeURIComponent(category.slug || category.name)}&subcategory=${encodeURIComponent(sub.slug || sub.name)}`}
                                   className="block py-2 px-2 rounded-md text-sm text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 transition-all"
                                 >
                                   {sub.name}

@@ -23,7 +23,7 @@ import { getCategoryId, getSubCategoryId } from "@/src/utlis/filterHelpers"
 import { useCategoryWithSubcategories } from "@/src/utlis/useCategoryWithSubcategories"
 import { useWishlist } from "@/src/utlis/useWishList"
 import { createCouponCode, getAllCoupons, updateCouponCode } from "@/src/hook/useCoupon"
-import { ArrowUp, CheckCircle, ChevronDown, Edit, Filter, Grid, Heart, Info, List, Search, ShoppingCart, SlidersHorizontal, Sparkles, Star, Tag, Trash2, X } from "lucide-react"
+import { ArrowUp, CheckCircle, ChevronDown, Edit, Filter, Grid, Heart, Info, List, RotateCcw, Search, ShoppingCart, SlidersHorizontal, Sparkles, Star, Tag, Trash2, X } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
 import React, { useCallback, useEffect, useMemo, useState, useRef } from "react"
 import toast from "react-hot-toast"
@@ -261,6 +261,19 @@ const ShopPage = ({ initialData, queryParams }) => {
     debouncedSearchTerm
   } = shopState
 
+  const hasActiveFilters = useMemo(() => {
+    return (
+      searchTerm !== "" ||
+      filterCategory !== "all" ||
+      filterSubCategory !== "all" ||
+      filterBrand !== "all" ||
+      filterGender !== "all" ||
+      priceRange[0] > 0 ||
+      priceRange[1] < 100000 ||
+      sortBy !== "name"
+    );
+  }, [searchTerm, filterCategory, filterSubCategory, filterBrand, filterGender, priceRange, sortBy]);
+
   // Hydrate Redux with Server Data on Mount
   useEffect(() => {
     if (initialData?.products?.length && !reduxProducts.length) {
@@ -390,8 +403,8 @@ const ShopPage = ({ initialData, queryParams }) => {
       page: currentPage,
       limit: productsPerPage,
       search: debouncedSearchTerm,
-      category: filterCategory === "all" ? undefined : filterCategory,
-      subcategory: filterSubCategory === "all" ? undefined : filterSubCategory,
+      categoryId: filterCategory === "all" ? undefined : filterCategory,
+      subCategoryId: filterSubCategory === "all" ? undefined : filterSubCategory,
       brand: filterBrand === "all" ? undefined : filterBrand,
       gender: filterGender === "all" ? undefined : filterGender,
       minPrice: priceRange[0],
@@ -529,21 +542,30 @@ const ShopPage = ({ initialData, queryParams }) => {
   const showStartDots = currentPage > 5;
   const showEndDots = pageNumbers.length > 0 && pageNumbers[pageNumbers.length - 1] < totalPages;
 
-  // Use API categories if available, otherwise fall back to product categories
-  const categories = apiCategories.length > 0
-    ? ["all", ...apiCategories.map(cat => cat.name)]
-    : ["all"]
+  // Use API categories if available
+  const sidebarCategories = apiCategories.map(cat => ({
+    name: cat.name,
+    slug: cat.slug || cat.name.toLowerCase().replace(/ /g, "-")
+  }));
 
-  const subCategories = apiSubcategories.length > 0
-    ? (filterCategory === "all"
-      ? ["all", ...apiSubcategories.map(sub => sub.name)]
-      : ["all", ...apiSubcategories
-        .filter(sub => {
-          const category = apiCategories.find(cat => cat.id === sub.categoryId || cat.id === sub.categoryId?._id)
-          return category?.name === filterCategory
-        })
-        .map(sub => sub.name)])
-    : ["all"]
+  const categories = ["all", ...sidebarCategories];
+
+  const sidebarSubCategories = apiSubcategories
+    .filter(sub => {
+      if (filterCategory === "all") return true;
+      const category = apiCategories.find(cat => 
+        cat.id === (sub.categoryId?._id || sub.categoryId) || 
+        cat.slug === filterCategory || 
+        cat.name === filterCategory
+      );
+      return category?.slug === filterCategory || category?.name === filterCategory;
+    })
+    .map(sub => ({
+      name: sub.name,
+      slug: sub.slug || sub.name.toLowerCase().replace(/ /g, "-")
+    }));
+
+  const subCategories = ["all", ...sidebarSubCategories];
 
   const brands = ["all"] // Can be populated from API if needed
   const genders = ["all", "men", "women", "unisex"]
@@ -672,9 +694,61 @@ const ShopPage = ({ initialData, queryParams }) => {
         <div className="bg-white lg:mt-28 rounded-lg shadow-md p-4 mb-6">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
             <div className="flex items-center gap-4 flex-wrap">
-              <span className="text-gray-600 font-medium">Showing {totalCountComputed} results</span>
-              {/* Quick Filters */}
+              <span className="text-gray-600 font-medium whitespace-nowrap">Showing {totalCountComputed} results</span>
+              
+              {/* Active Filter Chips */}
+              <div className="flex flex-wrap gap-2 items-center">
+                {filterCategory !== "all" && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-lg border border-emerald-100 shadow-sm animate-in fade-in zoom-in duration-300">
+                    <span className="capitalize">{filterCategory.replace(/-/g, " ")}</span>
+                    <button onClick={() => dispatch(setFilterCategory("all"))} className="hover:text-red-500 transition-colors">
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+                {filterSubCategory !== "all" && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-sky-50 text-sky-700 text-xs font-bold rounded-lg border border-sky-100 shadow-sm animate-in fade-in zoom-in duration-300">
+                    <span className="capitalize">{filterSubCategory.replace(/-/g, " ")}</span>
+                    <button onClick={() => dispatch(setFilterSubCategory("all"))} className="hover:text-red-500 transition-colors">
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+                {searchTerm && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 text-amber-700 text-xs font-bold rounded-lg border border-amber-100 shadow-sm animate-in fade-in zoom-in duration-300">
+                    <span>Search: {searchTerm}</span>
+                    <button onClick={() => dispatch(setSearchTerm(""))} className="hover:text-red-500 transition-colors">
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+                {(priceRange[0] > 0 || priceRange[1] < 100000) && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-rose-50 text-rose-700 text-xs font-bold rounded-lg border border-rose-100 shadow-sm animate-in fade-in zoom-in duration-300">
+                    <span>৳{priceRange[0]} - ৳{priceRange[1]}</span>
+                    <button onClick={() => dispatch(setPriceRange([0, 100000]))} className="hover:text-red-500 transition-colors">
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+                {sortBy !== "name" && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-lg border border-indigo-100 shadow-sm animate-in fade-in zoom-in duration-300">
+                    <span>Sorted: {sortBy.replace(/-/g, " ")}</span>
+                    <button onClick={() => dispatch(setSortBy("name"))} className="hover:text-red-500 transition-colors">
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
 
+                {hasActiveFilters && (
+                  <button
+                    onClick={clearFilters}
+                    className="flex items-center gap-1.5 text-xs font-bold text-red-500 hover:text-red-700 transition-all duration-300 group px-2 py-1.5"
+                  >
+                    <Trash2 className="w-3.5 h-3.5 group-hover:scale-110" />
+                    <span className="underline decoration-dotted underline-offset-4">Clear All</span>
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="flex items-center gap-4">
@@ -732,6 +806,17 @@ const ShopPage = ({ initialData, queryParams }) => {
             </button>
 
             <div className={`space-y-6 ${showFilters ? "block" : "hidden lg:block"}`}>
+              {/* Reset All Filters Button */}
+              <div className="bg-white p-2 sm:p-4 rounded-2xl shadow-sm border border-gray-100 group transition-all duration-300 hover:shadow-md">
+                <button
+                  onClick={clearFilters}
+                  className="w-full flex items-center justify-center gap-3 py-3 px-4 bg-gradient-to-r from-red-50 to-rose-50 text-red-600 font-bold rounded-xl border border-red-100 hover:from-red-600 hover:to-rose-600 hover:text-white transition-all duration-500 group-hover:scale-[1.02] shadow-sm hover:shadow-red-200"
+                >
+                  <RotateCcw className="w-5 h-5 group-hover:rotate-[-180deg] transition-transform duration-700" />
+                  <span className="text-sm sm:text-base">Reset All Filters</span>
+                </button>
+              </div>
+
               {/* Price Filter */}
               <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
                 <h3 className="font-bold text-lg mb-4 text-gray-800">Price Filter</h3>
@@ -779,28 +864,32 @@ const ShopPage = ({ initialData, queryParams }) => {
                   <span className={`${showCategory ? "" : "rotate-180"} lg:hidden`}><ArrowUp /></span>
                 </h3>
                 <div className={`space-y-2 ${categories.length > 4 ? 'max-h-64 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-secondary scrollbar-track-gray-200' : ''}`}>
-                  {categories.map((category) => (
-                    <label
-                      key={category}
-                      className={` items-center space-x-2 hover:bg-gray-50 p-2 rounded cursor-pointer ${showCategory ? "flex" : "hidden"} lg:flex`}
-                    >
-                      <input
-                        type="radio"
-                        name="category"
-                        checked={filterCategory === category}
-                        onChange={() => {
-                          dispatch(setFilterCategory(category))
-                          dispatch(setFilterSubCategory("all"))
-                          setShowSubCategory(true)
-                          setShowCategory(false)
-                        }}
-                        className="text-secondary focus:ring-secondary"
-                      />
-                      <span className="capitalize text-gray-700">
-                        {category === "all" ? "All Categories" : category.replace("-", " ")}
-                      </span>
-                    </label>
-                  ))}
+                  {categories.map((cat) => {
+                    const catName = typeof cat === 'string' ? cat : cat.name;
+                    const catSlug = typeof cat === 'string' ? cat : cat.slug;
+                    return (
+                      <label
+                        key={catSlug}
+                        className={` items-center space-x-2 hover:bg-gray-50 p-2 rounded cursor-pointer ${showCategory ? "flex" : "hidden"} lg:flex`}
+                      >
+                        <input
+                          type="radio"
+                          name="category"
+                          checked={filterCategory === catSlug || filterCategory === catName}
+                          onChange={() => {
+                            dispatch(setFilterCategory(catSlug))
+                            dispatch(setFilterSubCategory("all"))
+                            setShowSubCategory(true)
+                            setShowCategory(false)
+                          }}
+                          className="text-secondary focus:ring-secondary"
+                        />
+                        <span className="capitalize text-gray-700">
+                          {catName === "all" ? "All Categories" : catName.replace("-", " ")}
+                        </span>
+                      </label>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -814,23 +903,27 @@ const ShopPage = ({ initialData, queryParams }) => {
                     </span>
                   </h3>
                   <div className={`space-y-2 ${subCategories.length > 4 ? 'max-h-64 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-secondary scrollbar-track-gray-200' : ''}`}>
-                    {subCategories.map((subcat) => (
-                      <label
-                        key={subcat}
-                        className="flex items-center space-x-2 hover:bg-gray-50 p-2 rounded cursor-pointer"
-                      >
-                        <input
-                          type="radio"
-                          name="subcategory"
-                          checked={filterSubCategory === subcat}
-                          onChange={() => dispatch(setFilterSubCategory(subcat))}
-                          className="text-secondary focus:ring-secondary"
-                        />
-                        <span className="capitalize text-gray-700">
-                          {subcat === "all" ? "All Subcategories" : subcat.replace("-", " ")}
-                        </span>
-                      </label>
-                    ))}
+                    {subCategories.map((sub) => {
+                      const subName = typeof sub === 'string' ? sub : sub.name;
+                      const subSlug = typeof sub === 'string' ? sub : sub.slug;
+                      return (
+                        <label
+                          key={subSlug}
+                          className="flex items-center space-x-2 hover:bg-gray-50 p-2 rounded cursor-pointer"
+                        >
+                          <input
+                            type="radio"
+                            name="subcategory"
+                            checked={filterSubCategory === subSlug || filterSubCategory === subName}
+                            onChange={() => dispatch(setFilterSubCategory(subSlug))}
+                            className="text-secondary focus:ring-secondary"
+                          />
+                          <span className="capitalize text-gray-700">
+                            {subName === "all" ? "All Subcategories" : subName.replace("-", " ")}
+                          </span>
+                        </label>
+                      );
+                    })}
                   </div>
                 </div>
               )}
