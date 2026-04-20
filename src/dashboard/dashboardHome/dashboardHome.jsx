@@ -320,12 +320,28 @@ const DashboardHome = () => {
  Here's what's happening with your store today
  </p>
  </div>
- <div className="mt-4 sm:mt-0 text-right">
- <p className="text-lg font-semibold text-gray-200">
- {currentTime.toLocaleDateString("en-BD")}
- </p>
- <p className="text-gray-400 text-sm">{currentTime.toLocaleTimeString("en-BD")}</p>
- </div>
+  <div className="mt-4 sm:mt-0 text-right flex flex-col items-end">
+  <p className="text-lg font-semibold text-gray-200">
+  {currentTime.toLocaleDateString("en-BD")}
+  </p>
+  <p className="text-gray-400 text-sm">{currentTime.toLocaleTimeString("en-BD")}</p>
+  
+  {user?.referralCode && (
+    <div className="mt-3 flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-xl border border-white/20">
+      <span className="text-xs text-gray-400">Referral Code:</span>
+      <span className="text-sm font-bold text-teal-400">{user.referralCode}</span>
+      <button 
+        onClick={() => {
+          navigator.clipboard.writeText(user.referralCode);
+          alert("Referral code copied!");
+        }}
+        className="ml-1 p-1 hover:bg-white/20 rounded-md transition-colors"
+      >
+        <FileText className="w-3 h-3 text-gray-300" />
+      </button>
+    </div>
+  )}
+  </div>
  </div>
  </div>
  </div>

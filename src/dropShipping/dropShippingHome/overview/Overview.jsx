@@ -1,7 +1,16 @@
-import {ClockAlertIcon} from"lucide-react";
+import {ClockAlertIcon, Clipboard} from"lucide-react";
 import Link from"next/link";
-;
+import { useSelector } from "react-redux";
+import toast from "react-hot-toast";
+
 function Overview() {
+ const data = useSelector((state) => state.user.data);
+
+ const copyToClipboard = (text) => {
+  navigator.clipboard.writeText(text);
+  toast.success("Referral code copied!");
+ };
+
  const overview = [
  {
  id: 1,
@@ -64,14 +73,27 @@ function Overview() {
  return (
  <div className="container mx-auto px-4 py-8">
  {/* Header */}
- <div className="text-center mb-5">
- <h2 className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-2">
- Over View
- </h2>
- <p className="text-gray-500 text-sm">
- Seclect Section
- </p>
- </div>
+  <div className="text-center mb-5">
+  <h2 className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-2">
+  Over View
+  </h2>
+  <div className="flex flex-col items-center gap-2">
+    <p className="text-gray-500 text-sm">Select Section</p>
+    {data?.referralCode && (
+      <div className="flex items-center gap-3 bg-white shadow-sm border border-gray-100 px-4 py-2 rounded-full mt-2">
+        <span className="text-sm font-medium text-gray-600">Referral Code:</span>
+        <span className="text-lg font-bold text-teal-600 tracking-wider">{data.referralCode}</span>
+        <button 
+          onClick={() => copyToClipboard(data.referralCode)}
+          className="p-1.5 hover:bg-teal-50 rounded-full transition-colors text-teal-600 cursor-pointer"
+          title="Copy Referral Code"
+        >
+          <Clipboard className="w-4 h-4" />
+        </button>
+      </div>
+    )}
+  </div>
+  </div>
  <div className='container grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3'>
  {overview.map(view => <Link key={view.id} className={`py-20 md:px-20 cursor-pointer rounded-2xl relative ${view.class}`} href={view.href}>
  <h2 className="text-center text-lg font-bold"> {view.text}</h2>
