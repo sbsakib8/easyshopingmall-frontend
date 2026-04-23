@@ -609,6 +609,34 @@ const AccountPage = () => {
                           </select>
                         </div>
                       </div>
+
+                      {/* Referral Code (Only for DROPSHIPPING) */}
+                      {(profileData.role === "DROPSHIPPING" || profileData.roles?.includes("DROPSHIPPING")) && (
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-gray-700">Referral Code</label>
+                          <div className="relative group">
+                            <Zap className="absolute left-3 top-3 w-5 h-5 text-amber-500" />
+                            <input
+                              type="text"
+                              value={profileData.referralCode || ""}
+                              readOnly
+                              className="w-full pl-10 pr-12 py-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 font-bold focus:ring-0 focus:border-amber-300"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                navigator.clipboard.writeText(profileData.referralCode);
+                                toast.success("Referral code copied!");
+                              }}
+                              className="absolute right-3 top-2.5 p-1.5 bg-amber-200 hover:bg-amber-300 text-amber-800 rounded-lg transition-colors cursor-pointer"
+                              title="Copy code"
+                            >
+                              <Share2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                          <p className="text-xs text-amber-600 font-medium italic">Share this code to earn referral bonuses!</p>
+                        </div>
+                      )}
                       
 <div className="md:col-span-2 space-y-2">
                         <label className="text-sm font-medium text-gray-700">Address Line</label>

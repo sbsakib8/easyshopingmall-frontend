@@ -35,7 +35,7 @@ const DropShippingNavbar = () => {
  {name:"Referral Profile", href:"/referral-profile", subLink: [{name:"Referral Profit", href:"/referral-profit"}]},
  ];
 
- if (data?.role === "DROPSHIPPING") {
+ if (data?.role === "DROPSHIPPING" || data?.roles?.includes("DROPSHIPPING")) {
  navItems.push({name:"Dashboard", href:"/"});
 }
 
@@ -120,7 +120,7 @@ const DropShippingNavbar = () => {
  className={`text-[13.5px] font-bold text-accent absolute whitespace-nowrap ${showBalance ?"opacity-100 translate-x-[-28px]":"opacity-0 translate-x-4"
 }`}
  >
- ৳ 5000.00
+ ৳ {Number(data?.balance || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
  </span>
  </div>
  </div>

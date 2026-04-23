@@ -28,8 +28,8 @@ export default function LayoutWrapper({ children, initialWebsiteInfo }) {
 
     <BlockedUserRoute>
       <Suspense fallback={null}>
-        {!hideLayout && role !== "DROPSHIPPING" ? <Header /> : ""}
-        {role === "DROPSHIPPING" && <DropshippingNavbar />}
+        {(!hideLayout && role !== "DROPSHIPPING" && !user?.roles?.includes("DROPSHIPPING")) ? <Header /> : ""}
+        {(role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) && <DropshippingNavbar />}
       </Suspense>
       {children}
       {!hideLayout && <Footer initialData={initialWebsiteInfo} />}

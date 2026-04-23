@@ -354,6 +354,11 @@ const ProductDetails = ({ initialProduct }) => {
 
       toast.success(`${product.name} added to cart`);
       await getCartApi(user._id, dispatch);
+
+      // If dropshipping user, go directly to checkout
+      if (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) {
+        router.push("/checkout");
+      }
     } catch (err) {
       console.error("Add to cart error:", err);
       toast.error("Failed to add to cart");
@@ -591,7 +596,7 @@ const ProductDetails = ({ initialProduct }) => {
               </span>
 
               <div>
-                {product?.rank > product?.price && user?.role !== "DROPSHIPPING" && (
+                {(product?.rank > product?.price && user?.role !== "DROPSHIPPING" && !user?.roles?.includes("DROPSHIPPING")) && (
                   <>
                     <p className="bg-secondary text-white px-3 py-1 rounded-full text-sm font-semibold">
                       Save ৳{(product?.rank - product?.price)?.toFixed(0) || 0}
@@ -599,7 +604,7 @@ const ProductDetails = ({ initialProduct }) => {
                   </>
                 )}
                 {
-                  user?.role !== "DROPSHIPPING" ? <del className="text-2xl font-bold bg-gradient-to-r from-gray-400 to-gray-500 bg-clip-text text-transparent">
+                  (user?.role !== "DROPSHIPPING" && !user?.roles?.includes("DROPSHIPPING")) ? <del className="text-2xl font-bold bg-gradient-to-r from-gray-400 to-gray-500 bg-clip-text text-transparent">
                     Rs {product?.rank}
                   </del> : ""
                 }
@@ -609,7 +614,7 @@ const ProductDetails = ({ initialProduct }) => {
             </div >
             {/* Market Price */}
             {
-              user?.role === "DROPSHIPPING" && <p className="text-2xl font-bold text-gray-500 ">
+              (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) && <p className="text-2xl font-bold text-gray-500 ">
                 <span className='text-xl text-accent'> Market Price:</span> {product?.rank}৳
               </p>
             }
@@ -709,7 +714,7 @@ const ProductDetails = ({ initialProduct }) => {
 
             {/* dropShipping price  */}
             {
-              user?.role === "DROPSHIPPING" && <div >
+              (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) && <div >
                 <label className="text-accen font-medium">আপনার বিক্রয়কৃত মূল্য</label>
                 <input
                   type="number"
@@ -769,7 +774,7 @@ const ProductDetails = ({ initialProduct }) => {
 
             {/* Features */}
             {
-              user?.role !== "DROPSHIPPING" && <div className="shadow-xl p-6 rounded-xl">
+              (user?.role !== "DROPSHIPPING" && !user?.roles?.includes("DROPSHIPPING")) && <div className="shadow-xl p-6 rounded-xl">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="flex flex-col items-center text-center space-y-2">
                     <Truck className="w-8 h-8 text-blue-500" />
@@ -803,7 +808,7 @@ const ProductDetails = ({ initialProduct }) => {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`py-4 ${user?.role === "DROPSHIPPING" && tab === "reviews" ? "hidden" : ''} px-1 border-b-2 font-medium text-sm capitalize transition-all duration-300 ${activeTab === tab
+                  className={`py-4 ${(user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) && tab === "reviews" ? "hidden" : ''} px-1 border-b-2 font-medium text-sm capitalize transition-all duration-300 ${activeTab === tab
                     ? "border-blue-500 text-blue-600"
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                     }`}
@@ -925,7 +930,7 @@ const ProductDetails = ({ initialProduct }) => {
               </div>
             )}
             { }
-            {activeTab === "reviews" && user?.role !== "DROPSHIPPING" && (
+            {activeTab === "reviews" && (user?.role !== "DROPSHIPPING" && !user?.roles?.includes("DROPSHIPPING")) && (
 
               <div className="py-12 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
                 {/* Summary */}

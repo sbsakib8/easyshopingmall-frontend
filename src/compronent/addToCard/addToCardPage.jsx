@@ -238,11 +238,10 @@ const ShoppingCartComponent = () => {
 
 
 const handleContinueShopping = () => {
-  if(user.role !=="DROPSHIPPING"){
-    router.push('/shop');
-  }
-  else{
+  if (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) {
     router.push('/all-products');
+  } else {
+    router.push('/shop');
   }
 }
 
