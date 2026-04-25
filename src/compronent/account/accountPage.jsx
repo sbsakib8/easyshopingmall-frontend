@@ -19,9 +19,11 @@ import {
   Plus,
   Save,
   Settings,
+  Share2,
   Trash2,
   User,
   X,
+  Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -611,7 +613,7 @@ const AccountPage = () => {
                       </div>
 
                       {/* Referral Code (Only for DROPSHIPPING) */}
-                      {(profileData.role === "DROPSHIPPING" || profileData.roles?.includes("DROPSHIPPING")) && (
+                      {(data?.role === "DROPSHIPPING" || data?.roles?.includes("DROPSHIPPING")) && (
                         <div className="space-y-2">
                           <label className="text-sm font-medium text-gray-700">Referral Code</label>
                           <div className="relative group">
