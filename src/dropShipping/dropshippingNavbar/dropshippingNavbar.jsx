@@ -14,29 +14,27 @@ const DropShippingNavbar = () => {
  const [isScrolled, setIsScrolled] = useState(false);
  const [showBalance, setShowBalance] = useState(false);
  const {data: wishlistItems} = useSelector((state) => state.wishlist);
- const {items: cartItems} = useSelector((state) => state.cart);
+ const {items: cartItems} = useSelector((state) => state.dropshippingCart);
  const wishlistCount = wishlistItems?.length || 0;
  const cartCount = (cartItems || []).reduce((sum, item) => sum + (item.quantity || 1), 0);
 
  // user data fatch
  const data = useSelector((state) => state.user.data);
  // Navigation items
- const navItems = [
- {name:"Home", href:"/"},
- {name:"All Products", href:"/all-products"},
- {name:"Profile", href:"/profile"},
- {name:"New Products", href:"/new-products"},
- {name:"Wishlist", href:"/wishlist"},
- {name:"Add to Cart", href:"/addtocart"},
- {name:"Order List", href:"/order-list"},
- {name:"Cart List", href:"/cart-list"},
- {name:"Sell & Profit", href:"/sell-profit"},
- {name:"Passive Income", href:"/passive-income", subLink: [{name:"Box Leader", href:"/box-leader"}, {name:"Auditor", href:"/auditor"}, {name:"Member", href:"/member"}]},
- {name:"Referral Profile", href:"/referral-profile", subLink: [{name:"Referral Profit", href:"/referral-profit"}]},
- ];
+  const navItems = [
+  {name:"Home", href:"/"},
+  {name:"All Products", href:"/all-products"},
+  {name:"Profile", href:"/profile"},
+  {name:"New Products", href:"/new-products"},
+  {name:"Wishlist", href:"/wishlist"},
+  {name:"Sell & Profit", href:"/dropshipping-addtocart"},
+  {name:"Order List", href:"/order-list"},
+  {name:"Passive Income", href:"/passive-income", subLink: [{name:"Box Leader", href:"/box-leader"}, {name:"Auditor", href:"/auditor"}, {name:"Member", href:"/member"}]},
+  {name:"Referral Profile", href:"/referral-profile", subLink: [{name:"Referral Profit", href:"/referral-profit"}]},
+  ];
 
  if (data?.role === "DROPSHIPPING" || data?.roles?.includes("DROPSHIPPING")) {
- navItems.push({name:"Dashboard", href:"/"});
+  navItems.push({name:"Dashboard", href:"/seller-dashboard"});
 }
 
  const toggleMobileMenu = () => {
@@ -187,7 +185,7 @@ const DropShippingNavbar = () => {
  {/* Cart - Responsive */}
  <div className="relative cursor-pointer group">
   <Link
-  href="/addtocart"
+  href="/dropshipping-addtocart"
   className="flex items-center space-x-1 sm:space-x-2 text-gray-700 hover:text-primary-color group"
   >
   <div className="relative p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-bg group-hover:bg-primary-color/10 shadow-sm transition-colors">

@@ -189,7 +189,14 @@ const CompletedOrdersPage = () => {
 
  {/* Customer Info */}
  <div className="mb-4">
- <h4 className="text-accent-content font-semibold mb-2">{order?.userId?.name ||"none"}</h4>
+ <div className="flex flex-wrap items-center gap-2 mb-2">
+   <h4 className="text-accent-content font-semibold">{order?.userId?.name ||"none"}</h4>
+   {order?.userId?.role === "DROPSHIPPING" && (
+     <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary-color/20 text-primary-color border border-primary-color/30 uppercase tracking-widest">
+       Dropshipping
+     </span>
+   )}
+ </div>
  <p className="text-gray-400 text-sm mb-1">{order?.userId?.email ||"demo@gmail.com"}</p>
  <p className="text-gray-400 text-sm">{order?.address?.mobile ||"018XXXXXXXX"}</p>
  </div>
@@ -313,11 +320,16 @@ const CompletedOrdersPage = () => {
  <div>
  <h3 className="text-lg font-semibold text-accent-content mb-3">Customer Information</h3>
  <div className="space-y-2">
+ <div className="text-gray-300 flex items-center gap-2">
+ <span className="text-gray-500">Name:</span> {selectedOrder?.userId?.name}
+ {selectedOrder?.userId?.role === "DROPSHIPPING" && (
+   <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary-color/20 text-primary-color border border-primary-color/30 uppercase tracking-widest">
+     Dropshipping
+   </span>
+ )}
+ </div>
  <p className="text-gray-300">
- <span className="text-gray-500">Name:</span> {selectedOrder?.userId?.email}
- </p>
- <p className="text-gray-300">
- <span className="text-gray-500">Email:</span> {selectedOrder?.userId?.name}
+ <span className="text-gray-500">Email:</span> {selectedOrder?.userId?.email}
  </p>
  <p className="text-gray-300">
  <span className="text-gray-500">Phone:</span> {selectedOrder?.address?.mobile}

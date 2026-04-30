@@ -52,6 +52,22 @@ export const OrderAllGet = async () => {
 };
 
 /**
+ * 📦 Get single order details
+ * Endpoint: GET /orders/:id
+ */
+export const OrderGetDetails = async (orderId) => {
+    try {
+        const response = await axios.get(`${UrlBackend}/orders/${orderId}`, {
+            withCredentials: true,
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Order details fetch error:", error.response?.data || error.message);
+        throw error;
+    }
+};
+
+/**
  * 📦 Get all orders for (admin only)
  * Endpoint: GET /orders/orders
  */

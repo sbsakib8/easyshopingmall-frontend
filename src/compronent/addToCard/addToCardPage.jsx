@@ -626,7 +626,7 @@ const handleContinueShopping = () => {
 
                 {/* Go to Checkout Button */}
                 <Link
-                  href="/checkout"
+                  href={user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING") ? "/dropshipping-checkout" : "/checkout"}
                   className="w-full cursor-pointer bg-btn-color hover:bg-btn-color/70 text-accent-content py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center space-x-2"
                 >
                   <CreditCard className="w-5 h-5" />

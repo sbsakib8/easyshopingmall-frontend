@@ -357,7 +357,7 @@ const ProductDetails = ({ initialProduct }) => {
 
       // If dropshipping user, go directly to checkout
       if (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) {
-        router.push("/checkout");
+        router.push("/dropshipping-checkout");
       }
     } catch (err) {
       console.error("Add to cart error:", err);
@@ -712,19 +712,7 @@ const ProductDetails = ({ initialProduct }) => {
               </div>
             </div>
 
-            {/* dropShipping price  */}
-            {
-              (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) && <div >
-                <label className="text-accen font-medium">আপনার বিক্রয়কৃত মূল্য</label>
-                <input
-                  type="number"
-                  onChange={(e) => setDropShippingPrice(e.target.value)}
-                  className="w-full p-4 bg-white/10  rounded-xl text-accent placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 border border-gray-300 focus:border-transparent transition-all duration-300 mt-2"
-                  placeholder="0৳"
-                  required
-                />
-              </div>
-            }
+
 
             {/* Action Buttons */}
             <div className="space-y-4">
@@ -746,7 +734,11 @@ const ProductDetails = ({ initialProduct }) => {
                     setLoading(true)
                     await handleAddToCart()
                     setLoading(false)
-                    router.push("/checkout")
+                    if (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) {
+                      router.push("/dropshipping-checkout")
+                    } else {
+                      router.push("/checkout")
+                    }
                   }}
 
                   className={`w-full py-4 rounded-xl font-semibold text-lg flex items-center justify-center space-x-2 transition-all duration-300 ${product?.stock === 0

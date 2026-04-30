@@ -4,7 +4,7 @@ import bdData from "@/src/data/bd-dd-ui-bn";
 import { MapPin } from "lucide-react";
 import { useEffect, useState } from "react";
 
-export default function LocationSelects({ customerInfo, setCustomerInfo }) {
+export default function LocationSelects({ customerInfo, setCustomerInfo, isDropshipping = false }) {
     const [divisions, setDivisionList] = useState([]);
     const [districts, setDistrictList] = useState([]);
     const [upazilas, setUpazilaList] = useState([]);
@@ -16,7 +16,6 @@ export default function LocationSelects({ customerInfo, setCustomerInfo }) {
         setDivisionList(bdData.map(d => d.division));
     }, []);
 
-    // Sync state with customerInfo props (e.g., when auto-populated from profile)
     // Sync state with customerInfo props (e.g., when auto-populated from profile)
     useEffect(() => {
         // 1. Handle Division & Districts
@@ -81,25 +80,34 @@ export default function LocationSelects({ customerInfo, setCustomerInfo }) {
     };
 
     return (
-        <div className="bg-bg rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-            <div className="bg-btn-color p-6">
-                <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                        <MapPin className="w-5 h-5 text-accent-content" />
+        <div className={isDropshipping ? "bg-white rounded-[2.5rem] p-10 shadow-sm border border-gray-100 space-y-8" : "bg-bg rounded-2xl shadow-xl border border-gray-100 overflow-hidden"}>
+            {isDropshipping ? (
+                <div className="flex items-center gap-4">
+                    <div className="p-3 bg-primary-color/10 rounded-2xl">
+                        <MapPin className="w-6 h-6 text-primary-color" />
                     </div>
-                    <h2 className="text-xl font-semibold text-accent-content">অঞ্চল ও জেলা নির্বাচন</h2>
+                    <h2 className="text-2xl font-black text-gray-900">অঞ্চল ও জেলা নির্বাচন (Location)</h2>
                 </div>
-            </div>
+            ) : (
+                <div className="bg-btn-color p-6">
+                    <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                            <MapPin className="w-5 h-5 text-accent-content" />
+                        </div>
+                        <h2 className="text-xl font-semibold text-accent-content">অঞ্চল ও জেলা নির্বাচন</h2>
+                    </div>
+                </div>
+            )}
 
-            <div className="p-6">
+            <div className={isDropshipping ? "" : "p-6"}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Division */}
-                    <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">বিভাগ *</label>
+                    <div className={isDropshipping ? "space-y-2" : ""}>
+                        <label className={isDropshipping ? "block text-xs font-black text-gray-400 uppercase tracking-widest" : "block text-sm font-semibold text-gray-700 mb-2"}>বিভাগ *</label>
                         <select
                             value={selectedDivision}
                             onChange={(e) => handleDivisionChange(e.target.value)}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                            className={isDropshipping ? "w-full bg-gray-50 border-none rounded-2xl py-4 px-6 font-bold text-gray-900 focus:ring-2 focus:ring-primary-color" : "w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"}
                         >
                             <option value="">-- বিভাগ নির্বাচন করুন --</option>
                             {divisions.map(div => <option key={div} value={div}>{div}</option>)}
@@ -107,12 +115,12 @@ export default function LocationSelects({ customerInfo, setCustomerInfo }) {
                     </div>
 
                     {/* District */}
-                    <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">জেলা *</label>
+                    <div className={isDropshipping ? "space-y-2" : ""}>
+                        <label className={isDropshipping ? "block text-xs font-black text-gray-400 uppercase tracking-widest" : "block text-sm font-semibold text-gray-700 mb-2"}>জেলা *</label>
                         <select
                             value={selectedDistrict}
                             onChange={(e) => handleDistrictChange(e.target.value)}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                            className={isDropshipping ? "w-full bg-gray-50 border-none rounded-2xl py-4 px-6 font-bold text-gray-900 focus:ring-2 focus:ring-primary-color" : "w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"}
                             disabled={!districts.length}
                         >
                             <option value="">-- জেলা নির্বাচন করুন --</option>
@@ -121,12 +129,12 @@ export default function LocationSelects({ customerInfo, setCustomerInfo }) {
                     </div>
 
                     {/* Upazila */}
-                    <div className="md:col-span-2">
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">উপজেলা / থানা *</label>
+                    <div className={isDropshipping ? "space-y-2 md:col-span-2" : "md:col-span-2"}>
+                        <label className={isDropshipping ? "block text-xs font-black text-gray-400 uppercase tracking-widest" : "block text-sm font-semibold text-gray-700 mb-2"}>উপজেলা / থানা *</label>
                         <select
                             value={customerInfo.area}
                             onChange={(e) => handleUpazilaChange(e.target.value)}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                            className={isDropshipping ? "w-full bg-gray-50 border-none rounded-2xl py-4 px-6 font-bold text-gray-900 focus:ring-2 focus:ring-primary-color" : "w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"}
                             disabled={!upazilas.length}
                         >
                             <option value="">-- উপজেলা নির্বাচন করুন --</option>
