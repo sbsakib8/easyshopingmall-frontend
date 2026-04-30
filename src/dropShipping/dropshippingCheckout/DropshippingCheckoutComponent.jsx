@@ -4,8 +4,10 @@ import {
   CheckCircle2,
   ChevronRight,
   CreditCard,
+  Home,
   MapPin,
   ShieldCheck,
+  Smartphone,
   Truck,
   Wallet
 } from 'lucide-react';
@@ -17,6 +19,33 @@ import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { UrlBackend } from '@/src/confic/urlExport';
 import LocationSelects from '@/src/compronent/LocationSelects';
+
+/* ─────────────────────────────────────────────
+   Dropshipping brand palette (no main-site tokens)
+   Primary accent  → emerald-600 / #059669
+   Card bg         → white
+   Page bg         → slate-50
+   Section header  → emerald gradient
+───────────────────────────────────────────── */
+
+// Reusable section card wrapper for DS checkout
+const DSCard = ({ icon: Icon, title, children }) => (
+  <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+    <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-5 flex items-center gap-3">
+      <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
+        <Icon className="w-5 h-5 text-white" />
+      </div>
+      <h2 className="text-lg font-bold text-white tracking-wide">{title}</h2>
+    </div>
+    <div className="p-6">{children}</div>
+  </div>
+);
+
+// Shared input style for DS checkout
+const dsInput =
+  "w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition";
+
+const dsLabel = "block text-sm font-semibold text-slate-600 mb-2";
 
 const DropshippingCheckoutComponent = () => {
   const dispatch = useDispatch();
@@ -30,7 +59,7 @@ const DropshippingCheckoutComponent = () => {
     );
     if (items.length > 0 && hasInvalidPrice) {
       toast.error("Please set a valid selling price for all items before checking out.");
-      router.push("/dropshipping-cart");
+      router.push("/dropshipping-addtocart");
     }
   }, [items, router]);
 
@@ -56,13 +85,16 @@ const DropshippingCheckoutComponent = () => {
   const [selectedManualMethod, setSelectedManualMethod] = useState('');
 
   const manualMethods = [
-    { id: "bkash", name: "Bkash Personal", number: "01626420774" },
-    { id: "nagad", name: "Nagad Personal", number: "01626420774" },
-    { id: "rocket", name: "Rocket Personal", number: "01626420774" },
-    { id: "upay", name: "Upay Personal", number: "01626420774" },
+    { id: "bkash", name: "Bkash", number: "01626420774", color: "#E2136E", logo: "💳" },
+    { id: "nagad", name: "Nagad", number: "01626420774", color: "#F6521F", logo: "💳" },
+    { id: "rocket", name: "Rocket", number: "01626420774", color: "#8C3494", logo: "💳" },
+    { id: "upay", name: "Upay", number: "01626420774", color: "#1B4DBE", logo: "💳" },
   ];
 
-  const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const subtotal = items.reduce((sum, item) => {
+    const sp = item.sellingPrice === "" ? 0 : (item.sellingPrice ?? item.price);
+    return sum + (sp * item.quantity);
+  }, 0);
   const [deliveryCharge, setDeliveryCharge] = useState(100);
   const total = subtotal + deliveryCharge;
 
@@ -71,7 +103,6 @@ const DropshippingCheckoutComponent = () => {
       "Dhaka", "ঢাকা", "Dhanmondi", "Gulshan", "Mirpur", "Motijheel",
       "Uttara", "Mohammadpur", "Tejgaon", "Kamrangirchar"
     ];
-
     if (dhakaDistricts.includes(customerInfo.district)) {
       setDeliveryCharge(80);
     } else if (customerInfo.district) {
@@ -96,12 +127,10 @@ const DropshippingCheckoutComponent = () => {
       toast.error("Please fill in all customer address details");
       return;
     }
-
     if (paymentMethod === 'balance' && (user?.balance || 0) < total) {
       toast.error("Insufficient balance for this order");
       return;
     }
-
     if (paymentMethod === 'manual') {
       if (!selectedManualMethod) {
         toast.error("Please select a manual payment method (Bkash/Nagad/etc.)");
@@ -163,23 +192,28 @@ const DropshippingCheckoutComponent = () => {
     }
   };
 
+  /* ── Order success screen ── */
   if (orderPlaced) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-[3rem] p-12 shadow-2xl text-center max-w-lg w-full border border-gray-100">
-          <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-8">
-            <CheckCircle2 className="w-12 h-12 text-green-600" />
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-3xl p-12 shadow-xl text-center max-w-lg w-full border border-slate-100">
+          <div className="w-24 h-24 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-8 border-4 border-emerald-100">
+            <CheckCircle2 className="w-12 h-12 text-emerald-600" />
           </div>
-          <h2 className="text-4xl font-black text-gray-900 mb-4">Order Successful!</h2>
-          <p className="text-gray-500 mb-10 leading-relaxed">
-            Your dropshipping order has been received. We'll start fulfillment immediately. Your profit will be added to your balance once the customer pays.
+          <h2 className="text-3xl font-black text-gray-900 mb-3">অর্ডার সফল!</h2>
+          <p className="text-slate-500 mb-2 text-sm font-semibold uppercase tracking-widest">Order Successful</p>
+          <p className="text-gray-500 mb-10 leading-relaxed text-sm">
+            Your dropshipping order has been received. Fulfillment starts immediately. Your profit will be credited once the customer receives the order.
           </p>
-          <div className="flex flex-col gap-4">
-            <Link href="/order-list" className="bg-black text-white py-5 rounded-2xl font-black text-lg hover:bg-gray-900 transition-all">
+          <div className="flex flex-col gap-3">
+            <Link
+              href="/order-list"
+              className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-4 rounded-2xl font-bold text-base hover:opacity-90 transition-all shadow-lg shadow-emerald-100 block"
+            >
               Track Orders
             </Link>
-            <Link href="/all-products" className="text-gray-500 font-bold hover:text-black transition-colors">
-              Continue Sourcing
+            <Link href="/all-products" className="text-gray-500 font-semibold hover:text-emerald-600 transition-colors text-sm">
+              Continue Sourcing →
             </Link>
           </div>
         </div>
@@ -187,191 +221,296 @@ const DropshippingCheckoutComponent = () => {
     );
   }
 
+  /* ── Main checkout screen ── */
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-slate-50 py-10">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center gap-2 text-sm text-gray-400 mb-8 font-bold uppercase tracking-widest">
-          <Link href="/dropshipping-cart" className="hover:text-primary-color transition-colors">Cart</Link>
-          <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900">Checkout</span>
+
+        {/* ── Breadcrumb ── */}
+        <nav className="flex items-center gap-2 text-sm text-slate-400 mb-8 font-medium flex-wrap">
+          <Link
+            href="/"
+            className="flex items-center gap-1 hover:text-emerald-600 transition-colors"
+          >
+            <Home className="w-3.5 h-3.5" />
+            Home
+          </Link>
+          <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
+          <Link
+            href="/dropshipping-addtocart"
+            className="hover:text-emerald-600 transition-colors"
+          >
+            DS Cart
+          </Link>
+          <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
+          <span className="text-emerald-600 font-bold">Checkout</span>
+        </nav>
+
+        {/* ── Page title ── */}
+        <div className="mb-8">
+          <h1 className="text-2xl font-black text-gray-900">
+            Dropshipping Checkout
+          </h1>
+          <p className="text-slate-500 text-sm mt-1">
+            Fill in the customer details and choose a payment method to place the order.
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          {/* Customer & Shipping Form */}
-          <div className="lg:col-span-2 space-y-8">
-            <div className="bg-bg rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-              <div className="bg-btn-color p-6">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-bg bg-opacity-20 rounded-lg flex items-center justify-center">
-                    <MapPin className="w-5 h-5 text-accent-content" />
-                  </div>
-                  <h2 className="text-xl font-semibold text-accent-content">গ্রাহকের তথ্য (Customer Details)</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+          {/* ════ LEFT COLUMN ════ */}
+          <div className="lg:col-span-2 space-y-6">
+
+            {/* 1. Customer Details */}
+            <DSCard icon={MapPin} title="গ্রাহকের তথ্য — Customer Details">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label className={dsLabel}>পূর্ণ নাম *</label>
+                  <input
+                    name="name"
+                    value={customerInfo.name}
+                    onChange={handleInputChange}
+                    placeholder="গ্রাহকের নাম লিখুন"
+                    className={dsInput}
+                  />
+                </div>
+                <div>
+                  <label className={dsLabel}>মোবাইল নম্বর *</label>
+                  <input
+                    name="phone"
+                    value={customerInfo.phone}
+                    onChange={handleInputChange}
+                    placeholder="01XXXXXXXXX"
+                    className={dsInput}
+                  />
                 </div>
               </div>
-              <div className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">পূর্ণ নাম *</label>
-                    <input name="name" value={customerInfo.name} onChange={handleInputChange} placeholder="গ্রাহকের নাম লিখুন" className="w-full px-4 py-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-primary-color outline-none" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">মোবাইল নম্বর *</label>
-                    <input name="phone" value={customerInfo.phone} onChange={handleInputChange} placeholder="01XXXXXXXXX" className="w-full px-4 py-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-primary-color outline-none" />
-                  </div>
+            </DSCard>
+
+            {/* 2. Shipping Address */}
+            <DSCard icon={Truck} title="ডেলিভারি ঠিকানা — Shipping Address">
+              <div>
+                <label className={dsLabel}>সম্পূর্ণ ঠিকানা *</label>
+                <textarea
+                  name="address"
+                  value={customerInfo.address}
+                  onChange={handleInputChange}
+                  placeholder="বাড়ি/ফ্ল্যাট নম্বর, রোড নম্বর, এলাকার নাম"
+                  className={`${dsInput} resize-none`}
+                  rows={3}
+                />
+              </div>
+            </DSCard>
+
+            {/* 3. Location Selects (DS variant) */}
+            <LocationSelects
+              customerInfo={customerInfo}
+              setCustomerInfo={setCustomerInfo}
+              isDropshipping={true}
+            />
+
+            {/* 4. Payment Method */}
+            <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+              <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-5 flex items-center gap-3">
+                <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">
+                  <CreditCard className="w-5 h-5 text-white" />
                 </div>
+                <h2 className="text-lg font-bold text-white tracking-wide">পেমেন্ট পদ্ধতি — Payment Method</h2>
               </div>
-            </div>
 
-            <div className="bg-bg rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-              <div className="bg-btn-color p-6">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-bg bg-opacity-20 rounded-lg flex items-center justify-center">
-                    <Truck className="w-5 h-5 text-accent-content" />
-                  </div>
-                  <h2 className="text-xl font-semibold text-accent-content">ডেলিভারি ঠিকানা (Shipping Address)</h2>
+              <div className="p-6 space-y-6">
+                {/* Method toggle */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Balance */}
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('balance')}
+                    className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all text-left ${paymentMethod === 'balance'
+                      ? 'border-emerald-500 bg-emerald-50'
+                      : 'border-slate-200 hover:border-emerald-200 bg-white'
+                      }`}
+                  >
+                    <div className={`p-3 rounded-xl flex-shrink-0 ${paymentMethod === 'balance' ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-400'}`}>
+                      <Wallet className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="font-black text-gray-900 text-sm">Pay with Balance</p>
+                      <p className="text-xs text-slate-500 font-semibold mt-0.5">
+                        Available: ৳{Number(user?.balance || 0).toLocaleString()}
+                      </p>
+                    </div>
+                    {paymentMethod === 'balance' && (
+                      <span className="ml-auto w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span className="text-white text-xs font-black">✓</span>
+                      </span>
+                    )}
+                  </button>
+
+                  {/* Manual */}
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('manual')}
+                    className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all text-left ${paymentMethod === 'manual'
+                      ? 'border-emerald-500 bg-emerald-50'
+                      : 'border-slate-200 hover:border-emerald-200 bg-white'
+                      }`}
+                  >
+                    <div className={`p-3 rounded-xl flex-shrink-0 ${paymentMethod === 'manual' ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-400'}`}>
+                      <Smartphone className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="font-black text-gray-900 text-sm">Manual Payment</p>
+                      <p className="text-xs text-slate-500 font-semibold mt-0.5">Bkash / Nagad / Rocket</p>
+                    </div>
+                    {paymentMethod === 'manual' && (
+                      <span className="ml-auto w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span className="text-white text-xs font-black">✓</span>
+                      </span>
+                    )}
+                  </button>
                 </div>
-              </div>
-              <div className="p-6">
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">সম্পূর্ণ ঠিকানা *</label>
-                    <textarea name="address" value={customerInfo.address} onChange={handleInputChange} placeholder="বাড়ি/ফ্ল্যাট নম্বর, রোড নম্বর, এলাকার নাম" className="w-full px-4 py-3 border rounded-xl bg-bg focus:ring-2 focus:ring-primary-color outline-none" rows={3} />
-                  </div>
-                </div>
-              </div>
-            </div>
 
-            <LocationSelects customerInfo={customerInfo} setCustomerInfo={setCustomerInfo} isDropshipping={true} />
+                {/* Manual payment details */}
+                {paymentMethod === 'manual' && (
+                  <div className="space-y-5 pt-2">
+                    <p className="text-sm font-semibold text-slate-600 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+                      📢 Send <span className="font-black text-amber-700">৳{total.toLocaleString()}</span> to the number shown below and enter the transaction details.
+                    </p>
 
-            <div className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-gray-100 space-y-8">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-primary-color/10 rounded-2xl">
-                  <CreditCard className="w-6 h-6 text-primary-color" />
-                </div>
-                <h2 className="text-2xl font-black text-gray-900">Payment Method</h2>
-              </div>
+                    {/* Gateway buttons */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {manualMethods.map((method) => (
+                        <button
+                          key={method.id}
+                          type="button"
+                          onClick={() => setSelectedManualMethod(method.id)}
+                          className={`flex flex-col items-start p-4 rounded-2xl border-2 transition-all ${selectedManualMethod === method.id
+                            ? 'border-emerald-500 bg-emerald-50'
+                            : 'border-slate-200 hover:border-slate-300 bg-white'
+                            }`}
+                        >
+                          <span className="font-black text-gray-900 text-sm">{method.name}</span>
+                          <span className="text-xs text-emerald-600 font-bold mt-1">{method.number}</span>
+                          {selectedManualMethod === method.id && (
+                            <span className="text-[10px] font-black text-emerald-600 mt-1 uppercase tracking-wider">Selected ✓</span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <button
-                  onClick={() => setPaymentMethod('balance')}
-                  className={`flex items-center gap-4 p-6 rounded-3xl border-2 transition-all text-left ${paymentMethod === 'balance' ? 'border-primary-color bg-primary-color/5' : 'border-gray-100 hover:border-gray-200'}`}
-                >
-                  <div className={`p-3 rounded-xl ${paymentMethod === 'balance' ? 'bg-primary-color text-black' : 'bg-gray-100 text-gray-400'}`}>
-                    <Wallet className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <p className="font-black text-gray-900">Pay with Balance</p>
-                    <p className="text-xs text-gray-500 font-bold">Current: ৳{Number(user?.balance || 0).toLocaleString()}</p>
-                  </div>
-                </button>
-
-                <button
-                  onClick={() => setPaymentMethod('manual')}
-                  className={`flex items-center gap-4 p-6 rounded-3xl border-2 transition-all text-left ${paymentMethod === 'manual' ? 'border-primary-color bg-primary-color/5' : 'border-gray-100 hover:border-gray-200'}`}
-                >
-                  <div className={`p-3 rounded-xl ${paymentMethod === 'manual' ? 'bg-primary-color text-black' : 'bg-gray-100 text-gray-400'}`}>
-                    <Truck className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <p className="font-black text-gray-900">Manual Payment</p>
-                    <p className="text-xs text-gray-500 font-bold">Bkash/Nagad/Rocket</p>
-                  </div>
-                </button>
-              </div>
-
-              {/* Transaction details input for manual payment */}
-              {paymentMethod === 'manual' && (
-                <div className="mt-6 space-y-4">
-                  <p className="text-sm font-bold text-gray-700">Select a payment gateway and send ৳{total.toLocaleString()} to the given number.</p>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {manualMethods.map((method) => (
-                      <button
-                        key={method.id}
-                        type="button"
-                        onClick={() => setSelectedManualMethod(method.id)}
-                        className={`flex flex-col items-start p-4 rounded-2xl border-2 transition-all ${selectedManualMethod === method.id ? 'border-primary-color bg-primary-color/5' : 'border-gray-100 hover:border-gray-200'}`}
-                      >
-                        <span className="font-black text-gray-900">{method.name}</span>
-                        <span className="text-xs text-primary-color font-bold">{method.number}</span>
-                      </button>
-                    ))}
-                  </div>
-
-                  {selectedManualMethod && (
-                    <div className="mt-4 p-6 bg-gray-50 rounded-3xl border border-gray-100 space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <label className="text-xs font-black text-gray-400 uppercase tracking-widest">Transaction ID</label>
-                          <input
-                            name="transactionId"
-                            value={paymentDetails.transactionId}
-                            onChange={handlePaymentInputChange}
-                            placeholder="e.g. 9ABCDEFGH"
-                            className="w-full bg-white border-none rounded-2xl py-4 px-6 font-bold text-gray-900 focus:ring-2 focus:ring-primary-color shadow-sm"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-xs font-black text-gray-400 uppercase tracking-widest">Sender Number</label>
-                          <input
-                            name="senderNumber"
-                            value={paymentDetails.senderNumber}
-                            onChange={handlePaymentInputChange}
-                            placeholder="01XXXXXXXXX"
-                            className="w-full bg-white border-none rounded-2xl py-4 px-6 font-bold text-gray-900 focus:ring-2 focus:ring-primary-color shadow-sm"
-                          />
+                    {/* TrxID & Sender */}
+                    {selectedManualMethod && (
+                      <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100 space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-2">Transaction ID *</label>
+                            <input
+                              name="transactionId"
+                              value={paymentDetails.transactionId}
+                              onChange={handlePaymentInputChange}
+                              placeholder="e.g. 9ABCDEFGH"
+                              className={dsInput}
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-2">Sender Number</label>
+                            <input
+                              name="senderNumber"
+                              value={paymentDetails.senderNumber}
+                              onChange={handlePaymentInputChange}
+                              placeholder="01XXXXXXXXX"
+                              className={dsInput}
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
-                </div>
-              )}
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Sidebar Summary */}
+          {/* ════ RIGHT SIDEBAR ════ */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-[2.5rem] p-8 shadow-xl border border-gray-100 sticky top-8 space-y-8">
-              <h3 className="text-2xl font-black text-gray-900">Order Summary</h3>
+            <div className="bg-white rounded-3xl shadow-sm border border-slate-100 sticky top-8 overflow-hidden">
+              {/* Sidebar header */}
+              <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-5">
+                <h3 className="text-lg font-black text-white">Order Summary</h3>
+                <p className="text-emerald-100 text-xs mt-0.5">{items.length} item(s) in cart</p>
+              </div>
 
-              <div className="space-y-4 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
-                {items.map(item => (
-                  <div key={item.productId._id} className="flex gap-4">
-                    <img src={item.productId.images?.[0]} className="w-16 h-16 object-cover rounded-xl" />
-                    <div className="flex-1">
-                      <p className="text-sm font-bold text-gray-900 line-clamp-1">{item.productId.productName}</p>
-                      <p className="text-xs text-gray-500">Qty: {item.quantity} × ৳{item.price}</p>
+              <div className="p-6 space-y-6">
+                {/* Product list */}
+                <div className="space-y-3 max-h-56 overflow-y-auto pr-1 custom-scrollbar">
+                  {items.map(item => (
+                    <div key={item.productId._id} className="flex gap-3 items-start">
+                      <img
+                        src={item.productId.images?.[0]}
+                        alt={item.productId.productName}
+                        className="w-14 h-14 object-cover rounded-xl flex-shrink-0 border border-slate-100"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-gray-900 line-clamp-2 leading-tight">
+                          {item.productId.productName}
+                        </p>
+                        <p className="text-xs text-slate-500 mt-1">
+                          {item.quantity} × ৳{item.price.toLocaleString()}
+                        </p>
+                        <p className="text-xs font-bold text-emerald-600">
+                          Sell @ ৳{(item.sellingPrice || item.price).toLocaleString()}
+                        </p>
+                      </div>
                     </div>
+                  ))}
+                </div>
+
+                {/* Price breakdown */}
+                <div className="space-y-3 pt-4 border-t border-slate-100">
+                  <div className="flex justify-between text-sm font-semibold text-slate-500">
+                    <span>Product Cost</span>
+                    <span className="text-gray-800">৳{subtotal.toLocaleString()}</span>
                   </div>
-                ))}
-              </div>
-
-              <div className="space-y-4 pt-6 border-t border-gray-100">
-                <div className="flex justify-between font-bold text-gray-500">
-                  <span>Product Cost</span>
-                  <span>৳{subtotal.toLocaleString()}</span>
+                  <div className="flex justify-between text-sm font-semibold text-slate-500">
+                    <span>Delivery Charge</span>
+                    <span className="text-gray-800">৳{deliveryCharge.toLocaleString()}</span>
+                  </div>
+                  {customerInfo.district && (
+                    <p className="text-[11px] text-slate-400 font-medium">
+                      {deliveryCharge === 80 ? '🏙️ Dhaka delivery rate applied' : '🚚 Outside Dhaka delivery rate applied'}
+                    </p>
+                  )}
+                  <div className="flex justify-between text-lg font-black text-gray-900 pt-3 border-t border-slate-100">
+                    <span>Total Cost</span>
+                    <span className="text-emerald-600">৳{total.toLocaleString()}</span>
+                  </div>
                 </div>
-                <div className="flex justify-between font-bold text-gray-500">
-                  <span>Delivery Charge</span>
-                  <span>৳{deliveryCharge.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between text-2xl font-black text-gray-900 pt-4">
-                  <span>Total Cost</span>
-                  <span>৳{total.toLocaleString()}</span>
-                </div>
-              </div>
 
-              <button
-                onClick={handlePlaceOrder}
-                disabled={isProcessing}
-                className="w-full bg-primary-color text-black py-5 rounded-2xl font-black text-lg shadow-xl hover:shadow-2xl transition-all disabled:opacity-50 transform hover:-translate-y-1"
-              >
-                {isProcessing ? 'Processing...' : 'Place Dropshipping Order'}
-              </button>
+                {/* Place order button */}
+                <button
+                  onClick={handlePlaceOrder}
+                  disabled={isProcessing}
+                  className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-4 rounded-2xl font-black text-base shadow-lg shadow-emerald-100 hover:opacity-90 transition-all disabled:opacity-50 transform hover:-translate-y-0.5 active:translate-y-0"
+                >
+                  {isProcessing ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <svg className="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                      </svg>
+                      Processing…
+                    </span>
+                  ) : (
+                    'Place Dropshipping Order →'
+                  )}
+                </button>
 
-              <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-2xl text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                <ShieldCheck className="w-5 h-5 text-green-500" />
-                Secured & Verified Dropshipping Transaction
+                {/* Trust badge */}
+                <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl">
+                  <ShieldCheck className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-tight">
+                    Secured & Verified Dropshipping Transaction
+                  </p>
+                </div>
               </div>
             </div>
           </div>

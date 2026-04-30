@@ -46,19 +46,23 @@ const DropshippingCartComponent = () => {
   const handleBlurSellingPrice = (productId, sellingPrice, costPrice) => {
     if (sellingPrice === "" || Number(sellingPrice) < costPrice) {
       toast.error("Selling price cannot be less than cost price");
-      dispatch(updateDsSellingPriceLocal({ productId, sellingPrice: costPrice }));
+      // Removed automatic reset to allow user to see/fix the invalid value
     }
   };
 
   const handleCheckout = (e) => {
     e.preventDefault();
-    if (items.length === 0) return;
+    if (items.length === 0) {
+      toast.error("Your cart is empty");
+      return;
+    }
     
     const hasInvalidPrice = items.some(item => 
       item.sellingPrice === "" || Number(item.sellingPrice) < item.price
     );
+
     if (hasInvalidPrice) {
-      toast.error("Please ensure all selling prices are set and not less than cost price");
+      toast.error("Selling price cannot be less than cost price. Please fix invalid prices before checkout.");
       return;
     }
     router.push("/dropshipping-checkout");
