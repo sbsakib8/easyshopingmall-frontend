@@ -26,6 +26,10 @@ export const useGetUser = () => {
       const userData = resData?.user || resData?.data || (resData?._id || resData?.id ? resData : null);
       
       if (userData) {
+        // Merge referral data into user object if present
+        if (resData?.referrals) {
+          userData.referrals = resData.referrals;
+        }
         setUser(userData);
         localStorage.setItem("user", JSON.stringify(userData));
         dispatch(userget(userData)); // Sync to Redux immediately

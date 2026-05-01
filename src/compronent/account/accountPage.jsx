@@ -22,6 +22,8 @@ import {
   Share2,
   Trash2,
   User,
+  Users,
+  DollarSign,
   X,
   Zap,
 } from "lucide-react";
@@ -493,6 +495,14 @@ const AccountPage = () => {
                     count={wishlist?.length || 0}
                   />
                   <TabButton id="addresses" icon={MapPin} label="Addresses" />
+                  {(data?.role === "DROPSHIPPING" || data?.roles?.includes("DROPSHIPPING")) && (
+                    <TabButton
+                      id="referrals"
+                      icon={Users}
+                      label="Referrals"
+                      count={data?.referrals?.count || 0}
+                    />
+                  )}
                   <TabButton id="settings" icon={Settings} label="Settings" />
                 </nav>
                 <button
@@ -793,18 +803,27 @@ const AccountPage = () => {
                               </div>
 
                               <div className="flex items-center justify-between sm:justify-end space-x-4 border-t sm:border-t-0 pt-3 sm:pt-0">
-                                <div className="flex items-center space-x-3">
-                                  <span
-                                    className={`px-3 py-1 text-xs md:text-sm font-medium rounded-full capitalize ${getStatusColor(
-                                      status
-                                    )}`}
-                                  >
-                                    {status}
-                                  </span>
-                                  <span className="font-bold text-base md:text-lg text-gray-900">
-                                    ৳{totalAmt}
-                                  </span>
-                                </div>
+                                  <div className="flex items-center space-x-3">
+                                    {order.profitAmount > 0 && (
+                                      <div className="flex flex-col items-end">
+                                        <span className="text-[9px] font-black text-emerald-600 uppercase tracking-tighter">Profit</span>
+                                        <span className="text-sm font-black text-emerald-600">৳{order.profitAmount}</span>
+                                      </div>
+                                    )}
+                                    <span
+                                      className={`px-3 py-1 text-xs md:text-sm font-medium rounded-full capitalize ${getStatusColor(
+                                        status
+                                      )}`}
+                                    >
+                                      {status}
+                                    </span>
+                                    <div className="flex flex-col items-end">
+                                      <span className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Total</span>
+                                      <span className="font-bold text-base md:text-lg text-gray-900 leading-none">
+                                        ৳{totalAmt}
+                                      </span>
+                                    </div>
+                                  </div>
 
                                 <button
                                   onClick={() => handleViewOrder(order)}
@@ -818,11 +837,194 @@ const AccountPage = () => {
                         );
                       })}
 
-                      {selectedOrder && (
-                        <OrderDetailsModal
-                          order={selectedOrder}
-                          onClose={() => setSelectedOrder(null)}
-                        />
+                    </div>
+                  </div>
+                )}
+
+                {/* Referrals Tab */}
+                {activeTab === "referrals" && (
+                  <div className="p-8">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                      <div>
+                        <h2 className="text-2xl font-bold text-gray-900">Referral Dashboard</h2>
+                        <p className="text-gray-600">Track your referrals and earnings</p>
+                      </div>
+                      <div className="bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-xl flex items-center gap-3">
+                        <div className="bg-emerald-500 p-1.5 rounded-lg">
+                          <DollarSign className="w-4 h-4 text-white" />
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Current Balance</p>
+                          <p className="text-lg font-black text-emerald-900">৳{(data?.balance || 0).toLocaleString()}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Stats Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                      <div className="bg-gradient-to-br from-white to-emerald-50 p-6 rounded-2xl border border-emerald-100 shadow-sm">
+                        <p className="text-sm font-medium text-emerald-800">Total Referrals</p>
+                        <p className="text-3xl font-black text-emerald-900 mt-2">{data?.referrals?.count || 0}</p>
+                        <p className="text-xs text-emerald-600 mt-1">Active registered users</p>
+                      </div>
+                      <div className="bg-gradient-to-br from-white to-blue-50 p-6 rounded-2xl border border-blue-100 shadow-sm">
+                        <p className="text-sm font-medium text-blue-800">Referral Orders</p>
+                        <p className="text-3xl font-black text-blue-900 mt-2">{data?.referrals?.orders?.length || 0}</p>
+                        <p className="text-xs text-blue-600 mt-1">Orders placed by your team</p>
+                      </div>
+                      <div className="bg-gradient-to-br from-white to-amber-50 p-6 rounded-2xl border border-amber-100 shadow-sm">
+                        <p className="text-sm font-medium text-amber-800">Referral Code</p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <p className="text-xl font-black text-amber-900 uppercase tracking-widest">{data?.referralCode}</p>
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(data?.referralCode);
+                              toast.success("Code copied!");
+                            }}
+                            className="p-1.5 hover:bg-amber-200 rounded-lg text-amber-700 transition-colors cursor-pointer"
+                          >
+                            <Share2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <p className="text-xs text-amber-600 mt-1">Copy & share with friends</p>
+                      </div>
+                    </div>
+
+                    {/* My Network Section */}
+                    <div className="mb-8 p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 bg-white rounded-xl shadow-sm">
+                          <Users className="w-5 h-5 text-slate-700" />
+                        </div>
+                        <h3 className="text-lg font-bold text-slate-900">My Referral Network</h3>
+                      </div>
+                      
+                      {data?.referrals?.users?.length > 0 ? (
+                        <div className="flex flex-wrap gap-4">
+                          {data.referrals.users.map((u) => (
+                            <div key={u._id} className="flex flex-col items-center gap-2 p-3 bg-white rounded-xl border border-slate-200 shadow-sm min-w-[100px]">
+                              {u.image ? (
+                                <img src={u.image} alt="" className="w-10 h-10 rounded-full object-cover border-2 border-emerald-100" />
+                              ) : (
+                                <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-black text-sm">
+                                  {u.name?.[0] || 'U'}
+                                </div>
+                              )}
+                              <p className="text-xs font-black text-slate-800 truncate max-w-[80px] text-center">{u.name}</p>
+                              <p className="text-[9px] text-slate-400 font-bold">{new Date(u.createdAt).toLocaleDateString()}</p>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-slate-400 italic">No users in your network yet.</p>
+                      )}
+                    </div>
+
+                    {/* Referred Users Buying Info */}
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-gray-100 rounded-xl">
+                            <Package className="w-5 h-5 text-gray-700" />
+                          </div>
+                          <h3 className="text-lg font-bold text-gray-900">Team Buying Activity</h3>
+                        </div>
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                          Last 50 Activities
+                        </p>
+                      </div>
+
+                      {data?.referrals?.orders?.length > 0 ? (
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-left">
+                            <thead>
+                              <tr className="border-b border-gray-100">
+                                <th className="pb-4 text-xs font-black text-gray-400 uppercase tracking-widest">Customer</th>
+                                <th className="pb-4 text-xs font-black text-gray-400 uppercase tracking-widest">Order ID</th>
+                                <th className="pb-4 text-xs font-black text-gray-400 uppercase tracking-widest">Amount</th>
+                                <th className="pb-4 text-xs font-black text-gray-400 uppercase tracking-widest text-emerald-600">Bonus</th>
+                                <th className="pb-4 text-xs font-black text-gray-400 uppercase tracking-widest">Status</th>
+                                <th className="pb-4 text-xs font-black text-gray-400 uppercase tracking-widest">Date</th>
+                                <th className="pb-4 text-xs font-black text-gray-400 uppercase tracking-widest">Actions</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-50">
+                              {data.referrals.orders.map((order) => (
+                                <tr key={order._id} className="group hover:bg-gray-50/50 transition-colors">
+                                  <td className="py-4">
+                                    <div className="flex items-center gap-3">
+                                      {order.userId?.image ? (
+                                        <img 
+                                          src={order.userId.image} 
+                                          alt="" 
+                                          className="w-8 h-8 rounded-full object-cover border border-gray-100"
+                                        />
+                                      ) : (
+                                        <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-xs">
+                                          {order.userId?.name?.[0] || 'U'}
+                                        </div>
+                                      )}
+                                      <div className="flex flex-col">
+                                        <span className="text-sm font-bold text-gray-800 leading-tight">{order.userId?.name}</span>
+                                        <span className="text-[10px] text-gray-400 font-medium">{order.userId?.email}</span>
+                                      </div>
+                                    </div>
+                                  </td>
+                                  <td className="py-4">
+                                    <span className="text-xs font-black text-gray-500 font-mono">#{order.orderId?.slice(-8)}</span>
+                                  </td>
+                                  <td className="py-4 font-black text-gray-900 text-sm">৳{order.totalAmt?.toLocaleString()}</td>
+                                  <td className="py-4">
+                                    <div className="flex flex-col">
+                                      {order.referralBonusAmount > 0 && (
+                                        <span className="text-sm font-black text-emerald-600">
+                                          +৳{order.referralBonusAmount} <span className="text-[8px] uppercase opacity-60">
+                                            {order.referralPercentage || (order.subTotalAmt > 0 ? Math.round((order.referralBonusAmount / order.subTotalAmt) * 100) : 0)}% Bonus
+                                          </span>
+                                        </span>
+                                      )}
+                                      {order.profitAmount > 0 && (
+                                        <span className="text-[10px] font-black text-blue-600 uppercase">
+                                          +৳{order.profitAmount} <span className="text-[8px] opacity-60">Profit</span>
+                                        </span>
+                                      )}
+                                      {!order.referralBonusAmount && !order.profitAmount && (
+                                        <span className="text-sm font-bold text-gray-300">৳0</span>
+                                      )}
+                                    </div>
+                                  </td>
+                                  <td className="py-4">
+                                    <span className={`px-2 py-1 text-[10px] font-black rounded-full uppercase tracking-tighter ${
+                                      order.order_status === 'delivered' || order.order_status === 'completed' 
+                                        ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' 
+                                        : 'bg-amber-100 text-amber-700 border border-amber-200'
+                                    }`}>
+                                      {order.order_status}
+                                    </span>
+                                  </td>
+                                  <td className="py-4 text-xs text-gray-500 font-medium">
+                                    {new Date(order.createdAt).toLocaleDateString('en-BD', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                                  </td>
+                                  <td className="py-4">
+                                    <button
+                                      onClick={() => handleViewOrder(order)}
+                                      className="p-1.5 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all cursor-pointer"
+                                      title="View Order Details"
+                                    >
+                                      <Eye className="w-4 h-4" />
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      ) : (
+                        <div className="bg-gray-50 rounded-2xl p-12 text-center border border-dashed border-gray-200">
+                          <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                          <p className="text-gray-500 font-medium">No referral activities yet.</p>
+                          <p className="text-sm text-gray-400 mt-1">Start sharing your code to see results here!</p>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -1271,6 +1473,12 @@ const AccountPage = () => {
               </div>
             </div>
           </div>
+        )}
+        {selectedOrder && (
+          <OrderDetailsModal
+            order={selectedOrder}
+            onClose={() => setSelectedOrder(null)}
+          />
         )}
       </div>
     </AuthUserNothave>

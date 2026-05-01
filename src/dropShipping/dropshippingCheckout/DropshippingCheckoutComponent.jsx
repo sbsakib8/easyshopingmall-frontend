@@ -3,6 +3,8 @@ import { dsCartClear } from '@/src/redux/dropshippingCartSlice';
 import {
   CheckCircle2,
   ChevronRight,
+  AlertCircle,
+  Copy,
   CreditCard,
   Home,
   MapPin,
@@ -64,6 +66,7 @@ const DropshippingCheckoutComponent = () => {
   }, [items, router]);
 
   const [paymentMethod, setPaymentMethod] = useState('balance');
+  const [paymentType, setPaymentType] = useState('full'); // 'full' or 'delivery'
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
 
@@ -85,10 +88,10 @@ const DropshippingCheckoutComponent = () => {
   const [selectedManualMethod, setSelectedManualMethod] = useState('');
 
   const manualMethods = [
-    { id: "bkash", name: "Bkash", number: "01626420774", color: "#E2136E", logo: "💳" },
-    { id: "nagad", name: "Nagad", number: "01626420774", color: "#F6521F", logo: "💳" },
-    { id: "rocket", name: "Rocket", number: "01626420774", color: "#8C3494", logo: "💳" },
-    { id: "upay", name: "Upay", number: "01626420774", color: "#1B4DBE", logo: "💳" },
+    { id: "bkash", name: "Bkash", number: "01626420774", color: "#E2136E", logo: "https://raw.githubusercontent.com/shuvro-setu/bkash-nagad-rocket-logos/main/bkash.png" },
+    { id: "nagad", name: "Nagad", number: "01626420774", color: "#F6521F", logo: "https://raw.githubusercontent.com/shuvro-setu/bkash-nagad-rocket-logos/main/nagad.png" },
+    { id: "rocket", name: "Rocket", number: "01626420774", color: "#8C3494", logo: "https://raw.githubusercontent.com/shuvro-setu/bkash-nagad-rocket-logos/main/rocket.png" },
+    { id: "upay", name: "Upay", number: "01626420774", color: "#1B4DBE", logo: "https://raw.githubusercontent.com/shuvro-setu/bkash-nagad-rocket-logos/main/upay.png" },
   ];
 
   const subtotal = items.reduce((sum, item) => {
@@ -127,9 +130,15 @@ const DropshippingCheckoutComponent = () => {
       toast.error("Please fill in all customer address details");
       return;
     }
-    if (paymentMethod === 'balance' && (user?.balance || 0) < total) {
-      toast.error("Insufficient balance for this order");
-      return;
+    if (paymentMethod === 'balance') {
+      const amountToPay = paymentType === 'delivery' ? deliveryCharge : total;
+      if ((user?.balance || 0) < amountToPay) {
+        toast.error("Insufficient balance for this order");
+        return;
+      }
+    }
+    if (paymentMethod === 'cod') {
+      // No payment check needed for COD
     }
     if (paymentMethod === 'manual') {
       if (!selectedManualMethod) {
@@ -162,7 +171,7 @@ const DropshippingCheckoutComponent = () => {
           customer_name: customerInfo.name
         },
         payment_method: paymentMethod,
-        payment_type: "full",
+        payment_type: paymentMethod === 'cod' ? 'cod' : paymentType,
         payment_details: paymentMethod === 'manual' ? {
           provider: selectedManualMethod,
           senderNumber: paymentDetails.senderNumber || "00000000000",
@@ -309,117 +318,271 @@ const DropshippingCheckoutComponent = () => {
             />
 
             {/* 4. Payment Method */}
+            {/* 4. Payment Method */}
             <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-              <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-5 flex items-center gap-3">
-                <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">
-                  <CreditCard className="w-5 h-5 text-white" />
+              <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-5 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                    <CreditCard className="w-5 h-5 text-white" />
+                  </div>
+                  <h2 className="text-lg font-bold text-white tracking-wide">পেমেন্ট পদ্ধতি — Payment Method</h2>
                 </div>
-                <h2 className="text-lg font-bold text-white tracking-wide">পেমেন্ট পদ্ধতি — Payment Method</h2>
+                <div className="hidden sm:flex items-center gap-2 bg-white/10 px-3 py-1 rounded-full backdrop-blur-sm">
+                  <ShieldCheck className="w-4 h-4 text-emerald-200" />
+                  <span className="text-[10px] text-white font-black uppercase tracking-widest">Secure Checkout</span>
+                </div>
               </div>
 
-              <div className="p-6 space-y-6">
-                {/* Method toggle */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Balance */}
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod('balance')}
-                    className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all text-left ${paymentMethod === 'balance'
-                      ? 'border-emerald-500 bg-emerald-50'
-                      : 'border-slate-200 hover:border-emerald-200 bg-white'
-                      }`}
-                  >
-                    <div className={`p-3 rounded-xl flex-shrink-0 ${paymentMethod === 'balance' ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-400'}`}>
-                      <Wallet className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="font-black text-gray-900 text-sm">Pay with Balance</p>
-                      <p className="text-xs text-slate-500 font-semibold mt-0.5">
-                        Available: ৳{Number(user?.balance || 0).toLocaleString()}
+              <div className="p-6 space-y-8">
+                {/* ── Payment Type Selection (Full vs COD) ── */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
+                      <Truck className="w-4 h-4 text-emerald-600" />
+                      অর্ডার টাইপ — Order Type
+                    </h3>
+                    <span className="text-[10px] bg-emerald-100 text-emerald-700 font-black px-2 py-0.5 rounded-full uppercase">Step 1 of 2</span>
+                  </div>
+                  
+                  {paymentMethod === 'cod' ? (
+                    <div className="p-5 bg-emerald-50 border border-emerald-100 rounded-2xl animate-in fade-in slide-in-from-top-2">
+                      <p className="text-sm font-bold text-emerald-800">
+                        Zero Upfront Payment (COD) selected.
+                      </p>
+                      <p className="text-xs text-emerald-600 font-semibold mt-1">
+                        You will pay the total amount of ৳{total.toLocaleString()} only when the customer receives the product.
                       </p>
                     </div>
-                    {paymentMethod === 'balance' && (
-                      <span className="ml-auto w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span className="text-white text-xs font-black">✓</span>
-                      </span>
-                    )}
-                  </button>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <button
+                        type="button"
+                        onClick={() => setPaymentType('full')}
+                        className={`group relative flex items-center gap-4 p-5 rounded-2xl border-2 transition-all text-left overflow-hidden ${paymentType === 'full'
+                          ? 'border-emerald-500 bg-emerald-50 shadow-md ring-4 ring-emerald-500/10'
+                          : 'border-slate-100 hover:border-emerald-200 bg-slate-50/50 hover:bg-white'
+                          }`}
+                      >
+                        <div className={`p-3 rounded-xl flex-shrink-0 transition-transform group-hover:scale-110 ${paymentType === 'full' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'bg-white text-slate-400 border border-slate-100'}`}>
+                          <CheckCircle2 className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <p className={`font-black text-sm transition-colors ${paymentType === 'full' ? 'text-emerald-900' : 'text-gray-900'}`}>Full Payment</p>
+                          <p className="text-xs text-slate-500 font-semibold mt-0.5 leading-tight">Pay the entire amount now for priority fulfillment</p>
+                        </div>
+                        {paymentType === 'full' && (
+                          <div className="absolute top-2 right-2">
+                            <span className="bg-emerald-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter">Recommended</span>
+                          </div>
+                        )}
+                      </button>
 
-                  {/* Manual */}
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod('manual')}
-                    className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all text-left ${paymentMethod === 'manual'
-                      ? 'border-emerald-500 bg-emerald-50'
-                      : 'border-slate-200 hover:border-emerald-200 bg-white'
-                      }`}
-                  >
-                    <div className={`p-3 rounded-xl flex-shrink-0 ${paymentMethod === 'manual' ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-400'}`}>
-                      <Smartphone className="w-5 h-5" />
+                      <button
+                        type="button"
+                        onClick={() => setPaymentType('delivery')}
+                        className={`group flex items-center gap-4 p-5 rounded-2xl border-2 transition-all text-left ${paymentType === 'delivery'
+                          ? 'border-emerald-500 bg-emerald-50 shadow-md ring-4 ring-emerald-500/10'
+                          : 'border-slate-100 hover:border-emerald-200 bg-slate-50/50 hover:bg-white'
+                          }`}
+                      >
+                        <div className={`p-3 rounded-xl flex-shrink-0 transition-transform group-hover:scale-110 ${paymentType === 'delivery' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'bg-white text-slate-400 border border-slate-100'}`}>
+                          <Truck className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <p className={`font-black text-sm transition-colors ${paymentType === 'delivery' ? 'text-emerald-900' : 'text-gray-900'}`}>COD / Delivery Only</p>
+                          <p className="text-xs text-slate-500 font-semibold mt-0.5 leading-tight">Pay only delivery charge now to confirm order</p>
+                        </div>
+                      </button>
                     </div>
-                    <div>
-                      <p className="font-black text-gray-900 text-sm">Manual Payment</p>
-                      <p className="text-xs text-slate-500 font-semibold mt-0.5">Bkash / Nagad / Rocket</p>
-                    </div>
-                    {paymentMethod === 'manual' && (
-                      <span className="ml-auto w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span className="text-white text-xs font-black">✓</span>
-                      </span>
-                    )}
-                  </button>
+                  )}
                 </div>
 
-                {/* Manual payment details */}
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                    <div className="w-full border-t border-slate-100"></div>
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase font-black text-slate-300">
+                    <span className="bg-white px-3">Then select method</span>
+                  </div>
+                </div>
+
+                {/* ── Payment Method Toggle (Balance vs Manual vs COD) ── */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
+                      <Wallet className="w-4 h-4 text-emerald-600" />
+                      পেমেন্ট উৎস — Payment Source
+                    </h3>
+                    <span className="text-[10px] bg-emerald-100 text-emerald-700 font-black px-2 py-0.5 rounded-full uppercase">Step 2 of 2</span>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Balance */}
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod('balance')}
+                      className={`group flex items-center gap-3 p-4 rounded-2xl border-2 transition-all text-left ${paymentMethod === 'balance'
+                        ? 'border-emerald-500 bg-emerald-50 shadow-md ring-4 ring-emerald-500/10'
+                        : 'border-slate-200 hover:border-emerald-200 bg-white'
+                        }`}
+                    >
+                      <div className={`p-2.5 rounded-xl flex-shrink-0 transition-transform group-hover:scale-110 ${paymentMethod === 'balance' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'bg-slate-100 text-slate-400'}`}>
+                        <Wallet className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={`font-black text-xs transition-colors ${paymentMethod === 'balance' ? 'text-emerald-900' : 'text-gray-900'}`}>Balance</p>
+                        <p className={`text-[10px] font-bold truncate ${Number(user?.balance || 0) < (paymentType === 'delivery' ? deliveryCharge : total) ? 'text-red-500' : 'text-emerald-600'}`}>
+                          ৳{Number(user?.balance || 0).toLocaleString()}
+                        </p>
+                      </div>
+                      {paymentMethod === 'balance' && (
+                        <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center animate-in zoom-in duration-300">
+                          <CheckCircle2 className="w-3 h-3 text-white" />
+                        </div>
+                      )}
+                    </button>
+
+                    {/* Manual */}
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod('manual')}
+                      className={`group flex items-center gap-3 p-4 rounded-2xl border-2 transition-all text-left ${paymentMethod === 'manual'
+                        ? 'border-emerald-500 bg-emerald-50 shadow-md ring-4 ring-emerald-500/10'
+                        : 'border-slate-200 hover:border-emerald-200 bg-white'
+                        }`}
+                    >
+                      <div className={`p-2.5 rounded-xl flex-shrink-0 transition-transform group-hover:scale-110 ${paymentMethod === 'manual' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'bg-slate-100 text-slate-400'}`}>
+                        <Smartphone className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={`font-black text-xs transition-colors ${paymentMethod === 'manual' ? 'text-emerald-900' : 'text-gray-900'}`}>Manual</p>
+                        <p className="text-[10px] text-slate-500 font-semibold truncate">Mobile Banking</p>
+                      </div>
+                      {paymentMethod === 'manual' && (
+                        <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center animate-in zoom-in duration-300">
+                          <CheckCircle2 className="w-3 h-3 text-white" />
+                        </div>
+                      )}
+                    </button>
+
+                    {/* COD */}
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod('cod')}
+                      className={`group flex items-center gap-3 p-4 rounded-2xl border-2 transition-all text-left ${paymentMethod === 'cod'
+                        ? 'border-emerald-500 bg-emerald-50 shadow-md ring-4 ring-emerald-500/10'
+                        : 'border-slate-200 hover:border-emerald-200 bg-white'
+                        }`}
+                    >
+                      <div className={`p-2.5 rounded-xl flex-shrink-0 transition-transform group-hover:scale-110 ${paymentMethod === 'cod' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'bg-slate-100 text-slate-400'}`}>
+                        <Truck className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={`font-black text-xs transition-colors ${paymentMethod === 'cod' ? 'text-emerald-900' : 'text-gray-900'}`}>COD</p>
+                        <p className="text-[10px] text-slate-500 font-semibold truncate">Pay on Delivery</p>
+                      </div>
+                      {paymentMethod === 'cod' && (
+                        <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center animate-in zoom-in duration-300">
+                          <CheckCircle2 className="w-3 h-3 text-white" />
+                        </div>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Manual payment details with animation-ready container */}
                 {paymentMethod === 'manual' && (
-                  <div className="space-y-5 pt-2">
-                    <p className="text-sm font-semibold text-slate-600 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
-                      📢 Send <span className="font-black text-amber-700">৳{total.toLocaleString()}</span> to the number shown below and enter the transaction details.
-                    </p>
+                  <div className="space-y-6 pt-2 animate-in fade-in slide-in-from-top-4 duration-500">
+                    <div className="flex items-start gap-4 p-5 bg-amber-50 border border-amber-100 rounded-2xl">
+                      <div className="p-2 bg-amber-100 rounded-lg shrink-0">
+                        <AlertCircle className="w-5 h-5 text-amber-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-amber-900 leading-snug">
+                          নিচের যেকোনো একটি নাম্বারে <span className="text-lg font-black underline decoration-amber-400 decoration-4 underline-offset-2">৳{(paymentType === 'delivery' ? deliveryCharge : total).toLocaleString()}</span> সেন্ড মানি করুন।
+                        </p>
+                        <p className="text-xs text-amber-700 font-semibold mt-1">টাকা পাঠানোর পর ট্রানজেকশন আইডি এবং আপনার নাম্বারটি নিচে দিন।</p>
+                      </div>
+                    </div>
 
                     {/* Gateway buttons */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       {manualMethods.map((method) => (
                         <button
                           key={method.id}
                           type="button"
                           onClick={() => setSelectedManualMethod(method.id)}
-                          className={`flex flex-col items-start p-4 rounded-2xl border-2 transition-all ${selectedManualMethod === method.id
-                            ? 'border-emerald-500 bg-emerald-50'
-                            : 'border-slate-200 hover:border-slate-300 bg-white'
+                          className={`group relative flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all ${selectedManualMethod === method.id
+                            ? 'border-emerald-500 bg-emerald-50 shadow-inner'
+                            : 'border-slate-100 hover:border-slate-300 bg-white hover:shadow-sm'
                             }`}
                         >
-                          <span className="font-black text-gray-900 text-sm">{method.name}</span>
-                          <span className="text-xs text-emerald-600 font-bold mt-1">{method.number}</span>
+                          <div className="w-12 h-12 mb-3 bg-white rounded-xl shadow-sm border border-slate-50 flex items-center justify-center overflow-hidden transition-transform group-hover:scale-105">
+                            <img src={method.logo} alt={method.name} className="w-8 h-8 object-contain opacity-80 group-hover:opacity-100" />
+                          </div>
+                          <span className={`font-black text-xs uppercase tracking-wider ${selectedManualMethod === method.id ? 'text-emerald-700' : 'text-slate-600'}`}>{method.name}</span>
+
                           {selectedManualMethod === method.id && (
-                            <span className="text-[10px] font-black text-emerald-600 mt-1 uppercase tracking-wider">Selected ✓</span>
+                            <div className="absolute -top-2 -right-2 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center border-2 border-white">
+                              <CheckCircle2 className="w-3 h-3 text-white" />
+                            </div>
                           )}
                         </button>
                       ))}
                     </div>
 
-                    {/* TrxID & Sender */}
+                    {/* Selected Method Details */}
                     {selectedManualMethod && (
-                      <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100 space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-2">Transaction ID *</label>
-                            <input
-                              name="transactionId"
-                              value={paymentDetails.transactionId}
-                              onChange={handlePaymentInputChange}
-                              placeholder="e.g. 9ABCDEFGH"
-                              className={dsInput}
-                            />
+                      <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                        {/* Number Display with Copy */}
+                        <div className="flex flex-col sm:flex-row items-center gap-4 p-5 bg-slate-900 rounded-2xl text-white">
+                          <div className="flex-1 w-full sm:w-auto text-center sm:text-left">
+                            <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mb-1">Send Money To</p>
+                            <p className="text-2xl font-black tracking-widest">{manualMethods.find(m => m.id === selectedManualMethod)?.number}</p>
                           </div>
-                          <div>
-                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-2">Sender Number</label>
-                            <input
-                              name="senderNumber"
-                              value={paymentDetails.senderNumber}
-                              onChange={handlePaymentInputChange}
-                              placeholder="01XXXXXXXXX"
-                              className={dsInput}
-                            />
+                          <button
+                            onClick={() => {
+                              const num = manualMethods.find(m => m.id === selectedManualMethod)?.number;
+                              navigator.clipboard.writeText(num);
+                              toast.success("Number copied to clipboard!");
+                            }}
+                            className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-colors shadow-lg shadow-emerald-500/20 active:scale-95"
+                          >
+                            <Copy className="w-4 h-4" />
+                            Copy Number
+                          </button>
+                        </div>
+
+                        {/* Transaction Inputs */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                          <div className="space-y-2">
+                            <label className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-1.5 ml-1">
+                              Transaction ID <span className="text-red-500">*</span>
+                            </label>
+                            <div className="relative group">
+                              <input
+                                name="transactionId"
+                                value={paymentDetails.transactionId}
+                                onChange={handlePaymentInputChange}
+                                placeholder="e.g. 9ABCDEFGH"
+                                className={`${dsInput} pl-11 !bg-white group-focus-within:!ring-emerald-500/20`}
+                              />
+                              <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-emerald-500 transition-colors" />
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-1.5 ml-1">
+                              Your {selectedManualMethod.toUpperCase()} Number <span className="text-slate-300">(Optional)</span>
+                            </label>
+                            <div className="relative group">
+                              <input
+                                name="senderNumber"
+                                value={paymentDetails.senderNumber}
+                                onChange={handlePaymentInputChange}
+                                placeholder="01XXXXXXXXX"
+                                className={`${dsInput} pl-11 !bg-white group-focus-within:!ring-emerald-500/20`}
+                              />
+                              <Smartphone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-emerald-500 transition-colors" />
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -432,83 +595,134 @@ const DropshippingCheckoutComponent = () => {
 
           {/* ════ RIGHT SIDEBAR ════ */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-3xl shadow-sm border border-slate-100 sticky top-8 overflow-hidden">
+            <div className="bg-white rounded-3xl shadow-lg border border-slate-100 sticky top-8 overflow-hidden transition-all hover:shadow-xl">
               {/* Sidebar header */}
-              <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-5">
-                <h3 className="text-lg font-black text-white">Order Summary</h3>
-                <p className="text-emerald-100 text-xs mt-0.5">{items.length} item(s) in cart</p>
+              <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-6">
+                <div className="flex items-center justify-between mb-1">
+                  <h3 className="text-lg font-black text-white uppercase tracking-wider">Order Summary</h3>
+                  <div className="bg-white/20 px-2 py-0.5 rounded-md backdrop-blur-sm">
+                    <p className="text-white text-[10px] font-black">{items.length} Items</p>
+                  </div>
+                </div>
+                <p className="text-emerald-100 text-[10px] font-bold uppercase tracking-widest opacity-80">Review your dropshipping order</p>
               </div>
 
               <div className="p-6 space-y-6">
-                {/* Product list */}
-                <div className="space-y-3 max-h-56 overflow-y-auto pr-1 custom-scrollbar">
+                {/* Product list with better styling */}
+                <div className="space-y-4 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
                   {items.map(item => (
-                    <div key={item.productId._id} className="flex gap-3 items-start">
-                      <img
-                        src={item.productId.images?.[0]}
-                        alt={item.productId.productName}
-                        className="w-14 h-14 object-cover rounded-xl flex-shrink-0 border border-slate-100"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-gray-900 line-clamp-2 leading-tight">
+                    <div key={item.productId._id} className="group flex gap-4 items-start p-2 rounded-2xl hover:bg-slate-50 transition-colors">
+                      <div className="relative">
+                        <img
+                          src={item.productId.images?.[0]}
+                          alt={item.productId.productName}
+                          className="w-16 h-16 object-cover rounded-xl flex-shrink-0 border border-slate-100 shadow-sm transition-transform group-hover:scale-105"
+                        />
+                        <span className="absolute -top-2 -right-2 bg-emerald-600 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white shadow-sm">
+                          {item.quantity}
+                        </span>
+                      </div>
+                      <div className="flex-1 min-w-0 pt-1">
+                        <p className="text-sm font-bold text-gray-900 line-clamp-1 leading-tight group-hover:text-emerald-600 transition-colors">
                           {item.productId.productName}
                         </p>
-                        <p className="text-xs text-slate-500 mt-1">
-                          {item.quantity} × ৳{item.price.toLocaleString()}
-                        </p>
-                        <p className="text-xs font-bold text-emerald-600">
-                          Sell @ ৳{(item.sellingPrice || item.price).toLocaleString()}
-                        </p>
+                        <div className="flex items-center gap-2 mt-1.5">
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Cost:</p>
+                          <p className="text-xs font-bold text-slate-600">৳{item.price.toLocaleString()}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <p className="text-[10px] font-black text-emerald-600 uppercase tracking-tighter">Sell:</p>
+                          <p className="text-xs font-black text-emerald-600">৳{(item.sellingPrice || item.price).toLocaleString()}</p>
+                        </div>
                       </div>
                     </div>
                   ))}
                 </div>
 
-                {/* Price breakdown */}
-                <div className="space-y-3 pt-4 border-t border-slate-100">
-                  <div className="flex justify-between text-sm font-semibold text-slate-500">
-                    <span>Product Cost</span>
-                    <span className="text-gray-800">৳{subtotal.toLocaleString()}</span>
+                {/* Price breakdown - More refined */}
+                <div className="space-y-4 pt-6 border-t border-dashed border-slate-200">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="font-bold text-slate-500">Subtotal (Product Cost)</span>
+                    <span className="font-black text-slate-900">৳{subtotal.toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between text-sm font-semibold text-slate-500">
-                    <span>Delivery Charge</span>
-                    <span className="text-gray-800">৳{deliveryCharge.toLocaleString()}</span>
+                  <div className="flex justify-between items-center text-sm">
+                    <div className="flex flex-col">
+                      <span className="font-bold text-slate-500">Delivery Charge</span>
+                      {customerInfo.district && (
+                        <span className="text-[10px] text-emerald-600 font-black uppercase tracking-tighter">
+                          {deliveryCharge === 80 ? '🏙️ Dhaka City Rate' : '🚚 Outside Dhaka Rate'}
+                        </span>
+                      )}
+                    </div>
+                    <span className="font-black text-slate-900">৳{deliveryCharge.toLocaleString()}</span>
                   </div>
-                  {customerInfo.district && (
-                    <p className="text-[11px] text-slate-400 font-medium">
-                      {deliveryCharge === 80 ? '🏙️ Dhaka delivery rate applied' : '🚚 Outside Dhaka delivery rate applied'}
-                    </p>
-                  )}
-                  <div className="flex justify-between text-lg font-black text-gray-900 pt-3 border-t border-slate-100">
-                    <span>Total Cost</span>
-                    <span className="text-emerald-600">৳{total.toLocaleString()}</span>
+
+                  <div className="pt-4 border-t-2 border-slate-100 space-y-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Total Order Value</span>
+                      <span className="text-base font-bold text-slate-500 line-through opacity-50">৳{(total + 50).toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-end">
+                      <div className="flex flex-col">
+                        <span className="text-xs font-black text-emerald-700 uppercase tracking-[0.2em]">Payable Now</span>
+                        <p className="text-[10px] text-slate-400 font-bold leading-tight">Secure Transaction</p>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-3xl font-black text-emerald-600 tracking-tighter">
+                          ৳{(paymentMethod === 'cod' ? 0 : (paymentType === 'delivery' ? deliveryCharge : total)).toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+
+                    {(paymentType === 'delivery' || paymentMethod === 'cod') && (
+                      <div className="flex items-center justify-between p-3 bg-amber-50 rounded-xl border border-amber-100 animate-in zoom-in duration-300">
+                        <div className="flex items-center gap-2">
+                          <AlertCircle className="w-3 h-3 text-amber-600" />
+                          <span className="text-[10px] font-black text-amber-800 uppercase">Due on Delivery</span>
+                        </div>
+                        <span className="text-sm font-black text-amber-700">
+                          ৳{(paymentMethod === 'cod' ? total : subtotal).toLocaleString()}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                {/* Place order button */}
+                {/* Place order button - Bigger & More Vibrant */}
                 <button
                   onClick={handlePlaceOrder}
                   disabled={isProcessing}
-                  className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-4 rounded-2xl font-black text-base shadow-lg shadow-emerald-100 hover:opacity-90 transition-all disabled:opacity-50 transform hover:-translate-y-0.5 active:translate-y-0"
+                  className="group relative w-full bg-gradient-to-br from-emerald-600 via-emerald-600 to-teal-600 text-white py-5 rounded-2xl font-black text-base shadow-xl shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 overflow-hidden"
                 >
+                  <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                   {isProcessing ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <svg className="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none">
+                    <span className="flex items-center justify-center gap-3">
+                      <svg className="animate-spin w-5 h-5 text-white" viewBox="0 0 24 24" fill="none">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                       </svg>
-                      Processing…
+                      <span className="uppercase tracking-widest text-sm">Processing Order...</span>
                     </span>
                   ) : (
-                    'Place Dropshipping Order →'
+                    <span className="flex items-center justify-center gap-2">
+                      PLACE ORDER NOW
+                      <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    </span>
                   )}
                 </button>
 
                 {/* Trust badge */}
-                <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl">
-                  <ShieldCheck className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-tight">
-                    Secured & Verified Dropshipping Transaction
+                <div className="flex items-center justify-center gap-3 py-2">
+                  <div className="flex -space-x-2">
+                    <div className="w-6 h-6 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center shadow-sm">
+                      <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                    </div>
+                    <div className="w-6 h-6 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center shadow-sm">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                    </div>
+                  </div>
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                    Trusted by 5,000+ Dropshippers
                   </p>
                 </div>
               </div>
