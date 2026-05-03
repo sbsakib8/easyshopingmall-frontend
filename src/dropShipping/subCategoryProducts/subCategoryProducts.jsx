@@ -146,7 +146,7 @@ const ProductCard = React.memo(({ product, viewMode, toggleWishlist, wishlist, r
           <button
             onClick={handleAddToCart}
             disabled={product.productStock < 1}
-            className="w-full bg-primary-color hover:bg-primary-color/90 disabled:bg-slate-100 disabled:text-slate-400 text-black py-2.5 rounded-lg font-black flex items-center justify-center gap-2 text-[10px] uppercase tracking-wider transition-all shadow-sm active:scale-95"
+            className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:shadow-lg hover:shadow-emerald-500/20 disabled:bg-slate-100 disabled:text-slate-400 text-white py-2.5 rounded-lg font-black flex items-center justify-center gap-2 text-[10px] uppercase tracking-wider transition-all active:scale-95 shadow-sm"
           >
             <ShoppingCart className="w-3.5 h-3.5" />
             Add to Cart
@@ -267,7 +267,7 @@ const SubCategoryProductsContent = ({ id }) => {
 
         <button
           onClick={() => router.push('/all-products')}
-          className="mt-8 px-8 py-3 bg-primary-color text-black rounded-xl font-black shadow-md hover:shadow-lg transition-all"
+          className="mt-8 px-8 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl font-black shadow-md hover:shadow-lg transition-all"
         >
           Explore All Products
         </button>
@@ -306,7 +306,7 @@ const SubCategoryProductsContent = ({ id }) => {
           </button>
 
           {showStartDots && (
-            <button onClick={() => setPage(1)} className="w-10 h-10 rounded-xl font-bold text-sm bg-white border border-slate-200 hover:border-primary-color">1</button>
+            <button onClick={() => setPage(1)} className="w-10 h-10 rounded-xl font-bold text-sm bg-white border border-slate-200 hover:border-emerald-600">1</button>
           )}
           {showStartDots && <span className="text-slate-400 font-black">...</span>}
 
@@ -314,7 +314,7 @@ const SubCategoryProductsContent = ({ id }) => {
             <button
               key={p}
               onClick={() => setPage(p)}
-              className={`w-10 h-10 rounded-xl font-black text-sm transition-all border ${page === p ? "bg-primary-color border-primary-color text-black shadow-md scale-110" : "bg-white border-slate-200 hover:border-slate-300 text-slate-600"}`}
+              className={`w-10 h-10 rounded-xl font-black text-sm transition-all border ${page === p ? "bg-gradient-to-r from-emerald-600 to-teal-600 border-transparent text-white shadow-md scale-110" : "bg-white border-slate-200 hover:border-slate-300 text-slate-600"}`}
             >
               {p}
             </button>

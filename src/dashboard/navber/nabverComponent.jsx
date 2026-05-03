@@ -119,6 +119,16 @@ const DashboardNebver = ({ children }) => {
             ],
         },
         {
+            id: 10,
+            label: "Dropshipping",
+            icon: Package,
+            path: "/dashboard/dropshipping/referral-activity",
+            submenu: [
+                { path: "/dropshipping/referral-activity", id: 101, label: "Referral Activity", icon: Users },
+                { path: "/dropshipping/settings", id: 102, label: "Dropshipping Settings", icon: Settings },
+            ],
+        },
+        {
             id: 6,
             label: "Banners",
             icon: AppWindow,

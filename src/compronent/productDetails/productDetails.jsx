@@ -721,7 +721,9 @@ const ProductDetails = ({ initialProduct }) => {
                 disabled={product?.stock === 0}
                 className={`w-full py-4 rounded-xl font-semibold text-lg flex items-center justify-center space-x-2 transition-all duration-300 ${product?.stock === 0
                   ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                  : "bg-btn-color text-accent-content hover:shadow-lg hover:scale-102 cursor-pointer"
+                  : (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING"))
+                    ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:shadow-lg hover:shadow-emerald-500/20 transform hover:-translate-y-0.5 cursor-pointer"
+                    : "bg-btn-color text-accent-content hover:shadow-lg hover:scale-102 cursor-pointer"
                   }`}
               >
                 <ShoppingCart className="w-5 h-5 " />
@@ -743,7 +745,9 @@ const ProductDetails = ({ initialProduct }) => {
 
                   className={`w-full py-4 rounded-xl font-semibold text-lg flex items-center justify-center space-x-2 transition-all duration-300 ${product?.stock === 0
                     ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                    : "bg-btn-color text-white hover:shadow-lg hover:scale-102 cursor-pointer"
+                    : (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING"))
+                      ? "bg-gradient-to-r from-teal-600 to-emerald-600 text-white hover:shadow-lg hover:shadow-teal-500/20 transform hover:-translate-y-0.5 cursor-pointer"
+                      : "bg-btn-color text-white hover:shadow-lg hover:scale-102 cursor-pointer"
                     }`}>
                   <Zap className={`w-5 h-5 ${loading ? 'animate-spin' : ''} `} />
                   <span>Buy Now</span>

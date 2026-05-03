@@ -86,7 +86,7 @@ const DropshippingCartComponent = () => {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-extrabold text-gray-900 flex items-center gap-3">
-              <ShoppingCart className="w-8 h-8 text-primary-color" />
+              <ShoppingCart className="w-8 h-8 text-emerald-600" />
               Dropshipping Cart
             </h1>
             <p className="text-gray-600 mt-2">Manage orders for your customers and maximize your profit.</p>
@@ -94,10 +94,10 @@ const DropshippingCartComponent = () => {
           <div className="hidden md:flex items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
             <div className="text-right">
               <p className="text-xs text-gray-500 uppercase font-bold tracking-wider">Your Balance</p>
-              <p className="text-xl font-black text-green-600">৳{Number(user?.balance || 0).toLocaleString()}</p>
+              <p className="text-xl font-black text-emerald-600">৳{Number(user?.balance || 0).toLocaleString()}</p>
             </div>
-            <div className="p-2 bg-green-50 rounded-lg">
-              <Wallet className="w-6 h-6 text-green-600" />
+            <div className="p-2 bg-emerald-50 rounded-lg">
+              <Wallet className="w-6 h-6 text-emerald-600" />
             </div>
           </div>
         </div>
@@ -109,7 +109,7 @@ const DropshippingCartComponent = () => {
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Your dropshipping cart is empty</h2>
             <p className="text-gray-500 mb-8 max-w-md mx-auto">Start adding products to your specialized dropshipping cart to begin fulfilling orders for your clients.</p>
-            <Link href="/all-products" className="inline-flex items-center gap-2 bg-primary-color text-black px-8 py-4 rounded-2xl font-bold hover:shadow-lg transition-all">
+            <Link href="/all-products" className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-8 py-4 rounded-2xl font-bold hover:shadow-lg transition-all">
               Browse Products <ArrowRight className="w-5 h-5" />
             </Link>
           </div>
@@ -156,11 +156,11 @@ const DropshippingCartComponent = () => {
                               value={item.sellingPrice ?? item.price}
                               onChange={(e) => handleUpdateSellingPrice(item.productId._id, e.target.value)}
                               onBlur={(e) => handleBlurSellingPrice(item.productId._id, e.target.value, item.price)}
-                              className="w-full bg-gray-50 border-none rounded-xl py-3 pl-4 pr-12 font-bold text-gray-900 focus:ring-2 focus:ring-primary-color"
+                              className="w-full bg-gray-50 border-none rounded-xl py-3 pl-4 pr-12 font-bold text-gray-900 focus:ring-2 focus:ring-emerald-500"
                             />
                             <TrendingUp className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300" />
                           </div>
-                          <p className="text-[10px] text-green-600 font-bold">
+                          <p className="text-[10px] text-emerald-600 font-bold">
                             Estimated Profit: ৳{(((item.sellingPrice === "" ? 0 : (item.sellingPrice ?? item.price)) - item.price) * item.quantity)}
                           </p>
                         </div>
@@ -176,7 +176,7 @@ const DropshippingCartComponent = () => {
               <div className="bg-white rounded-[2.5rem] p-8 shadow-xl border border-gray-100 sticky top-8 space-y-8">
                 <div className="space-y-2">
                   <h3 className="text-2xl font-black text-gray-900">Summary</h3>
-                  <div className="w-12 h-1.5 bg-primary-color rounded-full" />
+                  <div className="w-12 h-1.5 bg-emerald-600 rounded-full" />
                 </div>
 
                 <div className="space-y-4">
@@ -190,12 +190,12 @@ const DropshippingCartComponent = () => {
                   </div>
                   <div className="pt-4 border-t border-gray-100 flex justify-between items-center">
                     <span className="text-lg font-black text-gray-900">Your Profit</span>
-                    <span className="text-2xl font-black text-green-600">৳{totalProfit.toLocaleString()}</span>
+                    <span className="text-2xl font-black text-emerald-600">৳{totalProfit.toLocaleString()}</span>
                   </div>
                 </div>
 
-                <div className="bg-primary-color/10 p-6 rounded-3xl space-y-3">
-                  <div className="flex items-center gap-3 text-primary-color font-black">
+                <div className="bg-emerald-50 p-6 rounded-3xl space-y-3 border border-emerald-100">
+                  <div className="flex items-center gap-3 text-emerald-600 font-black">
                     <Calculator className="w-5 h-5" />
                     <span>PROFIT BREAKDOWN</span>
                   </div>
@@ -206,7 +206,7 @@ const DropshippingCartComponent = () => {
 
                 <button
                   onClick={handleCheckout}
-                  className="w-full bg-black text-white py-5 rounded-2xl font-black text-lg flex items-center justify-center gap-3 hover:bg-gray-900 transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
+                  className="w-full bg-gradient-to-br from-emerald-600 to-teal-700 text-white py-5 rounded-2xl font-black text-lg flex items-center justify-center gap-3 hover:opacity-90 transition-all shadow-xl hover:shadow-emerald-500/20 transform hover:-translate-y-1"
                 >
                   <CreditCard className="w-6 h-6" />
                   Proceed to Checkout

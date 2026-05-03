@@ -92,11 +92,22 @@ function SallerDashboard() {
     <div className="bg-bg">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h2 className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-2">
-            Seller Dashboard
-          </h2>
-          <p className="text-gray-500 text-sm">Real-time Performance Metrics</p>
+        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+          <div className="text-center md:text-left">
+            <h2 className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-2">
+              Seller Dashboard
+            </h2>
+            <p className="text-gray-500 text-sm">Real-time Performance Metrics</p>
+          </div>
+          <div className="flex gap-4">
+            <a 
+              href="/shop-settings" 
+              className="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-6 py-3 rounded-2xl font-bold hover:bg-gray-50 transition-all shadow-sm group/btn"
+            >
+              <FiSettings className="text-xl text-emerald-600 group-hover/btn:rotate-90 transition-transform" />
+              Shop Settings
+            </a>
+          </div>
         </div>
 
         <div className="flex flex-col gap-6 max-w-4xl mx-auto">
@@ -106,8 +117,10 @@ function SallerDashboard() {
               className="rounded-3xl p-6 flex flex-col md:flex-row items-center gap-8 bg-white shadow-xl border border-gray-100 hover:shadow-2xl transition-all group"
             >
               {/* Left Icon (circle) */}
-              <div className="w-[80px] h-[80px] rounded-full bg-primary-color/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                {view.icon}
+              <div className="w-[80px] h-[80px] rounded-full bg-emerald-50 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                <div className="text-emerald-600">
+                  {React.cloneElement(view.icon, { className: "text-3xl text-emerald-600" })}
+                </div>
               </div>
 
               {/* Right content */}
@@ -125,7 +138,7 @@ function SallerDashboard() {
                   </div>
 
                   {/* Arrow 1 */}
-                  <div className="items-center text-secondary hidden md:flex">
+                  <div className="items-center text-emerald-600 hidden md:flex">
                     {view.arrow1 === "right" ? (
                       <FaLongArrowAltRight size={20} />
                     ) : (
@@ -134,12 +147,12 @@ function SallerDashboard() {
                   </div>
 
                   {/* Profit */}
-                  <div className="bg-green-50 border border-green-100 text-green-700 font-black rounded-2xl px-6 py-3 flex items-center justify-center text-sm shadow-sm">
+                  <div className="bg-emerald-50 border border-emerald-100 text-emerald-700 font-black rounded-2xl px-6 py-3 flex items-center justify-center text-sm shadow-sm">
                     PROFIT: ৳{view.profit.toLocaleString()}
                   </div>
 
                   {/* Arrow 2 */}
-                  <div className="items-center text-secondary hidden md:flex">
+                  <div className="items-center text-emerald-600 hidden md:flex">
                     {view.arrow2 === "right" ? (
                       <FaLongArrowAltRight size={20} />
                     ) : (
@@ -148,7 +161,7 @@ function SallerDashboard() {
                   </div>
 
                   {/* Sell Price */}
-                  <div className="bg-purple-50 border border-purple-100 text-purple-700 font-black rounded-2xl px-6 py-3 flex items-center justify-center text-sm shadow-sm">
+                  <div className="bg-teal-50 border border-teal-100 text-teal-700 font-black rounded-2xl px-6 py-3 flex items-center justify-center text-sm shadow-sm">
                     VOLUME: ৳{view.sellPrice.toLocaleString()}
                   </div>
                 </div>

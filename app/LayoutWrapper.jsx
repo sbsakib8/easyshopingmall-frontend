@@ -16,12 +16,7 @@ export default function LayoutWrapper({ children, initialWebsiteInfo }) {
   const hideLayout = pathname.startsWith("/dashboard");
   const dispatch = useDispatch();
   
-  // Use Redux state for immediate UI reaction after login
-  const reduxUser = useSelector((state) => state.user.data);
-  const { user: hookUser, loading } = useGetUser(); 
-  
-  // Use whichever is available, prioritizing Redux for real-time updates
-  const user = reduxUser || hookUser;
+  const { user, loading } = useGetUser(); 
   const role = user?.role;
 
   return (

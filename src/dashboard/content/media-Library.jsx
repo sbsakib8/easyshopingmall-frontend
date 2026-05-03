@@ -28,7 +28,6 @@ export default function WebsiteInfoAdmin() {
  email:'',
  number:'',
  socialLinks: [],
- referralPercentage: 0,
  active: true
 });
 
@@ -138,7 +137,6 @@ export default function WebsiteInfoAdmin() {
  email: info.email ||'',
  number: info.number ||'',
  socialLinks: info.socialLinks || [],
- referralPercentage: info.referralPercentage || 0,
  active: info.active !== undefined ? info.active : true
 });
  setEditingId(info._id);
@@ -163,7 +161,6 @@ export default function WebsiteInfoAdmin() {
  email:'',
  number:'',
  socialLinks: [],
- referralPercentage: 0,
  active: true
 });
  setEditingId(null);
@@ -386,30 +383,7 @@ export default function WebsiteInfoAdmin() {
  </div>
  </div>
 
- {/* Referral Section */}
- <div className="border-b pb-6">
- <h3 className="text-lg font-semibold text-gray-300 mb-4">🤝 Referral Settings</h3>
- <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- <div>
- <label className="block text-sm font-medium text-gray-300 mb-2">
- Referral Bonus Percentage (%)
- </label>
- <input
- type="number"
- name="referralPercentage"
- value={formData.referralPercentage}
- onChange={handleInputChange}
- min="0"
- max="100"
- placeholder="e.g. 5"
- className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-black"
- />
- <p className="text-xs text-gray-400 mt-2">
- Percentage of total order amount given to the dropshipper when a referred normal user completes an order.
- </p>
- </div>
- </div>
- </div>
+
 
  {/* Footer Section */}
  <div className="border-b pb-6">
@@ -673,10 +647,7 @@ export default function WebsiteInfoAdmin() {
  <span className="ml-2 text-gray-300">{info.supportContact}</span>
  </div>
  )}
- <div>
- <span className="font-medium text-amber-400">Referral Bonus:</span>
- <span className="ml-2 text-amber-400">{info.referralPercentage || 0}%</span>
- </div>
+
  {info.socialLinks && info.socialLinks.length > 0 && (
  <div className="md:col-span-3">
  <span className="font-medium text-gray-300">Social Media:</span>
