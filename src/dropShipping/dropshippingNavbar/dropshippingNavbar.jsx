@@ -1,11 +1,12 @@
 "use client";
 import logo from"@/app/icon.png";
-import {ChevronDown, ChevronRight, Heart, Menu, ShoppingCart, User, X,} from"lucide-react";
+import {ChevronDown, ChevronRight, Heart, Menu, ShoppingCart, User, X, Home, Package, Sparkles, TrendingUp, ClipboardList, Settings, Coins, Users, LayoutDashboard} from "lucide-react";
 import Image from"next/image";
 import Link from"next/link";
 import {useRouter} from"next/navigation";
 import {useState} from"react";
 import {useSelector} from"react-redux";
+import { useGetUser } from "@/src/utlis/useGetuser";
 
 const DropShippingNavbar = () => {
  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -19,23 +20,23 @@ const DropShippingNavbar = () => {
  const cartCount = (cartItems || []).reduce((sum, item) => sum + (item.quantity || 1), 0);
 
  // user data fatch
- const data = useSelector((state) => state.user.data);
+ const { user: data, refetch: refetchUser } = useGetUser();
  // Navigation items
   const navItems = [
-  {name:"Home", href:"/"},
-  {name:"All Products", href:"/all-products"},
-  {name:"Profile", href:"/profile"},
-  {name:"New Products", href:"/new-products"},
-  {name:"Wishlist", href:"/wishlist"},
-  {name:"Sell & Profit", href:"/dropshipping-addtocart"},
-  {name:"Order List", href:"/order-list"},
-  {name:"Shop Settings", href:"/shop-settings"},
-  {name:"Passive Income", href:"/passive-income", subLink: [{name:"Box Leader", href:"/box-leader"}, {name:"Auditor", href:"/auditor"}, {name:"Member", href:"/member"}]},
-  {name:"Referral Profile", href:"/referral-profile", subLink: [{name:"Referral Profit", href:"/referral-profit"}]},
+  {name:"Home", href:"/", icon: <Home size={18} />},
+  {name:"All Products", href:"/all-products", icon: <Package size={18} />},
+  {name:"Profile", href:"/profile", icon: <User size={18} />},
+  {name:"New Products", href:"/new-products", icon: <Sparkles size={18} />},
+  {name:"Wishlist", href:"/wishlist", icon: <Heart size={18} />},
+  {name:"Sell & Profit", href:"/dropshipping-addtocart", icon: <TrendingUp size={18} />},
+  {name:"Order List", href:"/order-list", icon: <ClipboardList size={18} />},
+  {name:"Shop Settings", href:"/shop-settings", icon: <Settings size={18} />},
+  {name:"Passive Income", href:"/passive-income", icon: <Coins size={18} />, subLink: [{name:"Box Leader", href:"/box-leader"}, {name:"Auditor", href:"/auditor"}, {name:"Member", href:"/member"}]},
+  {name:"Referral Profile", href:"/referral-profile", icon: <Users size={18} />, subLink: [{name:"Referral Profit", href:"/referral-profit"}]},
   ];
 
  if (data?.role === "DROPSHIPPING" || data?.roles?.includes("DROPSHIPPING")) {
-  navItems.push({name:"Dashboard", href:"/seller-dashboard"});
+  navItems.push({name:"Dashboard", href:"/seller-dashboard", icon: <LayoutDashboard size={18} />});
 }
 
  const toggleMobileMenu = () => {
@@ -46,7 +47,7 @@ const DropShippingNavbar = () => {
  <>
  {/* Main Header */}
  <header
- className={`bg-bg backdrop-blur-md shadow-lg sticky top-0 z-40 border-b border-gray-200/50 ${isScrolled ?"h-16 sm:h-20":"h-20 sm:h-24 lg:h-[100px]"
+ className={`bg-white/70 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-gray-200/50 ${isScrolled ?"h-16 sm:h-20":"h-20 sm:h-24 lg:h-[100px]"
 }`}
  >
  <div className="mx-auto px-2 sm:px-4 lg:px-32">
@@ -57,10 +58,10 @@ const DropShippingNavbar = () => {
  {/* Mobile Menu Button */}
  <button
           onClick={toggleMobileMenu}
-          className={`p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-300 shadow-sm border ${
+          className={`p-2 sm:p-3 rounded-lg sm:rounded-xl shadow-sm border ${
             isMobileMenuOpen
-              ? "bg-emerald-600 text-white border-emerald-600 scale-95"
-              : "bg-white hover:bg-gray-50 text-gray-700 border-gray-100"
+              ? "bg-emerald-600 text-white border-emerald-600"
+              : "bg-white hover:bg-gray-50 text-gray-700 border-gray-100 hover:shadow-md"
           }`}
         >
           {isMobileMenuOpen ? (
@@ -101,7 +102,10 @@ const DropShippingNavbar = () => {
  <div className="flex items-center space-x-2 sm:space-x-4 lg:space-x-6">
  {/* Balance Box */}
  <div
- onClick={() => setShowBalance(!showBalance)}
+ onClick={() => {
+     setShowBalance(!showBalance);
+     if (!showBalance) refetchUser();
+ }}
  className="flex items-center bg-white border border-gray-200 rounded-full p-1 cursor-pointer hover:shadow-md group select-none relative overflow-hidden min-w-[150px] h-10"
  >
  {/* coin icon */}
@@ -223,24 +227,24 @@ const DropShippingNavbar = () => {
 
     {/* Side Menu */}
     <div
-      className={`absolute top-0 left-0 h-screen w-[280px] sm:w-[320px] bg-white shadow-2xl ${
+      className={`absolute top-0 left-0 h-screen w-[280px] sm:w-[320px] bg-white/80 backdrop-blur-2xl border-r border-white/50 shadow-[0_0_40px_rgba(0,0,0,0.1)] ${
         isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
       } overflow-y-auto flex flex-col`}
     >
-      <div className="p-6 bg-gradient-to-br from-emerald-600 to-teal-600 border-b border-white/10 flex items-center justify-between">
+      <div className="p-6 bg-white/30 border-b border-gray-200/50 flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="bg-white p-2 rounded-xl shadow-lg">
+          <div className="bg-white p-2 rounded-xl shadow-sm border border-gray-100">
             <Link href="/">
               <Image onClick={toggleMobileMenu} src={logo} width={35} height={35} alt="Logo" className="object-contain" />
             </Link>
           </div>
-          <span className="font-bold text-white text-lg tracking-wide">MENU</span>
+          <span className="font-bold text-gray-800 text-lg tracking-wide">MENU</span>
         </div>
         <button
           onClick={toggleMobileMenu}
-          className="p-2 bg-white/20 hover:bg-white/30 rounded-full transition-colors group"
+          className="p-2 bg-white/60 hover:bg-white border border-gray-200 rounded-full group shadow-sm"
         >
-          <X size={20} className="text-white group-hover:rotate-90 transition-transform duration-300" />
+          <X size={20} className="text-gray-700" />
         </button>
       </div>
       
@@ -254,15 +258,18 @@ const DropShippingNavbar = () => {
               {hasSubLinks ? (
                 <button
                   onClick={() => setExpandedItem(isExpanded ? null : item.name)}
-                  className={`w-full flex items-center justify-between py-3.5 px-4 rounded-xl font-semibold transition-all duration-200 border ${
+                  className={`w-full flex items-center justify-between py-2.5 px-4 rounded-full font-medium ${
                     isExpanded
-                      ? "bg-emerald-600/10 text-emerald-600 border-emerald-600/20"
-                      : "text-gray-700 hover:bg-gray-50 border-transparent"
+                      ? "bg-black text-white shadow-sm"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-black"
                   }`}
                 >
-                  <span className="text-base">{item.name}</span>
-                  <div className={`transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`}>
-                    <ChevronDown size={18} />
+                  <div className="flex items-center space-x-3">
+                    {item.icon}
+                    <span className="text-sm">{item.name}</span>
+                  </div>
+                  <div className={isExpanded ? "rotate-180" : ""}>
+                    <ChevronDown size={16} />
                   </div>
                 </button>
               ) : (
@@ -272,24 +279,25 @@ const DropShippingNavbar = () => {
                     setExpandedItem(null);
                   }}
                   href={item.href}
-                  className="w-full flex items-center justify-between py-3.5 px-4 text-gray-700 hover:bg-emerald-600/10 hover:text-emerald-600 rounded-xl font-semibold transition-all duration-200 border border-transparent hover:border-emerald-600/20 group"
+                  className="w-full flex items-center justify-between py-2.5 px-4 text-gray-600 hover:bg-gray-100 hover:text-black rounded-full font-medium group"
                 >
-                  <span className="text-base">{item.name}</span>
+                  <div className="flex items-center space-x-3">
+                    {item.icon}
+                    <span className="text-sm">{item.name}</span>
+                  </div>
                   {item.badge && (
-                    <span className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">
+                    <span className="bg-emerald-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm">
                       {item.badge}
                     </span>
                   )}
                 </Link>
               )}
 
-              {/* Sub-links with Animation */}
+              {/* Sub-links (Instant Toggle) */}
               <div
-                className={`overflow-hidden transition-all duration-300 ${
-                  isExpanded ? "max-h-[400px] opacity-100 mt-2" : "max-h-0 opacity-0"
-                }`}
+                className={`${isExpanded ? "block mt-2" : "hidden"}`}
               >
-                <div className="pl-4 space-y-1 border-l-2 border-emerald-600/20 ml-4">
+                <div className="pl-6 space-y-0.5 border-l-2 border-gray-100 ml-4 mt-1">
                   {item.subLink?.map((sub, sIndex) => (
                     <Link
                       key={sIndex}
@@ -298,7 +306,7 @@ const DropShippingNavbar = () => {
                         toggleMobileMenu();
                         setExpandedItem(null);
                       }}
-                      className="block py-2.5 px-4 text-sm text-gray-600 hover:text-emerald-600 hover:bg-emerald-600/5 rounded-lg transition-colors font-medium"
+                      className="block py-2 px-4 text-[13px] text-gray-500 hover:text-black hover:bg-gray-100 rounded-full font-medium"
                     >
                       {sub.name}
                     </Link>
@@ -311,7 +319,7 @@ const DropShippingNavbar = () => {
       </nav>
       
       {/* Optional Footer or Logout in Menu if needed */}
-      <div className="p-6 border-t border-gray-100 bg-gray-50/50">
+      <div className="p-6 border-t border-gray-200/50 bg-gray-50/30">
         <p className="text-[10px] text-gray-400 font-medium text-center uppercase tracking-widest">
           Easy Shopping Mall &copy; 2026
         </p>
