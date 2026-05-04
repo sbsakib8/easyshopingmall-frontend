@@ -381,13 +381,13 @@ const OrderManagement = () => {
  <h3 className="text-xs font-bold text-accent-content group-hover:text-blue-400">
  {order?.orderId}
  </h3>
- <div className="flex items-center gap-3 mt-1">
+ <div className="flex flex-wrap items-center gap-2 mt-1">
  <span className="text-gray-300 font-medium">{order?.userId?.name}</span>
- {/* <span
- className={`px-3 py-1 rounded-full text-xs font-semibold ${priorityColors[order.priority]}`}
- >
- {order.priority.toUpperCase()}
- </span> */}
+ {order?.userId?.role === "DROPSHIPPING" && (
+   <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary-color/20 text-primary-color border border-primary-color/30 uppercase tracking-widest">
+     Dropshipping
+   </span>
+ )}
  </div>
  </div>
  </div>
@@ -564,7 +564,14 @@ const OrderManagement = () => {
  <div className="space-y-3">
  <div className="flex items-center gap-3">
  <User className="h-4 w-4 text-gray-400"/>
- <span className="font-medium text-accent-content">{selectedOrder?.userId?.name}</span>
+ <div className="flex items-center gap-2">
+   <span className="font-medium text-accent-content">{selectedOrder?.userId?.name}</span>
+   {selectedOrder?.userId?.role === "DROPSHIPPING" && (
+     <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary-color/20 text-primary-color border border-primary-color/30 uppercase tracking-widest">
+       Dropshipping
+     </span>
+   )}
+ </div>
  </div>
  <div className="flex items-center gap-3">
  <Mail className="h-4 w-4 text-gray-400"/>

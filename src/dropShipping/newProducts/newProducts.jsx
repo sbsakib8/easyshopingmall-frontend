@@ -5,7 +5,7 @@ import Link from 'next/link';
 import React from 'react';
 import { useSelector } from 'react-redux';
 
-const AllProducts = () => {
+const NewProducts = () => {
     const { subcategory, loading } = useGetSubcategory();
     const user = useSelector((state) => state.user.data);
     const menCategory = subcategory?.filter(
@@ -33,7 +33,7 @@ const AllProducts = () => {
                             menCategory?.map(cat => (
                                 <Link
                                     key={cat?._id}
-                                    href={`/sub-category/${cat?._id}?pageType=all-products`}
+                                    href={`/sub-category/${cat?._id}?pageType=new-products`}
                                     className="group shadow-md hover:shadow-xl hover:shadow-emerald-500/10 rounded-[2rem] px-4 py-5 bg-white border-2 border-transparent hover:border-emerald-500 transition-all duration-300 flex flex-col items-center"
                                 >
                                     <div className="w-full h-48 rounded-2xl overflow-hidden mb-6">
@@ -65,7 +65,7 @@ const AllProducts = () => {
                             womenCategory?.map(cat => (
                                 <Link
                                     key={cat?._id}
-                                    href={`/sub-category/${cat?._id}?pageType=all-products`}
+                                    href={`/sub-category/${cat?._id}?pageType=new-products`}
                                     className="group shadow-md hover:shadow-xl hover:shadow-emerald-500/10 rounded-[2rem] px-4 py-5 bg-white border-2 border-transparent hover:border-emerald-500 transition-all duration-300 flex flex-col items-center"
                                 >
                                     <div className="w-full h-48 rounded-2xl overflow-hidden mb-6">
@@ -97,7 +97,7 @@ const AllProducts = () => {
                             childrenCategory?.map(cat => (
                                 <Link
                                     key={cat?._id}
-                                    href={`/sub-category/${cat?._id}?pageType=all-products`}
+                                    href={`/sub-category/${cat?._id}?pageType=new-products`}
                                     className="group shadow-md hover:shadow-xl hover:shadow-emerald-500/10 rounded-[2rem] px-4 py-5 bg-white border-2 border-transparent hover:border-emerald-500 transition-all duration-300 flex flex-col items-center"
                                 >
                                     <div className="w-full h-48 rounded-2xl overflow-hidden mb-6">
@@ -121,4 +121,4 @@ const AllProducts = () => {
     );
 };
 
-export default AllProducts;
+export default NewProducts;
