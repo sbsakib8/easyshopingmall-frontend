@@ -98,6 +98,11 @@ const DropshippingCheckoutComponent = () => {
     const sp = item.sellingPrice === "" ? 0 : (item.sellingPrice ?? item.price);
     return sum + (sp * item.quantity);
   }, 0);
+  
+  const totalProfit = items.reduce((sum, item) => {
+    const sp = item.sellingPrice === "" ? 0 : (item.sellingPrice ?? item.price);
+    return sum + ((sp - item.price) * item.quantity);
+  }, 0);
   const [deliveryCharge, setDeliveryCharge] = useState(100);
   const total = subtotal + deliveryCharge;
 
@@ -157,10 +162,17 @@ const DropshippingCheckoutComponent = () => {
         userId: user._id,
         products: items.map(item => ({
           productId: item.productId._id,
+          name: item.productId.productName,
+          image: item.productId.images || [],
           quantity: item.quantity,
           costPrice: item.price,
           sellingPrice: item.sellingPrice || item.price,
+          size: item.size || null,
+          color: item.color || null,
+          weight: item.weight || null,
         })),
+
+
         delivery_address: {
           address_line: customerInfo.address,
           district: customerInfo.district,
@@ -630,9 +642,14 @@ const DropshippingCheckoutComponent = () => {
                           <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Cost:</p>
                           <p className="text-xs font-bold text-slate-600">৳{item.price.toLocaleString()}</p>
                         </div>
+
                         <div className="flex items-center gap-2">
                           <p className="text-[10px] font-black text-emerald-600 uppercase tracking-tighter">Sell:</p>
                           <p className="text-xs font-black text-emerald-600">৳{(item.sellingPrice || item.price).toLocaleString()}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <p className="text-[10px] font-black text-blue-600 uppercase tracking-tighter">Profit:</p>
+                          <p className="text-xs font-black text-blue-600">৳{((item.sellingPrice || item.price) - item.price).toLocaleString()}</p>
                         </div>
                       </div>
                     </div>
@@ -645,6 +662,7 @@ const DropshippingCheckoutComponent = () => {
                     <span className="font-bold text-slate-500">Subtotal (Product Cost)</span>
                     <span className="font-black text-slate-900">৳{subtotal.toLocaleString()}</span>
                   </div>
+
                   <div className="flex justify-between items-center text-sm">
                     <div className="flex flex-col">
                       <span className="font-bold text-slate-500">Delivery Charge</span>
@@ -656,6 +674,12 @@ const DropshippingCheckoutComponent = () => {
                     </div>
                     <span className="font-black text-slate-900">৳{deliveryCharge.toLocaleString()}</span>
                   </div>
+
+                  <div className="flex justify-between items-center text-sm p-3 bg-blue-50 rounded-xl border border-blue-100">
+                    <span className="font-bold text-blue-600">Potential Profit</span>
+                    <span className="font-black text-blue-700">৳{totalProfit.toLocaleString()}</span>
+                  </div>
+
 
                   <div className="pt-4 border-t-2 border-slate-100 space-y-4">
                     <div className="flex justify-between items-center">

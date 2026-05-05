@@ -17,7 +17,9 @@ export default function DropshippingSettings() {
   const [dataLoading, setDataLoading] = useState(true);
   const [websiteInfo, setWebsiteInfo] = useState(null);
   const [referralPercentage, setReferralPercentage] = useState(0);
+
   const [notification, setNotification] = useState({ show: false, message: "", type: "" });
+
 
   const fetchData = async () => {
     try {
@@ -27,7 +29,9 @@ export default function DropshippingSettings() {
       if (info) {
         setWebsiteInfo(info);
         setReferralPercentage(info.referralPercentage || 0);
+
       }
+
     } catch (err) {
       console.error("Fetch website info error:", err);
       showNotification("Failed to load settings.", "error");
@@ -59,6 +63,8 @@ export default function DropshippingSettings() {
         ...websiteInfo,
         referralPercentage: Number(referralPercentage)
       };
+
+
       await WebsiteinfoUploade(updateData, websiteInfo._id);
       showNotification("Referral settings updated successfully!");
       fetchData();
@@ -111,8 +117,7 @@ export default function DropshippingSettings() {
                   </div>
                   <h2 className="text-xl font-bold text-white">Referral Incentives</h2>
                 </div>
-                
-                <div className="grid md:grid-cols-2 gap-8 items-start">
+                 <div className="grid md:grid-cols-2 gap-8 items-start">
                   <div className="space-y-4">
                     <label className="block text-sm font-bold text-gray-300 uppercase tracking-wider">
                       Referral Bonus Amount (৳)
@@ -143,6 +148,8 @@ export default function DropshippingSettings() {
                     </div>
                   </div>
                 </div>
+
+
               </section>
 
               {/* Action Buttons */}
