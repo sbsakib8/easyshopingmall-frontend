@@ -30,7 +30,9 @@ const DropShippingNavbar = () => {
   {name:"Wishlist", href:"/wishlist", icon: <Heart size={18} />},
   {name:"Sell & Profit", href:"/dropshipping-addtocart", icon: <TrendingUp size={18} />},
   {name:"Order List", href:"/order-list", icon: <ClipboardList size={18} />},
+  {name:"My Analytics", href:"/my-analytics", icon: <TrendingUp size={18} />},
   {name:"Shop Settings", href:"/shop-settings", icon: <Settings size={18} />},
+
   {name:"Passive Income", href:"/passive-income", icon: <Coins size={18} />, subLink: [{name:"Box Leader", href:"/box-leader"}, {name:"Auditor", href:"/auditor"}, {name:"Member", href:"/member"}]},
   {name:"Referral Profile", href:"/referral-profile", icon: <Users size={18} />, subLink: [{name:"Referral Profit", href:"/referral-profit"}]},
   ];
