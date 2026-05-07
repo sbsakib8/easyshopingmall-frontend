@@ -127,6 +127,7 @@ const DashboardNebver = ({ children }) => {
                 { path: "dropshipping/analytics", id: 100, label: "DS Analytics", icon: BarChart3, roles: ["ADMIN"] },
                 { path: "dropshipping/referral-activity", id: 101, label: "Referral Activity", icon: Users },
                 { path: "dropshipping/settings", id: 102, label: "Dropshipping Settings", icon: Settings },
+                { path: "dropshipping/payouts", id: 103, label: "Payout Requests", icon: DollarSign },
             ],
 
 
