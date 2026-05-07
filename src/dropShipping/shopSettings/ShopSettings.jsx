@@ -1,13 +1,13 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { 
-    Store, 
-    Image as ImageIcon, 
-    Facebook, 
-    CreditCard, 
-    Save, 
-    Loader2, 
-    CheckCircle2, 
+import {
+    Store,
+    Image as ImageIcon,
+    Facebook,
+    CreditCard,
+    Save,
+    Loader2,
+    CheckCircle2,
     AlertCircle,
     Smartphone,
     Building2,
@@ -23,7 +23,7 @@ const ShopSettings = () => {
     const dispatch = useDispatch();
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
-    
+
     const [formData, setFormData] = useState({
         shopName: '',
         facebookPage: '',
