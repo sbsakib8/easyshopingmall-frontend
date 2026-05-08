@@ -78,7 +78,7 @@ export default function LocationSelects({ customerInfo, setCustomerInfo, isDrops
                         <MapPin className="w-5 h-5 text-white" />
                     </div>
                     <h2 className="text-lg font-bold text-white tracking-wide">
-                        অঞ্চল ও জেলা — Location
+                        অঞ্চল ও জেলা
                     </h2>
                 </div>
 

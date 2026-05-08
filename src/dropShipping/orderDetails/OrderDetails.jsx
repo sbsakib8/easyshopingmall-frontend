@@ -251,6 +251,7 @@ const OrderDetails = ({ id }) => {
 
         {/* Footer section */}
         <div className="px-10 pb-12 space-y-6">
+
           <div className="bg-emerald-50 rounded-2xl p-6 border border-emerald-100 shadow-inner">
             <p className="text-emerald-900 font-bold text-center leading-relaxed">
               Dear <span className="text-emerald-600 font-black">{addr.customer_name}</span>, thanks for confirming the order. 🎉

@@ -124,9 +124,16 @@ const DashboardNebver = ({ children }) => {
             icon: Package,
             path: "/dashboard/dropshipping/referral-activity",
             submenu: [
-                { path: "/dropshipping/referral-activity", id: 101, label: "Referral Activity", icon: Users },
-                { path: "/dropshipping/settings", id: 102, label: "Dropshipping Settings", icon: Settings },
+                { path: "dropshipping/analytics", id: 100, label: "DS Analytics", icon: BarChart3, roles: ["ADMIN"] },
+                { path: "dropshipping/referral-activity", id: 101, label: "Referral Activity", icon: Users },
+                { path: "dropshipping/settings", id: 102, label: "Dropshipping Settings", icon: Settings },
+                { path: "dropshipping/payouts", id: 103, label: "Payout Requests", icon: DollarSign },
             ],
+
+
+
+
+
         },
         {
             id: 6,
@@ -252,105 +259,115 @@ const DashboardNebver = ({ children }) => {
                 <div className="flex flex-col h-full relative z-10">
                     <div className="flex-1 px-4 py-6 overflow-y-auto">
                         <nav className="space-y-3">
-                            {menuItems.map((item, index) => (
-                                <div
-                                    key={item.id}
-                                >
-                                    <button
-                                        onClick={() => {
-                                            if (item.label === "Dashboard") {
-                                                makeFalse();
-                                            }
-                                            setActiveMenu(item.id);
-                                            if (item.submenu) {
-                                                toggleSubmenu(item.id);
-                                            }
-                                        }}
-                                        className={`w-full flex items-center justify-between px-4 py-3 text-sm font-semibold rounded-2xl group relative overflow-hidden ${activeMenu === item.id
-                                            ? "bg-gradient-to-r from-gray-700 to-gray-900 text-accent-content border border-gray-600/50"
-                                            : "text-gray-300 hover:bg-gradient-to-r hover:from-gray-800/50 hover:to-black/50 text-accent-content border border-transparent hover:border-gray-700/30"
-                                            }`}
+                            {menuItems
+                                .filter(item => {
+                                    if (!item.roles) return true;
+                                    return item.roles.includes(data?.role) || (data?.roles && item.roles.some(r => data.roles.includes(r)));
+                                })
+                                .map((item, index) => (
+                                    <div
+                                        key={item.id}
                                     >
-                                        {/* Animated background */}
-                                        <div
-                                            className={`absolute inset-0 bg-gradient-to-r from-gray-700/20 to-gray-900/20 opacity-0 group-hover:opacity-100 ${activeMenu === item.id ? "opacity-30" : ""
+                                        <button
+                                            onClick={() => {
+                                                if (item.label === "Dashboard") {
+                                                    makeFalse();
+                                                }
+                                                setActiveMenu(item.id);
+                                                if (item.submenu) {
+                                                    toggleSubmenu(item.id);
+                                                }
+                                            }}
+                                            className={`w-full flex items-center justify-between px-4 py-3 text-sm font-semibold rounded-2xl group relative overflow-hidden ${activeMenu === item.id
+                                                ? "bg-gradient-to-r from-gray-700 to-gray-900 text-accent-content border border-gray-600/50"
+                                                : "text-gray-300 hover:bg-gradient-to-r hover:from-gray-800/50 hover:to-black/50 text-accent-content border border-transparent hover:border-gray-700/30"
                                                 }`}
-                                        ></div>
-
-                                        <Link
-                                            onClick={toggleSidebar}
-                                            href={`${item.path}`}
-                                            className="flex items-center space-x-4 relative z-10"
                                         >
+                                            {/* Animated background */}
                                             <div
-                                                className={`p-2 rounded-xl ${activeMenu === item.id
-                                                    ? "bg-white/10 backdrop-blur-sm"
-                                                    : "group-hover:bg-gray-700/30"
+                                                className={`absolute inset-0 bg-gradient-to-r from-gray-700/20 to-gray-900/20 opacity-0 group-hover:opacity-100 ${activeMenu === item.id ? "opacity-30" : ""
+                                                    }`}
+                                            ></div>
+
+                                            <Link
+                                                onClick={toggleSidebar}
+                                                href={`${item.path}`}
+                                                className="flex items-center space-x-4 relative z-10"
+                                            >
+                                                <div
+                                                    className={`p-2 rounded-xl ${activeMenu === item.id
+                                                        ? "bg-white/10 backdrop-blur-sm"
+                                                        : "group-hover:bg-gray-700/30"
+                                                        }`}
+                                                >
+                                                    <item.icon
+                                                        className={`w-5 h-5 ${activeMenu === item.id
+                                                            ? "text-accent-content"
+                                                            : "text-gray-400 group-hover:text-accent-content"
+                                                            }`}
+                                                    />
+                                                </div>
+                                                {(sidebarOpen || isHovered) && (
+                                                    <span
+                                                        className={` ${sidebarOpen || isHovered
+                                                            ? "opacity-100 transform translate-x-0"
+                                                            : "opacity-0 transform translate-x-4"
+                                                            } font-medium`}
+                                                    >
+                                                        {item.label}
+                                                    </span>
+                                                )}
+                                            </Link>
+                                            {item.submenu && (sidebarOpen || isHovered) && (
+                                                <ChevronRight
+                                                    className={`w-5 h-5 relative z-10 ${expandedMenus[item.id] ? "rotate-90 text-accent-content" : "text-gray-500"
+                                                        } ${activeMenu === item.id ? "text-accent-content" : ""}`}
+                                                />
+                                            )}
+                                        </button>
+
+                                        {/* Submenu */}
+                                        {item.submenu && (sidebarOpen || isHovered) && (
+                                            <div
+                                                onClick={toggleSidebar}
+                                                className={`mt-3 ml-6 space-y-2 overflow-hidden transform ${expandedMenus[item.id]
+                                                    ? "max-h-96 opacity-100 translate-y-0"
+                                                    : "max-h-0 opacity-0 -translate-y-4"
                                                     }`}
                                             >
-                                                <item.icon
-                                                    className={`w-5 h-5 ${activeMenu === item.id
-                                                        ? "text-accent-content"
-                                                        : "text-gray-400 group-hover:text-accent-content"
-                                                        }`}
-                                                />
+                                                {item.submenu
+                                                    .filter(subItem => {
+                                                        if (!subItem.roles) return true;
+                                                        return subItem.roles.includes(data?.role) || (data?.roles && subItem.roles.some(r => data.roles.includes(r)));
+                                                    })
+                                                    .map((subItem, subIndex) => (
+                                                        <Link
+                                                            href={`/dashboard/${subItem.path}`}
+                                                            key={subItem.id}
+                                                            onClick={() => {
+                                                                makeFalse();
+                                                                setActiveMenu(subItem.id);
+                                                            }}
+                                                            className={` group flex items-center space-x-3 px-4 py-2.5 text-sm rounded-xl ${activeMenu === subItem.id
+                                                                ? "bg-gradient-to-r from-gray-600 to-gray-800 text-accent-content border border-gray-600/50"
+                                                                : "text-gray-400 hover:bg-gradient-to-r hover:from-gray-800/30 hover:to-black/30 hover:text-accent-content border border-transparent hover:border-gray-700/20"
+                                                                }`}
+                                                        >
+                                                            <div
+                                                                className={`p-1.5 rounded-lg ${activeMenu === subItem.id
+                                                                    ? "bg-white/10 backdrop-blur-sm"
+                                                                    : "group-hover:bg-gray-700/20"
+                                                                    }`}
+                                                            >
+                                                                <subItem.icon className="w-4 h-4" />
+                                                            </div>
+                                                            <span className="font-medium">{subItem.label}</span>
+                                                        </Link>
+                                                    ))}
                                             </div>
-                                            {(sidebarOpen || isHovered) && (
-                                                <span
-                                                    className={` ${sidebarOpen || isHovered
-                                                        ? "opacity-100 transform translate-x-0"
-                                                        : "opacity-0 transform translate-x-4"
-                                                        } font-medium`}
-                                                >
-                                                    {item.label}
-                                                </span>
-                                            )}
-                                        </Link>
-                                        {item.submenu && (sidebarOpen || isHovered) && (
-                                            <ChevronRight
-                                                className={`w-5 h-5 relative z-10 ${expandedMenus[item.id] ? "rotate-90 text-accent-content" : "text-gray-500"
-                                                    } ${activeMenu === item.id ? "text-accent-content" : ""}`}
-                                            />
                                         )}
-                                    </button>
-
-                                    {/* Submenu */}
-                                    {item.submenu && (sidebarOpen || isHovered) && (
-                                        <div
-                                            onClick={toggleSidebar}
-                                            className={`mt-3 ml-6 space-y-2 overflow-hidden transform ${expandedMenus[item.id]
-                                                ? "max-h-96 opacity-100 translate-y-0"
-                                                : "max-h-0 opacity-0 -translate-y-4"
-                                                }`}
-                                        >
-                                            {item.submenu.map((subItem, subIndex) => (
-                                                <Link
-                                                    href={`/dashboard/${subItem.path}`}
-                                                    key={subItem.id}
-                                                    onClick={() => {
-                                                        makeFalse();
-                                                        setActiveMenu(subItem.id);
-                                                    }}
-                                                    className={` group flex items-center space-x-3 px-4 py-2.5 text-sm rounded-xl ${activeMenu === subItem.id
-                                                        ? "bg-gradient-to-r from-gray-600 to-gray-800 text-accent-content border border-gray-600/50"
-                                                        : "text-gray-400 hover:bg-gradient-to-r hover:from-gray-800/30 hover:to-black/30 hover:text-accent-content border border-transparent hover:border-gray-700/20"
-                                                        }`}
-                                                >
-                                                    <div
-                                                        className={`p-1.5 rounded-lg ${activeMenu === subItem.id
-                                                            ? "bg-white/10 backdrop-blur-sm"
-                                                            : "group-hover:bg-gray-700/20"
-                                                            }`}
-                                                    >
-                                                        <subItem.icon className="w-4 h-4" />
-                                                    </div>
-                                                    <span className="font-medium">{subItem.label}</span>
-                                                </Link>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
+                                    </div>
+                                ))}
                         </nav>
                     </div>
 

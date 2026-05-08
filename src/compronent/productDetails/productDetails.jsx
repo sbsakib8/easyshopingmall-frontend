@@ -10,6 +10,7 @@ import { getApprovedReviews, submitReview } from "@/src/hook/useReview";
 import { decreaseProductQuantity, increaseProductQuantity } from "@/src/hook/useUpdateProduct";
 import { addToWishlistApi, removeFromWishlistApi } from "@/src/hook/useWishlist";
 import { useGetProduct } from "@/src/utlis/userProduct";
+import { dsCartAdd } from "@/src/redux/dropshippingCartSlice";
 import ReactPlayer from 'react-player'
 import {
   ChevronRight,
@@ -337,32 +338,47 @@ const ProductDetails = ({ initialProduct }) => {
     }
 
     try {
-      await addToCartApi(
-        {
-          userId: user._id,
-          productId: product.id,
+      if (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) {
+        // Dropshipping Cart (Local)
+        dispatch(dsCartAdd({
+          productId: {
+            _id: product.id,
+            productName: product.name,
+            images: product.images,
+          },
           quantity,
           price: product.price,
-
-          // ✅ IMPORTANT
+          sellingPrice: product.price, // Default to cost
           size: selectedSize,
           color: selectedColor,
           weight: product.weight || null,
-        },
-        dispatch
-      );
+        }));
+        
+        toast.success(`${product.name} added to sourcing cart`);
+        router.push("/dropshipping-addtocart");
+      } else {
+        // Normal Cart (API)
+        await addToCartApi(
+          {
+            userId: user._id,
+            productId: product.id,
+            quantity,
+            price: product.price,
+            size: selectedSize,
+            color: selectedColor,
+            weight: product.weight || null,
+          },
+          dispatch
+        );
 
-      toast.success(`${product.name} added to cart`);
-      await getCartApi(user._id, dispatch);
-
-      // If dropshipping user, go directly to checkout
-      if (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) {
-        router.push("/dropshipping-checkout");
+        toast.success(`${product.name} added to cart`);
+        await getCartApi(user._id, dispatch);
       }
     } catch (err) {
       console.error("Add to cart error:", err);
       toast.error("Failed to add to cart");
     }
+
   };
 
   const handleWishlist = async () => {

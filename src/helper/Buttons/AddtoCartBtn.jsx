@@ -4,6 +4,7 @@ import { getProductDetailsApi } from "@/src/hook/useProductDetails";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
+import { dsCartAdd } from "@/src/redux/dropshippingCartSlice";
 
 
 
@@ -33,23 +34,37 @@ const handleAddToCart = async (productId, e, user, dispatch) => {
   }
 
   try {
-    await addToCartApi(
-      {
-        userId: user._id,
-        productId: product._id || product.id,
+    if (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) {
+      // Dropshipping Cart (Local)
+      dispatch(dsCartAdd({
+        productId: {
+          _id: product._id || product.id,
+          productName: product.productName,
+          images: product.images || [],
+        },
         quantity: 1,
         price: product.price || product.sell_price || 0,
-      },
-      dispatch,
-    );
+        sellingPrice: product.price || product.sell_price || 0,
+      }));
+      
+      toast.success(`${product.productName} sourcing কার্টে যোগ করা হয়েছে`);
+    } else {
+      // Normal Cart (API)
+      await addToCartApi(
+        {
+          userId: user._id,
+          productId: product._id || product.id,
+          quantity: 1,
+          price: product.price || product.sell_price || 0,
+        },
+        dispatch,
+      );
 
-    toast.success(`${product.productName} সফলভাবে কার্টে যোগ করা হয়েছে`);
-
-    // কার্ট রিফ্রেশ
-    await getCartApi(user._id, dispatch);
-    
-
+      toast.success(`${product.productName} সফলভাবে কার্টে যোগ করা হয়েছে`);
+      await getCartApi(user._id, dispatch);
+    }
   } catch (err) {
+
     console.error("Add to cart error:", err);
     const msg = err?.response?.data?.message || "কার্টে যোগ করতে ব্যর্থ হয়েছে";
     toast.error(msg);

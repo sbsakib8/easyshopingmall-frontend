@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { 
-  Settings, 
-  Save, 
-  RefreshCw, 
-  Check, 
+import {
+  Settings,
+  Save,
+  RefreshCw,
+  Check,
   AlertCircle,
   Percent,
   Info
@@ -17,7 +17,9 @@ export default function DropshippingSettings() {
   const [dataLoading, setDataLoading] = useState(true);
   const [websiteInfo, setWebsiteInfo] = useState(null);
   const [referralPercentage, setReferralPercentage] = useState(0);
+
   const [notification, setNotification] = useState({ show: false, message: "", type: "" });
+
 
   const fetchData = async () => {
     try {
@@ -27,7 +29,9 @@ export default function DropshippingSettings() {
       if (info) {
         setWebsiteInfo(info);
         setReferralPercentage(info.referralPercentage || 0);
+
       }
+
     } catch (err) {
       console.error("Fetch website info error:", err);
       showNotification("Failed to load settings.", "error");
@@ -59,6 +63,8 @@ export default function DropshippingSettings() {
         ...websiteInfo,
         referralPercentage: Number(referralPercentage)
       };
+
+
       await WebsiteinfoUploade(updateData, websiteInfo._id);
       showNotification("Referral settings updated successfully!");
       fetchData();
@@ -111,15 +117,14 @@ export default function DropshippingSettings() {
                   </div>
                   <h2 className="text-xl font-bold text-white">Referral Incentives</h2>
                 </div>
-                
                 <div className="grid md:grid-cols-2 gap-8 items-start">
                   <div className="space-y-4">
                     <label className="block text-sm font-bold text-gray-300 uppercase tracking-wider">
                       Referral Bonus Amount (৳)
                     </label>
                     <div className="relative group">
-                      <input 
-                        type="number" 
+                      <input
+                        type="number"
                         value={referralPercentage}
                         onChange={(e) => setReferralPercentage(e.target.value)}
                         min="0"
@@ -138,22 +143,24 @@ export default function DropshippingSettings() {
                     <div>
                       <h4 className="text-indigo-300 font-bold mb-1">Fixed Bonus System</h4>
                       <p className="text-sm text-gray-400 leading-relaxed">
-                        The system is now configured to give a flat reward. For every order placed by a referred user, the Dropshipper will receive exactly this amount in their balance upon order completion.
+                        সিস্টেমটি এখন নির্দিষ্ট পরিমাণ বোনাস দেওয়ার জন্য সেট করা হয়েছে। রেফার করা কোনো ব্যবহারকারী প্রতিবার একটি অর্ডার সম্পন্ন করলে, ড্রপশিপার তার ব্যালেন্সে ঠিক এই নির্দিষ্ট পরিমাণ বোনাস পাবেন।
                       </p>
                     </div>
                   </div>
                 </div>
+
+
               </section>
 
               {/* Action Buttons */}
               <div className="pt-6 border-t border-gray-700 flex justify-end gap-4">
-                <button 
+                <button
                   onClick={fetchData}
                   className="px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-xl font-bold transition-all"
                 >
                   Discard Changes
                 </button>
-                <button 
+                <button
                   onClick={handleSave}
                   disabled={loading}
                   className="px-10 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-500/20 disabled:opacity-50 flex items-center gap-3 transition-all transform hover:-translate-y-1"

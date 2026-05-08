@@ -60,7 +60,7 @@ const DropshippingCheckoutComponent = () => {
       item.sellingPrice === "" || Number(item.sellingPrice) < item.price
     );
     if (items.length > 0 && hasInvalidPrice) {
-      toast.error("Please set a valid selling price for all items before checking out.");
+      toast.error("চেকআউট করার আগে অনুগ্রহ করে সব পণ্যের সঠিক বিক্রয় মূল্য সেট করুন।");
       router.push("/dropshipping-addtocart");
     }
   }, [items, router]);
@@ -98,6 +98,11 @@ const DropshippingCheckoutComponent = () => {
     const sp = item.sellingPrice === "" ? 0 : (item.sellingPrice ?? item.price);
     return sum + (sp * item.quantity);
   }, 0);
+
+  const totalProfit = items.reduce((sum, item) => {
+    const sp = item.sellingPrice === "" ? 0 : (item.sellingPrice ?? item.price);
+    return sum + ((sp - item.price) * item.quantity);
+  }, 0);
   const [deliveryCharge, setDeliveryCharge] = useState(100);
   const total = subtotal + deliveryCharge;
 
@@ -127,13 +132,13 @@ const DropshippingCheckoutComponent = () => {
 
   const handlePlaceOrder = async () => {
     if (!customerInfo.name || !customerInfo.phone || !customerInfo.address || !customerInfo.district || !customerInfo.division || !customerInfo.area) {
-      toast.error("Please fill in all customer address details");
+      toast.error("অনুগ্রহ করে গ্রাহকের ঠিকানার সব তথ্য প্রদান করুন");
       return;
     }
     if (paymentMethod === 'balance') {
       const amountToPay = paymentType === 'delivery' ? deliveryCharge : total;
       if ((user?.balance || 0) < amountToPay) {
-        toast.error("Insufficient balance for this order");
+        toast.error("এই অর্ডারের জন্য আপনার পর্যাপ্ত ব্যালেন্স নেই");
         return;
       }
     }
@@ -142,11 +147,11 @@ const DropshippingCheckoutComponent = () => {
     }
     if (paymentMethod === 'manual') {
       if (!selectedManualMethod) {
-        toast.error("Please select a manual payment method (Bkash/Nagad/etc.)");
+        toast.error("অনুগ্রহ করে একটি পেমেন্ট মেথড (বিকাশ/নগদ/ইত্যাদি) সিলেক্ট করুন");
         return;
       }
       if (!paymentDetails.transactionId || paymentDetails.transactionId.trim() === '') {
-        toast.error("Please enter the Transaction ID to verify your manual payment.");
+        toast.error("আপনার পেমেন্ট যাচাই করতে ট্রানজেকশন আইডি প্রদান করুন।");
         return;
       }
     }
@@ -157,10 +162,17 @@ const DropshippingCheckoutComponent = () => {
         userId: user._id,
         products: items.map(item => ({
           productId: item.productId._id,
+          name: item.productId.productName,
+          image: item.productId.images || [],
           quantity: item.quantity,
           costPrice: item.price,
           sellingPrice: item.sellingPrice || item.price,
+          size: item.size || null,
+          color: item.color || null,
+          weight: item.weight || null,
         })),
+
+
         delivery_address: {
           address_line: customerInfo.address,
           district: customerInfo.district,
@@ -189,13 +201,13 @@ const DropshippingCheckoutComponent = () => {
       const response = await axios.post(`${UrlBackend}/orders/manual`, payload, { withCredentials: true });
 
       if (response.data.success) {
-        toast.success("Dropshipping order placed successfully!");
+        toast.success("আপনার ড্রপশিপিং অর্ডারটি সফলভাবে সম্পন্ন হয়েছে!");
         dispatch(dsCartClear());
         setOrderPlaced(true);
       }
     } catch (error) {
       console.error("Order placement error:", error);
-      toast.error(error.response?.data?.message || "Failed to place order");
+      toast.error(error.response?.data?.message || "অর্ডার দিতে ব্যর্থ হয়েছে");
     } finally {
       setIsProcessing(false);
     }
@@ -210,19 +222,19 @@ const DropshippingCheckoutComponent = () => {
             <CheckCircle2 className="w-12 h-12 text-emerald-600" />
           </div>
           <h2 className="text-3xl font-black text-gray-900 mb-3">অর্ডার সফল!</h2>
-          <p className="text-slate-500 mb-2 text-sm font-semibold uppercase tracking-widest">Order Successful</p>
+          <p className="text-slate-500 mb-2 text-sm font-semibold uppercase tracking-widest">অর্ডার সফল হয়েছে</p>
           <p className="text-gray-500 mb-10 leading-relaxed text-sm">
-            Your dropshipping order has been received. Fulfillment starts immediately. Your profit will be credited once the customer receives the order.
+            আপনার ড্রপশিপিং অর্ডারটি গ্রহণ করা হয়েছে। আপনার লাভ গ্রাহক পণ্যটি বুঝে পাওয়ার পর আপনার ব্যালেন্সে যোগ হবে।
           </p>
           <div className="flex flex-col gap-3">
             <Link
               href="/order-list"
               className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-4 rounded-2xl font-bold text-base hover:opacity-90 transition-all shadow-lg shadow-emerald-100 block"
             >
-              Track Orders
+              অর্ডার ট্র্যাক করুন
             </Link>
             <Link href="/all-products" className="text-gray-500 font-semibold hover:text-emerald-600 transition-colors text-sm">
-              Continue Sourcing →
+              পণ্য খোঁজা চালিয়ে যান →
             </Link>
           </div>
         </div>
@@ -242,26 +254,26 @@ const DropshippingCheckoutComponent = () => {
             className="flex items-center gap-1 hover:text-emerald-600 transition-colors"
           >
             <Home className="w-3.5 h-3.5" />
-            Home
+            হোম
           </Link>
           <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
           <Link
             href="/dropshipping-addtocart"
             className="hover:text-emerald-600 transition-colors"
           >
-            DS Cart
+            কার্টে ফিরে যান
           </Link>
           <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
-          <span className="text-emerald-600 font-bold">Checkout</span>
+          <span className="text-emerald-600 font-bold">চেকআউট</span>
         </nav>
 
         {/* ── Page title ── */}
         <div className="mb-8">
           <h1 className="text-2xl font-black text-gray-900">
-            Dropshipping Checkout
+            ড্রপশিপিং চেকআউট
           </h1>
           <p className="text-slate-500 text-sm mt-1">
-            Fill in the customer details and choose a payment method to place the order.
+            অর্ডার করতে গ্রাহকের তথ্য পূরণ করুন এবং পেমেন্ট পদ্ধতি বেছে নিন।
           </p>
         </div>
 
@@ -270,7 +282,7 @@ const DropshippingCheckoutComponent = () => {
           <div className="lg:col-span-2 space-y-6">
 
             {/* 1. Customer Details */}
-            <DSCard icon={MapPin} title="গ্রাহকের তথ্য — Customer Details">
+            <DSCard icon={MapPin} title="গ্রাহকের তথ্য">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
                   <label className={dsLabel}>পূর্ণ নাম *</label>
@@ -296,7 +308,7 @@ const DropshippingCheckoutComponent = () => {
             </DSCard>
 
             {/* 2. Shipping Address */}
-            <DSCard icon={Truck} title="ডেলিভারি ঠিকানা — Shipping Address">
+            <DSCard icon={Truck} title="ডেলিভারি ঠিকানা">
               <div>
                 <label className={dsLabel}>সম্পূর্ণ ঠিকানা *</label>
                 <textarea
@@ -325,11 +337,11 @@ const DropshippingCheckoutComponent = () => {
                   <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
                     <CreditCard className="w-5 h-5 text-white" />
                   </div>
-                  <h2 className="text-lg font-bold text-white tracking-wide">পেমেন্ট পদ্ধতি — Payment Method</h2>
+                  <h2 className="text-lg font-bold text-white tracking-wide">পেমেন্ট</h2>
                 </div>
                 <div className="hidden sm:flex items-center gap-2 bg-white/10 px-3 py-1 rounded-full backdrop-blur-sm">
                   <ShieldCheck className="w-4 h-4 text-emerald-200" />
-                  <span className="text-[10px] text-white font-black uppercase tracking-widest">Secure Checkout</span>
+                  <span className="text-[10px] text-white font-black uppercase tracking-widest">নিরাপদ চেকআউট</span>
                 </div>
               </div>
 
@@ -339,18 +351,18 @@ const DropshippingCheckoutComponent = () => {
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
                       <Truck className="w-4 h-4 text-emerald-600" />
-                      অর্ডার টাইপ — Order Type
+                      অর্ডারের ধরন
                     </h3>
-                    <span className="text-[10px] bg-emerald-100 text-emerald-700 font-black px-2 py-0.5 rounded-full uppercase">Step 1 of 2</span>
+                    <span className="text-[10px] bg-emerald-100 text-emerald-700 font-black px-2 py-0.5 rounded-full uppercase">ধাপ ১ (২ এর মধ্যে)</span>
                   </div>
-                  
+
                   {paymentMethod === 'cod' ? (
                     <div className="p-5 bg-emerald-50 border border-emerald-100 rounded-2xl animate-in fade-in slide-in-from-top-2">
                       <p className="text-sm font-bold text-emerald-800">
-                        Zero Upfront Payment (COD) selected.
+                        ক্যাশ অন ডেলিভারি (COD) সিলেক্ট করা হয়েছে।
                       </p>
                       <p className="text-xs text-emerald-600 font-semibold mt-1">
-                        You will pay the total amount of ৳{total.toLocaleString()} only when the customer receives the product.
+                        গ্রাহক পণ্যটি বুঝে পাওয়ার পর আপনি মোট ৳{total.toLocaleString()} পরিশোধ করবেন।
                       </p>
                     </div>
                   ) : (
@@ -367,12 +379,12 @@ const DropshippingCheckoutComponent = () => {
                           <CheckCircle2 className="w-5 h-5" />
                         </div>
                         <div>
-                          <p className={`font-black text-sm transition-colors ${paymentType === 'full' ? 'text-emerald-900' : 'text-gray-900'}`}>Full Payment</p>
-                          <p className="text-xs text-slate-500 font-semibold mt-0.5 leading-tight">Pay the entire amount now for priority fulfillment</p>
+                          <p className={`font-black text-sm transition-colors ${paymentType === 'full' ? 'text-emerald-900' : 'text-gray-900'}`}>সম্পূর্ণ পেমেন্ট</p>
+                          <p className="text-xs text-slate-500 font-semibold mt-0.5 leading-tight">দ্রুত ডেলিভারি পেতে এখনই সম্পূর্ণ টাকা পরিশোধ করুন</p>
                         </div>
                         {paymentType === 'full' && (
                           <div className="absolute top-2 right-2">
-                            <span className="bg-emerald-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter">Recommended</span>
+                            <span className="bg-emerald-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter">সুপারিশকৃত</span>
                           </div>
                         )}
                       </button>
@@ -389,8 +401,8 @@ const DropshippingCheckoutComponent = () => {
                           <Truck className="w-5 h-5" />
                         </div>
                         <div>
-                          <p className={`font-black text-sm transition-colors ${paymentType === 'delivery' ? 'text-emerald-900' : 'text-gray-900'}`}>COD / Delivery Only</p>
-                          <p className="text-xs text-slate-500 font-semibold mt-0.5 leading-tight">Pay only delivery charge now to confirm order</p>
+                          <p className={`font-black text-sm transition-colors ${paymentType === 'delivery' ? 'text-emerald-900' : 'text-gray-900'}`}>সিওডি / ডেলিভারি চার্জ</p>
+                          <p className="text-xs text-slate-500 font-semibold mt-0.5 leading-tight">অর্ডার কনফার্ম করতে এখনই শুধুমাত্র ডেলিভারি চার্জ পরিশোধ করুন</p>
                         </div>
                       </button>
                     </div>
@@ -402,7 +414,7 @@ const DropshippingCheckoutComponent = () => {
                     <div className="w-full border-t border-slate-100"></div>
                   </div>
                   <div className="relative flex justify-center text-xs uppercase font-black text-slate-300">
-                    <span className="bg-white px-3">Then select method</span>
+                    <span className="bg-white px-3">এরপর পেমেন্ট মাধ্যম সিলেক্ট করুন</span>
                   </div>
                 </div>
 
@@ -411,9 +423,9 @@ const DropshippingCheckoutComponent = () => {
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
                       <Wallet className="w-4 h-4 text-emerald-600" />
-                      পেমেন্ট উৎস — Payment Source
+                      পেমেন্টের উৎস
                     </h3>
-                    <span className="text-[10px] bg-emerald-100 text-emerald-700 font-black px-2 py-0.5 rounded-full uppercase">Step 2 of 2</span>
+                    <span className="text-[10px] bg-emerald-100 text-emerald-700 font-black px-2 py-0.5 rounded-full uppercase">ধাপ ২ (২ এর মধ্যে)</span>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {/* Balance */}
@@ -429,7 +441,7 @@ const DropshippingCheckoutComponent = () => {
                         <Wallet className="w-5 h-5" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className={`font-black text-xs transition-colors ${paymentMethod === 'balance' ? 'text-emerald-900' : 'text-gray-900'}`}>Balance</p>
+                        <p className={`font-black text-xs transition-colors ${paymentMethod === 'balance' ? 'text-emerald-900' : 'text-gray-900'}`}>ব্যালেন্স</p>
                         <p className={`text-[10px] font-bold truncate ${Number(user?.balance || 0) < (paymentType === 'delivery' ? deliveryCharge : total) ? 'text-red-500' : 'text-emerald-600'}`}>
                           ৳{Number(user?.balance || 0).toLocaleString()}
                         </p>
@@ -454,8 +466,8 @@ const DropshippingCheckoutComponent = () => {
                         <Smartphone className="w-5 h-5" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className={`font-black text-xs transition-colors ${paymentMethod === 'manual' ? 'text-emerald-900' : 'text-gray-900'}`}>Manual</p>
-                        <p className="text-[10px] text-slate-500 font-semibold truncate">Mobile Banking</p>
+                        <p className={`font-black text-xs transition-colors ${paymentMethod === 'manual' ? 'text-emerald-900' : 'text-gray-900'}`}>ম্যানুয়াল</p>
+                        <p className="text-[10px] text-slate-500 font-semibold truncate">মোবাইল ব্যাংকিং</p>
                       </div>
                       {paymentMethod === 'manual' && (
                         <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center animate-in zoom-in duration-300">
@@ -477,8 +489,8 @@ const DropshippingCheckoutComponent = () => {
                         <Truck className="w-5 h-5" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className={`font-black text-xs transition-colors ${paymentMethod === 'cod' ? 'text-emerald-900' : 'text-gray-900'}`}>COD</p>
-                        <p className="text-[10px] text-slate-500 font-semibold truncate">Pay on Delivery</p>
+                        <p className={`font-black text-xs transition-colors ${paymentMethod === 'cod' ? 'text-emerald-900' : 'text-gray-900'}`}>সিওডি</p>
+                        <p className="text-[10px] text-slate-500 font-semibold truncate">ডেলিভারির সময় পেমেন্ট</p>
                       </div>
                       {paymentMethod === 'cod' && (
                         <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center animate-in zoom-in duration-300">
@@ -536,19 +548,19 @@ const DropshippingCheckoutComponent = () => {
                         {/* Number Display with Copy */}
                         <div className="flex flex-col sm:flex-row items-center gap-4 p-5 bg-slate-900 rounded-2xl text-white">
                           <div className="flex-1 w-full sm:w-auto text-center sm:text-left">
-                            <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mb-1">Send Money To</p>
+                            <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mb-1">টাকা পাঠান এই নাম্বারে</p>
                             <p className="text-2xl font-black tracking-widest">{manualMethods.find(m => m.id === selectedManualMethod)?.number}</p>
                           </div>
                           <button
                             onClick={() => {
                               const num = manualMethods.find(m => m.id === selectedManualMethod)?.number;
                               navigator.clipboard.writeText(num);
-                              toast.success("Number copied to clipboard!");
+                              toast.success("নাম্বার কপি করা হয়েছে!");
                             }}
                             className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-colors shadow-lg shadow-emerald-500/20 active:scale-95"
                           >
                             <Copy className="w-4 h-4" />
-                            Copy Number
+                            নাম্বার কপি করুন
                           </button>
                         </div>
 
@@ -556,14 +568,14 @@ const DropshippingCheckoutComponent = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                           <div className="space-y-2">
                             <label className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-1.5 ml-1">
-                              Transaction ID <span className="text-red-500">*</span>
+                              ট্রানজেকশন আইডি <span className="text-red-500">*</span>
                             </label>
                             <div className="relative group">
                               <input
                                 name="transactionId"
                                 value={paymentDetails.transactionId}
                                 onChange={handlePaymentInputChange}
-                                placeholder="e.g. 9ABCDEFGH"
+                                placeholder="উদাঃ 9ABCDEFGH"
                                 className={`${dsInput} pl-11 !bg-white group-focus-within:!ring-emerald-500/20`}
                               />
                               <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-emerald-500 transition-colors" />
@@ -571,7 +583,7 @@ const DropshippingCheckoutComponent = () => {
                           </div>
                           <div className="space-y-2">
                             <label className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-1.5 ml-1">
-                              Your {selectedManualMethod.toUpperCase()} Number <span className="text-slate-300">(Optional)</span>
+                              আপনার {selectedManualMethod.toUpperCase()} নাম্বার <span className="text-slate-300">(ঐচ্ছিক)</span>
                             </label>
                             <div className="relative group">
                               <input
@@ -599,12 +611,12 @@ const DropshippingCheckoutComponent = () => {
               {/* Sidebar header */}
               <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-6">
                 <div className="flex items-center justify-between mb-1">
-                  <h3 className="text-lg font-black text-white uppercase tracking-wider">Order Summary</h3>
+                  <h3 className="text-lg font-black text-white uppercase tracking-wider">অর্ডার সারাংশ</h3>
                   <div className="bg-white/20 px-2 py-0.5 rounded-md backdrop-blur-sm">
-                    <p className="text-white text-[10px] font-black">{items.length} Items</p>
+                    <p className="text-white text-[10px] font-black">{items.length} টি পণ্য</p>
                   </div>
                 </div>
-                <p className="text-emerald-100 text-[10px] font-bold uppercase tracking-widest opacity-80">Review your dropshipping order</p>
+                <p className="text-emerald-100 text-[10px] font-bold uppercase tracking-widest opacity-80">আপনার ড্রপশিপিং অর্ডারটি পর্যালোচনা করুন</p>
               </div>
 
               <div className="p-6 space-y-6">
@@ -627,12 +639,17 @@ const DropshippingCheckoutComponent = () => {
                           {item.productId.productName}
                         </p>
                         <div className="flex items-center gap-2 mt-1.5">
-                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Cost:</p>
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">ক্রয় মূল্য:</p>
                           <p className="text-xs font-bold text-slate-600">৳{item.price.toLocaleString()}</p>
                         </div>
+
                         <div className="flex items-center gap-2">
-                          <p className="text-[10px] font-black text-emerald-600 uppercase tracking-tighter">Sell:</p>
+                          <p className="text-[10px] font-black text-emerald-600 uppercase tracking-tighter">বিক্রয় মূল্য:</p>
                           <p className="text-xs font-black text-emerald-600">৳{(item.sellingPrice || item.price).toLocaleString()}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <p className="text-[10px] font-black text-blue-600 uppercase tracking-tighter">লাভ:</p>
+                          <p className="text-xs font-black text-blue-600">৳{((item.sellingPrice || item.price) - item.price).toLocaleString()}</p>
                         </div>
                       </div>
                     </div>
@@ -642,30 +659,37 @@ const DropshippingCheckoutComponent = () => {
                 {/* Price breakdown - More refined */}
                 <div className="space-y-4 pt-6 border-t border-dashed border-slate-200">
                   <div className="flex justify-between items-center text-sm">
-                    <span className="font-bold text-slate-500">Subtotal (Product Cost)</span>
+                    <span className="font-bold text-slate-500">সাবটোটাল (পণ্যের দাম)</span>
                     <span className="font-black text-slate-900">৳{subtotal.toLocaleString()}</span>
                   </div>
+
                   <div className="flex justify-between items-center text-sm">
                     <div className="flex flex-col">
-                      <span className="font-bold text-slate-500">Delivery Charge</span>
+                      <span className="font-bold text-slate-500">ডেলিভারি চার্জ</span>
                       {customerInfo.district && (
                         <span className="text-[10px] text-emerald-600 font-black uppercase tracking-tighter">
-                          {deliveryCharge === 80 ? '🏙️ Dhaka City Rate' : '🚚 Outside Dhaka Rate'}
+                          {deliveryCharge === 80 ? '🏙️ ঢাকা সিটির হার' : '🚚 ঢাকার বাইরের হার'}
                         </span>
                       )}
                     </div>
                     <span className="font-black text-slate-900">৳{deliveryCharge.toLocaleString()}</span>
                   </div>
 
+                  <div className="flex justify-between items-center text-sm p-3 bg-blue-50 rounded-xl border border-blue-100">
+                    <span className="font-bold text-blue-600">আপনার সম্ভাব্য লাভ</span>
+                    <span className="font-black text-blue-700">৳{totalProfit.toLocaleString()}</span>
+                  </div>
+
+
                   <div className="pt-4 border-t-2 border-slate-100 space-y-4">
                     <div className="flex justify-between items-center">
-                      <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Total Order Value</span>
+                      <span className="text-xs font-black text-slate-400 uppercase tracking-widest">অর্ডারের মোট মূল্য</span>
                       <span className="text-base font-bold text-slate-500 line-through opacity-50">৳{(total + 50).toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between items-end">
                       <div className="flex flex-col">
-                        <span className="text-xs font-black text-emerald-700 uppercase tracking-[0.2em]">Payable Now</span>
-                        <p className="text-[10px] text-slate-400 font-bold leading-tight">Secure Transaction</p>
+                        <span className="text-xs font-black text-emerald-700 uppercase tracking-[0.2em]">এখন পরিশোধযোগ্য</span>
+                        <p className="text-[10px] text-slate-400 font-bold leading-tight">নিরাপদ লেনদেন</p>
                       </div>
                       <div className="text-right">
                         <span className="text-3xl font-black text-emerald-600 tracking-tighter">
@@ -678,7 +702,7 @@ const DropshippingCheckoutComponent = () => {
                       <div className="flex items-center justify-between p-3 bg-amber-50 rounded-xl border border-amber-100 animate-in zoom-in duration-300">
                         <div className="flex items-center gap-2">
                           <AlertCircle className="w-3 h-3 text-amber-600" />
-                          <span className="text-[10px] font-black text-amber-800 uppercase">Due on Delivery</span>
+                          <span className="text-[10px] font-black text-amber-800 uppercase">ডেলিভারির সময় প্রদেয়</span>
                         </div>
                         <span className="text-sm font-black text-amber-700">
                           ৳{(paymentMethod === 'cod' ? total : subtotal).toLocaleString()}
@@ -701,11 +725,11 @@ const DropshippingCheckoutComponent = () => {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                       </svg>
-                      <span className="uppercase tracking-widest text-sm">Processing Order...</span>
+                      <span className="uppercase tracking-widest text-sm">অর্ডার প্রসেস হচ্ছে...</span>
                     </span>
                   ) : (
                     <span className="flex items-center justify-center gap-2">
-                      PLACE ORDER NOW
+                      এখনই অর্ডার করুন
                       <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </span>
                   )}
@@ -722,7 +746,7 @@ const DropshippingCheckoutComponent = () => {
                     </div>
                   </div>
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                    Trusted by 5,000+ Dropshippers
+                    ৫,০০০+ ড্রপশিপারের বিশ্বস্ত
                   </p>
                 </div>
               </div>
