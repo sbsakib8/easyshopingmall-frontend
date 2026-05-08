@@ -383,10 +383,10 @@ const PendingOrdersPage = () => {
  <h3 className="text-lg font-semibold text-accent-content mb-3">Customer Information</h3>
  <div className="space-y-2">
  <p className="text-gray-300">
- <span className="text-gray-500">Name:</span> {selectedOrder?.userId?.email}
+ <span className="text-gray-500">Name:</span> {selectedOrder?.userId?.name}
  </p>
  <p className="text-gray-300">
- <span className="text-gray-500">Email:</span> {selectedOrder?.userId?.name}
+ <span className="text-gray-500">Email:</span> {selectedOrder?.userId?.email}
  </p>
  <p className="text-gray-300">
  <span className="text-gray-500">Phone:</span> {selectedOrder?.address?.mobile}
@@ -407,8 +407,12 @@ const PendingOrdersPage = () => {
  <div className="space-y-3">
  {selectedOrder?.products.map((item, index) => (
  <div key={index} className="flex justify-between items-center bg-gray-800/50 p-3 rounded-lg">
- <div className="flex gap-2">
- <img className="w-15 h-15 rounded-sm object-cover"src={item?.image[0]} alt=""/>
+ <div className="flex gap-4">
+ <img 
+    className="w-16 h-16 rounded-lg object-cover border border-gray-700 shadow-sm"
+    src={(item?.image && item.image[0]) || (item?.productId?.images && item.productId.images[0]) || "/img/product.jpg"} 
+    alt={item?.name || "Product"}
+  />
  <div>
  <p className="text-accent-content font-medium">{item?.name}</p>
  <p className="text-gray-400 text-sm">Quantity: {item?.quantity}</p>
@@ -416,10 +420,17 @@ const PendingOrdersPage = () => {
  <p className="text-gray-400 text-sm">Size: {item?.size ||"none"}</p>
  </div>
  </div>
- <div className="text-right">
- <p className="text-lg font-bold text-green-400">৳{item?.price.toFixed(2)}</p>
- <p className="text-sm text-gray-500">each</p>
- </div>
+  <div className="text-right">
+    <p className="text-lg font-bold text-green-400">৳{(item?.sellingPrice || item?.price).toFixed(2)}</p>
+    <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tighter">Unit Price</p>
+    {(item?.sellingPrice > 0 && item?.sellingPrice !== item?.price) && (
+      <div className="mt-1 pt-1 border-t border-gray-700/50">
+        <p className="text-[10px] text-blue-400 font-bold">Cost: ৳{item?.price.toFixed(2)}</p>
+        <p className="text-[10px] text-emerald-400 font-bold">Profit: ৳{(item?.sellingPrice - item?.price).toFixed(2)}</p>
+      </div>
+    )}
+  </div>
+
  </div>
  ))}
  </div>
@@ -427,12 +438,32 @@ const PendingOrdersPage = () => {
  <span className="text-accent-content font-semibold">Delivery Charge:</span>
  <span className="text-green-400 font-bold text-lg">৳{selectedOrder?.deliveryCharge}</span>
  </div>
- <div className="mt-4 pt-4 border-t border-gray-700">
- <div className="flex justify-between items-center">
- <span className="text-xl font-bold text-accent-content">Total:</span>
- <span className="text-2xl font-bold text-green-400">৳{selectedOrder?.totalAmt}</span>
- </div>
- </div>
+  <div className="mt-4 pt-4 border-t border-gray-700">
+  {(selectedOrder?.userId?.role === "DROPSHIPPING" || (Array.isArray(selectedOrder?.userId?.roles) && selectedOrder?.userId?.roles.includes("DROPSHIPPING"))) && (
+    <div className="flex flex-col gap-2 mt-4 p-4 bg-gradient-to-r from-blue-900/40 to-cyan-900/40 rounded-xl border border-blue-500/30 shadow-inner">
+      <div className="flex justify-between items-center">
+        <span className="text-blue-400 font-bold uppercase tracking-wider text-xs">Dropshipping Profit Breakdown</span>
+        <span className="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full font-black uppercase">Verified</span>
+      </div>
+      <div className="flex justify-between items-center">
+        <span className="text-gray-400 text-sm">Calculated Earnings:</span>
+        <span className="text-2xl font-black text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0.4)]">
+          ৳{selectedOrder?.products.reduce((sum, p) => {
+            const cost = Number(p.costPrice || p.price) || 0;
+            const selling = Number(p.sellingPrice) || 0;
+            return sum + (selling > cost ? (selling - cost) * (p.quantity || 1) : 0);
+          }, 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+        </span>
+      </div>
+    </div>
+
+
+  )}
+  <div className="flex justify-between items-center">
+  <span className="text-xl font-bold text-accent-content">Total:</span>
+  <span className="text-2xl font-bold text-green-400">৳{selectedOrder?.totalAmt}</span>
+  </div>
+  </div>
  </div>
 
  {/* Modal Actions */}

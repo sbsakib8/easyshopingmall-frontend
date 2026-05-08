@@ -553,17 +553,16 @@ const ShopPage = ({ initialData, queryParams }) => {
   const sidebarSubCategories = apiSubcategories
     .filter(sub => {
       if (filterCategory === "all") return true;
-      const category = apiCategories.find(cat =>
-        cat.id === (sub.categoryId?._id || sub.categoryId) ||
-        cat.slug === filterCategory ||
-        cat.name === filterCategory
+      const parentCategory = apiCategories.find(cat =>
+        cat.id === (sub.categoryId?._id || sub.categoryId)
       );
-      return category?.slug === filterCategory || category?.name === filterCategory;
+      return parentCategory?.slug === filterCategory || parentCategory?.name === filterCategory;
     })
     .map(sub => ({
       name: sub.name,
       slug: sub.slug || sub.name.toLowerCase().replace(/ /g, "-")
     }));
+
 
   const subCategories = ["all", ...sidebarSubCategories];
 
@@ -591,6 +590,40 @@ const ShopPage = ({ initialData, queryParams }) => {
   const [load, setLoad] = useState(false);
   const [productCoupon, setProductCoupon] = useState(null);
   const [subCategoryCoupon, setSubCategoryCoupon] = useState(null);
+  const [couponLoad, setCouponLoad] = useState(false);
+
+  // handle apply coupon functionality separately
+  const handleApplyCoupon = async () => {
+    if (!productCoupon || !productCoupon.code) {
+      toast.error("Please enter a coupon code");
+      return;
+    }
+    setCouponLoad(true);
+    try {
+      if (productCoupon._id) {
+        await updateCouponCode(productCoupon._id, productCoupon);
+        toast.success("Coupon updated successfully!");
+      } else {
+        const payload = {
+          ...productCoupon,
+          applicableProduct: editModal._id || editModal.id,
+          validFrom: new Date().toISOString(),
+          validUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
+        };
+        const res = await createCouponCode(payload);
+        // The coupon backend might return success and the created coupon object
+        toast.success("Coupon applied successfully!");
+        if (res?.coupon) {
+          setProductCoupon(res.coupon);
+        }
+      }
+    } catch (error) {
+      console.error("Coupon update error:", error);
+      toast.error(error.response?.data?.message || "Failed to update/create coupon");
+    } finally {
+      setCouponLoad(false);
+    }
+  };
 
   // handle edit functionality 
   const handleEdit = useCallback(async (p) => {
@@ -647,25 +680,6 @@ const ShopPage = ({ initialData, queryParams }) => {
       };
       const res = await ProductUpdate(updatePayload);
       if (res.success) {
-        // Update/Create Coupon if code is provided
-        if (productCoupon && productCoupon.code) {
-          try {
-            if (productCoupon._id) {
-              await updateCouponCode(productCoupon._id, productCoupon);
-            } else {
-              await createCouponCode({
-                ...productCoupon,
-                applicableProduct: updatePayload._id,
-                validFrom: new Date().toISOString(),
-                validUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString() // Default 1 year
-              });
-            }
-          } catch (couponError) {
-            console.error("Coupon update error:", couponError);
-            toast.error("Product updated, but coupon update failed.");
-          }
-        }
-
         toast.success("Product updated successfully!");
         dispatch(fetchShopProducts({ limit: 10000 })); // Refresh full list
         setEditModal(null);
@@ -1310,7 +1324,7 @@ const ShopPage = ({ initialData, queryParams }) => {
                         </span>
                       )}
                     </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                       <div>
                         <label className="block text-black text-sm font-semibold mb-2">Coupon Code</label>
                         <input
@@ -1340,6 +1354,15 @@ const ShopPage = ({ initialData, queryParams }) => {
                           onChange={(e) => updateCouponField("discountAmount", Number(e.target.value))}
                           className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
                         />
+                      </div>
+                      <div>
+                        <button
+                          onClick={handleApplyCoupon}
+                          disabled={couponLoad}
+                          className="w-full px-4 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-semibold rounded-lg transition-colors"
+                        >
+                          {couponLoad ? "Applying..." : "Apply Coupon"}
+                        </button>
                       </div>
                     </div>
                   </div>
