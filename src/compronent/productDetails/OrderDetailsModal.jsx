@@ -26,11 +26,11 @@ function getStatusColor(status) {
 function OrderDetailsModal({ order, onClose }) {
   if (!order) return null;
 
-  // Get user data from Redux
-  const userData = useSelector((state) => state.user.data);
-  const userEmail = userData?.email || "N/A";
-  const userImage = userData?.image || "";
-  const userName = userData?.name || "User";
+  // Get customer data from the order itself (especially for referred orders)
+  const customer = order.userId || {};
+  const customerEmail = customer.email || "N/A";
+  const customerImage = customer.image || "";
+  const customerName = customer.name || "User";
 
   // Extract address details from the API response
   const address = order.address || {};
@@ -81,26 +81,62 @@ function OrderDetailsModal({ order, onClose }) {
             <div className="bg-blue-50 border rounded-xl p-4">
               <p className="text-xs text-gray-500 mb-2">Customer Information</p>
               <div className="flex items-center gap-3">
-                {userImage ? (
+                {customerImage ? (
                   <img
-                    src={userImage}
-                    alt={userName}
+                    src={customerImage}
+                    alt={customerName}
                     className="w-10 h-10 rounded-full object-cover border-2 border-blue-200"
                   />
                 ) : (
                   <div className="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center border-2 border-blue-300">
                     <span className="text-blue-700 font-bold text-sm">
-                      {userName.charAt(0).toUpperCase()}
+                      {customerName.charAt(0).toUpperCase()}
                     </span>
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-blue-700 text-sm truncate">{userName}</p>
-                  <p className="text-xs text-gray-600 truncate">{userEmail}</p>
+                  <p className="font-semibold text-blue-700 text-sm truncate">{customerName}</p>
+                  <p className="text-xs text-gray-600 truncate">{customerEmail}</p>
                 </div>
               </div>
             </div>
           </div>
+
+          {/* Dropshipping Rewards (Conditional) */}
+          {(order.profitAmount > 0 || order.referralBonusAmount > 0) && (
+            <div className="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-2xl p-6 text-white shadow-lg border border-emerald-400/30 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-black text-lg flex items-center gap-2">
+                  <div className="p-2 bg-white/20 rounded-xl">
+                    <span className="text-xl">💰</span>
+                  </div>
+                  Dropshipping Rewards
+                </h3>
+                <span className="px-3 py-1 bg-white/20 rounded-full text-[10px] font-black uppercase tracking-widest">
+                  Verified Earning
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {order.profitAmount > 0 && (
+                  <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-sm border border-white/10 group hover:bg-white/20 transition-all">
+                    <p className="text-emerald-100 text-[10px] font-black uppercase tracking-wider mb-1 opacity-80">Order Sales Profit</p>
+                    <p className="text-3xl font-black tracking-tighter">৳{order.profitAmount.toLocaleString()}</p>
+                  </div>
+                )}
+                {order.referralBonusAmount > 0 && (
+                  <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-sm border border-white/10 group hover:bg-white/20 transition-all">
+                    <p className="text-emerald-100 text-[10px] font-black uppercase tracking-wider mb-1 opacity-80">
+                      {order.referralPercentage || (order.subTotalAmt > 0 ? Math.round((order.referralBonusAmount / order.subTotalAmt) * 100) : 0)}% Referral Bonus
+                    </p>
+                    <p className="text-3xl font-black tracking-tighter">৳{order.referralBonusAmount.toLocaleString()}</p>
+                  </div>
+                )}
+              </div>
+              <p className="mt-4 text-[10px] text-emerald-100 font-bold italic opacity-60 flex items-center gap-1">
+                <span>✨</span> Rewards are automatically credited to your balance once the order status is 'Delivered' or 'Completed'.
+              </p>
+            </div>
+          )}
 
           {/* Status & Date */}
           <div className="grid md:grid-cols-3 gap-4">

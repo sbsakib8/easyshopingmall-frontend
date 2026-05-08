@@ -14,7 +14,7 @@ export async function proxy(req) {
 
         try {
             // Fetch user profile from backend to check role
-            
+
             const res = await fetch(`${UrlBackend}/users/userprofile`, {
                 headers: {
                     Cookie: cookieHeader,
@@ -26,8 +26,8 @@ export async function proxy(req) {
                 const data = await res.json();
                 const user = data?.user;
 
-                // Only allow access if role is DROPSHIPPING
-                if (user && user.role === 'DROPSHIPPING') {
+                // Only allow access if role is DROPSHIPPING or in roles array
+                if (user && (user.role === 'DROPSHIPPING' || user.roles?.includes('DROPSHIPPING'))) {
                     return NextResponse.next();
                 }
             }

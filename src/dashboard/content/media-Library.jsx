@@ -383,6 +383,8 @@ export default function WebsiteInfoAdmin() {
  </div>
  </div>
 
+
+
  {/* Footer Section */}
  <div className="border-b pb-6">
  <h3 className="text-lg font-semibold text-gray-300 mb-4">📍 Footer Section</h3>
@@ -645,6 +647,7 @@ export default function WebsiteInfoAdmin() {
  <span className="ml-2 text-gray-300">{info.supportContact}</span>
  </div>
  )}
+
  {info.socialLinks && info.socialLinks.length > 0 && (
  <div className="md:col-span-3">
  <span className="font-medium text-gray-300">Social Media:</span>
