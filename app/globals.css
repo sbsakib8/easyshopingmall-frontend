@@ -136,3 +136,10 @@
 .animate-marquee:hover {
   animation-play-state: paused;
 }
+
+
+button:disabled, 
+input:disabled{
+  @apply cursor-not-allowed 
+}
+
