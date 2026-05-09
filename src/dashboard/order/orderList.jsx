@@ -381,13 +381,13 @@ const OrderManagement = () => {
  <h3 className="text-xs font-bold text-accent-content group-hover:text-blue-400">
  {order?.orderId}
  </h3>
- <div className="flex items-center gap-3 mt-1">
+ <div className="flex flex-wrap items-center gap-2 mt-1">
  <span className="text-gray-300 font-medium">{order?.userId?.name}</span>
- {/* <span
- className={`px-3 py-1 rounded-full text-xs font-semibold ${priorityColors[order.priority]}`}
- >
- {order.priority.toUpperCase()}
- </span> */}
+ {order?.userId?.role === "DROPSHIPPING" && (
+   <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary-color/20 text-primary-color border border-primary-color/30 uppercase tracking-widest">
+     Dropshipping
+   </span>
+ )}
  </div>
  </div>
  </div>
@@ -564,7 +564,14 @@ const OrderManagement = () => {
  <div className="space-y-3">
  <div className="flex items-center gap-3">
  <User className="h-4 w-4 text-gray-400"/>
- <span className="font-medium text-accent-content">{selectedOrder?.userId?.name}</span>
+ <div className="flex items-center gap-2">
+   <span className="font-medium text-accent-content">{selectedOrder?.userId?.name}</span>
+   {selectedOrder?.userId?.role === "DROPSHIPPING" && (
+     <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary-color/20 text-primary-color border border-primary-color/30 uppercase tracking-widest">
+       Dropshipping
+     </span>
+   )}
+ </div>
  </div>
  <div className="flex items-center gap-3">
  <Mail className="h-4 w-4 text-gray-400"/>
@@ -733,22 +740,48 @@ const OrderManagement = () => {
  </div>
  </div>
  <div className="text-right">
- <p className="text-lg font-bold text-green-400">৳{item?.price.toFixed(2)}</p>
- <p className="text-sm text-gray-500">each</p>
- </div>
+    <p className="text-lg font-bold text-green-400">৳{(item?.sellingPrice || item?.price).toFixed(2)}</p>
+    <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tighter">Unit Price</p>
+    {(item?.sellingPrice > 0 && item?.sellingPrice !== item?.price) && (
+      <div className="mt-1 pt-1 border-t border-gray-700/50">
+        <p className="text-[10px] text-blue-400 font-bold">Cost: ৳{item?.price.toFixed(2)}</p>
+        <p className="text-[10px] text-emerald-400 font-bold">Profit: ৳{(item?.sellingPrice - item?.price).toFixed(2)}</p>
+      </div>
+    )}
+  </div>
  </div>
  </div>
  ))}
  </div>
 
- <div className="mt-6 pt-4 border-t-2 border-gray-600">
- <div className="flex justify-between items-center">
- <span className="text-xl font-bold text-accent-content">Total Amount:</span>
- <span className="text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
- ৳{selectedOrder?.totalAmt.toFixed(2)}
- </span>
- </div>
- </div>
+  <div className="mt-6 pt-4 border-t-2 border-gray-600">
+    {(selectedOrder?.userId?.role === "DROPSHIPPING" || (Array.isArray(selectedOrder?.userId?.roles) && selectedOrder?.userId?.roles.includes("DROPSHIPPING"))) && (
+      <div className="flex flex-col gap-2 mb-6 p-4 bg-gradient-to-r from-blue-900/40 to-cyan-900/40 rounded-xl border border-blue-500/30 shadow-inner">
+        <div className="flex justify-between items-center">
+          <span className="text-blue-400 font-bold uppercase tracking-wider text-xs">Dropshipping Profit Breakdown</span>
+          <span className="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full font-black uppercase">Verified</span>
+        </div>
+        <div className="flex justify-between items-center">
+          <span className="text-gray-400 text-sm">Total Profit:</span>
+          <span className="text-2xl font-black text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0.4)]">
+            ৳{selectedOrder?.products.reduce((sum, p) => {
+              const cost = Number(p.costPrice || p.price) || 0;
+              const selling = Number(p.sellingPrice) || 0;
+              return sum + (selling > cost ? (selling - cost) * (p.quantity || 1) : 0);
+            }, 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+          </span>
+        </div>
+      </div>
+
+
+    )}
+    <div className="flex justify-between items-center">
+      <span className="text-xl font-bold text-accent-content">Total Amount:</span>
+      <span className="text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
+        ৳{selectedOrder?.totalAmt.toFixed(2)}
+      </span>
+    </div>
+  </div>
  </div>
 
  {/* Action Buttons */}

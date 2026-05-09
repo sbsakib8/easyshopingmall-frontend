@@ -508,7 +508,11 @@ const PopularProducts = ({ initialData }) => {
                     onClick={(e) => {
                       e.stopPropagation();
                     }}
-                    className="w-full py-1.5 px-2 rounded font-medium text-xs bg-btn-color text-accent-content hover:bg-btn-color/80 cursor-pointer"
+                    className={`w-full py-1.5 px-2 rounded font-medium text-xs cursor-pointer ${
+                      (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING"))
+                        ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:opacity-90 shadow-sm"
+                        : "bg-btn-color text-accent-content hover:bg-btn-color/80"
+                    }`}
                   >
                     <AddtoCartBtn
                       productId={product.id}

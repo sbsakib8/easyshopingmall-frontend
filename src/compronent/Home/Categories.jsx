@@ -63,7 +63,6 @@ function Categories({ initialData }) {
           className={`flex gap-4 ${!paused ? "animate-marquee" : ""}`}
         >
           {loopData.map((item, idx) => (
-            console.log(item),
             <Link href={`/shop?category=${encodeURIComponent(item?.category?.name)}&subcategory=${encodeURIComponent(item?.name)}`}
               key={idx}
               className="w-48 flex-shrink-0 flex flex-col bg-bg rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden cursor-pointer relative"

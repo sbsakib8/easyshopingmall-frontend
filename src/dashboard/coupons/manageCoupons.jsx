@@ -83,13 +83,23 @@ const ManageCoupons = () => {
 }
 };
 
- const handleInputChange = (e) => {
- const {name, value, type, checked} = e.target;
- setFormData(prev => ({
- ...prev,
- [name]: type ==='checkbox'? checked : (type ==='number'? Number(value) : value)
-}));
-};
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => {
+      const newData = {
+        ...prev,
+        [name]: type === 'checkbox' ? checked : (type === 'number' ? Number(value) : value)
+      };
+
+      // If category changes, reset subcategory
+      if (name === 'applicableCategory') {
+        newData.applicableSubCategory = '';
+      }
+
+      return newData;
+    });
+  };
+
 
  const resetForm = () => {
  setFormData({
@@ -156,26 +166,27 @@ const ManageCoupons = () => {
 }
 };
 
- const handleEdit = (coupon) => {
- setFormData({
- code: coupon.code,
- description: coupon.description,
- discountType: coupon.discountType,
- discountAmount: coupon.discountAmount,
- maxDiscountAmount: coupon.maxDiscountAmount,
- minOrderAmount: coupon.minOrderAmount,
- validFrom: new Date(coupon.validFrom).toISOString().split('T')[0],
- validUntil: new Date(coupon.validUntil).toISOString().split('T')[0],
- usageLimit: coupon.usageLimit,
- isActive: coupon.isActive,
- applicableCategory: coupon.applicableCategory?._id || coupon.applicableCategory ||'',
- applicableSubCategory: coupon.applicableSubCategory?._id || coupon.applicableSubCategory ||'',
- applicableProduct: coupon.applicableProduct?._id || coupon.applicableProduct ||'',
- isForNewUserOnly: coupon.isForNewUserOnly,
-});
- setEditingId(coupon._id);
- setShowForm(true);
-};
+  const handleEdit = (coupon) => {
+    setFormData({
+      code: coupon.code,
+      description: coupon.description,
+      discountType: coupon.discountType,
+      discountAmount: coupon.discountAmount,
+      maxDiscountAmount: coupon.maxDiscountAmount,
+      minOrderAmount: coupon.minOrderAmount,
+      validFrom: new Date(coupon.validFrom).toISOString().split('T')[0],
+      validUntil: new Date(coupon.validUntil).toISOString().split('T')[0],
+      usageLimit: coupon.usageLimit,
+      isActive: coupon.isActive,
+      applicableCategory: coupon.applicableCategory?._id || coupon.applicableCategory || '',
+      applicableSubCategory: coupon.applicableSubCategory?._id || coupon.applicableSubCategory || '',
+      applicableProduct: coupon.applicableProduct?._id || coupon.applicableProduct || '',
+      isForNewUserOnly: coupon.isForNewUserOnly,
+    });
+    setEditingId(coupon._id);
+    setShowForm(true);
+  };
+
 
  const filteredCoupons = coupons.filter(c => 
  c.code.toLowerCase().includes(searchTerm.toLowerCase()) && 
@@ -328,11 +339,14 @@ const ManageCoupons = () => {
  className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
  >
  <option value=""className="bg-gray-900">All SubCategories</option>
- {subCategories.map(sub => (
+ {subCategories
+   .filter(sub => !formData.applicableCategory || (sub.category?._id === formData.applicableCategory || sub.category === formData.applicableCategory))
+   .map(sub => (
  <option key={sub._id} value={sub._id} className="bg-gray-900">{sub.name}</option>
  ))}
  </select>
  </div>
+
 
  <div>
  <label className="block text-gray-400 mb-2 font-medium">Target Specific Product</label>
@@ -543,18 +557,18 @@ const ManageCoupons = () => {
 
  {/* Targets Info */}
  <div className="mb-6 space-y-2 py-3 border-t border-b border-white/5">
- {coupon.applicableCategory && (
- <div className="flex items-center text-xs text-indigo-300">
- <Layers size={12} className="mr-2"/>
- Cat: {typeof coupon.applicableCategory ==='object'? coupon.applicableCategory.name :'Targeted'}
- </div>
- )}
- {coupon.applicableSubCategory && (
- <div className="flex items-center text-xs text-pink-300">
- <Tag size={12} className="mr-2"/>
- Sub: {typeof coupon.applicableSubCategory ==='object'? coupon.applicableSubCategory.name :'Targeted'}
- </div>
- )}
+  {coupon.applicableCategory && (
+  <div className="flex items-center text-xs text-indigo-300">
+  <Layers size={12} className="mr-2"/>
+  Cat: {typeof coupon.applicableCategory ==='object'? coupon.applicableCategory.name : (categories.find(c => c._id === (coupon.applicableCategory?._id || coupon.applicableCategory))?.name || 'Targeted')}
+  </div>
+  )}
+  {coupon.applicableSubCategory && (
+  <div className="flex items-center text-xs text-pink-300">
+  <Tag size={12} className="mr-2"/>
+  Sub: {typeof coupon.applicableSubCategory ==='object'? coupon.applicableSubCategory.name : (subCategories.find(s => s._id === (coupon.applicableSubCategory?._id || coupon.applicableSubCategory))?.name || 'Targeted')}
+  </div>
+  )}
  {coupon.applicableProduct && (
  <div className="flex items-center text-xs text-amber-300">
  <Package size={12} className="mr-2"/>

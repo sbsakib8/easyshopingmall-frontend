@@ -1,159 +1,87 @@
 "use client";
-import {useGetSubcategory} from'@/src/utlis/useSubcategory';
-import Image from'next/image';
-import Link from'next/link';
-import React from'react';
-import {useSelector} from'react-redux';
+import { useGetSubcategory } from '@/src/utlis/useSubcategory';
+import Image from 'next/image';
+import Link from 'next/link';
+import React from 'react';
+import { useSelector } from 'react-redux';
 
 const AllProducts = () => {
- const {subcategory, loading} = useGetSubcategory();
- const user = useSelector((state) => state.user.data);
- const menCategory = subcategory?.filter(
- cat => cat?.category?.name ==="Men's Fashion"
- );
- const womenCategory = subcategory?.filter(
- cat => cat?.category?.name ==="Women’s Fashion"
- );
- const childrenCategory = subcategory?.filter(
- cat => cat?.category?.name ==="Children Fashion"
- );
+    const { subcategory, loading } = useGetSubcategory();
+    const user = useSelector((state) => state.user.data);
+    // Group subcategories by parent category name dynamically
+    const groupedCategories = subcategory?.reduce((acc, cat) => {
+        const categoryName = cat?.category?.name || 'Uncategorized';
+        if (!acc[categoryName]) {
+            acc[categoryName] = [];
+        }
+        acc[categoryName].push(cat);
+        return acc;
+    }, {});
 
- return (<>
- {user?.role ==="DROPSHIPPING"&&
- <div className="container space-y-16 mb-10">
- {/* Men's Products */}
- <div className="flex flex-col justify-center items-center">
- <h1 className="text-center font-bold px-2 py-3 text-2xl mb-5">
- ছেলেদের পণ্য
- </h1>
+    // Organize into large groups and combine small groups
+    const finalGroups = [];
+    let smallCategories = [];
+    let smallCategoryNames = [];
 
- <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    if (groupedCategories) {
+        Object.entries(groupedCategories).forEach(([name, subcats]) => {
+            // If a category has 3 or more items, it gets its own section
+            if (subcats.length >= 3) {
+                finalGroups.push({ title: name, items: subcats });
+            } else {
+                // Otherwise, collect them to be combined
+                smallCategories = [...smallCategories, ...subcats];
+                smallCategoryNames.push(name);
+            }
+        });
 
- {/* 🔹 LOADING SKELETON */}
- {loading &&
- [...Array(8)].map((_, i) => (
- <div
- key={i}
- className="shadow-md rounded-2xl px-3 py-2 min-h-40 min-w-80"
- >
- <div className="bg-gray-300 rounded-sm h-40"/>
- <div className="h-5 bg-gray-300 rounded mt-5 mx-auto w-3/4"/>
- </div>
- ))}
+        // Create a combined group for categories with very few items
+        if (smallCategories.length > 0) {
+            let combinedTitle = smallCategoryNames.join(" & ");
+            // If there are too many names, shorten the title
+            if (smallCategoryNames.length > 3) {
+                combinedTitle = `${smallCategoryNames[0]}, ${smallCategoryNames[1]} & Others`;
+            }
+            finalGroups.push({ title: combinedTitle, items: smallCategories });
+        }
+    }
 
- {/* 🔹 ACTUAL DATA */}
- {
- menCategory?.map(cat => (
- <Link
- key={cat?._id}
- href={`/sub-category/${cat?._id}?pageType=all-proudcts`}
- className="shadow-md rounded-2xl px-3 py-2 min-h-40"
- >
- <Image
- src={cat?.image}
- alt="category image"
- width={200}
- height={200}
- className="rounded-sm w-full max-h-40 object-cover"
- />
- <h2 className="text-center text-lg font-bold mt-5">
- {cat?.name}
- </h2>
- </Link>
- ))}
+    return (<>
+        {(user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) &&
+            <div className="container space-y-16 mb-10 mt-8">
+                {finalGroups.map((group, index) => (
+                    <div key={index} className="flex flex-col justify-center items-center">
+                        <h1 className="text-center font-black px-2 py-3 text-3xl mb-8 text-emerald-800 uppercase tracking-widest">
+                            {group.title}
+                        </h1>
 
- </div>
- </div>
- {/* Women's Products */}
- <div className="flex flex-col justify-center items-center">
- <h1 className="text-center font-bold px-2 py-3 text-2xl mb-5">
- মেয়েদের পণ্য
- </h1>
-
- <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-
- {/* 🔹 LOADING SKELETON */}
- {loading &&
- [...Array(8)].map((_, i) => (
- <div
- key={i}
- className="shadow-md rounded-2xl px-3 py-2 min-h-40 min-w-80"
- >
- <div className="bg-gray-300 rounded-sm h-40"/>
- <div className="h-5 bg-gray-300 rounded mt-5 mx-auto w-3/4"/>
- </div>
- ))}
-
- {/* 🔹 ACTUAL DATA */}
- {
- womenCategory?.map(cat => (
- <Link
- key={cat?._id}
- href={`/sub-category/${cat?._id}?pageType=all-proudcts`}
- className="shadow-md rounded-2xl px-3 py-2 min-h-40"
- >
- <Image
- src={cat?.image}
- alt="category image"
- width={200}
- height={200}
- className="rounded-sm w-full max-h-40 object-cover"
- />
- <h2 className="text-center text-lg font-bold mt-5">
- {cat?.name}
- </h2>
- </Link>
- ))}
-
- </div>
- </div>
-
- {/* Children's Products */}
- <div className="flex flex-col justify-center items-center">
- <h1 className="text-center font-bold px-2 py-3 text-2xl mb-5">
- বাচ্চাদের পণ্য
- </h1>
-
- <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-
- {/* 🔹 LOADING SKELETON */}
- {loading &&
- [...Array(8)].map((_, i) => (
- <div
- key={i}
- className="shadow-md rounded-2xl px-3 py-2 min-h-40 min-w-80"
- >
- <div className="bg-gray-300 rounded-sm h-40"/>
- <div className="h-5 bg-gray-300 rounded mt-5 mx-auto w-3/4"/>
- </div>
- ))}
-
- {/* 🔹 ACTUAL DATA */}
- {
- childrenCategory?.map(cat => (
- <Link
- key={cat?._id}
- href={`/sub-category/${cat?._id}?pageType=all-products`}
- className="shadow-md rounded-2xl px-3 py-2 min-h-40"
- >
- <Image
- src={cat?.image}
- alt="category image"
- width={200}
- height={200}
- className="rounded-sm w-full max-h-40 object-cover"
- />
- <h2 className="text-center text-lg font-bold mt-5">
- {cat?.name}
- </h2>
- </Link>
- ))}
-
- </div>
- </div>
- </div>}
- </>
- );
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                            {group.items.map(cat => (
+                                <Link
+                                    key={cat?._id}
+                                    href={`/sub-category/${cat?._id}?pageType=all-products`}
+                                    className="group shadow-md hover:shadow-xl hover:shadow-emerald-500/10 rounded-[2rem] px-4 py-5 bg-white border-2 border-transparent hover:border-emerald-500 transition-all duration-300 flex flex-col items-center"
+                                >
+                                    <div className="w-full h-48 rounded-2xl overflow-hidden mb-6">
+                                        <Image
+                                            src={cat?.image || '/placeholder.png'}
+                                            alt={cat?.name}
+                                            width={300}
+                                            height={300}
+                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                        />
+                                    </div>
+                                    <h2 className="text-center text-xl font-black text-slate-800 group-hover:text-emerald-600 transition-colors">
+                                        {cat?.name}
+                                    </h2>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                ))}
+            </div>}
+    </>
+    );
 };
 
 export default AllProducts;

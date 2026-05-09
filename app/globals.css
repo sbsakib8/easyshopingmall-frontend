@@ -1,6 +1,5 @@
 @import "tailwindcss";
 
-
 /* color set up  */
 /* @theme {
   --color-primary-color: #135E4B; 
@@ -11,20 +10,19 @@
   --color-accent-content: white;
 } */
 @theme {
-  --color-primary-color: #FFC900; 
-  --color-secondary: #f87171CC; 
-  --color-btn-color: #478c1f;  
-  --color-bg: #FFFDE1;
+  --color-primary-color: #ffc900;
+  --color-secondary: #f87171cc;
+  --color-btn-color: #478c1f;
+  --color-bg: #fffde1;
   --color-accent: black;
   --color-accent-content: white;
 
-  --color-base-400: #CADCAE;
-  --color-base-500: #FFC900;
-  --color-base-600: #FFE100;
-  --color-base-700: #FF9B00;
-  --color-base-800: #EDA35A;
+  --color-base-400: #cadcae;
+  --color-base-500: #ffc900;
+  --color-base-600: #ffe100;
+  --color-base-700: #ff9b00;
+  --color-base-800: #eda35a;
 }
-
 
 /* #135E4B */
 /* #4CB572 */
@@ -36,19 +34,17 @@
 
 /* header style  */
 
-.MuiToolbar-root{
-  @apply !bg-primary-color;  
+.MuiToolbar-root {
+  @apply !bg-primary-color;
 }
 
-
-.container{
-  @apply w-[98%] lg:w-[97%]  mx-auto md:py-5 lg:py-3 py-4 ;  
+.container {
+  @apply w-[98%] lg:w-[97%]  mx-auto md:py-5 lg:py-3 py-4;
 }
 
-.MuiInputBase-root{
-  @apply  !border-2  border-primary-color! !outline-none !rounded-lg !shadow-sm w-full! h-13! ;
+.MuiInputBase-root {
+  @apply !border-2  border-primary-color! !outline-none !rounded-lg !shadow-sm w-full! h-13!;
 }
-
 
 /* Custom Scrollbar Styles */
 .scrollbar-thin::-webkit-scrollbar {
@@ -70,7 +66,7 @@
 /* For Firefox */
 .scrollbar-thin {
   scrollbar-width: thin;
-  scrollbar-color: #FFC900 #e5e7eb;
+  scrollbar-color: #ffc900 #e5e7eb;
 }
 /* ===== Chart Animations ===== */
 
@@ -137,9 +133,7 @@
   animation-play-state: paused;
 }
 
-
-button:disabled, 
-input:disabled{
-  @apply cursor-not-allowed 
+button:disabled,
+input:disabled {
+  @apply cursor-not-allowed;
 }
-

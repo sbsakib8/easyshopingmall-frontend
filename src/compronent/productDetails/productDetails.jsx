@@ -10,6 +10,7 @@ import { getApprovedReviews, submitReview } from "@/src/hook/useReview";
 import { decreaseProductQuantity, increaseProductQuantity } from "@/src/hook/useUpdateProduct";
 import { addToWishlistApi, removeFromWishlistApi } from "@/src/hook/useWishlist";
 import { useGetProduct } from "@/src/utlis/userProduct";
+import { dsCartAdd } from "@/src/redux/dropshippingCartSlice";
 import ReactPlayer from 'react-player'
 import {
   ChevronRight,
@@ -337,27 +338,47 @@ const ProductDetails = ({ initialProduct }) => {
     }
 
     try {
-      await addToCartApi(
-        {
-          userId: user._id,
-          productId: product.id,
+      if (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) {
+        // Dropshipping Cart (Local)
+        dispatch(dsCartAdd({
+          productId: {
+            _id: product.id,
+            productName: product.name,
+            images: product.images,
+          },
           quantity,
           price: product.price,
-
-          // ✅ IMPORTANT
+          sellingPrice: product.price, // Default to cost
           size: selectedSize,
           color: selectedColor,
           weight: product.weight || null,
-        },
-        dispatch
-      );
+        }));
+        
+        toast.success(`${product.name} added to sourcing cart`);
+        router.push("/dropshipping-addtocart");
+      } else {
+        // Normal Cart (API)
+        await addToCartApi(
+          {
+            userId: user._id,
+            productId: product.id,
+            quantity,
+            price: product.price,
+            size: selectedSize,
+            color: selectedColor,
+            weight: product.weight || null,
+          },
+          dispatch
+        );
 
-      toast.success(`${product.name} added to cart`);
-      await getCartApi(user._id, dispatch);
+        toast.success(`${product.name} added to cart`);
+        await getCartApi(user._id, dispatch);
+      }
     } catch (err) {
       console.error("Add to cart error:", err);
       toast.error("Failed to add to cart");
     }
+
   };
 
   const handleWishlist = async () => {
@@ -591,7 +612,7 @@ const ProductDetails = ({ initialProduct }) => {
               </span>
 
               <div>
-                {product?.rank > product?.price && user?.role !== "DROPSHIPPING" && (
+                {(product?.rank > product?.price && user?.role !== "DROPSHIPPING" && !user?.roles?.includes("DROPSHIPPING")) && (
                   <>
                     <p className="bg-secondary text-white px-3 py-1 rounded-full text-sm font-semibold">
                       Save ৳{(product?.rank - product?.price)?.toFixed(0) || 0}
@@ -599,7 +620,7 @@ const ProductDetails = ({ initialProduct }) => {
                   </>
                 )}
                 {
-                  user?.role !== "DROPSHIPPING" ? <del className="text-2xl font-bold bg-gradient-to-r from-gray-400 to-gray-500 bg-clip-text text-transparent">
+                  (user?.role !== "DROPSHIPPING" && !user?.roles?.includes("DROPSHIPPING")) ? <del className="text-2xl font-bold bg-gradient-to-r from-gray-400 to-gray-500 bg-clip-text text-transparent">
                     Rs {product?.rank}
                   </del> : ""
                 }
@@ -609,7 +630,7 @@ const ProductDetails = ({ initialProduct }) => {
             </div >
             {/* Market Price */}
             {
-              user?.role === "DROPSHIPPING" && <p className="text-2xl font-bold text-gray-500 ">
+              (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) && <p className="text-2xl font-bold text-gray-500 ">
                 <span className='text-xl text-accent'> Market Price:</span> {product?.rank}৳
               </p>
             }
@@ -707,19 +728,7 @@ const ProductDetails = ({ initialProduct }) => {
               </div>
             </div>
 
-            {/* dropShipping price  */}
-            {
-              user?.role === "DROPSHIPPING" && <div >
-                <label className="text-accen font-medium">আপনার বিক্রয়কৃত মূল্য</label>
-                <input
-                  type="number"
-                  onChange={(e) => setDropShippingPrice(e.target.value)}
-                  className="w-full p-4 bg-white/10  rounded-xl text-accent placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 border border-gray-300 focus:border-transparent transition-all duration-300 mt-2"
-                  placeholder="0৳"
-                  required
-                />
-              </div>
-            }
+
 
             {/* Action Buttons */}
             <div className="space-y-4">
@@ -728,7 +737,9 @@ const ProductDetails = ({ initialProduct }) => {
                 disabled={product?.stock === 0}
                 className={`w-full py-4 rounded-xl font-semibold text-lg flex items-center justify-center space-x-2 transition-all duration-300 ${product?.stock === 0
                   ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                  : "bg-btn-color text-accent-content hover:shadow-lg hover:scale-102 cursor-pointer"
+                  : (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING"))
+                    ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:shadow-lg hover:shadow-emerald-500/20 transform hover:-translate-y-0.5 cursor-pointer"
+                    : "bg-btn-color text-accent-content hover:shadow-lg hover:scale-102 cursor-pointer"
                   }`}
               >
                 <ShoppingCart className="w-5 h-5 " />
@@ -741,12 +752,18 @@ const ProductDetails = ({ initialProduct }) => {
                     setLoading(true)
                     await handleAddToCart()
                     setLoading(false)
-                    router.push("/checkout")
+                    if (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) {
+                      router.push("/dropshipping-checkout")
+                    } else {
+                      router.push("/checkout")
+                    }
                   }}
 
                   className={`w-full py-4 rounded-xl font-semibold text-lg flex items-center justify-center space-x-2 transition-all duration-300 ${product?.stock === 0
                     ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                    : "bg-btn-color text-white hover:shadow-lg hover:scale-102 cursor-pointer"
+                    : (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING"))
+                      ? "bg-gradient-to-r from-teal-600 to-emerald-600 text-white hover:shadow-lg hover:shadow-teal-500/20 transform hover:-translate-y-0.5 cursor-pointer"
+                      : "bg-btn-color text-white hover:shadow-lg hover:scale-102 cursor-pointer"
                     }`}>
                   <Zap className={`w-5 h-5 ${loading ? 'animate-spin' : ''} `} />
                   <span>Buy Now</span>
@@ -769,7 +786,7 @@ const ProductDetails = ({ initialProduct }) => {
 
             {/* Features */}
             {
-              user?.role !== "DROPSHIPPING" && <div className="shadow-xl p-6 rounded-xl">
+              (user?.role !== "DROPSHIPPING" && !user?.roles?.includes("DROPSHIPPING")) && <div className="shadow-xl p-6 rounded-xl">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="flex flex-col items-center text-center space-y-2">
                     <Truck className="w-8 h-8 text-blue-500" />
@@ -803,7 +820,7 @@ const ProductDetails = ({ initialProduct }) => {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`py-4 ${user?.role === "DROPSHIPPING" && tab === "reviews" ? "hidden" : ''} px-1 border-b-2 font-medium text-sm capitalize transition-all duration-300 ${activeTab === tab
+                  className={`py-4 ${(user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) && tab === "reviews" ? "hidden" : ''} px-1 border-b-2 font-medium text-sm capitalize transition-all duration-300 ${activeTab === tab
                     ? "border-blue-500 text-blue-600"
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                     }`}
@@ -925,7 +942,7 @@ const ProductDetails = ({ initialProduct }) => {
               </div>
             )}
             { }
-            {activeTab === "reviews" && user?.role !== "DROPSHIPPING" && (
+            {activeTab === "reviews" && (user?.role !== "DROPSHIPPING" && !user?.roles?.includes("DROPSHIPPING")) && (
 
               <div className="py-12 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
                 {/* Summary */}
