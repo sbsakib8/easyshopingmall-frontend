@@ -5,12 +5,23 @@ import { getWishlistApi } from "@/src/hook/useWishlist";
 import { useCategoryWithSubcategories } from "@/src/utlis/useCategoryWithSubcategories";
 import { useSearchProduct } from "@/src/utlis/useSearchProduct";
 import useWebsiteInfo from "@/src/utlis/useWebsiteInfo";
-import { Camera, ChevronDown, Heart, Menu, Search, ShoppingCart, Star, User, X, Zap } from "lucide-react";
-import Skeleton from '@/src/compronent/loading/Skeleton';
+import {
+  Camera,
+  ChevronDown,
+  Heart,
+  Menu,
+  Search,
+  ShoppingCart,
+  Star,
+  User,
+  X,
+  Zap,
+} from "lucide-react";
+import Skeleton from "@/src/compronent/loading/Skeleton";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setSearchTerm } from "@/src/redux/shopSlice";
 
@@ -30,13 +41,17 @@ const Header = ({ initialData }) => {
   const { data: wishlistItems } = useSelector((state) => state.wishlist);
   const { items: cartItems } = useSelector((state) => state.cart);
   const wishlistCount = wishlistItems?.length || 0;
-  const cartCount = (cartItems || []).reduce((sum, item) => sum + (item.quantity || 1), 0);
+  const cartCount = (cartItems || []).reduce(
+    (sum, item) => sum + (item.quantity || 1),
+    0,
+  );
   const [language, setLanguage] = useState("English");
   const [currency, setCurrency] = useState("USD");
   const [isScrolled, setIsScrolled] = useState(false);
   const [openMobileCategory, setOpenMobileCategory] = useState(null);
-  const [imageSearch, setImageSearch] = useState(false)
+  const [imageSearch, setImageSearch] = useState(false);
   const pathname = usePathname();
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     setHoveredCategoryId(null);
@@ -59,7 +74,7 @@ const Header = ({ initialData }) => {
     days: initialData?.countdownDays || 0,
     hours: initialData?.countdownHours || 0,
     minutes: initialData?.countdownMinutes || 0,
-    seconds: initialData?.countdownSeconds || 0
+    seconds: initialData?.countdownSeconds || 0,
   });
   const { data: siteInfoFetched, loading: siteLoading } = useWebsiteInfo();
 
@@ -77,11 +92,10 @@ const Header = ({ initialData }) => {
   const menuCategories = (categories || []).map((cat) => ({
     ...cat,
     icon: cat.icon || cat.image || null,
-    subcategories: (subcategories || [])
-      .filter((s) => s.categoryId === cat.id || s.categoryId?._id === cat.id),
+    subcategories: (subcategories || []).filter(
+      (s) => s.categoryId === cat.id || s.categoryId?._id === cat.id,
+    ),
   }));
-
-
 
   // Navigation items
   const navItems = [
@@ -102,8 +116,8 @@ const Header = ({ initialData }) => {
       setIsScrolled(window.scrollY > 10);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   // Countdown timer effect
@@ -138,7 +152,9 @@ const Header = ({ initialData }) => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  const { searchTerm: reduxSearchTerm } = useSelector((state) => state.shop || {});
+  const { searchTerm: reduxSearchTerm } = useSelector(
+    (state) => state.shop || {},
+  );
 
   // Sync internal searchQuery with reduxSearchTerm if on shop page
   useEffect(() => {
@@ -163,23 +179,48 @@ const Header = ({ initialData }) => {
         router.push(`/shop?search=${encodeURIComponent(debouncedSearch)}`);
       }
       dispatch(setSearchTerm(debouncedSearch));
-    } else if (debouncedSearch === '' && searchQuery === '' && pathname === "/shop") {
+    } else if (
+      debouncedSearch === "" &&
+      searchQuery === "" &&
+      pathname === "/shop"
+    ) {
       dispatch(setSearchTerm(""));
-      router.push('/shop');
+      router.push("/shop");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch]);
   // Show live results when user types at least 2 chars
   useEffect(() => {
     // allow single-character suggestions (helpful for quick lookups)
-    if (debouncedSearch && debouncedSearch.length >= 1) setShowLiveResults(true);
+    if (debouncedSearch && debouncedSearch.length >= 1)
+      setShowLiveResults(true);
     else setShowLiveResults(false);
   }, [debouncedSearch]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsCategoriesOpen(false);
+        setHoveredCategoryId(null);
+      }
+    };
+
+    // Add event listener when dropdown is open
+    if (isCategoriesOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    // Cleanup
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isCategoriesOpen]);
 
   // Use the dedicated search hook for live suggestions (400ms internal debounce)
   const { data: searchResults, loading: searchLoading } = useSearchProduct({
     search: searchQuery,
-    limit: 6
+    limit: 6,
   });
 
   const liveResults = useMemo(() => {
@@ -199,15 +240,18 @@ const Header = ({ initialData }) => {
 
   // Additional helpers for dropdown cards
   const wishlistIds = useSelector(
-    (state) => new Set((state.wishlist?.data || []).map((i) => i.id))
+    (state) => new Set((state.wishlist?.data || []).map((i) => i.id)),
   );
 
   const renderStars = (rating) => {
     return [...Array(5)].map((_, i) => (
       <Star
         key={i}
-        className={`w-3 h-3 ${i < Math.floor(rating) ? "text-yellow-400 fill-current" : "text-gray-300"
-          }`}
+        className={`w-3 h-3 ${
+          i < Math.floor(rating)
+            ? "text-yellow-400 fill-current"
+            : "text-gray-300"
+        }`}
       />
     ));
   };
@@ -244,9 +288,11 @@ const Header = ({ initialData }) => {
           quantity: 1,
           price: prod.price || prod.sell_price || 0,
         },
-        dispatch
+        dispatch,
       );
-      toast.success(`${prod.name || prod.productName || "Product"} added to cart`);
+      toast.success(
+        `${prod.name || prod.productName || "Product"} added to cart`,
+      );
       getCartApi(data._id, dispatch);
     } catch (err) {
       console.error("Add to cart error:", err);
@@ -256,16 +302,20 @@ const Header = ({ initialData }) => {
 
   return (
     <>
-      
-
       {/* Secondary Top Bar */}
       <div
-        className={`bg-secondary text-xs sm:text-sm  backdrop-blur-sm transition-all duration-300 ${isScrolled ? "h-0 py-0 opacity-0" : "h-auto sm:h-[50px]"
-          } hidden sm:block`}
+        className={`bg-secondary text-xs sm:text-sm  backdrop-blur-sm transition-all duration-300 ${
+          isScrolled ? "h-0 py-0 opacity-0" : "h-auto sm:h-[50px]"
+        } hidden sm:block`}
       >
-
         <div className="py-2 overflow-hidden hidden sm:block bg-gradient-to-r from-amber-400 via-yellow-400 to-orange-400">
-          <marquee behavior="scroll" direction="left" scrollamount="8" loop="infinite" className="text-sm font-semibold text-gray-800">
+          <marquee
+            behavior="scroll"
+            direction="left"
+            scrollamount="8"
+            loop="infinite"
+            className="text-sm font-semibold text-gray-800"
+          >
             {siteInfo?.discountTitle}
           </marquee>
         </div>
@@ -275,8 +325,9 @@ const Header = ({ initialData }) => {
 
       {/* Main Header */}
       <header
-        className={`bg-secondary shadow-lg sticky top-0 z-40 border-b border-gray-200/50 transition-all duration-300 ${isScrolled ? "h-16 sm:h-20" : "h-20 sm:h-24 lg:h-[100px]"
-          }`}
+        className={`bg-secondary shadow-lg sticky top-0 z-40 border-b border-gray-200/50 transition-all duration-300 ${
+          isScrolled ? "h-16 sm:h-20" : "h-20 sm:h-24 lg:h-[100px]"
+        }`}
       >
         <div className="mx-auto px-4 xl:px-32">
           <div className="flex items-center justify-between py-2 sm:py-3 lg:py-4">
@@ -285,10 +336,16 @@ const Header = ({ initialData }) => {
               <div className="flex items-center space-x-2 sm:space-x-3 group cursor-pointer">
                 <div className="relative">
                   <div
-                    className={`w-6 h-6 sm:w-10 sm:h-10 lg:w-12 lg:h-12  from-emerald-500 via-green-500 to-teal-500 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 ${isScrolled ? "animate-pulse" : ""
-                      }`}
+                    className={`w-6 h-6 sm:w-10 sm:h-10 lg:w-12 lg:h-12  from-emerald-500 via-green-500 to-teal-500 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 ${
+                      isScrolled ? "animate-pulse" : ""
+                    }`}
                   >
-                    <Image src={logo} width={60} height={100} alt="Easy Shopping Mall Logo" />
+                    <Image
+                      src={logo}
+                      width={60}
+                      height={100}
+                      alt="Easy Shopping Mall Logo"
+                    />
                   </div>
                   <div className="absolute -top-0.5 sm:-top-1 -right-0.5 sm:-right-1 w-2 h-2 sm:w-3 sm:h-3 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full animate-pulse"></div>
                 </div>
@@ -312,8 +369,7 @@ const Header = ({ initialData }) => {
             <div className="hidden lg:flex flex-1 max-w-xl justify-center mx-8">
               <div className="flex w-full shadow-lg rounded-2xl z-50  border border-gray-200/60 bg-bg backdrop-blur-sm">
                 {/* Categories Button */}
-                <div className="relative group/main">
-                  {" "}
+                <div className="relative group/main" ref={dropdownRef}>
                   <button
                     onClick={toggleCategories}
                     className="flex items-center space-x-2 bg-bg px-4 lg:px-6 py-3 lg:py-4 hover:from-emerald-50 hover:to-teal-50 hover:text-emerald-600 transition-all duration-300 group rounded-2xl"
@@ -322,11 +378,14 @@ const Header = ({ initialData }) => {
                       size={16}
                       className="group-hover:rotate-90 transition-transform duration-300"
                     />
-                    <span className="font-semibold text-sm lg:text-base">Categories</span>
+                    <span className="font-semibold text-sm lg:text-base">
+                      Categories
+                    </span>
                     <ChevronDown
                       size={14}
-                      className={`transition-transform duration-300 ${isCategoriesOpen ? "rotate-180" : ""
-                        }`}
+                      className={`transition-transform duration-300 ${
+                        isCategoriesOpen ? "rotate-180" : ""
+                      }`}
                     />
                   </button>
                   {/* Categories Dropdown Container */}
@@ -345,8 +404,14 @@ const Header = ({ initialData }) => {
                         {categoriesLoading ? (
                           <div className="py-2 space-y-1">
                             {[...Array(6)].map((_, i) => (
-                              <div key={i} className="flex items-center space-x-3 px-6 py-4">
-                                <Skeleton variant="circle" className="w-6 h-6" />
+                              <div
+                                key={i}
+                                className="flex items-center space-x-3 px-6 py-4"
+                              >
+                                <Skeleton
+                                  variant="circle"
+                                  className="w-6 h-6"
+                                />
                                 <Skeleton className="h-5 w-32" />
                               </div>
                             ))}
@@ -354,51 +419,72 @@ const Header = ({ initialData }) => {
                         ) : (
                           menuCategories.map((category) => {
                             const activeSub = category.subcategories.find(
-                              (sub) => pathname === "/shop" && (searchParams.get("category") === category.name && searchParams.get("subcategory") === sub.name)
+                              (sub) =>
+                                pathname === "/shop" &&
+                                searchParams.get("category") ===
+                                  category.name &&
+                                searchParams.get("subcategory") === sub.name,
                             );
-                            const isActiveCategory = hoveredCategoryId === category.id || activeSub || (pathname === "/shop" && searchParams.get("category") === category.name);
+                            const isActiveCategory =
+                              hoveredCategoryId === category.id ||
+                              activeSub ||
+                              (pathname === "/shop" &&
+                                searchParams.get("category") === category.name);
 
                             return (
                               <div
                                 key={category.id}
                                 className="static"
-                                onMouseEnter={() => setHoveredCategoryId(category.id)}
+                                onMouseEnter={() =>
+                                  setHoveredCategoryId(category.id)
+                                }
                                 onMouseLeave={() => setHoveredCategoryId(null)}
                               >
                                 <button
                                   onClick={() => {
-                                    router.push(`/shop?category=${encodeURIComponent(category.slug || category.name)}`);
+                                    router.push(
+                                      `/shop?category=${encodeURIComponent(category.slug || category.name)}`,
+                                    );
                                     setIsCategoriesOpen(false);
                                   }}
-                                  className={`flex items-center space-x-3 w-full px-6 py-4 transition-all duration-300 ${isActiveCategory
-                                    ? "bg-emerald-50 text-emerald-700"
-                                    : "hover:bg-emerald-50 text-gray-700"
-                                    }`}
+                                  className={`flex items-center space-x-3 w-full px-6 py-4 transition-all duration-300 ${
+                                    isActiveCategory
+                                      ? "bg-emerald-50 text-emerald-700"
+                                      : "hover:bg-emerald-50 text-gray-700"
+                                  }`}
                                 >
-                                  <span className="text-xl">{category.icon}</span>
-                                  <span className="font-semibold">{category.name}</span>
+                                  <span className="text-xl">
+                                    {category.icon}
+                                  </span>
+                                  <span className="font-semibold">
+                                    {category.name}
+                                  </span>
                                   <ChevronDown
                                     size={14}
                                     className="ml-auto -rotate-90 text-gray-400"
                                   />
                                 </button>
 
-
                                 <div
                                   className={`absolute left-full top-0 ml-[2px] w-64 bg-bg border border-gray-100 rounded-2xl shadow-2xl transition-all duration-300 ease-out z-[60] 
-                  ${isActiveCategory
-                                      ? "opacity-100 visible translate-x-0"
-                                      : "opacity-0 invisible -translate-x-4"
-                                    }`}
+                  ${
+                    isActiveCategory
+                      ? "opacity-100 visible translate-x-0"
+                      : "opacity-0 invisible -translate-x-4"
+                  }`}
                                 >
                                   <div className="bg-gray-50/50 p-4 border-b rounded-t-2xl">
-                                    <h4 className="font-bold text-gray-800">{category.name}</h4>
+                                    <h4 className="font-bold text-gray-800">
+                                      {category.name}
+                                    </h4>
                                   </div>
 
                                   <div className="py-2">
                                     {category.subcategories.map((sub) => (
                                       <Link
-                                      onClick={()=>setIsCategoriesOpen(false)}
+                                        onClick={() =>
+                                          setIsCategoriesOpen(false)
+                                        }
                                         key={sub.name}
                                         href={`/shop?category=${encodeURIComponent(category.slug || category.name)}&subcategory=${encodeURIComponent(sub.slug || sub.name)}`}
                                         className="block px-6 py-3 text-gray-600 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 font-medium"
@@ -419,7 +505,10 @@ const Header = ({ initialData }) => {
 
                 {/* Search Input */}
                 <div className="flex-1 relative flex items-center bg-bg rounded-2xl">
-                  <Search className="absolute left-4 lg:left-6 text-gray-400" size={18} />
+                  <Search
+                    className="absolute left-4 lg:left-6 text-gray-400"
+                    size={18}
+                  />
                   <input
                     type="text"
                     placeholder="Search for products"
@@ -427,24 +516,34 @@ const Header = ({ initialData }) => {
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-12 lg:pl-14 pr-4 lg:pr-6 py-3 lg:py-4 bg-transparent focus:outline-none text-gray-700 placeholder-gray-500 font-medium"
                   />
-                  <button onClick={() => {
-                    router.push(`/shop`)
-                    setImageSearch(!imageSearch)
-                  }} className="w-12 cursor-pointer" >
+                  <button
+                    onClick={() => {
+                      router.push(`/shop`);
+                      setImageSearch(!imageSearch);
+                    }}
+                    className="w-12 cursor-pointer"
+                  >
                     <Camera />
                   </button>
                   {/* image searche dropdown */}
-                  {imageSearch ? <div className="hidden sm:flex flex-col  justify-center items-center min-w-96 min-h-60 absolute top-15 left-0 bg-amber-50 rounded-2xl shadow-2xl shadow-black-100 z-50">
-
-                    <p className="my-4 text-green-600 font-semibold">Search Product with Image</p>
-                    <div className="max-w-2/3 min-h-30 border-3 border-dotted border-green-300 bg-green-100 flex flex-col gap-2 justify-center items-center">
-                      <p className="text-red-400">(JPG and PNG file only)</p>
-                      <input className="max-w-2/3 max-h-60 cursor-pointer bg-gray-200 py-1 rounded-2xl px-2" type="file" accept="image/*" />
+                  {imageSearch ? (
+                    <div className="hidden sm:flex flex-col  justify-center items-center min-w-96 min-h-60 absolute top-15 left-0 bg-amber-50 rounded-2xl shadow-2xl shadow-black-100 z-50">
+                      <p className="my-4 text-green-600 font-semibold">
+                        Search Product with Image
+                      </p>
+                      <div className="max-w-2/3 min-h-30 border-3 border-dotted border-green-300 bg-green-100 flex flex-col gap-2 justify-center items-center">
+                        <p className="text-red-400">(JPG and PNG file only)</p>
+                        <input
+                          className="max-w-2/3 max-h-60 cursor-pointer bg-gray-200 py-1 rounded-2xl px-2"
+                          type="file"
+                          accept="image/*"
+                        />
+                      </div>
                     </div>
-                  </div> : ""}
-
+                  ) : (
+                    ""
+                  )}
                 </div>
-
               </div>
             </div>
 
@@ -478,7 +577,9 @@ const Header = ({ initialData }) => {
                     />
                   </div>
                   <div>
-                    <div className=" hidden lg:block text-xs text-accent font-medium">SignIn</div>
+                    <div className=" hidden lg:block text-xs text-accent font-medium">
+                      SignIn
+                    </div>
                   </div>
                 </Link>
               )}
@@ -501,7 +602,9 @@ const Header = ({ initialData }) => {
                     )}
                   </div>
                   <div className="hidden sm:block lg:block">
-                    <div className="text-xs text-accent font-bold">Wishlist</div>
+                    <div className="text-xs text-accent font-bold">
+                      Wishlist
+                    </div>
                   </div>
                 </Link>
               </div>
@@ -547,7 +650,10 @@ const Header = ({ initialData }) => {
           <div className="lg:hidden pb-2 sm:pb-4">
             <div className="shadow-lg rounded-xl sm:rounded-2xl overflow-hidden bg-white/90 backdrop-blur-sm border border-gray-200/60">
               <div className="flex-1 relative flex items-center">
-                <Search className="absolute left-3 sm:left-4 text-gray-400" size={16} />
+                <Search
+                  className="absolute left-3 sm:left-4 text-gray-400"
+                  size={16}
+                />
                 <input
                   type="text"
                   placeholder="Search products..."
@@ -555,26 +661,45 @@ const Header = ({ initialData }) => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2 sm:py-3 bg-transparent focus:outline-none text-gray-700 placeholder-gray-500 font-medium text-sm sm:text-base"
                 />
-                <button onClick={() => {
-                  router.push("/shop")
-                  setImageSearch(!imageSearch)
-                }} className="w-12 cursor-pointer" >
+                <button
+                  onClick={() => {
+                    router.push("/shop");
+                    setImageSearch(!imageSearch);
+                  }}
+                  className="w-12 cursor-pointer"
+                >
                   <Camera />
                 </button>
-
               </div>
             </div>
           </div>
         </div>
         {/* image searche dropdown */}
-        {imageSearch ? <div className="flex flex-col lg:hidden justify-center items-center absolute inset-0  bg-white  shadow-2xl shadow-black-100 z-999 sm:w-80 mx-auto min-h-52 mt-25 rounded-sm">
-          <button onClick={() => { setImageSearch(!imageSearch) }} className="absolute top-2 right-5 text-2xl" >X</button>
-          <p className="my-4 text-green-600 font-semibold">Search Product with Image</p>
-          <div className="max-w-2/3 min-h-30 border-3 border-dotted border-green-300 bg-green-100 flex flex-col justify-center items-center gap-2">
-            <p className="text-secondary">(JPG and PNG file only)</p>
-            <input className="max-w-2/3 max-h-60 cursor-pointer bg-gray-200 py-1 rounded-2xl px-2" type="file" accept="image/*" />
+        {imageSearch ? (
+          <div className="flex flex-col lg:hidden justify-center items-center absolute inset-0  bg-white  shadow-2xl shadow-black-100 z-999 sm:w-80 mx-auto min-h-52 mt-25 rounded-sm">
+            <button
+              onClick={() => {
+                setImageSearch(!imageSearch);
+              }}
+              className="absolute top-2 right-5 text-2xl"
+            >
+              X
+            </button>
+            <p className="my-4 text-green-600 font-semibold">
+              Search Product with Image
+            </p>
+            <div className="max-w-2/3 min-h-30 border-3 border-dotted border-green-300 bg-green-100 flex flex-col justify-center items-center gap-2">
+              <p className="text-secondary">(JPG and PNG file only)</p>
+              <input
+                className="max-w-2/3 max-h-60 cursor-pointer bg-gray-200 py-1 rounded-2xl px-2"
+                type="file"
+                accept="image/*"
+              />
+            </div>
           </div>
-        </div> : ""}
+        ) : (
+          ""
+        )}
         {/* Enhanced Navigation Menu - Responsive */}
         <div className="bg-primary-color border-t border-gray-200/60 backdrop-blur-sm py-1 hidden lg:block">
           <div className="container mx-auto px-2 sm:px-4 hidden lg:block">
@@ -602,8 +727,10 @@ const Header = ({ initialData }) => {
 
         {/* Enhanced Mobile Menu - Fully Responsive */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden 
- bg-white/95 backdrop-blur-md border-t border-gray-200/60 animate-in slide-in-from-top-5 duration-300">
+          <div
+            className="lg:hidden 
+ bg-white/95 backdrop-blur-md border-t border-gray-200/60 animate-in slide-in-from-top-5 duration-300"
+          >
             <nav className="px-2 sm:px-4 py-3 sm:py-4 space-y-1 sm:space-y-2 max-h-96 overflow-visible">
               {navItems.map((item, index) => (
                 <Link
@@ -630,8 +757,9 @@ const Header = ({ initialData }) => {
                   <span className="text-sm font-semibold">Categories</span>
                   <ChevronDown
                     size={16}
-                    className={`transition-transform duration-300 ${isCategoriesOpen ? "rotate-180" : ""
-                      }`}
+                    className={`transition-transform duration-300 ${
+                      isCategoriesOpen ? "rotate-180" : ""
+                    }`}
                   />
                 </button>
 
@@ -647,7 +775,9 @@ const Header = ({ initialData }) => {
                         >
                           {/* Category */}
                           <button
-                            onClick={() => setOpenMobileCategory(isOpen ? null : index)}
+                            onClick={() =>
+                              setOpenMobileCategory(isOpen ? null : index)
+                            }
                             className="w-full flex items-center justify-between px-4 py-3 text-gray-700 font-medium"
                           >
                             <div className="flex items-center space-x-3">
@@ -657,8 +787,9 @@ const Header = ({ initialData }) => {
 
                             <ChevronDown
                               size={14}
-                              className={`transition-transform duration-300 ${isOpen ? "rotate-180" : ""
-                                }`}
+                              className={`transition-transform duration-300 ${
+                                isOpen ? "rotate-180" : ""
+                              }`}
                             />
                           </button>
 
