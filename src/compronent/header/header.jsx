@@ -24,6 +24,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setSearchTerm } from "@/src/redux/shopSlice";
+import toast from "react-hot-toast";
 
 const Header = ({ initialData }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -52,6 +53,7 @@ const Header = ({ initialData }) => {
   const [imageSearch, setImageSearch] = useState(false);
   const pathname = usePathname();
   const dropdownRef = useRef(null);
+  const imageSearchRef = useRef(null);
 
   useEffect(() => {
     setHoveredCategoryId(null);
@@ -197,12 +199,19 @@ const Header = ({ initialData }) => {
     else setShowLiveResults(false);
   }, [debouncedSearch]);
 
-  // Close dropdown when clicking outside
+  // Close dropdown and image search when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsCategoriesOpen(false);
         setHoveredCategoryId(null);
+      }
+
+      if (
+        imageSearchRef.current &&
+        !imageSearchRef.current.contains(event.target)
+      ) {
+        setImageSearch(!imageSearch);
       }
     };
 
@@ -211,11 +220,16 @@ const Header = ({ initialData }) => {
       document.addEventListener("mousedown", handleClickOutside);
     }
 
+    // Add event listener when image search is open
+    if (imageSearch) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
     // Cleanup
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isCategoriesOpen]);
+  }, [isCategoriesOpen, imageSearch]);
 
   // Use the dedicated search hook for live suggestions (400ms internal debounce)
   const { data: searchResults, loading: searchLoading } = useSearchProduct({
@@ -520,14 +534,21 @@ const Header = ({ initialData }) => {
                     onClick={() => {
                       router.push(`/shop`);
                       setImageSearch(!imageSearch);
+                      !imageSearch &&
+                        toast("Feature is coming soon!", {
+                          icon: "ℹ️",
+                        });
                     }}
                     className="w-12 cursor-pointer"
                   >
                     <Camera />
                   </button>
-                  {/* image searche dropdown */}
+                  {/* image search dropdown */}
                   {imageSearch ? (
-                    <div className="hidden sm:flex flex-col  justify-center items-center min-w-96 min-h-60 absolute top-15 left-0 bg-amber-50 rounded-2xl shadow-2xl shadow-black-100 z-50">
+                    <div
+                      ref={imageSearchRef}
+                      className="hidden sm:flex flex-col  justify-center items-center min-w-96 min-h-60 absolute top-15 left-0 bg-amber-50 rounded-2xl shadow-2xl shadow-black-100 z-50"
+                    >
                       <p className="my-4 text-green-600 font-semibold">
                         Search Product with Image
                       </p>
