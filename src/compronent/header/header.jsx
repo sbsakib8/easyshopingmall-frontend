@@ -532,12 +532,8 @@ const Header = ({ initialData }) => {
                   />
                   <button
                     onClick={() => {
-                      router.push(`/shop`);
+                      // router.push(`/shop`);
                       setImageSearch(!imageSearch);
-                      !imageSearch &&
-                        toast("Feature is coming soon!", {
-                          icon: "ℹ️",
-                        });
                     }}
                     className="w-12 cursor-pointer"
                   >
@@ -547,9 +543,10 @@ const Header = ({ initialData }) => {
                   {imageSearch ? (
                     <div
                       ref={imageSearchRef}
-                      className="hidden sm:flex flex-col  justify-center items-center min-w-96 min-h-60 absolute top-15 left-0 bg-amber-50 rounded-2xl shadow-2xl shadow-black-100 z-50"
+                      className="hidden sm:flex flex-col  justify-center items-center min-w-66 min-h-36 absolute top-15 left-12 bg-amber-50 rounded-2xl shadow-2xl shadow-black-100 z-50"
                     >
-                      <p className="my-4 text-green-600 font-semibold">
+                      {/* 
+                    <p className="my-4 text-green-600 font-semibold">
                         Search Product with Image
                       </p>
                       <div className="max-w-2/3 min-h-30 border-3 border-dotted border-green-300 bg-green-100 flex flex-col gap-2 justify-center items-center">
@@ -559,6 +556,13 @@ const Header = ({ initialData }) => {
                           type="file"
                           accept="image/*"
                         />
+                      </div>
+                    
+                    */}
+
+                      <div>
+                        <p>This feature is coming soon!</p>
+                        <p>Thank you for your patience.</p>
                       </div>
                     </div>
                   ) : (
