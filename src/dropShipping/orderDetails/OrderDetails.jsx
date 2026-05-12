@@ -246,7 +246,7 @@ const OrderDetails = ({ id }) => {
 
         {/* Product Table Section */}
         <div className="px-10 pb-12">
-          <div className="border-2 border-slate-50 rounded-[2rem] overflow-x-auto shadow-inner bg-slate-50/50">
+          <div className="border-2 border-slate-50 rounded-[2rem] overflow-x-auto shadow-inner bg-slate-50/50 hidden md:block">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-100/50 border-b border-slate-200">
@@ -332,6 +332,88 @@ const OrderDetails = ({ id }) => {
                 })}
               </tbody>
             </table>
+          </div>
+
+          {/* Mobile Card View - visible only on mobile/tablet */}
+          <div className="block md:hidden space-y-4">
+            {products.map((product, index) => {
+              const img =
+                product.image?.[0] ||
+                product.images?.[0] ||
+                "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=200&auto=format&fit=crop";
+              return (
+                <div
+                  key={index}
+                  className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <div className="flex p-4 gap-4">
+                    {/* Product Image */}
+                    <div className="w-24 h-28 flex-shrink-0 bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm">
+                      <img
+                        src={img}
+                        alt={product.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+
+                    {/* Product Details */}
+                    <div className="flex-1 space-y-2">
+                      <h4 className="font-black text-slate-900 text-sm leading-tight">
+                        {product.name}
+                      </h4>
+
+                      <div className="space-y-1.5">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                            Code:
+                          </span>
+                          <span className="text-xs font-bold text-slate-800">
+                            {product.productId
+                              ?.toString()
+                              .slice(-6)
+                              .toUpperCase()}
+                          </span>
+                        </div>
+
+                        {product.size && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                              Size:
+                            </span>
+                            <span className="text-xs font-bold text-slate-800">
+                              {product.size}
+                            </span>
+                          </div>
+                        )}
+
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                            Qty:
+                          </span>
+                          <span className="text-xs font-bold text-slate-800">
+                            {product.quantity} X ৳
+                            {product.sellingPrice || product.price}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Total Price - Bottom Bar */}
+                  <div className="border-t border-slate-100 bg-slate-50/50 px-4 py-3 flex justify-between items-center">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                      Total
+                    </span>
+                    <span className="text-emerald-600 font-black text-lg tracking-tighter">
+                      ৳
+                      {(
+                        product.totalPrice || product.price * product.quantity
+                      ).toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
