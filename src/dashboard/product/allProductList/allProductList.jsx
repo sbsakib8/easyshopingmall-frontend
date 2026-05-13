@@ -980,6 +980,20 @@ const ProductDashboard = () => {
 
  <div>
  <label className="block text-gray-300 text-sm font-semibold mb-2">
+ Boost Product
+ </label>
+ <select
+ value={editModal?.isBoost ? "true" : "false"}
+ onChange={(e) => updateEditField("isBoost", e.target.value === "true")}
+ className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500"
+ >
+ <option value="false">False</option>
+ <option value="true">True</option>
+ </select>
+ </div>
+
+ <div>
+ <label className="block text-gray-300 text-sm font-semibold mb-2">
  Product Status
  </label>
  <select

@@ -38,6 +38,7 @@ const AddProductComponent = () => {
  ratings: 5,
  tags: [],
  images: [],
+ isBoost: false,
 });
 
  const [newTag, setNewTag] = useState("");
@@ -215,6 +216,7 @@ const AddProductComponent = () => {
  ratings: 5,
  tags: [],
  images: [],
+ isBoost: false,
 });
 };
 
@@ -414,6 +416,20 @@ const AddProductComponent = () => {
  className="w-5 h-5 text-green-600 bg-transparent border-white/30 rounded focus:ring-green-500"
  />
  <label className="ml-3 text-accent-content">Mark as Featured</label>
+ </div>
+ </div>
+
+ <div className="space-y-2">
+ <label className="text-accent-content font-medium">Boost Product</label>
+ <div className="flex items-center p-4 bg-white/10 border border-white/20 rounded-xl mt-1">
+  <input
+  type="checkbox"
+  name="isBoost"
+  checked={formData.isBoost}
+  onChange={handleInputChange}
+  className="w-5 h-5 text-emerald-600 bg-transparent border-white/30 rounded focus:ring-emerald-500"
+  />
+ <label className="ml-3 text-accent-content">Mark as Boost</label>
  </div>
  </div>
  </div>

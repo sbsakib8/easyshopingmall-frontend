@@ -677,6 +677,7 @@ const ShopPage = ({ initialData, queryParams }) => {
         ratings: editModal.rating,
         productStock: editModal.productStock,
         video_link: editModal.video_link,
+        isBoost: editModal.isBoost,
       };
       const res = await ProductUpdate(updatePayload);
       if (res.success) {
@@ -1276,6 +1277,20 @@ const ShopPage = ({ initialData, queryParams }) => {
                       <option defaultValue="none">none</option>
                       <option defaultValue="hot">hot</option>
                       <option defaultValue="cold">cold</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-black text-sm font-semibold mb-2">
+                      Boost Product
+                    </label>
+                    <select
+                      value={editModal?.isBoost ? "true" : "false"}
+                      onChange={(e) => updateEditField("isBoost", e.target.value === "true")}
+                      className="appearance-none border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-secondary bg-white w-full"
+                    >
+                      <option value="false">False</option>
+                      <option value="true">True</option>
                     </select>
                   </div>
 

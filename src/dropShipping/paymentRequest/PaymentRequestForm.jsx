@@ -32,12 +32,24 @@ const PaymentRequestForm = () => {
     }, []);
 
     const onSubmit = async (data) => {
+        const amount = Number(data.amount);
+        
+        if (amount < 200) {
+            toast.error("Minimum withdrawal amount is ৳200");
+            return;
+        }
+
+        if (amount > (user?.balance || 0)) {
+            toast.error("Insufficient balance for this withdrawal");
+            return;
+        }
+
         setLoading(true);
         try {
             const res = await axios.post(
                 `${UrlBackend}/payment-request/create`,
                 {
-                    amount: data.amount,
+                    amount: amount,
                     paymentMethod: data.paymentMethod,
                     number: data.number
                 },
@@ -61,6 +73,24 @@ const PaymentRequestForm = () => {
 
     return (
         <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Notice Section */}
+            <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100 rounded-3xl p-6 shadow-sm">
+                <div className="flex items-start gap-4">
+                    <div className="p-3 bg-white rounded-2xl shadow-sm text-amber-600">
+                        <Clock className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <h3 className="text-lg font-black text-amber-900 tracking-tight mb-1">Important Notice</h3>
+                        <ul className="text-amber-800/80 text-sm font-bold space-y-1 list-disc ml-4">
+                            <li>Minimum withdrawal amount is <span className="text-amber-900 font-black">৳200</span>.</li>
+                            <li>Withdrawal requests are processed within <span className="text-amber-900 font-black">24-72 hours</span>.</li>
+                            <li>Please double-check your account number before submitting.</li>
+                            <li>Payments are only sent to verified accounts (Bkash/Nagad/Rocket/Bank).</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Form Section */}
                 <div className="bg-white rounded-3xl p-6 md:p-8 shadow-xl border border-gray-100">
@@ -84,15 +114,25 @@ const PaymentRequestForm = () => {
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-1.5 ml-1">Amount (৳)</label>
+                                <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-1.5 ml-1">
+                                    Amount (৳) 
+                                    <span className="ml-2 text-emerald-600 normal-case font-bold">Min: ৳200</span>
+                                </label>
                                 <div className="relative">
                                     <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-500" />
                                     <input 
                                         type="number" 
-                                        {...register("amount", { required: true })}
+                                        {...register("amount", { 
+                                            required: true,
+                                            min: 200
+                                        })}
                                         placeholder="0.00"
                                         className="w-full bg-gray-50 border border-gray-200 rounded-2xl pl-10 pr-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all font-bold text-gray-900"
                                     />
+                                </div>
+                                <div className="mt-1.5 ml-1 flex justify-between text-[10px] font-bold">
+                                    <span className="text-gray-400">Available: ৳{user?.balance?.toLocaleString() || "0.00"}</span>
+                                    {/* {watch('amount') > user?.balance && <span className="text-red-500">Exceeds balance</span>} */}
                                 </div>
                             </div>
                         </div>
@@ -117,6 +157,10 @@ const PaymentRequestForm = () => {
                         >
                             {loading ? "Submitting..." : "Submit Withdrawal Request"}
                         </button>
+                        <p className="flex items-center justify-center gap-1.5 text-[10px] font-bold text-gray-400 mt-4 uppercase tracking-tighter">
+                            <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                            Secure 256-bit Encrypted Transaction
+                        </p>
                     </form>
                 </div>
 

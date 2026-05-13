@@ -204,6 +204,9 @@ const SubCategoryProductsContent = ({ id }) => {
     if (pageType === 'new-products') {
       return products.filter(product => isProductNew(product.createdAt));
     }
+    if (pageType === 'boost-products') {
+      return products.filter(product => product.isBoost === true);
+    }
     return products;
   }, [products, pageType]);
 
