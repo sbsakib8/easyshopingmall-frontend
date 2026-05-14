@@ -1,6 +1,6 @@
 "use client";
 import logo from "@/app/icon.png";
-import { ChevronDown, ChevronRight, Heart, Menu, ShoppingCart, User, X, Home, Package, Sparkles, TrendingUp, ClipboardList, Settings, Coins, Users, LayoutDashboard } from "lucide-react";
+import { ChevronDown, ChevronRight, Heart, Menu, ShoppingCart, User, X, Home, Package, Sparkles, TrendingUp, ClipboardList, Settings, Coins, Users, LayoutDashboard, Video } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -31,6 +31,7 @@ const DropShippingNavbar = () => {
     // { name: "Sell & Profit", href: "/dropshipping-addtocart", icon: <TrendingUp size={18} /> },
     { name: "Order List", href: "/order-list", icon: <ClipboardList size={18} /> },
     { name: "My Analytics", href: "/my-analytics", icon: <TrendingUp size={18} /> },
+    { name: "Videos", href: "/video", icon: <Video size={18} /> },
     { name: "Shop Settings", href: "/shop-settings", icon: <Settings size={18} /> },
 
     // {name:"Passive Income", href:"/passive-income", icon: <Coins size={18} />, subLink: [{name:"Box Leader", href:"/box-leader"}, {name:"Auditor", href:"/auditor"}, {name:"Member", href:"/member"}]},

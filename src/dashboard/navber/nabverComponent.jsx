@@ -29,6 +29,7 @@ import {
     TrendingUp,
     Truck,
     Users,
+    Video,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -128,6 +129,8 @@ const DashboardNebver = ({ children }) => {
                 { path: "dropshipping/referral-activity", id: 101, label: "Referral Activity", icon: Users },
                 { path: "dropshipping/settings", id: 102, label: "Dropshipping Settings", icon: Settings },
                 { path: "dropshipping/payouts", id: 103, label: "Payout Requests", icon: DollarSign },
+                { path: "dropshipping/video-requests", id: 104, label: "Video Requests", icon: CheckCircle },
+                { path: "dropshipping/manage-videos", id: 105, label: "Manage Videos", icon: Video },
             ],
 
 
