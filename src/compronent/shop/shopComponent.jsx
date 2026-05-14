@@ -115,11 +115,10 @@ const ProductCard = React.memo(
       return [...Array(5)].map((_, i) => (
         <Star
           key={i}
-          className={`w-3 h-3 sm:w-4 sm:h-4 ${
-            i < Math.floor(rating)
-              ? "text-yellow-400 fill-current"
-              : "text-black"
-          }`}
+          className={`w-3 h-3 sm:w-4 sm:h-4 ${i < Math.floor(rating)
+            ? "text-yellow-400 fill-current"
+            : "text-black"
+            }`}
         />
       ));
     };
@@ -193,14 +192,13 @@ const ProductCard = React.memo(
                 setFavorite([...favorite, productId]);
               }}
               className={`p-1 cursor-pointer rounded-lg
-              ${
-                wishlist &&
-                wishlist.some(
-                  (item) => item.id === productId || item._id === productId,
-                )
+              ${wishlist &&
+                  wishlist.some(
+                    (item) => item.id === productId || item._id === productId,
+                  )
                   ? "text-red-500 bg-red-100"
                   : "text-gray-400 bg-bg hover:text-red-500 hover:bg-red-50"
-              }`}
+                }`}
             >
               <Heart
                 className="w-3 h-3"
@@ -210,7 +208,7 @@ const ProductCard = React.memo(
                     wishlist.some(
                       (item) => item.id === productId || item._id === productId,
                     )) ||
-                  (user && favorite && favorite.includes(productId))
+                    (user && favorite && favorite.includes(productId))
                     ? "red"
                     : "none"
                 }
@@ -268,11 +266,10 @@ const ProductCard = React.memo(
                   // addToCart(product)
                 }}
                 disabled={!inStock}
-                className={`w-full py-1.5 px-2 rounded font-medium text-xs ${
-                  inStock
-                    ? "bg-btn-color text-accent-content hover:bg-btn-color/80"
-                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                }`}
+                className={`w-full py-1.5 px-2 rounded font-medium text-xs ${inStock
+                  ? "bg-btn-color text-accent-content hover:bg-btn-color/80"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  }`}
               >
                 {inStock ? (
                   <AddtoCartBtn productId={productId}>
@@ -292,11 +289,10 @@ const ProductCard = React.memo(
                     // addToCart(product)
                   }}
                   disabled={!inStock}
-                  className={`py-1.5 px-2 rounded font-medium text-xs ${
-                    inStock
-                      ? "bg-btn-color text-accent-content hover:bg-green-700"
-                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  }`}
+                  className={`py-1.5 px-2 rounded font-medium text-xs ${inStock
+                    ? "bg-btn-color text-accent-content hover:bg-green-700"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    }`}
                 >
                   {inStock ? (
                     <span className="flex items-center justify-center gap-1">
@@ -816,10 +812,10 @@ const ShopPage = ({ initialData, queryParams }) => {
           ? selectedProduct.subCategory.map((sc) => (sc._id || sc).toString())
           : selectedProduct?.subCategory
             ? [
-                (
-                  selectedProduct.subCategory._id || selectedProduct.subCategory
-                ).toString(),
-              ]
+              (
+                selectedProduct.subCategory._id || selectedProduct.subCategory
+              ).toString(),
+            ]
             : [];
 
         const foundSubCatCoupon = couponsData?.data?.find(
@@ -867,6 +863,7 @@ const ShopPage = ({ initialData, queryParams }) => {
         ratings: editModal.rating,
         productStock: editModal.productStock,
         video_link: editModal.video_link,
+        isBoost: editModal.isBoost,
       };
       const res = await ProductUpdate(updatePayload);
       if (res.success) {
@@ -1279,11 +1276,10 @@ const ShopPage = ({ initialData, queryParams }) => {
             {/* Products */}
             {!productsLoading && currentProducts.length > 0 && (
               <div
-                className={`${
-                  viewMode === "grid"
-                    ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6"
-                    : "space-y-6"
-                }`}
+                className={`${viewMode === "grid"
+                  ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6"
+                  : "space-y-6"
+                  }`}
               >
                 {currentProducts.map((product) => (
                   <ProductCard
@@ -1313,11 +1309,10 @@ const ShopPage = ({ initialData, queryParams }) => {
                     dispatch(setCurrentPage(Math.max(1, currentPage - 1)))
                   }
                   disabled={currentPage === 1}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${
-                    currentPage === 1
-                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                      : "bg-secondary text-accent-content hover:bg-secondary"
-                  }`}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${currentPage === 1
+                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                    : "bg-secondary text-accent-content hover:bg-secondary"
+                    }`}
                 >
                   Previous
                 </button>
@@ -1340,11 +1335,10 @@ const ShopPage = ({ initialData, queryParams }) => {
                   <button
                     key={page}
                     onClick={() => dispatch(setCurrentPage(page))}
-                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
-                      currentPage === page
-                        ? "bg-secondary text-accent-content transform scale-110"
-                        : "bg-white border border-gray-300 hover:bg-purple-50"
-                    }`}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${currentPage === page
+                      ? "bg-secondary text-accent-content transform scale-110"
+                      : "bg-white border border-gray-300 hover:bg-purple-50"
+                      }`}
                   >
                     {page}
                   </button>
@@ -1371,11 +1365,10 @@ const ShopPage = ({ initialData, queryParams }) => {
                     )
                   }
                   disabled={currentPage === totalPages}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${
-                    currentPage === totalPages
-                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                      : "bg-secondary text-accent-content hover:bg-secondary"
-                  }`}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${currentPage === totalPages
+                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                    : "bg-secondary text-accent-content hover:bg-secondary"
+                    }`}
                 >
                   Next
                 </button>

@@ -3,469 +3,652 @@ import NotificationDropdown from "@/src/helper/notification";
 import { useGetcategory } from "@/src/utlis/usecategory";
 import { useGetSubcategory } from "@/src/utlis/useSubcategory";
 import {
-    AppWindow,
-    BarChart3,
-    BookImage,
-    CheckCircle,
-    ChevronRight,
-    Clock,
-    DollarSign,
-    FileText,
-    Globe,
-    Home,
-    ImageDown,
-    ImageIcon,
-    ImagePlus,
-    Menu,
-    MessageSquare,
-    Package,
-    Plus,
-    Search,
-    Settings,
-    Shield,
-    ShieldUser,
-    ShoppingCart,
-    Tag,
-    TrendingUp,
-    Truck,
-    Users,
+  AppWindow,
+  BarChart3,
+  BookImage,
+  CheckCircle,
+  ChevronRight,
+  Clock,
+  DollarSign,
+  FileText,
+  Globe,
+  Home,
+  ImageDown,
+  ImageIcon,
+  ImagePlus,
+  Menu,
+  MessageSquare,
+  Package,
+  Plus,
+  Search,
+  Settings,
+  Shield,
+  ShieldUser,
+  ShoppingCart,
+  Tag,
+  TrendingUp,
+  Truck,
+  Users,
 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MdEmail } from "react-icons/md";
 import { useSelector } from "react-redux";
 
 const DashboardNebver = ({ children }) => {
-    const [sidebarOpen, setSidebarOpen] = useState(true);
-    const [activeMenu, setActiveMenu] = useState("dashboard");
-    const [expandedMenus, setExpandedMenus] = useState({});
-    const [isHovered, setIsHovered] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [activeMenu, setActiveMenu] = useState("dashboard");
+  const [expandedMenus, setExpandedMenus] = useState({});
+  const [isHovered, setIsHovered] = useState(false);
 
-    // admin user data get
-    const data = useSelector((state) => state.user.data);
-    // console.log('data', data);
+  // admin user data get
+  const data = useSelector((state) => state.user.data);
+  // console.log('data', data);
 
-    // category get
-    const { category, loading, error } = useGetcategory();
-    // subcategory all get
-    const { } = useGetSubcategory();
+  // category get
+  const { category, loading, error } = useGetcategory();
+  // subcategory all get
+  const {} = useGetSubcategory();
 
-    const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
-    const toggleSubmenu = (menuId) => {
-        setExpandedMenus((prev) => ({
-            ...prev,
-            [menuId]: !prev[menuId],
-        }));
-    };
-    const makeFalse = () => {
-        setIsHovered(false);
-        setSidebarOpen(false);
-    };
-    const menuItems = [
+  const toggleSubmenu = (menuId) => {
+    setExpandedMenus((prev) => ({
+      ...prev,
+      [menuId]: !prev[menuId],
+    }));
+  };
+  const makeFalse = () => {
+    setIsHovered(false);
+    setSidebarOpen(false);
+  };
+  const menuItems = [
+    {
+      id: 1,
+      label: "Dashboard",
+      icon: Home,
+      path: "/dashboard",
+    },
+    {
+      id: 2,
+      label: "Products",
+      icon: Package,
+      path: "/dashboard/products/allproducts",
+      submenu: [
         {
-            id: 1,
-            label: "Dashboard",
-            icon: Home,
-            path: "/dashboard",
+          path: "products/allproducts",
+          id: 11,
+          label: "All Products",
+          icon: Package,
         },
         {
-            id: 2,
-            label: "Products",
-            icon: Package,
-            path: "/dashboard/products/allproducts",
-            submenu: [
-                { path: "products/allproducts", id: 11, label: "All Products", icon: Package },
-                { path: "products/addproduct", id: 12, label: "Add Product", icon: Plus },
-                { path: "products/subcategory", id: 13, label: "SubCategory", icon: Tag },
-                { path: "products/addcategorie", id: 14, label: "Categorie", icon: Tag },
-                { path: "products/inventory", id: 16, label: "Inventory", icon: BarChart3 },
-            ],
+          path: "products/addproduct",
+          id: 12,
+          label: "Add Product",
+          icon: Plus,
         },
         {
-            id: 3,
-            label: "Orders",
-            icon: ShoppingCart,
-            path: "/dashboard/order/allorders",
-            submenu: [
-                { path: "/order/allorders", id: 19, label: "All Orders", icon: CheckCircle },
-                { path: "/order/pending-orders", id: 16, label: "Pending Orders", icon: ShoppingCart },
-                { path: "/order/processing-orders", id: 17, label: "Processing Orders", icon: Clock },
-                { path: "/order/shipped-orders", id: 18, label: "Shipped Orders", icon: Truck },
+          path: "products/subcategory",
+          id: 13,
+          label: "SubCategory",
+          icon: Tag,
+        },
+        {
+          path: "products/addcategorie",
+          id: 14,
+          label: "Categorie",
+          icon: Tag,
+        },
+        {
+          path: "products/inventory",
+          id: 16,
+          label: "Inventory",
+          icon: BarChart3,
+        },
+      ],
+    },
+    {
+      id: 3,
+      label: "Orders",
+      icon: ShoppingCart,
+      path: "/dashboard/order/allorders",
+      submenu: [
+        {
+          path: "/order/allorders",
+          id: 19,
+          label: "All Orders",
+          icon: CheckCircle,
+        },
+        {
+          path: "/order/pending-orders",
+          id: 16,
+          label: "Pending Orders",
+          icon: ShoppingCart,
+        },
+        {
+          path: "/order/processing-orders",
+          id: 17,
+          label: "Processing Orders",
+          icon: Clock,
+        },
+        {
+          path: "/order/shipped-orders",
+          id: 18,
+          label: "Shipped Orders",
+          icon: Truck,
+        },
+      ],
+    },
+    {
+      id: 4,
+      label: "Customers",
+      icon: Users,
+      path: "/dashboard/customers/all-customers",
+      submenu: [
+        {
+          path: "/customers/all-customers",
+          id: 19,
+          label: "All Customers",
+          icon: Users,
+        },
+        //  {path:"/customers/customer-groups", id: 20, label:"Customer Groups", icon: Users},
+        {
+          path: "/customers/reviews",
+          id: 22,
+          label: "reviews",
+          icon: MessageSquare,
+        },
+      ],
+    },
+    {
+      id: 5,
+      label: "Analytics",
+      icon: TrendingUp,
+      path: "/dashboard/analytics/sales-report",
+      submenu: [
+        {
+          path: "/analytics/sales-report",
+          id: 23,
+          label: "Sales Report",
+          icon: BarChart3,
+        },
+        {
+          path: "/analytics/product-analytics",
+          id: 24,
+          label: "Product Analytics",
+          icon: Package,
+        },
+        {
+          path: "/analytics/customer-analytics",
+          id: 25,
+          label: "Customer Analytics",
+          icon: Users,
+        },
+        {
+          path: "/analytics/traffic-analytics",
+          id: 26,
+          label: "Traffic Analytics",
+          icon: Globe,
+        },
+      ],
+    },
+    {
+      id: 10,
+      label: "Dropshipping",
+      icon: Package,
+      path: "/dashboard/dropshipping/referral-activity",
+      submenu: [
+        {
+          path: "dropshipping/analytics",
+          id: 100,
+          label: "DS Analytics",
+          icon: BarChart3,
+          roles: ["ADMIN"],
+        },
+        {
+          path: "dropshipping/referral-activity",
+          id: 101,
+          label: "Referral Activity",
+          icon: Users,
+        },
+        {
+          path: "dropshipping/settings",
+          id: 102,
+          label: "Dropshipping Settings",
+          icon: Settings,
+        },
+        {
+          path: "dropshipping/payouts",
+          id: 103,
+          label: "Payout Requests",
+          icon: DollarSign,
+        },
+      ],
+    },
+    {
+      id: 6,
+      label: "Banners",
+      icon: AppWindow,
+      path: "/dashboard/banner/home-slider",
+      submenu: [
+        {
+          path: "/banner/home-slider",
+          id: 27,
+          label: "Home Slider",
+          icon: BookImage,
+        },
+        {
+          path: "/banner/center-banner",
+          id: 28,
+          label: "Center Banner",
+          icon: ImagePlus,
+        },
+        {
+          path: "/banner/left-banner",
+          id: 29,
+          label: "Left Banner",
+          icon: ImageIcon,
+        },
+        {
+          path: "/banner/right-banner",
+          id: 30,
+          label: "Right Banner",
+          icon: ImageDown,
+        },
+      ],
+    },
+    {
+      id: 7,
+      label: "Content",
+      icon: FileText,
+      path: "/dashboard/content/blogs",
+      submenu: [
+        { path: "/content/blogs", id: 31, label: "Blogs", icon: FileText },
+        {
+          path: "/content/media-library",
+          id: 32,
+          label: "Media Library",
+          icon: ImageIcon,
+        },
+        { path: "/content/email-list", id: 50, label: "Email", icon: MdEmail },
+      ],
+    },
+    {
+      id: 8,
+      label: "Settings",
+      icon: Settings,
+      path: "/dashboard/settings/generalsettings",
+      submenu: [
+        {
+          path: "/settings/userupdate",
+          id: 53,
+          label: "User Manage",
+          icon: ShieldUser,
+        },
+        {
+          path: "/settings/generalsettings",
+          id: 33,
+          label: "General Settings",
+          icon: Settings,
+        },
+        {
+          path: "/settings/paymentsettings",
+          id: 34,
+          label: "Payment Settings",
+          icon: DollarSign,
+        },
+        {
+          path: "/settings/shippingsettings",
+          id: 35,
+          label: "Shipping Settings",
+          icon: Truck,
+        },
+        {
+          path: "/settings/securitysettings",
+          id: 36,
+          label: "Security",
+          icon: Shield,
+        },
+      ],
+    },
+    {
+      id: 9,
+      label: "Coupons",
+      icon: Tag,
+      path: "/dashboard/coupons/manage",
+    },
+  ];
 
-            ],
-        },
-        {
-            id: 4,
-            label: "Customers",
-            icon: Users,
-            path: "/dashboard/customers/all-customers",
-            submenu: [
-                { path: "/customers/all-customers", id: 19, label: "All Customers", icon: Users },
-                //  {path:"/customers/customer-groups", id: 20, label:"Customer Groups", icon: Users},
-                { path: "/customers/reviews", id: 22, label: "reviews", icon: MessageSquare },
-            ],
-        },
-        {
-            id: 5,
-            label: "Analytics",
-            icon: TrendingUp,
-            path: "/dashboard/analytics/sales-report",
-            submenu: [
-                { path: "/analytics/sales-report", id: 23, label: "Sales Report", icon: BarChart3 },
-                { path: "/analytics/product-analytics", id: 24, label: "Product Analytics", icon: Package },
-                { path: "/analytics/customer-analytics", id: 25, label: "Customer Analytics", icon: Users },
-                { path: "/analytics/traffic-analytics", id: 26, label: "Traffic Analytics", icon: Globe },
-            ],
-        },
-        {
-            id: 10,
-            label: "Dropshipping",
-            icon: Package,
-            path: "/dashboard/dropshipping/referral-activity",
-            submenu: [
-                { path: "dropshipping/analytics", id: 100, label: "DS Analytics", icon: BarChart3, roles: ["ADMIN"] },
-                { path: "dropshipping/referral-activity", id: 101, label: "Referral Activity", icon: Users },
-                { path: "dropshipping/settings", id: 102, label: "Dropshipping Settings", icon: Settings },
-                { path: "dropshipping/payouts", id: 103, label: "Payout Requests", icon: DollarSign },
-            ],
+  useEffect(() => {
+    const body = document.body;
 
+    if ( isHovered) {
+      body.scroll(0, 0);
+      body.style.overflow = "hidden";
+    } else {
+      body.style.overflow = "auto";
+    }
+  }, [isHovered]);
 
+  return (
+    <div className="bg-gradient-to-br from-gray-900 via-black to-gray-800">
+      {/* Top Navigation */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-xl border-b border-gray-800/50 shadow-2xl shadow-black/20">
+        <div className="px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Left side */}
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={toggleSidebar}
+                className="group p-3 rounded-xl bg-gradient-to-r from-gray-800 to-black hover:from-gray-700 hover:to-gray-900 border border-gray-700/50"
+              >
+                <Menu className="w-5 h-5 text-accent-content" />
+              </button>
 
+              <Link href="/" className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-gray-700 via-gray-800 to-black rounded-2xl flex items-center justify-center border border-gray-600/30">
+                  <ShoppingCart className="w-6 h-6 text-accent-content" />
+                </div>
+                <div className="hidden sm:block">
+                  <h1 className="text-xl font-bold bg-gradient-to-r from-white via-gray-200 to-gray-300 bg-clip-text text-transparent">
+                    EasyShopingMall
+                  </h1>
+                  <p className="text-xs text-gray-400 font-medium">
+                    Admin Dashboard
+                  </p>
+                </div>
+              </Link>
+            </div>
 
+            {/* Right side */}
+            <div className="flex items-center space-x-3">
+              {/* Mobile search button */}
+              <button className="md:hidden p-3 rounded-xl bg-gradient-to-r from-gray-800 to-black hover:from-gray-700 hover:to-gray-900 border border-gray-700/50">
+                <Search className="w-5 h-5 text-accent-content" />
+              </button>
 
-        },
-        {
-            id: 6,
-            label: "Banners",
-            icon: AppWindow,
-            path: "/dashboard/banner/home-slider",
-            submenu: [
-                { path: "/banner/home-slider", id: 27, label: "Home Slider", icon: BookImage },
-                { path: "/banner/center-banner", id: 28, label: "Center Banner", icon: ImagePlus },
-                { path: "/banner/left-banner", id: 29, label: "Left Banner", icon: ImageIcon },
-                { path: "/banner/right-banner", id: 30, label: "Right Banner", icon: ImageDown },
-            ],
-        },
-        {
-            id: 7,
-            label: "Content",
-            icon: FileText,
-            path: "/dashboard/content/blogs",
-            submenu: [
-                { path: "/content/blogs", id: 31, label: "Blogs", icon: FileText },
-                { path: "/content/media-library", id: 32, label: "Media Library", icon: ImageIcon },
-                { path: "/content/email-list", id: 50, label: "Email", icon: MdEmail },
-            ],
-        },
-        {
-            id: 8,
-            label: "Settings",
-            icon: Settings,
-            path: "/dashboard/settings/generalsettings",
-            submenu: [
-                { path: "/settings/userupdate", id: 53, label: "User Manage", icon: ShieldUser },
-                { path: "/settings/generalsettings", id: 33, label: "General Settings", icon: Settings },
-                { path: "/settings/paymentsettings", id: 34, label: "Payment Settings", icon: DollarSign },
-                { path: "/settings/shippingsettings", id: 35, label: "Shipping Settings", icon: Truck },
-                { path: "/settings/securitysettings", id: 36, label: "Security", icon: Shield },
-            ],
-        },
-        {
-            id: 9,
-            label: "Coupons",
-            icon: Tag,
-            path: "/dashboard/coupons/manage",
-        },
-    ];
+              {/* Notification */}
 
-    return (
-        <div className="bg-gradient-to-br from-gray-900 via-black to-gray-800">
-            {/* Top Navigation */}
-            <nav className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-xl border-b border-gray-800/50 shadow-2xl shadow-black/20">
-                <div className="px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between h-16">
-                        {/* Left side */}
-                        <div className="flex items-center space-x-4">
-                            <button
-                                onClick={toggleSidebar}
-                                className="group p-3 rounded-xl bg-gradient-to-r from-gray-800 to-black hover:from-gray-700 hover:to-gray-900 border border-gray-700/50"
+              <NotificationDropdown />
+
+              <div className="flex items-center space-x-3 pl-4 border-l border-gray-700/60">
+                <div className="relative group">
+                  <div className="w-10 h-10 bg-gradient-to-r from-gray-600 via-gray-700 to-gray-800 rounded-full flex items-center justify-center border border-gray-600/50">
+                    {data?.image ? (
+                      <img
+                        className="w-9 h-9 rounded-full cursor-pointer"
+                        src={data?.image}
+                        alt="image"
+                      />
+                    ) : (
+                      <span className="text-accent-content font-bold text-sm">
+                        {data?.name?.slice(0, 2).toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                  <div className="absolute -inset-1 bg-gradient-to-r from-gray-600 to-gray-800 rounded-full opacity-0 blur"></div>
+                </div>
+                <div className="hidden sm:block">
+                  <p className="text-sm font-semibold text-accent-content">
+                    {data?.name}
+                  </p>
+                  <p className="text-xs text-gray-400 font-medium">
+                    {data?.email}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Sidebar */}
+      <aside
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => makeFalse()}
+        className={`fixed top-16 left-0 z-40 h-[calc(100vh-4rem)]
+ ${
+   sidebarOpen || isHovered ? "w-full md:w-72" : "w-0 md:w-24"
+ } bg-black/95 backdrop-blur-xl border-r border-gray-800/50 shadow-2xl shadow-black/20 overflow-hidden`}
+      >
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-gray-900/20 via-black/20 to-gray-800/20 pointer-events-none"></div>
+
+        <div className="flex flex-col h-full relative z-10">
+          <div className="flex-1 px-4 py-6 overflow-y-auto">
+            <nav className="space-y-3">
+              {menuItems
+                .filter((item) => {
+                  if (!item.roles) return true;
+                  return (
+                    item.roles.includes(data?.role) ||
+                    (data?.roles &&
+                      item.roles.some((r) => data.roles.includes(r)))
+                  );
+                })
+                .map((item, index) => (
+                  <div key={item.id}>
+                    <button
+                      onClick={() => {
+                        if (item.label === "Dashboard") {
+                          makeFalse();
+                        }
+                        setActiveMenu(item.id);
+                        if (item.submenu) {
+                          toggleSubmenu(item.id);
+                        }
+                      }}
+                      className={`w-full flex items-center justify-between px-3 py-2 text-sm font-semibold rounded-2xl group relative overflow-hidden ${
+                        activeMenu === item.id
+                          ? "bg-gradient-to-r from-gray-700 to-gray-900 text-accent-content border border-gray-600/50"
+                          : "hover:bg-gradient-to-r hover:from-gray-800/50 hover:to-black/50 text-accent-content border border-transparent hover:border-gray-700/30"
+                      }`}
+                    >
+                      {/* Animated background */}
+                      <div
+                        className={`absolute inset-0 bg-gradient-to-r from-gray-700/20 to-gray-900/20 opacity-0 group-hover:opacity-100 ${
+                          activeMenu === item.id ? "opacity-30" : ""
+                        }`}
+                      ></div>
+
+                      <Link
+                        onClick={toggleSidebar}
+                        href={`${item.path}`}
+                        className="flex items-center space-x-4 relative z-10"
+                      >
+                        <div
+                          className={`p-2 rounded-xl ${
+                            activeMenu === item.id
+                              ? "bg-white/10 backdrop-blur-sm"
+                              : "group-hover:bg-gray-700/30"
+                          }`}
+                        >
+                          <item.icon
+                            className={`w-5 h-5 ${
+                              activeMenu === item.id
+                                ? "text-accent-content"
+                                : "text-gray-400 group-hover:text-accent-content"
+                            }`}
+                          />
+                        </div>
+                        {(sidebarOpen || isHovered) && (
+                          <span
+                            className={` ${
+                              sidebarOpen || isHovered
+                                ? "opacity-100 transform translate-x-0"
+                                : "opacity-0 transform translate-x-4"
+                            } font-medium`}
+                          >
+                            {item.label}
+                          </span>
+                        )}
+                      </Link>
+                      {item.submenu && (sidebarOpen || isHovered) && (
+                        <ChevronRight
+                          className={`w-5 h-5 relative z-10 ${
+                            expandedMenus[item.id]
+                              ? "rotate-90 text-accent-content"
+                              : "text-gray-500"
+                          } ${activeMenu === item.id ? "text-accent-content" : ""}`}
+                        />
+                      )}
+                    </button>
+
+                    {/* Submenu */}
+                    {item.submenu && (sidebarOpen || isHovered) && (
+                      <div
+                        onClick={toggleSidebar}
+                        className={`mt-3 ml-6 space-y-2 overflow-hidden transform ${
+                          expandedMenus[item.id]
+                            ? "max-h-96 opacity-100 translate-y-0"
+                            : "max-h-0 opacity-0 -translate-y-4"
+                        }`}
+                      >
+                        {item.submenu
+                          .filter((subItem) => {
+                            if (!subItem.roles) return true;
+                            return (
+                              subItem.roles.includes(data?.role) ||
+                              (data?.roles &&
+                                subItem.roles.some((r) =>
+                                  data.roles.includes(r),
+                                ))
+                            );
+                          })
+                          .map((subItem, subIndex) => (
+                            <Link
+                              href={`/dashboard/${subItem.path}`}
+                              key={subItem.id}
+                              onClick={() => {
+                                makeFalse();
+                                setActiveMenu(subItem.id);
+                              }}
+                              className={` group flex items-center space-x-3 px-4 py-2.5 text-sm rounded-xl ${
+                                activeMenu === subItem.id
+                                  ? "bg-gradient-to-r from-gray-600 to-gray-800 text-accent-content border border-gray-600/50"
+                                  : "text-gray-400 hover:bg-gradient-to-r hover:from-gray-800/30 hover:to-black/30 hover:text-accent-content border border-transparent hover:border-gray-700/20"
+                              }`}
                             >
-                                <Menu className="w-5 h-5 text-accent-content" />
-                            </button>
-
-                            <Link href="/" className="flex items-center space-x-3">
-                                <div className="w-10 h-10 bg-gradient-to-r from-gray-700 via-gray-800 to-black rounded-2xl flex items-center justify-center border border-gray-600/30">
-                                    <ShoppingCart className="w-6 h-6 text-accent-content" />
-                                </div>
-                                <div className="hidden sm:block">
-                                    <h1 className="text-xl font-bold bg-gradient-to-r from-white via-gray-200 to-gray-300 bg-clip-text text-transparent">
-                                        EasyShopingMall
-                                    </h1>
-                                    <p className="text-xs text-gray-400 font-medium">Admin Dashboard</p>
-                                </div>
+                              <div
+                                className={`p-1.5 rounded-lg ${
+                                  activeMenu === subItem.id
+                                    ? "bg-white/10 backdrop-blur-sm"
+                                    : "group-hover:bg-gray-700/20"
+                                }`}
+                              >
+                                <subItem.icon className="w-4 h-4" />
+                              </div>
+                              <span className="font-medium">
+                                {subItem.label}
+                              </span>
                             </Link>
-                        </div>
-
-                        {/* Right side */}
-                        <div className="flex items-center space-x-3">
-                            {/* Mobile search button */}
-                            <button className="md:hidden p-3 rounded-xl bg-gradient-to-r from-gray-800 to-black hover:from-gray-700 hover:to-gray-900 border border-gray-700/50">
-                                <Search className="w-5 h-5 text-accent-content" />
-                            </button>
-
-                            {/* Notification */}
-
-                            <NotificationDropdown />
-
-                            <div className="flex items-center space-x-3 pl-4 border-l border-gray-700/60">
-                                <div className="relative group">
-                                    <div className="w-10 h-10 bg-gradient-to-r from-gray-600 via-gray-700 to-gray-800 rounded-full flex items-center justify-center border border-gray-600/50">
-                                        {data?.image ? (
-                                            <img
-                                                className="w-9 h-9 rounded-full cursor-pointer"
-                                                src={data?.image}
-                                                alt="image"
-                                            />
-                                        ) : (
-                                            <span className="text-accent-content font-bold text-sm">
-                                                {data?.name?.slice(0, 2).toUpperCase()}
-                                            </span>
-                                        )}
-                                    </div>
-                                    <div className="absolute -inset-1 bg-gradient-to-r from-gray-600 to-gray-800 rounded-full opacity-0 blur"></div>
-                                </div>
-                                <div className="hidden sm:block">
-                                    <p className="text-sm font-semibold text-accent-content">{data?.name}</p>
-                                    <p className="text-xs text-gray-400 font-medium">{data?.email}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                          ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
             </nav>
+          </div>
 
-            {/* Sidebar */}
-            <aside
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => makeFalse()}
-                className={`fixed top-16 left-0 z-40 h-[calc(100vh-4rem)]
- ${sidebarOpen || isHovered ? "w-full md:w-72" : "w-0 md:w-20"
-                    } bg-black/95 backdrop-blur-xl border-r border-gray-800/50 shadow-2xl shadow-black/20 overflow-hidden`}
-            >
-                {/* Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-b from-gray-900/20 via-black/20 to-gray-800/20 pointer-events-none"></div>
+          {/* Sidebar Footer */}
+          <div className="p-4 border-t border-gray-800/50">
+            {sidebarOpen ||
+              (isHovered && (
+                <div className="relative p-4 rounded-2xl bg-gradient-to-r from-gray-800 via-gray-900 to-black group overflow-hidden border border-gray-700/50">
+                  {/* Animated background */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-gray-700 via-gray-800 to-gray-900 opacity-0 group-hover:opacity-100"></div>
 
-                <div className="flex flex-col h-full relative z-10">
-                    <div className="flex-1 px-4 py-6 overflow-y-auto">
-                        <nav className="space-y-3">
-                            {menuItems
-                                .filter(item => {
-                                    if (!item.roles) return true;
-                                    return item.roles.includes(data?.role) || (data?.roles && item.roles.some(r => data.roles.includes(r)));
-                                })
-                                .map((item, index) => (
-                                    <div
-                                        key={item.id}
-                                    >
-                                        <button
-                                            onClick={() => {
-                                                if (item.label === "Dashboard") {
-                                                    makeFalse();
-                                                }
-                                                setActiveMenu(item.id);
-                                                if (item.submenu) {
-                                                    toggleSubmenu(item.id);
-                                                }
-                                            }}
-                                            className={`w-full flex items-center justify-between px-4 py-3 text-sm font-semibold rounded-2xl group relative overflow-hidden ${activeMenu === item.id
-                                                ? "bg-gradient-to-r from-gray-700 to-gray-900 text-accent-content border border-gray-600/50"
-                                                : "text-gray-300 hover:bg-gradient-to-r hover:from-gray-800/50 hover:to-black/50 text-accent-content border border-transparent hover:border-gray-700/30"
-                                                }`}
-                                        >
-                                            {/* Animated background */}
-                                            <div
-                                                className={`absolute inset-0 bg-gradient-to-r from-gray-700/20 to-gray-900/20 opacity-0 group-hover:opacity-100 ${activeMenu === item.id ? "opacity-30" : ""
-                                                    }`}
-                                            ></div>
-
-                                            <Link
-                                                onClick={toggleSidebar}
-                                                href={`${item.path}`}
-                                                className="flex items-center space-x-4 relative z-10"
-                                            >
-                                                <div
-                                                    className={`p-2 rounded-xl ${activeMenu === item.id
-                                                        ? "bg-white/10 backdrop-blur-sm"
-                                                        : "group-hover:bg-gray-700/30"
-                                                        }`}
-                                                >
-                                                    <item.icon
-                                                        className={`w-5 h-5 ${activeMenu === item.id
-                                                            ? "text-accent-content"
-                                                            : "text-gray-400 group-hover:text-accent-content"
-                                                            }`}
-                                                    />
-                                                </div>
-                                                {(sidebarOpen || isHovered) && (
-                                                    <span
-                                                        className={` ${sidebarOpen || isHovered
-                                                            ? "opacity-100 transform translate-x-0"
-                                                            : "opacity-0 transform translate-x-4"
-                                                            } font-medium`}
-                                                    >
-                                                        {item.label}
-                                                    </span>
-                                                )}
-                                            </Link>
-                                            {item.submenu && (sidebarOpen || isHovered) && (
-                                                <ChevronRight
-                                                    className={`w-5 h-5 relative z-10 ${expandedMenus[item.id] ? "rotate-90 text-accent-content" : "text-gray-500"
-                                                        } ${activeMenu === item.id ? "text-accent-content" : ""}`}
-                                                />
-                                            )}
-                                        </button>
-
-                                        {/* Submenu */}
-                                        {item.submenu && (sidebarOpen || isHovered) && (
-                                            <div
-                                                onClick={toggleSidebar}
-                                                className={`mt-3 ml-6 space-y-2 overflow-hidden transform ${expandedMenus[item.id]
-                                                    ? "max-h-96 opacity-100 translate-y-0"
-                                                    : "max-h-0 opacity-0 -translate-y-4"
-                                                    }`}
-                                            >
-                                                {item.submenu
-                                                    .filter(subItem => {
-                                                        if (!subItem.roles) return true;
-                                                        return subItem.roles.includes(data?.role) || (data?.roles && subItem.roles.some(r => data.roles.includes(r)));
-                                                    })
-                                                    .map((subItem, subIndex) => (
-                                                        <Link
-                                                            href={`/dashboard/${subItem.path}`}
-                                                            key={subItem.id}
-                                                            onClick={() => {
-                                                                makeFalse();
-                                                                setActiveMenu(subItem.id);
-                                                            }}
-                                                            className={` group flex items-center space-x-3 px-4 py-2.5 text-sm rounded-xl ${activeMenu === subItem.id
-                                                                ? "bg-gradient-to-r from-gray-600 to-gray-800 text-accent-content border border-gray-600/50"
-                                                                : "text-gray-400 hover:bg-gradient-to-r hover:from-gray-800/30 hover:to-black/30 hover:text-accent-content border border-transparent hover:border-gray-700/20"
-                                                                }`}
-                                                        >
-                                                            <div
-                                                                className={`p-1.5 rounded-lg ${activeMenu === subItem.id
-                                                                    ? "bg-white/10 backdrop-blur-sm"
-                                                                    : "group-hover:bg-gray-700/20"
-                                                                    }`}
-                                                            >
-                                                                <subItem.icon className="w-4 h-4" />
-                                                            </div>
-                                                            <span className="font-medium">{subItem.label}</span>
-                                                        </Link>
-                                                    ))}
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                        </nav>
+                  <div className="flex items-center space-x-3 relative z-10">
+                    <div className="w-10 h-10 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-gray-600/30">
+                      <TrendingUp className="w-5 h-5 text-accent-content" />
                     </div>
-
-                    {/* Sidebar Footer */}
-                    <div className="p-4 border-t border-gray-800/50">
-                        {sidebarOpen ||
-                            (isHovered && (
-                                <div className="relative p-4 rounded-2xl bg-gradient-to-r from-gray-800 via-gray-900 to-black group overflow-hidden border border-gray-700/50">
-                                    {/* Animated background */}
-                                    <div className="absolute inset-0 bg-gradient-to-r from-gray-700 via-gray-800 to-gray-900 opacity-0 group-hover:opacity-100"></div>
-
-                                    <div className="flex items-center space-x-3 relative z-10">
-                                        <div className="w-10 h-10 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-gray-600/30">
-                                            <TrendingUp className="w-5 h-5 text-accent-content" />
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-bold text-accent-content">EasyShoppingMall</p>
-                                            <p className="text-xs text-gray-300">you can manage dashboard</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
+                    <div>
+                      <p className="text-sm font-bold text-accent-content">
+                        EasyShoppingMall
+                      </p>
+                      <p className="text-xs text-gray-300">
+                        you can manage dashboard
+                      </p>
                     </div>
+                  </div>
                 </div>
-            </aside>
+              ))}
+          </div>
+        </div>
+      </aside>
 
-            {/* Main Content */}
-            <main
-                className={`
+      {/* Main Content */}
+      <main
+        className={`
  pt-16 min-h-screen 
  ${sidebarOpen || isHovered ? "pl-72" : "pl-0"} 
  md:pl-0
  `}
-            >
-                {children}
-            </main>
+      >
+        {children}
+      </main>
 
-            <style jsx>{`
- /* Custom scrollbar */
- ::-webkit-scrollbar {
- width: 8px;
-}
+      <style jsx>{`
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+          width: 8px;
+        }
 
- ::-webkit-scrollbar-track {
- background: rgba(0, 0, 0, 0.3);
- border-radius: 4px;
-}
+        ::-webkit-scrollbar-track {
+          background: rgba(0, 0, 0, 0.3);
+          border-radius: 4px;
+        }
 
- ::-webkit-scrollbar-thumb {
- background: linear-gradient(to bottom, #374151, #111827);
- border-radius: 4px;
- box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
+        ::-webkit-scrollbar-thumb {
+          background: linear-gradient(to bottom, #374151, #111827);
+          border-radius: 4px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
 
- ::-webkit-scrollbar-thumb:hover {
- background: linear-gradient(to bottom, #4b5563, #1f2937);
-}
+        ::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(to bottom, #4b5563, #1f2937);
+        }
 
- /* Glassmorphism effect */
- .glass {
- background: rgba(0, 0, 0, 0.4);
- backdrop-filter: blur(20px);
- border: 1px solid rgba(255, 255, 255, 0.1);
-}
+        /* Glassmorphism effect */
+        .glass {
+          background: rgba(0, 0, 0, 0.4);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
- /* Blur effects */
- .backdrop-blur-xl {
- backdrop-filter: blur(24px);
-}
+        /* Blur effects */
+        .backdrop-blur-xl {
+          backdrop-filter: blur(24px);
+        }
 
- @media (max-width: 768px) {
- .backdrop-blur-xl {
- backdrop-filter: blur(20px);
-}
-}
+        @media (max-width: 768px) {
+          .backdrop-blur-xl {
+            backdrop-filter: blur(20px);
+          }
+        }
 
- @media (max-width: 640px) {
- .space-x-4 > * + * {
- margin-left: 0.75rem;
-}
+        @media (max-width: 640px) {
+          .space-x-4 > * + * {
+            margin-left: 0.75rem;
+          }
 
- .space-x-3 > * + * {
- margin-left: 0.5rem;
-}
-}
+          .space-x-3 > * + * {
+            margin-left: 0.5rem;
+          }
+        }
 
- @media (max-width: 480px) {
- .text-xl {
- font-size: 1.125rem;
-}
+        @media (max-width: 480px) {
+          .text-xl {
+            font-size: 1.125rem;
+          }
 
- .text-sm {
- font-size: 0.8rem;
-}
-}
- `}</style>
-        </div>
-    );
+          .text-sm {
+            font-size: 0.8rem;
+          }
+        }
+      `}</style>
+    </div>
+  );
 };
 
 export default DashboardNebver;

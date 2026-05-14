@@ -310,16 +310,19 @@ const DropshippingCheckoutComponent = () => {
             {/* 2. Shipping Address */}
             <DSCard icon={Truck} title="ডেলিভারি ঠিকানা">
               <div>
-                <label className={dsLabel}>সম্পূর্ণ ঠিকানা *</label>
+                <label className={dsLabel}>কোথায় ডেলিভারি নিতে চান? *</label>
                 <textarea
                   name="address"
                   value={customerInfo.address}
                   onChange={handleInputChange}
-                  placeholder="বাড়ি/ফ্ল্যাট নম্বর, রোড নম্বর, এলাকার নাম"
+                  placeholder="যেমন: বাড়ি নং ১২, রোড ৫, শান্তিবাগ"
                   className={`${dsInput} resize-none`}
                   rows={3}
                 />
               </div>
+              <p className="mt-1 text-sm text-gray-500">
+                সহজে খুঁজে পাওয়ার জন্য বিস্তারিত ঠিকানা লিখুন।
+              </p>
             </DSCard>
 
             {/* 3. Location Selects (DS variant) */}
