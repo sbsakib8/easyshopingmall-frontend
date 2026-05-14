@@ -63,16 +63,14 @@ import CustomLoader from "@/src/compronent/loading/CustomLoader";
 const ProductDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [currentTime, setCurrentTime] = useState(new Date());
   const [spin, setSpin] = useState(false);
   const Router = useRouter();
-  // data
   const [page, setPage] = useState(1);
-
   const isMobile = useMobile();
-
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  // data
+  const currentTime = new Date();
 
   const handleMenuOpen = (event, product) => {
     setAnchorEl(event.currentTarget);
@@ -89,6 +87,7 @@ const ProductDashboard = () => {
     if (action === "view") handleView(selectedProduct);
     if (action === "edit") handleEdit(selectedProduct);
     if (action === "delete") handleDelete(selectedProduct._id);
+    
     handleMenuClose();
   };
 
@@ -266,7 +265,6 @@ const ProductDashboard = () => {
   // console.log("totalRevenue--->",totalRevenue)
 
   // if(loading)return <p>Loading...</p>
-  console.log({ loading: productLoading });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 relative">
@@ -317,7 +315,7 @@ const ProductDashboard = () => {
         </div>
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8">
           {[
             {
               title: "Total Products",
@@ -351,10 +349,10 @@ const ProductDashboard = () => {
               gradient: "from-amber-500 via-orange-500 to-red-500",
               bgGradient: "from-amber-500/10 to-red-500/10",
             },
-          ].map((card, index) => (
+          ].map((card) => (
             <div
               key={card?.title}
-              className={`group relative bg-gradient-to-br ${card?.bgGradient} backdrop-blur-xl p-6 rounded-3xl border border-gray-700/30 shadow-xl overflow-hidden`}
+              className={`group relative bg-gradient-to-br ${card?.bgGradient} backdrop-blur-xl p-4 rounded-3xl border border-gray-700/30 shadow-xl overflow-hidden`}
             >
               <div
                 className={`absolute inset-0 bg-gradient-to-r ${card?.gradient} opacity-0 group-hover:opacity-10 rounded-3xl`}
