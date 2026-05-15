@@ -2,12 +2,63 @@
 
 import Container from "@/src/compronent/shared/Container";
 import { useGetSubcategory } from "@/src/utlis/useSubcategory";
-import { Star } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { useSelector } from "react-redux";
+
+export const CategoryCard = ({ image, name, path, idx }) => {
+  const { push } = useRouter();
+
+  return (
+    <div
+      className="group flex-shrink-0 flex flex-col bg-white rounded-3xl shadow-md hover:shadow-2xl 
+                         transition-all duration-500 overflow-hidden relative cursor-pointer
+                         hover:-translate-y-3 active:scale-[0.97] animate-fade-up"
+      style={{ animationDelay: `${idx * 50}ms` }}
+      onClick={() => push(path)}
+    >
+      {/* Image Container */}
+      <div className="relative h-32 sm:h-40 overflow-hidden">
+        <Image
+          src={image || "/placeholder.png"}
+          alt={name}
+          width={200}
+          height={170}
+          loading="lazy"
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      </div>
+
+      {/* Content */}
+      <div className="p-4 sm:p-5 text-center flex-grow flex flex-col">
+        <h3 className="text-base sm:text-lg font-bold text-gray-800 line-clamp-2 group-hover:text-emerald-700 transition-colors duration-300">
+          {name}
+        </h3>
+
+        <div className="mt-auto pt-2">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              push(path);
+            }}
+            className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 
+                               hover:from-emerald-700 hover:to-teal-700
+                               text-white py-2.5 rounded-2xl text-sm font-semibold
+                               transition-all duration-300 active:scale-95 shadow-md cursor-pointer"
+          >
+            Explore Now
+          </button>
+        </div>
+      </div>
+
+      {/* Shine Effect */}
+      <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-10  bg-gradient-to-r from-transparent via-white to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+    </div>
+  );
+};
 
 const AllProducts = () => {
   const { subcategory, loading } = useGetSubcategory();
@@ -84,62 +135,13 @@ const AllProducts = () => {
                 {/* Responsive Grid */}
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
                   {group.items.map((cat, idx) => (
-                    <div
+                    <CategoryCard
                       key={cat?._id}
-                      className="group flex-shrink-0 flex flex-col bg-white rounded-3xl shadow-md hover:shadow-2xl 
-                         transition-all duration-500 overflow-hidden relative cursor-pointer
-                         hover:-translate-y-3 active:scale-[0.97] animate-fade-up"
-                      style={{ animationDelay: `${idx * 50}ms` }}
-                      onClick={() =>
-                        push(`/sub-category/${cat?._id}?pageType=all-products`)
-                      }
-                    >
-                      {/* Image Container */}
-                      <div className="relative h-32 sm:h-40 overflow-hidden">
-                        <Image
-                          src={cat?.image || "/placeholder.png"}
-                          alt={cat?.name}
-                          width={200}
-                          height={170}
-                          loading="lazy"
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      </div>
-
-                      {/* Content */}
-                      <div className="p-4 sm:p-5 text-center flex-grow flex flex-col">
-                        <h3 className="text-base sm:text-lg font-bold text-gray-800 line-clamp-2 group-hover:text-emerald-700 transition-colors duration-300">
-                          {cat?.name}
-                        </h3>
-
-                        <div className="mt-auto pt-2">
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation(); // Prevent double navigation
-                              push(
-                                `/sub-category/${cat?._id}?pageType=all-products`,
-                              );
-                            }}
-                            className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 
-                               hover:from-emerald-700 hover:to-teal-700
-                               text-white py-2.5 rounded-2xl text-sm font-semibold
-                               transition-all duration-300 active:scale-95 shadow-md cursor-pointer"
-                          >
-                            Explore Now
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Shine Effect */}
-                      <div
-                        className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-10 
-                              bg-gradient-to-r from-transparent via-white to-transparent 
-                              -skew-x-12 -translate-x-full group-hover:translate-x-full 
-                              transition-transform duration-700"
-                      />
-                    </div>
+                      idx={idx}
+                      name={cat?.name || ""}
+                      path={`/sub-category/${cat?._id}?pageType=all-products`}
+                      image={cat?.image || "/placeholder.png"}
+                    />
                   ))}
                 </div>
               </div>
