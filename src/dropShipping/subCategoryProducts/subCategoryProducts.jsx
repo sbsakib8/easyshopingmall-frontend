@@ -278,33 +278,37 @@ const ProductCard = React.memo(
   },
 );
 
-const EmptyProducts = () => (
-  <div className="flex flex-col items-center justify-center bg-slate-50/50 backdrop-blur-xl rounded-[3rem] border border-slate-100 shadow-sm min-h-[50vh]">
-    <div className="mb-8 relative">
-      <div className="bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100 flex items-center justify-center">
-        <Search className="w-12 h-12 text-slate-300" />
-        <Sparkles className="absolute -top-2 -right-2 w-8 h-8 text-yellow-400 animate-pulse" />
+const EmptyProducts = () => {
+  const router = useRouter();
+
+  return (
+    <div className="flex flex-col items-center justify-center bg-slate-50/50 backdrop-blur-xl rounded-[3rem] border border-slate-100 shadow-sm min-h-[50vh]">
+      <div className="mb-8 relative">
+        <div className="bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100 flex items-center justify-center">
+          <Search className="w-12 h-12 text-slate-300" />
+          <Sparkles className="absolute -top-2 -right-2 w-8 h-8 text-yellow-400 animate-pulse" />
+        </div>
       </div>
-    </div>
 
-    <div className="text-center space-y-3 max-w-sm">
-      <h3 className="text-2xl font-black text-slate-800 tracking-tight">
-        No Products Found
-      </h3>
-      <p className="text-slate-500 text-sm font-medium leading-relaxed">
-        We couldn't find any products in this category. New items are arriving
-        soon!
-      </p>
-    </div>
+      <div className="text-center space-y-3 max-w-sm">
+        <h3 className="text-2xl font-black text-slate-800 tracking-tight">
+          No Products Found
+        </h3>
+        <p className="text-slate-500 text-sm font-medium leading-relaxed">
+          We couldn't find any products in this category. New items are arriving
+          soon!
+        </p>
+      </div>
 
-    <button
-      onClick={() => router.push("/all-products")}
-      className="mt-8 px-8 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl font-black shadow-md hover:shadow-lg transition-all"
-    >
-      Explore All Products
-    </button>
-  </div>
-);
+      <button
+        onClick={() => router.push("/all-products")}
+        className="mt-8 px-8 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl font-black shadow-md hover:shadow-lg transition-all"
+      >
+        Explore All Products
+      </button>
+    </div>
+  );
+};
 
 const SubCategoryProductsContent = ({ id }) => {
   const params = useSearchParams();
