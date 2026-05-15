@@ -133,20 +133,33 @@
   animation-play-state: paused;
 }
 
+button {
+  @apply cursor-pointer;
+}
+
 button:disabled,
 input:disabled {
   @apply cursor-not-allowed;
 }
 
-
 @keyframes float {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-25px) rotate(5deg); }
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-25px) rotate(5deg);
+  }
 }
 
 @keyframes floatDelay {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-35px) rotate(-3deg); }
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-35px) rotate(-3deg);
+  }
 }
 
 .animate-float {
@@ -167,4 +180,8 @@ input:disabled {
 
 .animate-pulse-slower {
   animation: pulse 22s ease-in-out infinite;
+}
+
+html {
+  @apply scroll-smooth;
 }
