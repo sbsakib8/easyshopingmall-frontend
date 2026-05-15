@@ -266,7 +266,7 @@ const ProductCard = React.memo(
                 handleAddToCart();
               }}
               disabled={product.productStock < 1}
-              className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:from-slate-300 disabled:to-slate-400 text-white py-2.5 rounded-2xl font-medium md:font-bold text-sm tracking-wider flex items-center justify-center gap-2 shadow-md active:scale-[0.97] transition-all"
+              className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:from-slate-300 disabled:to-slate-400 text-white py-2.5 rounded-2xl font-medium md:font-semibold text-sm tracking-wider flex items-center justify-center gap-2 shadow-md active:scale-[0.97] transition-all"
             >
               <ShoppingCart className="w-4 h-4 hidden sm:block" />
               ADD TO CART

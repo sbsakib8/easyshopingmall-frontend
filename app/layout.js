@@ -81,10 +81,12 @@ export default async function RootLayout({ children }) {
   const websiteInfo = await getWebsiteInfoApi();
 
   return (
-    <html lang="en">
+    <html lang="en" data-scroll-behavior="smooth">
       <body className={`${lato.variable} ${roboto.variable} antialiased`}>
         <Providers>
-          <LayoutWrapper initialWebsiteInfo={websiteInfo}>{children}</LayoutWrapper>
+          <LayoutWrapper initialWebsiteInfo={websiteInfo}>
+            {children}
+          </LayoutWrapper>
         </Providers>
         <ToasterClient />
         <GoogleAnalytics gaId="G-5MQNQRZC5T" />
