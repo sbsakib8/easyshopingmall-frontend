@@ -1,12 +1,13 @@
 "use client";
 
 import { useGetSubcategory } from "@/src/utlis/useSubcategory";
-import Image from "next/image";
-import Link from "next/link";
 import React from "react";
 import { useSelector } from "react-redux";
 import Container from "@/src/compronent/shared/Container";
-import { CategoryCard } from "@/src/dropShipping/allProducts/allProducts";
+import {
+  CategoryCard,
+  CategorySkeleton,
+} from "@/src/dropShipping/allProducts/allProducts";
 
 const NewProducts = () => {
   const { subcategory, loading } = useGetSubcategory();
@@ -54,27 +55,47 @@ const NewProducts = () => {
           </div>
 
           <Container className="relative z-10 space-y-16 md:space-y-20 py-0">
-            {groupedCategories.map((group, index) => (
-              <div key={index}>
-                {/* Section Title */}
-                <h1 className="text-center font-black px-4 py-4 text-xl sm:text-2xl md:text-3xl lg:text-4xl mb-6 sm:mb-8 text-emerald-800 uppercase tracking-wider sm:tracking-widest break-words animate-fade-up">
-                  {group.title}
-                </h1>
+            {loading ? (
+              <>
+                {[...Array(2)].map((_, groupIndex) => (
+                  <div key={groupIndex}>
+                    {/* Title Skeleton */}
+                    <div className="flex justify-center mb-8">
+                      <div className="h-9 sm:h-10 md:h-12 w-80 bg-slate-200 rounded-2xl animate-pulse" />
+                    </div>
 
-                {/* Responsive Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
-                  {group.items?.map((cat, idx) => (
-                    <CategoryCard
-                      key={cat?._id}
-                      idx={idx}
-                      name={cat?.name || ""}
-                      path={`/sub-category/${cat?._id}?pageType=new-products`}
-                      image={cat?.image || "/placeholder.png"}
-                    />
-                  ))}
+                    {/* Grid Skeleton */}
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
+                      {[...Array(6)].map((_, idx) => (
+                        <CategorySkeleton key={idx} idx={idx} />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </>
+            ) : (
+              groupedCategories.map((group, index) => (
+                <div key={index}>
+                  {/* Section Title */}
+                  <h1 className="text-center font-black px-4 py-4 text-xl sm:text-2xl md:text-3xl lg:text-4xl mb-6 sm:mb-8 text-emerald-800 uppercase tracking-wider sm:tracking-widest break-words animate-fade-up">
+                    {group.title}
+                  </h1>
+
+                  {/* Responsive Grid */}
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
+                    {group.items?.map((cat, idx) => (
+                      <CategoryCard
+                        key={cat?._id}
+                        idx={idx}
+                        name={cat?.name || ""}
+                        path={`/sub-category/${cat?._id}?pageType=new-products`}
+                        image={cat?.image || "/placeholder.png"}
+                      />
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </Container>
         </section>
       )}
