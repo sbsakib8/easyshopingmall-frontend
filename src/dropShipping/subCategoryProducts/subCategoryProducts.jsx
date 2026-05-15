@@ -61,24 +61,42 @@ const ProductCard = React.memo(
   ({
     product,
     viewMode,
-    toggleWishlist,
     wishlist,
-    router,
     dispatch,
     dsCartItems,
     user,
+    wishlistLoading,
   }) => {
+    const router = useRouter();
+
     if (!product) return null;
 
+    // Optimized Wishlist Check
     const isWishlisted = useMemo(() => {
       return (wishlist || []).some(
-        (item) => item.id === product._id || item._id === product._id,
+        (item) => item?._id === product._id || item?.id === product._id,
       );
     }, [wishlist, product._id]);
 
-    const handleAddToCart = (e) => {
-      e.stopPropagation();
+    const ratingValue = useMemo(() => {
+      return Number(product.rating || product.ratings || 0);
+    }, [product.rating, product.ratings]);
 
+    const renderStars = useCallback((rating) => {
+      return [...Array(5)].map((_, i) => (
+        <Star
+          key={i}
+          className={`w-3 h-3 sm:w-4 sm:h-4 ${
+            i < Math.floor(rating)
+              ? "text-yellow-400 fill-current"
+              : "text-gray-300"
+          }`}
+        />
+      ));
+    }, []);
+
+    // Optimized Add to Cart
+    const handleAddToCart = useCallback(() => {
       if (!user?._id) {
         toast.error("Please login to add to cart");
         return;
@@ -95,21 +113,28 @@ const ProductCard = React.memo(
       );
 
       toast.success("Added to dropshipping cart");
-    };
+    }, [user?._id, dispatch, product]);
 
-    const ratingValue = Number(product.rating || product.ratings || 0);
-    const renderStars = (rating) => {
-      return [...Array(5)].map((_, i) => (
-        <Star
-          key={i}
-          className={`w-3 h-3 sm:w-4 sm:h-4 ${
-            i < Math.floor(rating)
-              ? "text-yellow-400 fill-current"
-              : "text-gray-300"
-          }`}
-        />
-      ));
-    };
+    // Optimized Wishlist Toggle
+    const toggleWishlist = useCallback(async () => {
+      if (!user?._id) {
+        toast.error("Please sign in to add to wishlist");
+        return;
+      }
+
+      try {
+        if (isWishlisted) {
+          await removeFromWishlistApi(product._id, dispatch);
+          toast.success("Removed from wishlist");
+        } else {
+          await addToWishlistApi(product._id, dispatch);
+          toast.success("Added to wishlist");
+        }
+      } catch (err) {
+        console.error("Wishlist toggle error:", err);
+        toast.error("Failed to update wishlist");
+      }
+    }, [isWishlisted, user?._id, product._id, dispatch]);
 
     return (
       <div
@@ -169,14 +194,23 @@ const ProductCard = React.memo(
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                toggleWishlist(product);
+                toggleWishlist();
               }}
+              disabled={wishlistLoading}
+              aria-busy={wishlistLoading}
+              aria-disabled={wishlistLoading}
               className={`shadow-md p-2 rounded-xl transition-all active:scale-90 ${
                 isWishlisted
                   ? "bg-red-50 text-red-500"
                   : "bg-white/95 hover:bg-white text-slate-700 hover:text-red-500"
               }`}
-              title={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
+              title={
+                wishlistLoading
+                  ? "Loading..."
+                  : isWishlisted
+                    ? "Remove from Wishlist"
+                    : "Add to Wishlist"
+              }
             >
               <Heart
                 className={`w-4 h-4 transition-all ${isWishlisted ? "fill-current" : ""}`}
@@ -273,16 +307,13 @@ const EmptyProducts = () => (
 );
 
 const SubCategoryProductsContent = ({ id }) => {
-  const router = useRouter();
   const params = useSearchParams();
   const pageType = params.get("pageType");
   const dispatch = useDispatch();
-
   const viewMode = useSelector((state) => state.shop.viewMode);
   const dsCartItems = useSelector((state) => state.dropshippingCart.items);
   const user = useSelector((state) => state.user?.data);
-  const { wishlist } = useWishlist();
-
+  const { wishlist, loading: wishlistLoading } = useWishlist();
   const [page, setPage] = useState(1);
   const limit = 30;
 
@@ -320,33 +351,6 @@ const SubCategoryProductsContent = ({ id }) => {
   }, [products, pageType]);
 
   const totalPages = Math.ceil((totalCount || 0) / limit);
-
-  const toggleWishlist = useCallback(
-    async (product) => {
-      if (!user?._id) {
-        toast.error("Please sign in to add to wishlist");
-        return;
-      }
-
-      try {
-        const exists = (wishlist || []).some(
-          (i) => i.id === product._id || i._id === product._id,
-        );
-
-        if (exists) {
-          await removeFromWishlistApi(product._id, dispatch);
-          toast.success("Removed from wishlist");
-        } else {
-          await addToWishlistApi(product._id, dispatch);
-          toast.success("Added to wishlist");
-        }
-      } catch (err) {
-        console.error("Wishlist toggle error:", err);
-        toast.error("Failed to update wishlist");
-      }
-    },
-    [wishlist, dispatch, user?._id],
-  );
 
   const pageNumbers = useMemo(() => {
     const pages = [];
@@ -410,9 +414,8 @@ const SubCategoryProductsContent = ({ id }) => {
                   key={product._id}
                   viewMode={viewMode}
                   product={product}
-                  toggleWishlist={toggleWishlist}
                   wishlist={wishlist}
-                  router={router}
+                  wishlistLoading={wishlistLoading}
                   dispatch={dispatch}
                   dsCartItems={dsCartItems}
                   user={user}
