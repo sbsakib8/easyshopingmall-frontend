@@ -1,13 +1,13 @@
-import SubCategoryProducts from'@/src/dropShipping/subCategoryProducts/subCategoryProducts';
+import SubCategoryProducts from "@/src/dropShipping/subCategoryProducts/subCategoryProducts";
 
-const subcategory = async(props) => {
- const params = await props.params;
- const {id} = params;
- return (
- <div>
- <SubCategoryProducts id={id}/>
- </div>
- );
+const SubCategoryPage = async ({ params }) => {
+  const { id } = await params;
+
+  return (
+    <>
+      <SubCategoryProducts id={id} />
+    </>
+  );
 };
 
-export default subcategory;
+export default SubCategoryPage;

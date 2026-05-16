@@ -58,6 +58,8 @@ export const addToWishlistApi = async (productId, dispatch) => {
             { productId },
             { withCredentials: true }
         );
+        
+        await getWishlistApi(dispatch);
         dispatch(wishlistAdd(response.data.data));
     } catch (error) {
         console.error("Add wishlist error:", error.response?.data || error.message);

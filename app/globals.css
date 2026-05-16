@@ -133,7 +133,55 @@
   animation-play-state: paused;
 }
 
+button {
+  @apply cursor-pointer;
+}
+
 button:disabled,
 input:disabled {
   @apply cursor-not-allowed;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-25px) rotate(5deg);
+  }
+}
+
+@keyframes floatDelay {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-35px) rotate(-3deg);
+  }
+}
+
+.animate-float {
+  animation: float 25s ease-in-out infinite;
+}
+
+.animate-float-delay {
+  animation: floatDelay 28s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: float 35s ease-in-out infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse 15s ease-in-out infinite;
+}
+
+.animate-pulse-slower {
+  animation: pulse 22s ease-in-out infinite;
+}
+
+html {
+  @apply scroll-smooth;
 }
