@@ -1,124 +1,106 @@
 "use client";
-import { useGetSubcategory } from '@/src/utlis/useSubcategory';
-import Image from 'next/image';
-import Link from 'next/link';
-import React from 'react';
-import { useSelector } from 'react-redux';
+
+import { useGetSubcategory } from "@/src/utlis/useSubcategory";
+import React from "react";
+import { useSelector } from "react-redux";
+import Container from "@/src/compronent/shared/Container";
+import {
+  CategoryCard,
+  CategorySkeleton,
+} from "@/src/dropShipping/allProducts/allProducts";
 
 const NewProducts = () => {
-    const { subcategory, loading } = useGetSubcategory();
-    const user = useSelector((state) => state.user.data);
-    const menCategory = subcategory?.filter(
-        cat => cat?.category?.name === "Men's Fashion"
-    );
-    const womenCategory = subcategory?.filter(
-        cat => cat?.category?.name === "Women’s Fashion"
-    );
-    const childrenCategory = subcategory?.filter(
-        cat => cat?.category?.name === "Children Fashion"
-    );
+  const { subcategory, loading } = useGetSubcategory();
+  const user = useSelector((state) => state.user.data);
+  const menCategory = subcategory?.filter(
+    (cat) => cat?.category?.name === "Men's Fashion",
+  );
+  const womenCategory = subcategory?.filter(
+    (cat) => cat?.category?.name === "Women’s Fashion",
+  );
+  const childrenCategory = subcategory?.filter(
+    (cat) => cat?.category?.name === "Children Fashion",
+  );
 
-    return (<>
-        {(user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) &&
-            <div className="container space-y-16 mb-10">
-                {/* Men's Products */}
-                <div className="flex flex-col justify-center items-center">
-                    <h1 className="text-center font-black px-2 py-3 text-3xl mb-8 text-emerald-800 uppercase tracking-widest">
-                        ছেলেদের পণ্য — Men's Fashion
-                    </h1>
+  const groupedCategories = [
+    {
+      title: "ছেলেদের পণ্য — Men's Fashion",
+      items: menCategory,
+    },
+    {
+      title: "মেয়েদের পণ্য — Women's Fashion",
+      items: womenCategory,
+    },
+    {
+      title: "বাচ্চাদের পণ্য — Children's Fashion",
+      items: childrenCategory,
+    },
+  ];
 
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                        {/* 🔹 ACTUAL DATA */}
-                        {
-                            menCategory?.map(cat => (
-                                <Link
-                                    key={cat?._id}
-                                    href={`/sub-category/${cat?._id}?pageType=new-products`}
-                                    className="group shadow-md hover:shadow-xl hover:shadow-emerald-500/10 rounded-[2rem] px-4 py-5 bg-white border-2 border-transparent hover:border-emerald-500 transition-all duration-300 flex flex-col items-center"
-                                >
-                                    <div className="w-full h-48 rounded-2xl overflow-hidden mb-6">
-                                        <Image
-                                            src={cat?.image}
-                                            alt={cat?.name}
-                                            width={300}
-                                            height={300}
-                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                        />
-                                    </div>
-                                    <h2 className="text-center text-xl font-black text-slate-800 group-hover:text-emerald-600 transition-colors">
-                                        {cat?.name}
-                                    </h2>
-                                </Link>
-                            ))}
+  return (
+    <>
+      {(user?.role === "DROPSHIPPING" ||
+        user?.roles?.includes("DROPSHIPPING")) && (
+        <section className="relative py-12 md:py-16 lg:py-20 overflow-hidden">
+          {/* Animated Background */}
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-white to-teal-50">
+            {/* Animated Gradient Layers */}
+            <div className="absolute inset-0 bg-[radial-gradient(at_30%_20%,rgba(16,185,129,0.15)_0%,transparent_50%)] animate-pulse-slow"></div>
+            <div className="absolute inset-0 bg-[radial-gradient(at_70%_60%,rgba(45,212,191,0.15)_0%,transparent_50%)] animate-pulse-slower"></div>
+
+            {/* Subtle Moving Orbs */}
+            <div className="absolute top-10 left-10 w-72 h-72 bg-emerald-200 rounded-full mix-blend-soft-light filter blur-3xl opacity-30 animate-float"></div>
+            <div className="absolute bottom-20 right-20 w-96 h-96 bg-teal-200 rounded-full mix-blend-soft-light filter blur-3xl opacity-30 animate-float-delay"></div>
+            <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-cyan-200 rounded-full mix-blend-soft-light filter blur-3xl opacity-20 animate-float-slow"></div>
+          </div>
+
+          <Container className="relative z-10 space-y-16 md:space-y-20 py-0">
+            {loading ? (
+              <>
+                {[...Array(2)].map((_, groupIndex) => (
+                  <div key={groupIndex}>
+                    {/* Title Skeleton */}
+                    <div className="flex justify-center mb-8">
+                      <div className="h-9 sm:h-10 md:h-12 w-80 bg-slate-200 rounded-2xl animate-pulse" />
                     </div>
-                </div>
 
-                {/* Women's Products */}
-                <div className="flex flex-col justify-center items-center">
-                    <h1 className="text-center font-black px-2 py-3 text-3xl mb-8 text-emerald-800 uppercase tracking-widest">
-                        মেয়েদের পণ্য — Women's Fashion
-                    </h1>
-
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                        {/* 🔹 ACTUAL DATA */}
-                        {
-                            womenCategory?.map(cat => (
-                                <Link
-                                    key={cat?._id}
-                                    href={`/sub-category/${cat?._id}?pageType=new-products`}
-                                    className="group shadow-md hover:shadow-xl hover:shadow-emerald-500/10 rounded-[2rem] px-4 py-5 bg-white border-2 border-transparent hover:border-emerald-500 transition-all duration-300 flex flex-col items-center"
-                                >
-                                    <div className="w-full h-48 rounded-2xl overflow-hidden mb-6">
-                                        <Image
-                                            src={cat?.image}
-                                            alt={cat?.name}
-                                            width={300}
-                                            height={300}
-                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                        />
-                                    </div>
-                                    <h2 className="text-center text-xl font-black text-slate-800 group-hover:text-emerald-600 transition-colors">
-                                        {cat?.name}
-                                    </h2>
-                                </Link>
-                            ))}
+                    {/* Grid Skeleton */}
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
+                      {[...Array(6)].map((_, idx) => (
+                        <CategorySkeleton key={idx} idx={idx} />
+                      ))}
                     </div>
-                </div>
+                  </div>
+                ))}
+              </>
+            ) : (
+              groupedCategories.map((group, index) => (
+                <div key={index}>
+                  {/* Section Title */}
+                  <h1 className="text-center font-black px-4 py-4 text-xl sm:text-2xl md:text-3xl lg:text-4xl mb-6 sm:mb-8 text-emerald-800 uppercase tracking-wider sm:tracking-widest break-words animate-fade-up">
+                    {group.title}
+                  </h1>
 
-                {/* Children's Products */}
-                <div className="flex flex-col justify-center items-center">
-                    <h1 className="text-center font-black px-2 py-3 text-3xl mb-8 text-emerald-800 uppercase tracking-widest">
-                        বাচ্চাদের পণ্য — Children's Fashion
-                    </h1>
-
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                        {/* 🔹 ACTUAL DATA */}
-                        {
-                            childrenCategory?.map(cat => (
-                                <Link
-                                    key={cat?._id}
-                                    href={`/sub-category/${cat?._id}?pageType=new-products`}
-                                    className="group shadow-md hover:shadow-xl hover:shadow-emerald-500/10 rounded-[2rem] px-4 py-5 bg-white border-2 border-transparent hover:border-emerald-500 transition-all duration-300 flex flex-col items-center"
-                                >
-                                    <div className="w-full h-48 rounded-2xl overflow-hidden mb-6">
-                                        <Image
-                                            src={cat?.image}
-                                            alt={cat?.name}
-                                            width={300}
-                                            height={300}
-                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                        />
-                                    </div>
-                                    <h2 className="text-center text-xl font-black text-slate-800 group-hover:text-emerald-600 transition-colors">
-                                        {cat?.name}
-                                    </h2>
-                                </Link>
-                            ))}
-                    </div>
+                  {/* Responsive Grid */}
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
+                    {group.items?.map((cat, idx) => (
+                      <CategoryCard
+                        key={cat?._id}
+                        idx={idx}
+                        name={cat?.name || ""}
+                        path={`/sub-category/${cat?._id}?pageType=new-products`}
+                        image={cat?.image || "/placeholder.png"}
+                      />
+                    ))}
+                  </div>
                 </div>
-            </div>}
+              ))
+            )}
+          </Container>
+        </section>
+      )}
     </>
-    );
+  );
 };
 
 export default NewProducts;
