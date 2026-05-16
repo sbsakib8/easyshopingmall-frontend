@@ -1,11 +1,22 @@
 "use client";
 import React, { useState } from "react";
 import { useOrderDetails } from "@/src/utlis/useOrderDetails";
-import { Loader2, AlertCircle } from "lucide-react";
+
+import {
+  Loader2,
+  AlertCircle,
+  Truck,
+  CreditCard,
+  Wallet,
+  ArrowRight,
+} from "lucide-react";
 import Link from "next/link";
 import PaymentModal from "./PaymentModal";
 
 import { useDispatch, useSelector } from "react-redux";
+import Container from "@/src/compronent/shared/Container";
+import { cn } from "@/src/utlis/utils";
+import Image from "next/image";
 
 const OrderDetails = ({ id }) => {
   const { order, loading, error, refetch } = useOrderDetails(id);
@@ -62,395 +73,345 @@ const OrderDetails = ({ id }) => {
   const displayBrandLogo = user?.shopLogo;
 
   return (
-    <div className="min-h-screen bg-bg py-10 px-4 md:px-0">
-      {/* Payment Prompt Section (Only if pending and not yet paid) */}
-      {(order.order_status === "pending" ||
-        order.order_status === "processing") &&
-        order.payment_status !== "paid" &&
-        order.payment_status !== "submitted" && (
-          <div className="max-w-2xl mx-auto mt-6 bg-accent-content shadow-sm rounded-[2rem] overflow-hidden border border-slate-100 p-8 text-center space-y-6">
-            <p className="text-emerald-700 font-black text-xl md:text-2xl tracking-tighter">
-              অর্ডার টি অ্যাপ্রুভ করতে ডেলিভারি চার্জ পে করুন।
-            </p>
+    <section className="min-h-screen bg-bg py-10 px-4 md:px-0">
+      <Container>
+        {/* Payment Prompt Section (Only if pending and not yet paid) */}
+        {(order.order_status === "pending" ||
+          order.order_status === "processing") &&
+          order.payment_status !== "paid" &&
+          order.payment_status !== "submitted" && (
+            <div className="max-w-2xl mx-auto mt-6 bg-white shadow-xl rounded-[2.5rem] overflow-hidden border border-slate-100 p-8 md:p-10 text-center space-y-8 relative">
+              {/* Background Accent */}
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/50 to-teal-50/30 pointer-events-none" />
 
-            <div className="flex justify-center">
-              <button
-                onClick={() => handleOpenPayment("delivery")}
-                className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-90 text-white font-black py-4 px-10 rounded-2xl flex items-center gap-2 transform transition hover:scale-105 shadow-xl shadow-emerald-500/20"
-              >
-                ডেলিভারি চার্জ পেমেন্ট করুন <span className="text-xl">»</span>
-              </button>
+              <div className="relative space-y-8">
+                {/* Main Message */}
+                <div className="space-y-3">
+                  <div className="mx-auto w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center">
+                    <Truck className="w-9 h-9 text-emerald-600" />
+                  </div>
+                  <h1 className="text-emerald-800 font-black text-xl sm:text-2xl md:text-3xl leading-tight tracking-tight">
+                    অর্ডার টি অ্যাপ্রুভ করতে <br className="hidden sm:block" />
+                    ডেলিভারি চার্জ পে করুন
+                  </h1>
+                </div>
+
+                {/* Primary Action Button */}
+                <button
+                  onClick={() => handleOpenPayment("delivery")}
+                  className="w-full bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white font-semibold py-3 px-4 sm:py-5 sm:px-8 rounded-3xl text-lg shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:-translate-y-1 active:scale-[0.985] transition-all duration-300 flex items-center justify-center gap-3 group"
+                >
+                  <Truck className="w-6 h-6 group-hover:rotate-12 transition-transform hidden sm:inline-block" />
+                  <p>
+                    <span className="hidden sm:inline-block mr-0.5">
+                      ডেলিভারি চার্জ
+                    </span>
+                    পেমেন্ট করুন
+                  </p>
+                  <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+                </button>
+
+                {/* Divider */}
+                <div className="flex items-center gap-4">
+                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+                  <p className="text-slate-400 font-black text-sm uppercase tracking-[3px]">
+                    অথবা
+                  </p>
+                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+                </div>
+
+                {/* Secondary Options */}
+                <div className="flex flex-wrap items-center justify-evenly gap-2">
+                  {[
+                    {
+                      type: "full",
+                      label: "ফুল পেমেন্ট করুন",
+                      icon: CreditCard,
+                    },
+                    {
+                      type: "delivery",
+                      label: "আংশিক পেমেন্ট করুন",
+                      icon: Truck,
+                    },
+                  ].map(({ type, label, icon: Icon }) => (
+                    <button
+                      key={type}
+                      onClick={() => handleOpenPayment(type)}
+                      className={cn(
+                        "group bg-white hover:bg-emerald-50 border-2 border-slate-200 hover:border-emerald-200 py-3 px-4 sm:py-5 sm:px-6 rounded-3xl font-bold text-emerald-800 transition-all duration-300 hover:-translate-y-1 flex items-center justify-center gap-3 active:scale-[0.98]",
+                      )}
+                    >
+                      <Icon
+                        className={`w-5 h-5 hidden sm:inline-block transition-transform group-hover:scale-110`}
+                      />
+                      <span>{label}</span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* App Balance Note */}
+                <div className="bg-emerald-50 border border-emerald-100 rounded-2xl py-3 px-4 sm:py-4 sm:px-6">
+                  <p className="flex items-center justify-center gap-2 text-emerald-700 font-bold text-xs  sm:text-sm">
+                    <Wallet className="w-5 h-5 hidden sm:inline-block" />
+                    অ্যাপস এর ব্যালান্স থেকেও পেমেন্ট করতে পারবেন
+                  </p>
+                </div>
+              </div>
             </div>
+          )}
 
-            <p className="text-slate-400 font-black text-xs uppercase tracking-widest">
-              অথবা
-            </p>
-
-            <div className="flex flex-col md:flex-row justify-center gap-4">
-              <button
-                onClick={() => handleOpenPayment("full")}
-                className="bg-slate-50 hover:bg-emerald-50 text-emerald-900 border border-slate-100 font-black py-4 px-6 rounded-2xl flex items-center justify-center gap-2 transform transition hover:translate-y-[-2px] flex-1"
-              >
-                ফুল পেমেন্ট করুন <span className="text-xl">»</span>
-              </button>
-              <button
-                onClick={() => handleOpenPayment("delivery")}
-                className="bg-slate-50 hover:bg-emerald-50 text-emerald-900 border border-slate-100 font-black py-4 px-6 rounded-2xl flex items-center justify-center gap-2 transform transition hover:translate-y-[-2px] flex-1"
-              >
-                আংশিক পেমেন্ট করুন <span className="text-xl">»</span>
-              </button>
+        {/* Payment Submitted Message */}
+        {order.payment_status === "submitted" && (
+          <div className="max-w-2xl mx-auto mt-6 bg-amber-50 shadow-sm rounded-[2rem] overflow-hidden border border-amber-100 p-8 text-center space-y-4">
+            <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto">
+              <Loader2 className="w-6 h-6 text-amber-600 animate-spin" />
             </div>
-
-            <p className="text-emerald-700 font-bold text-sm bg-emerald-50 py-3 rounded-xl">
-              অ্যাপস এর ব্যালান্স থেকেও পেমেন্ট করতে পারবেন।
+            <p className="text-amber-800 font-black text-lg tracking-tight">
+              আপনার পেমেন্ট তথ্য জমা দেওয়া হয়েছে।
+            </p>
+            <p className="text-amber-700 text-sm font-medium">
+              অ্যাডমিন আপনার পেমেন্ট ভেরিফাই করার পর অর্ডার টি অ্যাপ্রুভ করা
+              হবে। অনুগ্রহ করে অপেক্ষা করুন।
             </p>
           </div>
         )}
 
-      {/* Payment Submitted Message */}
-      {order.payment_status === "submitted" && (
-        <div className="max-w-2xl mx-auto mt-6 bg-amber-50 shadow-sm rounded-[2rem] overflow-hidden border border-amber-100 p-8 text-center space-y-4">
-          <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto">
-            <Loader2 className="w-6 h-6 text-amber-600 animate-spin" />
-          </div>
-          <p className="text-amber-800 font-black text-lg tracking-tight">
-            আপনার পেমেন্ট তথ্য জমা দেওয়া হয়েছে।
-          </p>
-          <p className="text-amber-700 text-sm font-medium">
-            অ্যাডমিন আপনার পেমেন্ট ভেরিফাই করার পর অর্ডার টি অ্যাপ্রুভ করা হবে।
-            অনুগ্রহ করে অপেক্ষা করুন।
-          </p>
-        </div>
-      )}
+        {isPaymentModalOpen && (
+          <PaymentModal
+            order={order}
+            paymentType={selectedPaymentType}
+            onClose={() => setIsPaymentModalOpen(false)}
+            onSuccess={refetch}
+          />
+        )}
 
-      {isPaymentModalOpen && (
-        <PaymentModal
-          order={order}
-          paymentType={selectedPaymentType}
-          onClose={() => setIsPaymentModalOpen(false)}
-          onSuccess={refetch}
-        />
-      )}
-
-      <div className="max-w-2xl mx-auto bg-white shadow-xl shadow-slate-200/50 rounded-[3rem] overflow-hidden border border-slate-100 mt-8">
-        {/* Header section */}
-        <div className="text-center py-10">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <span
-              className={`w-3 h-3 rounded-full ${order.order_status === "completed" ? "bg-emerald-500" : "bg-amber-500"} animate-pulse`}
-            ></span>
-            <h2 className="text-slate-400 uppercase tracking-[0.3em] text-[10px] font-black">
-              {order.order_status} INVOICE
-            </h2>
-          </div>
-
-          {/* Brand Logo */}
-          <div className="flex justify-center mb-6">
-            {displayBrandLogo ? (
-              <div className="w-24 h-24 rounded-[2rem] overflow-hidden shadow-2xl shadow-emerald-500/30 border-4 border-white">
-                <img
-                  src={displayBrandLogo}
-                  alt={displayBrandName}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            ) : (
-              <div className="w-20 h-20 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-[2rem] flex items-center justify-center shadow-2xl shadow-emerald-500/30 transform rotate-6 hover:rotate-0 transition-all duration-500">
-                <span className="text-white text-4xl font-black italic">E</span>
-              </div>
-            )}
-          </div>
-
-          <h1 className="text-3xl font-black text-slate-900 mb-1 tracking-tighter">
-            {displayBrandName}
-          </h1>
-          <p className="text-slate-400 text-sm font-medium">
-            Your trusted dropshipping partner
-          </p>
-        </div>
-
-        <div className="px-10">
-          <hr className="border-t-2 border-dashed border-slate-100" />
-        </div>
-
-        {/* Customer & Order Info Section */}
-        <div className="p-10 space-y-6">
-          <div className="grid grid-cols-[110px_1fr] items-center gap-4">
-            <span className="text-slate-400 font-black text-[10px] uppercase tracking-widest">
-              Order ID
-            </span>
-            <div className="flex items-center gap-2">
-              <span className="text-slate-300">:</span>
-              <span className="text-slate-950 font-black tracking-tight text-lg">
-                {orderIdDisplay}
-              </span>
+        <div className="sm:max-w-2xl mx-auto mt-8 bg-white shadow-2xl shadow-slate-200/60 rounded-[2.75rem] overflow-hidden border border-slate-100">
+          {/* Header Section */}
+          <div className="relative px-6 pt-10 pb-8 text-center bg-gradient-to-b from-slate-50 to-white">
+            {/* Status Indicator */}
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <div
+                className={`w-3 h-3 rounded-full animate-pulse ${order.order_status === "completed" ? "bg-emerald-500" : "bg-amber-500"}`}
+              />
+              <p className="text-slate-400 uppercase tracking-[0.125em] text-xs font-black">
+                {order.order_status} INVOICE
+              </p>
             </div>
-          </div>
 
-          <div className="grid grid-cols-[110px_1fr] items-center gap-4">
-            <span className="text-slate-400 font-black text-[10px] uppercase tracking-widest">
-              Mobile
-            </span>
-            <div className="flex items-center gap-2">
-              <span className="text-slate-300">:</span>
-              <span className="text-slate-800 font-bold">
-                {addr.mobile || "—"}
-              </span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-[110px_1fr] items-center gap-4">
-            <span className="text-slate-400 font-black text-[10px] uppercase tracking-widest">
-              Name
-            </span>
-            <div className="flex items-center gap-2">
-              <span className="text-slate-300">:</span>
-              <span className="text-slate-800 font-black">
-                {addr.customer_name || "—"}
-              </span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-[110px_1fr] items-start gap-4">
-            <span className="text-slate-400 font-black text-[10px] uppercase tracking-widest mt-1">
-              Address
-            </span>
-            <div className="flex items-start gap-2">
-              <span className="text-slate-300 mt-0.5">:</span>
-              <span className="text-slate-600 font-medium leading-relaxed">
-                {[
-                  addr.address_line,
-                  addr.upazila_thana,
-                  addr.district,
-                  addr.division,
-                ]
-                  .filter(Boolean)
-                  .join(" > ")}
-              </span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-[110px_1fr] items-center gap-4">
-            <span className="text-slate-400 font-black text-[10px] uppercase tracking-widest">
-              COD TK
-            </span>
-            <div className="flex items-center gap-2">
-              <span className="text-slate-300">:</span>
-              <span className="text-emerald-600 font-black text-2xl tracking-tighter">
-                {" "}
-                ৳{order.totalAmt?.toLocaleString()}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Product Table Section */}
-        <div className="px-10 pb-12">
-          <div className="border-2 border-slate-50 rounded-[2rem] overflow-x-auto shadow-inner bg-slate-50/50 hidden md:block">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-100/50 border-b border-slate-200">
-                  <th className="px-6 py-4 text-slate-400 font-black text-[10px] uppercase tracking-widest">
-                    Item
-                  </th>
-                  <th className="px-6 py-4 text-slate-400 font-black text-[10px] uppercase tracking-widest border-x border-slate-200">
-                    Details
-                  </th>
-                  <th className="px-6 py-4 text-slate-400 font-black text-[10px] uppercase tracking-widest text-center">
-                    Total
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {products.map((product, index) => {
-                  const img =
-                    product.image?.[0] ||
-                    product.images?.[0] ||
-                    "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=200&auto=format&fit=crop";
-                  return (
-                    <tr
-                      key={index}
-                      className="border-b border-slate-100 last:border-b-0 hover:bg-white transition-colors"
-                    >
-                      <td className="px-6 py-6 align-top w-28">
-                        <div className="w-20 h-24 bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm transform hover:scale-110 transition-transform">
-                          <img
-                            src={img}
-                            alt="product"
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      </td>
-                      <td className="px-6 py-6 align-top border-x border-slate-200">
-                        <div className="space-y-2">
-                          <h4 className="font-black text-slate-900 text-sm leading-tight mb-1">
-                            {product.name}
-                          </h4>
-                          <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-black text-slate-400 uppercase">
-                              Code:
-                            </span>
-                            <span className="text-xs font-bold text-slate-800">
-                              {product.productId
-                                ?.toString()
-                                .slice(-6)
-                                .toUpperCase()}
-                            </span>
-                          </div>
-                          {product.size && (
-                            <div className="flex items-center gap-2">
-                              <span className="text-[10px] font-black text-slate-400 uppercase">
-                                Size:
-                              </span>
-                              <span className="text-xs font-bold text-slate-800">
-                                {product.size}
-                              </span>
-                            </div>
-                          )}
-                          <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-black text-slate-400 uppercase">
-                              Qty:
-                            </span>
-                            <span className="text-xs font-bold text-slate-800">
-                              {product.quantity} X ৳
-                              {product.sellingPrice || product.price}
-                            </span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-6 align-middle text-center">
-                        <span className="text-emerald-600 font-black text-xl tracking-tighter">
-                          ৳
-                          {(
-                            product.totalPrice ||
-                            product.price * product.quantity
-                          ).toLocaleString()}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Mobile Card View - visible only on mobile/tablet */}
-          <div className="block md:hidden space-y-4">
-            {products.map((product, index) => {
-              const img =
-                product.image?.[0] ||
-                product.images?.[0] ||
-                "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=200&auto=format&fit=crop";
-              return (
-                <div
-                  key={index}
-                  className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <div className="flex p-4 gap-4">
-                    {/* Product Image */}
-                    <div className="w-24 h-28 flex-shrink-0 bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm">
-                      <img
-                        src={img}
-                        alt={product.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-
-                    {/* Product Details */}
-                    <div className="flex-1 space-y-2">
-                      <h4 className="font-black text-slate-900 text-sm leading-tight">
-                        {product.name}
-                      </h4>
-
-                      <div className="space-y-1.5">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
-                            Code:
-                          </span>
-                          <span className="text-xs font-bold text-slate-800">
-                            {product.productId
-                              ?.toString()
-                              .slice(-6)
-                              .toUpperCase()}
-                          </span>
-                        </div>
-
-                        {product.size && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
-                              Size:
-                            </span>
-                            <span className="text-xs font-bold text-slate-800">
-                              {product.size}
-                            </span>
-                          </div>
-                        )}
-
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
-                            Qty:
-                          </span>
-                          <span className="text-xs font-bold text-slate-800">
-                            {product.quantity} X ৳
-                            {product.sellingPrice || product.price}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Total Price - Bottom Bar */}
-                  <div className="border-t border-slate-100 bg-slate-50/50 px-4 py-3 flex justify-between items-center">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
-                      Total
-                    </span>
-                    <span className="text-emerald-600 font-black text-lg tracking-tighter">
-                      ৳
-                      {(
-                        product.totalPrice || product.price * product.quantity
-                      ).toLocaleString()}
-                    </span>
-                  </div>
+            {/* Brand Logo */}
+            <div className="flex justify-center mb-6">
+              {displayBrandLogo ? (
+                <div className="w-28 h-28 rounded-3xl overflow-hidden shadow-2xl border-4 border-white hover:scale-105 transition-transform duration-500">
+                  <Image
+                    src={displayBrandLogo}
+                    alt={displayBrandName}
+                    width={56}
+                    height={56}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-              );
-            })}
-          </div>
-        </div>
+              ) : (
+                <div className="w-20 h-20 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-3xl flex items-center justify-center shadow-2xl hover:rotate-6 transition-transform duration-500">
+                  <span className="text-white text-5xl font-bold tracking-tighter">
+                    E
+                  </span>
+                </div>
+              )}
+            </div>
 
-        {/* Footer section */}
-        <div className="px-10 pb-12 space-y-6">
-          <div className="bg-emerald-50 rounded-2xl p-6 border border-emerald-100 shadow-inner">
-            <p className="text-emerald-900 font-bold text-center leading-relaxed">
-              Dear{" "}
-              <span className="text-emerald-600 font-black">
-                {addr.customer_name}
-              </span>
-              , thanks for confirming the order. 🎉
+            <h1 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tighter mb-1">
+              {displayBrandName}
+            </h1>
+            <p className="text-slate-500 text-sm font-medium">
+              Your Trusted Dropshipping Partner
             </p>
           </div>
 
+          <div className="px-6 md:px-10 pt-2">
+            <hr className="border-dashed border-slate-100" />
+          </div>
+
+          {/* Order & Customer Information */}
+          <div className="p-6 md:p-10 space-y-6 md:space-y-7">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-8 text-sm">
+              <div className="flex items-center gap-4">
+                <span className="w-20 text-slate-400 font-bold text-xs uppercase tracking-widest">
+                  Order ID
+                </span>
+                <span className="text-slate-300">:</span>
+                <span className="font-black text-slate-900 tracking-tight text-sm sm:text-lg">
+                  {orderIdDisplay}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <span className="w-20 text-slate-400 font-bold text-xs uppercase tracking-widest">
+                  Mobile
+                </span>
+                <span className="text-slate-300">:</span>
+                <span className="font-semibold text-slate-800">
+                  {addr.mobile || "—"}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <span className="w-20 text-slate-400 font-bold text-xs uppercase tracking-widest">
+                  Name
+                </span>
+                <span className="text-slate-300">:</span>
+                <span className="font-semibold text-slate-800">
+                  {addr.customer_name || "—"}
+                </span>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <span className="w-20 text-slate-400 font-bold text-xs uppercase tracking-widest mt-1">
+                  Address
+                </span>
+                <span className="text-slate-300">:</span>
+                <span className="text-slate-600 leading-relaxed">
+                  {[
+                    addr.address_line,
+                    addr.upazila_thana,
+                    addr.district,
+                    addr.division,
+                  ]
+                    .filter(Boolean)
+                    .join(", ")}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-4 col-span-1 sm:col-span-2">
+                <span className="w-20 text-slate-400 font-bold text-xs uppercase tracking-widest">
+                  COD Amount
+                </span>
+                <span className="text-slate-300">:</span>
+                <span className="text-2xl sm:text-3xl font-bold text-emerald-600 tracking-tighter">
+                  ৳{order.totalAmt?.toLocaleString()}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Products Section */}
+          <div className="px-6 md:px-10 pb-10">
+            <div className="bg-slate-50/70 border border-slate-100 rounded-3xl overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-slate-200 bg-white">
+                    <th className="px-8 py-5 text-left text-xs font-bold text-slate-400 uppercase tracking-widest">
+                      Item
+                    </th>
+                    <th className="px-8 py-5 text-left text-xs font-bold text-slate-400 uppercase tracking-widest">
+                      Details
+                    </th>
+                    <th className="px-8 py-5 text-center text-xs font-bold text-slate-400 uppercase tracking-widest">
+                      Total
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {products.map((product, index) => {
+                    const img =
+                      product.image?.[0] ||
+                      product.images?.[0] ||
+                      "/placeholder.jpg";
+                    return (
+                      <tr
+                        key={index}
+                        className="hover:bg-white transition-colors group"
+                      >
+                        <td className="px-8 py-6">
+                          <div className="w-20 h-24 rounded-2xl overflow-hidden border border-slate-200 shadow-sm group-hover:scale-105 transition-transform">
+                            <Image
+                              src={img}
+                              alt={product.name}
+                              width={200}
+                              height={300}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        </td>
+                        <td className="px-8 py-6  min-w-[250px]">
+                          <div className="space-y-2">
+                            <h4 className="font-bold text-slate-900 leading-tight">
+                              {product.name}
+                            </h4>
+                            <div className="text-xs space-y-1 text-slate-600">
+                              <p>
+                                Code:{" "}
+                                <span className="font-mono font-bold">
+                                  {product.productId
+                                    ?.toString()
+                                    .slice(-6)
+                                    .toUpperCase()}
+                                </span>
+                              </p>
+                              {product.size && (
+                                <p>
+                                  Size:{" "}
+                                  <span className="font-semibold">
+                                    {product.size}
+                                  </span>
+                                </p>
+                              )}
+                              <p>
+                                Qty:{" "}
+                                <span className="font-semibold">
+                                  {product.quantity} × ৳
+                                  {product.sellingPrice || product.price}
+                                </span>
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-8 py-6 text-center">
+                          <span className="text-2xl font-bold text-emerald-600 tracking-tighter">
+                            ৳
+                            {(
+                              product.totalPrice ||
+                              product.price * product.quantity
+                            ).toLocaleString()}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Footer Message */}
+          <div className="mx-6 md:mx-10 mb-10 bg-emerald-50 border border-emerald-100 rounded-3xl p-3 sm:p-5 text-center">
+            <p className="text-emerald-800 font-medium leading-relaxed text-xs sm:text-sm md:text-base lg:text-lg">
+              Dear{" "}
+              <span className="font-black text-emerald-700">
+                {addr.customer_name}
+              </span>
+              , thank you for your order! 🎉 We are processing it now.
+            </p>
+          </div>
+
+          {/* Shop Info */}
           {(user?.shopAddress || user?.shopWebsite) && (
-            <div className="text-center space-y-1">
-              {user?.shopAddress && (
-                <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest">
-                  {user.shopAddress}
-                </p>
-              )}
-              {user?.shopWebsite && (
-                <a
+            <div className="px-6 md:px-10 pb-10 text-center text-xs text-slate-400 space-y-1">
+              {user.shopAddress && <p>{user.shopAddress}</p>}
+              {user.shopWebsite && (
+                <Link
                   href={user.shopWebsite}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-emerald-600 text-xs font-bold hover:underline"
+                  className="hover:text-emerald-600 transition-colors"
                 >
                   {user.shopWebsite.replace(/^https?:\/\//, "")}
-                </a>
+                </Link>
               )}
             </div>
           )}
         </div>
-      </div>
-    </div>
+      </Container>
+    </section>
   );
 };
 
