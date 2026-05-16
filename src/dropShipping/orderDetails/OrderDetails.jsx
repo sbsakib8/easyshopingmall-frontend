@@ -1,6 +1,8 @@
 "use client";
+
 import React, { useState } from "react";
 import { useOrderDetails } from "@/src/utlis/useOrderDetails";
+import { Modal, Backdrop } from "@mui/material";
 
 import {
   Loader2,
@@ -176,14 +178,25 @@ const OrderDetails = ({ id }) => {
           </div>
         )}
 
-        {isPaymentModalOpen && (
+        <Modal
+          open={isPaymentModalOpen}
+          onClose={() => setIsPaymentModalOpen(false)}
+          closeAfterTransition
+          // slots={{ backdrop: Backdrop }}
+          // slotProps={{
+          //   backdrop: {
+          //     timeout: 300,
+          //     sx: { backgroundColor: "rgba(15, 23, 42, 0.75)" },
+          //   },
+          // }}
+        >
           <PaymentModal
             order={order}
             paymentType={selectedPaymentType}
             onClose={() => setIsPaymentModalOpen(false)}
             onSuccess={refetch}
           />
-        )}
+        </Modal>
 
         <div className="sm:max-w-2xl mx-auto mt-8 bg-white shadow-2xl shadow-slate-200/60 rounded-[2.75rem] overflow-hidden border border-slate-100">
           {/* Header Section */}
