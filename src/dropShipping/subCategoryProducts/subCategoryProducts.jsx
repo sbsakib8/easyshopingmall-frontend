@@ -282,16 +282,16 @@ const EmptyProducts = () => {
   const router = useRouter();
 
   return (
-    <div className="flex flex-col items-center justify-center bg-slate-50/50 backdrop-blur-xl rounded-[3rem] border border-slate-100 shadow-sm min-h-[50vh]">
+    <div className="flex flex-col items-center justify-center bg-slate-50/50 backdrop-blur-xl rounded-[3rem] border border-slate-100 shadow-sm min-h-[50vh] px-4 py-6">
       <div className="mb-8 relative">
-        <div className="bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100 flex items-center justify-center">
-          <Search className="w-12 h-12 text-slate-300" />
+        <div className="bg-white p-5 rounded-2xl shadow-xl border border-slate-100 flex items-center justify-center">
+          <Search className="w-9 h-9 text-slate-300" />
           <Sparkles className="absolute -top-2 -right-2 w-8 h-8 text-yellow-400 animate-pulse" />
         </div>
       </div>
 
       <div className="text-center space-y-3 max-w-sm">
-        <h3 className="text-2xl font-black text-slate-800 tracking-tight">
+        <h3 className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">
           No Products Found
         </h3>
         <p className="text-slate-500 text-sm font-medium leading-relaxed">
@@ -302,7 +302,7 @@ const EmptyProducts = () => {
 
       <button
         onClick={() => router.push("/all-products")}
-        className="mt-8 px-8 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl font-black shadow-md hover:shadow-lg transition-all"
+        className="mt-8 px-4 py-2 md:px-8 md:py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl font-semibold shadow-md hover:shadow-lg transition-all"
       >
         Explore All Products
       </button>
