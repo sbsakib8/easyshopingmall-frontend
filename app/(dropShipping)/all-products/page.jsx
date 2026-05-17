@@ -1,10 +1,7 @@
-export const dynamic = 'force-dynamic';
-import AllProducts from'@/src/dropShipping/allProducts/allProducts';
+export const dynamic = "force-dynamic";
 
-import React from'react';
+import SubCategoryCardSection from "@/src/dropShipping/SubCategoryCardSection/SubCategoryCardSection";
 
-const allProducts = () => {
- return <AllProducts/>
-};
+const AllProducts = () => <SubCategoryCardSection pageType="all-products" />;
 
-export default allProducts;
+export default AllProducts;
