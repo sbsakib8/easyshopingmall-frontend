@@ -1,4 +1,5 @@
 "use client";
+
 import logo from "@/app/icon.png";
 import { getCartApi } from "@/src/hook/useCart";
 import { getWishlistApi } from "@/src/hook/useWishlist";
@@ -14,8 +15,7 @@ import {
   ShoppingCart,
   Star,
   User,
-  X,
-  Zap,
+  LayoutDashboard,
 } from "lucide-react";
 import Skeleton from "@/src/compronent/loading/Skeleton";
 import Image from "next/image";
@@ -24,14 +24,13 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setSearchTerm } from "@/src/redux/shopSlice";
-import toast from "react-hot-toast";
+import BottomNav from "@/src/compronent/header/BottomNav";
+import Container from "@/src/compronent/shared/Container";
 
 const Header = ({ initialData }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [hoveredCategoryId, setHoveredCategoryId] = useState(null);
-  const [isLanguageOpen, setIsLanguageOpen] = useState(false);
-  const [isCurrencyOpen, setIsCurrencyOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [showLiveResults, setShowLiveResults] = useState(false);
@@ -46,10 +45,7 @@ const Header = ({ initialData }) => {
     (sum, item) => sum + (item.quantity || 1),
     0,
   );
-  const [language, setLanguage] = useState("English");
-  const [currency, setCurrency] = useState("USD");
   const [isScrolled, setIsScrolled] = useState(false);
-  const [openMobileCategory, setOpenMobileCategory] = useState(null);
   const [imageSearch, setImageSearch] = useState(false);
   const pathname = usePathname();
   const dropdownRef = useRef(null);
@@ -62,6 +58,16 @@ const Header = ({ initialData }) => {
 
   // user data fatch
   const data = useSelector((state) => state.user.data);
+  const isAdmin = data?.role === "ADMIN" || data?.roles?.includes("ADMIN");
+
+  // Navigation items
+  const navItems = [
+    { name: "Home", href: "/" },
+    { name: "Shop", href: "/shop" },
+    { name: "Blog", href: "/blog", badge: "New" },
+    { name: "Contact", href: "/contact" },
+    { name: "About", href: "/about" },
+  ];
 
   // load wishlist + cart for logged-in user
   useEffect(() => {
@@ -99,17 +105,8 @@ const Header = ({ initialData }) => {
     ),
   }));
 
-  // Navigation items
-  const navItems = [
-    { name: "Home", href: "/" },
-    { name: "About", href: "/about" },
-    { name: "Shop", href: "/shop" },
-    { name: "Blog", href: "/blog", badge: "New" },
-    { name: "Contact", href: "/contact" },
-  ];
-
-  if (data?.role === "ADMIN" || data?.roles?.includes("ADMIN")) {
-    navItems.push({ name: "Dashboard", href: "/dashboard" });
+  if (isAdmin) {
+    navItems.splice(1, 0, { name: "Dashboard", href: "/dashboard" });
   }
 
   // Scroll effect
@@ -252,68 +249,6 @@ const Header = ({ initialData }) => {
     }));
   }, [searchResults]);
 
-  // Additional helpers for dropdown cards
-  const wishlistIds = useSelector(
-    (state) => new Set((state.wishlist?.data || []).map((i) => i.id)),
-  );
-
-  const renderStars = (rating) => {
-    return [...Array(5)].map((_, i) => (
-      <Star
-        key={i}
-        className={`w-3 h-3 ${
-          i < Math.floor(rating)
-            ? "text-yellow-400 fill-current"
-            : "text-gray-300"
-        }`}
-      />
-    ));
-  };
-
-  const toggleWishlistLocal = async (productId) => {
-    if (!data?._id) {
-      toast.error("Please sign in to add to wishlist");
-      return;
-    }
-    try {
-      if (wishlistIds.has(productId)) {
-        await removeFromWishlistApi(productId, dispatch);
-        toast.success("Removed from wishlist");
-      } else {
-        await addToWishlistApi(productId, dispatch);
-        toast.success("Added to wishlist");
-      }
-    } catch (err) {
-      console.error("Wishlist toggle error:", err);
-      toast.error("Failed to update wishlist");
-    }
-  };
-
-  const handleAddToCartFromHeader = async (prod) => {
-    if (!data?._id) {
-      toast.error("Please sign in to add items to cart");
-      return;
-    }
-    try {
-      await addToCartApi(
-        {
-          userId: data._id,
-          productId: prod.id || prod._id || prod._id?.toString(),
-          quantity: 1,
-          price: prod.price || prod.sell_price || 0,
-        },
-        dispatch,
-      );
-      toast.success(
-        `${prod.name || prod.productName || "Product"} added to cart`,
-      );
-      getCartApi(data._id, dispatch);
-    } catch (err) {
-      console.error("Add to cart error:", err);
-      toast.error("Failed to add to cart");
-    }
-  };
-
   return (
     <>
       {/* Secondary Top Bar */}
@@ -343,7 +278,7 @@ const Header = ({ initialData }) => {
           isScrolled ? "h-16 sm:h-20" : "h-20 sm:h-24 lg:h-[100px]"
         }`}
       >
-        <div className="mx-auto px-4 xl:px-32">
+        <Container>
           <div className="flex items-center justify-between py-2 sm:py-3 lg:py-4">
             {/* Enhanced Logo - Responsive */}
             <div className="flex items-center">
@@ -402,6 +337,7 @@ const Header = ({ initialData }) => {
                       }`}
                     />
                   </button>
+
                   {/* Categories Dropdown Container */}
                   {isCategoriesOpen && (
                     <div className="absolute top-full left-0 mt-2 w-80 bg-white border border-gray-200 rounded-2xl shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-300">
@@ -585,7 +521,7 @@ const Header = ({ initialData }) => {
                     />
                   </div>
                   <div>
-                    <div className="hidden sm:block lg:block text-xs text-accent font-bold ml-1">
+                    <div className="hidden xl:block text-xs text-accent font-bold ml-1">
                       Account
                     </div>
                   </div>
@@ -602,7 +538,7 @@ const Header = ({ initialData }) => {
                     />
                   </div>
                   <div>
-                    <div className=" hidden lg:block text-xs text-accent font-medium">
+                    <div className=" hidden xl:block text-xs text-accent font-medium">
                       SignIn
                     </div>
                   </div>
@@ -626,7 +562,7 @@ const Header = ({ initialData }) => {
                       </span>
                     )}
                   </div>
-                  <div className="hidden sm:block lg:block">
+                  <div className="hidden xl:block">
                     <div className="text-xs text-accent font-bold">
                       Wishlist
                     </div>
@@ -635,7 +571,7 @@ const Header = ({ initialData }) => {
               </div>
 
               {/* Cart - Responsive */}
-              <div className="relative cursor-pointer group">
+              <div className="relative cursor-pointer group hidden md:block">
                 <Link
                   href="/addtocart"
                   className="flex items-center space-x-1 sm:space-x-2 text-gray-700 group-hover:text-emerald-600 transition-all duration-300"
@@ -651,28 +587,33 @@ const Header = ({ initialData }) => {
                       </span>
                     )}
                   </div>
-                  <div className="hidden sm:block lg:block">
+                  <div className="hidden xl:block">
                     <div className="text-xs text-accent font-bold">Cart</div>
                   </div>
                 </Link>
               </div>
 
-              {/* Mobile Menu Button */}
-              <button
-                onClick={toggleMobileMenu}
-                className="lg:hidden p-2 sm:p-3 rounded-lg sm:rounded-xl bg-gradient-to-r from-gray-100 to-gray-50 hover:from-emerald-100 hover:to-teal-100 text-gray-700 hover:text-emerald-600 transition-all duration-300 shadow-sm"
-              >
-                {isMobileMenuOpen ? (
-                  <X size={20} className="sm:w-6 sm:h-6" />
-                ) : (
-                  <Menu size={20} className="sm:w-6 sm:h-6" />
-                )}
-              </button>
+              {/* Dashboard Icon Button - Responsive */}
+              {isAdmin && (
+                <div className="relative cursor-pointer group md:hidden">
+                  <Link
+                    href="/dashboard"
+                    className="flex items-center space-x-1 sm:space-x-2 text-gray-700 group-hover:text-emerald-600 transition-all duration-300"
+                  >
+                    <div className="relative p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-bg group-hover:from-emerald-100 group-hover:to-teal-100 transition-all duration-300 shadow-sm">
+                      <LayoutDashboard
+                        size={16}
+                        className="sm:w-5 sm:h-5 group-hover:scale-110 transition-transform duration-300"
+                      />
+                    </div>
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
 
           {/* Mobile/Tablet Search Bar - Responsive */}
-          <div className="lg:hidden pb-2 sm:pb-4">
+          <div className="lg:hidden">
             <div className="shadow-lg rounded-xl sm:rounded-2xl overflow-hidden bg-white/90 backdrop-blur-sm border border-gray-200/60">
               <div className="flex-1 relative flex items-center">
                 <Search
@@ -698,9 +639,9 @@ const Header = ({ initialData }) => {
               </div>
             </div>
           </div>
-        </div>
+        </Container>
         {/* image searche dropdown */}
-        {imageSearch ? (
+        {imageSearch && (
           <div className="flex flex-col lg:hidden justify-center items-center absolute inset-0  bg-white  shadow-2xl shadow-black-100 z-999 sm:w-80 mx-auto min-h-52 mt-25 rounded-sm">
             <button
               onClick={() => {
@@ -722,13 +663,12 @@ const Header = ({ initialData }) => {
               />
             </div>
           </div>
-        ) : (
-          ""
         )}
+
         {/* Enhanced Navigation Menu - Responsive */}
-        <div className="bg-primary-color border-t border-gray-200/60 backdrop-blur-sm py-1 hidden lg:block">
-          <div className="container mx-auto px-2 sm:px-4 hidden lg:block">
-            <nav className="hidden lg:flex items-center justify-between ">
+        <div className="bg-primary-color border-t border-gray-200/60 backdrop-blur-sm py-1 hidden md:block">
+          <Container>
+            <nav className="flex items-center justify-between ">
               <div className="flex items-center space-x-4 lg:space-x-8">
                 {navItems.map((item, index) => (
                   <Link
@@ -747,134 +687,13 @@ const Header = ({ initialData }) => {
                 ))}
               </div>
             </nav>
-          </div>
+          </Container>
         </div>
 
-        {/* Enhanced Mobile Menu - Fully Responsive */}
-        {isMobileMenuOpen && (
-          <div
-            className="lg:hidden 
- bg-white/95 backdrop-blur-md border-t border-gray-200/60 animate-in slide-in-from-top-5 duration-300"
-          >
-            <nav className="px-2 sm:px-4 py-3 sm:py-4 space-y-1 sm:space-y-2 max-h-96 overflow-visible">
-              {navItems.map((item, index) => (
-                <Link
-                  onClick={toggleMobileMenu}
-                  key={index}
-                  href={item.href}
-                  className="flex items-center justify-between py-3 sm:py-4 px-3 sm:px-4 text-gray-700 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 hover:text-emerald-600 rounded-lg sm:rounded-xl transition-all duration-300 font-medium shadow-sm"
-                >
-                  <span className="text-sm sm:text-base">{item.name}</span>
-                  {item.badge && (
-                    <span className="bg-gradient-to-r from-emerald-500 to-teal-500 text-accent-content text-xs px-2 sm:px-3 py-0.5 sm:py-1 rounded-full font-bold animate-pulse">
-                      {item.badge}
-                    </span>
-                  )}
-                </Link>
-              ))}
-
-              {/* Mobile Categories Section */}
-              <div className="border-t max-h-[25vh] overflow-y-scroll border-gray-200/60 pt-3 sm:pt-4 mt-3 sm:mt-4 sm:hidden">
-                <button
-                  onClick={toggleCategories}
-                  className="flex items-center justify-between w-full py-3 px-4 text-gray-700 rounded-xl transition-all duration-300 font-medium shadow-sm hover:bg-emerald-50"
-                >
-                  <span className="text-sm font-semibold">Categories</span>
-                  <ChevronDown
-                    size={16}
-                    className={`transition-transform duration-300 ${
-                      isCategoriesOpen ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-
-                {isCategoriesOpen && (
-                  <div className="mt-2 space-y-2 bg-gradient-to-r from-gray-50 to-white rounded-xl p-2 animate-in slide-in-from-top-3 duration-300">
-                    {menuCategories.map((category, index) => {
-                      const isOpen = openMobileCategory === index;
-
-                      return (
-                        <div
-                          key={category.id}
-                          className="border border-gray-200 rounded-xl overflow-hidden bg-white"
-                        >
-                          {/* Category */}
-                          <button
-                            onClick={() =>
-                              setOpenMobileCategory(isOpen ? null : index)
-                            }
-                            className="w-full flex items-center justify-between px-4 py-3 text-gray-700 font-medium"
-                          >
-                            <div className="flex items-center space-x-3">
-                              <span className="text-lg">{category.icon}</span>
-                              <span className="text-sm">{category.name}</span>
-                            </div>
-
-                            <ChevronDown
-                              size={14}
-                              className={`transition-transform duration-300 ${
-                                isOpen ? "rotate-180" : ""
-                              }`}
-                            />
-                          </button>
-
-                          {/* Subcategories (FAQ style) */}
-                          {isOpen && (
-                            <div className="px-4 pb-3 space-y-1 animate-in slide-in-from-top-2">
-                              {/* Option to view all in this category */}
-                              <Link
-                                onClick={toggleMobileMenu}
-                                href={`/shop?category=${encodeURIComponent(category.slug || category.name)}`}
-                                className="block py-2 px-2 rounded-md text-sm font-bold text-emerald-600 hover:bg-emerald-50 transition-all underline"
-                              >
-                                View All {category.name}
-                              </Link>
-
-                              {category.subcategories.map((sub) => (
-                                <Link
-                                  key={sub.name}
-                                  onClick={toggleMobileMenu}
-                                  href={`/shop?category=${encodeURIComponent(category.slug || category.name)}&subcategory=${encodeURIComponent(sub.slug || sub.name)}`}
-                                  className="block py-2 px-2 rounded-md text-sm text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 transition-all"
-                                >
-                                  {sub.name}
-                                </Link>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-
-              {/* Mobile Quick Actions */}
-              {/* <div className="border-t border-gray-200/60 pt-3 sm:pt-4 mt-3 sm:mt-4 grid grid-cols-2 gap-2 sm:gap-3">
-                <div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-accent-content p-3 sm:p-4 rounded-xl flex flex-col items-center space-y-1 sm:space-y-2 hover:from-emerald-700 hover:to-teal-700 transition-all duration-300 cursor-pointer group shadow-lg">
-                  <Package size={20} className="group-hover:rotate-12 transition-transform duration-300" />
-                  <span className="font-bold text-xs sm:text-sm text-center">30% Off Sale</span>
-                  <span className="bg-white text-emerald-600 px-2 py-0.5 rounded-full text-xs font-bold">Limited</span>
-                </div>
-
-                <div className="bg-gradient-to-r from-pink-500 to-rose-500 text-accent-content p-3 sm:p-4 rounded-xl flex flex-col items-center space-y-1 sm:space-y-2 hover:from-pink-600 hover:to-rose-600 transition-all duration-300 cursor-pointer group shadow-lg">
-                  <Star size={20} className="group-hover:scale-110 transition-transform duration-300" />
-                  <span className="font-bold text-xs sm:text-sm text-center">Trending</span>
-                  <span className="bg-white text-pink-600 px-2 py-0.5 rounded-full text-xs font-bold">Hot</span>
-                </div>
-              </div> */}
-
-              {/* Mobile Contact Info */}
-              {/* <div className="border-t border-gray-200/60 pt-3 sm:pt-4 mt-3 sm:mt-4 text-center">
-                <div className="flex items-center justify-center space-x-2 text-gray-600 mb-2">
-                  <div className="w-2 h-2 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full animate-pulse"></div>
-                  <span className="text-xs sm:text-sm">Need Help?</span>
-                </div>
-                <div className="text-emerald-600 font-semibold text-sm sm:text-base">+258 3268 21485</div>
-              </div> */}
-            </nav>
-          </div>
-        )}
+        <BottomNav
+          cartCount={cartItems.length || 0}
+          menuCategories={menuCategories}
+        />
       </header>
     </>
   );
