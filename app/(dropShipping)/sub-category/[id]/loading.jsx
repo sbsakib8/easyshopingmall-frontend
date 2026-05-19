@@ -1,63 +1,59 @@
 import Container from "@/src/compronent/shared/Container";
 import { Skeleton } from "@mui/material";
 
-const ProductSkeleton = ({ viewMode }) => (
+const ProductSkeleton = () => (
   <div
-    className={`bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden animate-pulse flex flex-col h-full ${viewMode === "list" ? "flex-row" : ""}`}
+    className={`bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col h-full animate-pulse`}
   >
-    {/* Image Skeleton */}
-    <div
-      className={`relative bg-slate-200 overflow-hidden ${viewMode === "list" ? "w-52 sm:w-60 shrink-0" : "w-full"}`}
-    >
-      <div
-        className={`w-full ${viewMode === "list" ? "h-full" : "h-32 sm:h-40"}`}
-      />
+    {/* Image Section Skeleton */}
+    <div className="relative aspect-2/3 overflow-hidden w-full h-14 md:h-32 bg-slate-200">
+      {/* Fake Image */}
+      <div className="w-full h-full bg-gradient-to-br from-slate-200 via-slate-300 to-slate-200" />
 
-      {/* Skeleton Badges Position */}
-      <div className="absolute top-3 left-3 flex flex-col gap-1.5">
-        <div className="h-5 w-12 bg-slate-300 rounded-xl" />
-        <div className="h-5 w-14 bg-slate-300 rounded-xl" />
+      {/* Fake Badges */}
+      <div className="absolute top-1.5 left-1.5 md:top-3 md:left-3">
+        <div className="bg-slate-300 h-5 md:h-6 w-12 md:w-16 rounded-xl" />
       </div>
 
-      {/* Skeleton Action Buttons (Top Right) */}
-      <div className="absolute top-3 right-3 flex flex-col gap-2">
-        <div className="w-9 h-9 bg-white/80 rounded-xl" />
-        <div className="w-9 h-9 bg-white/80 rounded-xl" />
+      {/* Fake Action Buttons (Top Right) */}
+      <div className="absolute top-3 right-3 hidden md:flex flex-col gap-2">
+        <div className="bg-white/90 w-9 h-9 rounded-xl" />
+        <div className="bg-white/90 w-9 h-9 rounded-xl" />
       </div>
     </div>
 
-    {/* Content Skeleton */}
-    <div className="flex-1 flex flex-col p-4 sm:p-5">
-      <div className="space-y-3 flex-1">
-        {/* Title */}
-        <div className="h-5 bg-slate-200 rounded-lg w-[85%]" />
+    {/* Content Section Skeleton */}
+    <div className="flex-1 flex flex-col p-1.5 md:p-3.5">
+      {/* Title */}
+      <div className="space-y-2">
+        <div className="h-4 bg-slate-200 rounded w-[92%]" />
 
         {/* Brand */}
-        <div className="h-3 bg-slate-200 rounded w-28" />
+        <div className="h-3 bg-slate-200 rounded w-24 mt-3 hidden md:block" />
+      </div>
 
-        {/* Rating + Price Row */}
-        <div className="flex items-center justify-between mt-4">
-          {/* Rating */}
-          <div className="flex items-center gap-1">
+      {/* Rating + Price - Desktop */}
+      <div className="hidden md:flex items-center justify-between mt-4 mb-6">
+        <div className="flex items-center gap-2">
+          {/* Fake Stars */}
+          <div className="flex gap-1">
             {[...Array(5)].map((_, i) => (
               <div key={i} className="w-4 h-4 bg-slate-200 rounded" />
             ))}
           </div>
-          {/* Price */}
-          <div className="h-7 bg-slate-200 rounded-lg w-20" />
+          <div className="h-3 bg-slate-200 rounded w-8" />
         </div>
       </div>
 
-      {/* Action Buttons Area */}
-      <div className="mt-auto space-y-3 pt-4">
-        {/* Add to Cart Button */}
-        <div className="h-11 bg-slate-200 rounded-2xl w-full" />
+      {/* Add to Cart Button */}
+      <div className="hidden md:block mt-auto">
+        <div className="h-10 md:h-11 w-full bg-slate-200 rounded-2xl" />
       </div>
     </div>
   </div>
 );
 
-const SubCategoryProductsLoading = ({ count = 10, viewMode }) => {
+const SubCategoryProductsLoading = ({ count = 10, }) => {
   return (
     <section>
       <Container className="space-y-6 md:space-y-10">
@@ -69,9 +65,9 @@ const SubCategoryProductsLoading = ({ count = 10, viewMode }) => {
         </div>
 
         {/* Product Grid Skeleton */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-6">
+        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-3 lg:gap-6 2xl:gap-8">
           {[...Array(count)].map((_, i) => (
-            <ProductSkeleton key={i} viewMode={viewMode} />
+            <ProductSkeleton key={i} />
           ))}
         </div>
 
