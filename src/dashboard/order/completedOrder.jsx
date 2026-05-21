@@ -108,7 +108,7 @@ const CompletedOrdersPage = () => {
         <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-gradient-to-r from-cyan-600/3 to-blue-600/3 rounded-full blur-3xl -slow"></div>
       </div>
       {/* main section */}
-      <div className={` lg:ml-15 py-5 px-2 lg:px-9`}>
+      <div className={`py-5 px-2 lg:px-9`}>
         <div className="relative z-10 p-4 md:p-6 lg:p-8">
           {/* Welcome Banner */}
           <div className="mb-8 animate-slideDown">

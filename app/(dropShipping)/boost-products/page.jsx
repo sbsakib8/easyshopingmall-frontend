@@ -1,8 +1,9 @@
-export const dynamic = 'force-dynamic';
-import BoostProducts from '@/src/dropShipping/boostProducts/boostProducts'
+export const dynamic = "force-dynamic";
 
-const boostProducts = () => {
- return <BoostProducts/>
-}
+import SubCategoryCardSection from "@/src/dropShipping/SubCategoryCardSection/SubCategoryCardSection";
 
-export default boostProducts
+const BoostProducts = () => (
+  <SubCategoryCardSection pageType="boost-products" />
+);
+
+export default BoostProducts;

@@ -182,7 +182,7 @@ const BlogsAdminDashboard = () => {
 
  return (
  <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-accent-content overflow-hidden">
- <div className="lg:ml-15 py-5 px-2 lg:px-9">
+ <div className="py-5 px-2 lg:px-9">
  {/* Header Section */}
  <div className="mb-8">
  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">

@@ -59,9 +59,9 @@ const ChatBoot = () => {
   return (
     <ClickAwayListener onClickAway={handleClose}>
       <Box
+      className="bottom-24! md:bottom-6!"
         sx={{
           position: "fixed",
-          bottom: 24,
           right: 24,
           zIndex: 1000,
           display: "flex",

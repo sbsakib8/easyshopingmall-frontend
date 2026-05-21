@@ -146,7 +146,7 @@ const AllCustomersPage = () => {
 
  return (
  <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800">
- <div className={`lg:ml-15 py-5 px-2 lg:px-9`}>
+ <div className={`py-5 px-2 lg:px-9`}>
  {/* Header */}
  <div className="relative bg-gradient-to-r from-gray-900/80 via-blue-900/80 to-purple-900/80 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-gray-700/50 shadow-2xl shadow-blue-500/10">
  <div className="w-full mx-auto">
