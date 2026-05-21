@@ -87,7 +87,7 @@ const ProductDashboard = () => {
     if (action === "view") handleView(selectedProduct);
     if (action === "edit") handleEdit(selectedProduct);
     if (action === "delete") handleDelete(selectedProduct._id);
-    
+
     handleMenuClose();
   };
 
@@ -152,8 +152,9 @@ const ProductDashboard = () => {
       <Star
         key={i}
         size={12}
-        className={`${i < rating ? "text-yellow-400 fill-yellow-400" : "text-gray-500"
-          }`}
+        className={`${
+          i < rating ? "text-yellow-400 fill-yellow-400" : "text-gray-500"
+        }`}
       />
     ));
   };
@@ -275,7 +276,7 @@ const ProductDashboard = () => {
         <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-gradient-to-r from-cyan-600/3 to-blue-600/3 rounded-full blur-3xl"></div>
       </div>
       {/* Main Content */}
-      <div className={`lg:ml-15 py-5 px-2 lg:px-9`}>
+      <div className={`py-5 px-2 lg:px-9`}>
         {/* Welcome Banner */}
         <div className="mb-8">
           <div className="relative bg-gradient-to-r from-gray-900/80 via-blue-900/80 to-purple-900/80 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-gray-700/50 shadow-2xl shadow-blue-500/10 overflow-hidden">

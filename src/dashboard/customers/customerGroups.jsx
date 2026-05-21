@@ -149,7 +149,7 @@ const CustomerGroups = () => {
 
  return (
  <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-6 overflow-hidden">
- <div className="lg:ml-15 py-5 px-2 lg:px-9">
+ <div className="py-5 px-2 lg:px-9">
  {/* Header */}
  <div className="mb-8">
  <div className="bg-gradient-to-r from-gray-800/50 to-gray-700/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/50">

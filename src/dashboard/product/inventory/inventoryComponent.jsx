@@ -255,7 +255,7 @@ const InventoryDashboard = () => {
  <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-cyan-500/5 to-blue-500/5 rounded-full"></div>
  </div>
 
- <div className="lg:ml-15 py-5 px-2 lg:px-10">
+ <div className="py-5 px-2 lg:px-10">
  <div className="w-[99%] mx-auto">
  {/* Welcome Banner */}
  <div className="mb-8 animate-slideDown">

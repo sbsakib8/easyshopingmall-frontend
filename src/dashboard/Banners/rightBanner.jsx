@@ -207,7 +207,7 @@ const RightBanner = () => {
  ></div>
  </div>
 
- <div className="lg:ml-15 py-5 px-2 lg:px-9">
+ <div className="py-5 px-2 lg:px-9">
  <div className="mb-8">
  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
  <div className="text-center sm:text-left">
