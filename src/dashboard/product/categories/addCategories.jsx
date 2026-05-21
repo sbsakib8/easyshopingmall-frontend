@@ -269,7 +269,7 @@ const AddCategoriesComponent = () => {
 console.log(formData)
  return (
  <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 p-4 overflow-hidden">
- <div className={` lg:ml-10 lg:px-9`}>
+ <div className={`lg:px-9`}>
  {/* Welcome Banner */}
  <div className="mb-8 animate-slideDown">
  <div className="relative bg-gradient-to-r from-gray-900/80 via-blue-900/80 to-purple-900/80 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-gray-700/50 shadow-2xl shadow-blue-500/10 overflow-hidden">

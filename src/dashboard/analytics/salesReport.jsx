@@ -188,7 +188,7 @@ const SalesReportDashboard = () => {
  // console.log("dailyData ---->", dailyData)
  if (loading || emailLoading || !dateRange) return <DashboardLoader />
  return (
- <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4 md:p-8 overflow-hidden ml-20">
+ <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4 md:p-8 overflow-hidden">
  <div className="max-w-[1600px] mx-auto">
  {/* Header */}
  <div className="mb-8 flex items-center justify-between">

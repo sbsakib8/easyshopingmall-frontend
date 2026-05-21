@@ -94,7 +94,7 @@ const PendingOrdersPage = () => {
  </div>
 
  {/* main section */}
- <div className={` lg:ml-15 py-5 px-2 lg:px-9`}>
+ <div className={`py-5 px-2 lg:px-9`}>
  <div className="relative z-10 p-4 md:p-6 lg:p-8">
  {/* Welcome Banner */}
  <div className="mb-8 animate-slideDown">
