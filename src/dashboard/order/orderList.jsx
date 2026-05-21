@@ -639,6 +639,13 @@ const OrderManagement = () => {
  <span className="font-medium text-accent-content">৳{selectedOrder?.deliveryCharge ||"None"}</span>
  </div>
 
+ {selectedOrder?.couponDiscount > 0 && (
+   <div className="flex justify-between text-emerald-400">
+     <span className="text-gray-400">Coupon Discount {selectedOrder?.appliedCoupon ? `(${selectedOrder.appliedCoupon})` : ""}:</span>
+     <span className="font-medium text-emerald-400">-৳{selectedOrder?.couponDiscount}</span>
+   </div>
+ )}
+
  <div className="flex justify-between">
  <span className="text-gray-400">Total:</span>
  <span className="font-medium text-accent-content">৳{selectedOrder?.totalAmt ||"None"}</span>

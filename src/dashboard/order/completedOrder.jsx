@@ -440,9 +440,19 @@ const CompletedOrdersPage = () => {
                       ))}
                     </div>
                     <div className="flex justify-between items-center m-2">
-                      <span className="text-accent-content font-semibold">Delivery Charge:</span>
-                      <span className="text-green-400 font-bold text-lg">৳{selectedOrder?.deliveryCharge}</span>
+                      <span className="text-accent-content font-semibold">Subtotal:</span>
+                      <span className="text-green-400 font-bold text-lg">৳{selectedOrder?.subTotalAmt || 0}</span>
                     </div>
+                    <div className="flex justify-between items-center m-2">
+                      <span className="text-accent-content font-semibold">Delivery Charge:</span>
+                      <span className="text-green-400 font-bold text-lg">৳{selectedOrder?.deliveryCharge || 0}</span>
+                    </div>
+                    {selectedOrder?.couponDiscount > 0 && (
+                      <div className="flex justify-between items-center m-2 text-emerald-400">
+                        <span className="text-accent-content font-semibold">Coupon Discount {selectedOrder?.appliedCoupon ? `(${selectedOrder.appliedCoupon})` : ""}:</span>
+                        <span className="font-bold text-lg text-emerald-400">-৳{selectedOrder?.couponDiscount}</span>
+                      </div>
+                    )}
                     <div className="mt-4 pt-4 border-t border-gray-700">
                       {(selectedOrder?.userId?.role === "DROPSHIPPING" || (Array.isArray(selectedOrder?.userId?.roles) && selectedOrder?.userId?.roles.includes("DROPSHIPPING"))) && (
                         <div className="flex flex-col gap-2 mb-4 p-4 bg-gradient-to-r from-blue-900/40 to-cyan-900/40 rounded-xl border border-blue-500/30 shadow-inner">

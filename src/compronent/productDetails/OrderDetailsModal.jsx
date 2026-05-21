@@ -326,6 +326,12 @@ function OrderDetailsModal({ order, onClose }) {
                 <span className="text-gray-600">Delivery Charge</span>
                 <span className="font-semibold text-gray-800">৳{order.deliveryCharge || 0}</span>
               </div>
+              {order.couponDiscount > 0 && (
+                <div className="flex justify-between items-center text-emerald-600 font-medium">
+                  <span>Coupon Applied {order.appliedCoupon ? `(${order.appliedCoupon})` : ""}</span>
+                  <span className="font-semibold">-৳{order.couponDiscount}</span>
+                </div>
+              )}
 
               <div className="border-t border-cyan-200 pt-3 mt-3">
                 <div className="flex justify-between items-center mb-2">
