@@ -5,6 +5,7 @@ import Container from "@/src/compronent/shared/Container";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useGetSubcategory } from "@/src/utlis/useSubcategory";
+import BackButton from "@/src/dropShipping/BackButton/BackButton";
 
 const SubCategoryCardSkeleton = ({ idx = 0 }) => {
   return (
@@ -190,25 +191,29 @@ const SubCategoryCardSection = ({ pageType }) => {
           </div>
 
           <Container className="relative z-10 space-y-16 md:space-y-20 py-0">
-            {finalGroups.map((group, index) => (
-              <div key={index}>
-                <h1 className="text-center font-black px-4 py-4 text-xl sm:text-2xl md:text-3xl lg:text-4xl mb-6 sm:mb-8 text-emerald-800 uppercase tracking-wider sm:tracking-widest break-words animate-fade-up">
-                  {group.title}
-                </h1>
+            <>
+              <BackButton className="mb-3" />
 
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
-                  {group.items.map((cat, idx) => (
-                    <SubCategoryCard
-                      key={cat._id}
-                      idx={idx}
-                      name={cat?.name || ""}
-                      path={cat.path}
-                      image={cat?.image || "/placeholder.png"}
-                    />
-                  ))}
+              {finalGroups.map((group, index) => (
+                <div key={index}>
+                  <h1 className="text-center font-black px-4 py-4 text-xl sm:text-2xl md:text-3xl lg:text-4xl mb-6 sm:mb-8 text-emerald-800 uppercase tracking-wider sm:tracking-widest break-words animate-fade-up">
+                    {group.title}
+                  </h1>
+
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
+                    {group.items.map((cat, idx) => (
+                      <SubCategoryCard
+                        key={cat._id}
+                        idx={idx}
+                        name={cat?.name || ""}
+                        path={cat.path}
+                        image={cat?.image || "/placeholder.png"}
+                      />
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </>
           </Container>
         </section>
       )}

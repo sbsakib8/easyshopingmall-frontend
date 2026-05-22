@@ -1,22 +1,27 @@
 "use client";
+
 import { CardSkeleton } from "@/src/compronent/loading/Skeleton";
+import BackButton from "@/src/dropShipping/BackButton/BackButton";
 import AddtoCartBtn from "@/src/helper/Buttons/AddtoCartBtn";
 import { getWishlistApi, removeFromWishlistApi } from "@/src/hook/useWishlist";
-import { Eye, Grid, Heart, List, Share2, ShoppingCart, Star, Trash2 } from "lucide-react";
+import { Grid, Heart, List, ShoppingCart, Star, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 const WishlistComponent = () => {
   const dispatch = useDispatch();
-  const { data: wishlistItems = [], loading, error } = useSelector((state) => state.wishlist);
+  const {
+    data: wishlistItems = [],
+    loading,
+    error,
+  } = useSelector((state) => state.wishlist);
   const user = useSelector((state) => state.user.data);
   const [viewMode, setViewMode] = useState("grid");
   const [sortBy, setSortBy] = useState("newest");
   const [filterBy, setFilterBy] = useState("all");
   const [animatingItems, setAnimatingItems] = useState(new Set());
   // console.log("wishlistItems:", wishlistItems);
-
 
   useEffect(() => {
     if (user) {
@@ -28,8 +33,12 @@ const WishlistComponent = () => {
     return (
       <div className="min-h-screen lg:pt-24 py-5 flex items-center justify-center bg-bg">
         <div className="bg-white shadow-lg rounded-2xl p-8 text-center max-w-md">
-          <h2 className="text-2xl font-bold mb-2 text-gray-900">Please sign in</h2>
-          <p className="text-gray-600 mb-4">You need to log in to view your wishlist.</p>
+          <h2 className="text-2xl font-bold mb-2 text-gray-900">
+            Please sign in
+          </h2>
+          <p className="text-gray-600 mb-4">
+            You need to log in to view your wishlist.
+          </p>
           <Link
             href="/signin"
             className="inline-block bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-accent-content px-6 py-3 rounded-xl font-semibold hover:from-teal-700 hover:to-green-700 transition-all"
@@ -53,8 +62,6 @@ const WishlistComponent = () => {
       });
     }
   };
-
-
 
   const sortedAndFilteredItems = () => {
     let items = [...wishlistItems];
@@ -85,7 +92,9 @@ const WishlistComponent = () => {
       case "newest":
       default:
         items.sort(
-          (a, b) => new Date(b.addedAt || 0).getTime() - new Date(a.addedAt || 0).getTime()
+          (a, b) =>
+            new Date(b.addedAt || 0).getTime() -
+            new Date(a.addedAt || 0).getTime(),
         );
         break;
     }
@@ -98,8 +107,11 @@ const WishlistComponent = () => {
     return Array.from({ length: 5 }, (_, i) => (
       <Star
         key={i}
-        className={`w-4 h-4 ${i < Math.floor(value) ? "text-yellow-400 fill-current" : "text-gray-300"
-          }`}
+        className={`w-4 h-4 ${
+          i < Math.floor(value)
+            ? "text-yellow-400 fill-current"
+            : "text-gray-300"
+        }`}
       />
     ));
   };
@@ -131,14 +143,18 @@ const WishlistComponent = () => {
     );
 
   return (
-    <div className="min-h-screen lg:pt-24 py-6 bg-bg p-4 sm:p-6 lg:p-8">
+    <section className="min-h-screen lg:pt-24 py-6 bg-bg p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
+        <BackButton className="mb-6" />
+
         {/* Header */}
-        <div className="text-center mb  -8">
+        <div className="text-center mb-8">
           <h1 className="text-4xl sm:text-5xl font-bold bg-btn-color bg-clip-text text-transparent mb-4 animate-fade-in">
             My Wishlist
           </h1>
-          <p className="text-gray-600 text-lg">{wishlistItems.length} items waiting for you</p>
+          <p className="text-gray-600 text-lg">
+            {wishlistItems.length} items waiting for you
+          </p>
         </div>
 
         {/* Controls */}
@@ -148,19 +164,21 @@ const WishlistComponent = () => {
             <div className="flex items-center bg-gray-100 rounded-xl p-1">
               <button
                 onClick={() => setViewMode("grid")}
-                className={`p-2 rounded-lg transition-all duration-300 ${viewMode === "grid"
-                  ? "bg-white shadow-md text-teal-600"
-                  : "text-gray-600 hover:text-green-600"
-                  }`}
+                className={`p-2 rounded-lg transition-all duration-300 ${
+                  viewMode === "grid"
+                    ? "bg-white shadow-md text-teal-600"
+                    : "text-gray-600 hover:text-green-600"
+                }`}
               >
                 <Grid className="w-5 h-5" />
               </button>
               <button
                 onClick={() => setViewMode("list")}
-                className={`p-2 rounded-lg transition-all duration-300 ${viewMode === "list"
-                  ? "bg-white shadow-md text-teal-600"
-                  : "text-gray-600 hover:text-green-600"
-                  }`}
+                className={`p-2 rounded-lg transition-all duration-300 ${
+                  viewMode === "list"
+                    ? "bg-white shadow-md text-teal-600"
+                    : "text-gray-600 hover:text-green-600"
+                }`}
               >
                 <List className="w-5 h-5" />
               </button>
@@ -199,22 +217,28 @@ const WishlistComponent = () => {
         {sortedAndFilteredItems().length === 0 ? (
           <div className="text-center py-16">
             <Heart className="w-24 h-24 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-2xl font-semibold text-gray-600 mb-2">Your wishlist is empty</h3>
+            <h3 className="text-2xl font-semibold text-gray-600 mb-2">
+              Your wishlist is empty
+            </h3>
             <p className="text-gray-500">Start adding items you love!</p>
           </div>
         ) : (
           <div
-            className={`grid gap-6 ${viewMode === "grid"
-              ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-              : "grid-cols-1"
-              }`}
+            className={`grid gap-6 ${
+              viewMode === "grid"
+                ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                : "grid-cols-1"
+            }`}
           >
             {sortedAndFilteredItems().map((item, index) => (
               <Link
                 href={`/productdetails/${item.id}`}
                 key={item.id}
-                className={`group cursor-pointer bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl hover:shadow-2xl border border-white/50 overflow-hidden transition-all duration-500 hover:scale-105 ${animatingItems.has(item.id) ? "animate-pulse opacity-50 scale-95" : ""
-                  } ${viewMode === "list" ? "flex" : ""}`}
+                className={`group cursor-pointer bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl hover:shadow-2xl border border-white/50 overflow-hidden transition-all duration-500 hover:scale-105 ${
+                  animatingItems.has(item.id)
+                    ? "animate-pulse opacity-50 scale-95"
+                    : ""
+                } ${viewMode === "list" ? "flex" : ""}`}
                 style={{
                   animationDelay: `${index * 100}ms`,
                   animation: "slideInUp 0.6s ease-out forwards",
@@ -222,8 +246,9 @@ const WishlistComponent = () => {
               >
                 {/* Image */}
                 <div
-                  className={`relative overflow-hidden ${viewMode === "list" ? "w-48 flex-shrink-0" : "h-64"
-                    }`}
+                  className={`relative overflow-hidden ${
+                    viewMode === "list" ? "w-48 flex-shrink-0" : "h-64"
+                  }`}
                 >
                   <img
                     src={item.image}
@@ -253,7 +278,9 @@ const WishlistComponent = () => {
                       <h3 className="font-semibold text-lg text-gray-800 group-hover:text-teal-600 transition-colors duration-300 line-clamp-2">
                         {item.name}
                       </h3>
-                      <p className="text-sm text-gray-500 mt-1">{item.category}</p>
+                      <p className="text-sm text-gray-500 mt-1">
+                        {item.category}
+                      </p>
                     </div>
                     <button
                       onClick={(e) => {
@@ -295,25 +322,26 @@ const WishlistComponent = () => {
                         // addToCart(item);
                       }}
                       disabled={!item.inStock}
-                      className={`flex-1 cursor-pointer flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-semibold transition-all duration-300 ${item.inStock
-                        ? "bg-btn-color hover:to-btn-color/80 text-accent-content shadow-lg hover:shadow-xl transform hover:scale-105"
-                        : "bg-gray-200 text-gray-500 cursor-not-allowed"
-                        }`}
+                      className={`flex-1 cursor-pointer flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-semibold transition-all duration-300 ${
+                        item.inStock
+                          ? "bg-btn-color hover:to-btn-color/80 text-accent-content shadow-lg hover:shadow-xl transform hover:scale-105"
+                          : "bg-gray-200 text-gray-500 cursor-not-allowed"
+                      }`}
                     >
-                      <AddtoCartBtn 
-                      productId={item.id} 
-                      className="flex items-center gap-2">
+                      <AddtoCartBtn
+                        productId={item.id}
+                        className="flex items-center gap-2"
+                      >
                         <ShoppingCart className="w-5 h-5" />
-                      {item.inStock ? "Add to Cart" : "Out of Stock"}</AddtoCartBtn>
+                        {item.inStock ? "Add to Cart" : "Out of Stock"}
+                      </AddtoCartBtn>
                     </button>
-                     
                   </div>
                 </div>
               </Link>
             ))}
           </div>
         )}
-
       </div>
 
       <style jsx>{`
@@ -327,16 +355,20 @@ const WishlistComponent = () => {
             transform: translateY(0);
           }
         }
-        
+
         @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
         }
-        
+
         .animate-fade-in {
           animation: fadeIn 1s ease-out;
         }
-        
+
         .line-clamp-2 {
           display: -webkit-box;
           -webkit-line-clamp: 2;
@@ -344,7 +376,7 @@ const WishlistComponent = () => {
           overflow: hidden;
         }
       `}</style>
-    </div>
+    </section>
   );
 };
 
