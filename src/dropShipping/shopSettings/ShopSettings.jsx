@@ -19,6 +19,7 @@ import { updateUserProfile, uploadUserImage } from "@/src/hook/useAuth";
 import { userget } from "@/src/redux/userSlice";
 import toast from "react-hot-toast";
 import Container from "@/src/compronent/shared/Container";
+import BackButton from "@/src/dropShipping/BackButton/BackButton";
 
 const ShopSettings = () => {
   const data = useSelector((state) => state.user.data);
@@ -117,14 +118,17 @@ const ShopSettings = () => {
     <section className="min-h-screen bg-slate-50/50 py-10 md:py-16">
       <Container className="max-w-5xl">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 flex items-center gap-3">
-            <Store className="size-6 sm:size-8 text-emerald-600" />
-            Shop Settings
-          </h1>
-          <p className="mt-2 text-slate-600">
-            Configure your dropshipping business profile and payment details.
-          </p>
+        <div className="mb-8 flex flex-col md:flex-row-reverse md:items-center justify-between gap-8 md:gap-3">
+          <BackButton className="w-min" />
+          <div className="space-y-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 flex items-center gap-3">
+              <Store className="size-6 sm:size-8 text-emerald-600" />
+              Shop Settings
+            </h1>
+            <p className="text-slate-600">
+              Configure your dropshipping business profile and payment details.
+            </p>
+          </div>
         </div>
 
         <form
