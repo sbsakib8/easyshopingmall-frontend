@@ -149,8 +149,8 @@ function OrderDetailsModal({ order, onClose }) {
 
             <div className="bg-green-50 border rounded-xl p-4">
               <p className="text-xs text-gray-500 mb-2">Payment Status</p>
-              <span className={`inline-block px-3 py-1 text-xs rounded-full font-semibold capitalize ${getStatusColor(order.payment_status)}`}>
-                {order.payment_status || "N/A"}
+              <span className={`inline-block px-3 py-1 text-xs rounded-full font-bold capitalize ${getStatusColor(order.payment_status)}`}>
+                {order.payment_status === "paid" ? "পরিশোধিত (Paid)" : order.payment_status === "submitted" ? "পেমেন্ট জমা হয়েছে (Submitted)" : "অপরিশোধিত (Unpaid)"}
               </span>
             </div>
 

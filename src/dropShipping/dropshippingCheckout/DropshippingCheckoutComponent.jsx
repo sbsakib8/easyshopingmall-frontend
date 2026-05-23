@@ -112,7 +112,7 @@ const DropshippingCheckoutComponent = () => {
 
   const handleApplyDsCoupon = async () => {
     if (!couponCode) {
-      toast.error("Please enter a coupon code");
+      toast.error("অনুগ্রহ করে একটি কুপন কোড লিখুন");
       return;
     }
 
@@ -124,22 +124,22 @@ const DropshippingCheckoutComponent = () => {
         cartItems: items.map(item => ({
           productId: item.productId._id,
           quantity: item.quantity,
-          price: item.price
+          price: item.sellingPrice || item.price
         }))
       });
 
       if (resp.success) {
-        toast.success(resp.message || "Coupon applied!");
+        toast.success(resp.message || "কুপন সফলভাবে প্রযোজ্য হয়েছে!");
         dispatch(setDsCoupon({
           coupon: resp.coupon,
           discountAmount: resp.discountAmount
         }));
       } else {
-        toast.error(resp.message || "Invalid or inactive coupon");
+        toast.error(resp.message || "অবৈধ বা নিষ্ক্রিয় কুপন");
         dispatch(clearDsCoupon());
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Error applying coupon");
+      toast.error(error.response?.data?.message || "কুপন প্রয়োগ করতে সমস্যা হয়েছে");
       dispatch(clearDsCoupon());
     } finally {
       setIsApplyingCoupon(false);
@@ -149,7 +149,7 @@ const DropshippingCheckoutComponent = () => {
   const removeDsCoupon = () => {
     setCouponCode("");
     dispatch(clearDsCoupon());
-    toast.success("Coupon removed");
+    toast.success("কুপন সরিয়ে ফেলা হয়েছে");
   };
 
   useEffect(() => {
@@ -704,6 +704,7 @@ const DropshippingCheckoutComponent = () => {
                         </div>
                       </div>
                     </div>
+                  ))}
                 </div>
 
                 {/* Coupon Input UI */}

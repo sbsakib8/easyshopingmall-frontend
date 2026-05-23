@@ -259,6 +259,13 @@ const CompletedOrdersPage = () => {
                     <span className="text-accent-content font-semibold">Total:</span>
                     <span className="text-green-400 font-bold text-lg">৳{order.totalAmt}</span>
                   </div>
+
+                  {order?.couponDiscount > 0 && (
+                    <div className="flex justify-between items-center text-xs font-semibold text-emerald-400 mt-2 bg-emerald-500/10 py-1.5 px-3 rounded-xl border border-emerald-500/20">
+                      <span>🎟️ Coupon Used ({order.appliedCoupon}):</span>
+                      <span>-৳{order.couponDiscount}</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Action Buttons */}

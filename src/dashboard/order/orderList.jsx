@@ -435,6 +435,13 @@ const OrderManagement = () => {
  </div>
  </div>
 
+ {order?.couponDiscount > 0 && (
+ <div className="flex justify-between items-center text-xs font-semibold text-emerald-400 mb-4 bg-emerald-500/10 py-1.5 px-3 rounded-xl border border-emerald-500/20">
+ <span>🎟️ Coupon Used ({order.appliedCoupon}):</span>
+ <span>-৳{order.couponDiscount}</span>
+ </div>
+ )}
+
  <div className="flex items-center justify-between mb-4">
  <div className="flex items-center gap-2">
  {StatusIcon && <StatusIcon className="h-5 w-5 text-accent-content"/>}

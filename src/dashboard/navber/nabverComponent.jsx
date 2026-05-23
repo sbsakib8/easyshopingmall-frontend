@@ -29,6 +29,7 @@ import {
   TrendingUp,
   Truck,
   Users,
+  Video,
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -222,6 +223,20 @@ const DashboardNebver = ({ children }) => {
           id: 103,
           label: "Payout Requests",
           icon: DollarSign,
+        },
+        {
+          path: "dropshipping/manage-videos",
+          id: 104,
+          label: "Manage Videos",
+          icon: Video,
+          roles: ["ADMIN"],
+        },
+        {
+          path: "dropshipping/video-requests",
+          id: 105,
+          label: "Video Requests",
+          icon: Shield,
+          roles: ["ADMIN"],
         },
       ],
     },
