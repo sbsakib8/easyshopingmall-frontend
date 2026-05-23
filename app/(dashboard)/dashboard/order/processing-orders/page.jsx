@@ -1,11 +1,11 @@
-import PendingOrdersPage from"@/src/dashboard/order/pendingOrder"
+import PendingOrdersPage from "@/src/dashboard/order/pendingOrder";
 
-const pending=()=> {
- return (
- <div>
- <PendingOrdersPage/>
- </div>
- )
-}
+const PendingOrders = () => {
+  return (
+    <>
+      <PendingOrdersPage />
+    </>
+  );
+};
 
-export default pending
+export default PendingOrders;

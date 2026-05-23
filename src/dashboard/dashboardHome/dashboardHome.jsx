@@ -331,7 +331,7 @@ const DashboardHome = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 overflow-hidden">
-      <main className="lg:ml-15 py-5 px-2 lg:px-9">
+      <main className="py-5 px-2 lg:px-9">
         {/* Welcome Section */}
         <div className="mb-8">
           <div className="bg-gradient-to-r from-gray-900 via-black to-slate-900 rounded-3xl p-6 sm:p-8 text-accent-content shadow-2xl shadow-black/50 relative overflow-hidden backdrop-blur-xl border border-gray-800/50">

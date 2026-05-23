@@ -285,7 +285,7 @@ const AddProductComponent = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 overflow-hidden">
+    <section className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 overflow-hidden">
       {/* main section */}
       <div className={` py-5 px-2 lg:px-9`}>
         {/* Header */}
@@ -297,24 +297,29 @@ const AddProductComponent = () => {
               <div className="absolute bottom-6 left-6 w-1 h-1 bg-purple-400 rounded-full"></div>
               <div className="absolute top-1/2 right-1/3 w-1 h-1 bg-cyan-400 rounded-full"></div>
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold text-accent-content mb-2">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-content mb-2">
               Add New Product
             </h1>
-            <p className="text-blue-100">EasyShoppingMall Admin Dashboard</p>
+            <p className="text-blue-100 text-xs sm:text-sm md:text-base">
+              EasyShoppingMall Admin Dashboard
+            </p>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <form
+          onSubmit={handleSubmit}
+          className="grid grid-cols-1 md:grid-cols-2 gap-8"
+        >
           {/* Basic Information */}
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
-            <h2 className="text-2xl font-bold text-accent-content mb-6 flex items-center">
+            <h2 className="text-lg md:text-xl font-semibold text-accent-content mb-6 flex items-center">
               <Package className="mr-3 text-blue-400" />
               Basic Information
             </h2>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-accent-content font-medium">
+                <label className="text-accent-content">
                   Product Name
                 </label>
                 <input
@@ -329,7 +334,7 @@ const AddProductComponent = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-accent-content font-medium">Brand</label>
+                <label className="text-accent-content">Brand</label>
                 <input
                   type="text"
                   name="brand"
@@ -341,7 +346,7 @@ const AddProductComponent = () => {
               </div>
 
               <div className="lg:col-span-2 space-y-2">
-                <label className="text-accent-content font-medium">
+                <label className="text-accent-content">
                   Description
                 </label>
                 <textarea
@@ -359,7 +364,7 @@ const AddProductComponent = () => {
 
           {/* Categories & Classification */}
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
-            <h2 className="text-2xl font-bold text-accent-content mb-6 flex items-center">
+            <h2 className="text-lg md:text-xl font-semibold text-accent-content mb-6 flex items-center">
               <Tag className="mr-3 text-green-400" />
               Categories & Classification
             </h2>
@@ -367,7 +372,7 @@ const AddProductComponent = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* CATEGORY */}
               <div className="space-y-2">
-                <label className="text-accent-content font-medium">
+                <label className="text-accent-content">
                   Category
                 </label>
                 <select
@@ -401,7 +406,7 @@ const AddProductComponent = () => {
 
               {/* SUB CATEGORY */}
               <div className="space-y-2">
-                <label className="text-accent-content font-medium">
+                <label className="text-accent-content">
                   Sub Category
                 </label>
                 <select
@@ -435,7 +440,7 @@ const AddProductComponent = () => {
 
               {/* FEATURED */}
               <div className="space-y-2">
-                <label className="text-accent-content font-medium">
+                <label className="text-accent-content">
                   Featured Product
                 </label>
                 <div className="flex items-center p-4 bg-white/10 border border-white/20 rounded-xl mt-1">
@@ -453,7 +458,7 @@ const AddProductComponent = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-accent-content font-medium">
+                <label className="text-accent-content">
                   Boost Product
                 </label>
                 <div className="flex items-center p-4 bg-white/10 border border-white/20 rounded-xl mt-1">
@@ -473,7 +478,7 @@ const AddProductComponent = () => {
 
             {/* Tags */}
             <div className="mt-6 space-y-4">
-              <label className="text-accent-content font-medium">
+              <label className="text-accent-content">
                 Product Status Badges (Tags)
               </label>
               <div className="flex gap-4">
@@ -513,7 +518,7 @@ const AddProductComponent = () => {
 
           {/* Product Details */}
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
-            <h2 className="text-2xl font-bold text-accent-content mb-6 flex items-center">
+            <h2 className="text-lg md:text-xl font-semibold text-accent-content mb-6 flex items-center">
               <BarChart3 className="mr-3 text-yellow-400" />
               Product Details
             </h2>
@@ -521,7 +526,7 @@ const AddProductComponent = () => {
             <div className="grid grid-cols-1 gap-6">
               {/* add weight */}
               <div className="">
-                <label className="text-accent-content font-medium">
+                <label className="text-accent-content">
                   Product weight
                 </label>
                 <div className="flex flex-wrap gap-2">
@@ -564,7 +569,7 @@ const AddProductComponent = () => {
 
               {/* add size */}
               <div className="">
-                <label className="text-accent-content font-medium">
+                <label className="text-accent-content">
                   Product size
                 </label>
                 <div className="flex flex-wrap gap-2">
@@ -607,7 +612,7 @@ const AddProductComponent = () => {
 
               {/* add color */}
               <div className="">
-                <label className="text-accent-content font-medium">
+                <label className="text-accent-content">
                   Product Color
                 </label>
                 <div className="flex flex-wrap gap-2">
@@ -652,14 +657,14 @@ const AddProductComponent = () => {
 
           {/* Pricing & Inventory */}
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
-            <h2 className="text-2xl font-bold text-accent-content mb-6 flex items-center">
+            <h2 className="text-lg md:text-xl font-semibold text-accent-content mb-6 flex items-center">
               <DollarSign className="mr-3 text-green-400" />
               Pricing & Inventory
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-accent-content font-medium">
+                <label className="text-accent-content">
                   Price (৳)
                 </label>
                 <input
@@ -675,7 +680,7 @@ const AddProductComponent = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-accent-content font-medium">
+                <label className="text-accent-content">
                   Stock Quantity
                 </label>
                 <input
@@ -690,7 +695,7 @@ const AddProductComponent = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-accent-content font-medium">
+                <label className="text-accent-content">
                   Discount (%)
                 </label>
                 <input
@@ -706,7 +711,7 @@ const AddProductComponent = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-accent-content font-medium">
+                <label className="text-accent-content">
                   Product Rank
                 </label>
                 <input
@@ -723,7 +728,7 @@ const AddProductComponent = () => {
 
             {/* Ratings */}
             <div className="mt-6 space-y-2">
-              <label className="text-accent-content font-medium">
+              <label className="text-accent-content">
                 Initial Rating
               </label>
               <div className="flex items-center space-x-2">
@@ -755,7 +760,7 @@ const AddProductComponent = () => {
 
           {/* Media Upload */}
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20 md:col-span-full">
-            <h2 className="text-2xl font-bold text-accent-content mb-6 flex items-center">
+            <h2 className="text-lg md:text-xl font-semibold text-accent-content mb-6 flex items-center">
               <Camera className="mr-3 text-purple-400" />
               Product Images
             </h2>
@@ -778,7 +783,7 @@ const AddProductComponent = () => {
                 className="mx-auto mb-4 text-accent-content/60"
                 size={48}
               />
-              <p className="text-accent-content mb-4 text-lg">
+              <p className="text-accent-content mb-4 text-base md:text-lg">
                 Drag & drop images here or click to browse
               </p>
               <input
@@ -791,7 +796,7 @@ const AddProductComponent = () => {
               />
               <label
                 htmlFor="image-upload"
-                className="cursor-pointer bg-gradient-to-r from-purple-500 to-pink-500 text-accent-content px-6 py-3 rounded-xl hover:from-purple-600 hover:to-pink-600 inline-block"
+                className="cursor-pointer bg-gradient-to-r from-purple-500 to-pink-500 text-accent-content px-6 py-2.5 rounded-xl hover:from-purple-600 hover:to-pink-600 inline-block"
               >
                 Browse Images
               </label>
@@ -831,11 +836,11 @@ const AddProductComponent = () => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-end md:col-span-full">
+          <div className="flex gap-4 justify-end md:col-span-full">
             <button
               type="button"
               onClick={handlePreview}
-              className="px-8 py-4 bg-gradient-to-r from-gray-600 to-gray-700 text-accent-content rounded-xl hover:from-gray-700 hover:to-gray-800 flex items-center justify-center space-x-2 transform"
+              className="px-4 py-2.5 bg-gradient-to-r from-gray-600 to-gray-700 text-accent-content rounded-xl hover:from-gray-700 hover:to-gray-800 flex items-center justify-center gap-1.5 transform"
             >
               <Eye size={20} />
               <span>Preview Product</span>
@@ -844,7 +849,7 @@ const AddProductComponent = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className={`px-8 py-4 rounded-xl text-accent-content flex items-center justify-center space-x-2 shadow-lg 
+              className={`px-4 py-2.5 rounded-xl text-accent-content flex items-center justify-center space-x-2 shadow-lg 
  ${
    isLoading
      ? "bg-gray-500 cursor-not-allowed"
@@ -919,7 +924,7 @@ const AddProductComponent = () => {
  </div>
  </div> */}
       </div>
-    </div>
+    </section>
   );
 };
 
