@@ -49,44 +49,6 @@ const COLORS = [
   "#ef4444",
 ];
 
-const events = [
-  {
-    type: "profit",
-    orderId: "ORD-987654",
-    date: "2025-05-20",
-    amount: 12450,
-    dropshipper: "Rahim Textiles",
-  },
-  {
-    type: "award",
-    orderId: "ORD-987653",
-    date: "2025-05-19",
-    amount: 8750,
-    dropshipper: "Fashion Hub BD",
-  },
-  {
-    type: "profit",
-    orderId: "ORD-987652",
-    date: "2025-05-18",
-    amount: 32500,
-    dropshipper: "Tech Gadgets Ltd",
-  },
-  {
-    type: "profit",
-    orderId: "ORD-987651",
-    date: "2025-05-17",
-    amount: 9800,
-    dropshipper: "Home Decor BD",
-  },
-  {
-    type: "award",
-    orderId: "ORD-987650",
-    date: "2025-05-16",
-    amount: 15200,
-    dropshipper: "Beauty Store",
-  },
-];
-
 function EmptyState({
   icon: Icon = TrendingUp,
   title = "No Data Available",
@@ -932,7 +894,7 @@ export default function DropshippingAnalytics() {
               mode={recentActivity.length !== 0 ? "visible" : "hidden"}
             >
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
-                {events.slice(0, 12).map((event, idx) => (
+                {recentActivity.slice(0, 12).map((event, idx) => (
                   <div
                     key={idx}
                     className="flex items-center gap-4 p-5 bg-gray-950/50 border border-gray-800/50 rounded-3xl hover:border-emerald-500/30 transition-all hover:-translate-y-1"
