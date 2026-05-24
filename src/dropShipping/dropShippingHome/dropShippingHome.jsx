@@ -5,7 +5,7 @@ import Overview from'./overview/Overview';
 const DropShippingHome = ({initialData}) => {
  
  return (
- <div className="min-h-screen bg-[#F9FAFB]">
+ <section className="min-h-screen bg-[#F9FAFB]">
   <div className="relative z-10">
    <div className='py-1 mt-10 h-[200px] sm:h-[400px] lg:h-[720px] bg-white border-b border-gray-200/50 shadow-sm'>
     <div className='py-1 h-[200px] sm:h-[400px] lg:h-[720px]'>
@@ -15,7 +15,7 @@ const DropShippingHome = ({initialData}) => {
    </div>
    <Overview/>
   </div>
- </div>
+ </section>
  );
 };
 
