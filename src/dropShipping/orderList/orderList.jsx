@@ -11,12 +11,10 @@ import {
   TrendingUp,
   Loader2,
   Home,
-  ShoppingBag,
   Clock,
   CheckCircle2,
   XCircle,
   Truck,
-  BarChart3,
   ArrowRight,
   Eye,
 } from "lucide-react";
@@ -25,6 +23,7 @@ import { useMyOrders } from "@/src/utlis/useMyOrders";
 import Container from "@/src/compronent/shared/Container";
 import Image from "next/image";
 import { cn } from "@/src/utlis/utils";
+import BackButton from "../BackButton/BackButton";
 
 /* ── Status badge ── */
 const StatusBadge = ({ status, className = "" }) => {
@@ -183,6 +182,8 @@ const OrderList = () => {
   return (
     <section className="min-h-screen bg-slate-50 py-10 md:py-16">
       <Container className="space-y-6">
+        <BackButton />
+
         {/* ── Breadcrumb ── */}
         <nav className="flex items-center gap-2 text-xs font-medium text-slate-400">
           <Link
@@ -515,7 +516,7 @@ const OrderList = () => {
                         </div>
 
                         {/* Content Section */}
-                        <div className="p-5">
+                        <div className="p-3 sm:p-5">
                           {/* Product Name */}
                           <h3 className="font-bold text-slate-900 text-base sm:text-[17px] leading-tight line-clamp-1 sm:mb-4">
                             {firstProduct?.name}
@@ -548,31 +549,31 @@ const OrderList = () => {
                           </div>
 
                           {/* Financial Summary - Compact */}
-                          <div className="flex flex-wrap items-center justify-between gap-3 py-4 sm:border-t border-slate-100">
-                            <div className="text-center">
-                              <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                                Cost
+                          <div className="space-y-2.5 py-4 sm:border-t border-slate-100">
+                            <div className="flex items-center justify-between gap-1">
+                              <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
+                                Cost:
                               </p>
-                              <p className="text-base sm:text-lg font-semibold text-slate-700 mt-1">
+                              <p className="text-sm sm:text-base font-semibold text-slate-900 mt-1">
                                 ৳{totalCost.toLocaleString()}
                               </p>
                             </div>
 
-                            <div className="text-center">
-                              <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                                {isDS ? "Sell" : "Total"}
+                            <div className="flex items-center justify-between gap-1">
+                              <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
+                                {isDS ? "Sell:" : "Total:"}
                               </p>
-                              <p className="text-base sm:text-lg font-bold text-slate-900 mt-1">
+                              <p className="text-sm sm:text-base font-semibold text-slate-900 mt-1">
                                 ৳{totalSell.toLocaleString()}
                               </p>
                             </div>
 
                             {isDS && (
-                              <div className="text-center">
-                                <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-emerald-600">
-                                  Profit
+                              <div className="flex items-center justify-between gap-1">
+                                <p className="text-xs font-bold uppercase tracking-widest text-emerald-600">
+                                  Profit:
                                 </p>
-                                <p className="text-base sm:text-lg font-bold text-emerald-700 flex items-center justify-center gap-1 mt-1">
+                                <p className="text-sm sm:text-base font-semibold text-emerald-700 flex items-center justify-center gap-1 mt-1">
                                   ৳{totalProfit.toLocaleString()}
                                 </p>
                               </div>

@@ -58,15 +58,7 @@ const handleDownloadImage = async (e, imageUrl, productName) => {
 };
 
 const ProductCard = React.memo(
-  ({
-    product,
-    viewMode,
-    wishlist,
-    dispatch,
-    dsCartItems,
-    user,
-    wishlistLoading,
-  }) => {
+  ({ product, wishlist, dispatch, dsCartItems, user, wishlistLoading }) => {
     const router = useRouter();
 
     if (!product) return null;
@@ -86,7 +78,7 @@ const ProductCard = React.memo(
       return [...Array(5)].map((_, i) => (
         <Star
           key={i}
-          className={`w-3 h-3 sm:w-4 sm:h-4 ${
+          className={`size-2.5 lg:size-3.5 ${
             i < Math.floor(rating)
               ? "text-yellow-400 fill-current"
               : "text-gray-300"
@@ -139,46 +131,31 @@ const ProductCard = React.memo(
     return (
       <div
         onClick={() => router.push(`/productdetails/${product._id}`)}
-        className={`group bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col h-full animate-fade-up ${viewMode === "list" ? "flex-row" : ""}`}
+        className={`group bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col h-full animate-fade-up`}
       >
         {/* Image Section */}
         <div
-          className={`relative overflow-hidden ${viewMode === "list" ? "w-52 sm:w-60 shrink-0" : "w-full"}`}
+          className={`relative aspect-2/3 overflow-hidden w-full h-14 md:h-32`}
         >
           <Image
             src={product.images?.[0] || "/banner/img/placeholder.png"}
             alt={product.productName}
             width={200}
             height={170}
-            className={`w-full object-cover transition-transform duration-700 group-hover:scale-105 ${viewMode === "list" ? "h-full" : "h-32 sm:h-40"}`}
+            className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-105`}
           />
 
           {/* Badges */}
-          <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
+          <div className="absolute top-1.5 left-1.5 md:top-3 md:left-3 flex flex-col gap-1.5 z-10">
             {product.isNew && (
-              <span className="bg-emerald-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-xl shadow-sm">
+              <span className="bg-emerald-500 text-white text-[7px] md:text-[10px] md:font-medium px-1.5 md:px-2.5 py-1 rounded-xl shadow-sm">
                 NEW
               </span>
             )}
-
-            {product.productStatus?.length > 0 &&
-              !product.productStatus.includes("none") && (
-                <span
-                  className={`text-[10px] font-bold px-2.5 py-1 rounded-xl shadow-sm ${
-                    product.productStatus.includes("hot")
-                      ? "bg-red-500"
-                      : "bg-blue-500"
-                  } text-white`}
-                >
-                  {Array.isArray(product.productStatus)
-                    ? product.productStatus[0].toUpperCase()
-                    : product.productStatus}
-                </span>
-              )}
           </div>
 
           {/* Action Buttons on Image - Always Visible */}
-          <div className="absolute top-3 right-3 flex flex-col gap-2 z-20">
+          <div className="absolute top-3 right-3 md:flex flex-col gap-2 z-20 hidden">
             {/* Save Button */}
             <button
               onClick={(e) =>
@@ -220,8 +197,8 @@ const ProductCard = React.memo(
 
           {/* Out of Stock Overlay */}
           {product.productStock < 1 && (
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-10">
-              <span className="bg-red-600 text-white px-5 py-2 rounded-2xl font-bold text-sm tracking-wider">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-20">
+              <span className="bg-red-600 text-white px-2 py-1 md:px-5 md:py-2 rounded-2xl md:font-medium text-[7px] md:text-sm md:tracking-wider">
                 OUT OF STOCK
               </span>
             </div>
@@ -229,20 +206,18 @@ const ProductCard = React.memo(
         </div>
 
         {/* Content Section - Rest remains unchanged */}
-        <div
-          className={`flex-1 flex flex-col p-4 sm:p-5 ${viewMode === "list" ? "justify-between" : ""}`}
-        >
+        <div className={`flex-1 flex flex-col p-1.5 md:p-3.5`}>
           {/* Title & Brand */}
           <div>
-            <h3 className="font-semibold text-slate-800 group-hover:text-emerald-700 transition-colors line-clamp-1 text-sm sm:text-base leading-tight mb-1">
+            <h3 className="md:font-semibold text-slate-800 group-hover:text-emerald-700 transition-colors line-clamp-2 md:line-clamp-1 text-[10px] md:text-base md:leading-tight md:mb-1">
               {product.productName}
             </h3>
-            <p className="text-xs text-slate-500 font-medium mb-3 uppercase">
+            <p className="text-xs text-slate-500 font-medium mb-3 uppercase hidden md:block">
               {product.brand || "No Brand"}
             </p>
 
             {/* Rating + Price */}
-            <div className="flex items-center justify-between mb-4">
+            <div className="hidden md:flex items-center justify-between mb-4">
               <div className="flex items-center gap-1.5">
                 <div className="flex items-center">
                   {renderStars(ratingValue)}
@@ -252,13 +227,13 @@ const ProductCard = React.memo(
                 </span>
               </div>
 
-              <p className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+              <p className="text-sm lg:text-base font-semibold text-slate-900 tracking-tight">
                 ৳{product.price}
               </p>
             </div>
           </div>
 
-          {/* Only Add to Cart Button Remains */}
+          {/* Add to Cart Button */}
           <div className="mt-auto">
             <button
               onClick={(e) => {
@@ -266,9 +241,9 @@ const ProductCard = React.memo(
                 handleAddToCart();
               }}
               disabled={product.productStock < 1}
-              className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:from-slate-300 disabled:to-slate-400 text-white py-2.5 rounded-2xl font-medium md:font-semibold text-sm tracking-wider flex items-center justify-center gap-2 shadow-md active:scale-[0.97] transition-all"
+              className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:from-slate-300 disabled:to-slate-400 text-white py-2 px-1.5 rounded-2xl font-medium text-xs tracking-wider md:flex items-center justify-center gap-2 shadow-md active:scale-[0.97] transition-all hidden"
             >
-              <ShoppingCart className="w-4 h-4 hidden sm:block" />
+              <ShoppingCart className="size-3.5" />
               ADD TO CART
             </button>
           </div>
@@ -282,16 +257,16 @@ const EmptyProducts = () => {
   const router = useRouter();
 
   return (
-    <div className="flex flex-col items-center justify-center bg-slate-50/50 backdrop-blur-xl rounded-[3rem] border border-slate-100 shadow-sm min-h-[50vh]">
+    <div className="flex flex-col items-center justify-center bg-slate-50/50 backdrop-blur-xl rounded-[3rem] border border-slate-100 shadow-sm min-h-[50vh] px-4 py-6">
       <div className="mb-8 relative">
-        <div className="bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100 flex items-center justify-center">
-          <Search className="w-12 h-12 text-slate-300" />
+        <div className="bg-white p-5 rounded-2xl shadow-xl border border-slate-100 flex items-center justify-center">
+          <Search className="w-9 h-9 text-slate-300" />
           <Sparkles className="absolute -top-2 -right-2 w-8 h-8 text-yellow-400 animate-pulse" />
         </div>
       </div>
 
       <div className="text-center space-y-3 max-w-sm">
-        <h3 className="text-2xl font-black text-slate-800 tracking-tight">
+        <h3 className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">
           No Products Found
         </h3>
         <p className="text-slate-500 text-sm font-medium leading-relaxed">
@@ -302,7 +277,7 @@ const EmptyProducts = () => {
 
       <button
         onClick={() => router.push("/all-products")}
-        className="mt-8 px-8 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl font-black shadow-md hover:shadow-lg transition-all"
+        className="mt-8 px-4 py-2 md:px-8 md:py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl font-semibold shadow-md hover:shadow-lg transition-all"
       >
         Explore All Products
       </button>
@@ -381,6 +356,10 @@ const SubCategoryProductsContent = ({ id }) => {
     window.scrollTo(0, 0);
   }, [page]);
 
+  if (productsLoading) {
+    return <SubCategoryProductsLoading count={12} />;
+  }
+
   return (
     <section className="relative py-10 md:py-16 overflow-hidden bg-gradient-to-br from-slate-50 via-white to-emerald-50/60">
       {/* Animated Background */}
@@ -396,9 +375,7 @@ const SubCategoryProductsContent = ({ id }) => {
       </div>
 
       <Container className="relative z-10 space-y-6 md:space-y-10">
-        {productsLoading ? (
-          <SubCategoryProductsLoading count={10} viewMode={viewMode} />
-        ) : filteredProducts.length === 0 ? (
+        {filteredProducts.length === 0 ? (
           <EmptyProducts />
         ) : (
           <>
@@ -412,7 +389,7 @@ const SubCategoryProductsContent = ({ id }) => {
               </h2>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-6">
+            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-3 lg:gap-6 2xl:gap-8">
               {filteredProducts.map((product) => (
                 <ProductCard
                   key={product._id}

@@ -197,10 +197,10 @@ const DropshippingCartComponent = () => {
                 <div className="bg-emerald-50 p-6 rounded-3xl space-y-3 border border-emerald-100">
                   <div className="flex items-center gap-3 text-emerald-600 font-black">
                     <Calculator className="w-5 h-5" />
-                    <span>PROFIT BREAKDOWN</span>
+                    <span>লাভের বিবরণ</span>
                   </div>
                   <p className="text-sm text-gray-600 leading-relaxed font-medium">
-                    Your profit will be credited to your balance after the customer successfully receives the order.
+                    গ্রাহক সফলভাবে অর্ডারটি গ্রহণ করার পর আপনার লাভ আপনার ব্যালেন্সে যোগ করা হবে।
                   </p>
                 </div>
 

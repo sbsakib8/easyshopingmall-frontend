@@ -2,9 +2,9 @@
 
 /* color set up  */
 /* @theme {
-  --color-primary-color: #135E4B; 
-  --color-secondary: #4CB572; 
-  --color-btn-color: #478c1f;  
+  --color-primary-color: #135E4B;
+  --color-secondary: #4CB572;
+  --color-btn-color: #478c1f;
   --color-bg: #CADCAE;
   --color-accent: black;
   --color-accent-content: white;
@@ -61,6 +61,14 @@
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
   @apply bg-primary-color/80;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* For Firefox */

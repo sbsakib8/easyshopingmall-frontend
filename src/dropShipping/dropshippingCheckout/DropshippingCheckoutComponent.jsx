@@ -1,5 +1,5 @@
 "use client";
-import { dsCartClear } from '@/src/redux/dropshippingCartSlice';
+import { dsCartClear, setDsCoupon, clearDsCoupon } from '@/src/redux/dropshippingCartSlice';
 import {
   CheckCircle2,
   ChevronRight,
@@ -21,6 +21,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { UrlBackend } from '@/src/confic/urlExport';
 import LocationSelects from '@/src/compronent/LocationSelects';
+import { applyCouponCode } from '@/src/hook/useCoupon';
 
 /* ─────────────────────────────────────────────
    Dropshipping brand palette (no main-site tokens)
@@ -52,7 +53,7 @@ const dsLabel = "block text-sm font-semibold text-slate-600 mb-2";
 const DropshippingCheckoutComponent = () => {
   const dispatch = useDispatch();
   const router = useRouter();
-  const { items = [] } = useSelector((state) => state.dropshippingCart);
+  const { items = [], appliedCoupon, couponDiscount } = useSelector((state) => state.dropshippingCart);
   const user = useSelector((state) => state.user.data);
 
   useEffect(() => {
@@ -104,7 +105,52 @@ const DropshippingCheckoutComponent = () => {
     return sum + ((sp - item.price) * item.quantity);
   }, 0);
   const [deliveryCharge, setDeliveryCharge] = useState(100);
-  const total = subtotal + deliveryCharge;
+  const total = subtotal + deliveryCharge - (couponDiscount || 0);
+
+  const [couponCode, setCouponCode] = useState("");
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+
+  const handleApplyDsCoupon = async () => {
+    if (!couponCode) {
+      toast.error("অনুগ্রহ করে একটি কুপন কোড লিখুন");
+      return;
+    }
+
+    setIsApplyingCoupon(true);
+    try {
+      const resp = await applyCouponCode({
+        code: couponCode,
+        checkoutAmount: subtotal,
+        cartItems: items.map(item => ({
+          productId: item.productId._id,
+          quantity: item.quantity,
+          price: item.sellingPrice || item.price
+        }))
+      });
+
+      if (resp.success) {
+        toast.success(resp.message || "কুপন সফলভাবে প্রযোজ্য হয়েছে!");
+        dispatch(setDsCoupon({
+          coupon: resp.coupon,
+          discountAmount: resp.discountAmount
+        }));
+      } else {
+        toast.error(resp.message || "অবৈধ বা নিষ্ক্রিয় কুপন");
+        dispatch(clearDsCoupon());
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "কুপন প্রয়োগ করতে সমস্যা হয়েছে");
+      dispatch(clearDsCoupon());
+    } finally {
+      setIsApplyingCoupon(false);
+    }
+  };
+
+  const removeDsCoupon = () => {
+    setCouponCode("");
+    dispatch(clearDsCoupon());
+    toast.success("কুপন সরিয়ে ফেলা হয়েছে");
+  };
 
   useEffect(() => {
     const dhakaDistricts = [
@@ -196,6 +242,8 @@ const DropshippingCheckoutComponent = () => {
         } : {},
         totalAmt: total,
         deliveryCharge,
+        appliedCoupon: appliedCoupon?.code || null,
+        couponDiscount: couponDiscount || 0,
       };
 
       const response = await axios.post(`${UrlBackend}/orders/manual`, payload, { withCredentials: true });
@@ -659,6 +707,28 @@ const DropshippingCheckoutComponent = () => {
                   ))}
                 </div>
 
+                {/* Coupon Input UI */}
+                <div className="mb-6 p-4 bg-slate-50 border border-slate-100 rounded-3xl mt-4">
+                  <h4 className="text-xs font-black text-slate-500 uppercase tracking-wider mb-2">কুপন কোড (যদি থাকে)</h4>
+                  <div className="flex gap-2">
+                    <input
+                      disabled={appliedCoupon != null}
+                      type="text"
+                      placeholder="কুপন লিখুন"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value)}
+                      className="w-full px-4 py-2 border border-slate-200 rounded-xl text-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                    <button
+                      disabled={!couponCode || isApplyingCoupon || appliedCoupon != null}
+                      onClick={handleApplyDsCoupon}
+                      className="px-4 py-2 bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 disabled:opacity-50 transition-colors"
+                    >
+                      {isApplyingCoupon ? "Applying..." : "Apply"}
+                    </button>
+                  </div>
+                </div>
+
                 {/* Price breakdown - More refined */}
                 <div className="space-y-4 pt-6 border-t border-dashed border-slate-200">
                   <div className="flex justify-between items-center text-sm">
@@ -678,6 +748,13 @@ const DropshippingCheckoutComponent = () => {
                     <span className="font-black text-slate-900">৳{deliveryCharge.toLocaleString()}</span>
                   </div>
 
+                  {appliedCoupon && (
+                    <div className="flex justify-between items-center text-sm text-emerald-600 font-semibold bg-emerald-50/50 p-3 rounded-2xl border border-emerald-100/50">
+                      <span>ডিসকাউন্ট ({appliedCoupon.code}) <button onClick={removeDsCoupon} className="text-rose-500 text-xs ml-2 underline hover:text-rose-600 transition-colors">সরান</button></span>
+                      <span className="font-black">- ৳{couponDiscount.toLocaleString()}</span>
+                    </div>
+                  )}
+
                   <div className="flex justify-between items-center text-sm p-3 bg-blue-50 rounded-xl border border-blue-100">
                     <span className="font-bold text-blue-600">আপনার সম্ভাব্য লাভ</span>
                     <span className="font-black text-blue-700">৳{totalProfit.toLocaleString()}</span>
@@ -687,7 +764,7 @@ const DropshippingCheckoutComponent = () => {
                   <div className="pt-4 border-t-2 border-slate-100 space-y-4">
                     <div className="flex justify-between items-center">
                       <span className="text-xs font-black text-slate-400 uppercase tracking-widest">অর্ডারের মোট মূল্য</span>
-                      <span className="text-base font-bold text-slate-500 line-through opacity-50">৳{(total + 50).toLocaleString()}</span>
+                      <span className="text-base font-bold text-slate-500 line-through opacity-50">৳{(total + (couponDiscount || 0) + 50).toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between items-end">
                       <div className="flex flex-col">
