@@ -21,7 +21,9 @@ import {
     FileText,
     Link2,
     RefreshCw,
-    Download
+    Download,
+    DollarSign,
+    CreditCard
 } from "lucide-react";
 import { UrlBackend } from "@/src/confic/urlExport";
 import DashboardLoader from "@/src/helper/loading/DashboardLoader";
@@ -141,7 +143,10 @@ const VideoAccessManagement = () => {
         const total = requests.length;
         const pending = requests.filter(r => r.status === 'pending').length;
         const approved = requests.filter(r => r.status === 'approved').length;
-        return { total, pending, approved };
+        const revenue = requests
+            .filter(r => r.status === 'approved')
+            .reduce((sum, r) => sum + (r.amount || 0), 0);
+        return { total, pending, approved, revenue };
     }, [requests]);
 
     const customStats = useMemo(() => {
@@ -240,7 +245,7 @@ const VideoAccessManagement = () => {
                                 : "text-slate-300 hover:text-white hover:bg-white/5"
                             }`}
                         >
-                            <ShieldCheck size={14} /> Premium Course Access
+                            <CreditCard size={14} /> Paid Video Payments
                         </button>
                         <button 
                             onClick={() => setActiveTab("custom_requests")}
@@ -261,20 +266,21 @@ const VideoAccessManagement = () => {
                 {activeTab === "premium_access" && (
                     <div className="animate-in fade-in duration-300">
                         {/* Stats */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
                             {[
-                                { label: "Total Requests", value: stats.total, icon: <Hash />, color: "emerald" },
-                                { label: "Pending Approval", value: stats.pending, icon: <Clock />, color: "amber" },
-                                { label: "Approved Users", value: stats.approved, icon: <ShieldCheck />, color: "teal" }
+                                { label: "Total Requests", value: stats.total, icon: <Hash />, color: "emerald", prefix: "" },
+                                { label: "Pending Approval", value: stats.pending, icon: <Clock />, color: "amber", prefix: "" },
+                                { label: "Approved Users", value: stats.approved, icon: <ShieldCheck />, color: "teal", prefix: "" },
+                                { label: "Total Revenue", value: stats.revenue.toLocaleString(), icon: <DollarSign />, color: "purple", prefix: "৳" }
                             ].map((stat, i) => (
                                 <div key={i} className="bg-slate-800/50 border border-slate-700/50 rounded-3xl p-6 hover:bg-slate-800 transition-all group">
                                     <div className="flex justify-between items-start mb-4">
                                         <div className={`p-3 bg-emerald-500/10 text-emerald-400 rounded-2xl group-hover:scale-110 transition-transform`}>
                                             {stat.icon}
                                         </div>
-                                        <span className={`text-[10px] font-black uppercase tracking-widest text-slate-500`}>{stat.label}</span>
+                                        <span className={`text-[10px] font-black uppercase tracking-widest text-slate-500 text-right`}>{stat.label}</span>
                                     </div>
-                                    <p className="text-4xl font-black">{stat.value}</p>
+                                    <p className="text-3xl font-black">{stat.prefix}{stat.value}</p>
                                 </div>
                             ))}
                         </div>
