@@ -32,6 +32,8 @@ import {
   SubCategoryDelete,
   SubCategoryUploade,
 } from "@/src/hook/useSubcategory";
+import { cn } from "@/src/utlis/utils";
+import Container from "@/src/compronent/shared/Container";
 
 const AddSubcategoriesComponent = () => {
   const [formData, setFormData] = useState({
@@ -375,9 +377,78 @@ const AddSubcategoriesComponent = () => {
   });
   const activeSubcategories = subcategories.filter((sub) => sub.isActive);
 
+  const bulkActionButtons = [
+    {
+      label: "Activate All",
+      icon: Eye,
+      onClick: bulkActivate,
+      gradient: "from-green-500 to-emerald-500",
+      hoverGradient: "hover:from-green-600 hover:to-emerald-600",
+    },
+    {
+      label: "Deactivate All",
+      icon: EyeOff,
+      onClick: bulkDeactivate,
+      gradient: "from-red-500 to-pink-500",
+      hoverGradient: "hover:from-red-600 hover:to-pink-600",
+    },
+    {
+      label: "Import CSV",
+      icon: Upload,
+      onClick: () =>
+        toast("CSV import feature coming soon!", {
+          icon: "ℹ️",
+        }),
+      gradient: "from-purple-500 to-indigo-500",
+      hoverGradient: "hover:from-purple-600 hover:to-indigo-600",
+    },
+    {
+      label: "Export Data",
+      icon: Download,
+      onClick: exportData,
+      gradient: "from-blue-500 to-cyan-500",
+      hoverGradient: "hover:from-blue-600 hover:to-cyan-600",
+    },
+  ];
+
+  const analyticsCards = [
+    {
+      title: "Total Subcategories",
+      value: subcategories.length,
+      gradient: "from-indigo-500/20 to-purple-500/20",
+      textColor: "text-purple-300",
+      iconColor: "text-purple-400",
+      icon: Layers,
+    },
+    {
+      title: "Active Subcategories",
+      value: activeSubcategories.length,
+      gradient: "from-green-500/20 to-emerald-500/20",
+      textColor: "text-emerald-300",
+      iconColor: "text-emerald-400",
+      icon: Eye,
+    },
+    {
+      title: "Parent Categories",
+      value: categories.length,
+      gradient: "from-blue-500/20 to-cyan-500/20",
+      textColor: "text-cyan-300",
+      iconColor: "text-cyan-400",
+      icon: Link,
+    },
+    {
+      title: "Inactive",
+      value: subcategories.length - activeSubcategories.length,
+      gradient: "from-orange-500/20 to-red-500/20",
+      textColor: "text-orange-300",
+      iconColor: "text-orange-400",
+      icon: EyeOff,
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 p-4 overflow-hidden">
-      <div className="lg:px-9">
+    <section className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 py-7 md:py-12 overflow-hidden">
+      <Container>
         {/* Welcome Banner */}
         <div className="mb-8 animate-slideDown">
           <div className="relative bg-gradient-to-r from-gray-900/80 via-indigo-900/80 to-purple-900/80 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-gray-700/50 shadow-2xl shadow-indigo-500/10 overflow-hidden">
@@ -405,54 +476,23 @@ const AddSubcategoriesComponent = () => {
         </div>
 
         {/* Analytics Cards */}
-        <div className="mb-8 grid grid-cols-2 md:grid-cols-4 gap-6">
-          <div className="bg-gradient-to-r from-indigo-500/20 to-purple-500/20 backdrop-blur-lg rounded-xl p-4 border border-white/10 transform">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-purple-300 text-sm">Total Subcategories</p>
-                <p className="text-accent-content text-2xl font-bold">
-                  {subcategories.length}
-                </p>
+        <div className="mb-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+          {analyticsCards.map((card, index) => (
+            <div
+              key={index}
+              className={`bg-gradient-to-r ${card.gradient} backdrop-blur-lg rounded-xl p-4 border border-white/10 transform`}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={`text-sm ${card.textColor}`}>{card.title}</p>
+                  <p className="text-accent-content text-2xl font-bold">
+                    {card.value}
+                  </p>
+                </div>
+                <card.icon className={card.iconColor} size={28} />
               </div>
-              <Layers className="text-purple-400" size={28} />
             </div>
-          </div>
-
-          <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 backdrop-blur-lg rounded-xl p-4 border border-white/10 transform">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-emerald-300 text-sm">Active Subcategories</p>
-                <p className="text-accent-content text-2xl font-bold">
-                  {activeSubcategories.length}
-                </p>
-              </div>
-              <Eye className="text-emerald-400" size={28} />
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-r from-blue-500/20 to-cyan-500/20 backdrop-blur-lg rounded-xl p-4 border border-white/10 transform">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-cyan-300 text-sm">Parent Categories</p>
-                <p className="text-accent-content text-2xl font-bold">
-                  {categories.length}
-                </p>
-              </div>
-              <Link className="text-cyan-400" size={28} />
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 backdrop-blur-lg rounded-xl p-4 border border-white/10 transform">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-orange-300 text-sm">Inactive</p>
-                <p className="text-accent-content text-2xl font-bold">
-                  {subcategories.length - activeSubcategories.length}
-                </p>
-              </div>
-              <EyeOff className="text-orange-400" size={28} />
-            </div>
-          </div>
+          ))}
         </div>
 
         {/* Controls */}
@@ -563,7 +603,7 @@ const AddSubcategoriesComponent = () => {
         {showAddForm && (
           <div className="mb-8 bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20 transform animate-slideIn">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-accent-content flex items-center">
+              <h2 className="text-xl font-bold text-accent-content flex items-center">
                 <Layers className="mr-3 text-green-400" />
                 {editingId ? "Edit Subcategory" : "Add New Subcategory"}
               </h2>
@@ -651,7 +691,7 @@ const AddSubcategoriesComponent = () => {
                         onClick={() =>
                           setFormData((prev) => ({ ...prev, icon }))
                         }
-                        className={`p-3 rounded-xl border-2 text-xl ${
+                        className={`p-3 rounded-xl border-2 text-xl flex items-center justify-center ${
                           formData.icon === icon
                             ? "border-green-500 bg-green-500/20 shadow-lg"
                             : "border-white/20 hover:border-white/40"
@@ -945,17 +985,6 @@ const AddSubcategoriesComponent = () => {
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4 flex-1">
-                        <button
-                          onClick={() => toggleExpanded(subcategory._id)}
-                          className="text-gray-400 hover:text-accent-content p-1 hover:bg-white/10 rounded"
-                        >
-                          {expandedSubcategories.has(subcategory._id) ? (
-                            <ChevronDown size={20} />
-                          ) : (
-                            <ChevronRight size={20} />
-                          )}
-                        </button>
-
                         <div
                           className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-lg"
                           style={{
@@ -1077,43 +1106,29 @@ const AddSubcategoriesComponent = () => {
 
         {/* Bulk Actions Panel */}
         <div className="mt-8 bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
-          <h2 className="text-2xl font-bold text-accent-content mb-6 flex items-center">
+          <h2 className="text-xl font-bold text-accent-content mb-6 flex items-center">
             <Edit3 className="mr-3 text-yellow-400" />
             Bulk Operations
           </h2>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <button
-              onClick={bulkActivate}
-              className="px-6 py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-accent-content rounded-xl hover:from-green-600 hover:to-emerald-600 flex items-center justify-center space-x-2 transform shadow-lg"
-            >
-              <Eye size={20} />
-              <span>Activate All</span>
-            </button>
-
-            <button
-              onClick={bulkDeactivate}
-              className="px-6 py-4 bg-gradient-to-r from-red-500 to-pink-500 text-accent-content rounded-xl hover:from-red-600 hover:to-pink-600 flex items-center justify-center space-x-2 transform shadow-lg text-nowrap"
-            >
-              <EyeOff size={20} />
-              <span>Deactivate All</span>
-            </button>
-
-            <button
-              onClick={() => toast.info("CSV import feature coming soon")}
-              className="px-6 py-4 bg-gradient-to-r from-purple-500 to-indigo-500 text-accent-content rounded-xl hover:from-purple-600 hover:to-indigo-600 flex items-center justify-center space-x-2 transform shadow-lg"
-            >
-              <Upload size={20} />
-              <span>Import CSV</span>
-            </button>
-
-            <button
-              onClick={exportData}
-              className="px-6 py-4 bg-gradient-to-r from-blue-500 to-cyan-500 text-accent-content rounded-xl hover:from-blue-600 hover:to-cyan-600 flex items-center justify-center space-x-2 transform shadow-lg"
-            >
-              <Download size={20} />
-              <span>Export Data</span>
-            </button>
+            {bulkActionButtons.map((btn, index) => (
+              <button
+                key={index}
+                onClick={btn.onClick}
+                className={cn(
+                  "px-4 py-2 bg-gradient-to-r text-accent-content rounded-xl",
+                  "flex items-center justify-center space-x-2 transform shadow-lg",
+                  "hover:shadow-xl active:scale-95 transition-all duration-200",
+                  btn.gradient,
+                  btn.hoverGradient,
+                  btn.label === "Deactivate All" && "text-nowrap",
+                )}
+              >
+                <btn.icon size={20} className="hidden sm:inline-block" />
+                <span>{btn.label}</span>
+              </button>
+            ))}
           </div>
         </div>
 
@@ -1261,7 +1276,7 @@ const AddSubcategoriesComponent = () => {
             </div>
           </div>
         </div>
-      </div>
+      </Container>
 
       <style jsx>{`
         @keyframes slideIn {
@@ -1324,7 +1339,7 @@ const AddSubcategoriesComponent = () => {
           background: linear-gradient(45deg, #7c3aed, #db2777);
         }
       `}</style>
-    </div>
+    </section>
   );
 };
 

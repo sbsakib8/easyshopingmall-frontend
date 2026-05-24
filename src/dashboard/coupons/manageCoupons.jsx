@@ -253,18 +253,15 @@ const ManageCoupons = () => {
 
         {/* Form Section */}
         {showForm && (
-          <div className="mb-8 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl animate-slideIn">
-            <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
+          <div className="mb-8 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-8 shadow-2xl animate-slideIn">
+            <h2 className="text-xl font-bold text-white mb-6 flex items-center">
               <Ticket className="mr-3 text-indigo-400" />
               {editingId ? "Edit Coupon" : "Create New Coupon"}
             </h2>
 
-            <form
-              onSubmit={handleSubmit}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            >
+            <form onSubmit={handleSubmit} className="space-y-8">
               {/* Basic Info */}
-              <div className="space-y-4">
+              <div className="space-y-5">
                 <div>
                   <label className="block text-gray-400 mb-2 font-medium">
                     Coupon Code *
@@ -275,10 +272,11 @@ const ManageCoupons = () => {
                     value={formData.code}
                     onChange={handleInputChange}
                     placeholder="SUMMER24"
-                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 uppercase"
+                    className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-3.5 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 uppercase tracking-wider"
                     required
                   />
                 </div>
+
                 <div>
                   <label className="block text-gray-400 mb-2 font-medium">
                     Description
@@ -287,258 +285,242 @@ const ManageCoupons = () => {
                     name="description"
                     value={formData.description}
                     onChange={handleInputChange}
-                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 h-24"
+                    className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-3.5 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 min-h-[100px] resize-y"
                     placeholder="Get 20% off on all items"
                   />
                 </div>
               </div>
 
-              {/* Discount Config */}
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-gray-400 mb-2 font-medium">
-                      Type
-                    </label>
-                    <select
-                      name="discountType"
-                      value={formData.discountType}
-                      onChange={handleInputChange}
-                      className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    >
-                      <option value="percentage" className="bg-gray-900">
-                        Percentage %
-                      </option>
-                      <option value="flat" className="bg-gray-900">
-                        Flat Amount ৳
-                      </option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-gray-400 mb-2 font-medium">
-                      Amount
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        name="discountAmount"
-                        value={formData.discountAmount}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Discount Config */}
+                <div className="space-y-5">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-gray-400 mb-2 font-medium">
+                        Discount Type
+                      </label>
+                      <select
+                        name="discountType"
+                        value={formData.discountType}
                         onChange={handleInputChange}
-                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      />
-                      <span className="absolute right-4 top-3 text-gray-500 font-bold">
-                        {formData.discountType === "percentage" ? "%" : "৳"}
-                      </span>
+                        className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-3.5 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      >
+                        <option value="percentage">Percentage %</option>
+                        <option value="flat">Flat Amount ৳</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-gray-400 mb-2 font-medium">
+                        Amount
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          name="discountAmount"
+                          value={formData.discountAmount}
+                          onChange={handleInputChange}
+                          className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-3.5 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                        <span className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-500 font-bold pointer-events-none">
+                          {formData.discountType === "percentage" ? "%" : "৳"}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {formData.discountType === "percentage" && (
+                  {formData.discountType === "percentage" && (
+                    <div>
+                      <label className="block text-gray-400 mb-2 font-medium">
+                        Max Discount (0 for no limit)
+                      </label>
+                      <input
+                        type="number"
+                        name="maxDiscountAmount"
+                        value={formData.maxDiscountAmount}
+                        onChange={handleInputChange}
+                        className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-3.5 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                    </div>
+                  )}
+
                   <div>
                     <label className="block text-gray-400 mb-2 font-medium">
-                      Max Discount (0 for no limit)
+                      Minimum Order Amount
                     </label>
                     <input
                       type="number"
-                      name="maxDiscountAmount"
-                      value={formData.maxDiscountAmount}
+                      name="minOrderAmount"
+                      value={formData.minOrderAmount}
                       onChange={handleInputChange}
-                      className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-3.5 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     />
                   </div>
-                )}
-
-                <div>
-                  <label className="block text-gray-400 mb-2 font-medium">
-                    Min Order Amount
-                  </label>
-                  <input
-                    type="number"
-                    name="minOrderAmount"
-                    value={formData.minOrderAmount}
-                    onChange={handleInputChange}
-                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  />
-                </div>
-              </div>
-
-              {/* Constraints & Targets */}
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-gray-400 mb-2 font-medium">
-                    Target Category
-                  </label>
-                  <select
-                    name="applicableCategory"
-                    value={formData.applicableCategory}
-                    onChange={handleInputChange}
-                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  >
-                    <option value="" className="bg-gray-900">
-                      All Categories
-                    </option>
-                    {categories.map((cat) => (
-                      <option
-                        key={cat._id}
-                        value={cat._id}
-                        className="bg-gray-900"
-                      >
-                        {cat.name}
-                      </option>
-                    ))}
-                  </select>
                 </div>
 
-                <div>
-                  <label className="block text-gray-400 mb-2 font-medium">
-                    Target SubCategory
-                  </label>
-                  <select
-                    name="applicableSubCategory"
-                    value={formData.applicableSubCategory}
-                    onChange={handleInputChange}
-                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  >
-                    <option value="" className="bg-gray-900">
-                      All SubCategories
-                    </option>
-                    {subCategories
-                      .filter(
-                        (sub) =>
-                          !formData.applicableCategory ||
-                          sub.category?._id === formData.applicableCategory ||
-                          sub.category === formData.applicableCategory,
-                      )
-                      .map((sub) => (
-                        <option
-                          key={sub._id}
-                          value={sub._id}
-                          className="bg-gray-900"
-                        >
-                          {sub.name}
+                {/* Constraints & Targets */}
+                <div className="space-y-5">
+                  <div>
+                    <label className="block text-gray-400 mb-2 font-medium">
+                      Target Category
+                    </label>
+                    <select
+                      name="applicableCategory"
+                      value={formData.applicableCategory}
+                      onChange={handleInputChange}
+                      className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-3.5 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                      <option value="">All Categories</option>
+                      {categories.map((cat) => (
+                        <option key={cat._id} value={cat._id}>
+                          {cat.name}
                         </option>
                       ))}
-                  </select>
-                </div>
+                    </select>
+                  </div>
 
-                <div>
-                  <label className="block text-gray-400 mb-2 font-medium">
-                    Target Specific Product
-                  </label>
-                  <select
-                    name="applicableProduct"
-                    value={formData.applicableProduct}
-                    onChange={handleInputChange}
-                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  >
-                    <option value="" className="bg-gray-900">
-                      None (Apply to cart)
-                    </option>
-                    {products.map((prod) => (
-                      <option
-                        key={prod._id}
-                        value={prod._id}
-                        className="bg-gray-900"
-                      >
-                        {prod.productName}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* Dates & Limits */}
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-gray-400 mb-2 font-medium">
-                      Valid From
+                      Target SubCategory
                     </label>
-                    <input
-                      type="date"
-                      name="validFrom"
-                      value={formData.validFrom}
+                    <select
+                      name="applicableSubCategory"
+                      value={formData.applicableSubCategory}
                       onChange={handleInputChange}
-                      className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    />
+                      className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-3.5 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                      <option value="">All SubCategories</option>
+                      {subCategories
+                        .filter(
+                          (sub) =>
+                            !formData.applicableCategory ||
+                            sub.category?._id === formData.applicableCategory ||
+                            sub.category === formData.applicableCategory,
+                        )
+                        .map((sub) => (
+                          <option key={sub._id} value={sub._id}>
+                            {sub.name}
+                          </option>
+                        ))}
+                    </select>
                   </div>
+
                   <div>
                     <label className="block text-gray-400 mb-2 font-medium">
-                      Valid Until
+                      Target Specific Product
+                    </label>
+                    <select
+                      name="applicableProduct"
+                      value={formData.applicableProduct}
+                      onChange={handleInputChange}
+                      className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-3.5 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                      <option value="">None (Apply to cart)</option>
+                      {products.map((prod) => (
+                        <option key={prod._id} value={prod._id}>
+                          {prod.productName}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Dates, Limits & Flags */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-5">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-gray-400 mb-2 font-medium">
+                        Valid From
+                      </label>
+                      <input
+                        type="date"
+                        name="validFrom"
+                        value={formData.validFrom}
+                        onChange={handleInputChange}
+                        className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-3.5 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gray-400 mb-2 font-medium">
+                        Valid Until
+                      </label>
+                      <input
+                        type="date"
+                        name="validUntil"
+                        value={formData.validUntil}
+                        onChange={handleInputChange}
+                        className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-3.5 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-400 mb-2 font-medium">
+                      Usage Limit (0 for unlimited)
                     </label>
                     <input
-                      type="date"
-                      name="validUntil"
-                      value={formData.validUntil}
+                      type="number"
+                      name="usageLimit"
+                      value={formData.usageLimit}
                       onChange={handleInputChange}
-                      className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-3.5 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     />
                   </div>
                 </div>
-                <div>
-                  <label className="block text-gray-400 mb-2 font-medium">
-                    Usage Limit (0 for unlimited)
-                  </label>
-                  <input
-                    type="number"
-                    name="usageLimit"
-                    value={formData.usageLimit}
-                    onChange={handleInputChange}
-                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  />
+
+                {/* Flags */}
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4 flex flex-col justify-center">
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="isActive"
+                      name="isActive"
+                      checked={formData.isActive}
+                      onChange={handleInputChange}
+                      className="w-5 h-5 accent-indigo-600 bg-gray-700 border-white/20 rounded focus:ring-indigo-500"
+                    />
+                    <label
+                      htmlFor="isActive"
+                      className="ml-3 text-white font-medium cursor-pointer"
+                    >
+                      Active
+                    </label>
+                  </div>
+
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="isForNewUserOnly"
+                      name="isForNewUserOnly"
+                      checked={formData.isForNewUserOnly}
+                      onChange={handleInputChange}
+                      className="w-5 h-5 accent-indigo-600 bg-gray-700 border-white/20 rounded focus:ring-indigo-500"
+                    />
+                    <label
+                      htmlFor="isForNewUserOnly"
+                      className="ml-3 text-white font-medium cursor-pointer flex items-center"
+                    >
+                      New Users Only
+                      <User size={16} className="ml-2 text-indigo-400" />
+                    </label>
+                  </div>
                 </div>
               </div>
 
-              {/* Flags */}
-              <div className="flex flex-col space-y-4 p-4 bg-white/5 border border-white/5 rounded-2xl">
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="isActive"
-                    name="isActive"
-                    checked={formData.isActive}
-                    onChange={handleInputChange}
-                    className="w-5 h-5 text-indigo-600 bg-gray-700 border-none rounded focus:ring-indigo-500"
-                  />
-                  <label
-                    htmlFor="isActive"
-                    className="ml-3 text-white font-medium cursor-pointer"
-                  >
-                    Active
-                  </label>
-                </div>
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="isForNewUserOnly"
-                    name="isForNewUserOnly"
-                    checked={formData.isForNewUserOnly}
-                    onChange={handleInputChange}
-                    className="w-5 h-5 text-indigo-600 bg-gray-700 border-none rounded focus:ring-indigo-500"
-                  />
-                  <label
-                    htmlFor="isForNewUserOnly"
-                    className="ml-3 text-white font-medium cursor-pointer flex items-center"
-                  >
-                    New Users Only{" "}
-                    <User size={16} className="ml-2 text-indigo-400" />
-                  </label>
-                </div>
-              </div>
-
-              {/* Submit */}
-              <div className="lg:col-span-3 flex justify-end space-x-4 mt-4">
+              {/* Submit Buttons */}
+              <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4">
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="px-8 py-3 bg-white/10 hover:bg-white/20 text-white rounded-2xl"
+                  className="px-6 py-3 bg-white/10 hover:bg-white/20 transition-colors text-white rounded-2xl font-medium"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-10 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-2xl font-bold shadow-xl transform flex items-center space-x-2"
+                  className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 transition-all text-white rounded-2xl font-semibold shadow-xl flex items-center justify-center gap-2 disabled:opacity-70"
                 >
                   <Save size={20} />
                   <span>{editingId ? "Update Coupon" : "Create Coupon"}</span>

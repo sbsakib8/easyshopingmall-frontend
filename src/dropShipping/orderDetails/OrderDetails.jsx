@@ -19,6 +19,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Container from "@/src/compronent/shared/Container";
 import { cn } from "@/src/utlis/utils";
 import Image from "next/image";
+import BackButton from "../BackButton/BackButton";
 
 const OrderDetails = ({ id }) => {
   const { order, loading, error, refetch } = useOrderDetails(id);
@@ -77,13 +78,15 @@ const OrderDetails = ({ id }) => {
   return (
     <>
       <section className="min-h-screen bg-bg py-10">
-        <Container className="px-2">
+        <Container className="px-2 max-w-2xl space-y-6">
+          <BackButton/>
+
           {/* Payment Prompt Section (Only if pending and not yet paid) */}
           {(order.order_status === "pending" ||
             order.order_status === "processing") &&
             order.payment_status !== "paid" &&
             order.payment_status !== "submitted" && (
-              <div className="max-w-2xl mx-auto mt-6 bg-white shadow-xl rounded-[2.5rem] overflow-hidden border border-slate-100 p-8 md:p-10 text-center space-y-8 relative">
+              <div className=" bg-white shadow-xl rounded-[2.5rem] overflow-hidden border border-slate-100 p-8 md:p-10 text-center space-y-8 relative">
                 {/* Background Accent */}
                 <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/50 to-teal-50/30 pointer-events-none" />
 
@@ -161,7 +164,7 @@ const OrderDetails = ({ id }) => {
 
           {/* Payment Submitted Message */}
           {order.payment_status === "submitted" && (
-            <div className="max-w-2xl mx-auto mt-6 bg-amber-50 shadow-sm rounded-[2rem] overflow-hidden border border-amber-100 p-8 text-center space-y-4">
+            <div className="bg-amber-50 shadow-sm rounded-[2rem] overflow-hidden border border-amber-100 p-8 text-center space-y-4">
               <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto">
                 <Loader2 className="w-6 h-6 text-amber-600 animate-spin" />
               </div>
@@ -175,7 +178,7 @@ const OrderDetails = ({ id }) => {
             </div>
           )}
 
-          <div className="sm:max-w-2xl mx-auto mt-8 bg-white shadow-2xl shadow-slate-200/60 rounded-[2.75rem] overflow-hidden border border-slate-100">
+          <div className="bg-white shadow-2xl shadow-slate-200/60 rounded-[2.75rem] overflow-hidden border border-slate-100">
             {/* Header Section */}
             <div className="relative px-6 pt-10 pb-8 text-center bg-gradient-to-b from-slate-50 to-white">
               {/* Status Indicator */}
