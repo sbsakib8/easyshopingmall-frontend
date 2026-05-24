@@ -816,11 +816,11 @@ const ProductDetails = ({ initialProduct }) => {
         < div className="" >
           <div className="border-b border-gray-200">
             <nav className="flex space-x-8">
-              {["description", "specifications", "reviews"].map((tab) => (
+              {["description", "specifications", "reviews", "coupon information"].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`py-4 ${(user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) && tab === "reviews" ? "hidden" : ''} px-1 border-b-2 font-medium text-sm capitalize transition-all duration-300 ${activeTab === tab
+                  className={`py-4 ${(user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) && tab === "reviews" ? "hidden" : ''} ${(user?.role !== "DROPSHIPPING" && !user?.roles?.includes("DROPSHIPPING")) && tab === "coupon information" ? "hidden" : ''} px-1 border-b-2 font-medium text-sm capitalize transition-all duration-300 ${activeTab === tab
                     ? "border-blue-500 text-blue-600"
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                     }`}
@@ -942,6 +942,38 @@ const ProductDetails = ({ initialProduct }) => {
               </div>
             )}
             { }
+            {activeTab === "coupon information" && (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) && (
+              <div className="py-6 px-4">
+                 <h3 className="text-xl font-semibold mb-6 text-gray-800 border-b pb-2">Exclusive Dropshipping Coupons</h3>
+                 {product?.coupon ? (
+                   <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl border border-blue-100 shadow-sm flex items-center justify-between">
+                     <div>
+                       <p className="text-sm text-gray-500 mb-1">Use code at checkout</p>
+                       <p className="text-2xl text-blue-700 font-bold tracking-wider">{product.coupon}</p>
+                       {product.couponDiscount && <p className="text-md text-blue-600 mt-2 font-medium">Get {product.couponDiscount} Off!</p>}
+                     </div>
+                     <button 
+                       onClick={() => {
+                         navigator.clipboard.writeText(product.coupon);
+                         toast.success("Coupon code copied!");
+                       }}
+                       className="bg-white text-blue-600 px-4 py-2 rounded-lg border border-blue-200 hover:bg-blue-50 transition-colors shadow-sm font-medium"
+                     >
+                       Copy Code
+                     </button>
+                   </div>
+                 ) : (
+                   <div className="bg-gray-50 p-8 rounded-xl text-center border border-gray-100">
+                     <div className="w-16 h-16 mx-auto bg-gray-200 rounded-full flex items-center justify-center mb-4">
+                       <span className="text-2xl">🎟️</span>
+                     </div>
+                     <p className="text-gray-600 font-medium">No active coupons for this product right now.</p>
+                     <p className="text-sm text-gray-400 mt-2">Check back later for special dropshipping offers.</p>
+                   </div>
+                 )}
+              </div>
+            )}
+
             {activeTab === "reviews" && (user?.role !== "DROPSHIPPING" && !user?.roles?.includes("DROPSHIPPING")) && (
 
               <div className="py-12 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">

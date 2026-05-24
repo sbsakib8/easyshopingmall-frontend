@@ -42,7 +42,7 @@ const VideoManagement = () => {
     const fetchVideos = async () => {
         setLoading(true);
         try {
-            const res = await axios.get(`${UrlBackend}/api/video-content/admin/all`, {
+            const res = await axios.get(`${UrlBackend}/video-content/admin/all`, {
                 withCredentials: true
             });
             if (res.data.success) {
@@ -65,9 +65,9 @@ const VideoManagement = () => {
         try {
             let res;
             if (editingVideo) {
-                res = await axios.patch(`${UrlBackend}/api/video-content/update/${editingVideo._id}`, formData, { withCredentials: true });
+                res = await axios.patch(`${UrlBackend}/video-content/update/${editingVideo._id}`, formData, { withCredentials: true });
             } else {
-                res = await axios.post(`${UrlBackend}/api/video-content/create`, formData, { withCredentials: true });
+                res = await axios.post(`${UrlBackend}/video-content/create`, formData, { withCredentials: true });
             }
 
             if (res.data.success) {
@@ -87,7 +87,7 @@ const VideoManagement = () => {
     const handleDelete = async (id) => {
         if (!window.confirm("Delete this video?")) return;
         try {
-            const res = await axios.delete(`${UrlBackend}/api/video-content/delete/${id}`, { withCredentials: true });
+            const res = await axios.delete(`${UrlBackend}/video-content/delete/${id}`, { withCredentials: true });
             if (res.data.success) {
                 toast.success("Video deleted");
                 fetchVideos();

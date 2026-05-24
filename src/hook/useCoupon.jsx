@@ -58,7 +58,7 @@ export const deleteCoupon = async (id) => {
 // Update coupon (admin)
 export const updateCouponCode = async (id, data) => {
     try {
-        const response = await axios.patch(`${UrlBackend}/coupon/update/${id}`, data, {
+        const response = await axios.put(`${UrlBackend}/coupon/update/${id}`, data, {
             withCredentials: true,
             headers: { "Content-Type": "application/json" },
         });

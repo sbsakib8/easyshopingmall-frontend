@@ -147,7 +147,7 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
 
   const handleApplyCoupon = async () => {
     if (!couponCode) {
-      toast.error("Please enter a coupon code");
+      toast.error("অনুগ্রহ করে একটি কুপন কোড লিখুন");
       return;
     }
 
@@ -161,17 +161,17 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
       });
 
       if (resp.success) {
-        toast.success(resp.message || "Coupon applied!");
+        toast.success(resp.message || "কুপন সফলভাবে প্রযোজ্য হয়েছে!");
         dispatch(setCoupon({
           coupon: resp.coupon,
           discountAmount: resp.discountAmount
         }));
       } else {
-        toast.error(resp.message || "Invalid or inactive coupon");
+        toast.error(resp.message || "অবৈধ বা নিষ্ক্রিয় কুপন");
         dispatch(clearCoupon());
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Error applying coupon");
+      toast.error(error.response?.data?.message || "কুপন প্রয়োগ করতে সমস্যা হয়েছে");
       dispatch(clearCoupon());
     } finally {
       setIsApplyingCoupon(false);
@@ -181,7 +181,7 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
   const removeCoupon = () => {
     setCouponCode("");
     dispatch(clearCoupon());
-    toast.success("Coupon removed");
+    toast.success("কুপন সরিয়ে ফেলা হয়েছে");
   }
 
 
@@ -518,7 +518,7 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
     if (!createdOrder?.orderId) return;
     navigator.clipboard.writeText(createdOrder.orderId)
       .then(() => {
-        toast.success("Order ID copied to clipboard!");
+        toast.success("অর্ডার আইডি ক্লিপবোর্ডে কপি করা হয়েছে!");
       })
       .catch(() => {
         toast.error("অর্ডার আইডি কপি করা যায়নি");

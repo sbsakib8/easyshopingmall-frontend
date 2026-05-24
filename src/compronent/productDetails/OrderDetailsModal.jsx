@@ -149,8 +149,8 @@ function OrderDetailsModal({ order, onClose }) {
 
             <div className="bg-green-50 border rounded-xl p-4">
               <p className="text-xs text-gray-500 mb-2">Payment Status</p>
-              <span className={`inline-block px-3 py-1 text-xs rounded-full font-semibold capitalize ${getStatusColor(order.payment_status)}`}>
-                {order.payment_status || "N/A"}
+              <span className={`inline-block px-3 py-1 text-xs rounded-full font-bold capitalize ${getStatusColor(order.payment_status)}`}>
+                {order.payment_status === "paid" ? "পরিশোধিত (Paid)" : order.payment_status === "submitted" ? "পেমেন্ট জমা হয়েছে (Submitted)" : "অপরিশোধিত (Unpaid)"}
               </span>
             </div>
 
@@ -326,6 +326,12 @@ function OrderDetailsModal({ order, onClose }) {
                 <span className="text-gray-600">Delivery Charge</span>
                 <span className="font-semibold text-gray-800">৳{order.deliveryCharge || 0}</span>
               </div>
+              {order.couponDiscount > 0 && (
+                <div className="flex justify-between items-center text-emerald-600 font-medium">
+                  <span>Coupon Applied {order.appliedCoupon ? `(${order.appliedCoupon})` : ""}</span>
+                  <span className="font-semibold">-৳{order.couponDiscount}</span>
+                </div>
+              )}
 
               <div className="border-t border-cyan-200 pt-3 mt-3">
                 <div className="flex justify-between items-center mb-2">

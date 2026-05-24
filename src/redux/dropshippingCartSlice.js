@@ -18,12 +18,32 @@ const saveCartToStorage = (items) => {
     }
 };
 
+const getStoredDsCoupon = () => {
+    if (typeof window === "undefined") return null;
+    try {
+        const stored = localStorage.getItem("ds_appliedCoupon");
+        return stored ? JSON.parse(stored) : null;
+    } catch (e) {
+        return null;
+    }
+};
+
+const getStoredDsDiscount = () => {
+    if (typeof window === "undefined") return 0;
+    try {
+        const stored = localStorage.getItem("ds_couponDiscount");
+        return stored ? Number(stored) : 0;
+    } catch (e) {
+        return 0;
+    }
+};
+
 const dropshippingCartSlice = createSlice({
     name: "dropshippingCart",
     initialState: {
         items: loadCartFromStorage(),
-        appliedCoupon: null,
-        couponDiscount: 0,
+        appliedCoupon: getStoredDsCoupon(),
+        couponDiscount: getStoredDsDiscount(),
         loading: false,
         error: null,
     },
@@ -87,11 +107,33 @@ const dropshippingCartSlice = createSlice({
             state.appliedCoupon = null;
             state.couponDiscount = 0;
             saveCartToStorage([]);
+            if (typeof window !== "undefined") {
+                localStorage.removeItem("ds_appliedCoupon");
+                localStorage.removeItem("ds_couponDiscount");
+            }
         },
 
         dsCartError: (state, action) => {
             state.loading = false;
             state.error = action.payload;
+        },
+
+        setDsCoupon: (state, action) => {
+            state.appliedCoupon = action.payload.coupon;
+            state.couponDiscount = action.payload.discountAmount;
+            if (typeof window !== "undefined") {
+                localStorage.setItem("ds_appliedCoupon", JSON.stringify(action.payload.coupon));
+                localStorage.setItem("ds_couponDiscount", action.payload.discountAmount.toString());
+            }
+        },
+
+        clearDsCoupon: (state) => {
+            state.appliedCoupon = null;
+            state.couponDiscount = 0;
+            if (typeof window !== "undefined") {
+                localStorage.removeItem("ds_appliedCoupon");
+                localStorage.removeItem("ds_couponDiscount");
+            }
         },
 
         updateDsQuantityLocal: (state, action) => {
@@ -130,6 +172,8 @@ export const {
     dsCartRemove,
     dsCartClear,
     dsCartError,
+    setDsCoupon,
+    clearDsCoupon,
     updateDsQuantityLocal,
     updateDsSellingPriceLocal,
 } = dropshippingCartSlice.actions;

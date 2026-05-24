@@ -275,7 +275,7 @@ const CustomerAnalyticsDashboard = () => {
  </div>
  </header>
 
- <main className="lg:ml-15 py-5 px-2 lg:px-9">
+ <main className="py-5 px-2 lg:px-9">
  {/* Navigation Tabs */}
  <div className="mb-12">
  <div className="flex flex-wrap gap-2 bg-white/5 p-2 rounded-2xl -in backdrop-blur-sm border border-white/10">

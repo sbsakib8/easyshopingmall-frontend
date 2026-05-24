@@ -131,7 +131,7 @@ const ProductAnalytics = () => {
 
  return (
  <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900/30 to-slate-900 p-4 md:p-6 overflow-hidden">
- <div className="lg:ml-15 py-5 px-2 lg:px-9">
+ <div className="py-5 px-2 lg:px-9">
  {/* Header */}
  <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 -in">
  <div>

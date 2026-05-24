@@ -812,10 +812,21 @@ const AccountPage = () => {
                                   )}
                                   <span
                                     className={`px-3 py-1 text-xs md:text-sm font-medium rounded-full capitalize ${getStatusColor(
-                                      status
+                                      order.order_status || "pending"
                                     )}`}
                                   >
-                                    {status}
+                                    {order.order_status || "pending"}
+                                  </span>
+                                  <span
+                                    className={`px-3 py-1 text-xs md:text-sm font-medium rounded-full capitalize ${
+                                      order.payment_status === "paid"
+                                        ? "text-green-600 bg-green-100"
+                                        : order.payment_status === "submitted"
+                                        ? "text-blue-600 bg-blue-100"
+                                        : "text-red-600 bg-red-100"
+                                    }`}
+                                  >
+                                    {order.payment_status === "paid" ? "পরিশোধিত (Paid)" : order.payment_status === "submitted" ? "পেমেন্ট জমা হয়েছে (Submitted)" : "অপরিশোধিত (Unpaid)"}
                                   </span>
                                   <div className="flex flex-col items-end">
                                     <span className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Total</span>
