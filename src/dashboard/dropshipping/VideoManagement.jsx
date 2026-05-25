@@ -240,7 +240,14 @@ const VideoManagement = () => {
                                                             <button onClick={() => openVideoModal(mod._id, video)} className="p-2 bg-slate-800 hover:bg-blue-500/20 text-slate-400 hover:text-blue-400 rounded-lg transition-all" title="Edit"><Edit2 size={12} /></button>
                                                             <button onClick={() => handleDeleteVideo(video._id)} className="p-2 bg-slate-800 hover:bg-red-500/20 text-slate-400 hover:text-red-400 rounded-lg transition-all" title="Delete"><Trash2 size={12} /></button>
                                                         </div>
-                                                        <span className="text-[9px] font-black text-slate-500 uppercase">{video.videoType}</span>
+                                                        <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider ${
+                                                            video.videoType === 'demo' ? 'bg-red-500/20 text-red-400' :
+                                                            video.videoType === 'free' ? 'bg-emerald-500/20 text-emerald-400' :
+                                                            video.videoType === 'premium' ? 'bg-purple-500/20 text-purple-400' :
+                                                            'bg-slate-500/20 text-slate-400'
+                                                        }`}>
+                                                            {video.videoType || 'standard'}
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -307,6 +314,15 @@ const VideoManagement = () => {
                             <div>
                                 <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">YouTube URL *</label>
                                 <input type="text" required placeholder="https://youtube.com/watch?v=..." className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl px-5 py-4 text-sm font-bold text-white outline-none focus:ring-2 focus:ring-emerald-500" value={videoFormData.url} onChange={(e) => setVideoFormData({...videoFormData, url: e.target.value})} />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Video Type *</label>
+                                <select required className="w-full bg-slate-800/50 border border-slate-700/50 rounded-2xl px-5 py-4 text-sm font-bold text-white outline-none focus:ring-2 focus:ring-emerald-500" value={videoFormData.videoType} onChange={(e) => setVideoFormData({...videoFormData, videoType: e.target.value})}>
+                                    <option value="standard">Standard</option>
+                                    <option value="demo">Demo</option>
+                                    <option value="free">Free</option>
+                                    <option value="premium">Premium</option>
+                                </select>
                             </div>
                             {previewUrl && (
                                 <div className="rounded-2xl overflow-hidden border border-slate-700/50">
