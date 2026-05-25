@@ -580,46 +580,56 @@ const CompletedOrdersPage = () => {
                         ৳{selectedOrder?.deliveryCharge}
                       </span>
                     </div>
+                    <div className="flex justify-between items-center m-2">
+                      <span className="text-accent-content font-semibold">Delivery Charge:</span>
+                      <span className="text-green-400 font-bold text-lg">৳{selectedOrder?.deliveryCharge || 0}</span>
+                    </div>
+                    {selectedOrder?.couponDiscount > 0 && (
+                      <div className="flex justify-between items-center m-2 text-emerald-400">
+                        <span className="text-accent-content font-semibold">Coupon Discount {selectedOrder?.appliedCoupon ? `(${selectedOrder.appliedCoupon})` : ""}:</span>
+                        <span className="font-bold text-lg text-emerald-400">-৳{selectedOrder?.couponDiscount}</span>
+                      </div>
+                    )}
                     <div className="mt-4 pt-4 border-t border-gray-700">
                       {(selectedOrder?.userId?.role === "DROPSHIPPING" ||
                         (Array.isArray(selectedOrder?.userId?.roles) &&
                           selectedOrder?.userId?.roles.includes(
                             "DROPSHIPPING",
                           ))) && (
-                        <div className="flex flex-col gap-2 mb-4 p-4 bg-gradient-to-r from-blue-900/40 to-cyan-900/40 rounded-xl border border-blue-500/30 shadow-inner">
-                          <div className="flex justify-between items-center">
-                            <span className="text-blue-400 font-bold uppercase tracking-wider text-xs">
-                              Dropshipping Profit
-                            </span>
-                            <span className="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full font-black uppercase">
-                              Verified
-                            </span>
+                          <div className="flex flex-col gap-2 mb-4 p-4 bg-gradient-to-r from-blue-900/40 to-cyan-900/40 rounded-xl border border-blue-500/30 shadow-inner">
+                            <div className="flex justify-between items-center">
+                              <span className="text-blue-400 font-bold uppercase tracking-wider text-xs">
+                                Dropshipping Profit
+                              </span>
+                              <span className="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full font-black uppercase">
+                                Verified
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-400 text-sm">
+                                Total Earnings:
+                              </span>
+                              <span className="text-2xl font-black text-blue-400">
+                                ৳
+                                {selectedOrder?.products
+                                  .reduce((sum, p) => {
+                                    const cost =
+                                      Number(p.costPrice || p.price) || 0;
+                                    const selling = Number(p.sellingPrice) || 0;
+                                    return (
+                                      sum +
+                                      (selling > cost
+                                        ? (selling - cost) * (p.quantity || 1)
+                                        : 0)
+                                    );
+                                  }, 0)
+                                  .toLocaleString(undefined, {
+                                    minimumFractionDigits: 2,
+                                  })}
+                              </span>
+                            </div>
                           </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-gray-400 text-sm">
-                              Total Earnings:
-                            </span>
-                            <span className="text-2xl font-black text-blue-400">
-                              ৳
-                              {selectedOrder?.products
-                                .reduce((sum, p) => {
-                                  const cost =
-                                    Number(p.costPrice || p.price) || 0;
-                                  const selling = Number(p.sellingPrice) || 0;
-                                  return (
-                                    sum +
-                                    (selling > cost
-                                      ? (selling - cost) * (p.quantity || 1)
-                                      : 0)
-                                  );
-                                }, 0)
-                                .toLocaleString(undefined, {
-                                  minimumFractionDigits: 2,
-                                })}
-                            </span>
-                          </div>
-                        </div>
-                      )}
+                        )}
 
                       <div className="flex justify-between items-center">
                         <span className="text-xl font-bold text-accent-content">
@@ -670,13 +680,12 @@ const CompletedOrdersPage = () => {
             <div className="flex gap-3">
               <button
                 onClick={() => handleStatusChange()}
-                className={`flex-1 px-6 py-3 font-semibold rounded-lg transform cursor-pointer transition-all ${
-                  status === "completed"
+                className={`flex-1 px-6 py-3 font-semibold rounded-lg transform cursor-pointer transition-all ${status === "completed"
                     ? "bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700"
                     : status === "cancelled"
                       ? "bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700"
                       : "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
-                } text-white shadow-lg`}
+                  } text-white shadow-lg`}
               >
                 Confirm {status}
               </button>

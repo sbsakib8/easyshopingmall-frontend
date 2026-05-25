@@ -282,7 +282,7 @@ const handleContinueShopping = () => {
 
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const savings = cartItems.reduce((sum, item) => sum + ((item.originalPrice - item.price) * item.quantity), 0);
-  const shipping = subtotal > 2000 ? 0 : 100;
+  const shipping = 0; // Shipping calculated at checkout
 
   const total = subtotal - (couponDiscount || 0) + shipping;
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -429,7 +429,7 @@ const handleContinueShopping = () => {
                     <Shield className="w-4 h-4" /> Secure Checkout
                   </span>
                   <span className="flex items-center gap-1.5 text-teal-600">
-                    <Truck className="w-4 h-4" /> Free Shipping over ৳2000
+                    <Truck className="w-4 h-4" /> Fast Delivery
                   </span>
                 </>
               )}
@@ -671,14 +671,6 @@ const handleContinueShopping = () => {
                     </div>
                   )}
 
-                  {/* <div className="flex justify-between text-gray-600">
-                    <span className="flex items-center">
-                      Shipping
-                      {shipping === 0 && <span className="ml-2 text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full">FREE</span>}
-                    </span>
-                    <span>{shipping === 0 ? 'FREE' : `৳${shipping}`}</span>
-                  </div> */}
-
                   <hr className="my-4" />
 
                   <div className="flex justify-between text-lg font-bold text-gray-900">
@@ -692,9 +684,9 @@ const handleContinueShopping = () => {
                   <div className="flex items-start space-x-3">
                     <Truck className="w-5 h-5 text-teal-600 mt-0.5" />
                     <div>
-                      <p className="font-medium text-teal-900">Free Delivery</p>
+                      <p className="font-medium text-teal-900">ডেলিভারি তথ্য</p>
                       <p className="text-sm text-teal-700">
-                        {shipping === 0 ? 'Congratulations! You qualify for free shipping' : `Add ৳${(2000 - subtotal).toLocaleString()} more to get free shipping`}
+                        আপনার অবস্থানের ওপর ভিত্তি করে চেকআউট পেজে ডেলিভারি চার্জ নির্ধারণ করা হবে। ২,০০০ টাকার বেশি অর্ডারে ফ্রি ডেলিভারি।
                       </p>
                     </div>
                   </div>
@@ -703,7 +695,7 @@ const handleContinueShopping = () => {
                 {/* Delivery Time */}
                 <div className="flex items-center space-x-2 text-sm text-gray-600 mb-6">
                   <Clock className="w-4 h-4" />
-                  <span>Estimated delivery: 2-3 business days</span>
+                  <span>সম্ভাব্য ডেলিভারি: ২-৩ কার্যদিবস</span>
                 </div>
 
                 {/* Go to Checkout Button */}

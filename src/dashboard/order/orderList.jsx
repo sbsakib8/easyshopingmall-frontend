@@ -541,11 +541,10 @@ const OrderManagement = () => {
                         <button
                           key={page}
                           onClick={() => setCurrentPage(page)}
-                          className={`w-10 h-10 rounded-xl ${
-                            currentPage === page
-                              ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-accent-content shadow-lg"
-                              : "bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 text-accent-content hover:border-gray-500"
-                          }`}
+                          className={`w-10 h-10 rounded-xl ${currentPage === page
+                            ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-accent-content shadow-lg"
+                            : "bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 text-accent-content hover:border-gray-500"
+                            }`}
                         >
                           {page}
                         </button>
@@ -787,11 +786,11 @@ const OrderManagement = () => {
                               <span className="text-gray-400">Paid For :</span>
                               {selectedOrder?.payment_details?.manual
                                 ?.paidFor && (
-                                <span className="font-medium text-accent-content">
-                                  {selectedOrder?.payment_details?.manual
-                                    ?.paidFor || "None"}{" "}
-                                </span>
-                              )}
+                                  <span className="font-medium text-accent-content">
+                                    {selectedOrder?.payment_details?.manual
+                                      ?.paidFor || "None"}{" "}
+                                  </span>
+                                )}
                             </div>
                             <div className="flex justify-between">
                               <span className="text-gray-400">
@@ -824,7 +823,7 @@ const OrderManagement = () => {
                               <span className="font-medium text-accent-content">
                                 {new Date(
                                   selectedOrder?.payment_details?.tran_date ||
-                                    "None",
+                                  "None",
                                 ).toLocaleDateString()}
                               </span>
                             </div>
@@ -941,40 +940,40 @@ const OrderManagement = () => {
                             selectedOrder?.userId?.roles.includes(
                               "DROPSHIPPING",
                             ))) && (
-                          <div className="flex flex-col gap-2 mb-6 p-4 bg-gradient-to-r from-blue-900/40 to-cyan-900/40 rounded-xl border border-blue-500/30 shadow-inner">
-                            <div className="flex justify-between items-center">
-                              <span className="text-blue-400 font-bold uppercase tracking-wider text-xs">
-                                Dropshipping Profit Breakdown
-                              </span>
-                              <span className="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full font-black uppercase">
-                                Verified
-                              </span>
+                            <div className="flex flex-col gap-2 mb-6 p-4 bg-gradient-to-r from-blue-900/40 to-cyan-900/40 rounded-xl border border-blue-500/30 shadow-inner">
+                              <div className="flex justify-between items-center">
+                                <span className="text-blue-400 font-bold uppercase tracking-wider text-xs">
+                                  Dropshipping Profit Breakdown
+                                </span>
+                                <span className="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full font-black uppercase">
+                                  Verified
+                                </span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-gray-400 text-sm">
+                                  Total Profit:
+                                </span>
+                                <span className="text-2xl font-black text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0.4)]">
+                                  ৳
+                                  {selectedOrder?.products
+                                    .reduce((sum, p) => {
+                                      const cost =
+                                        Number(p.costPrice || p.price) || 0;
+                                      const selling = Number(p.sellingPrice) || 0;
+                                      return (
+                                        sum +
+                                        (selling > cost
+                                          ? (selling - cost) * (p.quantity || 1)
+                                          : 0)
+                                      );
+                                    }, 0)
+                                    .toLocaleString(undefined, {
+                                      minimumFractionDigits: 2,
+                                    })}
+                                </span>
+                              </div>
                             </div>
-                            <div className="flex justify-between items-center">
-                              <span className="text-gray-400 text-sm">
-                                Total Profit:
-                              </span>
-                              <span className="text-2xl font-black text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0.4)]">
-                                ৳
-                                {selectedOrder?.products
-                                  .reduce((sum, p) => {
-                                    const cost =
-                                      Number(p.costPrice || p.price) || 0;
-                                    const selling = Number(p.sellingPrice) || 0;
-                                    return (
-                                      sum +
-                                      (selling > cost
-                                        ? (selling - cost) * (p.quantity || 1)
-                                        : 0)
-                                    );
-                                  }, 0)
-                                  .toLocaleString(undefined, {
-                                    minimumFractionDigits: 2,
-                                  })}
-                              </span>
-                            </div>
-                          </div>
-                        )}
+                          )}
                         <div className="flex justify-between items-center">
                           <span className="text-xl font-bold text-accent-content">
                             Total Amount:
