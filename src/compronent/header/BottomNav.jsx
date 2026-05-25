@@ -1,58 +1,27 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { cn } from "@/src/utlis/utils";
+import { Badge } from "@mui/material";
+import Drawer from "@mui/material/Drawer";
 import {
+  ChevronRight,
   Home,
-  ShoppingBag,
   Info,
+  Menu,
   Newspaper,
   Phone,
+  ShoppingBag,
   ShoppingCart,
-  Menu,
-  ChevronRight,
   X,
 } from "lucide-react";
-import { Badge } from "@mui/material";
-import { cn } from "@/src/utlis/utils";
-import Drawer from "@mui/material/Drawer";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 
 const BottomNav = ({ cartCount = 0, menuCategories = [] }) => {
   const router = useRouter();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState(null);
-
-  // Close on escape
-  useEffect(() => {
-    const handleEsc = (e) => {
-      if (e.key === "Escape" && menuOpen) {
-        setMenuOpen(false);
-        setActiveCategory(null);
-      }
-    };
-    document.addEventListener("keydown", handleEsc);
-    return () => document.removeEventListener("keydown", handleEsc);
-  }, [menuOpen]);
-
-  // Lock scroll
-  useEffect(() => {
-    if (!menuOpen) return;
-
-    const originalOverflow = document.body.style.overflow;
-    const scrollBarWidth =
-      window.innerWidth - document.documentElement.clientWidth;
-
-    document.body.style.overflow = "hidden";
-    if (scrollBarWidth > 0) {
-      document.body.style.paddingRight = `${scrollBarWidth}px`;
-    }
-
-    return () => {
-      document.body.style.overflow = originalOverflow;
-      document.body.style.paddingRight = "";
-    };
-  }, [menuOpen]);
 
   const navItems = [
     { icon: Home, href: "/", key: "home", label: "Home" },
