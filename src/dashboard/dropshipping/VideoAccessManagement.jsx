@@ -65,7 +65,7 @@ const VideoAccessManagement = () => {
     const fetchAllRequests = async () => {
         setLoading(true);
         try {
-            const res = await axios.get(`${UrlBackend}/api/video-access/all`, {
+            const res = await axios.get(`${UrlBackend}/video-access/all`, {
                 withCredentials: true
             });
             if (res.data.success) {
@@ -82,7 +82,7 @@ const VideoAccessManagement = () => {
     const fetchAllCustomRequests = async () => {
         setLoadingCustom(true);
         try {
-            const res = await axios.get(`${UrlBackend}/api/video-request/all`, {
+            const res = await axios.get(`${UrlBackend}/video-request/all`, {
                 withCredentials: true
             });
             if (res.data.success) {
@@ -166,7 +166,7 @@ const VideoAccessManagement = () => {
         setActionLoading(true);
         try {
             const res = await axios.patch(
-                `${UrlBackend}/api/video-access/update/${requestId}`,
+                `${UrlBackend}/video-access/update/${requestId}`,
                 { status, adminNote },
                 { withCredentials: true }
             );
@@ -198,7 +198,7 @@ const VideoAccessManagement = () => {
         setActionLoading(true);
         try {
             const res = await axios.patch(
-                `${UrlBackend}/api/video-request/update/${requestId}`,
+                `${UrlBackend}/video-request/update/${requestId}`,
                 { 
                     status, 
                     adminNote: note,
