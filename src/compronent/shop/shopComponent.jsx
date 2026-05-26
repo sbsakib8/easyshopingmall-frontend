@@ -888,7 +888,7 @@ const ShopPage = ({ initialData, queryParams }) => {
   };
 
   return (
-    <div className="min-h-screen bg-bg">
+    <section className="min-h-screen bg-bg pt-10 md:pt-32 lg:pt-0">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Top Filter Bar */}
         <div className="bg-white lg:mt-28 rounded-lg shadow-md p-4 mb-6">
@@ -1808,7 +1808,7 @@ const ShopPage = ({ initialData, queryParams }) => {
           overflow: hidden;
         }
       `}</style>
-    </div>
+    </section>
   );
 };
 
