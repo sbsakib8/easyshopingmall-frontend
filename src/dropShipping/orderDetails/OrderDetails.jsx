@@ -71,6 +71,20 @@ const OrderDetails = ({ id }) => {
   const products = order.products || [];
   const orderIdDisplay = order.orderId || order._id || "—";
 
+  // Payment status helpers
+  const hasPaidDelivery =
+    order.payment_type === "delivery" &&
+    (order.payment_status === "paid" ||
+      order.payment_status === "submitted");
+  const hasPaidFull =
+    order.payment_type === "full" &&
+    (order.payment_status === "paid" ||
+      order.payment_status === "submitted");
+  // Show payment prompt if order is active and full payment hasn't been made
+  const showPaymentPrompt =
+    (order.order_status === "pending" || order.order_status === "processing") &&
+    !hasPaidFull;
+
   // Use dropshipper's own branding if available
   const displayBrandName = user?.shopName || "EasyShoppingMall";
   const displayBrandLogo = user?.shopLogo;
@@ -79,88 +93,113 @@ const OrderDetails = ({ id }) => {
     <>
       <section className="min-h-screen bg-bg py-10">
         <Container className="px-2 max-w-2xl space-y-6">
-          <BackButton/>
+          <BackButton />
 
-          {/* Payment Prompt Section (Only if pending and not yet paid) */}
-          {(order.order_status === "pending" ||
-            order.order_status === "processing") &&
-            order.payment_status !== "paid" &&
-            order.payment_status !== "submitted" && (
-              <div className=" bg-white shadow-xl rounded-[2.5rem] overflow-hidden border border-slate-100 p-8 md:p-10 text-center space-y-8 relative">
-                {/* Background Accent */}
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/50 to-teal-50/30 pointer-events-none" />
+          {/* Payment Prompt Section */}
+          {showPaymentPrompt && (
+            <div className="bg-white shadow-xl rounded-[2.5rem] overflow-hidden border border-slate-100 p-8 md:p-10 text-center space-y-8 relative">
+              {/* Background Accent */}
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/50 to-teal-50/30 pointer-events-none" />
 
-                <div className="relative space-y-8">
-                  {/* Main Message */}
-                  <div className="space-y-3">
-                    <div className="mx-auto size-16 bg-emerald-100 rounded-2xl flex items-center justify-center">
-                      <Truck className="size-9 text-emerald-600" />
-                    </div>
-                    <h1 className="text-emerald-800 font-black text-lg sm:text-xl md:text-2xl leading-tight tracking-tight">
-                      অর্ডার টি অ্যাপ্রুভ করতে{" "}
-                      <br className="hidden sm:block" />
-                      ডেলিভারি চার্জ পে করুন
-                    </h1>
+              <div className="relative space-y-8">
+                {/* Main Message */}
+                <div className="space-y-3">
+                  <div className="mx-auto size-16 bg-emerald-100 rounded-2xl flex items-center justify-center">
+                    <Truck className="size-9 text-emerald-600" />
                   </div>
+                  <h1 className="text-emerald-800 font-black text-lg sm:text-xl md:text-2xl leading-tight tracking-tight">
+                    অর্ডার টি অ্যাপ্রুভ করতে{" "}
+                    <br className="hidden sm:block" />
+                    ডেলিভারি চার্জ পে করুন
+                  </h1>
+                </div>
 
-                  {/* Primary Action Button */}
+                {/* Primary Action Button — Delivery Charge */}
+                <div className="relative">
                   <button
-                    onClick={() => handleOpenPayment("delivery")}
-                    className="w-full bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white font-semibold py-3 px-4 rounded-3xl text-base shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:-translate-y-1 active:scale-[0.985] transition-all duration-300 flex items-center justify-center gap-3 group"
+                    onClick={() => !hasPaidDelivery && handleOpenPayment("delivery")}
+                    disabled={hasPaidDelivery}
+                    className={cn(
+                      "w-full font-semibold py-3 px-4 rounded-3xl text-base transition-all duration-300 flex items-center justify-center gap-3 group",
+                      (hasPaidDelivery || hasPaidFull || order.payment_type === "full")
+                        ? "bg-slate-100 text-slate-400 border-2 border-slate-200 cursor-not-allowed"
+                        : "bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:-translate-y-1 active:scale-[0.985]"
+                    )}
                   >
                     <Truck className="w-6 h-6 group-hover:rotate-12 transition-transform hidden sm:inline-block" />
                     <p>ডেলিভারি চার্জ পেমেন্ট করুন</p>
-                    <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform hidden sm:inline-block" />
+                    {hasPaidDelivery ? (
+                      <span className="text-xs bg-emerald-100 text-emerald-700 font-black px-2 py-0.5 rounded-full border border-emerald-200">
+                        ✓ সম্পন্ন
+                      </span>
+                    ) : (
+                      <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform hidden sm:inline-block" />
+                    )}
+                  </button>
+                </div>
+
+                {/* Divider */}
+                <div className="flex items-center gap-4">
+                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+                  <p className="text-slate-400 font-black text-sm uppercase tracking-[3px]">
+                    অথবা
+                  </p>
+                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+                </div>
+
+                {/* Secondary Options */}
+                <div className="flex flex-col sm:flex-row items-center justify-evenly gap-2">
+                  {/* Full Payment */}
+                  <button
+                    onClick={() => handleOpenPayment("full")}
+                    disabled={hasPaidFull}
+                    className={cn(
+                      "group border-2 py-3 px-4 rounded-3xl font-semibold transition-all duration-300 flex flex-1 w-full items-center justify-center gap-3 text-base",
+                      hasPaidFull
+                        ? "bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed"
+                        : "bg-white hover:bg-emerald-50 border-slate-200 hover:border-emerald-200 text-emerald-800 hover:-translate-y-1 active:scale-[0.98]"
+                    )}
+                  >
+                    <CreditCard className="w-5 h-5 hidden sm:inline-block transition-transform group-hover:scale-110" />
+                    <span>ফুল পেমেন্ট করুন</span>
+                    {hasPaidFull && (
+                      <span className="text-xs bg-emerald-100 text-emerald-700 font-black px-2 py-0.5 rounded-full border border-emerald-200">
+                        ✓ সম্পন্ন
+                      </span>
+                    )}
                   </button>
 
-                  {/* Divider */}
-                  <div className="flex items-center gap-4">
-                    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
-                    <p className="text-slate-400 font-black text-sm uppercase tracking-[3px]">
-                      অথবা
-                    </p>
-                    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
-                  </div>
+                  {/* Partial / Delivery Payment */}
+                  <button
+                    onClick={() => !hasPaidDelivery && handleOpenPayment("delivery")}
+                    disabled={hasPaidDelivery}
+                    className={cn(
+                      "group border-2 py-3 px-4 rounded-3xl font-semibold transition-all duration-300 flex flex-1 w-full items-center justify-center gap-3 text-base",
+                      hasPaidDelivery
+                        ? "bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed"
+                        : "bg-white hover:bg-emerald-50 border-slate-200 hover:border-emerald-200 text-emerald-800 hover:-translate-y-1 active:scale-[0.98]"
+                    )}
+                  >
+                    <Truck className="w-5 h-5 hidden sm:inline-block transition-transform group-hover:scale-110" />
+                    <span>আংশিক পেমেন্ট করুন</span>
+                    {hasPaidDelivery && (
+                      <span className="text-xs bg-emerald-100 text-emerald-700 font-black px-2 py-0.5 rounded-full border border-emerald-200">
+                        ✓ সম্পন্ন
+                      </span>
+                    )}
+                  </button>
+                </div>
 
-                  {/* Secondary Options */}
-                  <div className="flex flex-col sm:flex-row items-center justify-evenly gap-2">
-                    {[
-                      {
-                        type: "full",
-                        label: "ফুল পেমেন্ট করুন",
-                        icon: CreditCard,
-                      },
-                      {
-                        type: "delivery",
-                        label: "আংশিক পেমেন্ট করুন",
-                        icon: Truck,
-                      },
-                    ].map(({ type, label, icon: Icon }) => (
-                      <button
-                        key={type}
-                        onClick={() => handleOpenPayment(type)}
-                        className={cn(
-                          "group bg-white hover:bg-emerald-50 border-2 border-slate-200 hover:border-emerald-200 py-3 px-4 rounded-3xl font-semibold text-emerald-800 transition-all duration-300 hover:-translate-y-1 flex flex-1 w-full items-center justify-center gap-3 active:scale-[0.98] text-base",
-                        )}
-                      >
-                        <Icon
-                          className={`w-5 h-5 hidden sm:inline-block transition-transform group-hover:scale-110`}
-                        />
-                        <span>{label}</span>
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* App Balance Note */}
-                  <div className="bg-emerald-50 border border-emerald-100 rounded-2xl py-3 px-4 sm:py-4 sm:px-6">
-                    <p className="flex items-center justify-center gap-2 text-emerald-700 font-bold text-xs  sm:text-sm">
-                      <Wallet className="w-5 h-5 hidden sm:inline-block" />
-                      অ্যাপস এর ব্যালান্স থেকেও পেমেন্ট করতে পারবেন
-                    </p>
-                  </div>
+                {/* App Balance Note */}
+                <div className="bg-emerald-50 border border-emerald-100 rounded-2xl py-3 px-4 sm:py-4 sm:px-6">
+                  <p className="flex items-center justify-center gap-2 text-emerald-700 font-bold text-xs sm:text-sm">
+                    <Wallet className="w-5 h-5 hidden sm:inline-block" />
+                    অ্যাপস এর ব্যালান্স থেকেও পেমেন্ট করতে পারবেন
+                  </p>
                 </div>
               </div>
-            )}
+            </div>
+          )}
 
           {/* Payment Submitted Message */}
           {order.payment_status === "submitted" && (
