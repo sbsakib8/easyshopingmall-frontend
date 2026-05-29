@@ -91,7 +91,7 @@ const VideoManagement = () => {
 
   // Form States
   const [courseType, setCourseType] = useState("free"); // "free" | "paid"
-  const [courseFormData, setCourseFormData] = useState({ title: "", description: "", price: 0, isActive: true });
+  const [courseFormData, setCourseFormData] = useState({ title: "", description: "", price: 0, discountPrice: 0, referralBonus: 0, isActive: true });
   const [moduleFormData, setModuleFormData] = useState({ title: "", description: "", price: 0, courseId: "", isActive: true });
   const [videoFormData, setVideoFormData] = useState({ title: "", description: "", url: "", moduleId: "", videoType: "standard" });
   const [previewUrl, setPreviewUrl] = useState("");
@@ -131,10 +131,17 @@ const VideoManagement = () => {
   const selectItem = (type, data, parentId = null) => {
     setSelectedItem({ type, data, parentId });
     if (type === 'course') {
-      setCourseFormData({ title: data.title, description: data.description, price: data.price, isActive: data.isActive });
+      setCourseFormData({
+        title: data.title,
+        description: data.description,
+        price: data.price,
+        discountPrice: data.discountPrice || 0,
+        referralBonus: data.referralBonus || 0,
+        isActive: data.isActive
+      });
       setCourseType(data.price > 0 ? "paid" : "free");
     } else if (type === 'new_course') {
-      setCourseFormData({ title: "", description: "", price: 0, isActive: true });
+      setCourseFormData({ title: "", description: "", price: 0, discountPrice: 0, referralBonus: 0, isActive: true });
       setCourseType("free");
     } else if (type === 'module') {
       setModuleFormData({ title: data.title, description: data.description, price: data.price, courseId: data.courseId, isActive: data.isActive });
@@ -382,7 +389,7 @@ const VideoManagement = () => {
                       <div
                         onClick={() => {
                           setCourseType("free");
-                          setCourseFormData({ ...courseFormData, price: 0 });
+                          setCourseFormData({ ...courseFormData, price: 0, discountPrice: 0, referralBonus: 0 });
                         }}
                         className={`p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${courseType === "free"
                             ? "bg-blue-500/10 border-blue-500/80 ring-2 ring-blue-500/20"
@@ -403,7 +410,7 @@ const VideoManagement = () => {
                           setCourseType("paid");
                           // Set to a placeholder default price if it is currently 0
                           if (courseFormData.price === 0) {
-                            setCourseFormData({ ...courseFormData, price: 500 });
+                            setCourseFormData({ ...courseFormData, price: 500, discountPrice: 0, referralBonus: 0 });
                           }
                         }}
                         className={`p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${courseType === "paid"
@@ -431,15 +438,31 @@ const VideoManagement = () => {
                     <textarea className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all h-32 resize-y" value={courseFormData.description} onChange={(e) => setCourseFormData({ ...courseFormData, description: e.target.value })} />
                   </div>
 
-                  {/* Conditional Price field */}
+                  {/* Conditional Price fields */}
                   {courseType === "paid" ? (
-                    <div>
-                      <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Price (৳)</label>
-                      <div className="relative animate-in slide-in-from-top-2 duration-200">
-                        <span className="absolute left-4 top-3 text-slate-500">৳</span>
-                        <input type="number" min="1" required className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-8 pr-4 py-3 text-sm text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all" value={courseFormData.price} onChange={(e) => setCourseFormData({ ...courseFormData, price: Number(e.target.value) })} />
+                    <>
+                      <div>
+                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Price (৳)</label>
+                        <div className="relative animate-in slide-in-from-top-2 duration-200">
+                          <span className="absolute left-4 top-3 text-slate-500">৳</span>
+                          <input type="number" min="1" required className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-8 pr-4 py-3 text-sm text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all" value={courseFormData.price} onChange={(e) => setCourseFormData({ ...courseFormData, price: Number(e.target.value) })} />
+                        </div>
                       </div>
-                    </div>
+                      <div>
+                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Discount Price (৳)</label>
+                        <div className="relative animate-in slide-in-from-top-2 duration-200">
+                          <span className="absolute left-4 top-3 text-slate-500">৳</span>
+                          <input type="number" min="0" required className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-8 pr-4 py-3 text-sm text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all" value={courseFormData.discountPrice} onChange={(e) => setCourseFormData({ ...courseFormData, discountPrice: Number(e.target.value) })} />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Referral Bonus (৳)</label>
+                        <div className="relative animate-in slide-in-from-top-2 duration-200">
+                          <span className="absolute left-4 top-3 text-slate-500">৳</span>
+                          <input type="number" min="0" required className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-8 pr-4 py-3 text-sm text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all" value={courseFormData.referralBonus} onChange={(e) => setCourseFormData({ ...courseFormData, referralBonus: Number(e.target.value) })} />
+                        </div>
+                      </div>
+                    </>
                   ) : (
                     <div>
                       <label className="block text-[10px] font-black text-slate-500/50 uppercase tracking-widest mb-2">Price (৳)</label>

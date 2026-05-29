@@ -103,10 +103,16 @@ const DropshippingVideo = () => {
 
     const activeCourse = useMemo(() => courses.find(c => c._id === selectedCourseId), [courses, selectedCourseId]);
     const activeCourseModules = useMemo(() => modules.filter(m => m.courseId === selectedCourseId), [modules, selectedCourseId]);
-    const premiumStatus = accessRequests.find(req => req.videoType === "premium_training")?.status || "none";
+    const premiumStatus = useMemo(() => {
+        return accessRequests.find(req => req.courseId === selectedCourseId || (req.videoType === "premium_training" && !req.courseId))?.status || "none";
+    }, [accessRequests, selectedCourseId]);
     const isCoursePremium = activeCourse?.price > 0;
     const isCourseLocked = isCoursePremium && premiumStatus !== "approved";
     const isVideoLocked = isCourseLocked && activeVideo && (activeVideo.videoType === "premium" || activeVideo.videoType === "standard" || !activeVideo.videoType);
+    const currentCoursePrice = useMemo(() => {
+        if (!activeCourse) return premiumVideoPrice;
+        return activeCourse.discountPrice > 0 ? activeCourse.discountPrice : activeCourse.price;
+    }, [activeCourse, premiumVideoPrice]);
 
     const demoVideo = useMemo(() => videos.find(v => v.videoType === "demo"), [videos]);
     const freeVideos = useMemo(() => videos.filter(v => v.videoType === "free"), [videos]);
@@ -180,7 +186,12 @@ const DropshippingVideo = () => {
         e.preventDefault();
         setSubmitting(true);
         try {
-            const res = await axios.post(`${UrlBackend}/video-access/create`, { ...paymentData, videoType: "premium_training" }, { withCredentials: true });
+            const res = await axios.post(`${UrlBackend}/video-access/create`, { 
+                ...paymentData, 
+                amount: currentCoursePrice,
+                videoType: "premium_training", 
+                courseId: selectedCourseId 
+            }, { withCredentials: true });
             if (res.data.success) { toast.success("Payment submitted! Waiting for admin approval."); fetchData(); }
         } catch (error) {
             toast.error(error.response?.data?.message || "Failed to submit payment");
@@ -367,7 +378,9 @@ const DropshippingVideo = () => {
                                         const courseModuleIds = courseModules.map(m => m._id);
                                         const courseVideos = videos.filter(v => courseModuleIds.includes(v.moduleId));
                                         const isPremium = course.price > 0;
-                                        const isLocked = isPremium && premiumStatus !== "approved";
+                                        const courseAccess = accessRequests.find(req => req.courseId === course._id || (req.videoType === "premium_training" && !req.courseId));
+                                        const courseStatus = courseAccess ? courseAccess.status : "none";
+                                        const isLocked = isPremium && courseStatus !== "approved";
                                         return (
                                             <div key={course._id} className="bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col justify-between">
                                                 <div>
@@ -379,6 +392,23 @@ const DropshippingVideo = () => {
                                                     </div>
                                                     <div className="p-6">
                                                         <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight mb-2 line-clamp-1">{course.title}</h3>
+                                                        {isPremium && (
+                                                            <div className="flex items-center gap-2 mb-2">
+                                                                {course.discountPrice > 0 ? (
+                                                                    <>
+                                                                        <span className="text-xs text-gray-400 line-through">৳{course.price}</span>
+                                                                        <span className="text-sm font-black text-purple-600">৳{course.discountPrice}</span>
+                                                                    </>
+                                                                ) : (
+                                                                    <span className="text-sm font-black text-purple-600">৳{course.price}</span>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                        {course.referralBonus > 0 && (
+                                                            <div className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-lg text-[10px] font-black uppercase tracking-wider mb-2 border border-emerald-100">
+                                                                <Sparkles size={10} className="text-emerald-500" /> Refer & Earn: ৳{course.referralBonus}
+                                                            </div>
+                                                        )}
                                                         <p className="text-xs text-gray-500 font-medium leading-relaxed line-clamp-3 mb-4">{course.description || "No description provided."}</p>
                                                     </div>
                                                 </div>
@@ -426,7 +456,7 @@ const DropshippingVideo = () => {
                                                                 <Clock className="text-amber-500" size={24} />
                                                             </div>
                                                             <h3 className="text-lg font-black text-gray-900 uppercase tracking-tight mb-2">Payment Under Review</h3>
-                                                            <p className="text-gray-500 font-medium text-xs max-w-md mb-6">Your payment of &#2547;{premiumVideoPrice} is currently being verified by our administrators.</p>
+                                                            <p className="text-gray-500 font-medium text-xs max-w-md mb-6">Your payment of &#2547;{currentCoursePrice} is currently being verified by our administrators.</p>
                                                             <button onClick={fetchData} className="flex items-center gap-2 text-[10px] font-black text-gray-400 hover:text-gray-600 uppercase tracking-widest transition-colors">
                                                                 <RefreshCw size={12} className="animate-spin" style={{ animationDuration: "3s" }} /> Refresh Status
                                                             </button>
@@ -439,7 +469,7 @@ const DropshippingVideo = () => {
                                                                 <h4 className="font-black text-gray-900 uppercase tracking-tight text-sm">Payment Rejected</h4>
                                                                 <p className="text-[11px] text-gray-600 font-medium mt-2">Previous payment could not be verified. Please try again with valid details.</p>
                                                             </div>
-                                                            <PaymentForm paymentData={paymentData} setPaymentData={setPaymentData} onSubmit={handleSubmitPayment} submitting={submitting} title="Try Again" price={premiumVideoPrice} />
+                                                            <PaymentForm paymentData={paymentData} setPaymentData={setPaymentData} onSubmit={handleSubmitPayment} submitting={submitting} title="Try Again" price={currentCoursePrice} />
                                                         </div>
                                                     )}
                                                     {premiumStatus === "none" && (
@@ -448,7 +478,7 @@ const DropshippingVideo = () => {
                                                                 <div>
                                                                     <div className="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center mb-4"><Crown size={18} /></div>
                                                                     <h3 className="text-lg font-black uppercase tracking-tight mb-1">Unlock Masterclass</h3>
-                                                                    <p className="text-xl font-black text-purple-400 mb-6">&#2547;{premiumVideoPrice} <span className="text-[10px] font-bold text-slate-400">one-time</span></p>
+                                                                    <p className="text-xl font-black text-purple-400 mb-6">&#2547;{currentCoursePrice} <span className="text-[10px] font-bold text-slate-400">one-time</span></p>
                                                                     <ul className="space-y-3">
                                                                         {["Advanced tactics", "Live case studies", "Lifetime access"].map((item, i) => (
                                                                             <li key={i} className="flex items-center gap-3 text-xs font-bold text-slate-300">
@@ -458,7 +488,7 @@ const DropshippingVideo = () => {
                                                                     </ul>
                                                                 </div>
                                                             </div>
-                                                            <PaymentForm paymentData={paymentData} setPaymentData={setPaymentData} onSubmit={handleSubmitPayment} submitting={submitting} title="Submit Payment" price={premiumVideoPrice} />
+                                                            <PaymentForm paymentData={paymentData} setPaymentData={setPaymentData} onSubmit={handleSubmitPayment} submitting={submitting} title="Submit Payment" price={currentCoursePrice} />
                                                         </div>
                                                     )}
                                                 </div>

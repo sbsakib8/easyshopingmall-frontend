@@ -111,6 +111,17 @@ const VideoAccessManagement = () => {
   const [deliveredUrlInput, setDeliveredUrlInput] = useState({});
   const [adminNoteInput, setAdminNoteInput] = useState({});
 
+  // Custom confirmation modal state
+  const [actionConfirm, setActionConfirm] = useState({
+    show: false,
+    requestId: null,
+    status: "",
+    type: "access", // "access" | "custom"
+    message: "",
+    deliveredVideoUrl: "",
+    adminNote: "",
+  });
+
   const fetchAllRequests = async () => {
     setLoading(true);
     try {
@@ -217,19 +228,31 @@ const VideoAccessManagement = () => {
     return { total, pending, completed };
   }, [customRequests]);
 
-  const handleUpdateStatus = async (requestId, status) => {
-    const confirmMsg =
+  const triggerUpdateStatus = (requestId, status) => {
+    const message =
       status === "approved"
         ? "Approve this payment and grant video access?"
         : "Reject this payment request?";
 
-    if (!window.confirm(confirmMsg)) return;
+    setActionConfirm({
+      show: true,
+      requestId,
+      status,
+      type: "access",
+      message,
+      deliveredVideoUrl: "",
+      adminNote: adminNote,
+    });
+  };
 
+  const executeUpdateStatus = async () => {
+    const { requestId, status, adminNote: note } = actionConfirm;
+    setActionConfirm((prev) => ({ ...prev, show: false }));
     setActionLoading(true);
     try {
       const res = await axios.patch(
         `${UrlBackend}/video-access/update/${requestId}`,
-        { status, adminNote },
+        { status, adminNote: note || adminNote },
         { withCredentials: true },
       );
 
@@ -245,7 +268,7 @@ const VideoAccessManagement = () => {
     }
   };
 
-  const handleUpdateCustomRequest = async (requestId, status) => {
+  const triggerUpdateCustomRequest = (requestId, status) => {
     const note = adminNoteInput[requestId] || "";
     const deliveredUrl = deliveredUrlInput[requestId] || "";
 
@@ -254,9 +277,21 @@ const VideoAccessManagement = () => {
       return;
     }
 
-    const confirmMsg = `Are you sure you want to mark this custom video request as ${status}?`;
-    if (!window.confirm(confirmMsg)) return;
+    const message = `Are you sure you want to mark this custom video request as ${status}?`;
+    setActionConfirm({
+      show: true,
+      requestId,
+      status,
+      type: "custom",
+      message,
+      deliveredVideoUrl: deliveredUrl,
+      adminNote: note,
+    });
+  };
 
+  const executeUpdateCustomRequest = async () => {
+    const { requestId, status, adminNote: note, deliveredVideoUrl: deliveredUrl } = actionConfirm;
+    setActionConfirm((prev) => ({ ...prev, show: false }));
     setActionLoading(true);
     try {
       const res = await axios.patch(
@@ -280,6 +315,14 @@ const VideoAccessManagement = () => {
       );
     } finally {
       setActionLoading(false);
+    }
+  };
+
+  const handleConfirm = () => {
+    if (actionConfirm.type === "access") {
+      executeUpdateStatus();
+    } else {
+      executeUpdateCustomRequest();
     }
   };
 
@@ -431,6 +474,15 @@ const VideoAccessManagement = () => {
                     </div>
                   </div>
 
+                  {req.courseId?.title && (
+                    <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-2xl p-2.5 flex items-center gap-2">
+                      <Video size={14} className="text-indigo-400 shrink-0" />
+                      <span className="text-[11px] font-bold text-indigo-300 truncate">
+                        {req.courseId.title}
+                      </span>
+                    </div>
+                  )}
+
                   {/* Info Grid */}
                   <div className="grid grid-cols-2 sm:grid-cols-1 md:grid-cols-2 gap-2.5">
                     <div className="bg-slate-900/60 rounded-2xl p-2.5 border border-white/5">
@@ -480,7 +532,7 @@ const VideoAccessManagement = () => {
                   {req.status === "pending" && (
                     <div className="flex items-center justify-end gap-3 mt-auto">
                       <button
-                        onClick={() => handleUpdateStatus(req._id, "approved")}
+                        onClick={() => triggerUpdateStatus(req._id, "approved")}
                         disabled={actionLoading}
                         className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white py-2 px-3 rounded-2xl text-xs font-semibold shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                       >
@@ -488,7 +540,7 @@ const VideoAccessManagement = () => {
                       </button>
 
                       <button
-                        onClick={() => handleUpdateStatus(req._id, "rejected")}
+                        onClick={() => triggerUpdateStatus(req._id, "rejected")}
                         disabled={actionLoading}
                         className="px-3 py-2 bg-slate-900/70 hover:bg-red-500/10 text-red-400 hover:text-red-500 rounded-2xl flex items-center justify-center transition-all border border-white/5 disabled:opacity-50"
                       >
@@ -761,7 +813,7 @@ const VideoAccessManagement = () => {
                               {
                                 label: "Update Delivery Info",
                                 onClick: () =>
-                                  handleUpdateCustomRequest(
+                                  triggerUpdateCustomRequest(
                                     req._id,
                                     "completed",
                                   ),
@@ -775,7 +827,7 @@ const VideoAccessManagement = () => {
                                     {
                                       label: "Approve / Process",
                                       onClick: () =>
-                                        handleUpdateCustomRequest(
+                                        triggerUpdateCustomRequest(
                                           req._id,
                                           "approved",
                                         ),
@@ -787,7 +839,7 @@ const VideoAccessManagement = () => {
                               {
                                 label: "Reject Order",
                                 onClick: () =>
-                                  handleUpdateCustomRequest(
+                                  triggerUpdateCustomRequest(
                                     req._id,
                                     "rejected",
                                   ),
@@ -798,7 +850,7 @@ const VideoAccessManagement = () => {
                                 label: "Deliver Custom Ad Video",
                                 icon: Check,
                                 onClick: () =>
-                                  handleUpdateCustomRequest(
+                                  triggerUpdateCustomRequest(
                                     req._id,
                                     "completed",
                                   ),
@@ -844,6 +896,76 @@ const VideoAccessManagement = () => {
           </div>
         )}
       </Container>
+
+      {/* Custom Confirmation Modal */}
+      {actionConfirm.show && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="relative w-full max-w-md overflow-hidden bg-slate-900/90 border border-slate-700/50 rounded-3xl p-6 md:p-8 shadow-2xl shadow-black/50 animate-in zoom-in-95 duration-200">
+            {/* Background Accent */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            
+            {/* Close Button */}
+            <button 
+              onClick={() => setActionConfirm(prev => ({ ...prev, show: false }))}
+              className="absolute top-4 right-4 p-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all"
+            >
+              <X size={16} />
+            </button>
+
+            {/* Warning Icon & Title */}
+            <div className="flex flex-col items-center text-center mt-2 space-y-4">
+              <div className={cn(
+                "p-4 rounded-2xl",
+                actionConfirm.status === "approved" || actionConfirm.status === "completed"
+                  ? "bg-emerald-500/10 text-emerald-400"
+                  : actionConfirm.status === "rejected"
+                    ? "bg-red-500/10 text-red-400"
+                    : "bg-amber-500/10 text-amber-400"
+              )}>
+                {actionConfirm.status === "approved" || actionConfirm.status === "completed" ? (
+                  <Check size={28} />
+                ) : actionConfirm.status === "rejected" ? (
+                  <X size={28} />
+                ) : (
+                  <Clock size={28} />
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="text-lg md:text-xl font-bold text-white uppercase tracking-wider">
+                  Confirm Action
+                </h3>
+                <p className="text-xs md:text-sm text-slate-400 font-medium px-2">
+                  {actionConfirm.message}
+                </p>
+              </div>
+            </div>
+
+            {/* Buttons */}
+            <div className="flex items-center gap-4 mt-8">
+              <button
+                onClick={() => setActionConfirm(prev => ({ ...prev, show: false }))}
+                className="flex-1 py-3 px-4 bg-slate-850 hover:bg-slate-800 border border-slate-700/50 rounded-2xl text-xs md:text-sm font-semibold transition-all hover:text-white text-slate-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirm}
+                className={cn(
+                  "flex-1 py-3 px-4 text-xs md:text-sm font-semibold text-white rounded-2xl transition-all shadow-lg",
+                  actionConfirm.status === "approved" || actionConfirm.status === "completed"
+                    ? "bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 shadow-emerald-500/20"
+                    : actionConfirm.status === "rejected"
+                      ? "bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 shadow-red-500/20"
+                      : "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 shadow-amber-500/20"
+                )}
+              >
+                Yes, Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 };

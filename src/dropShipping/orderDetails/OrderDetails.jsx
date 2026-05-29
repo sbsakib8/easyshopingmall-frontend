@@ -71,6 +71,29 @@ const OrderDetails = ({ id }) => {
   const products = order.products || [];
   const orderIdDisplay = order.orderId || order._id || "—";
 
+  // Payment method label helpers
+  const paymentMethodLabel = {
+    manual: "Manual (bKash / Nagad / Rocket)",
+    sslcommerz: "SSLCommerz (Card / Mobile)",
+    balance: "App Balance",
+    cod: "Cash on Delivery (COD)",
+  };
+  const paymentTypeLabel = {
+    full: "Full Payment",
+    delivery: "Delivery Charge Only",
+    cod: "Cash on Delivery",
+  };
+  const paymentStatusBadge = {
+    pending: { label: "Pending", cls: "bg-amber-100 text-amber-700" },
+    submitted: { label: "Submitted", cls: "bg-blue-100 text-blue-700" },
+    paid: { label: "Paid ✓", cls: "bg-emerald-100 text-emerald-700" },
+    failed: { label: "Failed", cls: "bg-rose-100 text-rose-700" },
+    refunded: { label: "Refunded", cls: "bg-purple-100 text-purple-700" },
+  };
+  const pyMethodDisplay = paymentMethodLabel[order.payment_method] || order.payment_method || "—";
+  const pyTypeDisplay = paymentTypeLabel[order.payment_type] || order.payment_type || "—";
+  const pyStatusInfo = paymentStatusBadge[order.payment_status] || { label: order.payment_status || "—", cls: "bg-slate-100 text-slate-600" };
+
   // Payment status helpers
   const hasPaidDelivery =
     order.payment_type === "delivery" &&
@@ -317,6 +340,62 @@ const OrderDetails = ({ id }) => {
                         </span>
                       </td>
                     </tr>
+
+                    <tr className="hover:bg-slate-50 transition-colors">
+                      <td className="px-3.5 py-2.5 md:px-5.5 md:py-4.5 w-32 md:w-40 font-bold text-xs uppercase tracking-widest text-slate-400">
+                        Payment Method
+                      </td>
+                      <td className="px-3.5 py-2.5 md:px-5.5 md:py-4.5 text-xs sm:text-sm font-medium text-slate-800">
+                        {pyMethodDisplay}
+                      </td>
+                    </tr>
+
+                    <tr className="hover:bg-slate-50 transition-colors">
+                      <td className="px-3.5 py-2.5 md:px-5.5 md:py-4.5 w-32 md:w-40 font-bold text-xs uppercase tracking-widest text-slate-400">
+                        Payment Type
+                      </td>
+                      <td className="px-3.5 py-2.5 md:px-5.5 md:py-4.5 text-xs sm:text-sm font-medium text-slate-800">
+                        {pyTypeDisplay}
+                      </td>
+                    </tr>
+
+                    <tr className="hover:bg-slate-50 transition-colors">
+                      <td className="px-3.5 py-2.5 md:px-5.5 md:py-4.5 w-32 md:w-40 font-bold text-xs uppercase tracking-widest text-slate-400">
+                        Payment Status
+                      </td>
+                      <td className="px-3.5 py-2.5 md:px-5.5 md:py-4.5">
+                        <span className={`inline-block text-xs font-bold px-2.5 py-1 rounded-full ${pyStatusInfo.cls}`}>
+                          {pyStatusInfo.label}
+                        </span>
+                      </td>
+                    </tr>
+
+                    {order.payment_method === "manual" && order.payment_details?.manual?.provider && (
+                      <tr className="hover:bg-slate-50 transition-colors bg-blue-50/30">
+                        <td className="px-3.5 py-2.5 md:px-5.5 md:py-4.5 w-32 md:w-40 font-bold text-xs uppercase tracking-widest text-slate-400">
+                          Provider
+                        </td>
+                        <td className="px-3.5 py-2.5 md:px-5.5 md:py-4.5 text-xs sm:text-sm font-semibold text-slate-800 capitalize">
+                          {order.payment_details.manual.provider}
+                          {order.payment_details.manual.senderNumber && (
+                            <span className="text-slate-500 font-normal ml-2">
+                              — {order.payment_details.manual.senderNumber}
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    )}
+
+                    {order.payment_method === "manual" && order.payment_details?.manual?.transactionId && (
+                      <tr className="hover:bg-slate-50 transition-colors">
+                        <td className="px-3.5 py-2.5 md:px-5.5 md:py-4.5 w-32 md:w-40 font-bold text-xs uppercase tracking-widest text-slate-400">
+                          Txn ID
+                        </td>
+                        <td className="px-3.5 py-2.5 md:px-5.5 md:py-4.5 font-mono text-xs text-slate-700 break-all">
+                          {order.payment_details.manual.transactionId}
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>
