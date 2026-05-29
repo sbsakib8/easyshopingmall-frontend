@@ -1,31 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import {
-  Plus,
-  Edit3,
-  Trash2,
-  Eye,
-  EyeOff,
-  Save,
-  X,
-  Search,
-  Filter,
-  Grid,
-  List,
-  Upload,
-  Image,
-  Tag,
-  Layers,
-  ChevronDown,
-  ChevronRight,
-  BarChart3,
-  Download,
-  Edit,
-  Link,
-} from "lucide-react";
-import { useDispatch, useSelector } from "react-redux";
-import toast from "react-hot-toast";
+import Container from "@/src/compronent/shared/Container";
 import {
   SubCategoryAllGet,
   SubCategoryCreate,
@@ -33,7 +8,29 @@ import {
   SubCategoryUploade,
 } from "@/src/hook/useSubcategory";
 import { cn } from "@/src/utlis/utils";
-import Container from "@/src/compronent/shared/Container";
+import {
+  BarChart3,
+  Download,
+  Edit3,
+  Eye,
+  EyeOff,
+  Filter,
+  Grid,
+  Image,
+  Layers,
+  Link,
+  List,
+  Plus,
+  Save,
+  Search,
+  Tag,
+  Trash2,
+  Upload,
+  X,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
 
 const AddSubcategoriesComponent = () => {
   const [formData, setFormData] = useState({
@@ -1111,7 +1108,7 @@ const AddSubcategoriesComponent = () => {
             Bulk Operations
           </h2>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {bulkActionButtons.map((btn, index) => (
               <button
                 key={index}

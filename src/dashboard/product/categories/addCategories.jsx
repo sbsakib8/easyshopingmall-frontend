@@ -754,7 +754,7 @@ const AddCategoriesComponent = () => {
             </h2>
 
             {filteredCategories.length > 0 && (
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap justify-evenly gap-2">
                 <button
                   onClick={bulkActivate}
                   className="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 text-sm"
@@ -771,7 +771,6 @@ const AddCategoriesComponent = () => {
                   onClick={exportData}
                   className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 text-sm flex items-center space-x-1"
                 >
-                  <Download size={16} />
                   <span>Export</span>
                 </button>
               </div>
@@ -1043,7 +1042,7 @@ const AddCategoriesComponent = () => {
             Bulk Operations
           </h2>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {bulkActionButtons.map((btn, index) => (
               <button
                 key={index}
@@ -1051,10 +1050,9 @@ const AddCategoriesComponent = () => {
                 className={cn(
                   "px-4 py-2 bg-gradient-to-r text-accent-content rounded-xl",
                   "flex items-center justify-center space-x-2 transform shadow-lg",
-                  "hover:shadow-xl active:scale-95 transition-all duration-200",
+                  "hover:shadow-xl active:scale-95 transition-all duration-200 whitespace-nowrap",
                   btn.gradient,
                   btn.hoverGradient,
-                  btn.label === "Deactivate All" && "text-nowrap",
                 )}
               >
                 <btn.icon size={20} className="hidden sm:inline-block" />

@@ -1,58 +1,27 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { cn } from "@/src/utlis/utils";
+import { Badge } from "@mui/material";
+import Drawer from "@mui/material/Drawer";
 import {
+  ChevronRight,
   Home,
-  ShoppingBag,
   Info,
+  Menu,
   Newspaper,
   Phone,
+  ShoppingBag,
   ShoppingCart,
-  Menu,
-  ChevronRight,
   X,
 } from "lucide-react";
-import { Badge } from "@mui/material";
-import { cn } from "@/src/utlis/utils";
-import Drawer from "@mui/material/Drawer";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 
 const BottomNav = ({ cartCount = 0, menuCategories = [] }) => {
   const router = useRouter();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState(null);
-
-  // Close on escape
-  useEffect(() => {
-    const handleEsc = (e) => {
-      if (e.key === "Escape" && menuOpen) {
-        setMenuOpen(false);
-        setActiveCategory(null);
-      }
-    };
-    document.addEventListener("keydown", handleEsc);
-    return () => document.removeEventListener("keydown", handleEsc);
-  }, [menuOpen]);
-
-  // Lock scroll
-  useEffect(() => {
-    if (!menuOpen) return;
-
-    const originalOverflow = document.body.style.overflow;
-    const scrollBarWidth =
-      window.innerWidth - document.documentElement.clientWidth;
-
-    document.body.style.overflow = "hidden";
-    if (scrollBarWidth > 0) {
-      document.body.style.paddingRight = `${scrollBarWidth}px`;
-    }
-
-    return () => {
-      document.body.style.overflow = originalOverflow;
-      document.body.style.paddingRight = "";
-    };
-  }, [menuOpen]);
 
   const navItems = [
     { icon: Home, href: "/", key: "home", label: "Home" },
@@ -67,7 +36,7 @@ const BottomNav = ({ cartCount = 0, menuCategories = [] }) => {
       label: "Cart",
       badge: String(cartCount),
     },
-    { icon: Menu, key: "menu", label: "Menu" },
+    { icon: Menu, key: "categories", label: "Categories" },
   ];
 
   const handleClick = (item) => {
@@ -101,9 +70,9 @@ const BottomNav = ({ cartCount = 0, menuCategories = [] }) => {
 
   return (
     <>
-      {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white border-t border-slate-200 shadow-lg">
-        <div className="relative flex items-center justify-around px-2 py-1.5 max-w-md mx-auto">
+      {/* Modern Floating Bottom Navigation */}
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 md:hidden w-full flex justify-center pointer-events-none">
+        <div className="rounded-[2.5rem] bg-gradient-to-r from-gray-900/80 via-black/60 to-gray-800/80 backdrop-blur-md shadow-[0_8px_32px_0_rgba(30,144,255,0.18),0_1.5px_8px_0_rgba(30,144,255,0.1)] p-2.5 sm:py-2 relative overflow-visible pointer-events-auto grid grid-cols-7 place-items-center w-[98vw] max-w-lg mx-auto">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item);
@@ -117,29 +86,37 @@ const BottomNav = ({ cartCount = 0, menuCategories = [] }) => {
                 aria-pressed={active}
                 aria-label={item.label}
                 className={cn(
-                  "flex flex-col items-center justify-center p-2 rounded-2xl transition-all active:scale-95 w-14 h-14",
-                  active
-                    ? "text-emerald-500"
-                    : "text-slate-500 hover:text-slate-700 hover:bg-slate-50",
+                  "group flex flex-col items-center justify-center flex-1 transition-all duration-200 text-white space-y-1",
                 )}
               >
-                {item.badge !== undefined ? (
-                  <Badge
-                    badgeContent={item.badge}
-                    color="error"
-                    sx={{
-                      "& .MuiBadge-badge": {
-                        fontSize: "10px",
-                        minWidth: "18px",
-                        height: "18px",
-                      },
-                    }}
-                  >
-                    <Icon className="w-6 h-6" strokeWidth={2.2} />
-                  </Badge>
-                ) : (
-                  <Icon className="w-6 h-6" strokeWidth={2.2} />
-                )}
+                <span
+                  className={cn(
+                    "flex items-center justify-center transition-all duration-200 size-8 sm:size-10 rounded-xl active:scale-95",
+                    {
+                      "size-12 sm:size-14 rounded-full bg-white/30 backdrop-blur-md shadow-lg border-4 border-white/20 scale-110 hover:scale-125 active:scale-100 -mt-4":
+                        active,
+                    },
+                  )}
+                >
+                  {item.badge !== undefined ? (
+                    <Badge
+                      badgeContent={item.badge}
+                      color="error"
+                      sx={{
+                        "& .MuiBadge-badge": {
+                          fontSize: "10px",
+                          minWidth: "18px",
+                          height: "18px",
+                        },
+                      }}
+                    >
+                      <Icon className={"size-6 sm:size-7"} strokeWidth={2.2} />
+                    </Badge>
+                  ) : (
+                    <Icon className={"size-6 sm:size-7"} strokeWidth={2.2} />
+                  )}
+                </span>
+                <span className="text-xs">{item.label}</span>
               </button>
             );
           })}
@@ -241,7 +218,6 @@ const BottomNav = ({ cartCount = 0, menuCategories = [] }) => {
           )}
         </div>
       </Drawer>
-
       {/* Important: Bottom padding for mobile */}
       <div className="h-20 md:hidden" aria-hidden />
     </>
