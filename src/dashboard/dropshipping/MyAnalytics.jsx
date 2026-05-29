@@ -81,12 +81,23 @@ const MyAnalytics = () => {
     }
   }, [data?._id, timeRange, customDates]);
 
+  // Calculate video referral bonuses
+  const videoBonusStats = useMemo(() => {
+    if (!dsAnalytics?.videoReferrals) return { approved: 0, pending: 0 };
+    return dsAnalytics.videoReferrals.reduce((acc, ref) => {
+      if (ref.status === 'approved') acc.approved += (ref.bonusAmount || 0);
+      else if (ref.status === 'pending') acc.pending += (ref.bonusAmount || 0);
+      return acc;
+    }, { approved: 0, pending: 0 });
+  }, [dsAnalytics?.videoReferrals]);
+
   // Process trend data from transactions
   const trendData = useMemo(() => {
-    if (!dsAnalytics?.transactions) return [];
+    const transactions = dsAnalytics?.transactions || [];
+    const videoReferrals = dsAnalytics?.videoReferrals || [];
 
     // Group by date and sum amount
-    const groups = dsAnalytics.transactions.reduce((acc, tx) => {
+    const groups = transactions.reduce((acc, tx) => {
       const date = new Date(tx.date).toLocaleDateString("en-US", {
         month: "short",
         day: "numeric",
@@ -96,6 +107,18 @@ const MyAnalytics = () => {
       return acc;
     }, {});
 
+    // Add approved video referrals to trend
+    videoReferrals.forEach(ref => {
+      if (ref.status === 'approved') {
+        const date = new Date(ref.createdAt || ref.date).toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+        });
+        if (!groups[date]) groups[date] = 0;
+        groups[date] += (ref.bonusAmount || 0);
+      }
+    });
+
     return Object.entries(groups)
       .map(([name, value]) => ({
         name,
@@ -104,13 +127,13 @@ const MyAnalytics = () => {
       }))
       .sort((a, b) => a.rawDate - b.rawDate)
       .map(({ name, value }) => ({ name, value }));
-  }, [dsAnalytics?.transactions]);
+  }, [dsAnalytics?.transactions, dsAnalytics?.videoReferrals]);
 
   // Process pie data for order pipeline
   const pipelineData = useMemo(() => {
     if (!dsAnalytics?.orderPipeline) return [];
     return Object.entries(dsAnalytics.orderPipeline)
-      .filter(([_, value]) => value > 0)
+      .filter(([, value]) => value > 0)
       .map(([name, value]) => ({
         name: name.charAt(0).toUpperCase() + name.slice(1),
         value,
@@ -237,12 +260,12 @@ const MyAnalytics = () => {
         {[
           {
             label: "Available Balance",
-            value: summary.currentBalance || data?.balance || 0,
+            value: (summary.currentBalance || data?.balance || 0) + videoBonusStats.approved,
             icon: Target,
             color: "text-teal-600",
             bg: "bg-teal-50",
             border: "border-teal-100",
-            trend: "Matches your navbar balance",
+            trend: "Includes video & sales bonuses",
             isPrimary: true,
           },
           {
@@ -256,21 +279,21 @@ const MyAnalytics = () => {
           },
           {
             label: "Pending Revenue",
-            value: summary.pendingProfit,
+            value: summary.pendingProfit + videoBonusStats.pending,
             icon: Clock,
             color: "text-amber-600",
             bg: "bg-amber-50",
             border: "border-amber-100",
-            trend: "Awaiting fulfillment",
+            trend: "Awaiting approval/delivery",
           },
           {
             label: "Referral Income",
-            value: summary.referralIncome,
+            value: summary.referralIncome + videoBonusStats.approved,
             icon: TrendingUp,
             color: "text-blue-600",
             bg: "bg-blue-50",
             border: "border-blue-100",
-            trend: "From your network",
+            trend: "Network & Video referrals",
           },
         ].map((kpi, idx) => (
           <div
