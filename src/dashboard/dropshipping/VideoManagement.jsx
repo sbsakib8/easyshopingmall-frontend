@@ -199,20 +199,49 @@ const VideoManagement = () => {
         isActive: true,
       });
     } else if (type === "video") {
+      let normalizedVideoType = data.videoType || "premium";
+      if (!data.moduleId) {
+        if (normalizedVideoType === "standard" || normalizedVideoType === "premium") {
+          normalizedVideoType = "free";
+        }
+      } else {
+        const parentMod = modules.find(m => m._id === data.moduleId);
+        const parentCourse = parentMod ? courses.find(c => c._id === parentMod.courseId) : null;
+        const isFreeCourse = parentCourse ? parentCourse.price <= 0 : false;
+        if (isFreeCourse) {
+          normalizedVideoType = "free";
+        } else {
+          if (normalizedVideoType !== "premium" && normalizedVideoType !== "demo") {
+            normalizedVideoType = "premium";
+          }
+        }
+      }
       setVideoFormData({
         title: data.title,
         description: data.description,
         url: data.url,
-        moduleId: data.moduleId,
-        videoType: data.videoType,
+        moduleId: data.moduleId || "",
+        videoType: normalizedVideoType,
       });
     } else if (type === "new_video") {
+      const initialModId = parentId || "";
+      let initialVideoType = "premium";
+      if (!initialModId) {
+        initialVideoType = "free";
+      } else {
+        const parentMod = modules.find(m => m._id === initialModId);
+        const parentCourse = parentMod ? courses.find(c => c._id === parentMod.courseId) : null;
+        const isFreeCourse = parentCourse ? parentCourse.price <= 0 : false;
+        if (isFreeCourse) {
+          initialVideoType = "free";
+        }
+      }
       setVideoFormData({
         title: "",
         description: "",
         url: "",
-        moduleId: parentId || "",
-        videoType: "standard",
+        moduleId: initialModId,
+        videoType: initialVideoType,
       });
     }
   };
@@ -514,7 +543,7 @@ const VideoManagement = () => {
 
           {/* Standalone Videos Section */}
           {(() => {
-            const standalone = videos.filter((v) => !v.moduleId);
+            const standalone = videos.filter((v) => !v.moduleId || !modules.some(m => m._id === v.moduleId));
 
             return (
               <div className="mt-6 border-t border-slate-800/60 pt-4 pb-2">
@@ -975,12 +1004,31 @@ const VideoManagement = () => {
                     <select
                       className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
                       value={videoFormData.moduleId || ""}
-                      onChange={(e) =>
+                      onChange={(e) => {
+                        const modId = e.target.value;
+                        let nextVideoType = videoFormData.videoType;
+                        if (!modId) {
+                          if (nextVideoType === "standard" || nextVideoType === "premium") {
+                            nextVideoType = "free";
+                          }
+                        } else {
+                          const parentMod = modules.find(m => m._id === modId);
+                          const parentCourse = parentMod ? courses.find(c => c._id === parentMod.courseId) : null;
+                          const isFreeCourse = parentCourse ? parentCourse.price <= 0 : false;
+                          if (isFreeCourse) {
+                            nextVideoType = "free";
+                          } else {
+                            if (nextVideoType !== "premium" && nextVideoType !== "demo") {
+                              nextVideoType = "premium";
+                            }
+                          }
+                        }
                         setVideoFormData({
                           ...videoFormData,
-                          moduleId: e.target.value,
-                        })
-                      }
+                          moduleId: modId,
+                          videoType: nextVideoType,
+                        });
+                      }}
                     >
                       <option value="">
                         None (Standalone Video - e.g. Demo / Promo)
@@ -1045,12 +1093,33 @@ const VideoManagement = () => {
                         })
                       }
                     >
-                      <option value="standard">
-                        Standard (Requires Course Access)
-                      </option>
-                      <option value="demo">Demo (Public/Marketing)</option>
-                      <option value="free">Free (Logged in users)</option>
-                      <option value="premium">Premium (Extra Paywall)</option>
+                      {(() => {
+                        if (!videoFormData.moduleId) {
+                          return (
+                            <>
+                              <option value="free">Free (Logged in users)</option>
+                              <option value="demo">Demo (Public/Marketing)</option>
+                              <option value="premium">Premium (Extra Paywall)</option>
+                            </>
+                          );
+                        }
+                        const parentMod = modules.find(m => m._id === videoFormData.moduleId);
+                        const parentCourse = parentMod ? courses.find(c => c._id === parentMod.courseId) : null;
+                        const isFreeCourse = parentCourse ? parentCourse.price <= 0 : false;
+                        
+                        if (isFreeCourse) {
+                          return (
+                            <option value="free">Free (Standard - Free Course)</option>
+                          );
+                        } else {
+                          return (
+                            <>
+                              <option value="premium">Premium (Requires Course Access)</option>
+                              <option value="demo">Demo (Public/Marketing)</option>
+                            </>
+                          );
+                        }
+                      })()}
                     </select>
                   </div>
                   <div className="sm:col-span-2">

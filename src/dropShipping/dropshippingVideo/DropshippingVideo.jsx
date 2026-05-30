@@ -27,23 +27,23 @@ const getYoutubeEmbedUrl = (url) => {
 
 // ─── Payment Form Sub-component ───────────────────────────────────────────────
 const PaymentForm = ({ paymentData, setPaymentData, onSubmit, submitting, title = "Submit Payment", price = 500 }) => (
-    <div className="bg-white border border-gray-100 rounded-[2.5rem] p-8 shadow-lg">
+    <div className="bg-white border border-gray-100 rounded-[2.5rem] p-5 md:p-8 shadow-lg w-full">
         <div className="flex items-center gap-4 mb-8">
             <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center">
                 <CreditCard className="text-emerald-600" size={24} />
             </div>
             <div>
                 <h3 className="text-xl font-black text-gray-900 uppercase tracking-tight">{title}</h3>
-                <p className="text-xs text-gray-400 font-bold mt-0.5">Enter your Bkash / Nagad transaction details</p>
+                <p className="text-xs text-gray-400 font-bold mt-0.5">আপনার বিকাশ / নগদ লেনদেনের বিবরণ দিন</p>
             </div>
         </div>
         <div className="bg-emerald-50/50 p-4 rounded-3xl border border-emerald-100 mb-8">
             <div className="flex items-center gap-2 mb-1.5">
                 <Info className="text-emerald-600 w-4 h-4" />
-                <span className="text-[10px] font-black text-emerald-800 uppercase tracking-widest">Payment Instructions</span>
+                <span className="text-[10px] font-black text-emerald-800 uppercase tracking-widest">পেমেন্ট নির্দেশিকা</span>
             </div>
             <p className="text-xs text-emerald-700 font-medium leading-relaxed">
-                Please send <span className="font-black">&#2547;{price}</span> (Send Money) to our Bkash/Nagad number. Then enter the transaction details below.
+                অনুগ্রহ করে আমাদের বিকাশ/নগদ নম্বরে <span className="font-black">&#2547;{price}</span> (সেন্ড মানি) পাঠান। এরপর নিচে লেনদেনের বিবরণ দিন।
             </p>
         </div>
         <form onSubmit={onSubmit} className="space-y-4">
@@ -104,7 +104,13 @@ const DropshippingVideo = () => {
     const activeCourse = useMemo(() => courses.find(c => c._id === selectedCourseId), [courses, selectedCourseId]);
     const activeCourseModules = useMemo(() => modules.filter(m => m.courseId === selectedCourseId), [modules, selectedCourseId]);
     const premiumStatus = useMemo(() => {
-        return accessRequests.find(req => req.courseId === selectedCourseId || (req.videoType === "premium_training" && !req.courseId))?.status || "none";
+        if (!selectedCourseId) return "none";
+        const courseReqs = accessRequests.filter(req => req.courseId === selectedCourseId);
+        if (courseReqs.length === 0) return "none";
+        if (courseReqs.some(r => r.status === "approved")) return "approved";
+        if (courseReqs.some(r => r.status === "pending")) return "pending";
+        if (courseReqs.some(r => r.status === "rejected")) return "rejected";
+        return courseReqs[0].status || "none";
     }, [accessRequests, selectedCourseId]);
     const isCoursePremium = activeCourse?.price > 0;
     const isCourseLocked = isCoursePremium && premiumStatus !== "approved";
@@ -122,7 +128,7 @@ const DropshippingVideo = () => {
         const courseModules = modules.filter(m => m.courseId === courseId);
         if (courseModules.length > 0) {
             setExpandedModules({ [courseModules[0]._id]: true });
-            const firstModVideos = videos.filter(v => v.moduleId === courseModules[0]._id);
+            const firstModVideos = videos.filter(v => (v.moduleId?._id === courseModules[0]._id || v.moduleId === courseModules[0]._id));
             setActiveVideo(firstModVideos.length > 0 ? firstModVideos[0] : null);
         } else {
             setActiveVideo(null);
@@ -136,9 +142,9 @@ const DropshippingVideo = () => {
         try {
             const [accessResult, videosResult, coursesResult, modulesResult, websiteInfoResult] = await Promise.allSettled([
                 axios.get(`${UrlBackend}/video-access/my-access`, { withCredentials: true }),
-                axios.get(`${UrlBackend}/video-content/all`),
-                axios.get(`${UrlBackend}/video-course/all`),
-                axios.get(`${UrlBackend}/video-module/all`),
+                axios.get(`${UrlBackend}/video-content/all`, { withCredentials: true }),
+                axios.get(`${UrlBackend}/video-course/all`, { withCredentials: true }),
+                axios.get(`${UrlBackend}/video-module/all`, { withCredentials: true }),
                 WebsiteinfoAllGet()
             ]);
             if (accessResult.status === "fulfilled" && accessResult.value.data.success) setAccessRequests(accessResult.value.data.data);
@@ -242,7 +248,7 @@ const DropshippingVideo = () => {
     );
 
     return (
-        <div className="min-h-screen bg-slate-50/30 py-8 lg:py-12">
+        <div className="min-h-screen bg-slate-50/30 py-8 lg:py-12 overflow-x-hidden">
             <Container>
                 <div className="flex flex-col-reverse md:flex-row md:items-center justify-between gap-3 mb-6">
                     <div className="space-y-2">
@@ -266,7 +272,7 @@ const DropshippingVideo = () => {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-3 mb-8 border-b border-gray-100 pb-4">
+                <div className="flex items-center gap-3 mb-8 border-b border-gray-100 pb-4 overflow-x-auto whitespace-nowrap scrollbar-hide">
                     {[
                         { key: "academy", label: "Training Academy", icon: BookOpen },
                         { key: "requests", label: "Order Custom Ads", icon: Film }
@@ -376,7 +382,10 @@ const DropshippingVideo = () => {
                                     {courses.map(course => {
                                         const courseModules = modules.filter(m => m.courseId === course._id);
                                         const courseModuleIds = courseModules.map(m => m._id);
-                                        const courseVideos = videos.filter(v => courseModuleIds.includes(v.moduleId));
+                                        const courseVideos = videos.filter(v => {
+                                            const mId = v.moduleId?._id || v.moduleId;
+                                            return courseModuleIds.includes(mId);
+                                        });
                                         const isPremium = course.price > 0;
                                         const courseAccess = accessRequests.find(req => req.courseId === course._id || (req.videoType === "premium_training" && !req.courseId));
                                         const courseStatus = courseAccess ? courseAccess.status : "none";
@@ -435,21 +444,15 @@ const DropshippingVideo = () => {
                                     <ArrowLeft size={14} /> Back to Course Catalog
                                 </button>
                                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                                    <div className="lg:col-span-8 space-y-6">
-                                        {!activeVideo ? (
-                                            <div className="bg-white rounded-[2.5rem] p-12 text-center shadow-sm border border-gray-100 aspect-video flex flex-col items-center justify-center">
-                                                <Play size={48} className="text-gray-200 mb-4" />
-                                                <h3 className="text-xl font-black text-gray-900 uppercase tracking-tight">Select a video to begin</h3>
-                                                <p className="text-gray-500 font-medium text-sm mt-2">Choose a video from the curriculum on the right.</p>
-                                            </div>
-                                        ) : isVideoLocked ? (
+                                    {isCourseLocked ? (
+                                        <div className="lg:col-span-12 max-w-2xl mx-auto w-full">
                                             <div className="bg-white border border-gray-100 rounded-[2.5rem] shadow-sm overflow-hidden animate-in fade-in duration-300">
-                                                <div className="relative aspect-video bg-slate-900 flex flex-col items-center justify-center p-8 text-center">
+                                                <div className="relative aspect-video bg-slate-900 flex flex-col items-center justify-center p-6 md:p-8 text-center">
                                                     <Lock size={48} className="text-purple-500/50 mb-4 animate-bounce" />
                                                     <h3 className="text-2xl font-black text-white uppercase tracking-tight">Premium Course Content</h3>
                                                     <p className="text-slate-400 font-medium mt-2 max-w-md text-xs">Unlock this course and all premium training by joining the masterclass.</p>
                                                 </div>
-                                                <div className="p-8">
+                                                <div className="p-5 md:p-8">
                                                     {premiumStatus === "pending" && (
                                                         <div className="flex flex-col items-center justify-center text-center py-6">
                                                             <div className="w-14 h-14 bg-amber-50 border-4 border-amber-200 rounded-full flex items-center justify-center mb-4 animate-pulse">
@@ -477,10 +480,10 @@ const DropshippingVideo = () => {
                                                             <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2rem] p-6 text-white border border-slate-700 flex flex-col justify-between">
                                                                 <div>
                                                                     <div className="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center mb-4"><Crown size={18} /></div>
-                                                                    <h3 className="text-lg font-black uppercase tracking-tight mb-1">Unlock Masterclass</h3>
-                                                                    <p className="text-xl font-black text-purple-400 mb-6">&#2547;{currentCoursePrice} <span className="text-[10px] font-bold text-slate-400">one-time</span></p>
+                                                                    <h3 className="text-lg font-black uppercase tracking-tight mb-1">মাস্টারক্লাস আনলক</h3>
+                                                                    <p className="text-xl font-black text-purple-400 mb-6">&#2547;{currentCoursePrice} <span className="text-[10px] font-bold text-slate-400">এককালীন</span></p>
                                                                     <ul className="space-y-3">
-                                                                        {["Advanced tactics", "Live case studies", "Lifetime access"].map((item, i) => (
+                                                                        {["উন্নত কৌশল", "লাইভ কেস স্টাডি", "আজীবন এক্সেস"].map((item, i) => (
                                                                             <li key={i} className="flex items-center gap-3 text-xs font-bold text-slate-300">
                                                                                 <Check size={12} className="text-purple-400" /> {item}
                                                                             </li>
@@ -488,77 +491,88 @@ const DropshippingVideo = () => {
                                                                     </ul>
                                                                 </div>
                                                             </div>
-                                                            <PaymentForm paymentData={paymentData} setPaymentData={setPaymentData} onSubmit={handleSubmitPayment} submitting={submitting} title="Submit Payment" price={currentCoursePrice} />
+                                                            <PaymentForm paymentData={paymentData} setPaymentData={setPaymentData} onSubmit={handleSubmitPayment} submitting={submitting} title="পেমেন্ট জমা দিন" price={currentCoursePrice} />
                                                         </div>
                                                     )}
                                                 </div>
                                             </div>
-                                        ) : (
-                                            <div className="bg-white border border-gray-100 rounded-[2.5rem] shadow-sm overflow-hidden animate-in fade-in duration-300">
-                                                <div className="relative aspect-video bg-black">
-                                                    <iframe src={getYoutubeEmbedUrl(activeVideo.url)} title={activeVideo.title} width="100%" height="100%"
-                                                        className="absolute top-0 left-0 w-full h-full border-0"
-                                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                        allowFullScreen></iframe>
-                                                </div>
-                                                <div className="p-8">
-                                                    <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-[9px] font-black uppercase tracking-widest mb-3">
-                                                        {activeVideo.videoType === "demo" && <Youtube size={10} className="text-red-500" />}
-                                                        {activeVideo.videoType === "free" && <Zap size={10} className="text-emerald-500" />}
-                                                        {activeVideo.videoType === "premium" && <Crown size={10} className="text-purple-500" />}
-                                                        {(activeVideo.videoType || "Standard")} Video
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div className="lg:col-span-8 space-y-6">
+                                                {!activeVideo ? (
+                                                    <div className="bg-white rounded-[2.5rem] p-8 md:p-12 text-center shadow-sm border border-gray-100 aspect-video flex flex-col items-center justify-center">
+                                                        <Play size={48} className="text-gray-200 mb-4" />
+                                                        <h3 className="text-xl font-black text-gray-900 uppercase tracking-tight">Select a video to begin</h3>
+                                                        <p className="text-gray-500 font-medium text-sm mt-2">Choose a video from the curriculum on the right.</p>
                                                     </div>
-                                                    <h1 className="text-xl lg:text-2xl font-black text-gray-900 uppercase tracking-tight mb-4">{activeVideo.title}</h1>
-                                                    {activeVideo.description ? (
-                                                        <p className="text-xs text-gray-600 font-medium leading-relaxed whitespace-pre-wrap">{activeVideo.description}</p>
-                                                    ) : (
-                                                        <p className="text-xs text-gray-400 italic">No description provided for this video.</p>
-                                                    )}
+                                                ) : (
+                                                    <div className="bg-white border border-gray-100 rounded-[2.5rem] shadow-sm overflow-hidden animate-in fade-in duration-300">
+                                                        <div className="relative aspect-video bg-black">
+                                                            <iframe src={getYoutubeEmbedUrl(activeVideo.url)} title={activeVideo.title} width="100%" height="100%"
+                                                                className="absolute top-0 left-0 w-full h-full border-0"
+                                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                                allowFullScreen></iframe>
+                                                        </div>
+                                                        <div className="p-5 md:p-8">
+                                                            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-[9px] font-black uppercase tracking-widest mb-3">
+                                                                {activeVideo.videoType === "demo" && <Youtube size={10} className="text-red-500" />}
+                                                                {activeVideo.videoType === "free" && <Zap size={10} className="text-emerald-500" />}
+                                                                {activeVideo.videoType === "premium" && <Crown size={10} className="text-purple-500" />}
+                                                                {(activeVideo.videoType || "Standard")} Video
+                                                            </div>
+                                                            <h1 className="text-xl lg:text-2xl font-black text-gray-900 uppercase tracking-tight mb-4">{activeVideo.title}</h1>
+                                                            {activeVideo.description ? (
+                                                                <p className="text-xs text-gray-600 font-medium leading-relaxed whitespace-pre-wrap break-words">{activeVideo.description}</p>
+                                                            ) : (
+                                                                <p className="text-xs text-gray-400 italic">No description provided for this video.</p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="lg:col-span-4 bg-white border border-gray-100 rounded-[2.5rem] p-5 shadow-sm h-fit max-h-[400px] md:max-h-[700px] overflow-y-auto">
+                                                <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight mb-4 px-2">Course Curriculum</h3>
+                                                <div className="space-y-3">
+                                                    {activeCourseModules.map((mod, modIdx) => {
+                                                        const modVideos = videos.filter(v => (v.moduleId?._id === mod._id || v.moduleId === mod._id));
+                                                        const isExpanded = !!expandedModules[mod._id];
+                                                        return (
+                                                            <div key={mod._id} className="border border-gray-100 rounded-2xl overflow-hidden">
+                                                                <button onClick={() => toggleModule(mod._id)} type="button"
+                                                                    className="w-full bg-slate-50 flex items-center justify-between p-3.5 hover:bg-slate-100 transition-colors">
+                                                                    <div className="flex items-center gap-2 min-w-0">
+                                                                        <span className="text-[10px] font-black text-gray-400 shrink-0">M{modIdx + 1}</span>
+                                                                        <span className="font-black text-gray-800 uppercase tracking-tight text-xs truncate">{mod.title}</span>
+                                                                    </div>
+                                                                    <ChevronRight size={14} className={`text-gray-400 transition-transform shrink-0 ${isExpanded ? 'rotate-90' : ''}`} />
+                                                                </button>
+                                                                {isExpanded && (
+                                                                    <div className="p-1 bg-white space-y-0.5">
+                                                                        {modVideos.map((video) => {
+                                                                            const isActive = activeVideo?._id === video._id;
+                                                                            return (
+                                                                                <button key={video._id} onClick={() => setActiveVideo(video)} type="button"
+                                                                                    className={`w-full text-left p-2.5 rounded-xl flex items-center gap-2.5 transition-colors ${isActive ? 'bg-emerald-50 text-emerald-700' : 'hover:bg-gray-50 text-gray-600'}`}>
+                                                                                    <Play size={12} className={`shrink-0 ${isActive ? 'text-emerald-500' : 'text-gray-400'}`} />
+                                                                                    <span className="text-[11px] font-bold leading-tight flex-1 truncate">{video.title}</span>
+                                                                                    {video.videoType === "demo" && <span className="text-[8px] font-black text-red-500 bg-red-50 px-1.5 py-0.5 rounded uppercase shrink-0">Demo</span>}
+                                                                                    {video.videoType === "free" && <span className="text-[8px] font-black text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded uppercase shrink-0">Free</span>}
+                                                                                </button>
+                                                                            );
+                                                                        })}
+                                                                        {modVideos.length === 0 && <div className="p-3 text-center text-[10px] font-bold text-gray-400 uppercase tracking-widest">No videos</div>}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                    {activeCourseModules.length === 0 && <div className="text-center p-4 text-xs font-bold text-gray-400 uppercase tracking-widest">No modules available</div>}
                                                 </div>
                                             </div>
-                                        )}
-                                    </div>
-
-                                    <div className="lg:col-span-4 bg-white border border-gray-100 rounded-[2.5rem] p-5 shadow-sm h-fit max-h-[700px] overflow-y-auto">
-                                        <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight mb-4 px-2">Course Curriculum</h3>
-                                        <div className="space-y-3">
-                                            {activeCourseModules.map((mod, modIdx) => {
-                                                const modVideos = videos.filter(v => v.moduleId === mod._id);
-                                                const isExpanded = !!expandedModules[mod._id];
-                                                return (
-                                                    <div key={mod._id} className="border border-gray-100 rounded-2xl overflow-hidden">
-                                                        <button onClick={() => toggleModule(mod._id)} type="button"
-                                                            className="w-full bg-slate-50 flex items-center justify-between p-3.5 hover:bg-slate-100 transition-colors">
-                                                            <div className="flex items-center gap-2 min-w-0">
-                                                                <span className="text-[10px] font-black text-gray-400 shrink-0">M{modIdx + 1}</span>
-                                                                <span className="font-black text-gray-800 uppercase tracking-tight text-xs truncate">{mod.title}</span>
-                                                            </div>
-                                                            <ChevronRight size={14} className={`text-gray-400 transition-transform shrink-0 ${isExpanded ? 'rotate-90' : ''}`} />
-                                                        </button>
-                                                        {isExpanded && (
-                                                            <div className="p-1 bg-white space-y-0.5">
-                                                                {modVideos.map((video) => {
-                                                                    const isActive = activeVideo?._id === video._id;
-                                                                    const isLocked = isCourseLocked && (video.videoType === "premium" || video.videoType === "standard" || !video.videoType);
-                                                                    return (
-                                                                        <button key={video._id} onClick={() => setActiveVideo(video)} type="button"
-                                                                            className={`w-full text-left p-2.5 rounded-xl flex items-center gap-2.5 transition-colors ${isActive ? 'bg-emerald-50 text-emerald-700' : 'hover:bg-gray-50 text-gray-600'}`}>
-                                                                            {isLocked ? <Lock size={12} className="text-purple-400 shrink-0" /> : <Play size={12} className={`shrink-0 ${isActive ? 'text-emerald-500' : 'text-gray-400'}`} />}
-                                                                            <span className="text-[11px] font-bold leading-tight flex-1 truncate">{video.title}</span>
-                                                                            {video.videoType === "demo" && <span className="text-[8px] font-black text-red-500 bg-red-50 px-1.5 py-0.5 rounded uppercase shrink-0">Demo</span>}
-                                                                            {video.videoType === "free" && <span className="text-[8px] font-black text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded uppercase shrink-0">Free</span>}
-                                                                        </button>
-                                                                    );
-                                                                })}
-                                                                {modVideos.length === 0 && <div className="p-3 text-center text-[10px] font-bold text-gray-400 uppercase tracking-widest">No videos</div>}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                );
-                                            })}
-                                            {activeCourseModules.length === 0 && <div className="text-center p-4 text-xs font-bold text-gray-400 uppercase tracking-widest">No modules available</div>}
-                                        </div>
-                                    </div>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         )}
@@ -573,13 +587,13 @@ const DropshippingVideo = () => {
                                     <Sparkles className="animate-spin" style={{ animationDuration: "3s" }} />
                                 </div>
                                 <div>
-                                    <h3 className="text-xl font-black text-gray-900 uppercase tracking-tight">Order Custom Ads</h3>
-                                    <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">Scale your sales with unique creatives</p>
+                                    <h3 className="text-xl font-black text-gray-900 uppercase tracking-tight">কাস্টম অ্যাডস অর্ডার করুন</h3>
+                                    <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">ইউনিক ক্রিয়েটিভ দিয়ে আপনার সেলস বাড়ান</p>
                                 </div>
                             </div>
                             <div className="bg-slate-50 border border-slate-100 rounded-3xl p-4 mb-6 text-xs text-slate-600 leading-relaxed font-medium">
-                                <span className="font-black text-slate-800 uppercase block mb-1">Professional BD Dropshipping standard</span>
-                                Get high-converting product videos made by our media experts tailored for your targeted ad campaigns.
+                                <span className="font-black text-slate-800 uppercase block mb-1">প্রফেশনাল বিডি ড্রপশিপিং স্ট্যান্ডার্ড</span>
+                                আপনার টার্গেটেড অ্যাড ক্যাম্পেইনের জন্য আমাদের মিডিয়া বিশেষজ্ঞদের তৈরি হাই-কনভার্টিং প্রোডাক্ট ভিডিও পান।
                             </div>
                             <form onSubmit={handleSubmitCustomRequest} className="space-y-5">
                                 <div className="relative">
@@ -705,7 +719,9 @@ const DropshippingVideo = () => {
                                             {req.notes && (
                                                 <div className="bg-white border border-slate-100 rounded-2xl p-3 mb-3 text-xs text-gray-600 font-medium">
                                                     <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">My Requirements:</span>
-                                                    {req.notes}
+                                                    <div className="break-words">
+                                                        {req.notes}
+                                                    </div>
                                                 </div>
                                             )}
                                             {req.adminNote && (
@@ -713,7 +729,9 @@ const DropshippingVideo = () => {
                                                     <AlertCircle size={14} className="mt-0.5 shrink-0" />
                                                     <div>
                                                         <span className="text-[9px] font-black text-amber-600 uppercase tracking-widest block mb-0.5">Admin Note:</span>
-                                                        {req.adminNote}
+                                                        <div className="break-words">
+                                                            {req.adminNote}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             )}

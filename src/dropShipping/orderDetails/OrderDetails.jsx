@@ -124,7 +124,7 @@ const OrderDetails = ({ id }) => {
   return (
     <>
       <section className="min-h-screen bg-bg py-10">
-        <Container className="px-2 max-w-2xl space-y-6">
+        <Container className="px-2 max-w-3xl lg:max-w-4xl space-y-6">
           <BackButton />
 
           {/* Payment Prompt Section */}
@@ -293,8 +293,8 @@ const OrderDetails = ({ id }) => {
 
             {/* Order & Customer Information */}
             <div className="px-3.5 md:px-6 mb-6">
-              <div className="bg-white border border-slate-100 rounded-3xl overflow-hidden">
-                <table className="w-full">
+              <div className="bg-white border border-slate-100 rounded-3xl overflow-hidden overflow-x-auto">
+                <table className="w-full min-w-[300px]">
                   <tbody className="divide-y divide-slate-100">
                     <tr className="hover:bg-slate-50 transition-colors">
                       <td className="px-3.5 py-2.5 md:px-5.5 md:py-4.5 w-32 md:w-40 font-bold text-xs uppercase tracking-widest text-slate-400">
@@ -526,7 +526,7 @@ const OrderDetails = ({ id }) => {
                 </table>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-5 md:hidden">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:hidden">
                 {products.map((product) => {
                   const img =
                     product.image?.[0] ||
