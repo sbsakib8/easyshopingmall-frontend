@@ -1,24 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import PaymentModal from "@/src/dropShipping/orderDetails/PaymentModal";
 import { useOrderDetails } from "@/src/utlis/useOrderDetails";
 import { Modal } from "@mui/material";
 import Link from "next/link";
-import PaymentModal from "@/src/dropShipping/orderDetails/PaymentModal";
+import { useState } from "react";
 
 import {
-  Loader2,
   AlertCircle,
-  Truck,
-  CreditCard,
-  Wallet,
   ArrowRight,
+  CreditCard,
+  Loader2,
+  Truck,
+  Wallet,
 } from "lucide-react";
 
-import { useDispatch, useSelector } from "react-redux";
 import Container from "@/src/compronent/shared/Container";
 import { cn } from "@/src/utlis/utils";
 import Image from "next/image";
+import { useSelector } from "react-redux";
 import BackButton from "../BackButton/BackButton";
 
 const OrderDetails = ({ id }) => {
@@ -80,7 +80,7 @@ const OrderDetails = ({ id }) => {
   };
   const paymentTypeLabel = {
     full: "Full Payment",
-    delivery: "Delivery Charge Only",
+    delivery: "Delivery Charge",
     cod: "Cash on Delivery",
   };
   const paymentStatusBadge = {
@@ -90,9 +90,18 @@ const OrderDetails = ({ id }) => {
     failed: { label: "Failed", cls: "bg-rose-100 text-rose-700" },
     refunded: { label: "Refunded", cls: "bg-purple-100 text-purple-700" },
   };
-  const pyMethodDisplay = paymentMethodLabel[order.payment_method] || order.payment_method || "—";
-  const pyTypeDisplay = paymentTypeLabel[order.payment_type] || order.payment_type || "—";
+  const pyMethodDisplay =
+    order.payment_method === "manual" && order.payment_details?.manual?.provider
+      ? `Manual (${order.payment_details.manual.provider.charAt(0).toUpperCase() + order.payment_details.manual.provider.slice(1)})`
+      : paymentMethodLabel[order.payment_method] || order.payment_method || "—";
+  const pyTypeDisplay =
+    order.payment_type === "delivery"
+      ? "Delivery Charge Paid (Rest COD)"
+      : paymentTypeLabel[order.payment_type] || order.payment_type || "—";
   const pyStatusInfo = paymentStatusBadge[order.payment_status] || { label: order.payment_status || "—", cls: "bg-slate-100 text-slate-600" };
+
+  // COD Amount calculation
+  const codAmount = order.amount_due ?? (order.totalAmt - (order.amount_paid || 0));
 
   // Payment status helpers
   const hasPaidDelivery =
@@ -330,13 +339,49 @@ const OrderDetails = ({ id }) => {
                       </td>
                     </tr>
 
+                    <tr className="hover:bg-slate-50 transition-colors">
+                      <td className="px-3.5 py-2.5 md:px-5.5 md:py-4.5 w-32 md:w-40 font-bold text-xs uppercase tracking-widest text-slate-400">
+                        Subtotal
+                      </td>
+                      <td className="px-3.5 py-2.5 md:px-5.5 md:py-4.5 text-xs sm:text-base font-medium text-slate-900">
+                        ৳{order.subTotalAmt?.toLocaleString()}
+                      </td>
+                    </tr>
+
+                    <tr className="hover:bg-slate-50 transition-colors">
+                      <td className="px-3.5 py-2.5 md:px-5.5 md:py-4.5 w-32 md:w-40 font-bold text-xs uppercase tracking-widest text-slate-400">
+                        Delivery Charge
+                      </td>
+                      <td className="px-3.5 py-2.5 md:px-5.5 md:py-4.5 text-xs sm:text-base font-medium text-slate-900">
+                        ৳{order.deliveryCharge?.toLocaleString()}
+                      </td>
+                    </tr>
+
+                    <tr className="hover:bg-slate-50 transition-colors">
+                      <td className="px-3.5 py-2.5 md:px-5.5 md:py-4.5 w-32 md:w-40 font-bold text-xs uppercase tracking-widest text-slate-400">
+                        Total Amount
+                      </td>
+                      <td className="px-3.5 py-2.5 md:px-5.5 md:py-4.5 text-xs sm:text-base font-bold text-slate-900">
+                        ৳{order.totalAmt?.toLocaleString()}
+                      </td>
+                    </tr>
+
+                    <tr className="hover:bg-slate-50 transition-colors">
+                      <td className="px-3.5 py-2.5 md:px-5.5 md:py-4.5 w-32 md:w-40 font-bold text-xs uppercase tracking-widest text-slate-400">
+                        Amount Paid
+                      </td>
+                      <td className="px-3.5 py-2.5 md:px-5.5 md:py-4.5 text-xs sm:text-base font-medium text-emerald-600">
+                        ৳{order.amount_paid?.toLocaleString() || 0}
+                      </td>
+                    </tr>
+
                     <tr className="hover:bg-slate-50 transition-colors bg-emerald-50/50">
                       <td className="px-3.5 py-2.5 md:px-5.5 md:py-4.5 w-32 md:w-40 font-bold text-xs uppercase tracking-widest text-slate-400">
                         COD Amount
                       </td>
                       <td className="px-3.5 py-2.5 md:px-5.5 md:py-4.5">
                         <span className="text-base sm:text-lg font-medium text-emerald-600 tracking-tighter">
-                          ৳{order.totalAmt?.toLocaleString()}
+                          ৳{codAmount?.toLocaleString()}
                         </span>
                       </td>
                     </tr>
