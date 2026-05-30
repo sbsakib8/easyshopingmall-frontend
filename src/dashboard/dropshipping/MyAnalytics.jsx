@@ -1,34 +1,34 @@
 "use client";
-import React, { useState, useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 
 import {
-  BarChart3,
-  DollarSign,
-  Clock,
-  TrendingUp,
   Activity,
+  BarChart3,
+  Clock,
+  DollarSign,
   RefreshCw,
-  Users,
   Target,
+  TrendingUp,
+  Users,
 } from "lucide-react";
 
 import {
-  AreaChart,
   Area,
+  AreaChart,
+  CartesianGrid,
+  Cell,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
 } from "recharts";
 
-import { getMyDropshippingAnalytics } from "@/src/hook/useDropshippingAnalytics";
-import BackButton from "@/src/dropShipping/BackButton/BackButton";
 import Container from "@/src/compronent/shared/Container";
+import BackButton from "@/src/dropShipping/BackButton/BackButton";
+import { getMyDropshippingAnalytics } from "@/src/hook/useDropshippingAnalytics";
 import Link from "next/link";
 
 const COLORS = ["#f59e0b", "#3b82f6", "#8b5cf6", "#10b981", "#ef4444"];
@@ -161,7 +161,7 @@ const MyAnalytics = () => {
 
   if (!dsAnalytics && !dsLoading) {
     return (
-      <section className="min-h-[70dvh] bg-slate-50/30 py-10 md:py-16 grid place-items-center">
+      <section className="min-h-[70dvh] bg-slate-50/30 py-8 md:py-14 grid place-items-center">
         <Container className="text-center flex flex-col items-center justify-center gap-6">
           <div className="w-20 h-20 bg-white shadow-xl rounded-3xl flex items-center justify-center mx-auto border border-gray-100 rotate-3">
             <BarChart3 className="w-10 h-10 text-teal-500 -rotate-3" />
@@ -191,17 +191,17 @@ const MyAnalytics = () => {
   const { summary } = dsAnalytics;
 
   return (
-    <section className="min-h-screen bg-slate-50/30 pt-24 pb-20 px-4 md:px-8 max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <BackButton className="mb-6" />
+    <section className="min-h-screen bg-slate-50/30 pt-4 md:pt-6 pb-10 px-4 sm:px-5 md:px-6 max-w-6xl mx-auto space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <BackButton className="mb-2 -mt-2" />
 
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-teal-600 font-bold text-sm uppercase tracking-widest">
             <Activity className="w-4 h-4" />
             <span>Business Intelligence</span>
           </div>
-          <h2 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight">
+          <h2 className="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">
             Performance Analytics
           </h2>
           <p className="text-gray-500">
@@ -220,11 +220,10 @@ const MyAnalytics = () => {
               <button
                 key={range.id}
                 onClick={() => setTimeRange(range.id)}
-                className={`px-4 py-2 text-sm font-bold rounded-xl transition-all ${
-                  timeRange === range.id
-                    ? "bg-teal-500 text-white shadow-lg shadow-teal-500/20"
-                    : "text-gray-500 hover:bg-gray-50"
-                }`}
+                className={`px-4 py-2 text-sm font-bold rounded-xl transition-all ${timeRange === range.id
+                  ? "bg-teal-500 text-white shadow-lg shadow-teal-500/20"
+                  : "text-gray-500 hover:bg-gray-50"
+                  }`}
               >
                 {range.label}
               </button>
@@ -487,11 +486,10 @@ const MyAnalytics = () => {
                   >
                     <div className="flex items-center gap-4">
                       <div
-                        className={`p-3 rounded-2xl transition-colors ${
-                          tx.type === "profit"
-                            ? "bg-emerald-50 text-emerald-600"
-                            : "bg-blue-50 text-blue-600"
-                        }`}
+                        className={`p-3 rounded-2xl transition-colors ${tx.type === "profit"
+                          ? "bg-emerald-50 text-emerald-600"
+                          : "bg-blue-50 text-blue-600"
+                          }`}
                       >
                         {tx.type === "profit" ? (
                           <DollarSign className="w-4 h-4" />
@@ -518,25 +516,23 @@ const MyAnalytics = () => {
                     </div>
                     <div className="text-right">
                       <p
-                        className={`text-sm font-black ${
-                          tx.status === "credited"
-                            ? "text-emerald-600"
-                            : tx.status === "lost"
-                              ? "text-red-500"
-                              : "text-amber-500"
-                        }`}
+                        className={`text-sm font-black ${tx.status === "credited"
+                          ? "text-emerald-600"
+                          : tx.status === "lost"
+                            ? "text-red-500"
+                            : "text-amber-500"
+                          }`}
                       >
                         {tx.status === "credited" ? "+" : ""}৳
                         {tx.amount.toLocaleString()}
                       </p>
                       <p
-                        className={`text-[10px] font-black uppercase tracking-tighter mt-0.5 ${
-                          tx.status === "credited"
-                            ? "text-emerald-500"
-                            : tx.status === "lost"
-                              ? "text-red-500"
-                              : "text-amber-500"
-                        }`}
+                        className={`text-[10px] font-black uppercase tracking-tighter mt-0.5 ${tx.status === "credited"
+                          ? "text-emerald-500"
+                          : tx.status === "lost"
+                            ? "text-red-500"
+                            : "text-amber-500"
+                          }`}
                       >
                         {tx.status}
                       </p>
@@ -569,26 +565,24 @@ const MyAnalytics = () => {
                 Referral Network
               </h3>
             </div>
-            
+
             {/* Tab Toggles */}
             <div className="flex bg-slate-50 p-1.5 rounded-2xl border border-slate-100/50 w-full sm:w-auto">
               <button
                 onClick={() => setReferralTab("partners")}
-                className={`flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap ${
-                  referralTab === "partners"
-                    ? "bg-white text-blue-600 shadow-sm"
-                    : "text-gray-400 hover:text-gray-700"
-                }`}
+                className={`flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap ${referralTab === "partners"
+                  ? "bg-white text-blue-600 shadow-sm"
+                  : "text-gray-400 hover:text-gray-700"
+                  }`}
               >
                 Partners ({summary.referralCount})
               </button>
               <button
                 onClick={() => setReferralTab("video_buyers")}
-                className={`flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap ${
-                  referralTab === "video_buyers"
-                    ? "bg-white text-blue-600 shadow-sm"
-                    : "text-gray-400 hover:text-gray-700"
-                }`}
+                className={`flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap ${referralTab === "video_buyers"
+                  ? "bg-white text-blue-600 shadow-sm"
+                  : "text-gray-400 hover:text-gray-700"
+                  }`}
               >
                 Video Buyers ({(dsAnalytics.videoReferrals || []).length})
               </button>
@@ -654,11 +648,10 @@ const MyAnalytics = () => {
                       </td>
                       <td className="px-8 py-5 text-center">
                         <div
-                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                            ref.isActive
-                              ? "bg-emerald-100 text-emerald-600"
-                              : "bg-slate-100 text-slate-400"
-                          }`}
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${ref.isActive
+                            ? "bg-emerald-100 text-emerald-600"
+                            : "bg-slate-100 text-slate-400"
+                            }`}
                         >
                           <span
                             className={`w-1.5 h-1.5 rounded-full ${ref.isActive ? "bg-emerald-500" : "bg-slate-400"}`}
@@ -744,22 +737,20 @@ const MyAnalytics = () => {
                       </td>
                       <td className="px-8 py-5 text-center">
                         <div
-                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                            ref.status === "approved"
-                              ? "bg-emerald-100 text-emerald-600"
-                              : ref.status === "pending"
-                                ? "bg-amber-100 text-amber-600"
-                                : "bg-red-100 text-red-600"
-                          }`}
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${ref.status === "approved"
+                            ? "bg-emerald-100 text-emerald-600"
+                            : ref.status === "pending"
+                              ? "bg-amber-100 text-amber-600"
+                              : "bg-red-100 text-red-600"
+                            }`}
                         >
                           <span
-                            className={`w-1.5 h-1.5 rounded-full ${
-                              ref.status === "approved"
-                                ? "bg-emerald-500"
-                                : ref.status === "pending"
-                                  ? "bg-amber-500"
-                                  : "bg-red-500"
-                            }`}
+                            className={`w-1.5 h-1.5 rounded-full ${ref.status === "approved"
+                              ? "bg-emerald-500"
+                              : ref.status === "pending"
+                                ? "bg-amber-500"
+                                : "bg-red-500"
+                              }`}
                           />
                           {ref.status}
                         </div>

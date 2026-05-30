@@ -262,11 +262,10 @@ const ShippedOrdersPage = () => {
                   </p>
                 </div>
                 <div
-                  className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    order?.order_status === "shipped"
-                      ? "bg-orange-600/20 border border-orange-500/30 text-orange-300"
-                      : "bg-blue-600/20 border border-blue-500/30 text-blue-300"
-                  }`}
+                  className={`px-3 py-1 rounded-full text-xs font-medium ${order?.order_status === "shipped"
+                    ? "bg-orange-600/20 border border-orange-500/30 text-orange-300"
+                    : "bg-blue-600/20 border border-blue-500/30 text-blue-300"
+                    }`}
                 >
                   {order?.order_status === "shipped" ? "Shipped" : "In Transit"}
                 </div>
@@ -382,11 +381,10 @@ const ShippedOrdersPage = () => {
                     <button
                       key={page}
                       onClick={() => setCurrentPage(page)}
-                      className={`w-10 h-10 rounded-xl ${
-                        currentPage === page
-                          ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-accent-content shadow-lg"
-                          : "bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 text-accent-content hover:border-gray-500"
-                      }`}
+                      className={`w-10 h-10 rounded-xl ${currentPage === page
+                        ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-accent-content shadow-lg"
+                        : "bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 text-accent-content hover:border-gray-500"
+                        }`}
                     >
                       {page}
                     </button>
@@ -584,9 +582,17 @@ const ShippedOrdersPage = () => {
                                 </p>
                                 <p className="text-[10px] text-emerald-400 font-bold">
                                   Profit: ৳
-                                  {(item?.sellingPrice - item?.price).toFixed(
-                                    2,
-                                  )}
+                                  {(
+                                    (Number(item?.sellingPrice || 0) -
+                                      Number(item?.price || 0)) *
+                                    Number(item?.quantity || 1)
+                                  ).toFixed(2)}
+                                </p>
+                                <p className="text-[9px] text-gray-400 mt-1">
+                                  ({item?.quantity || 1} × ৳{(
+                                    Number(item?.sellingPrice || 0) -
+                                    Number(item?.price || 0)
+                                  ).toFixed(2)} per unit)
                                 </p>
                               </div>
                             )}
@@ -608,40 +614,40 @@ const ShippedOrdersPage = () => {
                         selectedOrder?.userId?.roles.includes(
                           "DROPSHIPPING",
                         ))) && (
-                      <div className="flex flex-col gap-2 mb-4 p-4 bg-gradient-to-r from-blue-900/40 to-cyan-900/40 rounded-xl border border-blue-500/30 shadow-inner">
-                        <div className="flex justify-between items-center">
-                          <span className="text-blue-400 font-bold uppercase tracking-wider text-xs">
-                            Dropshipping Profit
-                          </span>
-                          <span className="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full font-black uppercase">
-                            Verified
-                          </span>
+                        <div className="flex flex-col gap-2 mb-4 p-4 bg-gradient-to-r from-blue-900/40 to-cyan-900/40 rounded-xl border border-blue-500/30 shadow-inner">
+                          <div className="flex justify-between items-center">
+                            <span className="text-blue-400 font-bold uppercase tracking-wider text-xs">
+                              Dropshipping Profit
+                            </span>
+                            <span className="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full font-black uppercase">
+                              Verified
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-400 text-sm">
+                              Total Earnings:
+                            </span>
+                            <span className="text-2xl font-black text-blue-400">
+                              ৳
+                              {selectedOrder?.products
+                                .reduce((sum, p) => {
+                                  const cost =
+                                    Number(p.costPrice || p.price) || 0;
+                                  const selling = Number(p.sellingPrice) || 0;
+                                  return (
+                                    sum +
+                                    (selling > cost
+                                      ? (selling - cost) * (p.quantity || 1)
+                                      : 0)
+                                  );
+                                }, 0)
+                                .toLocaleString(undefined, {
+                                  minimumFractionDigits: 2,
+                                })}
+                            </span>
+                          </div>
                         </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-400 text-sm">
-                            Total Earnings:
-                          </span>
-                          <span className="text-2xl font-black text-blue-400">
-                            ৳
-                            {selectedOrder?.products
-                              .reduce((sum, p) => {
-                                const cost =
-                                  Number(p.costPrice || p.price) || 0;
-                                const selling = Number(p.sellingPrice) || 0;
-                                return (
-                                  sum +
-                                  (selling > cost
-                                    ? (selling - cost) * (p.quantity || 1)
-                                    : 0)
-                                );
-                              }, 0)
-                              .toLocaleString(undefined, {
-                                minimumFractionDigits: 2,
-                              })}
-                          </span>
-                        </div>
-                      </div>
-                    )}
+                      )}
                     <div className="flex justify-between items-center">
                       <span className="text-xl font-bold text-accent-content">
                         Total:
@@ -660,15 +666,15 @@ const ShippedOrdersPage = () => {
               {[
                 ...(selectedOrder.order_status === "shipped"
                   ? [
-                      {
-                        label: "Mark as Delivered",
-                        variant: "success",
-                        onClick: () => {
-                          setStatus("completed");
-                          setConfirmationModal(true);
-                        },
+                    {
+                      label: "Mark as Delivered",
+                      variant: "success",
+                      onClick: () => {
+                        setStatus("completed");
+                        setConfirmationModal(true);
                       },
-                    ]
+                    },
+                  ]
                   : []),
                 {
                   label: "Cancel Order",
@@ -685,9 +691,9 @@ const ShippedOrdersPage = () => {
                   className={cn(
                     "w-max py-2 px-3.5 rounded-lg font-medium transition-all text-xs sm:text-sm",
                     action.variant === "success" &&
-                      "bg-green-600 hover:bg-green-700 text-accent-content",
+                    "bg-green-600 hover:bg-green-700 text-accent-content",
                     action.variant === "danger" &&
-                      "bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-accent-content",
+                    "bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-accent-content",
                   )}
                 >
                   {action.label}

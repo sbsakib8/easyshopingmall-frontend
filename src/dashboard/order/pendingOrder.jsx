@@ -363,8 +363,8 @@ const PendingOrdersPage = () => {
                       key={page}
                       onClick={() => setCurrentPage(page)}
                       className={`w-10 h-10 rounded-xl ${currentPage === page
-                          ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-accent-content shadow-lg"
-                          : "bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 text-accent-content hover:border-gray-500"
+                        ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-accent-content shadow-lg"
+                        : "bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 text-accent-content hover:border-gray-500"
                         }`}
                     >
                       {page}
@@ -562,9 +562,17 @@ const PendingOrdersPage = () => {
                                 </p>
                                 <p className="text-[10px] text-emerald-400 font-bold">
                                   Profit: ৳
-                                  {(item?.sellingPrice - item?.price).toFixed(
-                                    2,
-                                  )}
+                                  {(
+                                    (Number(item?.sellingPrice || 0) -
+                                      Number(item?.price || 0)) *
+                                    Number(item?.quantity || 1)
+                                  ).toFixed(2)}
+                                </p>
+                                <p className="text-[9px] text-gray-400 mt-1">
+                                  ({item?.quantity || 1} × ৳{(
+                                    Number(item?.sellingPrice || 0) -
+                                    Number(item?.price || 0)
+                                  ).toFixed(2)} per unit)
                                 </p>
                               </div>
                             )}

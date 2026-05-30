@@ -1,18 +1,18 @@
 "use client";
 
+import Container from "@/src/compronent/shared/Container";
+import BackButton from "@/src/dropShipping/BackButton/BackButton";
+import { useGetUser } from "@/src/utlis/useGetuser";
+import { useMyOrders } from "@/src/utlis/useMyOrders";
+import { Loader2, TrendingUp, Wallet } from "lucide-react";
 import React, { useMemo } from "react";
 import {
   FiBox,
-  FiClock,
-  FiSettings,
   FiCheckCircle,
+  FiClock,
   FiCornerUpLeft,
+  FiSettings,
 } from "react-icons/fi";
-import { useMyOrders } from "@/src/utlis/useMyOrders";
-import { useGetUser } from "@/src/utlis/useGetuser";
-import { Loader2, TrendingUp, Wallet, Activity } from "lucide-react";
-import Container from "@/src/compronent/shared/Container";
-import BackButton from "@/src/dropShipping/BackButton/BackButton";
 
 function SallerDashboard() {
   const { orders = [], loading: ordersLoading } = useMyOrders();
@@ -130,37 +130,38 @@ function SallerDashboard() {
   }
 
   return (
-    <section className="min-h-screen bg-slate-50/30 py-10 md:py-16">
+    <section className="min-h-screen bg-gradient-to-b from-slate-50 to-white pt-2">
       <Container>
-        <BackButton className="mb-6" />
+        <BackButton className="mb-4 -mt-2" />
         {/* Header & Balance Card */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <div className="lg:col-span-2">
-            <h2 className="text-3xl font-black text-gray-900 tracking-tight mb-2">
-              Welcome Back, {user?.name?.split(" ")[0]}!
+            <h2 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight mb-2">
+              Welcome Back, {user?.name?.split(" ")[0]}! 👋
             </h2>
-            <p className="text-gray-500 font-medium">
-              Here's what's happening with your store today.
+            <p className="text-sm md:text-base text-gray-500 font-semibold leading-relaxed">
+              Track your sales, profits, and orders in real-time
             </p>
           </div>
 
           {/* Balance Widget */}
-          <div className="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-[2rem] p-6 text-white shadow-xl shadow-emerald-600/20 relative overflow-hidden group">
+          <div className="bg-gradient-to-br from-emerald-600 via-emerald-600 to-teal-700 rounded-3xl p-6 md:p-7 text-white shadow-2xl shadow-emerald-600/25 relative overflow-hidden group hover:shadow-emerald-600/40 transition-shadow">
             <div className="relative z-10 flex flex-col justify-between h-full">
-              <div className="flex items-center justify-between">
-                <div className="p-2 bg-white/20 rounded-xl backdrop-blur-md">
-                  <Wallet className="w-6 h-6" />
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-2.5 bg-white/20 rounded-xl backdrop-blur-sm border border-white/20">
+                  <Wallet className="w-5 h-5" />
                 </div>
-                <span className="text-xs font-black uppercase tracking-widest opacity-80">
+                <span className="text-[11px] font-black uppercase tracking-widest opacity-75">
                   Available Balance
                 </span>
               </div>
-              <div className="mt-4">
-                <h3 className="text-3xl font-black">
+              <div>
+                <p className="text-xs opacity-75 mb-2 uppercase tracking-widest font-semibold">Your Balance</p>
+                <h3 className="text-4xl md:text-5xl font-black leading-tight mb-2">
                   ৳{Number(user?.balance || 0).toLocaleString()}
                 </h3>
-                <p className="text-[10px] font-bold opacity-70 mt-1 uppercase tracking-tighter">
-                  Withdraw anytime to your account
+                <p className="text-xs font-semibold opacity-80">
+                  Ready to withdraw anytime
                 </p>
               </div>
             </div>
@@ -170,127 +171,124 @@ function SallerDashboard() {
         </div>
 
         {/* Quick Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 mb-8">
           {stats.map((item) => (
             <div
               key={item.id}
-              className="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all group"
+              className="bg-white p-3 md:p-4 rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg hover:border-gray-200 transition-all duration-300 group cursor-pointer"
             >
-              <div className="flex items-center gap-3 mb-3">
+              <div className="flex items-center gap-2 mb-3">
                 <div
-                  className={`p-2 rounded-xl ${
-                    item.color === "emerald"
-                      ? "bg-emerald-50 text-emerald-600"
-                      : item.color === "amber"
-                        ? "bg-amber-50 text-amber-600"
-                        : item.color === "blue"
-                          ? "bg-blue-50 text-blue-600"
-                          : "bg-red-50 text-red-600"
-                  }`}
+                  className={`p-2 rounded-lg transition-transform group-hover:scale-110 ${item.color === "emerald"
+                    ? "bg-emerald-100 text-emerald-600"
+                    : item.color === "amber"
+                      ? "bg-amber-100 text-amber-600"
+                      : item.color === "blue"
+                        ? "bg-blue-100 text-blue-600"
+                        : "bg-red-100 text-red-600"
+                    }`}
                 >
-                  {React.cloneElement(item.icon, { size: 18 })}
+                  {React.cloneElement(item.icon, { size: 16 })}
                 </div>
-                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                  {item.title}
-                </span>
               </div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-black text-gray-900">
+              <div className="space-y-1">
+                <p className="text-[9px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                  {item.title}
+                </p>
+                <p className="text-xl md:text-2xl font-black text-gray-900">
                   {item.order}
-                </span>
-                <span className="text-xs font-bold text-gray-400">Orders</span>
+                </p>
               </div>
             </div>
           ))}
         </div>
 
         {/* Detailed Performance List */}
-        <div className="flex flex-col gap-6 max-w-5xl mx-auto">
+        <div className="flex flex-col gap-4 mb-8">
           {stats.map((view) => (
             <div
               key={view.id}
-              className="rounded-[2.5rem] p-6 flex flex-col md:flex-row items-center gap-8 bg-white shadow-sm border border-gray-100 hover:shadow-xl hover:border-emerald-500/20 transition-all group relative overflow-hidden"
+              className="rounded-2xl p-4 md:p-6 flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6 bg-white shadow-sm border border-gray-100 hover:shadow-md hover:border-gray-200 transition-all duration-300 group relative overflow-hidden"
             >
               {/* Left Icon */}
               <div
-                className={`w-[70px] h-[70px] rounded-2xl flex items-center justify-center shrink-0 transition-transform duration-500 group-hover:scale-110 ${
-                  view.color === "emerald"
-                    ? "bg-emerald-50 text-emerald-600"
-                    : view.color === "amber"
-                      ? "bg-amber-50 text-amber-600"
-                      : view.color === "blue"
-                        ? "bg-blue-50 text-blue-600"
-                        : "bg-red-50 text-red-600"
-                }`}
+                className={`w-14 h-14 md:w-16 md:h-16 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105 ${view.color === "emerald"
+                  ? "bg-emerald-100 text-emerald-600"
+                  : view.color === "amber"
+                    ? "bg-amber-100 text-amber-600"
+                    : view.color === "blue"
+                      ? "bg-blue-100 text-blue-600"
+                      : "bg-red-100 text-red-600"
+                  }`}
               >
-                {React.cloneElement(view.icon, { className: "text-3xl" })}
+                {React.cloneElement(view.icon, { className: "text-xl md:text-2xl" })}
               </div>
 
               {/* Content */}
-              <div className="flex-grow flex flex-col gap-4 w-full">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-black uppercase tracking-tight text-gray-900">
+              <div className="flex-grow flex flex-col gap-3 w-full">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <h3 className="text-lg md:text-xl font-black text-gray-900 tracking-tight">
                     {view.title}
                   </h3>
-                  <div className="flex items-center gap-1.5 px-3 py-1 bg-gray-50 rounded-full border border-gray-100">
-                    <Activity className="w-3 h-3 text-gray-400" />
-                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
-                      Real-time
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50/80 rounded-full border border-emerald-100/50">
+                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                    <span className="text-[9px] font-black text-emerald-700 uppercase tracking-wider">
+                      Live
                     </span>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="bg-gray-50/50 p-4 rounded-2xl border border-gray-100">
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
+                <div className="grid grid-cols-3 gap-2 md:gap-3">
+                  <div className="bg-gradient-to-br from-gray-50 to-gray-50/50 p-3 md:p-4 rounded-xl border border-gray-200">
+                    <p className="text-[9px] md:text-[10px] font-black text-gray-500 uppercase tracking-wider mb-1.5">
                       Orders
                     </p>
-                    <p className="text-xl font-black text-gray-800">
+                    <p className="text-lg md:text-xl font-black text-gray-900">
                       {view.order}
                     </p>
                   </div>
 
-                  <div className="bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100/50">
-                    <p className="text-[10px] font-black text-emerald-600/60 uppercase tracking-widest mb-1">
-                      Total Profit
+                  <div className="bg-gradient-to-br from-emerald-50 to-emerald-50/50 p-3 md:p-4 rounded-xl border border-emerald-100">
+                    <p className="text-[9px] md:text-[10px] font-black text-emerald-700 uppercase tracking-wider mb-1.5">
+                      Profit
                     </p>
-                    <p className="text-xl font-black text-emerald-700">
+                    <p className="text-lg md:text-xl font-black text-emerald-700">
                       ৳{view.profit.toLocaleString()}
                     </p>
                   </div>
 
-                  <div className="bg-teal-50/50 p-4 rounded-2xl border border-teal-100/50">
-                    <p className="text-[10px] font-black text-teal-600/60 uppercase tracking-widest mb-1">
-                      Total Volume
+                  <div className="bg-gradient-to-br from-teal-50 to-teal-50/50 p-3 md:p-4 rounded-xl border border-teal-100">
+                    <p className="text-[9px] md:text-[10px] font-black text-teal-700 uppercase tracking-wider mb-1.5">
+                      Volume
                     </p>
-                    <p className="text-xl font-black text-teal-700">
+                    <p className="text-lg md:text-xl font-black text-teal-700">
                       ৳{view.sellPrice.toLocaleString()}
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Visual trend indicator */}
-              <div className="absolute right-0 top-0 h-full w-1 opacity-0 group-hover:opacity-100 transition-opacity bg-emerald-500" />
+              {/* Visual accent line */}
+              <div className="absolute right-0 top-0 h-full w-0.5 opacity-0 group-hover:opacity-100 transition-opacity bg-emerald-500" />
             </div>
           ))}
         </div>
 
         {/* Action Bar */}
-        <div className="mt-12 flex flex-wrap justify-center gap-4">
+        <div className="flex flex-col sm:flex-row justify-center gap-3 md:gap-4 pt-6">
           <a
             href="/my-analytics"
-            className="flex items-center gap-2 bg-white border border-gray-200 text-gray-900 px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-emerald-500 hover:text-white hover:border-emerald-500 transition-all shadow-sm group"
+            className="flex items-center justify-center gap-2 bg-white border-2 border-gray-200 text-gray-900 px-6 md:px-8 py-3 md:py-4 rounded-xl font-bold uppercase tracking-wide text-xs md:text-sm hover:bg-gradient-to-r hover:from-emerald-500 hover:to-teal-600 hover:text-white hover:border-emerald-500 transition-all duration-300 shadow-sm hover:shadow-md group"
           >
             <TrendingUp
               size={16}
               className="group-hover:scale-110 transition-transform"
             />
-            Detailed Analytics
+            View Analytics
           </a>
           <a
             href="/order-list"
-            className="flex items-center gap-2 bg-white border border-gray-200 text-gray-900 px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-emerald-500 hover:text-white hover:border-emerald-500 transition-all shadow-sm group"
+            className="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 border-2 border-emerald-500 text-white px-6 md:px-8 py-3 md:py-4 rounded-xl font-bold uppercase tracking-wide text-xs md:text-sm hover:shadow-lg hover:shadow-emerald-500/30 transition-all duration-300 group"
           >
             <FiBox
               size={16}

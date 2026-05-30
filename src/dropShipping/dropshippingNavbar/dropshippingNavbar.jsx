@@ -1,12 +1,12 @@
 "use client";
 import logo from "@/app/icon.png";
-import { ChevronDown, ChevronRight, Heart, Menu, ShoppingCart, User, X, Home, Package, Sparkles, TrendingUp, ClipboardList, Settings, Coins, Users, LayoutDashboard, Video } from "lucide-react";
+import { useGetUser } from "@/src/utlis/useGetuser";
+import { ChevronDown, ClipboardList, Coins, Heart, Home, LayoutDashboard, Menu, Package, Settings, ShoppingCart, Sparkles, TrendingUp, User, Video, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import { useGetUser } from "@/src/utlis/useGetuser";
 
 const DropShippingNavbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -25,7 +25,7 @@ const DropShippingNavbar = () => {
   const navItems = [
     { name: "Home", href: "/", icon: <Home size={18} /> },
     { name: "All Products", href: "/all-products", icon: <Package size={18} /> },
-    { name: "Profile", href: "/profile", icon: <User size={18} /> },
+    { name: "Profile", href: "/account", icon: <User size={18} /> },
     { name: "New Products", href: "/new-products", icon: <Sparkles size={18} /> },
     { name: "Wishlist", href: "/wishlist", icon: <Heart size={18} /> },
     // { name: "Sell & Profit", href: "/dropshipping-addtocart", icon: <TrendingUp size={18} /> },
