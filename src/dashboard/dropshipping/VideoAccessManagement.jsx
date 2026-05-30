@@ -512,8 +512,8 @@ const VideoAccessManagement = () => {
                       </p>
                     </div>
 
-                    <div className="bg-slate-900/60 rounded-2xl p-2.5 border border-white/5">
-                      <p className="text-[9px] uppercase tracking-widest text-slate-400 font-medium mb-1">
+                    <div className="bg-slate-900/60 rounded-2xl p-2.5 border border-white/5 overflow-hidden">
+                      <p className="text-[9px] uppercase tracking-widest text-slate-400 font-medium mb-1 overflow-hidden text-wrap">
                         Transaction ID
                       </p>
                       <p className="text-xs font-semibold text-slate-200 select-all cursor-copy">
@@ -903,9 +903,9 @@ const VideoAccessManagement = () => {
           <div className="relative w-full max-w-md overflow-hidden bg-slate-900/90 border border-slate-700/50 rounded-3xl p-6 md:p-8 shadow-2xl shadow-black/50 animate-in zoom-in-95 duration-200">
             {/* Background Accent */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
-            
+
             {/* Close Button */}
-            <button 
+            <button
               onClick={() => setActionConfirm(prev => ({ ...prev, show: false }))}
               className="absolute top-4 right-4 p-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all"
             >
