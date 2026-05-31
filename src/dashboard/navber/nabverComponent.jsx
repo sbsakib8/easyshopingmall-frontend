@@ -11,7 +11,6 @@ import {
   Clock,
   DollarSign,
   FileText,
-  Globe,
   Home,
   ImageDown,
   ImageIcon,
@@ -29,7 +28,7 @@ import {
   TrendingUp,
   Truck,
   Users,
-  Video,
+  Video
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -49,7 +48,7 @@ const DashboardNebver = ({ children }) => {
   // category get
   const { category, loading, error } = useGetcategory();
   // subcategory all get
-  const {} = useGetSubcategory();
+  const { } = useGetSubcategory();
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
@@ -173,24 +172,24 @@ const DashboardNebver = ({ children }) => {
           label: "Sales Report",
           icon: BarChart3,
         },
-        {
-          path: "/analytics/product-analytics",
-          id: 24,
-          label: "Product Analytics",
-          icon: Package,
-        },
-        {
-          path: "/analytics/customer-analytics",
-          id: 25,
-          label: "Customer Analytics",
-          icon: Users,
-        },
-        {
-          path: "/analytics/traffic-analytics",
-          id: 26,
-          label: "Traffic Analytics",
-          icon: Globe,
-        },
+        // {
+        //   path: "/analytics/product-analytics",
+        //   id: 24,
+        //   label: "Product Analytics",
+        //   icon: Package,
+        // },
+        // {
+        //   path: "/analytics/customer-analytics",
+        //   id: 25,
+        //   label: "Customer Analytics",
+        //   icon: Users,
+        // },
+        // {
+        //   path: "/analytics/traffic-analytics",
+        //   id: 26,
+        //   label: "Traffic Analytics",
+        //   icon: Globe,
+        // },
       ],
     },
     {
@@ -306,24 +305,24 @@ const DashboardNebver = ({ children }) => {
           label: "General Settings",
           icon: Settings,
         },
-        {
-          path: "/settings/paymentsettings",
-          id: 34,
-          label: "Payment Settings",
-          icon: DollarSign,
-        },
-        {
-          path: "/settings/shippingsettings",
-          id: 35,
-          label: "Shipping Settings",
-          icon: Truck,
-        },
-        {
-          path: "/settings/securitysettings",
-          id: 36,
-          label: "Security",
-          icon: Shield,
-        },
+        // {
+        //   path: "/settings/paymentsettings",
+        //   id: 34,
+        //   label: "Payment Settings",
+        //   icon: DollarSign,
+        // },
+        // {
+        //   path: "/settings/shippingsettings",
+        //   id: 35,
+        //   label: "Shipping Settings",
+        //   icon: Truck,
+        // },
+        // {
+        //   path: "/settings/securitysettings",
+        //   id: 36,
+        //   label: "Security",
+        //   icon: Shield,
+        // },
       ],
     },
     {
@@ -422,9 +421,8 @@ const DashboardNebver = ({ children }) => {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => makeFalse()}
         className={`fixed top-16 left-0 z-40 h-[calc(100vh-4rem)]
- ${
-   sidebarOpen || isHovered ? "w-full md:w-72" : "w-0 md:w-24"
- } bg-black/95 backdrop-blur-xl border-r border-gray-800/50 shadow-2xl shadow-black/20 overflow-hidden`}
+ ${sidebarOpen || isHovered ? "w-full md:w-72" : "w-0 md:w-24"
+          } bg-black/95 backdrop-blur-xl border-r border-gray-800/50 shadow-2xl shadow-black/20 overflow-hidden`}
       >
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-gray-900/20 via-black/20 to-gray-800/20 pointer-events-none"></div>
@@ -453,17 +451,15 @@ const DashboardNebver = ({ children }) => {
                           toggleSubmenu(item.id);
                         }
                       }}
-                      className={`w-full flex items-center justify-between px-3 py-2 text-sm font-semibold rounded-2xl group relative overflow-hidden ${
-                        activeMenu === item.id
+                      className={`w-full flex items-center justify-between px-3 py-2 text-sm font-semibold rounded-2xl group relative overflow-hidden ${activeMenu === item.id
                           ? "bg-gradient-to-r from-gray-700 to-gray-900 text-accent-content border border-gray-600/50"
                           : "hover:bg-gradient-to-r hover:from-gray-800/50 hover:to-black/50 text-accent-content border border-transparent hover:border-gray-700/30"
-                      }`}
+                        }`}
                     >
                       {/* Animated background */}
                       <div
-                        className={`absolute inset-0 bg-gradient-to-r from-gray-700/20 to-gray-900/20 opacity-0 group-hover:opacity-100 ${
-                          activeMenu === item.id ? "opacity-30" : ""
-                        }`}
+                        className={`absolute inset-0 bg-gradient-to-r from-gray-700/20 to-gray-900/20 opacity-0 group-hover:opacity-100 ${activeMenu === item.id ? "opacity-30" : ""
+                          }`}
                       ></div>
 
                       <Link
@@ -472,27 +468,24 @@ const DashboardNebver = ({ children }) => {
                         className="flex items-center space-x-4 relative z-10"
                       >
                         <div
-                          className={`p-2 rounded-xl ${
-                            activeMenu === item.id
+                          className={`p-2 rounded-xl ${activeMenu === item.id
                               ? "bg-white/10 backdrop-blur-sm"
                               : "group-hover:bg-gray-700/30"
-                          }`}
+                            }`}
                         >
                           <item.icon
-                            className={`w-5 h-5 ${
-                              activeMenu === item.id
+                            className={`w-5 h-5 ${activeMenu === item.id
                                 ? "text-accent-content"
                                 : "text-gray-400 group-hover:text-accent-content"
-                            }`}
+                              }`}
                           />
                         </div>
                         {(sidebarOpen || isHovered) && (
                           <span
-                            className={` ${
-                              sidebarOpen || isHovered
+                            className={` ${sidebarOpen || isHovered
                                 ? "opacity-100 transform translate-x-0"
                                 : "opacity-0 transform translate-x-4"
-                            } font-medium`}
+                              } font-medium`}
                           >
                             {item.label}
                           </span>
@@ -500,11 +493,10 @@ const DashboardNebver = ({ children }) => {
                       </Link>
                       {item.submenu && (sidebarOpen || isHovered) && (
                         <ChevronRight
-                          className={`w-5 h-5 relative z-10 ${
-                            expandedMenus[item.id]
+                          className={`w-5 h-5 relative z-10 ${expandedMenus[item.id]
                               ? "rotate-90 text-accent-content"
                               : "text-gray-500"
-                          } ${activeMenu === item.id ? "text-accent-content" : ""}`}
+                            } ${activeMenu === item.id ? "text-accent-content" : ""}`}
                         />
                       )}
                     </button>
@@ -513,11 +505,10 @@ const DashboardNebver = ({ children }) => {
                     {item.submenu && (sidebarOpen || isHovered) && (
                       <div
                         onClick={toggleSidebar}
-                        className={`mt-3 ml-6 space-y-2 overflow-hidden transform ${
-                          expandedMenus[item.id]
+                        className={`mt-3 ml-6 space-y-2 overflow-hidden transform ${expandedMenus[item.id]
                             ? "max-h-96 opacity-100 translate-y-0"
                             : "max-h-0 opacity-0 -translate-y-4"
-                        }`}
+                          }`}
                       >
                         {item.submenu
                           .filter((subItem) => {
@@ -538,18 +529,16 @@ const DashboardNebver = ({ children }) => {
                                 makeFalse();
                                 setActiveMenu(subItem.id);
                               }}
-                              className={` group flex items-center space-x-3 px-4 py-2.5 text-sm rounded-xl ${
-                                activeMenu === subItem.id
+                              className={` group flex items-center space-x-3 px-4 py-2.5 text-sm rounded-xl ${activeMenu === subItem.id
                                   ? "bg-gradient-to-r from-gray-600 to-gray-800 text-accent-content border border-gray-600/50"
                                   : "text-gray-400 hover:bg-gradient-to-r hover:from-gray-800/30 hover:to-black/30 hover:text-accent-content border border-transparent hover:border-gray-700/20"
-                              }`}
+                                }`}
                             >
                               <div
-                                className={`p-1.5 rounded-lg ${
-                                  activeMenu === subItem.id
+                                className={`p-1.5 rounded-lg ${activeMenu === subItem.id
                                     ? "bg-white/10 backdrop-blur-sm"
                                     : "group-hover:bg-gray-700/20"
-                                }`}
+                                  }`}
                               >
                                 <subItem.icon className="w-4 h-4" />
                               </div>

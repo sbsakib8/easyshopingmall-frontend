@@ -31,12 +31,12 @@ const ContactPage = ({ initialSiteInfo }) => {
   // socket test
   const [notifications, setNotifications] = useState([]);
   useEffect(() => {
-    // socket connect 
+    // socket connect
     socket.on("connect", () => {
       // console.log("🟢 Socket connected:", socket.id);
     });
 
-    //  notification 
+    //  notification
     socket.on("notification:new", (notif) => {
       // console.log("📩 New notification:", notif);
       setNotifications((prev) => [notif, ...prev]);
@@ -117,7 +117,7 @@ const ContactPage = ({ initialSiteInfo }) => {
 
 
   return (
-    <div className="min-h-screen lg:mt-12 py-4 bg-gradient-to-br bg-bg relative overflow-hidden">
+    <section className="min-h-screen md:pt-32 lg:pt-20 py-4 bg-gradient-to-br bg-bg relative overflow-hidden">
 
 
       <div className="relative z-10 container mx-auto px-4 py-12 lg:py-20">
@@ -295,8 +295,8 @@ const ContactPage = ({ initialSiteInfo }) => {
                   <button
                     onClick={handleSubmit}
                     disabled={loading}
-                    className={`bg-primary-color text-accent inline-flex items-center px-12 py-4  font-semibold rounded-2xl 
-    transition-all duration-300 group cursor-pointer 
+                    className={`bg-primary-color text-accent inline-flex items-center px-12 py-4  font-semibold rounded-2xl
+    transition-all duration-300 group cursor-pointer
     ${loading ? "opacity-60 cursor-not-allowed" : "hover:scale-105 hover:shadow-2xl hover:shadow-primary-color/25"}`}
                   >
                     {loading ? (
@@ -349,37 +349,37 @@ const ContactPage = ({ initialSiteInfo }) => {
           from { opacity: 0; transform: translateY(30px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        
+
         @keyframes slide-down {
           from { opacity: 0; transform: translateY(-50px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        
+
         @keyframes slide-up {
           from { opacity: 0; transform: translateY(50px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        
+
         .animate-fade-in {
           animation: fade-in 1s ease-out;
         }
-        
+
         .animate-slide-down {
           animation: slide-down 1s ease-out;
         }
-        
+
         .animate-slide-up {
           animation: slide-up 1s ease-out 0.2s both;
         }
-        
+
         .animation-delay-2000 {
           animation-delay: 2s;
         }
-        
+
         .animation-delay-4000 {
           animation-delay: 4s;
         }
-        
+
         /* Mobile responsive adjustments */
         @media (max-width: 768px) {
           .container {
@@ -388,7 +388,7 @@ const ContactPage = ({ initialSiteInfo }) => {
           }
         }
       `}</style>
-    </div>
+    </section>
   );
 };
 

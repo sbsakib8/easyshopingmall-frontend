@@ -7,33 +7,29 @@ import {
   RefreshCw,
   Check,
   AlertCircle,
-  Percent,
   Info
 } from "lucide-react";
-import { WebsiteinfoAllGet, WebsiteinfoUploade } from "@/src/hook/content/useWebsiteInfo";
+import { ReferralGet, ReferralUpdate } from "@/src/hook/referral/useReferral";
 
 export default function DropshippingSettings() {
   const [loading, setLoading] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
-  const [websiteInfo, setWebsiteInfo] = useState(null);
   const [referralPercentage, setReferralPercentage] = useState(0);
+  const [referralBonusPerProduct, setReferralBonusPerProduct] = useState(0);
 
   const [notification, setNotification] = useState({ show: false, message: "", type: "" });
-
 
   const fetchData = async () => {
     try {
       setDataLoading(true);
-      const res = await WebsiteinfoAllGet();
-      const info = res.websiteinfo?.[0] || res.data?.[0];
+      const res = await ReferralGet();
+      const info = res.data;
       if (info) {
-        setWebsiteInfo(info);
         setReferralPercentage(info.referralPercentage || 0);
-
+        setReferralBonusPerProduct(info.referralBonusPerProduct || 0);
       }
-
     } catch (err) {
-      console.error("Fetch website info error:", err);
+      console.error("Fetch referral settings error:", err);
       showNotification("Failed to load settings.", "error");
     } finally {
       setDataLoading(false);
@@ -52,20 +48,14 @@ export default function DropshippingSettings() {
   };
 
   const handleSave = async () => {
-    if (!websiteInfo?._id) {
-      showNotification("No website configuration found to update.", "error");
-      return;
-    }
-
     setLoading(true);
     try {
       const updateData = {
-        ...websiteInfo,
-        referralPercentage: Number(referralPercentage)
+        referralPercentage: Number(referralPercentage),
+        referralBonusPerProduct: Number(referralBonusPerProduct)
       };
 
-
-      await WebsiteinfoUploade(updateData, websiteInfo._id);
+      await ReferralUpdate(updateData);
       showNotification("Referral settings updated successfully!");
       fetchData();
     } catch (err) {
@@ -120,7 +110,7 @@ export default function DropshippingSettings() {
                 <div className="grid md:grid-cols-2 gap-8 items-start">
                   <div className="space-y-4">
                     <label className="block text-sm font-bold text-gray-300 uppercase tracking-wider">
-                      Referral Bonus Amount (৳)
+                      Referral Bonus per Order (৳)
                     </label>
                     <div className="relative group">
                       <input
@@ -134,22 +124,40 @@ export default function DropshippingSettings() {
                       <div className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-500 font-bold text-xl">৳</div>
                     </div>
                     <p className="text-xs text-gray-500 italic">
-                      This fixed amount in Taka will be awarded to the referrer for each successfully delivered order.
+                      This fixed amount in Taka will be awarded to the referrer for each successfully delivered order (flat rate per order).
                     </p>
                   </div>
 
-                  <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-2xl p-6 flex gap-4">
-                    <Info className="w-8 h-8 text-indigo-400 shrink-0" />
-                    <div>
-                      <h4 className="text-indigo-300 font-bold mb-1">Fixed Bonus System</h4>
-                      <p className="text-sm text-gray-400 leading-relaxed">
-                        সিস্টেমটি এখন নির্দিষ্ট পরিমাণ বোনাস দেওয়ার জন্য সেট করা হয়েছে। রেফার করা কোনো ব্যবহারকারী প্রতিবার একটি অর্ডার সম্পন্ন করলে, ড্রপশিপার তার ব্যালেন্সে ঠিক এই নির্দিষ্ট পরিমাণ বোনাস পাবেন।
-                      </p>
+                  <div className="space-y-4">
+                    <label className="block text-sm font-bold text-gray-300 uppercase tracking-wider">
+                      Referral Bonus per Product (৳)
+                    </label>
+                    <div className="relative group">
+                      <input
+                        type="number"
+                        value={referralBonusPerProduct}
+                        onChange={(e) => setReferralBonusPerProduct(e.target.value)}
+                        min="0"
+                        className="w-full bg-gray-900/50 border border-gray-700 rounded-2xl px-6 py-4 text-2xl font-bold text-white focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all group-hover:border-gray-600"
+                        placeholder="0"
+                      />
+                      <div className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-500 font-bold text-xl">৳</div>
                     </div>
+                    <p className="text-xs text-gray-500 italic">
+                      This fixed amount in Taka will be multiplied by the number of products/items in the order.
+                    </p>
                   </div>
                 </div>
 
-
+                <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-2xl p-6 flex gap-4 mt-6">
+                  <Info className="w-8 h-8 text-indigo-400 shrink-0" />
+                  <div>
+                    <h4 className="text-indigo-300 font-bold mb-1">Fixed Bonus System</h4>
+                    <p className="text-sm text-gray-400 leading-relaxed">
+                      সিস্টেমটি এখন নির্দিষ্ট পরিমাণ বোনাস দেওয়ার জন্য সেট করা হয়েছে। রেফার করা কোনো ব্যবহারকারী প্রতিবার একটি অর্ডার সম্পন্ন করলে, ড্রপশিপার তার ব্যালেন্সে এই বোনাসটি পাবেন।
+                    </p>
+                  </div>
+                </div>
               </section>
 
               {/* Action Buttons */}

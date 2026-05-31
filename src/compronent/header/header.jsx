@@ -1,8 +1,12 @@
 "use client";
 
 import logo from "@/app/icon.png";
+import BottomNav from "@/src/compronent/header/BottomNav";
+import Skeleton from "@/src/compronent/loading/Skeleton";
+import Container from "@/src/compronent/shared/Container";
 import { getCartApi } from "@/src/hook/useCart";
 import { getWishlistApi } from "@/src/hook/useWishlist";
+import { setSearchTerm } from "@/src/redux/shopSlice";
 import { useCategoryWithSubcategories } from "@/src/utlis/useCategoryWithSubcategories";
 import { useSearchProduct } from "@/src/utlis/useSearchProduct";
 import useWebsiteInfo from "@/src/utlis/useWebsiteInfo";
@@ -10,22 +14,18 @@ import {
   Camera,
   ChevronDown,
   Heart,
+  LayoutDashboard,
   Menu,
   Search,
   ShoppingCart,
   Star,
   User,
-  LayoutDashboard,
 } from "lucide-react";
-import Skeleton from "@/src/compronent/loading/Skeleton";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setSearchTerm } from "@/src/redux/shopSlice";
-import BottomNav from "@/src/compronent/header/BottomNav";
-import Container from "@/src/compronent/shared/Container";
 
 const Header = ({ initialData }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -106,7 +106,7 @@ const Header = ({ initialData }) => {
   }));
 
   if (isAdmin) {
-    navItems.splice(1, 0, { name: "Dashboard", href: "/dashboard" });
+    navItems.push({ name: "Dashboard", href: "/dashboard" });
   }
 
   // Scroll effect
@@ -416,7 +416,7 @@ const Header = ({ initialData }) => {
                                 </button>
 
                                 <div
-                                  className={`absolute left-full top-0 ml-[2px] w-64 bg-bg border border-gray-100 rounded-2xl shadow-2xl transition-all duration-300 ease-out z-[60] 
+                                  className={`absolute left-full top-0 ml-[2px] w-64 bg-bg border border-gray-100 rounded-2xl shadow-2xl transition-all duration-300 ease-out z-[60]
                   ${
                     isActiveCategory
                       ? "opacity-100 visible translate-x-0"
@@ -481,7 +481,7 @@ const Header = ({ initialData }) => {
                       ref={imageSearchRef}
                       className="hidden sm:flex flex-col  justify-center items-center min-w-66 min-h-36 absolute top-15 left-12 bg-amber-50 rounded-2xl shadow-2xl shadow-black-100 z-50"
                     >
-                      {/* 
+                      {/*
                     <p className="my-4 text-green-600 font-semibold">
                         Search Product with Image
                       </p>
@@ -493,7 +493,7 @@ const Header = ({ initialData }) => {
                           accept="image/*"
                         />
                       </div>
-                    
+
                     */}
 
                       <div>

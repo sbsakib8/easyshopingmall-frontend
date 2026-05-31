@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { getUserProfile } from "../hook/useAuth";
+import { getMyDropshippingAnalytics } from "../hook/useDropshippingAnalytics";
 import { useDispatch, useSelector } from "react-redux";
 import { userget } from "../redux/userSlice";
 
@@ -16,12 +17,34 @@ export const useGetUser = () => {
       setLoading(true);
       const resData = await getUserProfile();
       
-      const userData = resData?.user || resData?.data || (resData?._id || resData?.id ? resData : null);
+      let userData = resData?.user || resData?.data || (resData?._id || resData?.id ? resData : null);
       
       if (userData) {
         if (resData?.referrals) {
           userData.referrals = resData.referrals;
         }
+
+        // Enrichment: Add video referral bonuses for dropshippers
+        if (userData.role === "DROPSHIPPING" || userData.roles?.includes("DROPSHIPPING")) {
+          try {
+            const analyticsRes = await getMyDropshippingAnalytics();
+            if (analyticsRes.success && analyticsRes.data?.videoReferrals) {
+              const videoBonusApproved = analyticsRes.data.videoReferrals.reduce((sum, ref) => {
+                return sum + (ref.status === 'approved' ? (ref.bonusAmount || 0) : 0);
+              }, 0);
+              
+              // Add to balance for global UI consistency
+              userData = {
+                ...userData,
+                balance: (userData.balance || 0) + videoBonusApproved,
+                videoBonusApproved // Keep track of it separately if needed
+              };
+            }
+          } catch (analyticsErr) {
+            console.error("Error fetching analytics in useGetUser:", analyticsErr);
+          }
+        }
+
         localStorage.setItem("user", JSON.stringify(userData));
         dispatch(userget(userData));
       } else {
@@ -46,7 +69,7 @@ export const useGetUser = () => {
       if (savedUser) {
         try {
           dispatch(userget(JSON.parse(savedUser)));
-        } catch (e) {
+        } catch {
           localStorage.removeItem("user");
         }
       }

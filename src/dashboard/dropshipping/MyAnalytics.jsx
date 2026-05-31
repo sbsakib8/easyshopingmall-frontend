@@ -1,34 +1,34 @@
 "use client";
-import React, { useState, useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 
 import {
-  BarChart3,
-  DollarSign,
-  Clock,
-  TrendingUp,
   Activity,
+  BarChart3,
+  Clock,
+  DollarSign,
   RefreshCw,
-  Users,
   Target,
+  TrendingUp,
+  Users,
 } from "lucide-react";
 
 import {
-  AreaChart,
   Area,
+  AreaChart,
+  CartesianGrid,
+  Cell,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
 } from "recharts";
 
-import { getMyDropshippingAnalytics } from "@/src/hook/useDropshippingAnalytics";
-import BackButton from "@/src/dropShipping/BackButton/BackButton";
 import Container from "@/src/compronent/shared/Container";
+import BackButton from "@/src/dropShipping/BackButton/BackButton";
+import { getMyDropshippingAnalytics } from "@/src/hook/useDropshippingAnalytics";
 import Link from "next/link";
 
 const COLORS = ["#f59e0b", "#3b82f6", "#8b5cf6", "#10b981", "#ef4444"];
@@ -39,6 +39,7 @@ const MyAnalytics = () => {
   const [dsLoading, setDsLoading] = useState(false);
   const [timeRange, setTimeRange] = useState("all"); // '7d', '30d', 'all', 'custom'
   const [customDates, setCustomDates] = useState({ start: "", end: "" });
+  const [referralTab, setReferralTab] = useState("partners"); // "partners" | "video_buyers"
 
   const fetchDSAnalytics = async () => {
     setDsLoading(true);
@@ -80,12 +81,23 @@ const MyAnalytics = () => {
     }
   }, [data?._id, timeRange, customDates]);
 
+  // Calculate video referral bonuses
+  const videoBonusStats = useMemo(() => {
+    if (!dsAnalytics?.videoReferrals) return { approved: 0, pending: 0 };
+    return dsAnalytics.videoReferrals.reduce((acc, ref) => {
+      if (ref.status === 'approved') acc.approved += (ref.bonusAmount || 0);
+      else if (ref.status === 'pending') acc.pending += (ref.bonusAmount || 0);
+      return acc;
+    }, { approved: 0, pending: 0 });
+  }, [dsAnalytics?.videoReferrals]);
+
   // Process trend data from transactions
   const trendData = useMemo(() => {
-    if (!dsAnalytics?.transactions) return [];
+    const transactions = dsAnalytics?.transactions || [];
+    const videoReferrals = dsAnalytics?.videoReferrals || [];
 
     // Group by date and sum amount
-    const groups = dsAnalytics.transactions.reduce((acc, tx) => {
+    const groups = transactions.reduce((acc, tx) => {
       const date = new Date(tx.date).toLocaleDateString("en-US", {
         month: "short",
         day: "numeric",
@@ -95,6 +107,18 @@ const MyAnalytics = () => {
       return acc;
     }, {});
 
+    // Add approved video referrals to trend
+    videoReferrals.forEach(ref => {
+      if (ref.status === 'approved') {
+        const date = new Date(ref.createdAt || ref.date).toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+        });
+        if (!groups[date]) groups[date] = 0;
+        groups[date] += (ref.bonusAmount || 0);
+      }
+    });
+
     return Object.entries(groups)
       .map(([name, value]) => ({
         name,
@@ -103,13 +127,13 @@ const MyAnalytics = () => {
       }))
       .sort((a, b) => a.rawDate - b.rawDate)
       .map(({ name, value }) => ({ name, value }));
-  }, [dsAnalytics?.transactions]);
+  }, [dsAnalytics?.transactions, dsAnalytics?.videoReferrals]);
 
   // Process pie data for order pipeline
   const pipelineData = useMemo(() => {
     if (!dsAnalytics?.orderPipeline) return [];
     return Object.entries(dsAnalytics.orderPipeline)
-      .filter(([_, value]) => value > 0)
+      .filter(([, value]) => value > 0)
       .map(([name, value]) => ({
         name: name.charAt(0).toUpperCase() + name.slice(1),
         value,
@@ -137,7 +161,7 @@ const MyAnalytics = () => {
 
   if (!dsAnalytics && !dsLoading) {
     return (
-      <section className="min-h-[70dvh] bg-slate-50/30 py-10 md:py-16 grid place-items-center">
+      <section className="min-h-[70dvh] bg-slate-50/30 py-8 md:py-14 grid place-items-center">
         <Container className="text-center flex flex-col items-center justify-center gap-6">
           <div className="w-20 h-20 bg-white shadow-xl rounded-3xl flex items-center justify-center mx-auto border border-gray-100 rotate-3">
             <BarChart3 className="w-10 h-10 text-teal-500 -rotate-3" />
@@ -167,17 +191,17 @@ const MyAnalytics = () => {
   const { summary } = dsAnalytics;
 
   return (
-    <section className="min-h-screen bg-slate-50/30 pt-24 pb-20 px-4 md:px-8 max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <BackButton className="mb-6" />
+    <section className="min-h-screen bg-slate-50/30 pt-4 md:pt-6 pb-10 px-4 sm:px-5 md:px-6 max-w-6xl mx-auto space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <BackButton className="mb-2 -mt-2" />
 
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-teal-600 font-bold text-sm uppercase tracking-widest">
             <Activity className="w-4 h-4" />
             <span>Business Intelligence</span>
           </div>
-          <h2 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight">
+          <h2 className="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">
             Performance Analytics
           </h2>
           <p className="text-gray-500">
@@ -196,11 +220,10 @@ const MyAnalytics = () => {
               <button
                 key={range.id}
                 onClick={() => setTimeRange(range.id)}
-                className={`px-4 py-2 text-sm font-bold rounded-xl transition-all ${
-                  timeRange === range.id
-                    ? "bg-teal-500 text-white shadow-lg shadow-teal-500/20"
-                    : "text-gray-500 hover:bg-gray-50"
-                }`}
+                className={`px-4 py-2 text-sm font-bold rounded-xl transition-all ${timeRange === range.id
+                  ? "bg-teal-500 text-white shadow-lg shadow-teal-500/20"
+                  : "text-gray-500 hover:bg-gray-50"
+                  }`}
               >
                 {range.label}
               </button>
@@ -236,12 +259,12 @@ const MyAnalytics = () => {
         {[
           {
             label: "Available Balance",
-            value: summary.currentBalance || data?.balance || 0,
+            value: (summary.currentBalance || data?.balance || 0) + videoBonusStats.approved,
             icon: Target,
             color: "text-teal-600",
             bg: "bg-teal-50",
             border: "border-teal-100",
-            trend: "Matches your navbar balance",
+            trend: "Includes video & sales bonuses",
             isPrimary: true,
           },
           {
@@ -255,21 +278,21 @@ const MyAnalytics = () => {
           },
           {
             label: "Pending Revenue",
-            value: summary.pendingProfit,
+            value: summary.pendingProfit + videoBonusStats.pending,
             icon: Clock,
             color: "text-amber-600",
             bg: "bg-amber-50",
             border: "border-amber-100",
-            trend: "Awaiting fulfillment",
+            trend: "Awaiting approval/delivery",
           },
           {
             label: "Referral Income",
-            value: summary.referralIncome,
+            value: summary.referralIncome + videoBonusStats.approved,
             icon: TrendingUp,
             color: "text-blue-600",
             bg: "bg-blue-50",
             border: "border-blue-100",
-            trend: "From your network",
+            trend: "Network & Video referrals",
           },
         ].map((kpi, idx) => (
           <div
@@ -463,11 +486,10 @@ const MyAnalytics = () => {
                   >
                     <div className="flex items-center gap-4">
                       <div
-                        className={`p-3 rounded-2xl transition-colors ${
-                          tx.type === "profit"
-                            ? "bg-emerald-50 text-emerald-600"
-                            : "bg-blue-50 text-blue-600"
-                        }`}
+                        className={`p-3 rounded-2xl transition-colors ${tx.type === "profit"
+                          ? "bg-emerald-50 text-emerald-600"
+                          : "bg-blue-50 text-blue-600"
+                          }`}
                       >
                         {tx.type === "profit" ? (
                           <DollarSign className="w-4 h-4" />
@@ -494,25 +516,23 @@ const MyAnalytics = () => {
                     </div>
                     <div className="text-right">
                       <p
-                        className={`text-sm font-black ${
-                          tx.status === "credited"
-                            ? "text-emerald-600"
-                            : tx.status === "lost"
-                              ? "text-red-500"
-                              : "text-amber-500"
-                        }`}
+                        className={`text-sm font-black ${tx.status === "credited"
+                          ? "text-emerald-600"
+                          : tx.status === "lost"
+                            ? "text-red-500"
+                            : "text-amber-500"
+                          }`}
                       >
                         {tx.status === "credited" ? "+" : ""}৳
                         {tx.amount.toLocaleString()}
                       </p>
                       <p
-                        className={`text-[10px] font-black uppercase tracking-tighter mt-0.5 ${
-                          tx.status === "credited"
-                            ? "text-emerald-500"
-                            : tx.status === "lost"
-                              ? "text-red-500"
-                              : "text-amber-500"
-                        }`}
+                        className={`text-[10px] font-black uppercase tracking-tighter mt-0.5 ${tx.status === "credited"
+                          ? "text-emerald-500"
+                          : tx.status === "lost"
+                            ? "text-red-500"
+                            : "text-amber-500"
+                          }`}
                       >
                         {tx.status}
                       </p>
@@ -536,7 +556,7 @@ const MyAnalytics = () => {
 
         {/* Referral Network List */}
         <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden">
-          <div className="p-8 border-b border-gray-50 flex items-center justify-between">
+          <div className="p-8 border-b border-gray-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-50 text-blue-600 rounded-xl">
                 <Users className="w-4 h-4" />
@@ -545,97 +565,213 @@ const MyAnalytics = () => {
                 Referral Network
               </h3>
             </div>
-            <div className="flex items-center gap-1.5 text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
-              {summary.referralCount} Partners
+
+            {/* Tab Toggles */}
+            <div className="flex bg-slate-50 p-1.5 rounded-2xl border border-slate-100/50 w-full sm:w-auto">
+              <button
+                onClick={() => setReferralTab("partners")}
+                className={`flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap ${referralTab === "partners"
+                  ? "bg-white text-blue-600 shadow-sm"
+                  : "text-gray-400 hover:text-gray-700"
+                  }`}
+              >
+                Partners ({summary.referralCount})
+              </button>
+              <button
+                onClick={() => setReferralTab("video_buyers")}
+                className={`flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap ${referralTab === "video_buyers"
+                  ? "bg-white text-blue-600 shadow-sm"
+                  : "text-gray-400 hover:text-gray-700"
+                  }`}
+              >
+                Video Buyers ({(dsAnalytics.videoReferrals || []).length})
+              </button>
             </div>
           </div>
-          <div className="max-h-[500px] overflow-y-auto scrollbar-hide">
-            <table className="w-full text-left">
-              <thead className="sticky top-0 bg-white z-10 shadow-sm">
-                <tr className="bg-slate-50/50">
-                  <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                    Partner
-                  </th>
-                  <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">
-                    Sales
-                  </th>
-                  <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">
-                    Income
-                  </th>
-                  <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">
-                    Status
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {dsAnalytics.referralNetwork.map((ref, idx) => (
-                  <tr
-                    key={idx}
-                    className="group hover:bg-slate-50 transition-colors"
-                  >
-                    <td className="px-8 py-5">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-teal-50 flex items-center justify-center text-teal-600 font-black text-xs">
-                          {ref.name.charAt(0).toUpperCase()}
+          <div className="max-h-[500px] overflow-y-auto scrollbar-hide overflow-x-auto">
+            {referralTab === "partners" ? (
+              <table className="w-full text-left min-w-[600px]">
+                <thead className="sticky top-0 bg-white z-10 shadow-sm">
+                  <tr className="bg-slate-50/50">
+                    <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                      Partner
+                    </th>
+                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">
+                      Sales
+                    </th>
+                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">
+                      Income
+                    </th>
+                    <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">
+                      Status
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {dsAnalytics.referralNetwork.map((ref, idx) => (
+                    <tr
+                      key={idx}
+                      className="group hover:bg-slate-50 transition-colors"
+                    >
+                      <td className="px-8 py-5">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-2xl bg-teal-50 flex items-center justify-center text-teal-600 font-black text-xs">
+                            {ref.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <p className="text-sm font-black text-gray-900">
+                              {ref.name}
+                            </p>
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
+                              Joined{" "}
+                              {new Date(
+                                ref.lastOrderDate || Date.now(),
+                              ).toLocaleDateString()}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-sm font-black text-gray-900">
-                            {ref.name}
-                          </p>
-                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
-                            Joined{" "}
-                            {new Date(
-                              ref.lastOrderDate || Date.now(),
-                            ).toLocaleDateString()}
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-5 text-center">
-                      <span className="text-sm font-black text-gray-700 bg-gray-100 px-2 py-0.5 rounded-lg">
-                        {ref.orderCount}
-                      </span>
-                    </td>
-                    <td className="px-6 py-5 text-right">
-                      <p className="text-sm font-black text-blue-600">
-                        ৳{ref.bonusEarned.toLocaleString()}
-                      </p>
-                      {ref.pendingBonus > 0 && (
-                        <p className="text-[10px] text-amber-500 font-black tracking-tighter">
-                          ৳{ref.pendingBonus.toLocaleString()} pending
+                      </td>
+                      <td className="px-6 py-5 text-center">
+                        <span className="text-sm font-black text-gray-700 bg-gray-100 px-2 py-0.5 rounded-lg">
+                          {ref.orderCount}
+                        </span>
+                      </td>
+                      <td className="px-6 py-5 text-right">
+                        <p className="text-sm font-black text-blue-600">
+                          ৳{ref.bonusEarned.toLocaleString()}
                         </p>
-                      )}
-                    </td>
-                    <td className="px-8 py-5 text-center">
-                      <div
-                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                          ref.isActive
+                        {ref.pendingBonus > 0 && (
+                          <p className="text-[10px] text-amber-500 font-black tracking-tighter">
+                            ৳{ref.pendingBonus.toLocaleString()} pending
+                          </p>
+                        )}
+                      </td>
+                      <td className="px-8 py-5 text-center">
+                        <div
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${ref.isActive
                             ? "bg-emerald-100 text-emerald-600"
                             : "bg-slate-100 text-slate-400"
-                        }`}
-                      >
-                        <span
-                          className={`w-1.5 h-1.5 rounded-full ${ref.isActive ? "bg-emerald-500" : "bg-slate-400"}`}
-                        />
-                        {ref.isActive ? "Active" : "Idle"}
-                      </div>
-                    </td>
+                            }`}
+                        >
+                          <span
+                            className={`w-1.5 h-1.5 rounded-full ${ref.isActive ? "bg-emerald-500" : "bg-slate-400"}`}
+                          />
+                          {ref.isActive ? "Active" : "Idle"}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {dsAnalytics.referralNetwork.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="px-8 py-20 text-center">
+                        <div className="flex flex-col items-center gap-3 opacity-30">
+                          <Users className="w-10 h-10" />
+                          <p className="text-xs font-black uppercase tracking-widest">
+                            No Referral Data
+                          </p>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            ) : (
+              <table className="w-full text-left min-w-[700px]">
+                <thead className="sticky top-0 bg-white z-10 shadow-sm">
+                  <tr className="bg-slate-50/50">
+                    <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                      Buyer
+                    </th>
+                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                      Course Purchased
+                    </th>
+                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">
+                      Paid Amount
+                    </th>
+                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">
+                      Bonus Earned
+                    </th>
+                    <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">
+                      Status
+                    </th>
                   </tr>
-                ))}
-                {dsAnalytics.referralNetwork.length === 0 && (
-                  <tr>
-                    <td colSpan={4} className="px-8 py-20 text-center">
-                      <div className="flex flex-col items-center gap-3 opacity-30">
-                        <Users className="w-10 h-10" />
-                        <p className="text-xs font-black uppercase tracking-widest">
-                          No Referral Data
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {(dsAnalytics.videoReferrals || []).map((ref, idx) => (
+                    <tr
+                      key={idx}
+                      className="group hover:bg-slate-50 transition-colors"
+                    >
+                      <td className="px-8 py-5">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 font-black text-xs">
+                            {ref.buyerName.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <p className="text-sm font-black text-gray-900">
+                              {ref.buyerName}
+                            </p>
+                            <p className="text-[10px] font-bold text-gray-400 truncate max-w-[180px]">
+                              {ref.buyerEmail}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-5">
+                        <p className="text-sm font-bold text-gray-700 max-w-[220px] truncate">
+                          {ref.courseTitle}
                         </p>
-                      </div>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                        <p className="text-[10px] text-gray-400 font-medium">
+                          {new Date(ref.createdAt).toLocaleDateString()}
+                        </p>
+                      </td>
+                      <td className="px-6 py-5 text-center">
+                        <span className="text-sm font-black text-gray-700 bg-gray-100 px-2 py-0.5 rounded-lg">
+                          ৳{ref.amount.toLocaleString()}
+                        </span>
+                      </td>
+                      <td className="px-6 py-5 text-right">
+                        <p className="text-sm font-black text-emerald-600">
+                          ৳{ref.bonusAmount.toLocaleString()}
+                        </p>
+                      </td>
+                      <td className="px-8 py-5 text-center">
+                        <div
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${ref.status === "approved"
+                            ? "bg-emerald-100 text-emerald-600"
+                            : ref.status === "pending"
+                              ? "bg-amber-100 text-amber-600"
+                              : "bg-red-100 text-red-600"
+                            }`}
+                        >
+                          <span
+                            className={`w-1.5 h-1.5 rounded-full ${ref.status === "approved"
+                              ? "bg-emerald-500"
+                              : ref.status === "pending"
+                                ? "bg-amber-500"
+                                : "bg-red-500"
+                              }`}
+                          />
+                          {ref.status}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {(!dsAnalytics.videoReferrals || dsAnalytics.videoReferrals.length === 0) && (
+                    <tr>
+                      <td colSpan={5} className="px-8 py-20 text-center">
+                        <div className="flex flex-col items-center gap-3 opacity-30">
+                          <Users className="w-10 h-10" />
+                          <p className="text-xs font-black uppercase tracking-widest">
+                            No Video Referrals Data
+                          </p>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
       </div>
