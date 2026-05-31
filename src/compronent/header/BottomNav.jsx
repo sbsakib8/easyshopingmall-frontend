@@ -36,7 +36,7 @@ const BottomNav = ({ cartCount = 0, menuCategories = [] }) => {
       label: "Cart",
       badge: String(cartCount),
     },
-    { icon: Menu, key: "categories", label: "Categories" },
+    { icon: Menu, key: "menu", label: "Categories" },
   ];
 
   const handleClick = (item) => {
@@ -54,9 +54,11 @@ const BottomNav = ({ cartCount = 0, menuCategories = [] }) => {
     setActiveCategory(activeCategory?.id === category.id ? null : category);
   };
 
-  const handleSubcategoryClick = (subcategory) => {
+  const handleSubcategoryClick = (category, subcategory) => {
+    const categorySlug = category.slug || category.name;
+    const subcategorySlug = subcategory.slug || subcategory.name;
     router.push(
-      `/shop?category=${subcategory.categoryId.slug}&subcategory=${subcategory.slug}`,
+      `/shop?category=${encodeURIComponent(categorySlug)}&subcategory=${encodeURIComponent(subcategorySlug)}`,
     );
     setMenuOpen(false);
     setActiveCategory(null);
@@ -199,7 +201,7 @@ const BottomNav = ({ cartCount = 0, menuCategories = [] }) => {
                         {category?.subcategories?.map((sub) => (
                           <button
                             key={sub.id}
-                            onClick={() => handleSubcategoryClick(sub)}
+                            onClick={() => handleSubcategoryClick(category, sub)}
                             type="button"
                             title={sub.name}
                             aria-label={sub.name}
