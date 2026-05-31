@@ -1595,6 +1595,20 @@ const ShopPage = ({ initialData, queryParams }) => {
                 </div>
 
                 <div className="md:col-span-2">
+                  <div className="flex items-center p-4 bg-slate-500/10 border border-slate-200 rounded-xl mt-1">
+                    <input
+                      type="checkbox"
+                      checked={editModal?.isBoost || false}
+                      onChange={(e) => updateEditField("isBoost", e.target.checked)}
+                      className="w-5 h-5 text-emerald-600 bg-transparent border-slate-300 rounded focus:ring-emerald-500"
+                    />
+                    <label className="ml-3 text-black font-semibold">
+                      Boost Product
+                    </label>
+                  </div>
+                </div>
+
+                <div className="md:col-span-2">
                   <label className="block text-black text-sm font-semibold mb-2">
                     Description
                   </label>
