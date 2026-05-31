@@ -139,9 +139,7 @@ const shopSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(fetchShopProducts.pending, (state) => {
-                if (state.products.length === 0) {
-                    state.loading = true;
-                }
+                state.loading = true;
                 state.error = null;
             })
             .addCase(fetchShopProducts.fulfilled, (state, action) => {
