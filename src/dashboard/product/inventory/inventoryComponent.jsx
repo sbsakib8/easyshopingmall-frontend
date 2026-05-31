@@ -800,6 +800,18 @@ const InventoryDashboard = () => {
  className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500 resize-none"
  ></textarea>
  </div>
+
+ <div className="md:col-span-2">
+ <div className="flex items-center p-4 bg-white/5 border border-slate-600 rounded-xl mt-1">
+ <input
+ type="checkbox"
+ checked={editModal?.isBoost || false}
+ onChange={(e) => updateEditField('isBoost', e.target.checked)}
+ className="w-5 h-5 text-emerald-600 bg-transparent border-slate-500 rounded focus:ring-emerald-500"
+ />
+ <label className="ml-3 text-gray-300 font-semibold">Boost Product</label>
+ </div>
+ </div>
  </div>
 
  <div className="flex gap-3 mt-6">
