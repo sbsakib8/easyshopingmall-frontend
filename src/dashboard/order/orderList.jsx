@@ -746,6 +746,13 @@ const OrderManagement = () => {
                           </span>
                         </div>
 
+                        {selectedOrder?.couponDiscount > 0 && (
+                          <div className="flex justify-between text-emerald-400">
+                            <span>Coupon Discount ({selectedOrder?.appliedCoupon}):</span>
+                            <span className="font-medium">- ৳{selectedOrder?.couponDiscount}</span>
+                          </div>
+                        )}
+
                         <div className="flex justify-between">
                           <span className="text-gray-400">Total:</span>
                           <span className="font-medium text-accent-content">
@@ -923,8 +930,16 @@ const OrderManagement = () => {
                                       <p className="text-[10px] text-emerald-400 font-bold">
                                         Profit: ৳
                                         {(
-                                          item?.sellingPrice - item?.price
+                                          (Number(item?.sellingPrice || 0) -
+                                            Number(item?.price || 0)) *
+                                          Number(item?.quantity || 1)
                                         ).toFixed(2)}
+                                      </p>
+                                      <p className="text-[9px] text-gray-400 mt-1">
+                                        ({item?.quantity || 1} × ৳{(
+                                          Number(item?.sellingPrice || 0) -
+                                          Number(item?.price || 0)
+                                        ).toFixed(2)} per unit)
                                       </p>
                                     </div>
                                   )}

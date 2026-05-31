@@ -562,9 +562,17 @@ const CompletedOrdersPage = () => {
                                   </p>
                                   <p className="text-[10px] text-emerald-400 font-bold">
                                     Profit: ৳
-                                    {(item?.sellingPrice - item?.price).toFixed(
-                                      2,
-                                    )}
+                                    {(
+                                      (Number(item?.sellingPrice || 0) -
+                                        Number(item?.price || 0)) *
+                                      Number(item?.quantity || 1)
+                                    ).toFixed(2)}
+                                  </p>
+                                  <p className="text-[9px] text-gray-400 mt-1">
+                                    ({item?.quantity || 1} × ৳{(
+                                      Number(item?.sellingPrice || 0) -
+                                      Number(item?.price || 0)
+                                    ).toFixed(2)} per unit)
                                   </p>
                                 </div>
                               )}
@@ -681,10 +689,10 @@ const CompletedOrdersPage = () => {
               <button
                 onClick={() => handleStatusChange()}
                 className={`flex-1 px-6 py-3 font-semibold rounded-lg transform cursor-pointer transition-all ${status === "completed"
-                    ? "bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700"
-                    : status === "cancelled"
-                      ? "bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700"
-                      : "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                  ? "bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700"
+                  : status === "cancelled"
+                    ? "bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700"
+                    : "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
                   } text-white shadow-lg`}
               >
                 Confirm {status}

@@ -50,7 +50,7 @@ const BlogPage = ({ initialData }) => {
   });
 
   return (
-    <div className="min-h-screen lg:pt-12 py-5 bg-bg">
+    <section className="min-h-screen pt-8 md:pt-32 lg:pt-20 py-5 bg-bg">
       {/* Header Section */}
       <div className="relative overflow-hidden text-accent">
         <div className="absolute inset-0"></div>
@@ -304,7 +304,7 @@ const BlogPage = ({ initialData }) => {
       </div>
 
       {showModal && <BlogModal blog={selectedPost} setShowModal={setShowModal} />}
-    </div>
+    </section>
   );
 };
 

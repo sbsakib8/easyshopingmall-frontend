@@ -1,21 +1,20 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "react-hot-toast";
+import Container from "@/src/compronent/shared/Container";
+import { UrlBackend } from "@/src/confic/urlExport";
+import BackButton from "@/src/dropShipping/BackButton/BackButton";
+import { useGetUser } from "@/src/utlis/useGetuser";
+import axios from "axios";
 import {
-  Upload,
   CheckCircle,
   Clock,
-  XCircle,
   DollarSign,
   Phone,
-  Hash,
+  Upload,
+  XCircle
 } from "lucide-react";
-import axios from "axios";
-import { useGetUser } from "@/src/utlis/useGetuser";
-import { UrlBackend } from "@/src/confic/urlExport";
-import Container from "@/src/compronent/shared/Container";
-import BackButton from "@/src/dropShipping/BackButton/BackButton";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "react-hot-toast";
 
 const PaymentRequestForm = () => {
   const { user, refetch } = useGetUser();
@@ -83,45 +82,44 @@ const PaymentRequestForm = () => {
 
   return (
     <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <Container className="max-w-6xl p-4 md:p-8 space-y-8 ">
+      <Container className="max-w-6xl p-3 md:p-6 space-y-4">
         <BackButton />
 
         {/* Notice Section */}
-        <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100 rounded-3xl p-6 shadow-sm">
-          <div className="flex items-start gap-4">
-            <div className="p-3 bg-white rounded-2xl shadow-sm text-amber-600">
-              <Clock className="w-6 h-6" />
+        <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100 rounded-3xl p-4 md:p-5 shadow-sm">
+          <div className="flex items-start gap-3 md:gap-4">
+            <div className="p-2 md:p-3 bg-white rounded-2xl shadow-sm text-amber-600 flex-shrink-0">
+              <Clock className="w-5 h-5 md:w-6 md:h-6" />
             </div>
             <div>
-              <h3 className="text-lg font-black text-amber-900 tracking-tight mb-1">
-                Important Notice
+              <h3 className="text-base md:text-lg font-black text-amber-900 tracking-tight mb-2">
+                গুরুত্বপূর্ণ বিজ্ঞপ্তি
               </h3>
-              <ul className="text-amber-800/80 text-sm font-bold space-y-1 list-disc ml-4">
+              <ul className="text-amber-800/80 text-xs md:text-sm font-bold space-y-1 list-disc ml-4">
                 <li>
-                  Minimum withdrawal amount is{" "}
-                  <span className="text-amber-900 font-black">৳200</span>.
+                  ন্যূনতম উত্তোলনের পরিমাণ
+                  <span className="text-amber-900 font-black"> ৳200</span>
                 </li>
                 <li>
-                  Withdrawal requests are processed within{" "}
-                  <span className="text-amber-900 font-black">24-72 hours</span>
-                  .
+                  উত্তোলনের অনুরোধ
+                  <span className="text-amber-900 font-black"> 24-72 ঘন্টা</span>
+                  এর মধ্যে প্রক্রিয়া করা হয়।
                 </li>
                 <li>
-                  Please double-check your account number before submitting.
+                  জমা দেওয়ার আগে আপনার অ্যাকাউন্ট নম্বর দুবার পরীক্ষা করুন।
                 </li>
                 <li>
-                  Payments are only sent to verified accounts
-                  (Bkash/Nagad/Rocket/Bank).
+                  পেমেন্ট শুধুমাত্র যাচাইকৃত অ্যাকাউন্টে পাঠানো হয় (বিকাশ/নগদ/রকেট/ব্যাংক)।
                 </li>
               </ul>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
           {/* Form Section */}
-          <div className="bg-white rounded-3xl p-6 md:p-8 shadow-xl border border-gray-100">
-            <div className="mb-6">
+          <div className="bg-white rounded-3xl p-4 md:p-6 shadow-xl border border-gray-100">
+            <div className="mb-4 md:mb-6">
               <h2 className="text-2xl font-black text-gray-900 tracking-tight">
                 Withdrawal Request
               </h2>
@@ -130,7 +128,7 @@ const PaymentRequestForm = () => {
               </p>
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-1.5 ml-1">
@@ -204,8 +202,8 @@ const PaymentRequestForm = () => {
           </div>
 
           {/* History Section */}
-          <div className="bg-white rounded-3xl p-6 md:p-8 shadow-xl border border-gray-100 flex flex-col h-full">
-            <div className="mb-6 flex justify-between items-center">
+          <div className="bg-white rounded-3xl p-4 md:p-6 shadow-xl border border-gray-100 flex flex-col h-full">
+            <div className="mb-4 md:mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
               <div>
                 <h2 className="text-2xl font-black text-gray-900 tracking-tight">
                   Recent Requests
@@ -240,13 +238,12 @@ const PaymentRequestForm = () => {
                       </div>
                     </div>
                     <div
-                      className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 ${
-                        req.status === "approved"
-                          ? "bg-emerald-100 text-emerald-600"
-                          : req.status === "rejected"
-                            ? "bg-red-100 text-red-600"
-                            : "bg-amber-100 text-amber-600"
-                      }`}
+                      className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 ${req.status === "approved"
+                        ? "bg-emerald-100 text-emerald-600"
+                        : req.status === "rejected"
+                          ? "bg-red-100 text-red-600"
+                          : "bg-amber-100 text-amber-600"
+                        }`}
                     >
                       {req.status === "approved" && (
                         <CheckCircle className="w-3 h-3" />

@@ -691,16 +691,16 @@ const DropshippingCheckoutComponent = () => {
                         </p>
                         <div className="flex items-center gap-2 mt-1.5">
                           <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">ক্রয় মূল্য:</p>
-                          <p className="text-xs font-bold text-slate-600">৳{item.price.toLocaleString()}</p>
+                          <p className="text-xs font-bold text-slate-600">৳{(item.price * item.quantity).toLocaleString()}</p>
                         </div>
 
                         <div className="flex items-center gap-2">
                           <p className="text-[10px] font-black text-emerald-600 uppercase tracking-tighter">বিক্রয় মূল্য:</p>
-                          <p className="text-xs font-black text-emerald-600">৳{(item.sellingPrice || item.price).toLocaleString()}</p>
+                          <p className="text-xs font-black text-emerald-600">৳{((item.sellingPrice || item.price) * item.quantity).toLocaleString()}</p>
                         </div>
                         <div className="flex items-center gap-2">
                           <p className="text-[10px] font-black text-blue-600 uppercase tracking-tighter">লাভ:</p>
-                          <p className="text-xs font-black text-blue-600">৳{((item.sellingPrice || item.price) - item.price).toLocaleString()}</p>
+                          <p className="text-xs font-black text-blue-600">৳{(((item.sellingPrice || item.price) - item.price) * item.quantity).toLocaleString()}</p>
                         </div>
                       </div>
                     </div>

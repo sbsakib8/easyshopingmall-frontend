@@ -517,7 +517,9 @@ export default function WebsiteInfoAdmin() {
  </div>
 
  {/* Active Status */}
- <div className="flex items-center gap-3">
+ <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+
+ <div className="flex items-center gap-3 pt-6">
  <label className="flex items-center gap-2 cursor-pointer">
  <input
  type="checkbox"
@@ -548,6 +550,7 @@ export default function WebsiteInfoAdmin() {
  >
  Cancel
  </button>
+ </div>
  </div>
  </form>
  </div>
@@ -647,6 +650,7 @@ export default function WebsiteInfoAdmin() {
  <span className="ml-2 text-gray-300">{info.supportContact}</span>
  </div>
  )}
+
 
  {info.socialLinks && info.socialLinks.length > 0 && (
  <div className="md:col-span-3">

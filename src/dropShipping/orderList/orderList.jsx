@@ -89,6 +89,110 @@ const StatCard = ({ label, value, sub, accent }) => (
   </div>
 );
 
+/* ── Payment details helper ── */
+const PaymentInfo = ({ order }) => {
+  const getMethodLabel = (method) => {
+    switch (method) {
+      case "manual": return "Manual Pay";
+      case "sslcommerz": return "Online Pay";
+      case "balance": return "Wallet Balance";
+      case "cod": return "COD";
+      default: return method || "N/A";
+    }
+  };
+
+  const statusColors = {
+    pending: "text-amber-600 bg-amber-50 border-amber-200",
+    submitted: "text-blue-600 bg-blue-50 border-blue-200",
+    paid: "text-emerald-600 bg-emerald-50 border-emerald-200",
+    failed: "text-rose-600 bg-rose-50 border-rose-200",
+    refunded: "text-purple-600 bg-purple-50 border-purple-200",
+  };
+
+  const status = order.payment_status || "pending";
+  const colorClass = statusColors[status] || "text-gray-600 bg-gray-50 border-gray-200";
+
+  // Initial payment amount — what the dropshipper paid upfront
+  const initialPayType = order.payment_type;
+  const initialPayAmt =
+    initialPayType === "delivery"
+      ? order.deliveryCharge || order.amount_paid || 0
+      : initialPayType === "full"
+      ? order.amount_paid || order.totalAmt || 0
+      : 0; // COD = 0 upfront
+
+  return (
+    <div className="flex flex-col gap-1.5 text-[11px] font-bold">
+      {/* Method + status */}
+      <div className="flex items-center gap-1.5">
+        <span className="text-slate-700 uppercase tracking-tight text-xs">
+          {getMethodLabel(order.payment_method)}
+        </span>
+        <span
+          className={cn(
+            "px-1.5 py-0.5 rounded border text-[8px] uppercase tracking-wider font-extrabold",
+            colorClass
+          )}
+        >
+          {status}
+        </span>
+      </div>
+
+      {/* Initial payment label */}
+      {initialPayType === "delivery" && (
+        <div className="flex items-center gap-1">
+          <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">প্রাথমিক:</span>
+          <span className="text-blue-600 font-black text-[10px]">৳{initialPayAmt.toLocaleString()} ডেলিভারি</span>
+        </div>
+      )}
+      {initialPayType === "full" && (
+        <div className="flex items-center gap-1">
+          <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">প্রাথমিক:</span>
+          <span className="text-emerald-600 font-black text-[10px]">৳{initialPayAmt.toLocaleString()} ফুল</span>
+        </div>
+      )}
+      {initialPayType === "cod" && (
+        <div className="flex items-center gap-1">
+          <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">প্রাথমিক:</span>
+          <span className="text-slate-500 font-black text-[10px]">COD (৳0)</span>
+        </div>
+      )}
+
+      {/* COD due */}
+      {order.amount_due > 0 && (
+        <p className="text-amber-600 text-[10px] font-bold">
+          ৳{order.amount_due.toLocaleString()} বাকি
+        </p>
+      )}
+    </div>
+  );
+};
+
+/* ── Products list helper ── */
+const ProductsList = ({ products, compact = false }) => {
+  if (!products || products.length === 0) return <span className="text-slate-400">—</span>;
+  return (
+    <div className="flex flex-col gap-1">
+      {products.map((p, i) => (
+        <div key={i} className="flex items-center gap-1.5">
+          <span className="text-[10px] font-bold text-slate-700 line-clamp-1 max-w-[120px]" title={p.name}>
+            {p.name}
+          </span>
+          <span className="text-[9px] text-slate-400 font-medium flex-shrink-0">
+            ×{p.quantity || 1}
+          </span>
+          {(p.sellingPrice || p.price) > 0 && (
+            <span className="text-[9px] font-black text-emerald-600 flex-shrink-0">
+              ৳{((p.sellingPrice || p.price) * (p.quantity || 1)).toLocaleString()}
+            </span>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+};
+
+
 const OrderList = () => {
   const { orders = [], loading, error } = useMyOrders();
   const [filter, setFilter] = useState("all");
@@ -279,22 +383,28 @@ const OrderList = () => {
                       <thead>
                         <tr className="border-b border-slate-100 bg-slate-50">
                           <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
-                            Order
+                            অর্ডার
                           </th>
                           <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
-                            Customer
+                            পণ্য সমূহ
                           </th>
                           <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
-                            Date
+                            গ্রাহক
+                          </th>
+                          <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
+                            তারিখ
                           </th>
                           <th className="px-6 py-4 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">
-                            Status
+                            স্ট্যাটাস
+                          </th>
+                          <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
+                            পেমেন্ট
                           </th>
                           <th className="px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">
-                            Cost
+                            ক্রয় মূল্য
                           </th>
                           <th className="px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">
-                            Sell
+                            বিক্রয় মূল্য
                           </th>
                           {currentOrders.some((o) =>
                             o.products?.some(
@@ -304,11 +414,11 @@ const OrderList = () => {
                             ),
                           ) && (
                             <th className="px-6 py-4 text-right text-xs font-bold text-emerald-600 uppercase tracking-wider">
-                              Profit
+                              লাভ
                             </th>
                           )}
                           <th className="px-6 py-4 w-28 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">
-                            Actions
+                            বিস্তারিত
                           </th>
                         </tr>
                       </thead>
@@ -334,7 +444,7 @@ const OrderList = () => {
                               Number(p.sellingPrice || p.price || 0) *
                                 (p.quantity || 1),
                             0,
-                          );
+                          ) - (order.couponDiscount || 0);
                           const totalProfit = totalSell - totalCost;
                           const isDS = order.products?.some(
                             (p) =>
@@ -364,9 +474,10 @@ const OrderList = () => {
                               key={order._id}
                               className="hover:bg-slate-50 transition-colors group"
                             >
+                              {/* Order ID + thumbnail */}
                               <td className="px-6 py-4">
-                                <div className="flex items-center gap-3 min-w-[220px]">
-                                  <div className="flex items-center justify-center w-10 h-10 rounded-2xl overflow-hidden border border-slate-100">
+                                <div className="flex items-center gap-3 min-w-[140px]">
+                                  <div className="flex items-center justify-center w-10 h-10 rounded-2xl overflow-hidden border border-slate-100 flex-shrink-0">
                                     <Image
                                       src={productImg}
                                       alt={firstProduct?.name}
@@ -375,40 +486,55 @@ const OrderList = () => {
                                       className="w-full h-full object-cover"
                                     />
                                   </div>
-                                  <div>
-                                    <p className="font-mono text-xs text-slate-400">
-                                      #{orderIdDisplay}
-                                    </p>
-                                    <p className="font-semibold text-sm text-slate-900 line-clamp-1">
-                                      {firstProduct?.name}
-                                      {(order.products?.length || 0) > 1 &&
-                                        ` +${order.products.length - 1}`}
-                                    </p>
-                                  </div>
+                                  <p className="font-mono text-xs text-slate-500">
+                                    #{orderIdDisplay}
+                                  </p>
                                 </div>
                               </td>
+
+                              {/* Products list with qty × selling price */}
+                              <td className="px-6 py-4 min-w-[200px]">
+                                <ProductsList products={order.products} />
+                              </td>
+
+                              {/* Customer */}
                               <td className="px-6 py-4">
-                                <div className="space-y-2 min-w-[170px]">
-                                  <p className="font-medium text-slate-800">
+                                <div className="space-y-1 min-w-[140px]">
+                                  <p className="font-medium text-slate-800 text-sm">
                                     {addr.customer_name || "Unknown"}
                                   </p>
-                                  <p className="text-xs text-slate-500">
+                                  <p className="text-xs text-slate-400">
                                     {addr.mobile}
                                   </p>
                                 </div>
                               </td>
-                              <td className="px-6 py-4 text-sm text-slate-600 text-nowrap">
+
+                              {/* Date */}
+                              <td className="px-6 py-4 text-xs text-slate-600 text-nowrap">
                                 {dateStr}
                               </td>
+
+                              {/* Status */}
                               <td className="px-6 py-4">
                                 <StatusBadge status={order.order_status} />
                               </td>
-                              <td className="px-6 py-4 text-right font-medium text-slate-600">
+
+                              {/* Payment */}
+                              <td className="px-6 py-4 border-l border-slate-100/50">
+                                <PaymentInfo order={order} />
+                              </td>
+
+                              {/* Cost */}
+                              <td className="px-6 py-4 text-right font-medium text-slate-600 text-sm">
                                 ৳{totalCost.toLocaleString()}
                               </td>
-                              <td className="px-6 py-4 text-right font-semibold text-slate-900">
+
+                              {/* Sell */}
+                              <td className="px-6 py-4 text-right font-semibold text-slate-900 text-sm">
                                 ৳{totalSell.toLocaleString()}
                               </td>
+
+                              {/* Profit (DS only) */}
                               {isDS && (
                                 <td className="px-6 py-4 text-right">
                                   <div className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-3 py-1 rounded-xl font-bold text-sm">
@@ -417,12 +543,14 @@ const OrderList = () => {
                                   </div>
                                 </td>
                               )}
+
+                              {/* Actions */}
                               <td className="px-6 py-4 text-right">
                                 <Link
                                   href={`/order-details/${order._id}`}
                                   className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white border border-slate-200 hover:border-emerald-600 hover:text-emerald-700 transition-all text-sm font-semibold"
                                 >
-                                  Details
+                                  বিস্তারিত
                                 </Link>
                               </td>
                             </tr>
@@ -518,7 +646,7 @@ const OrderList = () => {
                         {/* Content Section */}
                         <div className="p-3 sm:p-5">
                           {/* Product Name */}
-                          <h3 className="font-bold text-slate-900 text-base sm:text-[17px] leading-tight line-clamp-1 sm:mb-4">
+                          <h3 className="font-bold text-slate-900 text-base sm:text-[17px] leading-tight line-clamp-1 mb-2">
                             {firstProduct?.name}
                             {(order.products?.length || 0) > 1 && (
                               <span className="text-emerald-500">
@@ -528,52 +656,77 @@ const OrderList = () => {
                             )}
                           </h3>
 
+                          {/* Products with selling prices */}
+                          <div className="mb-3 space-y-1">
+                            {(order.products || []).map((p, i) => (
+                              <div
+                                key={i}
+                                className="flex items-center justify-between text-[10px]"
+                              >
+                                <span className="text-slate-600 font-medium line-clamp-1 max-w-[60%]">
+                                  {p.name}
+                                </span>
+                                <span className="text-emerald-600 font-black">
+                                  {p.quantity || 1}×৳
+                                  {(
+                                    p.sellingPrice ||
+                                    p.price ||
+                                    0
+                                  ).toLocaleString()}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+
                           {/* Customer & Date Info */}
-                          <div className="space-y-2.5 mb-5 text-sm hidden sm:block">
+                          <div className="space-y-2 mb-3 text-sm hidden sm:block">
                             <div className="flex items-center gap-3 text-slate-700">
                               <User className="w-4 h-4 text-slate-400" />
                               <span className="font-medium line-clamp-1">
                                 {addr.customer_name || "Unknown Customer"}
                               </span>
                             </div>
-
                             <div className="flex items-center gap-3 text-slate-600">
                               <Phone className="w-4 h-4 text-slate-400" />
                               <span>{addr.mobile || "No number"}</span>
                             </div>
-
                             <div className="flex items-center gap-3 text-slate-500">
                               <Calendar className="w-4 h-4 text-slate-400" />
                               <span className="text-xs">{dateStr}</span>
                             </div>
                           </div>
 
-                          {/* Financial Summary - Compact */}
-                          <div className="space-y-2.5 py-4 sm:border-t border-slate-100">
-                            <div className="flex items-center justify-between gap-1">
-                              <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
-                                Cost:
+                          <div className="py-2 border-t border-slate-100/80">
+                            <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1.5">
+                              পেমেন্ট বিবরণ:
+                            </p>
+                            <PaymentInfo order={order} />
+                          </div>
+
+                          {/* Financial Summary */}
+                          <div className="space-y-2 py-3 border-t border-slate-100">
+                            <div className="flex items-center justify-between">
+                              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                ক্রয় মূল্য:
                               </p>
-                              <p className="text-sm sm:text-base font-semibold text-slate-900 mt-1">
+                              <p className="text-sm font-semibold text-slate-700">
                                 ৳{totalCost.toLocaleString()}
                               </p>
                             </div>
-
-                            <div className="flex items-center justify-between gap-1">
-                              <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
-                                {isDS ? "Sell:" : "Total:"}
+                            <div className="flex items-center justify-between">
+                              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                {isDS ? "বিক্রয় মূল্য:" : "মোট:"}
                               </p>
-                              <p className="text-sm sm:text-base font-semibold text-slate-900 mt-1">
+                              <p className="text-sm font-semibold text-slate-900">
                                 ৳{totalSell.toLocaleString()}
                               </p>
                             </div>
-
                             {isDS && (
-                              <div className="flex items-center justify-between gap-1">
-                                <p className="text-xs font-bold uppercase tracking-widest text-emerald-600">
-                                  Profit:
+                              <div className="flex items-center justify-between bg-emerald-50 rounded-xl px-2 py-1">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700">
+                                  লাভ:
                                 </p>
-                                <p className="text-sm sm:text-base font-semibold text-emerald-700 flex items-center justify-center gap-1 mt-1">
+                                <p className="text-sm font-black text-emerald-700">
                                   ৳{totalProfit.toLocaleString()}
                                 </p>
                               </div>

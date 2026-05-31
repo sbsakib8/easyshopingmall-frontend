@@ -45,7 +45,7 @@ const AboutPage = () => {
   ];
 
   return (
-    <section className="min-h-dvh lg:mt-12 py-5 bg-bg">
+    <section className="min-h-dvh py-5 md:pt-32 lg:pt-18 bg-bg">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0"></div>

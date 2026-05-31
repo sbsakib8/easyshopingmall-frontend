@@ -7,7 +7,7 @@ export const metadata = {
 
 export default function PaymentRequestPage() {
     return (
-        <div className="pt-24 min-h-screen bg-slate-50/50">
+        <div className="pt-2 min-h-screen bg-slate-50/50">
             <PaymentRequestForm />
         </div>
     );
