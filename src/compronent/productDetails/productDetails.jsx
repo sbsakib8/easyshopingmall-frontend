@@ -6,13 +6,16 @@ import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { addToCartApi, getCartApi } from "@/src/hook/useCart";
 import { getProductDetailsApi } from "@/src/hook/useProductDetails";
+import { getProductCouponsApi } from "@/src/hook/useProductCoupons";
 import { getApprovedReviews, submitReview } from "@/src/hook/useReview";
 import { decreaseProductQuantity, increaseProductQuantity } from "@/src/hook/useUpdateProduct";
 import { addToWishlistApi, removeFromWishlistApi } from "@/src/hook/useWishlist";
 import { useGetProduct } from "@/src/utlis/userProduct";
+import { dsCartAdd } from "@/src/redux/dropshippingCartSlice";
 import ReactPlayer from 'react-player'
 import {
   ChevronRight,
+  Download,
   Heart,
   Loader,
   Minus,
@@ -99,6 +102,14 @@ const ProductDetails = ({ initialProduct }) => {
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("description");
   const [showShareModal, setShowShareModal] = useState(false);
+  const [descCopied, setDescCopied] = useState(false);
+  const [couponCopied, setCouponCopied] = useState(null);
+  const [productCoupons, setProductCoupons] = useState([]);
+  const [couponsLoading, setCouponsLoading] = useState(false);
+  const [downloadingImage, setDownloadingImage] = useState(null);
+  const [downloadingAll, setDownloadingAll] = useState(false);
+
+  const isDropshipping = user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING");
 
   //review
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -183,6 +194,68 @@ const ProductDetails = ({ initialProduct }) => {
     // Clear previous errors when mounting new ID
     dispatch(clearDetailsError());
   }, [params?.id, dispatch]);
+
+  // Fetch coupons applicable to this product for dropshipping users
+  useEffect(() => {
+    if (!isDropshipping || !params?.id) return;
+    const fetchCoupons = async () => {
+      setCouponsLoading(true);
+      try {
+        const coupons = await getProductCouponsApi(params.id);
+        setProductCoupons(coupons);
+      } catch (err) {
+        console.error("Product coupons fetch error:", err);
+      } finally {
+        setCouponsLoading(false);
+      }
+    };
+    fetchCoupons();
+  }, [params?.id, isDropshipping]);
+
+  // Download a single image
+  const handleDownloadImage = async (imageUrl, index) => {
+    try {
+      setDownloadingImage(index);
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const ext = imageUrl.split('.').pop()?.split('?')[0] || 'jpg';
+      link.download = `${product?.name || 'product'}_image_${index + 1}.${ext}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      toast.success(`Image ${index + 1} downloaded!`);
+    } catch (err) {
+      console.error('Download error:', err);
+      toast.error('Failed to download image');
+    } finally {
+      setDownloadingImage(null);
+    }
+  };
+
+  // Download all images
+  const handleDownloadAllImages = async () => {
+    if (!product?.images?.length) return;
+    setDownloadingAll(true);
+    try {
+      for (let i = 0; i < product.images.length; i++) {
+        await handleDownloadImage(product.images[i], i);
+        // Small delay between downloads to avoid browser blocking
+        if (i < product.images.length - 1) {
+          await new Promise(r => setTimeout(r, 500));
+        }
+      }
+      toast.success(`All ${product.images.length} images downloaded!`);
+    } catch (err) {
+      console.error('Download all error:', err);
+      toast.error('Failed to download some images');
+    } finally {
+      setDownloadingAll(false);
+    }
+  };
 
 
   // Fetch product details
@@ -337,27 +410,47 @@ const ProductDetails = ({ initialProduct }) => {
     }
 
     try {
-      await addToCartApi(
-        {
-          userId: user._id,
-          productId: product.id,
+      if (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) {
+        // Dropshipping Cart (Local)
+        dispatch(dsCartAdd({
+          productId: {
+            _id: product.id,
+            productName: product.name,
+            images: product.images,
+          },
           quantity,
           price: product.price,
-
-          // ✅ IMPORTANT
+          sellingPrice: product.price, // Default to cost
           size: selectedSize,
           color: selectedColor,
           weight: product.weight || null,
-        },
-        dispatch
-      );
+        }));
+        
+        toast.success(`${product.name} added to sourcing cart`);
+        router.push("/dropshipping-addtocart");
+      } else {
+        // Normal Cart (API)
+        await addToCartApi(
+          {
+            userId: user._id,
+            productId: product.id,
+            quantity,
+            price: product.price,
+            size: selectedSize,
+            color: selectedColor,
+            weight: product.weight || null,
+          },
+          dispatch
+        );
 
-      toast.success(`${product.name} added to cart`);
-      await getCartApi(user._id, dispatch);
+        toast.success(`${product.name} added to cart`);
+        await getCartApi(user._id, dispatch);
+      }
     } catch (err) {
       console.error("Add to cart error:", err);
       toast.error("Failed to add to cart");
     }
+
   };
 
   const handleWishlist = async () => {
@@ -476,8 +569,47 @@ const ProductDetails = ({ initialProduct }) => {
               >
                 <Heart className={`w-5 h-5 ${isWishlisted ? "fill-current" : ""}`} />
               </button>
+              {/* Download current image button (dropshipping only) */}
+              {isDropshipping && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDownloadImage(product?.images?.[selectedImage], selectedImage);
+                  }}
+                  disabled={downloadingImage === selectedImage}
+                  className="absolute bottom-4 right-4 p-2.5 rounded-xl bg-white/90 backdrop-blur-sm text-gray-700 hover:bg-emerald-500 hover:text-white transition-all duration-300 shadow-lg hover:shadow-emerald-300 cursor-pointer"
+                  title="Download this image"
+                >
+                  {downloadingImage === selectedImage ? (
+                    <Loader className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <Download className="w-5 h-5" />
+                  )}
+                </button>
+              )}
             </div>
             {/* details video section  */}
+
+            {/* Download All Images Button (dropshipping only) */}
+            {isDropshipping && product?.images?.length > 1 && (
+              <button
+                onClick={handleDownloadAllImages}
+                disabled={downloadingAll}
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-semibold text-sm hover:from-emerald-600 hover:to-teal-700 transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 cursor-pointer"
+              >
+                {downloadingAll ? (
+                  <>
+                    <Loader className="w-4 h-4 animate-spin" />
+                    <span>Downloading all images...</span>
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4" />
+                    <span>Download All Images ({product.images.length})</span>
+                  </>
+                )}
+              </button>
+            )}
 
             <div className='flex gap-3'>
               <div className={`relative overflow-hidden rounded-lg transition-all duration-300 `}>
@@ -514,20 +646,39 @@ const ProductDetails = ({ initialProduct }) => {
               {/* Thumbnail Images */}
               <div className="grid grid-cols-4 gap-3">
                 {(product?.images || []).map((image, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedImage(index)}
-                    className={`relative overflow-hidden rounded-lg transition-all duration-300 ${selectedImage === index
-                      ? "ring-4 ring-blue-500 shadow-lg scale-105"
-                      : "hover:scale-105 hover:shadow-md"
-                      }`}
-                  >
-                    <img
-                      src={image}
-                      alt={`${product.name} ${index + 1}`}
-                      className="w-full h-20 object-cover"
-                    />
-                  </button>
+                  <div key={index} className="relative group/thumb">
+                    <button
+                      onClick={() => setSelectedImage(index)}
+                      className={`relative overflow-hidden rounded-lg transition-all duration-300 w-full ${selectedImage === index
+                        ? "ring-4 ring-blue-500 shadow-lg scale-105"
+                        : "hover:scale-105 hover:shadow-md"
+                        }`}
+                    >
+                      <img
+                        src={image}
+                        alt={`${product.name} ${index + 1}`}
+                        className="w-full h-20 object-cover"
+                      />
+                    </button>
+                    {/* Individual download button on thumbnail (dropshipping only) */}
+                    {isDropshipping && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDownloadImage(image, index);
+                        }}
+                        disabled={downloadingImage === index}
+                        className="absolute -top-1 -right-1 p-1 rounded-full bg-emerald-500 text-white opacity-0 group-hover/thumb:opacity-100 transition-opacity duration-200 shadow-md hover:bg-emerald-600 cursor-pointer z-10"
+                        title={`Download image ${index + 1}`}
+                      >
+                        {downloadingImage === index ? (
+                          <Loader className="w-3 h-3 animate-spin" />
+                        ) : (
+                          <Download className="w-3 h-3" />
+                        )}
+                      </button>
+                    )}
+                  </div>
                 ))}
               </div>
             </div>
@@ -591,7 +742,7 @@ const ProductDetails = ({ initialProduct }) => {
               </span>
 
               <div>
-                {product?.rank > product?.price && user?.role !== "DROPSHIPPING" && (
+                {(product?.rank > product?.price && user?.role !== "DROPSHIPPING" && !user?.roles?.includes("DROPSHIPPING")) && (
                   <>
                     <p className="bg-secondary text-white px-3 py-1 rounded-full text-sm font-semibold">
                       Save ৳{(product?.rank - product?.price)?.toFixed(0) || 0}
@@ -599,7 +750,7 @@ const ProductDetails = ({ initialProduct }) => {
                   </>
                 )}
                 {
-                  user?.role !== "DROPSHIPPING" ? <del className="text-2xl font-bold bg-gradient-to-r from-gray-400 to-gray-500 bg-clip-text text-transparent">
+                  (user?.role !== "DROPSHIPPING" && !user?.roles?.includes("DROPSHIPPING")) ? <del className="text-2xl font-bold bg-gradient-to-r from-gray-400 to-gray-500 bg-clip-text text-transparent">
                     Rs {product?.rank}
                   </del> : ""
                 }
@@ -609,7 +760,7 @@ const ProductDetails = ({ initialProduct }) => {
             </div >
             {/* Market Price */}
             {
-              user?.role === "DROPSHIPPING" && <p className="text-2xl font-bold text-gray-500 ">
+              (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) && <p className="text-2xl font-bold text-gray-500 ">
                 <span className='text-xl text-accent'> Market Price:</span> {product?.rank}৳
               </p>
             }
@@ -707,19 +858,7 @@ const ProductDetails = ({ initialProduct }) => {
               </div>
             </div>
 
-            {/* dropShipping price  */}
-            {
-              user?.role === "DROPSHIPPING" && <div >
-                <label className="text-accen font-medium">আপনার বিক্রয়কৃত মূল্য</label>
-                <input
-                  type="number"
-                  onChange={(e) => setDropShippingPrice(e.target.value)}
-                  className="w-full p-4 bg-white/10  rounded-xl text-accent placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 border border-gray-300 focus:border-transparent transition-all duration-300 mt-2"
-                  placeholder="0৳"
-                  required
-                />
-              </div>
-            }
+
 
             {/* Action Buttons */}
             <div className="space-y-4">
@@ -728,7 +867,9 @@ const ProductDetails = ({ initialProduct }) => {
                 disabled={product?.stock === 0}
                 className={`w-full py-4 rounded-xl font-semibold text-lg flex items-center justify-center space-x-2 transition-all duration-300 ${product?.stock === 0
                   ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                  : "bg-btn-color text-accent-content hover:shadow-lg hover:scale-102 cursor-pointer"
+                  : (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING"))
+                    ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:shadow-lg hover:shadow-emerald-500/20 transform hover:-translate-y-0.5 cursor-pointer"
+                    : "bg-btn-color text-accent-content hover:shadow-lg hover:scale-102 cursor-pointer"
                   }`}
               >
                 <ShoppingCart className="w-5 h-5 " />
@@ -741,12 +882,18 @@ const ProductDetails = ({ initialProduct }) => {
                     setLoading(true)
                     await handleAddToCart()
                     setLoading(false)
-                    router.push("/checkout")
+                    if (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) {
+                      router.push("/dropshipping-checkout")
+                    } else {
+                      router.push("/checkout")
+                    }
                   }}
 
                   className={`w-full py-4 rounded-xl font-semibold text-lg flex items-center justify-center space-x-2 transition-all duration-300 ${product?.stock === 0
                     ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                    : "bg-btn-color text-white hover:shadow-lg hover:scale-102 cursor-pointer"
+                    : (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING"))
+                      ? "bg-gradient-to-r from-teal-600 to-emerald-600 text-white hover:shadow-lg hover:shadow-teal-500/20 transform hover:-translate-y-0.5 cursor-pointer"
+                      : "bg-btn-color text-white hover:shadow-lg hover:scale-102 cursor-pointer"
                     }`}>
                   <Zap className={`w-5 h-5 ${loading ? 'animate-spin' : ''} `} />
                   <span>Buy Now</span>
@@ -769,7 +916,7 @@ const ProductDetails = ({ initialProduct }) => {
 
             {/* Features */}
             {
-              user?.role !== "DROPSHIPPING" && <div className="shadow-xl p-6 rounded-xl">
+              (user?.role !== "DROPSHIPPING" && !user?.roles?.includes("DROPSHIPPING")) && <div className="shadow-xl p-6 rounded-xl">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="flex flex-col items-center text-center space-y-2">
                     <Truck className="w-8 h-8 text-blue-500" />
@@ -799,11 +946,11 @@ const ProductDetails = ({ initialProduct }) => {
         < div className="" >
           <div className="border-b border-gray-200">
             <nav className="flex space-x-8">
-              {["description", "specifications", "reviews"].map((tab) => (
+              {["description", "specifications", "reviews", "coupon information"].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`py-4 ${user?.role === "DROPSHIPPING" && tab === "reviews" ? "hidden" : ''} px-1 border-b-2 font-medium text-sm capitalize transition-all duration-300 ${activeTab === tab
+                  className={`py-4 ${(user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) && tab === "reviews" ? "hidden" : ''} ${(user?.role !== "DROPSHIPPING" && !user?.roles?.includes("DROPSHIPPING")) && tab === "coupon information" ? "hidden" : ''} px-1 border-b-2 font-medium text-sm capitalize transition-all duration-300 ${activeTab === tab
                     ? "border-blue-500 text-blue-600"
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                     }`}
@@ -816,39 +963,88 @@ const ProductDetails = ({ initialProduct }) => {
 
           <div className="mt-2">
             {activeTab === "description" && (
-              <div className="prose max-w-none">
-                <p className="text-gray-600 text-lg leading-relaxed mb-6 break-words overflow-wrap-anywhere whitespace-pre-line">
-                  {product?.description || "No description available"}
-                </p>
+              <div className="space-y-6 mt-4">
+                {/* Description Card */}
+                <div className="relative bg-gradient-to-br from-slate-50 to-blue-50 border border-blue-100 rounded-2xl p-6 shadow-sm">
+                  {/* Card Header */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-1 h-6 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full"></div>
+                      <h4 className="text-lg font-bold text-gray-800">Product Description</h4>
+                    </div>
+                    {/* Copy Description Button */}
+                    {product?.description && (
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(product.description);
+                          setDescCopied(true);
+                          toast.success("Description copied!");
+                          setTimeout(() => setDescCopied(false), 2000);
+                        }}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 border ${
+                          descCopied
+                            ? "bg-green-500 text-white border-green-500 scale-95 shadow-md"
+                            : "bg-white text-blue-600 border-blue-200 hover:bg-blue-50 hover:border-blue-400 hover:shadow-md"
+                        }`}
+                      >
+                        {descCopied ? (
+                          <>
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
+                            Copied!
+                          </>
+                        ) : (
+                          <>
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                            Copy Description
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                  {/* Description Text */}
+                  <div className="bg-white/70 rounded-xl p-4 border border-blue-100/60">
+                    <p className="text-gray-700 text-base leading-relaxed break-words whitespace-pre-line">
+                      {product?.description || "No description available"}
+                    </p>
+                  </div>
+                </div>
 
+                {/* Key Features Card */}
                 {product?.features?.length > 0 && (
-                  <>
-                    <h4 className="text-xl font-semibold mb-4">Key Features:</h4>
-                    <ul className="grid grid-cols-2 gap-2 mb-6">
+                  <div className="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-100 rounded-2xl p-6 shadow-sm">
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="w-1 h-6 bg-gradient-to-b from-purple-500 to-pink-500 rounded-full"></div>
+                      <h4 className="text-lg font-bold text-gray-800">Key Features</h4>
+                    </div>
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {product.features.map((feature, index) => (
-                        <li key={index} className="flex items-center space-x-2">
-                          <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
-                          <span>{feature}</span>
+                        <li key={index} className="flex items-start gap-3 bg-white/70 rounded-xl px-4 py-3 border border-purple-100/60">
+                          <div className="w-2 h-2 mt-2 flex-shrink-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
+                          <span className="text-gray-700 text-sm leading-relaxed">{feature}</span>
                         </li>
                       ))}
                     </ul>
-                  </>
+                  </div>
                 )}
 
+                {/* Tags Card */}
                 {product?.tags?.length > 0 && (
-                  <>
-                    <h4 className="text-xl font-semibold mb-4">Tags:</h4>
+                  <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100 rounded-2xl p-6 shadow-sm">
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="w-1 h-6 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-full"></div>
+                      <h4 className="text-lg font-bold text-gray-800">Tags</h4>
+                    </div>
                     <div className="flex flex-wrap gap-2">
                       {product.tags.map((tag, index) => (
                         <span
                           key={index}
-                          className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium"
+                          className="bg-white border border-emerald-200 text-emerald-700 px-3 py-1.5 rounded-full text-sm font-semibold shadow-sm hover:bg-emerald-50 transition-colors"
                         >
                           #{tag}
                         </span>
                       ))}
                     </div>
-                  </>
+                  </div>
                 )}
               </div>
             )}
@@ -925,7 +1121,178 @@ const ProductDetails = ({ initialProduct }) => {
               </div>
             )}
             { }
-            {activeTab === "reviews" && user?.role !== "DROPSHIPPING" && (
+            {activeTab === "coupon information" && isDropshipping && (
+              <div className="py-6 px-2">
+                {/* Section Header */}
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-md">
+                    <span className="text-xl">🎟️</span>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">Exclusive Dropshipping Coupons</h3>
+                    <p className="text-sm text-gray-500">Use these codes at checkout to save more</p>
+                  </div>
+                </div>
+
+                {couponsLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader className="w-8 h-8 animate-spin text-purple-500" />
+                    <span className="ml-3 text-gray-500 font-medium">Loading coupons...</span>
+                  </div>
+                ) : productCoupons.length > 0 ? (
+                  <div className="space-y-5">
+                    {productCoupons.map((coupon, idx) => (
+                      <div key={coupon._id || idx} className="relative overflow-hidden">
+                        {/* Coupon Card */}
+                        <div className="relative bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 rounded-2xl shadow-xl p-1">
+                          <div className="bg-white rounded-xl overflow-hidden">
+                            {/* Top section - gradient banner */}
+                            <div className="bg-gradient-to-r from-violet-500 via-purple-500 to-indigo-600 px-6 py-4 flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                                  <span className="text-lg">🏷️</span>
+                                </div>
+                                <span className="text-white font-bold text-lg tracking-wide">COUPON CODE</span>
+                              </div>
+                              {coupon.isActive && (
+                                <span className="bg-green-400 text-white text-xs font-bold px-3 py-1 rounded-full animate-pulse">ACTIVE</span>
+                              )}
+                            </div>
+
+                            {/* Dashed divider with circles */}
+                            <div className="relative flex items-center px-4 py-0">
+                              <div className="w-5 h-5 rounded-full bg-gradient-to-br from-violet-600 to-indigo-700 -ml-6"></div>
+                              <div className="flex-1 border-t-2 border-dashed border-purple-200 mx-2"></div>
+                              <div className="w-5 h-5 rounded-full bg-gradient-to-br from-violet-600 to-indigo-700 -mr-6"></div>
+                            </div>
+
+                            {/* Code + Copy section */}
+                            <div className="px-6 py-5">
+                              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Your Coupon Code</p>
+                              <div className="flex items-center gap-3">
+                                <div className="flex-1 bg-gradient-to-r from-violet-50 to-purple-50 border-2 border-dashed border-purple-300 rounded-xl px-5 py-3">
+                                  <span className="text-2xl font-black tracking-widest text-purple-700 font-mono">{coupon.code}</span>
+                                </div>
+                                <button
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(coupon.code);
+                                    setCouponCopied(coupon.code);
+                                    toast.success("Coupon code copied!");
+                                    setTimeout(() => setCouponCopied(null), 2500);
+                                  }}
+                                  className={`flex-shrink-0 flex flex-col items-center justify-center gap-1 px-5 py-3 rounded-xl font-bold text-sm transition-all duration-300 shadow-md ${
+                                    couponCopied === coupon.code
+                                      ? "bg-green-500 text-white scale-95 shadow-green-300"
+                                      : "bg-gradient-to-r from-violet-500 to-purple-600 text-white hover:from-violet-600 hover:to-purple-700 hover:shadow-purple-300 hover:-translate-y-0.5"
+                                  }`}
+                                >
+                                  {couponCopied === coupon.code ? (
+                                    <>
+                                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
+                                      Copied!
+                                    </>
+                                  ) : (
+                                    <>
+                                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                      Copy
+                                    </>
+                                  )}
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Dashed divider with circles */}
+                            <div className="relative flex items-center px-4 py-0">
+                              <div className="w-5 h-5 rounded-full bg-gradient-to-br from-violet-600 to-indigo-700 -ml-6"></div>
+                              <div className="flex-1 border-t-2 border-dashed border-purple-200 mx-2"></div>
+                              <div className="w-5 h-5 rounded-full bg-gradient-to-br from-violet-600 to-indigo-700 -mr-6"></div>
+                            </div>
+
+                            {/* Coupon Details Grid */}
+                            <div className="px-6 py-5 grid grid-cols-2 gap-4">
+                              {/* Discount */}
+                              <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100 rounded-xl p-4">
+                                <p className="text-xs font-semibold text-emerald-600 uppercase tracking-wider mb-1">Discount</p>
+                                <p className="text-xl font-black text-emerald-700">
+                                  {coupon.discountType === "percentage"
+                                    ? `${coupon.discountAmount}%`
+                                    : `৳${coupon.discountAmount}`}
+                                </p>
+                                <p className="text-xs text-emerald-500 mt-0.5 capitalize">{coupon.discountType} discount</p>
+                                {coupon.discountType === "percentage" && coupon.maxDiscountAmount > 0 && (
+                                  <p className="text-xs text-emerald-400 mt-0.5">Max ৳{coupon.maxDiscountAmount}</p>
+                                )}
+                              </div>
+
+                              {/* Min Order */}
+                              <div className="bg-gradient-to-br from-blue-50 to-sky-50 border border-blue-100 rounded-xl p-4">
+                                <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-1">Min. Order</p>
+                                <p className="text-xl font-black text-blue-700">
+                                  {coupon.minOrderAmount > 0 ? `৳${coupon.minOrderAmount}` : "No Minimum"}
+                                </p>
+                                <p className="text-xs text-blue-500 mt-0.5">required to apply</p>
+                              </div>
+
+                              {/* Valid Until */}
+                              <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100 rounded-xl p-4">
+                                <p className="text-xs font-semibold text-amber-600 uppercase tracking-wider mb-1">Valid Until</p>
+                                <p className="text-base font-bold text-amber-700">
+                                  {new Date(coupon.validUntil).toLocaleDateString("en-BD", { day: "numeric", month: "short", year: "numeric" })}
+                                </p>
+                                <p className="text-xs text-amber-500 mt-0.5">expiry date</p>
+                              </div>
+
+                              {/* Usage Limit */}
+                              <div className="bg-gradient-to-br from-rose-50 to-pink-50 border border-rose-100 rounded-xl p-4">
+                                <p className="text-xs font-semibold text-rose-600 uppercase tracking-wider mb-1">Usage Limit</p>
+                                <p className="text-xl font-black text-rose-700">
+                                  {coupon.usageLimit === 0 ? "Unlimited" : `${coupon.usedCount || 0}/${coupon.usageLimit}`}
+                                </p>
+                                <p className="text-xs text-rose-500 mt-0.5">{coupon.usageLimit === 0 ? "unlimited uses" : "uses remaining"}</p>
+                              </div>
+                            </div>
+
+                            {/* Description if available */}
+                            {coupon.description && (
+                              <div className="px-6 pb-5">
+                                <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">About this coupon</p>
+                                  <p className="text-sm text-gray-700 leading-relaxed">{coupon.description}</p>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* How to use */}
+                            <div className="mx-6 mb-6 bg-gradient-to-r from-violet-50 to-purple-50 border border-purple-100 rounded-xl px-5 py-4">
+                              <div className="flex items-start gap-3">
+                                <span className="text-lg mt-0.5">💡</span>
+                                <div>
+                                  <p className="text-sm font-bold text-purple-800 mb-1">How to use</p>
+                                  <p className="text-xs text-purple-600 leading-relaxed">
+                                    Copy the coupon code above and paste it in the coupon field at checkout to get your discount.
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="bg-gradient-to-br from-gray-50 to-slate-50 border-2 border-dashed border-gray-200 p-10 rounded-2xl text-center">
+                    <div className="w-20 h-20 mx-auto bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mb-5 shadow-inner">
+                      <span className="text-4xl">🎟️</span>
+                    </div>
+                    <h4 className="text-gray-700 font-bold text-lg mb-2">No Active Coupons</h4>
+                    <p className="text-gray-500 text-sm">No active coupons for this product right now.</p>
+                    <p className="text-gray-400 text-xs mt-1">Check back later for special dropshipping offers.</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === "reviews" && (user?.role !== "DROPSHIPPING" && !user?.roles?.includes("DROPSHIPPING")) && (
 
               <div className="py-12 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
                 {/* Summary */}

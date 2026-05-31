@@ -1,12 +1,11 @@
-import CompletedOrdesPager from'@/src/dashboard/order/completedOrder';
-import React from'react';
+import CompletedOrdesPager from "@/src/dashboard/order/completedOrder";
 
-const completedorder = () => {
- return (
- <div>
- <CompletedOrdesPager/> 
- </div>
- );
+const CompletedOrders = () => {
+  return (
+    <>
+      <CompletedOrdesPager />
+    </>
+  );
 };
 
-export default completedorder;
+export default CompletedOrders;

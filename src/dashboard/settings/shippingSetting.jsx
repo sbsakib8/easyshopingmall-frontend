@@ -134,7 +134,7 @@ const ShippingSettings = () => {
 
  return (
  <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 md:p-6 overflow-hidden">
- <div className="lg:ml-10 lg:px-9">
+ <div className="lg:px-9">
  {/* Header */}
  <div className="mb-8">
  <div className="mb-8 animate-slideDown">

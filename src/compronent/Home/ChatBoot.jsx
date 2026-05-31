@@ -1,115 +1,145 @@
 "use client";
 
-import React, { useState } from "react";
-import { X, Send } from "lucide-react";
+import React, { useState, useRef, useEffect } from "react";
+import { X, Send, MessageCircle } from "lucide-react";
 import { FaWhatsapp, FaFacebookMessenger, FaRobot } from "react-icons/fa";
+import {
+  Fab,
+  Box,
+  Grow,
+  Paper,
+  ClickAwayListener,
+  Tooltip,
+  useTheme,
+  alpha,
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
 
 const ChatBoot = () => {
-  const [openAI, setOpenAI] = useState(false);
-  const [input, setInput] = useState("");
-  const [messages, setMessages] = useState([
-    { from: "ai", text: "👋 Hi! How can I help you today?" },
-  ]);
+  const [isOpen, setIsOpen] = useState(false);
+  const theme = useTheme();
 
-  const handleSend = () => {
-    if (!input.trim()) return;
-
-    const userMsg = { from: "user", text: input };
-    setMessages((prev) => [...prev, userMsg]);
-    setInput("");
-
-    // Dummy AI reply
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        { from: "ai", text: "🤖 Thanks for your message! I’ll reply soon." },
-      ]);
-    }, 800);
+  const handleToggle = () => {
+    setIsOpen((prev) => !prev);
   };
 
+  const handleClose = () => {
+    setIsOpen(false);
+  };
+
+  const chatOptions = [
+    {
+      name: "Messenger",
+      icon: <FaFacebookMessenger style={{ fontSize: "24px" }} />,
+      color: "#0084ff",
+      bgColor: "#e7f3ff",
+      href: "https://m.me/easyshoppingmall8",
+    },
+    {
+      name: "WhatsApp",
+      icon: <FaWhatsapp style={{ fontSize: "24px" }} />,
+      color: "#25D366",
+      bgColor: "#e8f5e9",
+      href: "https://wa.me/8801626420774",
+    },
+  ];
+
+  const ActionButton = styled(Fab)(({ theme }) => ({
+    background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+    color: "white",
+    width: 56,
+    height: 56,
+    "&:hover": {
+      background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
+      transform: "scale(1.05)",
+    },
+    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+  }));
+
   return (
-    <>
-      {/* Floating Icons */}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-4">
-        {/* Messenger */}
-        <a
-          href="https://m.me/easyshoppingmall8"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-14 h-14 flex items-center justify-center rounded-full
-          bg-white border-2 border-white shadow-lg hover:scale-110 transition-transform duration-300"
-        >
-          <FaFacebookMessenger className="text-blue-600 text-3xl" />
-        </a>
-
-        {/* WhatsApp */}
-        <a
-          href="https://wa.me/8801626420774"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-14 h-14 flex items-center justify-center rounded-full
-          bg-white border-2 border-white shadow-lg hover:scale-110 transition-transform duration-300"
-        >
-          <FaWhatsapp className="text-green-500 text-3xl" />
-        </a>
-
-        {/* AI Chat */}
-        <button
-          onClick={() => setOpenAI(true)}
-          className="w-14 h-14 flex items-center justify-center rounded-full
-          bg-white border-2 border-white shadow-lg hover:scale-110 transition-transform duration-300"
-        >
-          <FaRobot className="text-indigo-600 text-3xl" />
-        </button>
-      </div>
-
-      {/* AI Chat Box */}
-      {openAI && (
-        <div className="fixed bottom-24 right-6 w-80 h-96 bg-white rounded-2xl shadow-2xl
-        z-50 flex flex-col overflow-hidden">
-
-          {/* Header */}
-          <div className="bg-indigo-600 text-accent-content px-4 py-3 flex justify-between items-center">
-            <span className="font-semibold">AI Assistant</span>
-            <button onClick={() => setOpenAI(false)}>
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          {/* Messages */}
-          <div className="flex-1 p-3 space-y-2 overflow-y-auto text-sm">
-            {messages.map((msg, i) => (
-              <div
-                key={i}
-                className={`max-w-[75%] px-3 py-2 rounded-lg break-words ${msg.from === "user"
-                    ? "ml-auto bg-indigo-600 text-accent-content"
-                    : "bg-gray-100 text-gray-700"
-                  }`}
+    <ClickAwayListener onClickAway={handleClose}>
+      <Box
+      className="bottom-24! md:bottom-6!"
+        sx={{
+          position: "fixed",
+          right: 24,
+          zIndex: 1000,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-end",
+        }}
+      >
+        {/* Expanded Options */}
+        <Grow in={isOpen} timeout={300}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+              mb: 2,
+            }}
+          >
+            {chatOptions.map((option, index) => (
+              <Grow
+                key={option.name}
+                in={isOpen}
+                timeout={300 + index * 100}
+                style={{ transformOrigin: "bottom right" }}
               >
-                {msg.text}
-              </div>
+                <Tooltip
+                  title={option.name}
+                  placement="left"
+                  arrow
+                  enterDelay={300}
+                >
+                  <a
+                    href={option.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={handleClose}
+                  >
+                    <Paper
+                      elevation={4}
+                      sx={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: "50%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        bgcolor: option.bgColor,
+                        color: option.color,
+                        cursor: "pointer",
+                        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                        "&:hover": {
+                          transform: "scale(1.15) rotate(8deg)",
+                          boxShadow: theme.shadows[8],
+                        },
+                      }}
+                    >
+                      {option.icon}
+                    </Paper>
+                  </a>
+                </Tooltip>
+              </Grow>
             ))}
-          </div>
+          </Box>
+        </Grow>
 
-          {/* Input */}
-          <div className="p-3 border-t border-indigo-600 flex gap-2">
-            <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSend()}
-              placeholder="Type your message..."
-              className="flex-1 px-3 py-2 border border-indigo-600 rounded-lg text-sm focus:outline-none"
-            />
-            <button
-              onClick={handleSend}
-              className="bg-indigo-600 text-accent-content px-3 rounded-lg flex items-center justify-center"
-            >
-              <Send className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      )}
-    </>
+        {/* Main Action Button */}
+        <ActionButton
+          onClick={handleToggle}
+          sx={{
+            transform: isOpen ? "rotate(45deg)" : "rotate(0deg)",
+            transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+            boxShadow: isOpen ? theme.shadows[12] : theme.shadows[6],
+          }}
+          aria-label="chat options"
+        >
+          {isOpen ? <X size={24} /> : <MessageCircle size={24} />}
+        </ActionButton>
+      </Box>
+    </ClickAwayListener>
   );
 };
 

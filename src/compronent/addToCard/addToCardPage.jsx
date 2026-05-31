@@ -8,10 +8,12 @@ import toast from "react-hot-toast";
 import {
   AlertCircle,
   ArrowRight,
+  ChevronRight,
   Clock,
   CreditCard,
   Gift,
   Heart,
+  Home,
   MapPin,
   Minus,
   Percent,
@@ -40,6 +42,7 @@ const ShoppingCartComponent = () => {
   const { data: wishlistItems } = useSelector((state) => state?.wishlist?.data);
   const user = useSelector((state) => state.user.data);
   const router = useRouter();
+  const { items: dsItems = [] } = useSelector((state) => state.dropshippingCart);
   const [couponCode, setCouponCode] = useState('');
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
   const [showCouponInput, setShowCouponInput] = useState(false);
@@ -238,11 +241,10 @@ const ShoppingCartComponent = () => {
 
 
 const handleContinueShopping = () => {
-  if(user.role !=="DROPSHIPPING"){
-    router.push('/shop');
-  }
-  else{
+  if (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) {
     router.push('/all-products');
+  } else {
+    router.push('/shop');
   }
 }
 
@@ -250,9 +252,37 @@ const handleContinueShopping = () => {
     dispatch(clearCoupon());
   };
 
+  const handleCheckout = (e) => {
+    e.preventDefault();
+    if (isDS) {
+      if (dsItems.length === 0) {
+        toast.error("Your dropshipping cart is empty. Please add items to your DS cart first.");
+        router.push('/all-products');
+        return;
+      }
+
+      const hasInvalidPrice = dsItems.some(item =>
+        item.sellingPrice === "" || Number(item.sellingPrice) < item.price
+      );
+
+      if (hasInvalidPrice) {
+        toast.error("Selling price cannot be less than cost price in your dropshipping cart. Please fix it before checkout.");
+        router.push('/dropshipping-addtocart');
+        return;
+      }
+      router.push("/dropshipping-checkout");
+    } else {
+      if (cartItems.length === 0) {
+        toast.error("Your cart is empty");
+        return;
+      }
+      router.push("/checkout");
+    }
+  };
+
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const savings = cartItems.reduce((sum, item) => sum + ((item.originalPrice - item.price) * item.quantity), 0);
-  const shipping = subtotal > 2000 ? 0 : 100;
+  const shipping = 0; // Shipping calculated at checkout
 
   const total = subtotal - (couponDiscount || 0) + shipping;
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -330,28 +360,79 @@ const handleContinueShopping = () => {
     );
   }
 
+  const isDS = user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING");
+
   return (
     <div className="min-h-screen lg:pt-8 py-5 bg-bg">
-      {/* Header */}
-      <div className="bg-bg shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
+      {/* ── Breadcrumb ── */}
+      <div className="max-w-7xl mx-auto px-4 pt-4 pb-2">
+        <nav className="flex items-center gap-2 text-sm font-medium flex-wrap">
+          <Link
+            href="/"
+            className={`flex items-center gap-1 transition-colors ${isDS ? 'text-slate-400 hover:text-emerald-600' : 'text-gray-400 hover:text-teal-600'}`}
+          >
+            <Home className="w-3.5 h-3.5" />
+            Home
+          </Link>
+          <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
+          {isDS ? (
+            <>
+              <Link href="/all-products" className="text-slate-400 hover:text-emerald-600 transition-colors">Products</Link>
+              <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
+              <span className="text-emerald-600 font-bold">DS Cart</span>
+            </>
+          ) : (
+            <>
+              <Link href="/shop" className="text-gray-400 hover:text-teal-600 transition-colors">Shop</Link>
+              <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
+              <span className="text-teal-600 font-bold">Cart</span>
+            </>
+          )}
+        </nav>
+      </div>
+
+      {/* ── Header ── */}
+      <div className={`shadow-sm border-b ${isDS ? 'bg-white border-emerald-50' : 'bg-bg'}`}>
+        <div className="max-w-7xl mx-auto px-4 py-5">
+          <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-                <ShoppingCart className="w-8 h-8 mr-3 text-teal-600" />
-                Shopping Cart
+              <h1 className={`text-2xl font-bold flex items-center gap-3 ${ isDS ? 'text-gray-900' : 'text-gray-900'}`}>
+                {isDS ? (
+                  <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center flex-shrink-0">
+                    <ShoppingCart className="w-5 h-5 text-white" />
+                  </span>
+                ) : (
+                  <ShoppingCart className="w-8 h-8 text-teal-600" />
+                )}
+                {isDS ? 'Dropshipping Cart' : 'Shopping Cart'}
               </h1>
-              <p className="text-gray-600 mt-1">{totalItems} items in your cart</p>
+              <p className={`mt-1 text-sm ${isDS ? 'text-slate-500' : 'text-gray-600'}`}>
+                {isDS
+                  ? `${totalItems} item(s) — set your selling price before checkout`
+                  : `${totalItems} items in your cart`
+                }
+              </p>
             </div>
-            <div className="hidden md:flex items-center space-x-6 text-sm">
-              <div className="flex items-center text-green-600">
-                <Shield className="w-4 h-4 mr-2" />
-                Secure Checkout
-              </div>
-              <div className="flex items-center text-teal-600">
-                <Truck className="w-4 h-4 mr-2" />
-                Free Shipping over ৳2000
-              </div>
+            <div className="hidden md:flex items-center gap-5 text-sm">
+              {isDS ? (
+                <>
+                  <span className="flex items-center gap-1.5 text-emerald-600 font-semibold">
+                    <Shield className="w-4 h-4" /> Secure Order
+                  </span>
+                  <span className="flex items-center gap-1.5 text-emerald-600 font-semibold">
+                    <Truck className="w-4 h-4" /> Fast Fulfillment
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="flex items-center gap-1.5 text-green-600">
+                    <Shield className="w-4 h-4" /> Secure Checkout
+                  </span>
+                  <span className="flex items-center gap-1.5 text-teal-600">
+                    <Truck className="w-4 h-4" /> Fast Delivery
+                  </span>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -590,14 +671,6 @@ const handleContinueShopping = () => {
                     </div>
                   )}
 
-                  {/* <div className="flex justify-between text-gray-600">
-                    <span className="flex items-center">
-                      Shipping
-                      {shipping === 0 && <span className="ml-2 text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full">FREE</span>}
-                    </span>
-                    <span>{shipping === 0 ? 'FREE' : `৳${shipping}`}</span>
-                  </div> */}
-
                   <hr className="my-4" />
 
                   <div className="flex justify-between text-lg font-bold text-gray-900">
@@ -611,9 +684,9 @@ const handleContinueShopping = () => {
                   <div className="flex items-start space-x-3">
                     <Truck className="w-5 h-5 text-teal-600 mt-0.5" />
                     <div>
-                      <p className="font-medium text-teal-900">Free Delivery</p>
+                      <p className="font-medium text-teal-900">ডেলিভারি তথ্য</p>
                       <p className="text-sm text-teal-700">
-                        {shipping === 0 ? 'Congratulations! You qualify for free shipping' : `Add ৳${(2000 - subtotal).toLocaleString()} more to get free shipping`}
+                        আপনার অবস্থানের ওপর ভিত্তি করে চেকআউট পেজে ডেলিভারি চার্জ নির্ধারণ করা হবে। ২,০০০ টাকার বেশি অর্ডারে ফ্রি ডেলিভারি।
                       </p>
                     </div>
                   </div>
@@ -622,18 +695,18 @@ const handleContinueShopping = () => {
                 {/* Delivery Time */}
                 <div className="flex items-center space-x-2 text-sm text-gray-600 mb-6">
                   <Clock className="w-4 h-4" />
-                  <span>Estimated delivery: 2-3 business days</span>
+                  <span>সম্ভাব্য ডেলিভারি: ২-৩ কার্যদিবস</span>
                 </div>
 
                 {/* Go to Checkout Button */}
-                <Link
-                  href="/checkout"
+                <button
+                  onClick={handleCheckout}
                   className="w-full cursor-pointer bg-btn-color hover:bg-btn-color/70 text-accent-content py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center space-x-2"
                 >
                   <CreditCard className="w-5 h-5" />
                   <span>Proceed to Checkout</span>
                   <ArrowRight className="w-5 h-5" />
-                </Link>
+                </button>
 
                 {/* Security Badge */}
                 <div className="flex items-center justify-center space-x-4 mt-4 text-xs text-gray-500">

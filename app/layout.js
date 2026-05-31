@@ -4,7 +4,6 @@ import { Lato, Roboto } from "next/font/google";
 import "./globals.css";
 import LayoutWrapper from "./LayoutWrapper";
 import ToasterClient from "./ToasterClient";
-
 const lato = Lato({
   subsets: ["latin"],
   variable: "--font-lato",
@@ -81,10 +80,13 @@ export default async function RootLayout({ children }) {
   const websiteInfo = await getWebsiteInfoApi();
 
   return (
-    <html lang="en">
-      <body className={`${lato.variable} ${roboto.variable} antialiased`}>
+    <html lang="en" data-scroll-behavior="smooth">
+      <body className={`${lato.variable} ${roboto.variable} antialiased relative`}>
+
         <Providers>
-          <LayoutWrapper initialWebsiteInfo={websiteInfo}>{children}</LayoutWrapper>
+          <LayoutWrapper initialWebsiteInfo={websiteInfo}>
+            {children}
+          </LayoutWrapper>
         </Providers>
         <ToasterClient />
         <GoogleAnalytics gaId="G-5MQNQRZC5T" />

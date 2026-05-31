@@ -230,3 +230,26 @@ export const deleteUser = async (id) => {
     throw error;
   }
 }
+
+// upload user image or shop logo
+export const uploadUserImage = async (id, file, type = 'profile') => {
+  try {
+    const formData = new FormData();
+    formData.append("image", file);
+    
+    const url = type === 'shopLogo' 
+      ? `${UrlBackend}/users/user-image/${id}?type=shopLogo` 
+      : `${UrlBackend}/users/user-image/${id}`;
+
+    const response = await axios.put(url, formData, {
+      withCredentials: true,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Upload Image error:", error.response?.data || error.message);
+    throw error;
+  }
+}

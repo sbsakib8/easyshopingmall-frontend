@@ -19,9 +19,13 @@ import {
   Plus,
   Save,
   Settings,
+  Share2,
   Trash2,
   User,
+  Users,
+  DollarSign,
   X,
+  Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -491,6 +495,14 @@ const AccountPage = () => {
                     count={wishlist?.length || 0}
                   />
                   <TabButton id="addresses" icon={MapPin} label="Addresses" />
+                  {(data?.role === "DROPSHIPPING" || data?.roles?.includes("DROPSHIPPING")) && (
+                    <TabButton
+                      id="referrals"
+                      icon={Users}
+                      label="Referrals"
+                      count={data?.referrals?.count || 0}
+                    />
+                  )}
                   <TabButton id="settings" icon={Settings} label="Settings" />
                 </nav>
                 <button
@@ -609,40 +621,34 @@ const AccountPage = () => {
                           </select>
                         </div>
                       </div>
-                      
-                      <div className="space-y-4 md:col-span-1">
-                        <label className="text-sm font-medium text-gray-700 font-bold">Referral Program</label>
-                        <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-4">
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-gray-600">Your Code</span>
-                            <span className="font-bold text-teal-600 tracking-wider">
-                              {profileData.referralCode || "No code assigned"}
-                            </span>
-                          </div>
-                          
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-gray-600">Successful Referrals</span>
-                            <span className="font-bold text-gray-900 bg-teal-100 px-3 py-1 rounded-full text-xs">
-                              {data?.referralCount || 0}
-                            </span>
-                          </div>
 
-                          {profileData.referralCode && (
+                      {/* Referral Code (Only for DROPSHIPPING) */}
+                      {(data?.role === "DROPSHIPPING" || data?.roles?.includes("DROPSHIPPING")) && (
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-gray-700">Referral Code</label>
+                          <div className="relative group">
+                            <Zap className="absolute left-3 top-3 w-5 h-5 text-amber-500" />
+                            <input
+                              type="text"
+                              value={profileData.referralCode || ""}
+                              readOnly
+                              className="w-full pl-10 pr-12 py-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 font-bold focus:ring-0 focus:border-amber-300"
+                            />
                             <button
+                              type="button"
                               onClick={() => {
-                                const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-                                const referralLink = `${baseUrl}/signup?ref=${profileData.referralCode}`;
-                                navigator.clipboard.writeText(referralLink);
-                                toast.success("Referral link copied to clipboard!");
+                                navigator.clipboard.writeText(profileData.referralCode);
+                                toast.success("Referral code copied!");
                               }}
-                              className="w-full flex items-center justify-center gap-2 py-2 px-4 bg-white border border-teal-200 text-teal-600 rounded-lg hover:bg-teal-50 transition-colors text-sm font-medium cursor-pointer"
+                              className="absolute right-3 top-2.5 p-1.5 bg-amber-200 hover:bg-amber-300 text-amber-800 rounded-lg transition-colors cursor-pointer"
+                              title="Copy code"
                             >
-                              <CreditCard className="w-4 h-4" />
-                              Copy Referral Link
+                              <Share2 className="w-4 h-4" />
                             </button>
-                          )}
+                          </div>
+                          <p className="text-xs text-amber-600 font-medium italic">Share this code to earn referral bonuses!</p>
                         </div>
-                      </div>
+                      )}
 
                       <div className="md:col-span-2 space-y-2">
                         <label className="text-sm font-medium text-gray-700">Address Line</label>
@@ -798,16 +804,36 @@ const AccountPage = () => {
 
                               <div className="flex items-center justify-between sm:justify-end space-x-4 border-t sm:border-t-0 pt-3 sm:pt-0">
                                 <div className="flex items-center space-x-3">
+                                  {order.profitAmount > 0 && (
+                                    <div className="flex flex-col items-end">
+                                      <span className="text-[9px] font-black text-emerald-600 uppercase tracking-tighter">Profit</span>
+                                      <span className="text-sm font-black text-emerald-600">৳{order.profitAmount}</span>
+                                    </div>
+                                  )}
                                   <span
                                     className={`px-3 py-1 text-xs md:text-sm font-medium rounded-full capitalize ${getStatusColor(
-                                      status
+                                      order.order_status || "pending"
                                     )}`}
                                   >
-                                    {status}
+                                    {order.order_status || "pending"}
                                   </span>
-                                  <span className="font-bold text-base md:text-lg text-gray-900">
-                                    ৳{totalAmt}
+                                  <span
+                                    className={`px-3 py-1 text-xs md:text-sm font-medium rounded-full capitalize ${
+                                      order.payment_status === "paid"
+                                        ? "text-green-600 bg-green-100"
+                                        : order.payment_status === "submitted"
+                                        ? "text-blue-600 bg-blue-100"
+                                        : "text-red-600 bg-red-100"
+                                    }`}
+                                  >
+                                    {order.payment_status === "paid" ? "পরিশোধিত (Paid)" : order.payment_status === "submitted" ? "পেমেন্ট জমা হয়েছে (Submitted)" : "অপরিশোধিত (Unpaid)"}
                                   </span>
+                                  <div className="flex flex-col items-end">
+                                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Total</span>
+                                    <span className="font-bold text-base md:text-lg text-gray-900 leading-none">
+                                      ৳{totalAmt}
+                                    </span>
+                                  </div>
                                 </div>
 
                                 <button
@@ -822,12 +848,57 @@ const AccountPage = () => {
                         );
                       })}
 
-                      {selectedOrder && (
-                        <OrderDetailsModal
-                          order={selectedOrder}
-                          onClose={() => setSelectedOrder(null)}
-                        />
-                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Referrals Tab */}
+                {activeTab === "referrals" && (
+                  <div className="p-8">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                      <div>
+                        <h2 className="text-2xl font-bold text-gray-900">Referral Dashboard</h2>
+                        <p className="text-gray-600">Track your referrals and earnings</p>
+                      </div>
+                      <div className="bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-xl flex items-center gap-3">
+                        <div className="bg-emerald-500 p-1.5 rounded-lg">
+                          <DollarSign className="w-4 h-4 text-white" />
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Current Balance</p>
+                          <p className="text-lg font-black text-emerald-900">৳{(data?.balance || 0).toLocaleString()}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Stats Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                      <div className="bg-gradient-to-br from-white to-emerald-50 p-6 rounded-2xl border border-emerald-100 shadow-sm">
+                        <p className="text-sm font-medium text-emerald-800">Total Referrals</p>
+                        <p className="text-3xl font-black text-emerald-900 mt-2">{data?.referrals?.count || 0}</p>
+                        <p className="text-xs text-emerald-600 mt-1">Active registered users</p>
+                      </div>
+                      <div className="bg-gradient-to-br from-white to-blue-50 p-6 rounded-2xl border border-blue-100 shadow-sm">
+                        <p className="text-sm font-medium text-blue-800">Referral Orders</p>
+                        <p className="text-3xl font-black text-blue-900 mt-2">{data?.referrals?.orders?.length || 0}</p>
+                        <p className="text-xs text-blue-600 mt-1">Orders placed by your team</p>
+                      </div>
+                      <div className="bg-gradient-to-br from-white to-amber-50 p-6 rounded-2xl border border-amber-100 shadow-sm">
+                        <p className="text-sm font-medium text-amber-800">Referral Code</p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <p className="text-xl font-black text-amber-900 uppercase tracking-widest">{data?.referralCode}</p>
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(data?.referralCode);
+                              toast.success("Code copied!");
+                            }}
+                            className="p-1.5 hover:bg-amber-200 rounded-lg text-amber-700 transition-colors cursor-pointer"
+                          >
+                            <Share2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <p className="text-xs text-amber-600 mt-1">Copy & share with friends</p>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -1275,6 +1346,12 @@ const AccountPage = () => {
               </div>
             </div>
           </div>
+        )}
+        {selectedOrder && (
+          <OrderDetailsModal
+            order={selectedOrder}
+            onClose={() => setSelectedOrder(null)}
+          />
         )}
       </div>
     </AuthUserNothave>

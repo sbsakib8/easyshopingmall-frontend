@@ -4,6 +4,7 @@ import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import { FaRegEye } from "react-icons/fa";
 import { FaEyeSlash } from "react-icons/fa";
+import { FiLoader } from "react-icons/fi";
 import { useState, useEffect, Suspense } from 'react';
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -19,6 +20,7 @@ function Signup() {
   const [email, setEmail] = useState('');
   const [number, setNumber] = useState('');
   const [password, setpassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [referralCode, setReferralCode] = useState('');
   const [showpassword, setShowPassword] = useState(false);
   const router = useRouter()
@@ -34,6 +36,7 @@ function Signup() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
     const user = {
       name,
@@ -43,7 +46,8 @@ function Signup() {
       referralCode,
     };
 
-    try {
+    try {      
+
       const res = await UseAuth(user, router);
       if (res.success) {
         toast.success("Registration successful! Please sign in.");
@@ -53,6 +57,8 @@ function Signup() {
     } catch (error) {
       console.error("Registration failed:", error.response?.data || error.message);
       toast.error(error.response?.data?.message || "Something went wrong");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -95,22 +101,22 @@ function Signup() {
                 autoComplete="off"
               >
                 <div className=' h-[60px] '>
-                  <TextField type='text' className=' w-full!' value={name} onChange={(e) => setName(e.target.value)} id="FullName" label="FullName" variant="outlined" required />
+                  <TextField disabled={isLoading} type='text' className=' w-full!' value={name} onChange={(e) => setName(e.target.value)} id="FullName" label="FullName" variant="outlined" required />
                 </div>
                 <div className=' h-[60px] '>
-                  <TextField type='email' className=' w-full!' value={email} onChange={(e) => setEmail(e.target.value)} id="email" label="Email" variant="outlined" required />
+                  <TextField disabled={isLoading} type='email' className=' w-full!' value={email} onChange={(e) => setEmail(e.target.value)} id="email" label="Email" variant="outlined" required />
                 </div>
                 <div className=' h-[60px] '>
-                  <TextField type='text' className=' w-full!' value={number} onChange={(e) => setNumber(e.target.value)} id="number" label="Number" variant="outlined" required />
+                  <TextField disabled={isLoading} type='text' className=' w-full!' value={number} onChange={(e) => setNumber(e.target.value)} id="number" label="Number" variant="outlined" required />
                 </div>
                 <div className=' h-[60px] relative'>
-                  <TextField type={showpassword ? 'text' : 'password'} className=' w-full!' value={password} onChange={(e) => setpassword(e.target.value)} id="password" label="Password" variant="outlined" required />
-                  <div onClick={() => setShowPassword(!showpassword)} className='absolute right-3 top-[50%] transform -translate-y-1/2 cursor-pointer text-gray-500'>
+                  <TextField disabled={isLoading} type={showpassword ? 'text' : 'password'} className=' w-full!' value={password} onChange={(e) => setpassword(e.target.value)} id="password" label="Password" variant="outlined" required />
+                  <button type='button' disabled={isLoading} onClick={() => setShowPassword(!showpassword)} className='absolute right-3 top-[50%] transform -translate-y-1/2 cursor-pointer text-gray-500'>
                     {showpassword ? <FaRegEye className='text-xl' /> : <FaEyeSlash className='text-xl' />}
-                  </div>
+                  </button>
                 </div>
                 <div className=' h-[60px] '>
-                  <TextField type='text' className=' w-full!' value={referralCode} onChange={(e) => setReferralCode(e.target.value)} id="referralCode" label="Referral Code (Optional)" variant="outlined" />
+                  <TextField disabled={isLoading} type='text' className=' w-full!' value={referralCode} onChange={(e) => setReferralCode(e.target.value)} id="referralCode" label="Referral Code (Optional)" variant="outlined" />
                 </div>
 
 
@@ -118,7 +124,18 @@ function Signup() {
 
 
             </div>
-            <button type='submit' className='w-full bg-primary-color text-accent-content py-2 rounded-md hover:bg-[#609283] cursor-pointer transition duration-200'>Sign Up</button>
+            <button disabled={isLoading} type='submit' className='w-full bg-primary-color text-accent-content py-2 rounded-md hover:bg-[#609283] cursor-pointer transition duration-200 disabled:opacity-70 disabled:bg-gray-300'>
+              {isLoading ? 
+              
+              <span className="w-full flex justify-center items-center gap-2">
+            
+          
+             <FiLoader className="animate-spin" />
+               Signing up
+              </span>
+              
+              : "Sign Up"}
+            </button>
 
             <span className='flex justify-center items-center'>Or</span>
 

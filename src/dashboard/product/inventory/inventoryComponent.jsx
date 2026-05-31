@@ -255,7 +255,7 @@ const InventoryDashboard = () => {
  <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-cyan-500/5 to-blue-500/5 rounded-full"></div>
  </div>
 
- <div className="lg:ml-15 py-5 px-2 lg:px-10">
+ <div className="py-5 px-2 lg:px-10">
  <div className="w-[99%] mx-auto">
  {/* Welcome Banner */}
  <div className="mb-8 animate-slideDown">
@@ -799,6 +799,18 @@ const InventoryDashboard = () => {
  rows="3"
  className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500 resize-none"
  ></textarea>
+ </div>
+
+ <div className="md:col-span-2">
+ <div className="flex items-center p-4 bg-white/5 border border-slate-600 rounded-xl mt-1">
+ <input
+ type="checkbox"
+ checked={editModal?.isBoost || false}
+ onChange={(e) => updateEditField('isBoost', e.target.checked)}
+ className="w-5 h-5 text-emerald-600 bg-transparent border-slate-500 rounded focus:ring-emerald-500"
+ />
+ <label className="ml-3 text-gray-300 font-semibold">Boost Product</label>
+ </div>
  </div>
  </div>
 

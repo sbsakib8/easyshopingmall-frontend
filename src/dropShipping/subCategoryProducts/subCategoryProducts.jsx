@@ -1,399 +1,479 @@
-"use client"
-import {addToWishlistApi, removeFromWishlistApi} from'@/src/hook/useWishlist';
-import {isProductNew} from'@/src/utlis/filterHelpers';
-import {useGetProduct} from'@/src/utlis/userProduct';
-import {useWishlist} from'@/src/utlis/useWishList';
-import {ArrowDownToLine, Heart, Star, Search, Sparkles} from'lucide-react';
-import {useRouter, useSearchParams} from"next/navigation"
-import React, {useCallback, useMemo, useState} from'react';
-import toast from'react-hot-toast';
-import {useDispatch, useSelector} from'react-redux';
+"use client";
 
+import {
+  addToWishlistApi,
+  removeFromWishlistApi,
+} from "@/src/hook/useWishlist";
+import { isProductNew } from "@/src/utlis/filterHelpers";
+import { useGetProduct } from "@/src/utlis/userProduct";
+import { useWishlist } from "@/src/utlis/useWishList";
+
+import {
+  ArrowDownToLine,
+  Heart,
+  Star,
+  Search,
+  Sparkles,
+  ShoppingCart,
+  Loader2,
+} from "lucide-react";
+
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  Suspense,
+} from "react";
+
+import { useRouter, useSearchParams } from "next/navigation";
+import toast from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { dsCartAdd } from "@/src/redux/dropshippingCartSlice";
+import Container from "@/src/compronent/shared/Container";
+import Image from "next/image";
+import { Skeleton } from "@mui/material";
+import SubCategoryProductsLoading from "@/app/(dropShipping)/sub-category/[id]/loading";
+
+// Helper for image download
 const handleDownloadImage = async (e, imageUrl, productName) => {
- e.stopPropagation(); // ⛔ stop card click
+  e.stopPropagation();
+  if (!imageUrl) return;
 
- try {
- const response = await fetch(imageUrl);
- const blob = await response.blob();
-
- const url = window.URL.createObjectURL(blob);
- const link = document.createElement("a");
-
- link.href = url;
- link.download = `${productName ||"product"}.jpg`;
-
- document.body.appendChild(link);
- link.click();
-
- document.body.removeChild(link);
- window.URL.revokeObjectURL(url);
-} catch (error) {
- console.error("Image download failed:", error);
-}
-};
-const ProductCard = React.memo(({product, viewMode, toggleWishlist, wishlist, favorite, setFavorite, router}) => {
- if (!product) return null;
- // Render Stars Helper
- const ratingValue = product.rating || product.ratings || 0;
- const renderStars = (rating) => {
- return [...Array(5)].map((_, i) => (
- <Star
- key={i}
- className={`w-3 h-3 sm:w-4 sm:h-4 ${i < Math.floor(rating)
- ?"text-yellow-400 fill-current"
- :"text-black"
-}`}
- />
- ));
+  try {
+    const response = await fetch(imageUrl);
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${productName || "product"}.jpg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Image download failed:", error);
+    toast.error("Download failed");
+  }
 };
 
- return (
- <div
- onClick={() => router.push(`/productdetails/${product._id}`)}
- className={`group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transform cursor-pointer ${viewMode ==="list"?"flex":""}`}
- >
- <div className={`relative ${viewMode ==="list"?"w-48":""}`}>
- <img
- src={product.images[0] ||"/banner/img/placeholder.png"}
- alt={product.productName}
- className={`w-full object-cover ${viewMode ==="list"?"h-full":"h-40 sm:h-44"}`}
- />
+const ProductCard = React.memo(
+  ({ product, wishlist, dispatch, dsCartItems, user, wishlistLoading }) => {
+    const router = useRouter();
 
- {/* Badges */}
- <div className="absolute top-0 left-0 flex justify-between w-full">
- <div className="flex items-start">
- {product.isNew && (
- <span className="bg-green-500 text-accent-content px-1 py-1 rounded text-[8px] font-semibold">NEW</span>
- )}
- </div>
- {product.productStatus && product.productStatus.length > 0 && !product.productStatus.includes("none") && (
- <span className={` ${product.productStatus.includes("hot") ?'text-red-500':'text-blue-400'} max-h-6 bg-black px-1 py-1 rounded-md text-xs font-bold`}>
- {Array.isArray(product.productStatus) ? product.productStatus[0] : product.productStatus}
- </span>
- )}
- </div>
+    if (!product) return null;
 
+    // Optimized Wishlist Check
+    const isWishlisted = useMemo(() => {
+      return (wishlist || []).some(
+        (item) => item?._id === product._id || item?.id === product._id,
+      );
+    }, [wishlist, product._id]);
 
+    const ratingValue = useMemo(() => {
+      return Number(product.rating || product.ratings || 0);
+    }, [product.rating, product.ratings]);
 
- {product.productStock < 1 && (
- <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
- <span className="bg-red-500 text-accent-content px-3 py-1 rounded font-semibold text-xs">Out of Stock</span>
- </div>
- )}
- </div>
+    const renderStars = useCallback((rating) => {
+      return [...Array(5)].map((_, i) => (
+        <Star
+          key={i}
+          className={`size-2.5 lg:size-3.5 ${
+            i < Math.floor(rating)
+              ? "text-yellow-400 fill-current"
+              : "text-gray-300"
+          }`}
+        />
+      ));
+    }, []);
 
- <div className={`p-3 ${viewMode ==="list"?"flex-1 flex flex-col justify-between":""}`}>
- <div>
- <h3 className={`font-semibold text-sm text-gray-800 mb-1 group-hover:text-purple-600 line-clamp-2`}>
- {product.productName}
- </h3>
- <p className="text-xs text-gray-500 mb-2">{product.brand}</p>
+    // Optimized Add to Cart
+    const handleAddToCart = useCallback(() => {
+      if (!user?._id) {
+        toast.error("Please login to add to cart");
+        return;
+      }
 
- {/* Rating */}
- <div className="flex items-center gap-1 mb-2">
- <div className="flex items-center">
- {renderStars(ratingValue)}
- </div>
- <span className="text-xs text-gray-500">({product.ratings})</span>
- </div>
- </div>
+      dispatch(
+        dsCartAdd({
+          productId: product,
+          quantity: 1,
+          price: product.price || 0,
+          sellingPrice: product.price || 0,
+          profit: 0,
+        }),
+      );
 
- <div>
- {/* Price */}
- <div className="flex items-center gap-2 mb-2">
- <span className="text-base font-bold text-red-600">
- Tk {product.price}
- </span>
+      toast.success("Added to dropshipping cart");
+    }, [user?._id, dispatch, product]);
 
- </div>
- <div className='flex justify-between'>
- <button
- onClick={(e) =>
- handleDownloadImage(
- e,
- product.images?.[0],
- product.productName
- )
-}
- className="btn bg-btn-color text-accent-content px-2 py-2 flex gap-2 rounded-sm cursor-pointer"
- >
- Download <ArrowDownToLine />
- </button>
+    // Optimized Wishlist Toggle
+    const toggleWishlist = useCallback(async () => {
+      if (!user?._id) {
+        toast.error("Please sign in to add to wishlist");
+        return;
+      }
 
- {/* Action Buttons (Wishlist) */}
- <div className={` bg-accent-content/50 rounded-md right-0 `}>
- <button
- onClick={(e) => {
- e.stopPropagation()
- toggleWishlist(product)
- // Local update for immediate feedback if needed, distinct from prop check
- if ((favorite && favorite.includes(product._id)) || (wishlist && wishlist.some(i => i.id === product._id))) {
- const removeItem = favorite ? favorite.filter(item => item !== product._id) : []
- return setFavorite(removeItem)
-}
- setFavorite([...favorite, product._id])
-}}
- className={`p-2 border cursor-pointer rounded-lg 
- ${(wishlist && wishlist.some((item) => item.id === product._id) || (favorite && favorite.includes(product._id)))
- ?"text-red-500 bg-red-100"
- :"text-gray-400 bg-white/50 hover:text-red-500 hover:bg-red-50"
-}`}
- >
- <Heart
- className="w-5 h-5"
- fill={(wishlist && wishlist.some((item) => item.id === product._id)) || (favorite && favorite.includes(product._id)) ?"red":"none"}
- strokeWidth={2}
- />
- </button>
- </div>
- </div>
+      try {
+        if (isWishlisted) {
+          await removeFromWishlistApi(product._id, dispatch);
+          toast.success("Removed from wishlist");
+        } else {
+          await addToWishlistApi(product._id, dispatch);
+          toast.success("Added to wishlist");
+        }
+      } catch (err) {
+        console.error("Wishlist toggle error:", err);
+        toast.error("Failed to update wishlist");
+      }
+    }, [isWishlisted, user?._id, product._id, dispatch]);
 
- </div>
- </div>
- </div>
- );
-});
-
-// products skiliton 
-const ProductSkeleton = ({viewMode}) => {
- return (
- <div
- className={`bg-white rounded-lg shadow-md overflow-hidden ${viewMode ==="list"?"flex":""
-}`}
- >
- {/* Image skeleton */}
- <div
- className={`bg-gray-200 ${viewMode ==="list"?"w-48 h-40":"h-40 sm:h-44"
-}`}
- />
-
- {/* Content skeleton */}
- <div className={`p-3 flex-1`}>
- <div className="space-y-2">
- <div className="h-4 bg-gray-200 rounded w-3/4"/>
- <div className="h-3 bg-gray-200 rounded w-1/2"/>
-
- {/* rating */}
- <div className="flex gap-1">
- {[...Array(5)].map((_, i) => (
- <div key={i} className="w-4 h-4 bg-gray-200 rounded"/>
- ))}
- </div>
- </div>
-
- {/* price + button */}
- <div className="mt-4 space-y-2">
- <div className="h-4 bg-gray-200 rounded w-1/3"/>
- <div className="h-8 bg-gray-300 rounded w-full"/>
- </div>
- </div>
- </div>
- );
-};
-
-const SubCategoryProducts = ({id}) => {
- const router = useRouter()
- const [favorite, setFavorite] = useState([])
- const params = useSearchParams()
- const pageType = params.get('pageType')
- const dispatch = useDispatch()
- // Get all filter states from Redux
- const shopState = useSelector((state) => state.shop)
- const {viewMode} = shopState
- const [page, setPage] = useState(1);
- const limit = 30
- const formData = useMemo(
- () => ({
- page,
- limit,
- search:"",
- subCategoryId: id,
-}),
- [page, id]
- );
- // product get
- const {product: products, totalCount, loading: productsLoading} = useGetProduct(formData);
- let filteredProducts;
- if (pageType ==='new-products') {
- filteredProducts = products?.filter(product => isProductNew(product.createdAt))
-} else {
- filteredProducts = products
-}
-
- const totalPages = Math.ceil(totalCount / limit)
-
- const getPageNumbers = () => {
- const pages = [];
- if (currentPage <= 5) {
- for (let i = 1; i <= Math.min(5, totalPages); i++) {
- pages.push(i);
-}
-} else {
- const startPage = currentPage - 4;
- for (let i = startPage; i <= Math.min(startPage + 4, totalPages); i++) {
- pages.push(i);
-}
-}
- return pages;
-};
-
- const currentPage = page;
- const pageNumbers = getPageNumbers();
- const showStartDots = currentPage > 5;
- const showEndDots = pageNumbers.length > 0 && pageNumbers[pageNumbers.length - 1] < totalPages;
-
- const {wishlist} = useWishlist()
- const user = useSelector((state) => state.user?.data)
- // Toggle wishlist (uses API + redux)
- const toggleWishlist = useCallback(async (product) => {
- if (!user?._id) {
- toast.error("Please sign in to add to wishlist")
- return
-}
- try {
- const exists = (wishlist || []).some((i) => i.id === product._id || favorite.includes(product._id))
- if (exists) {
- await removeFromWishlistApi(product._id, dispatch)
- toast.success("Removed from wishlist")
-} else {
- await addToWishlistApi(product._id, dispatch)
- toast.success("Added to wishlist")
-}
-} catch (err) {
- console.error("Wishlist toggle error:", err)
- toast.error("Failed to update wishlist")
-}
-}, [wishlist, favorite, dispatch]);
-  if (filteredProducts?.length < 1 && !productsLoading) {
     return (
-      <div className="container mx-auto px-4 py-20 flex flex-col items-center justify-center bg-gradient-to-br from-white/90 to-slate-50/80 backdrop-blur-xl rounded-[3rem] border border-white/40 shadow-2xl relative overflow-hidden group min-h-[60vh]">
-        {/* Animated Background Glows */}
-        <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-emerald-500/10 blur-[120px] rounded-full animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-teal-500/10 blur-[120px] rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
+      <div
+        onClick={() => router.push(`/productdetails/${product._id}`)}
+        className={`group bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col h-full animate-fade-up`}
+      >
+        {/* Image Section */}
+        <div
+          className={`relative aspect-2/3 overflow-hidden w-full h-14 md:h-32`}
+        >
+          <Image
+            src={product.images?.[0] || "/banner/img/placeholder.png"}
+            alt={product.productName}
+            width={200}
+            height={170}
+            className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-105`}
+          />
+
+          {/* Badges */}
+          <div className="absolute top-1.5 left-1.5 md:top-3 md:left-3 flex flex-col gap-1.5 z-10">
+            {product.isNew && (
+              <span className="bg-emerald-500 text-white text-[7px] md:text-[10px] md:font-medium px-1.5 md:px-2.5 py-1 rounded-xl shadow-sm">
+                NEW
+              </span>
+            )}
+          </div>
+
+          {/* Action Buttons on Image - Always Visible */}
+          <div className="absolute top-3 right-3 md:flex flex-col gap-2 z-20 hidden">
+            {/* Save Button */}
+            <button
+              onClick={(e) =>
+                handleDownloadImage(e, product.images?.[0], product.productName)
+              }
+              className="bg-white/95 hover:bg-white shadow-md p-2 rounded-xl text-slate-700 hover:text-slate-900 transition-all active:scale-90"
+              title="Save Image"
+            >
+              <ArrowDownToLine className="w-4 h-4" />
+            </button>
+
+            {/* Wishlist Button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleWishlist();
+              }}
+              disabled={wishlistLoading}
+              aria-busy={wishlistLoading}
+              aria-disabled={wishlistLoading}
+              className={`shadow-md p-2 rounded-xl transition-all active:scale-90 ${
+                isWishlisted
+                  ? "bg-red-50 text-red-500"
+                  : "bg-white/95 hover:bg-white text-slate-700 hover:text-red-500"
+              }`}
+              title={
+                wishlistLoading
+                  ? "Loading..."
+                  : isWishlisted
+                    ? "Remove from Wishlist"
+                    : "Add to Wishlist"
+              }
+            >
+              <Heart
+                className={`w-4 h-4 transition-all ${isWishlisted ? "fill-current" : ""}`}
+              />
+            </button>
+          </div>
+
+          {/* Out of Stock Overlay */}
+          {product.productStock < 1 && (
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-20">
+              <span className="bg-red-600 text-white px-2 py-1 md:px-5 md:py-2 rounded-2xl md:font-medium text-[7px] md:text-sm md:tracking-wider">
+                OUT OF STOCK
+              </span>
+            </div>
+          )}
         </div>
 
-        <div className="relative z-10 flex flex-col items-center">
-          <div className="mb-10 relative">
-            <div className="absolute inset-0 bg-emerald-200/50 rounded-full blur-3xl opacity-30 group-hover:scale-150 transition-transform duration-1000" />
-            <div className="relative bg-white p-10 rounded-[2.5rem] shadow-xl border border-emerald-50 transform group-hover:rotate-3 transition-all duration-500">
-              <Search className="w-16 h-16 text-emerald-600 animate-[bounce_3s_infinite]" />
-              <Sparkles className="absolute -top-4 -right-4 w-10 h-10 text-yellow-400 animate-pulse" />
+        {/* Content Section - Rest remains unchanged */}
+        <div className={`flex-1 flex flex-col p-1.5 md:p-3.5`}>
+          {/* Title & Brand */}
+          <div>
+            <h3 className="md:font-semibold text-slate-800 group-hover:text-emerald-700 transition-colors line-clamp-2 md:line-clamp-1 text-[10px] md:text-base md:leading-tight md:mb-1">
+              {product.productName}
+            </h3>
+            <p className="text-xs text-slate-500 font-medium mb-3 uppercase hidden md:block">
+              {product.brand || "No Brand"}
+            </p>
+
+            {/* Rating + Price */}
+            <div className="hidden md:flex items-center justify-between mb-4">
+              <div className="flex items-center gap-1.5">
+                <div className="flex items-center">
+                  {renderStars(ratingValue)}
+                </div>
+                <span className="text-xs font-medium text-slate-500">
+                  ({ratingValue})
+                </span>
+              </div>
+
+              <p className="text-sm lg:text-base font-semibold text-slate-900 tracking-tight">
+                ৳{product.price}
+              </p>
             </div>
           </div>
 
-          <div className="text-center space-y-4 max-w-lg">
-            <h3 className="text-3xl font-extrabold text-slate-800 tracking-tight">
-              Data is Coming! <span className="inline-block animate-bounce">✨</span>
-            </h3>
-            <p className="text-slate-500 text-lg font-medium leading-relaxed">
-              We're meticulously curating our latest collection. Stay tuned! New items are arriving soon.
-            </p>
+          {/* Add to Cart Button */}
+          <div className="mt-auto">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleAddToCart();
+              }}
+              disabled={product.productStock < 1}
+              className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:from-slate-300 disabled:to-slate-400 text-white py-2 px-1.5 rounded-2xl font-medium text-xs tracking-wider md:flex items-center justify-center gap-2 shadow-md active:scale-[0.97] transition-all hidden"
+            >
+              <ShoppingCart className="size-3.5" />
+              ADD TO CART
+            </button>
           </div>
-
-          <button
-            onClick={() => router.push('/shop')}
-            className="mt-10 px-10 py-4 bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-2xl font-bold shadow-lg shadow-emerald-200 hover:shadow-emerald-300 hover:-translate-y-1 active:scale-95 transition-all duration-300"
-          >
-            Explore Shop
-          </button>
         </div>
       </div>
     );
-  }
- return (
- <>
- <div className="container grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
+  },
+);
 
- {productsLoading
- ? [...Array(10)].map((_, i) => (
- <ProductSkeleton key={i} viewMode={viewMode} />
- ))
- : filteredProducts?.map((product) => (
- <ProductCard
- key={product._id}
- viewMode={viewMode}
- product={product}
- toggleWishlist={toggleWishlist}
- wishlist={wishlist}
- favorite={favorite}
- setFavorite={setFavorite}
- router={router}
- />
- ))}
- </div>
+const EmptyProducts = () => {
+  const router = useRouter();
 
- {/* Pagination */}
- {totalPages > 1 && (
- <div className="flex justify-center items-center space-x-2 mt-12 flex-wrap gap-2 pb-10">
- {/* Previous Button */}
- <button
- onClick={() => setPage(Math.max(1, page - 1))}
- disabled={page === 1}
- className={`px-4 py-2 rounded-lg font-medium ${page === 1
- ?"bg-gray-100 text-gray-400 cursor-not-allowed"
- :"bg-purple-600 text-white hover:bg-purple-700"
-}`}
- >
- Previous
- </button>
+  return (
+    <div className="flex flex-col items-center justify-center bg-slate-50/50 backdrop-blur-xl rounded-[3rem] border border-slate-100 shadow-sm min-h-[50vh] px-4 py-6">
+      <div className="mb-8 relative">
+        <div className="bg-white p-5 rounded-2xl shadow-xl border border-slate-100 flex items-center justify-center">
+          <Search className="w-9 h-9 text-slate-300" />
+          <Sparkles className="absolute -top-2 -right-2 w-8 h-8 text-yellow-400 animate-pulse" />
+        </div>
+      </div>
 
- {/* First Page + Dots (if needed) */}
- {showStartDots && (
- <>
- <button
- onClick={() => setPage(1)}
- className="px-4 py-2 rounded-lg font-medium bg-white border border-gray-300 hover:bg-purple-50"
- >
- 1
- </button>
- <span className="px-2 text-gray-500 font-bold">...</span>
- </>
- )}
+      <div className="text-center space-y-3 max-w-sm">
+        <h3 className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">
+          No Products Found
+        </h3>
+        <p className="text-slate-500 text-sm font-medium leading-relaxed">
+          We couldn't find any products in this category. New items are arriving
+          soon!
+        </p>
+      </div>
 
- {/* Page Numbers */}
- {pageNumbers.map((p) => (
- <button
- key={p}
- onClick={() => setPage(p)}
- className={`px-4 py-2 rounded-lg font-medium ${page === p
- ?"bg-purple-600 text-white transform scale-110"
- :"bg-white border border-gray-300 hover:bg-purple-50"
-}`}
- >
- {p}
- </button>
- ))}
-
- {/* End Dots + Last Page (if needed) */}
- {showEndDots && (
- <>
- <span className="px-2 text-gray-500 font-bold">...</span>
- <button
- onClick={() => setPage(totalPages)}
- className="px-4 py-2 rounded-lg font-medium bg-white border border-gray-300 hover:bg-purple-50"
- >
- {totalPages}
- </button>
- </>
- )}
-
- {/* Next Button */}
- <button
- onClick={() => setPage(Math.min(totalPages, page + 1))}
- disabled={page === totalPages}
- className={`px-4 py-2 rounded-lg font-medium ${page === totalPages
- ?"bg-gray-100 text-gray-400 cursor-not-allowed"
- :"bg-purple-600 text-white hover:bg-purple-700"
-}`}
- >
- Next
- </button>
- </div>
- )}
- </>
- );
-
+      <button
+        onClick={() => router.push("/all-products")}
+        className="mt-8 px-4 py-2 md:px-8 md:py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl font-semibold shadow-md hover:shadow-lg transition-all"
+      >
+        Explore All Products
+      </button>
+    </div>
+  );
 };
+
+const SubCategoryProductsContent = ({ id }) => {
+  const params = useSearchParams();
+  const pageType = params.get("pageType");
+  const dispatch = useDispatch();
+  const viewMode = useSelector((state) => state.shop.viewMode);
+  const dsCartItems = useSelector((state) => state.dropshippingCart.items);
+  const user = useSelector((state) => state.user?.data);
+  const { wishlist, loading: wishlistLoading } = useWishlist();
+  const [page, setPage] = useState(1);
+  const limit = 30;
+
+  const formData = useMemo(
+    () => ({
+      page,
+      limit,
+      search: "",
+      subCategoryId: id,
+    }),
+    [page, id],
+  );
+
+  useEffect(() => {
+    setPage(1);
+  }, [id]);
+
+  const {
+    product: products,
+    totalCount,
+    loading: productsLoading,
+  } = useGetProduct(formData);
+
+  const filteredProducts = useMemo(() => {
+    if (!Array.isArray(products)) return [];
+
+    switch (pageType) {
+      case "new-products":
+        return products.filter((product) => isProductNew(product.createdAt));
+      case "boost-products":
+        return products.filter((product) => product.isBoost === true);
+      default:
+        return products;
+    }
+  }, [products, pageType]);
+
+  const totalPages = Math.ceil((totalCount || 0) / limit);
+
+  const pageNumbers = useMemo(() => {
+    const pages = [];
+    const maxVisible = 5;
+    let startPage = Math.max(1, page - 2);
+    let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+
+    if (endPage - startPage < maxVisible - 1) {
+      startPage = Math.max(1, endPage - maxVisible + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+
+    return pages;
+  }, [page, totalPages]);
+
+  const showStartDots = page > 3;
+  const showEndDots =
+    pageNumbers.length > 0 && pageNumbers[pageNumbers.length - 1] < totalPages;
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [page]);
+
+  if (productsLoading) {
+    return <SubCategoryProductsLoading count={12} />;
+  }
+
+  return (
+    <section className="relative py-10 md:py-16 overflow-hidden bg-gradient-to-br from-slate-50 via-white to-emerald-50/60">
+      {/* Animated Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-white to-teal-50">
+        {/* Animated Gradient Layers */}
+        <div className="absolute inset-0 bg-[radial-gradient(at_30%_20%,rgba(16,185,129,0.15)_0%,transparent_50%)] animate-pulse-slow"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(at_70%_60%,rgba(45,212,191,0.15)_0%,transparent_50%)] animate-pulse-slower"></div>
+
+        {/* Subtle Moving Orbs */}
+        <div className="absolute top-10 left-10 w-72 h-72 bg-emerald-200 rounded-full mix-blend-soft-light filter blur-3xl opacity-30 animate-float"></div>
+        <div className="absolute bottom-20 right-20 w-96 h-96 bg-teal-200 rounded-full mix-blend-soft-light filter blur-3xl opacity-30 animate-float-delay"></div>
+        <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-cyan-200 rounded-full mix-blend-soft-light filter blur-3xl opacity-20 animate-float-slow"></div>
+      </div>
+
+      <Container className="relative z-10 space-y-6 md:space-y-10">
+        {filteredProducts.length === 0 ? (
+          <EmptyProducts />
+        ) : (
+          <>
+            <div className="flex items-center justify-center">
+              <h2 className="text-center font-black text-xl sm:text-2xl md:text-3xl lg:text-4xl text-emerald-800 uppercase tracking-wider sm:tracking-widest break-words animate-fade-up">
+                {productsLoading ? (
+                  <Skeleton className="h-10! w-40! sm:h-14! md:h-16! lg:h-20!" />
+                ) : (
+                  filteredProducts[0].subCategory[0].name
+                )}
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-3 lg:gap-6 2xl:gap-8">
+              {filteredProducts.map((product) => (
+                <ProductCard
+                  key={product._id}
+                  viewMode={viewMode}
+                  product={product}
+                  wishlist={wishlist}
+                  wishlistLoading={wishlistLoading}
+                  dispatch={dispatch}
+                  dsCartItems={dsCartItems}
+                  user={user}
+                />
+              ))}
+            </div>
+
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center gap-2 flex-wrap px-4">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="p-2.5 rounded-xl border border-slate-200 bg-white disabled:opacity-50 hover:bg-slate-50 transition-colors"
+                >
+                  <Loader2
+                    className={`w-4 h-4 rotate-180 ${productsLoading ? "animate-spin" : ""}`}
+                  />
+                </button>
+
+                {showStartDots && (
+                  <button
+                    onClick={() => setPage(1)}
+                    className="w-10 h-10 rounded-xl font-bold text-sm bg-white border border-slate-200 hover:border-emerald-600"
+                  >
+                    1
+                  </button>
+                )}
+
+                {showStartDots && (
+                  <span className="text-slate-400 font-black">...</span>
+                )}
+
+                {pageNumbers.map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => setPage(p)}
+                    className={`w-10 h-10 rounded-xl font-black text-sm transition-all border ${page === p ? "bg-gradient-to-r from-emerald-600 to-teal-600 border-transparent text-white shadow-md scale-110" : "bg-white border-slate-200 hover:border-slate-300 text-slate-600"}`}
+                  >
+                    {p}
+                  </button>
+                ))}
+
+                {showEndDots && (
+                  <span className="text-slate-400 font-black">...</span>
+                )}
+
+                {showEndDots && (
+                  <button
+                    onClick={() => setPage(totalPages)}
+                    className="w-10 h-10 rounded-xl font-bold text-sm bg-white border border-slate-200 hover:border-primary-color"
+                  >
+                    {totalPages}
+                  </button>
+                )}
+
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  className="p-2.5 rounded-xl border border-slate-200 bg-white disabled:opacity-50 hover:bg-slate-50 transition-colors"
+                >
+                  <Loader2
+                    className={`w-4 h-4 ${productsLoading ? "animate-spin" : ""}`}
+                  />
+                </button>
+              </div>
+            )}
+          </>
+        )}
+      </Container>
+    </section>
+  );
+};
+
+const SubCategoryProducts = (props) => (
+  <Suspense fallback={<SubCategoryProductsLoading />}>
+    <SubCategoryProductsContent {...props} />
+  </Suspense>
+);
 
 export default SubCategoryProducts;

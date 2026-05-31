@@ -383,6 +383,8 @@ export default function WebsiteInfoAdmin() {
  </div>
  </div>
 
+
+
  {/* Footer Section */}
  <div className="border-b pb-6">
  <h3 className="text-lg font-semibold text-gray-300 mb-4">📍 Footer Section</h3>
@@ -515,7 +517,9 @@ export default function WebsiteInfoAdmin() {
  </div>
 
  {/* Active Status */}
- <div className="flex items-center gap-3">
+ <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+
+ <div className="flex items-center gap-3 pt-6">
  <label className="flex items-center gap-2 cursor-pointer">
  <input
  type="checkbox"
@@ -546,6 +550,7 @@ export default function WebsiteInfoAdmin() {
  >
  Cancel
  </button>
+ </div>
  </div>
  </form>
  </div>
@@ -645,6 +650,8 @@ export default function WebsiteInfoAdmin() {
  <span className="ml-2 text-gray-300">{info.supportContact}</span>
  </div>
  )}
+
+
  {info.socialLinks && info.socialLinks.length > 0 && (
  <div className="md:col-span-3">
  <span className="font-medium text-gray-300">Social Media:</span>

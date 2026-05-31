@@ -1,9 +1,21 @@
-"use client"
-import Image from "next/image"
-import { ProductGridSkeleton } from '@/src/compronent/loading/ProductGridSkeleton'
-import { addToCartApi, getCartApi, removeCartItemApi, updateCartItemApi } from "@/src/hook/useCart"
-import { ProductDelete, ProductUpdate } from "@/src/hook/useProduct"
-import { addToWishlistApi, removeFromWishlistApi } from "@/src/hook/useWishlist"
+"use client";
+import Image from "next/image";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import ToggleButton from "@mui/material/ToggleButton";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import { ProductGridSkeleton } from "@/src/compronent/loading/ProductGridSkeleton";
+import {
+  addToCartApi,
+  getCartApi,
+  removeCartItemApi,
+  updateCartItemApi,
+} from "@/src/hook/useCart";
+import { ProductDelete, ProductUpdate } from "@/src/hook/useProduct";
+import {
+  addToWishlistApi,
+  removeFromWishlistApi,
+} from "@/src/hook/useWishlist";
 import {
   fetchShopProducts,
   resetFilters,
@@ -17,231 +29,316 @@ import {
   setViewMode,
   syncFromUrl,
   toggleFilters,
-  hydrate
-} from "@/src/redux/shopSlice"
-import { getCategoryId, getSubCategoryId } from "@/src/utlis/filterHelpers"
-import { useCategoryWithSubcategories } from "@/src/utlis/useCategoryWithSubcategories"
-import { useWishlist } from "@/src/utlis/useWishList"
-import { createCouponCode, getAllCoupons, updateCouponCode } from "@/src/hook/useCoupon"
-import { ArrowUp, CheckCircle, ChevronDown, Edit, Filter, Grid, Heart, Info, List, RotateCcw, Search, ShoppingCart, SlidersHorizontal, Sparkles, Star, Tag, Trash2, X } from "lucide-react"
-import { useRouter, useSearchParams } from "next/navigation"
-import React, { useCallback, useEffect, useMemo, useState, useRef } from "react"
-import toast from "react-hot-toast"
-import { useDispatch, useSelector } from "react-redux"
-import AddtoCartBtn from "@/src/helper/Buttons/AddtoCartBtn"
+  hydrate,
+} from "@/src/redux/shopSlice";
+import { getCategoryId, getSubCategoryId } from "@/src/utlis/filterHelpers";
+import { useCategoryWithSubcategories } from "@/src/utlis/useCategoryWithSubcategories";
+import { useWishlist } from "@/src/utlis/useWishList";
+import {
+  createCouponCode,
+  getAllCoupons,
+  updateCouponCode,
+} from "@/src/hook/useCoupon";
+import {
+  ArrowUp,
+  CheckCircle,
+  ChevronDown,
+  Edit,
+  Filter,
+  Grid,
+  Heart,
+  Info,
+  List,
+  RotateCcw,
+  Search,
+  ShoppingCart,
+  SlidersHorizontal,
+  Sparkles,
+  Star,
+  Tag,
+  Trash2,
+  X,
+} from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+} from "react";
+import toast from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import AddtoCartBtn from "@/src/helper/Buttons/AddtoCartBtn";
 
 // Helper function to determine if product is new or old
 const isProductNew = (createdDate) => {
-  if (!createdDate) return true // Default to new if no date
-  const created = new Date(createdDate)
-  const now = new Date()
-  const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
-  return created > monthAgo
-}
+  if (!createdDate) return true; // Default to new if no date
+  const created = new Date(createdDate);
+  const now = new Date();
+  const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  return created > monthAgo;
+};
 
+const ProductCard = React.memo(
+  ({
+    product,
+    viewMode,
+    router,
+    toggleWishlist,
+    wishlist,
+    favorite,
+    setFavorite,
+    addToCart,
+    user,
+    handleEdit,
+    setDeleteModal,
+  }) => {
+    const dispatch = useDispatch();
+    if (!product) return null;
 
+    const productId = product._id || product.id;
+    const productName = product.productName || product.name;
+    const productImage =
+      product.image || product.images?.[0] || "/img/product.jpg";
+    const productPrice = Number(product.price ?? product.sell_price) || 0;
+    const productRank = Number(product.productRank ?? product.retailSale) || 0;
+    const inStock = (product.productStock ?? product.stock ?? 1) > 0;
+    const isNew = isProductNew(
+      product.createdAt || product.created_at || product.createdDate,
+    );
+    const ratingValue = product.rating || product.ratings || 0;
+    const productBrand = product.brand || product.manufacturer || "";
 
-const ProductCard = React.memo(({ product, viewMode, router, toggleWishlist, wishlist, favorite, setFavorite, addToCart, user, handleEdit, setDeleteModal }) => {
-  const dispatch = useDispatch();
-  if (!product) return null;
-
-  const productId = product._id || product.id;
-  const productName = product.productName || product.name;
-  const productImage = product.image || product.images?.[0] || "/img/product.jpg";
-  const productPrice = Number(product.price ?? product.sell_price) || 0;
-  const productRank = Number(product.productRank ?? product.retailSale) || 0;
-  const inStock = (product.productStock ?? product.stock ?? 1) > 0;
-  const isNew = isProductNew(product.createdAt || product.created_at || product.createdDate);
-  const ratingValue = product.rating || product.ratings || 0;
-  const productBrand = product.brand || product.manufacturer || "";
-
-  // Render Stars Helper
-  const renderStars = (rating) => {
-    return [...Array(5)].map((_, i) => (
-      <Star
-        key={i}
-        className={`w-3 h-3 sm:w-4 sm:h-4 ${i < Math.floor(rating)
-          ? "text-yellow-400 fill-current"
-          : "text-black"
-          }`}
-      />
-    ));
-  };
-
-  return (
-    <div
-      onClick={() => {
-        dispatch(setQuickViewProduct(product));
-        router.push(`/productdetails/${productId}`);
-      }}
-      className={`group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl cursor-pointer ${viewMode === "list" ? "flex" : ""}`}
-    >
-      <div className={`relative ${viewMode === "list" ? "w-48" : ""}`}>
-        <Image
-          src={productImage}
-          alt={productName || "Product"}
-          width={400}
-          height={400}
-          loading="lazy"
-          className={`w-full object-cover ${viewMode === "list" ? "h-full" : "h-40 sm:h-44"}`}
+    // Render Stars Helper
+    const renderStars = (rating) => {
+      return [...Array(5)].map((_, i) => (
+        <Star
+          key={i}
+          className={`w-3 h-3 sm:w-4 sm:h-4 ${i < Math.floor(rating)
+            ? "text-yellow-400 fill-current"
+            : "text-black"
+            }`}
         />
+      ));
+    };
 
-        {/* Badges */}
-        <div className="absolute top-0 left-0 flex justify-between w-full">
-          <div className="flex items-start">
-            {isNew && (
-              <span className="bg-btn-color text-accent-content px-1 py-1 rounded text-[8px] font-semibold">NEW</span>
-            )}
-            {productRank > productPrice ? <span className="bg-yellow-500 text-black px-1 py-1 mx-[2px] rounded text-[8px] font-semibold">
-              -{(productRank - productPrice)}৳
-            </span> : null}
+    return (
+      <div
+        onClick={() => {
+          dispatch(setQuickViewProduct(product));
+          router.push(`/productdetails/${productId}`);
+        }}
+        className={`group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl cursor-pointer ${viewMode === "list" ? "flex" : ""}`}
+      >
+        <div className={`relative ${viewMode === "list" ? "w-48" : ""}`}>
+          <Image
+            src={productImage}
+            alt={productName || "Product"}
+            width={400}
+            height={400}
+            loading="lazy"
+            className={`w-full object-cover ${viewMode === "list" ? "h-full" : "h-40 sm:h-44"}`}
+          />
+
+          {/* Badges */}
+          <div className="absolute top-0 left-0 flex justify-between w-full">
+            <div className="flex items-start">
+              {isNew && (
+                <span className="bg-btn-color text-accent-content px-1 py-1 rounded text-[8px] font-semibold">
+                  NEW
+                </span>
+              )}
+              {productRank > productPrice ? (
+                <span className="bg-yellow-500 text-black px-1 py-1 mx-[2px] rounded text-[8px] font-semibold">
+                  -{productRank - productPrice}৳
+                </span>
+              ) : null}
+            </div>
+            {product.productStatus &&
+              product.productStatus.length > 0 &&
+              !product.productStatus.includes("none") && (
+                <span
+                  className={` ${product.productStatus.includes("hot") ? "text-red-500" : "text-blue-400 "} max-h-6  bg-black px-1 py-1 rounded-md text-xs font-bold`}
+                >
+                  {Array.isArray(product.productStatus)
+                    ? product.productStatus[0]
+                    : product.productStatus}
+                </span>
+              )}
           </div>
-          {product.productStatus && product.productStatus.length > 0 && !product.productStatus.includes("none") && (
-            <span className={` ${product.productStatus.includes("hot") ? 'text-red-500' : 'text-blue-400 '} max-h-6  bg-black px-1 py-1 rounded-md text-xs font-bold`}>
-              {Array.isArray(product.productStatus) ? product.productStatus[0] : product.productStatus}
-            </span>
+
+          {/* Action Buttons (Wishlist) */}
+          <div
+            className={`absolute ${product.productStatus?.length > 0 ? "top-6" : "top-0"} bg-accent-content rounded-md right-0 space-y-2`}
+          >
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleWishlist(product);
+                // Local update for immediate feedback if needed, distinct from prop check
+                if (
+                  (favorite && favorite.includes(productId)) ||
+                  (wishlist &&
+                    wishlist.some(
+                      (i) => i.id === productId || i._id === productId,
+                    ))
+                ) {
+                  const removeItem = favorite
+                    ? favorite.filter((item) => item !== productId)
+                    : [];
+                  return setFavorite(removeItem);
+                }
+                setFavorite([...favorite, productId]);
+              }}
+              className={`p-1 cursor-pointer rounded-lg
+              ${wishlist &&
+                  wishlist.some(
+                    (item) => item.id === productId || item._id === productId,
+                  )
+                  ? "text-red-500 bg-red-100"
+                  : "text-gray-400 bg-bg hover:text-red-500 hover:bg-red-50"
+                }`}
+            >
+              <Heart
+                className="w-3 h-3"
+                fill={
+                  (user &&
+                    wishlist &&
+                    wishlist.some(
+                      (item) => item.id === productId || item._id === productId,
+                    )) ||
+                    (user && favorite && favorite.includes(productId))
+                    ? "red"
+                    : "none"
+                }
+                strokeWidth={2}
+              />
+            </button>
+          </div>
+
+          {!inStock && (
+            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+              <span className="bg-red-500 text-accent-content px-3 py-1 rounded font-semibold text-xs">
+                Out of Stock
+              </span>
+            </div>
           )}
         </div>
 
-        {/* Action Buttons (Wishlist) */}
-        <div className={`absolute ${product.productStatus?.length > 0 ? "top-6" : "top-0"} bg-accent-content rounded-md right-0 space-y-2`}>
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              toggleWishlist(product)
-              // Local update for immediate feedback if needed, distinct from prop check
-              if ((favorite && favorite.includes(productId)) || (wishlist && wishlist.some(i => i.id === productId || i._id === productId))) {
-                const removeItem = favorite ? favorite.filter(item => item !== productId) : []
-                return setFavorite(removeItem)
-              }
-              setFavorite([...favorite, productId])
-            }}
-            className={`p-1 cursor-pointer rounded-lg
-              ${(wishlist && wishlist.some((item) => item.id === productId || item._id === productId))
-                ? "text-red-500 bg-red-100"
-                : "text-gray-400 bg-bg hover:text-red-500 hover:bg-red-50"
-              }`}
-          >
-            <Heart
-              className="w-3 h-3"
-              fill={(wishlist && wishlist.some((item) => item.id === productId || item._id === productId)) || (favorite && favorite.includes(productId)) ? "red" : "none"}
-              strokeWidth={2}
-            />
-          </button>
-        </div>
-
-        {!inStock && (
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-            <span className="bg-red-500 text-accent-content px-3 py-1 rounded font-semibold text-xs">Out of Stock</span>
-          </div>
-        )}
-      </div>
-
-      <div className={`p-3 ${viewMode === "list" ? "flex-1 flex flex-col justify-between" : ""}`}>
-        <div>
-          <h3 className={`font-semibold text-sm text-gray-800 mb-1 group-hover:text-secondary line-clamp-2`}>
-            {productName}
-          </h3>
-          <p className="text-xs text-gray-500 mb-2">{productBrand}</p>
-
-          {/* Rating */}
-          <div className="flex items-center gap-1 mb-2">
-            <div className="flex items-center">
-              {renderStars(ratingValue)}
-            </div>
-            <span className="text-xs text-gray-500">({ratingValue})</span>
-          </div>
-        </div>
-
-        <div>
-          {/* Price */}
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-base font-bold text-red-600">
-              Tk {productPrice}
-            </span>
-            {productRank > productPrice && (
-              <span className="text-xs font-semibold text-gray-400 line-through">
-                {productRank.toFixed(2)}
-              </span>
-            )}
-          </div>
-
-          {user?.role !== "ADMIN" ? (
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                // addToCart(product)
-              }}
-              disabled={!inStock}
-              className={`w-full py-1.5 px-2 rounded font-medium text-xs ${inStock
-                ? "bg-btn-color text-accent-content hover:bg-btn-color/80"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                }`}
+        <div
+          className={`p-3 ${viewMode === "list" ? "flex-1 flex flex-col justify-between" : ""}`}
+        >
+          <div>
+            <h3
+              className={`font-semibold text-sm text-gray-800 mb-1 group-hover:text-secondary line-clamp-2`}
             >
-              {inStock ? (
+              {productName}
+            </h3>
+            <p className="text-xs text-gray-500 mb-2">{productBrand}</p>
 
-                <AddtoCartBtn productId={productId}>
-                  <span className="flex items-center justify-center gap-1"><ShoppingCart size={16} /> Add to Cart</span>
+            {/* Rating */}
+            <div className="flex items-center gap-1 mb-2">
+              <div className="flex items-center">
+                {renderStars(ratingValue)}
+              </div>
+              <span className="text-xs text-gray-500">({ratingValue})</span>
+            </div>
+          </div>
 
-                </AddtoCartBtn>
+          <div>
+            {/* Price */}
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-base font-bold text-red-600">
+                Tk {productPrice}
+              </span>
+              {productRank > productPrice && (
+                <span className="text-xs font-semibold text-gray-400 line-through">
+                  {productRank.toFixed(2)}
+                </span>
+              )}
+            </div>
 
-              ) : ("Out of Stock")}
-            </button>
-          ) : (
-            <div className="flex justify-around gap-2">
+            {user?.role !== "ADMIN" ? (
               <button
                 onClick={(e) => {
-                  e.stopPropagation()
+                  e.stopPropagation();
                   // addToCart(product)
                 }}
                 disabled={!inStock}
-                className={`py-1.5 px-2 rounded font-medium text-xs ${inStock
-                  ? "bg-btn-color text-accent-content hover:bg-green-700"
+                className={`w-full py-1.5 px-2 rounded font-medium text-xs ${inStock
+                  ? "bg-btn-color text-accent-content hover:bg-btn-color/80"
                   : "bg-gray-300 text-gray-500 cursor-not-allowed"
                   }`}
               >
                 {inStock ? (
-                  <span className="flex items-center justify-center gap-1">
-                    <AddtoCartBtn productId={productId}> <ShoppingCart size={16} /></AddtoCartBtn>
-                  </span>
+                  <AddtoCartBtn productId={productId}>
+                    <span className="flex items-center justify-center gap-1">
+                      <ShoppingCart size={16} /> Add to Cart
+                    </span>
+                  </AddtoCartBtn>
                 ) : (
                   "Out of Stock"
                 )}
               </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleEdit(product)
-                }}
-                className="p-2 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-accent-content rounded-lg shadow-lg"
-              >
-                <Edit size={16} />
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setDeleteModal({ ...product, id: productId })
-                }}
-                className="p-2 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-400 hover:to-pink-400 text-accent-content rounded-lg shadow-lg cursor-pointer"
-              >
-                <Trash2 size={16} />
-              </button>
-            </div>
-          )}
+            ) : (
+              <div className="flex justify-around gap-2">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    // addToCart(product)
+                  }}
+                  disabled={!inStock}
+                  className={`py-1.5 px-2 rounded font-medium text-xs ${inStock
+                    ? "bg-btn-color text-accent-content hover:bg-green-700"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    }`}
+                >
+                  {inStock ? (
+                    <span className="flex items-center justify-center gap-1">
+                      <AddtoCartBtn productId={productId}>
+                        {" "}
+                        <ShoppingCart size={16} />
+                      </AddtoCartBtn>
+                    </span>
+                  ) : (
+                    "Out of Stock"
+                  )}
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEdit(product);
+                  }}
+                  className="p-2 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-accent-content rounded-lg shadow-lg"
+                >
+                  <Edit size={16} />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDeleteModal({ ...product, id: productId });
+                  }}
+                  className="p-2 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-400 hover:to-pink-400 text-accent-content rounded-lg shadow-lg cursor-pointer"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
-  );
-});
-
+    );
+  },
+);
 
 const ShopPage = ({ initialData, queryParams }) => {
-  const router = useRouter()
-  const dispatch = useDispatch()
-  const searchParams = useSearchParams()
+  const router = useRouter();
+  const dispatch = useDispatch();
+  const searchParams = useSearchParams();
 
   // Get all filter states from Redux
-  const shopState = useSelector((state) => state.shop)
+  const shopState = useSelector((state) => state.shop);
   const {
     searchTerm,
     filterCategory,
@@ -258,8 +355,8 @@ const ShopPage = ({ initialData, queryParams }) => {
     totalCount: reduxTotalCount,
     loading: productsLoading,
     error: productsError,
-    debouncedSearchTerm
-  } = shopState
+    debouncedSearchTerm,
+  } = shopState;
 
   const hasActiveFilters = useMemo(() => {
     return (
@@ -272,7 +369,15 @@ const ShopPage = ({ initialData, queryParams }) => {
       priceRange[1] < 100000 ||
       sortBy !== "name"
     );
-  }, [searchTerm, filterCategory, filterSubCategory, filterBrand, filterGender, priceRange, sortBy]);
+  }, [
+    searchTerm,
+    filterCategory,
+    filterSubCategory,
+    filterBrand,
+    filterGender,
+    priceRange,
+    sortBy,
+  ]);
 
   // Hydrate Redux with Server Data on Mount
   useEffect(() => {
@@ -282,38 +387,54 @@ const ShopPage = ({ initialData, queryParams }) => {
   }, [initialData, dispatch, reduxProducts.length]);
 
   // Sync URL params to Redux state on mount (Enhanced with Props)
-  const urlSearch = queryParams?.search || searchParams?.get("search") || ""
-  const urlCategory = queryParams?.category || searchParams?.get("category") || ""
-  const urlSubCategory = queryParams?.subcategory || searchParams?.get("subcategory") || ""
-  const urlBrand = queryParams?.brand || searchParams?.get("brand") || ""
-  const urlGender = queryParams?.gender || searchParams?.get("gender") || ""
-  const urlMinPrice = queryParams?.minPrice || searchParams?.get("minPrice")
-  const urlMaxPrice = queryParams?.maxPrice || searchParams?.get("maxPrice")
-  const urlRating = queryParams?.rating || searchParams?.get("rating")
-  const urlSortBy = queryParams?.sortBy || searchParams?.get("sortBy") || ""
-  const urlPage = queryParams?.page || searchParams?.get("page")
+  const urlSearch = queryParams?.search || searchParams?.get("search") || "";
+  const urlCategory =
+    queryParams?.category || searchParams?.get("category") || "";
+  const urlSubCategory =
+    queryParams?.subcategory || searchParams?.get("subcategory") || "";
+  const urlBrand = queryParams?.brand || searchParams?.get("brand") || "";
+  const urlGender = queryParams?.gender || searchParams?.get("gender") || "";
+  const urlMinPrice = queryParams?.minPrice || searchParams?.get("minPrice");
+  const urlMaxPrice = queryParams?.maxPrice || searchParams?.get("maxPrice");
+  const urlRating = queryParams?.rating || searchParams?.get("rating");
+  const urlSortBy = queryParams?.sortBy || searchParams?.get("sortBy") || "";
+  const urlPage = queryParams?.page || searchParams?.get("page");
 
   useEffect(() => {
-    dispatch(syncFromUrl({
-      search: urlSearch,
-      category: urlCategory,
-      subcategory: urlSubCategory,
-      brand: urlBrand,
-      gender: urlGender,
-      minPrice: urlMinPrice,
-      maxPrice: urlMaxPrice,
-      rating: urlRating,
-      sortBy: urlSortBy,
-      page: urlPage
-    }))
-  }, [dispatch, urlCategory, urlSubCategory, urlBrand, urlGender, urlMinPrice, urlMaxPrice, urlRating, urlSortBy, urlPage]) // Only run on mount to sync initial URL -> Redux
+    dispatch(
+      syncFromUrl({
+        search: urlSearch,
+        category: urlCategory,
+        subcategory: urlSubCategory,
+        brand: urlBrand,
+        gender: urlGender,
+        minPrice: urlMinPrice,
+        maxPrice: urlMaxPrice,
+        rating: urlRating,
+        sortBy: urlSortBy,
+        page: urlPage,
+      }),
+    );
+  }, [
+    dispatch,
+    urlCategory,
+    urlSubCategory,
+    urlBrand,
+    urlGender,
+    urlMinPrice,
+    urlMaxPrice,
+    urlRating,
+    urlSortBy,
+    urlPage,
+  ]); // Only run on mount to sync initial URL -> Redux
 
   // Update URL when Filters Change (Redux -> URL)
   useEffect(() => {
     const params = new URLSearchParams();
     if (debouncedSearchTerm) params.set("search", debouncedSearchTerm);
     if (filterCategory !== "all") params.set("category", filterCategory);
-    if (filterSubCategory !== "all") params.set("subcategory", filterSubCategory);
+    if (filterSubCategory !== "all")
+      params.set("subcategory", filterSubCategory);
     if (filterBrand !== "all") params.set("brand", filterBrand);
     if (filterGender !== "all") params.set("gender", filterGender);
     if (sortBy !== "name") params.set("sortBy", sortBy);
@@ -336,21 +457,20 @@ const ShopPage = ({ initialData, queryParams }) => {
     currentPage,
     ratingFilter,
     priceRange,
-    router
+    router,
   ]);
-
 
   // Use server products directly from Redux OR Fallback to Initial Data
   // This ensures the user sees the cached server data immediately before Redux takes over
   // Removed derived currentProducts and totalCount as they are now computed locally for performance
 
   // Local component state
-  const [deleteModal, setDeleteModal] = useState(null)
-  const [editModal, setEditModal] = useState(null)
-  const [favorite, setFavorite] = useState([])
-  const [showCategory, setShowCategory] = useState(false)
-  const [showSubCategory, setShowSubCategory] = useState(false)
-  const productsPerPage = 100
+  const [deleteModal, setDeleteModal] = useState(null);
+  const [editModal, setEditModal] = useState(null);
+  const [favorite, setFavorite] = useState([]);
+  const [showCategory, setShowCategory] = useState(false);
+  const [showSubCategory, setShowSubCategory] = useState(false);
+  const productsPerPage = 100;
 
   // Optimize Redux Selectors to avoid new references
   const reduxCartItems = useSelector((state) => state.cart.items) || []; // Default outside selector
@@ -360,7 +480,7 @@ const ShopPage = ({ initialData, queryParams }) => {
   const cart = useMemo(() => {
     return (reduxCart || []).map((item) => {
       if (item?.productId) {
-        const prod = item.productId
+        const prod = item.productId;
         return {
           id: prod._id || prod.id || String(prod?._id || prod?.id || ""),
           name: prod.productName || prod.name || prod.title || "Product",
@@ -368,7 +488,7 @@ const ShopPage = ({ initialData, queryParams }) => {
           price: Number(prod.price ?? prod.sell_price ?? prod.amount) || 0,
           quantity: item.quantity || 1,
           brand: prod.brand || prod.manufacturer || "",
-        }
+        };
       }
 
       return {
@@ -378,21 +498,28 @@ const ShopPage = ({ initialData, queryParams }) => {
         price: Number(item.price) || 0,
         quantity: item.quantity || 1,
         brand: item.brand || "",
-      }
-    })
-  }, [reduxCart])
-  const user = useSelector((state) => state.user?.data)
-  const { wishlist } = useWishlist()
+      };
+    });
+  }, [reduxCart]);
+  const user = useSelector((state) => state.user?.data);
+  const { wishlist } = useWishlist();
 
   // Fetch categories and subcategories from API if not provided in initialData
-  const { categories: apiCategories, subcategories: apiSubcategories, loading: categoriesLoading } = useCategoryWithSubcategories(initialData?.categories, initialData?.subcategories)
+  const {
+    categories: apiCategories,
+    subcategories: apiSubcategories,
+    loading: categoriesLoading,
+  } = useCategoryWithSubcategories(
+    initialData?.categories,
+    initialData?.subcategories,
+  );
 
   // Load cart for logged-in user
   useEffect(() => {
     if (user?._id) {
-      getCartApi(user._id, dispatch)
+      getCartApi(user._id, dispatch);
     }
-  }, [user, dispatch])
+  }, [user, dispatch]);
 
   // totalPages computed locally now
 
@@ -404,16 +531,28 @@ const ShopPage = ({ initialData, queryParams }) => {
       limit: productsPerPage,
       search: debouncedSearchTerm,
       categoryId: filterCategory === "all" ? undefined : filterCategory,
-      subCategoryId: filterSubCategory === "all" ? undefined : filterSubCategory,
+      subCategoryId:
+        filterSubCategory === "all" ? undefined : filterSubCategory,
       brand: filterBrand === "all" ? undefined : filterBrand,
       gender: filterGender === "all" ? undefined : filterGender,
       minPrice: priceRange[0],
       maxPrice: priceRange[1],
-      sortBy: sortBy
+      sortBy: sortBy,
     };
 
     dispatch(fetchShopProducts(params));
-  }, [dispatch, currentPage, productsPerPage, debouncedSearchTerm, filterCategory, filterSubCategory, filterBrand, filterGender, priceRange, sortBy]);
+  }, [
+    dispatch,
+    currentPage,
+    productsPerPage,
+    debouncedSearchTerm,
+    filterCategory,
+    filterSubCategory,
+    filterBrand,
+    filterGender,
+    priceRange,
+    sortBy,
+  ]);
 
   const currentProducts = reduxProducts;
   const totalCountComputed = reduxTotalCount;
@@ -428,94 +567,113 @@ const ShopPage = ({ initialData, queryParams }) => {
   }, [searchTerm, dispatch]);
 
   // Add to cart (uses API + redux)
-  const addToCart = useCallback(async (product) => {
+  const addToCart = useCallback(
+    async (product) => {
+      if (product.size.length && product.color.length) {
+        toast.error("Please select size and color");
+        return;
+      }
+      if (!user?._id) {
+        toast.error("Please sign in to add items to cart");
+        return;
+      }
 
-    if (product.size.length && product.color.length) {
-      toast.error("Please select size and color")
-      return
-    }
-    if (!user?._id) {
-      toast.error("Please sign in to add items to cart")
-      return
-    }
-
-    try {
-      await addToCartApi(
-        {
-          userId: user._id,
-          productId: product.id,
-          quantity: 1,
-          price: product.price,
-        },
-        dispatch,
-      )
-      toast.success(`${product.name} added to cart`)
-      // refresh cart
-      await getCartApi(user._id, dispatch)
-    } catch (err) {
-      console.error("Add to cart error:", err)
-      const msg = err?.response?.data?.message || "Failed to add to cart"
-      toast.error(msg)
-    }
-  }, [user?._id, dispatch]);
+      try {
+        await addToCartApi(
+          {
+            userId: user._id,
+            productId: product.id,
+            quantity: 1,
+            price: product.price,
+          },
+          dispatch,
+        );
+        toast.success(`${product.name} added to cart`);
+        // refresh cart
+        await getCartApi(user._id, dispatch);
+      } catch (err) {
+        console.error("Add to cart error:", err);
+        const msg = err?.response?.data?.message || "Failed to add to cart";
+        toast.error(msg);
+      }
+    },
+    [user?._id, dispatch],
+  );
 
   // Remove from cart (uses API + redux)
-  const removeFromCart = useCallback(async (productId) => {
-    if (!user?._id) {
-      // optimistic local fallback (should rarely happen)
-      return
-    }
-    try {
-      await removeCartItemApi(user._id, productId, dispatch)
-      toast.success("Removed from cart")
-      await getCartApi(user._id, dispatch)
-    } catch (err) {
-      console.error("Remove from cart error:", err)
-      toast.error("Failed to remove item")
-    }
-  }, [user?._id, dispatch]);
+  const removeFromCart = useCallback(
+    async (productId) => {
+      if (!user?._id) {
+        // optimistic local fallback (should rarely happen)
+        return;
+      }
+      try {
+        await removeCartItemApi(user._id, productId, dispatch);
+        toast.success("Removed from cart");
+        await getCartApi(user._id, dispatch);
+      } catch (err) {
+        console.error("Remove from cart error:", err);
+        toast.error("Failed to remove item");
+      }
+    },
+    [user?._id, dispatch],
+  );
 
   // Update quantity (API + redux)
-  const updateQuantity = useCallback(async (productId, newQuantity) => {
-    if (!user?._id) {
-      return
-    }
-    if (newQuantity === 0) {
-      await removeFromCart(productId)
-      return
-    }
-    try {
-      await updateCartItemApi({ userId: user._id, productId, quantity: newQuantity }, dispatch)
-      await getCartApi(user._id, dispatch)
-    } catch (err) {
-      console.error("Update cart quantity error:", err)
-      toast.error("Failed to update quantity")
-    }
-  }, [user?._id, dispatch, removeFromCart]);
+  const updateQuantity = useCallback(
+    async (productId, newQuantity) => {
+      if (!user?._id) {
+        return;
+      }
+      if (newQuantity === 0) {
+        await removeFromCart(productId);
+        return;
+      }
+      try {
+        await updateCartItemApi(
+          { userId: user._id, productId, quantity: newQuantity },
+          dispatch,
+        );
+        await getCartApi(user._id, dispatch);
+      } catch (err) {
+        console.error("Update cart quantity error:", err);
+        toast.error("Failed to update quantity");
+      }
+    },
+    [user?._id, dispatch, removeFromCart],
+  );
 
   // Toggle wishlist (uses API + redux)
-  const toggleWishlist = useCallback(async (product) => {
-    if (!user?._id) {
-      toast.error("Please sign in to add to wishlist")
-      return
-    }
-    try {
-      const exists = (wishlist || []).some((i) => i.id === product.id || favorite.includes(product.id))
-      if (exists) {
-        await removeFromWishlistApi(product.id, dispatch)
-        toast.success("Removed from wishlist")
-      } else {
-        await addToWishlistApi(product.id, dispatch)
-        toast.success("Added to wishlist")
+  const toggleWishlist = useCallback(
+    async (product) => {
+      if (!user?._id) {
+        toast.error("Please sign in to add to wishlist");
+        return;
       }
-    } catch (err) {
-      console.error("Wishlist toggle error:", err)
-      toast.error("Failed to update wishlist")
-    }
-  }, [wishlist, favorite, dispatch]);
+      try {
+        const exists = (wishlist || []).some(
+          (i) => i.id === product.id || favorite.includes(product.id),
+        );
+        if (exists) {
+          await removeFromWishlistApi(product.id, dispatch);
+          toast.success("Removed from wishlist");
+        } else {
+          await addToWishlistApi(product.id, dispatch);
+          toast.success("Added to wishlist");
+        }
+      } catch (err) {
+        console.error("Wishlist toggle error:", err);
+        toast.error("Failed to update wishlist");
+      }
+    },
+    [wishlist, favorite, dispatch],
+  );
 
   // Calculate cart total
-  const cartTotal = cart.reduce((total, item) => total + item.price * item.quantity, 0)
+  const cartTotal = cart.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0,
+  );
 
   // Calculate which page numbers to show (using server-side totalPages)
   const getPageNumbers = () => {
@@ -540,43 +698,44 @@ const ShopPage = ({ initialData, queryParams }) => {
 
   const pageNumbers = getPageNumbers();
   const showStartDots = currentPage > 5;
-  const showEndDots = pageNumbers.length > 0 && pageNumbers[pageNumbers.length - 1] < totalPages;
+  const showEndDots =
+    pageNumbers.length > 0 && pageNumbers[pageNumbers.length - 1] < totalPages;
 
   // Use API categories if available
-  const sidebarCategories = apiCategories.map(cat => ({
+  const sidebarCategories = apiCategories.map((cat) => ({
     name: cat.name,
-    slug: cat.slug || cat.name.toLowerCase().replace(/ /g, "-")
+    slug: cat.slug || cat.name.toLowerCase().replace(/ /g, "-"),
   }));
 
   const categories = ["all", ...sidebarCategories];
 
   const sidebarSubCategories = apiSubcategories
-    .filter(sub => {
+    .filter((sub) => {
       if (filterCategory === "all") return true;
-      const category = apiCategories.find(cat =>
-        cat.id === (sub.categoryId?._id || sub.categoryId) ||
-        cat.slug === filterCategory ||
-        cat.name === filterCategory
+      const parentCategory = apiCategories.find(
+        (cat) => cat.id === (sub.categoryId?._id || sub.categoryId),
       );
-      return category?.slug === filterCategory || category?.name === filterCategory;
+      return (
+        parentCategory?.slug === filterCategory ||
+        parentCategory?.name === filterCategory
+      );
     })
-    .map(sub => ({
+    .map((sub) => ({
       name: sub.name,
-      slug: sub.slug || sub.name.toLowerCase().replace(/ /g, "-")
+      slug: sub.slug || sub.name.toLowerCase().replace(/ /g, "-"),
     }));
 
   const subCategories = ["all", ...sidebarSubCategories];
 
-  const brands = ["all"] // Can be populated from API if needed
-  const genders = ["all", "men", "women", "unisex"]
+  const brands = ["all"]; // Can be populated from API if needed
+  const genders = ["all", "men", "women", "unisex"];
 
   const clearFilters = () => {
-    dispatch(resetFilters())
-    router.push('/shop')
-  }
-  // handle delete functionality 
+    dispatch(resetFilters());
+    router.push("/shop");
+  };
+  // handle delete functionality
   const confirmDelete = async () => {
-
     try {
       if (!deleteModal) return;
       await ProductDelete(deleteModal.id);
@@ -591,40 +750,100 @@ const ShopPage = ({ initialData, queryParams }) => {
   const [load, setLoad] = useState(false);
   const [productCoupon, setProductCoupon] = useState(null);
   const [subCategoryCoupon, setSubCategoryCoupon] = useState(null);
+  const [couponLoad, setCouponLoad] = useState(false);
 
-  // handle edit functionality 
-  const handleEdit = useCallback(async (p) => {
-    const productId = p._id || p.id;
-    const selectedProduct = currentProducts.find(item => (item._id || item.id) === productId);
-    setEditModal(selectedProduct);
-
-    // Fetch coupon for this product or its subcategories
-    try {
-      const couponsData = await getAllCoupons();
-      const foundProductCoupon = couponsData?.data?.find(c => c.applicableProduct?._id === productId || c.applicableProduct === productId);
-
-      // Identify subcategories of the product (can be array of IDs or objects)
-      const productSubCats = Array.isArray(selectedProduct?.subCategory)
-        ? selectedProduct.subCategory.map(sc => (sc._id || sc).toString())
-        : (selectedProduct?.subCategory ? [(selectedProduct.subCategory._id || selectedProduct.subCategory).toString()] : []);
-
-      const foundSubCatCoupon = couponsData?.data?.find(c =>
-        c.applicableSubCategory && productSubCats.includes((c.applicableSubCategory?._id || c.applicableSubCategory).toString())
-      );
-
-      setProductCoupon(foundProductCoupon || {
-        code: '',
-        discountType: 'percentage',
-        discountAmount: 0,
-        isActive: true,
-        applicableProduct: productId
-      });
-      setSubCategoryCoupon(foundSubCatCoupon);
-    } catch (error) {
-      console.error("Failed to fetch coupon:", error);
+  // handle apply coupon functionality separately
+  const handleApplyCoupon = async () => {
+    if (!productCoupon || !productCoupon.code) {
+      toast.error("Please enter a coupon code");
+      return;
     }
+    setCouponLoad(true);
+    try {
+      if (productCoupon._id) {
+        await updateCouponCode(productCoupon._id, productCoupon);
+        toast.success("Coupon updated successfully!");
+      } else {
+        const payload = {
+          ...productCoupon,
+          applicableProduct: editModal._id || editModal.id,
+          validFrom: new Date().toISOString(),
+          validUntil: new Date(
+            Date.now() + 365 * 24 * 60 * 60 * 1000,
+          ).toISOString(),
+        };
+        const res = await createCouponCode(payload);
+        // The coupon backend might return success and the created coupon object
+        toast.success("Coupon applied successfully!");
+        if (res?.coupon) {
+          setProductCoupon(res.coupon);
+        }
+      }
+    } catch (error) {
+      console.error("Coupon update error:", error);
+      toast.error(
+        error.response?.data?.message || "Failed to update/create coupon",
+      );
+    } finally {
+      setCouponLoad(false);
+    }
+  };
 
-  }, [currentProducts])
+  // handle edit functionality
+  const handleEdit = useCallback(
+    async (p) => {
+      const productId = p._id || p.id;
+      const selectedProduct = currentProducts.find(
+        (item) => (item._id || item.id) === productId,
+      );
+      setEditModal(selectedProduct);
+
+      // Fetch coupon for this product or its subcategories
+      try {
+        const couponsData = await getAllCoupons();
+        const foundProductCoupon = couponsData?.data?.find(
+          (c) =>
+            c.applicableProduct?._id === productId ||
+            c.applicableProduct === productId,
+        );
+
+        // Identify subcategories of the product (can be array of IDs or objects)
+        const productSubCats = Array.isArray(selectedProduct?.subCategory)
+          ? selectedProduct.subCategory.map((sc) => (sc._id || sc).toString())
+          : selectedProduct?.subCategory
+            ? [
+              (
+                selectedProduct.subCategory._id || selectedProduct.subCategory
+              ).toString(),
+            ]
+            : [];
+
+        const foundSubCatCoupon = couponsData?.data?.find(
+          (c) =>
+            c.applicableSubCategory &&
+            productSubCats.includes(
+              (
+                c.applicableSubCategory?._id || c.applicableSubCategory
+              ).toString(),
+            ),
+        );
+
+        setProductCoupon(
+          foundProductCoupon || {
+            code: "",
+            discountType: "percentage",
+            discountAmount: 0,
+            isActive: true,
+            applicableProduct: productId,
+          },
+        );
+        setSubCategoryCoupon(foundSubCatCoupon);
+      } catch (error) {
+        console.error("Failed to fetch coupon:", error);
+      }
+    },
+    [currentProducts],
+  );
 
   const saveEdit = async () => {
     setLoad(true);
@@ -644,28 +863,10 @@ const ShopPage = ({ initialData, queryParams }) => {
         ratings: editModal.rating,
         productStock: editModal.productStock,
         video_link: editModal.video_link,
+        isBoost: editModal.isBoost,
       };
       const res = await ProductUpdate(updatePayload);
       if (res.success) {
-        // Update/Create Coupon if code is provided
-        if (productCoupon && productCoupon.code) {
-          try {
-            if (productCoupon._id) {
-              await updateCouponCode(productCoupon._id, productCoupon);
-            } else {
-              await createCouponCode({
-                ...productCoupon,
-                applicableProduct: updatePayload._id,
-                validFrom: new Date().toISOString(),
-                validUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString() // Default 1 year
-              });
-            }
-          } catch (couponError) {
-            console.error("Coupon update error:", couponError);
-            toast.error("Product updated, but coupon update failed.");
-          }
-        }
-
         toast.success("Product updated successfully!");
         dispatch(fetchShopProducts({ limit: 10000 })); // Refresh full list
         setEditModal(null);
@@ -687,29 +888,40 @@ const ShopPage = ({ initialData, queryParams }) => {
   };
 
   return (
-    <div className="min-h-screen bg-bg">
+    <section className="min-h-screen bg-bg pt-10 md:pt-32 lg:pt-0">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
         {/* Top Filter Bar */}
         <div className="bg-white lg:mt-28 rounded-lg shadow-md p-4 mb-6">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
             <div className="flex items-center gap-4 flex-wrap">
-              <span className="text-gray-600 font-medium whitespace-nowrap">Showing {totalCountComputed} results</span>
+              <span className="text-gray-600 font-medium whitespace-nowrap">
+                Showing {totalCountComputed} results
+              </span>
 
               {/* Active Filter Chips */}
               <div className="flex flex-wrap gap-2 items-center">
                 {filterCategory !== "all" && (
                   <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-lg border border-emerald-100 shadow-sm animate-in fade-in zoom-in duration-300">
-                    <span className="capitalize">{filterCategory.replace(/-/g, " ")}</span>
-                    <button onClick={() => dispatch(setFilterCategory("all"))} className="hover:text-red-500 transition-colors">
+                    <span className="capitalize">
+                      {filterCategory.replace(/-/g, " ")}
+                    </span>
+                    <button
+                      onClick={() => dispatch(setFilterCategory("all"))}
+                      className="hover:text-red-500 transition-colors"
+                    >
                       <X className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 )}
                 {filterSubCategory !== "all" && (
                   <div className="flex items-center gap-2 px-3 py-1.5 bg-sky-50 text-sky-700 text-xs font-bold rounded-lg border border-sky-100 shadow-sm animate-in fade-in zoom-in duration-300">
-                    <span className="capitalize">{filterSubCategory.replace(/-/g, " ")}</span>
-                    <button onClick={() => dispatch(setFilterSubCategory("all"))} className="hover:text-red-500 transition-colors">
+                    <span className="capitalize">
+                      {filterSubCategory.replace(/-/g, " ")}
+                    </span>
+                    <button
+                      onClick={() => dispatch(setFilterSubCategory("all"))}
+                      className="hover:text-red-500 transition-colors"
+                    >
                       <X className="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -717,15 +929,23 @@ const ShopPage = ({ initialData, queryParams }) => {
                 {searchTerm && (
                   <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 text-amber-700 text-xs font-bold rounded-lg border border-amber-100 shadow-sm animate-in fade-in zoom-in duration-300">
                     <span>Search: {searchTerm}</span>
-                    <button onClick={() => dispatch(setSearchTerm(""))} className="hover:text-red-500 transition-colors">
+                    <button
+                      onClick={() => dispatch(setSearchTerm(""))}
+                      className="hover:text-red-500 transition-colors"
+                    >
                       <X className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 )}
                 {(priceRange[0] > 0 || priceRange[1] < 100000) && (
                   <div className="flex items-center gap-2 px-3 py-1.5 bg-rose-50 text-rose-700 text-xs font-bold rounded-lg border border-rose-100 shadow-sm animate-in fade-in zoom-in duration-300">
-                    <span>৳{priceRange[0]} - ৳{priceRange[1]}</span>
-                    <button onClick={() => dispatch(setPriceRange([0, 100000]))} className="hover:text-red-500 transition-colors">
+                    <span>
+                      ৳{priceRange[0]} - ৳{priceRange[1]}
+                    </span>
+                    <button
+                      onClick={() => dispatch(setPriceRange([0, 100000]))}
+                      className="hover:text-red-500 transition-colors"
+                    >
                       <X className="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -733,7 +953,10 @@ const ShopPage = ({ initialData, queryParams }) => {
                 {sortBy !== "name" && (
                   <div className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-lg border border-indigo-100 shadow-sm animate-in fade-in zoom-in duration-300">
                     <span>Sorted: {sortBy.replace(/-/g, " ")}</span>
-                    <button onClick={() => dispatch(setSortBy("name"))} className="hover:text-red-500 transition-colors">
+                    <button
+                      onClick={() => dispatch(setSortBy("name"))}
+                      className="hover:text-red-500 transition-colors"
+                    >
                       <X className="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -745,7 +968,9 @@ const ShopPage = ({ initialData, queryParams }) => {
                     className="flex items-center gap-1.5 text-xs font-bold text-red-500 hover:text-red-700 transition-all duration-300 group px-2 py-1.5"
                   >
                     <Trash2 className="w-3.5 h-3.5 group-hover:scale-110" />
-                    <span className="underline decoration-dotted underline-offset-4">Clear All</span>
+                    <span className="underline decoration-dotted underline-offset-4">
+                      Clear All
+                    </span>
                   </button>
                 )}
               </div>
@@ -753,39 +978,38 @@ const ShopPage = ({ initialData, queryParams }) => {
 
             <div className="flex items-center gap-4">
               {/* Sort */}
-              <div className="relative">
-                <select
-                  value={sortBy}
-                  onChange={(e) => dispatch(setSortBy(e.target.value))}
-                  className="appearance-none border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-secondary bg-white"
-                >
-                  <option value="name">Sort By Latest</option>
-                  <option value="price-low">Price: Low to High</option>
-                  <option value="price-high">Price: High to Low</option>
-                  <option value="rating">Highest Rated</option>
-                  <option value="newest">Newest First</option>
-                  <option value="discount">Best Discount</option>
-                </select>
-                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none" />
-              </div>
+              <Select
+                labelId="sort-by-filter-label"
+                id="sort-by-filter"
+                value={sortBy}
+                label="Sort By Filter"
+                onChange={(e) => dispatch(setSortBy(e.target.value))}
+                className={"border-0!"}
+              >
+                <MenuItem value="name">Sort By Latest</MenuItem>
+                <MenuItem value="price-low">Price: Low to High</MenuItem>
+                <MenuItem value="price-high">Price: High to Low</MenuItem>
+                <MenuItem value="rating">Highest Rated</MenuItem>
+                <MenuItem value="newest">Newest First</MenuItem>
+                <MenuItem value="discount">Best Discount</MenuItem>
+              </Select>
 
               {/* View Mode */}
-              <div className="flex border border-gray-300 rounded-lg overflow-hidden">
-                <button
-                  onClick={() => dispatch(setViewMode("grid"))}
-                  className={`p-2 ${viewMode === "grid" ? "bg-secondary text-accent-content" : "bg-white text-gray-600 hover:bg-gray-50"
-                    }`}
-                >
-                  <Grid className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => dispatch(setViewMode("list"))}
-                  className={`p-2 ${viewMode === "list" ? "bg-secondary text-accent-content" : "bg-white text-gray-600 hover:bg-gray-50"
-                    }`}
-                >
-                  <List className="w-5 h-5" />
-                </button>
-              </div>
+              <ToggleButtonGroup
+                value={viewMode}
+                exclusive
+                onChange={(_event, value) => {
+                  value && dispatch(setViewMode(value));
+                }}
+                aria-label="card view mode"
+              >
+                <ToggleButton value="grid" aria-label="grid">
+                  <Grid />
+                </ToggleButton>
+                <ToggleButton value="list" aria-label="list">
+                  <List />
+                </ToggleButton>
+              </ToggleButtonGroup>
             </div>
           </div>
         </div>
@@ -805,7 +1029,9 @@ const ShopPage = ({ initialData, queryParams }) => {
               <Filter className="w-5 h-5" />
             </button>
 
-            <div className={`space-y-6 ${showFilters ? "block" : "hidden lg:block"}`}>
+            <div
+              className={`space-y-6 ${showFilters ? "block" : "hidden lg:block"}`}
+            >
               {/* Reset All Filters Button */}
               <div className="bg-white p-2 sm:p-4 rounded-2xl shadow-sm border border-gray-100 group transition-all duration-300 hover:shadow-md">
                 <button
@@ -813,13 +1039,17 @@ const ShopPage = ({ initialData, queryParams }) => {
                   className="w-full flex items-center justify-center gap-3 py-3 px-4 bg-gradient-to-r from-red-50 to-rose-50 text-red-600 font-bold rounded-xl border border-red-100 hover:from-red-600 hover:to-rose-600 hover:text-white transition-all duration-500 group-hover:scale-[1.02] shadow-sm hover:shadow-red-200"
                 >
                   <RotateCcw className="w-5 h-5 group-hover:rotate-[-180deg] transition-transform duration-700" />
-                  <span className="text-sm sm:text-base">Reset All Filters</span>
+                  <span className="text-sm sm:text-base">
+                    Reset All Filters
+                  </span>
                 </button>
               </div>
 
               {/* Price Filter */}
               <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                <h3 className="font-bold text-lg mb-4 text-gray-800">Price Filter</h3>
+                <h3 className="font-bold text-lg mb-4 text-gray-800">
+                  Price Filter
+                </h3>
                 <div className="space-y-4">
                   <div className="flex justify-between text-sm text-gray-600">
                     <span>Min price</span>
@@ -829,14 +1059,28 @@ const ShopPage = ({ initialData, queryParams }) => {
                     <input
                       type="number"
                       defaultValue={priceRange[0]}
-                      onChange={(e) => dispatch(setPriceRange([Number.parseInt(e.target.value) || 0, priceRange[1]]))}
+                      onChange={(e) =>
+                        dispatch(
+                          setPriceRange([
+                            Number.parseInt(e.target.value) || 0,
+                            priceRange[1],
+                          ]),
+                        )
+                      }
                       className="w-20 px-2 py-1 border border-gray-300 rounded text-center"
                       placeholder="0"
                     />
                     <input
                       type="number"
                       value={priceRange[1]}
-                      onChange={(e) => dispatch(setPriceRange([priceRange[0], Number.parseInt(e.target.value) || 300]))}
+                      onChange={(e) =>
+                        dispatch(
+                          setPriceRange([
+                            priceRange[0],
+                            Number.parseInt(e.target.value) || 300,
+                          ]),
+                        )
+                      }
                       className="w-20 px-2 py-1 border border-gray-300 rounded text-center"
                       placeholder="300"
                     />
@@ -846,7 +1090,14 @@ const ShopPage = ({ initialData, queryParams }) => {
                     min="0"
                     max="300"
                     defaultValue={priceRange[1]}
-                    onChange={(e) => dispatch(setPriceRange([priceRange[0], Number.parseInt(e.target.value)]))}
+                    onChange={(e) =>
+                      dispatch(
+                        setPriceRange([
+                          priceRange[0],
+                          Number.parseInt(e.target.value),
+                        ]),
+                      )
+                    }
                     className="w-full accent-secondary"
                   />
                   <div className="text-center">
@@ -858,15 +1109,24 @@ const ShopPage = ({ initialData, queryParams }) => {
               </div>
 
               {/* Product Categories */}
-              <div onClick={() => setShowCategory(!showCategory)} className="bg-white p-6 rounded-lg shadow-md border border-gray-200 cursor-pointer lg:cursor-default">
+              <div
+                onClick={() => setShowCategory(!showCategory)}
+                className="bg-white p-6 rounded-lg shadow-md border border-gray-200 cursor-pointer lg:cursor-default"
+              >
                 <h3 className="flex justify-between font-bold items-center text-lg mb-4 text-gray-800">
                   Product Categories
-                  <span className={`${showCategory ? "" : "rotate-180"} lg:hidden`}><ArrowUp /></span>
+                  <span
+                    className={`${showCategory ? "" : "rotate-180"} lg:hidden`}
+                  >
+                    <ArrowUp />
+                  </span>
                 </h3>
-                <div className={`space-y-2 ${categories.length > 4 ? 'max-h-64 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-secondary scrollbar-track-gray-200' : ''}`}>
+                <div
+                  className={`space-y-2 ${categories.length > 4 ? "max-h-64 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-secondary scrollbar-track-gray-200" : ""}`}
+                >
                   {categories.map((cat) => {
-                    const catName = typeof cat === 'string' ? cat : cat.name;
-                    const catSlug = typeof cat === 'string' ? cat : cat.slug;
+                    const catName = typeof cat === "string" ? cat : cat.name;
+                    const catSlug = typeof cat === "string" ? cat : cat.slug;
                     return (
                       <label
                         key={catSlug}
@@ -875,17 +1135,22 @@ const ShopPage = ({ initialData, queryParams }) => {
                         <input
                           type="radio"
                           name="category"
-                          checked={filterCategory === catSlug || filterCategory === catName}
+                          checked={
+                            filterCategory === catSlug ||
+                            filterCategory === catName
+                          }
                           onChange={() => {
-                            dispatch(setFilterCategory(catSlug))
-                            dispatch(setFilterSubCategory("all"))
-                            setShowSubCategory(true)
-                            setShowCategory(false)
+                            dispatch(setFilterCategory(catSlug));
+                            dispatch(setFilterSubCategory("all"));
+                            setShowSubCategory(true);
+                            setShowCategory(false);
                           }}
                           className="text-secondary focus:ring-secondary"
                         />
                         <span className="capitalize text-gray-700">
-                          {catName === "all" ? "All Categories" : catName.replace("-", " ")}
+                          {catName === "all"
+                            ? "All Categories"
+                            : catName.replace("-", " ")}
                         </span>
                       </label>
                     );
@@ -895,510 +1160,604 @@ const ShopPage = ({ initialData, queryParams }) => {
 
               {/* Subcategories */}
               {subCategories.length > 1 && (
-                <div className={`bg-white p-6 rounded-lg shadow-md border border-gray-200 ${showSubCategory & !showCategory ? "block" : "hidden"} lg:block`}>
+                <div
+                  className={`bg-white p-6 rounded-lg shadow-md border border-gray-200 ${showSubCategory & !showCategory ? "block" : "hidden"} lg:block`}
+                >
                   <h3 className="font-bold text-lg mb-4 text-gray-800 flex justify-between ">
                     Subcategories
                     <span className="lg:hidden">
                       <X onClick={() => setShowSubCategory(false)} size={30} />
                     </span>
                   </h3>
-                  <div className={`space-y-2 ${subCategories.length > 4 ? 'max-h-64 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-secondary scrollbar-track-gray-200' : ''}`}>
-                    {
-                      subCategories.map((sub) => {
-                        const subName = typeof sub === 'string' ? sub : sub.name;
-                        const subSlug = typeof sub === 'string' ? sub : sub.slug;
-                        return (
-                          <label
-                            key={subSlug}
-                            className="flex items-center space-x-2 hover:bg-gray-50 p-2 rounded cursor-pointer"
-                          >
-                            <input
-                              type="radio"
-                              name="subcategory"
-                              checked={filterSubCategory === subSlug || filterSubCategory === subName}
-                              onChange={() => dispatch(setFilterSubCategory(subSlug))}
-                              className="text-secondary focus:ring-secondary"
-                            />
-                            <span className="capitalize text-gray-700">
-                              {subName === "all" ? "All Subcategories" : subName.replace("-", " ")}
-                            </span>
-                          </label>
-                        );
-                      })
-                    }
-                  </div >
-                </div >
-              )}
-
-            </div >
-          </div >
-
-          {/* Products Grid */}
-          < div className="flex-1" >
-            {/* Loading State */}
-            {
-              productsLoading && (
-                <ProductGridSkeleton count={productsPerPage} viewMode={viewMode} />
-              )
-            }
-
-            {/* Error State */}
-            {
-              !productsLoading && productsError && (
-                <div className="text-center py-12 text-red-500 bg-red-50 rounded-lg border border-red-200 mb-6">
-                  <p className="font-semibold mb-2 text-lg italic">Error loading products!</p>
-                  <p className="text-sm mb-4">{productsError.message || "Check your internet or try again."}</p>
-                  <button
-                    onClick={() => dispatch(fetchShopProducts({ limit: 10000 }))}
-                    className="bg-red-500 hover:bg-red-600 text-accent-content px-6 py-2 rounded-lg transition-colors font-medium shadow-md"
+                  <div
+                    className={`space-y-2 ${subCategories.length > 4 ? "max-h-64 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-secondary scrollbar-track-gray-200" : ""}`}
                   >
-                    Retry Loading
-                  </button>
-                </div>
-              )
-            }
-
-            {/* No Products Found */}
-            {
-              !productsLoading && currentProducts.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-20 px-4 bg-gradient-to-br from-white/90 to-slate-50/80 backdrop-blur-xl rounded-[2.5rem] border border-white/40 shadow-xl relative overflow-hidden group">
-                  <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-                    <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-emerald-500/5 blur-[100px] rounded-full animate-pulse" />
-                    <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-teal-500/5 blur-[100px] rounded-full animate-pulse" />
-                  </div>
-
-                  <div className="relative z-10 flex flex-col items-center">
-                    <div className="mb-8 relative">
-                      <div className="absolute inset-0 bg-emerald-200/40 rounded-full blur-2xl opacity-40 group-hover:scale-125 transition-transform duration-700" />
-                      <div className="relative bg-white p-8 rounded-[2rem] shadow-lg border border-emerald-50 transform group-hover:rotate-6 transition-all duration-500">
-                        <Search className="w-16 h-16 text-emerald-600 animate-[bounce_2.5s_infinite]" />
-                        <Sparkles className="absolute -top-3 -right-3 w-10 h-10 text-yellow-400 animate-pulse" />
-                      </div>
-                    </div>
-
-                    <div className="text-center space-y-3 max-w-lg mb-10">
-                      <h3 className="text-3xl font-extrabold text-slate-800 tracking-tight">
-                        Data is Coming! <span className="inline-block animate-bounce">✨</span>
-                      </h3>
-                      <p className="text-slate-500 text-lg font-medium leading-relaxed">
-                        We're refreshing our stock with premium new arrivals. Stay tuned! Try clearing your filters or exploring a different category.
-                      </p>
-                    </div>
-
-                    <button
-                      onClick={clearFilters}
-                      className="px-10 py-4 bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-2xl font-bold shadow-[0_12px_25px_-10px_rgba(16,185,129,0.5)] hover:shadow-[0_18px_35px_-5px_rgba(16,185,129,0.6)] hover:-translate-y-1 active:scale-95 transition-all duration-300"
-                    >
-                      Clear All Filters
-                    </button>
-                  </div>
-                </div>
-              )
-            }
-
-            {/* Products */}
-            {
-              !productsLoading && currentProducts.length > 0 && (
-                <div
-                  className={`${viewMode === "grid"
-                    ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6"
-                    : "space-y-6"
-                    }`}
-                >
-                  {currentProducts.map((product) => (
-                    <ProductCard
-                      key={product._id || product.id}
-                      product={product}
-                      viewMode={viewMode}
-                      router={router}
-                      toggleWishlist={toggleWishlist}
-                      wishlist={wishlist}
-                      favorite={favorite}
-                      setFavorite={setFavorite}
-                      addToCart={addToCart}
-                      user={user}
-                      handleEdit={handleEdit}
-                      setDeleteModal={setDeleteModal}
-                    />
-                  ))}
-                </div>
-              )
-            }
-
-
-
-            {/* Pagination */}
-            {
-              totalPages > 1 && (
-                <div className="flex justify-center items-center space-x-2 mt-12 flex-wrap gap-2">
-                  {/* Previous Button */}
-                  <button
-                    onClick={() => dispatch(setCurrentPage(Math.max(1, currentPage - 1)))}
-                    disabled={currentPage === 1}
-                    className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${currentPage === 1
-                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                      : "bg-secondary text-accent-content hover:bg-secondary"
-                      }`}
-                  >
-                    Previous
-                  </button>
-
-                  {/* First Page + Dots (if needed) */}
-                  {showStartDots && (
-                    <>
-                      <button
-                        onClick={() => dispatch(setCurrentPage(1))}
-                        className="px-4 py-2 rounded-lg font-medium bg-white border border-gray-300 hover:bg-purple-50 transition-colors duration-300"
-                      >
-                        1
-                      </button>
-                      <span className="px-2 text-gray-500 font-bold">...</span>
-                    </>
-                  )}
-
-                  {/* Page Numbers */}
-                  {pageNumbers.map((page) => (
-                    <button
-                      key={page}
-                      onClick={() => dispatch(setCurrentPage(page))}
-                      className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${currentPage === page
-                        ? "bg-secondary text-accent-content transform scale-110"
-                        : "bg-white border border-gray-300 hover:bg-purple-50"
-                        }`}
-                    >
-                      {page}
-                    </button>
-                  ))}
-
-                  {/* End Dots + Last Page (if needed) */}
-                  {showEndDots && (
-                    <>
-                      <span className="px-2 text-gray-500 font-bold">...</span>
-                      <button
-                        onClick={() => dispatch(setCurrentPage(totalPages))}
-                        className="px-4 py-2 rounded-lg font-medium bg-white border border-gray-300 hover:bg-purple-50 transition-colors duration-300"
-                      >
-                        {totalPages}
-                      </button>
-                    </>
-                  )}
-
-                  {/* Next Button */}
-                  <button
-                    onClick={() => dispatch(setCurrentPage(Math.min(totalPages, currentPage + 1)))}
-                    disabled={currentPage === totalPages}
-                    className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${currentPage === totalPages
-                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                      : "bg-secondary text-accent-content hover:bg-secondary"
-                      }`}
-                  >
-                    Next
-                  </button>
-                </div>
-              )
-            }
-          </div >
-        </div >
-      </div >
-
-      {/* Edit Modal */}
-      {
-        editModal && (
-          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-emerald-500/30 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="sticky top-0 bg-gradient-to-r from-emerald-600 to-teal-600 p-6 flex justify-between items-center z-10">
-                <h2 className="text-2xl font-bold text-accent-content flex items-center gap-2">
-                  <Edit className="w-6 h-6" />
-                  Edit Product
-                </h2>
-                <button
-                  onClick={() => setEditModal(null)}
-                  className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-                >
-                  <X className="w-6 h-6 text-accent-content cursor-pointer" />
-                </button>
-              </div>
-
-              <div className="p-6 bg-white/90 text-black">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
-                  <div>
-                    <label className="block  text-sm font-semibold mb-2">
-                      Product Name
-                    </label>
-                    <input
-                      type="text"
-                      defaultValue={editModal?.name}
-                      onChange={(e) => updateEditField("productName", e.target.value)}
-                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg  focus:outline-none focus:border-emerald-500 transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-black text-sm font-semibold mb-2">SKU</label>
-                    <input
-                      type="text"
-                      defaultValue={editModal?.sku}
-                      onChange={(e) => updateEditField("sku", e.target.value)}
-                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-black text-sm font-semibold mb-2">Brand</label>
-                    <input
-                      type="text"
-                      defaultValue={editModal?.brand}
-                      onChange={(e) => updateEditField("brand", e.target.value)}
-                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-black text-sm font-semibold mb-2">Price</label>
-                    <input
-                      type="number"
-                      defaultValue={editModal?.price}
-                      onChange={(e) => updateEditField("price", Number(e.target.value))}
-                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-black text-sm font-semibold mb-2">
-                      Discount (%)
-                    </label>
-                    <input
-                      type="number"
-                      defaultValue={editModal?.discount}
-                      onChange={(e) => updateEditField("discount", Number(e.target.value))}
-                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-black text-sm font-semibold mb-2">Stock</label>
-                    <input
-                      type="number"
-                      defaultValue={editModal?.stock}
-                      onChange={(e) => updateEditField("productStock", Number(e.target.value))}
-                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-black text-sm font-semibold mb-2">Rating</label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      min="0"
-                      max="5"
-                      defaultValue={editModal?.rating}
-                      onChange={(e) => updateEditField("ratings", Number(e.target.value))}
-                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-black text-sm font-semibold mb-2">
-                      Product Size
-                    </label>
-                    <input
-                      type="text"
-                      defaultValue={editModal?.size?.join(", ") || ""}
-                      onChange={(e) =>
-                        updateEditField(
-                          "productSize",
-                          e.target.value.split(",").map((s) => s.trim())
-                        )
-                      }
-                      placeholder="M, L, XL"
-                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-black text-sm font-semibold mb-2">
-                      Product Color
-                    </label>
-                    <input
-                      type="text"
-                      defaultValue={editModal?.color?.join(", ") || ""}
-                      onChange={(e) =>
-                        updateEditField(
-                          "color",
-                          e.target.value.split(",").map((c) => c.trim())
-                        )
-                      }
-                      placeholder="Black, Brown, Red"
-                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                    />
-                  </div>
-
-
-                  <div>
-                    <label className="block text-black text-sm font-semibold mb-2">
-                      Retail Price(৳)
-                    </label>
-                    <input
-                      type="number"
-                      defaultValue={editModal?.retailSale || ""}
-                      onChange={(e) => updateEditField("productRank", Number(e.target.value))}
-                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-black text-sm font-semibold mb-2">
-                      Product Status
-                    </label>
-                    <select
-                      defaultValue={editModal?.productStatus?.length > 0 ? editModal?.productStatus[0] : "none"}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        updateEditField("productStatus", val === "none" ? [] : [val]);
-                      }}
-                      className="appearance-none border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-secondary bg-white"
-                    >
-                      <option disabled selected defaultValue={editModal.productStatus?.length > 0 ? editModal?.productStatus[0] : "none"}>{editModal?.productStatus?.length > 0 ? editModal?.productStatus[0] : "none"}</option>
-                      <option defaultValue="none">none</option>
-                      <option defaultValue="hot">hot</option>
-                      <option defaultValue="cold">cold</option>
-                    </select>
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-black text-sm font-semibold mb-2">
-                      Video Link
-                    </label>
-                    <input
-                      defaultValue={editModal?.video_link}
-                      onChange={(e) => updateEditField("video_link", e.target.value)}
-                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors resize-none"
-                    ></input>
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-black text-sm font-semibold mb-2">
-                      Description
-                    </label>
-                    <textarea
-                      defaultValue={editModal?.description}
-                      onChange={(e) => updateEditField("description", e.target.value)}
-                      rows="3"
-                      className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors resize-none"
-                    ></textarea>
-                  </div>
-
-                  {/* Coupon Section */}
-                  <div className="md:col-span-2 border-t border-slate-200 pt-6 mt-6">
-                    <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Tag className="w-5 h-5 text-emerald-500" />
-                        Coupon Information
-                      </div>
-                      {productCoupon?._id ? (
-                        <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full flex items-center gap-1">
-                          <CheckCircle className="w-3 h-3" /> Product Coupon
-                        </span>
-                      ) : (
-                        <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full flex items-center gap-1">
-                          <Info className="w-3 h-3" /> No Direct Coupon
-                        </span>
-                      )}
-                      {subCategoryCoupon && (
-                        <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full flex items-center gap-1">
-                          <Tag className="w-3 h-3" /> Subcat Coupon ({subCategoryCoupon.code}) Active
-                        </span>
-                      )}
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div>
-                        <label className="block text-black text-sm font-semibold mb-2">Coupon Code</label>
-                        <input
-                          type="text"
-                          defaultValue={productCoupon?.code || ""}
-                          placeholder="PROMO2024"
-                          onChange={(e) => updateCouponField("code", e.target.value)}
-                          className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-black text-sm font-semibold mb-2">Discount Type</label>
-                        <select
-                          defaultValue={productCoupon?.discountType || "percentage"}
-                          onChange={(e) => updateCouponField("discountType", e.target.value)}
-                          className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                    {subCategories.map((sub) => {
+                      const subName = typeof sub === "string" ? sub : sub.name;
+                      const subSlug = typeof sub === "string" ? sub : sub.slug;
+                      return (
+                        <label
+                          key={subSlug}
+                          className="flex items-center space-x-2 hover:bg-gray-50 p-2 rounded cursor-pointer"
                         >
-                          <option value="percentage">Percentage (%)</option>
-                          <option value="flat">Fixed Amount (৳)</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-black text-sm font-semibold mb-2">Discount Amount</label>
-                        <input
-                          type="number"
-                          defaultValue={productCoupon?.discountAmount || 0}
-                          onChange={(e) => updateCouponField("discountAmount", Number(e.target.value))}
-                          className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                        />
-                      </div>
-                    </div>
+                          <input
+                            type="radio"
+                            name="subcategory"
+                            checked={
+                              filterSubCategory === subSlug ||
+                              filterSubCategory === subName
+                            }
+                            onChange={() =>
+                              dispatch(setFilterSubCategory(subSlug))
+                            }
+                            className="text-secondary focus:ring-secondary"
+                          />
+                          <span className="capitalize text-gray-700">
+                            {subName === "all"
+                              ? "All Subcategories"
+                              : subName.replace("-", " ")}
+                          </span>
+                        </label>
+                      );
+                    })}
                   </div>
                 </div>
-
-                <div className="flex gap-3 mt-6">
-                  <button
-                    onClick={saveEdit}
-                    className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-accent-content font-semibold rounded-lg transition-all transform hover:scale-105"
-                  >
-                    {load ? "Saving..." : "Save Changes"}
-                  </button>
-                  <button
-                    onClick={() => setEditModal(null)}
-                    className="flex-1 px-6 py-3 bg-white text-black font-semibold rounded-lg transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
+              )}
             </div>
           </div>
-        )
-      }
 
-      {/* Delete Confirmation Modal */}
-      {
-        deleteModal && (
-          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
-            <div className="bg-white/70 rounded-2xl border border-pink-500/30 max-w-md w-full p-6 animate-slideUp text-black">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 bg-pink-500/20 rounded-full">
-                  <Trash2 className="w-8 h-8 text-pink-500" />
+          {/* Products Grid */}
+          <div className="flex-1">
+            {/* Loading State */}
+            {productsLoading && (
+              <ProductGridSkeleton
+                count={productsPerPage}
+                viewMode={viewMode}
+              />
+            )}
+
+            {/* Error State */}
+            {!productsLoading && productsError && (
+              <div className="text-center py-12 text-red-500 bg-red-50 rounded-lg border border-red-200 mb-6">
+                <p className="font-semibold mb-2 text-lg italic">
+                  Error loading products!
+                </p>
+                <p className="text-sm mb-4">
+                  {productsError.message || "Check your internet or try again."}
+                </p>
+                <button
+                  onClick={() => dispatch(fetchShopProducts({ limit: 10000 }))}
+                  className="bg-red-500 hover:bg-red-600 text-accent-content px-6 py-2 rounded-lg transition-colors font-medium shadow-md"
+                >
+                  Retry Loading
+                </button>
+              </div>
+            )}
+
+            {/* No Products Found */}
+            {!productsLoading && currentProducts.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-20 px-4 bg-gradient-to-br from-white/90 to-slate-50/80 backdrop-blur-xl rounded-[2.5rem] border border-white/40 shadow-xl relative overflow-hidden group">
+                <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+                  <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-emerald-500/5 blur-[100px] rounded-full animate-pulse" />
+                  <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-teal-500/5 blur-[100px] rounded-full animate-pulse" />
                 </div>
-                <h2 className="text-2xl font-bold ">Delete Product</h2>
+
+                <div className="relative z-10 flex flex-col items-center">
+                  <div className="mb-8 relative">
+                    <div className="absolute inset-0 bg-emerald-200/40 rounded-full blur-2xl opacity-40 group-hover:scale-125 transition-transform duration-700" />
+                    <div className="relative bg-white p-8 rounded-[2rem] shadow-lg border border-emerald-50 transform group-hover:rotate-6 transition-all duration-500">
+                      <Search className="w-16 h-16 text-emerald-600 animate-[bounce_2.5s_infinite]" />
+                      <Sparkles className="absolute -top-3 -right-3 w-10 h-10 text-yellow-400 animate-pulse" />
+                    </div>
+                  </div>
+
+                  <div className="text-center space-y-3 max-w-lg mb-10">
+                    <h3 className="text-3xl font-extrabold text-slate-800 tracking-tight">
+                      Data is Coming!{" "}
+                      <span className="inline-block animate-bounce">✨</span>
+                    </h3>
+                    <p className="text-slate-500 text-lg font-medium leading-relaxed">
+                      We're refreshing our stock with premium new arrivals. Stay
+                      tuned! Try clearing your filters or exploring a different
+                      category.
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={clearFilters}
+                    className="px-10 py-4 bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-2xl font-bold shadow-[0_12px_25px_-10px_rgba(16,185,129,0.5)] hover:shadow-[0_18px_35px_-5px_rgba(16,185,129,0.6)] hover:-translate-y-1 active:scale-95 transition-all duration-300"
+                  >
+                    Clear All Filters
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Products */}
+            {!productsLoading && currentProducts.length > 0 && (
+              <div
+                className={`${viewMode === "grid"
+                  ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6"
+                  : "space-y-6"
+                  }`}
+              >
+                {currentProducts.map((product) => (
+                  <ProductCard
+                    key={product._id || product.id}
+                    product={product}
+                    viewMode={viewMode}
+                    router={router}
+                    toggleWishlist={toggleWishlist}
+                    wishlist={wishlist}
+                    favorite={favorite}
+                    setFavorite={setFavorite}
+                    addToCart={addToCart}
+                    user={user}
+                    handleEdit={handleEdit}
+                    setDeleteModal={setDeleteModal}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center space-x-2 mt-12 flex-wrap gap-2">
+                {/* Previous Button */}
+                <button
+                  onClick={() =>
+                    dispatch(setCurrentPage(Math.max(1, currentPage - 1)))
+                  }
+                  disabled={currentPage === 1}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${currentPage === 1
+                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                    : "bg-secondary text-accent-content hover:bg-secondary"
+                    }`}
+                >
+                  Previous
+                </button>
+
+                {/* First Page + Dots (if needed) */}
+                {showStartDots && (
+                  <>
+                    <button
+                      onClick={() => dispatch(setCurrentPage(1))}
+                      className="px-4 py-2 rounded-lg font-medium bg-white border border-gray-300 hover:bg-purple-50 transition-colors duration-300"
+                    >
+                      1
+                    </button>
+                    <span className="px-2 text-gray-500 font-bold">...</span>
+                  </>
+                )}
+
+                {/* Page Numbers */}
+                {pageNumbers.map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => dispatch(setCurrentPage(page))}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${currentPage === page
+                      ? "bg-secondary text-accent-content transform scale-110"
+                      : "bg-white border border-gray-300 hover:bg-purple-50"
+                      }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+
+                {/* End Dots + Last Page (if needed) */}
+                {showEndDots && (
+                  <>
+                    <span className="px-2 text-gray-500 font-bold">...</span>
+                    <button
+                      onClick={() => dispatch(setCurrentPage(totalPages))}
+                      className="px-4 py-2 rounded-lg font-medium bg-white border border-gray-300 hover:bg-purple-50 transition-colors duration-300"
+                    >
+                      {totalPages}
+                    </button>
+                  </>
+                )}
+
+                {/* Next Button */}
+                <button
+                  onClick={() =>
+                    dispatch(
+                      setCurrentPage(Math.min(totalPages, currentPage + 1)),
+                    )
+                  }
+                  disabled={currentPage === totalPages}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${currentPage === totalPages
+                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                    : "bg-secondary text-accent-content hover:bg-secondary"
+                    }`}
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Edit Modal */}
+      {editModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-emerald-500/30 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-gradient-to-r from-emerald-600 to-teal-600 p-6 flex justify-between items-center z-10">
+              <h2 className="text-2xl font-bold text-accent-content flex items-center gap-2">
+                <Edit className="w-6 h-6" />
+                Edit Product
+              </h2>
+              <button
+                onClick={() => setEditModal(null)}
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <X className="w-6 h-6 text-accent-content cursor-pointer" />
+              </button>
+            </div>
+
+            <div className="p-6 bg-white/90 text-black">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
+                <div>
+                  <label className="block  text-sm font-semibold mb-2">
+                    Product Name
+                  </label>
+                  <input
+                    type="text"
+                    defaultValue={editModal?.name}
+                    onChange={(e) =>
+                      updateEditField("productName", e.target.value)
+                    }
+                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg  focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-black text-sm font-semibold mb-2">
+                    SKU
+                  </label>
+                  <input
+                    type="text"
+                    defaultValue={editModal?.sku}
+                    onChange={(e) => updateEditField("sku", e.target.value)}
+                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-black text-sm font-semibold mb-2">
+                    Brand
+                  </label>
+                  <input
+                    type="text"
+                    defaultValue={editModal?.brand}
+                    onChange={(e) => updateEditField("brand", e.target.value)}
+                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-black text-sm font-semibold mb-2">
+                    Price
+                  </label>
+                  <input
+                    type="number"
+                    defaultValue={editModal?.price}
+                    onChange={(e) =>
+                      updateEditField("price", Number(e.target.value))
+                    }
+                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-black text-sm font-semibold mb-2">
+                    Discount (%)
+                  </label>
+                  <input
+                    type="number"
+                    defaultValue={editModal?.discount}
+                    onChange={(e) =>
+                      updateEditField("discount", Number(e.target.value))
+                    }
+                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-black text-sm font-semibold mb-2">
+                    Stock
+                  </label>
+                  <input
+                    type="number"
+                    defaultValue={editModal?.stock}
+                    onChange={(e) =>
+                      updateEditField("productStock", Number(e.target.value))
+                    }
+                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-black text-sm font-semibold mb-2">
+                    Rating
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="5"
+                    defaultValue={editModal?.rating}
+                    onChange={(e) =>
+                      updateEditField("ratings", Number(e.target.value))
+                    }
+                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-black text-sm font-semibold mb-2">
+                    Product Size
+                  </label>
+                  <input
+                    type="text"
+                    defaultValue={editModal?.size?.join(", ") || ""}
+                    onChange={(e) =>
+                      updateEditField(
+                        "productSize",
+                        e.target.value.split(",").map((s) => s.trim()),
+                      )
+                    }
+                    placeholder="M, L, XL"
+                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-black text-sm font-semibold mb-2">
+                    Product Color
+                  </label>
+                  <input
+                    type="text"
+                    defaultValue={editModal?.color?.join(", ") || ""}
+                    onChange={(e) =>
+                      updateEditField(
+                        "color",
+                        e.target.value.split(",").map((c) => c.trim()),
+                      )
+                    }
+                    placeholder="Black, Brown, Red"
+                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-black text-sm font-semibold mb-2">
+                    Retail Price(৳)
+                  </label>
+                  <input
+                    type="number"
+                    defaultValue={editModal?.retailSale || ""}
+                    onChange={(e) =>
+                      updateEditField("productRank", Number(e.target.value))
+                    }
+                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-black text-sm font-semibold mb-2">
+                    Product Status
+                  </label>
+                  <select
+                    defaultValue={
+                      editModal?.productStatus?.length > 0
+                        ? editModal?.productStatus[0]
+                        : "none"
+                    }
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      updateEditField(
+                        "productStatus",
+                        val === "none" ? [] : [val],
+                      );
+                    }}
+                    className="appearance-none border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-secondary bg-white"
+                  >
+                    <option
+                      disabled
+                      selected
+                      defaultValue={
+                        editModal.productStatus?.length > 0
+                          ? editModal?.productStatus[0]
+                          : "none"
+                      }
+                    >
+                      {editModal?.productStatus?.length > 0
+                        ? editModal?.productStatus[0]
+                        : "none"}
+                    </option>
+                    <option defaultValue="none">none</option>
+                    <option defaultValue="hot">hot</option>
+                    <option defaultValue="cold">cold</option>
+                  </select>
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-black text-sm font-semibold mb-2">
+                    Video Link
+                  </label>
+                  <input
+                    defaultValue={editModal?.video_link}
+                    onChange={(e) =>
+                      updateEditField("video_link", e.target.value)
+                    }
+                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors resize-none"
+                  ></input>
+                </div>
+
+                <div className="md:col-span-2">
+                  <div className="flex items-center p-4 bg-slate-500/10 border border-slate-200 rounded-xl mt-1">
+                    <input
+                      type="checkbox"
+                      checked={editModal?.isBoost || false}
+                      onChange={(e) => updateEditField("isBoost", e.target.checked)}
+                      className="w-5 h-5 text-emerald-600 bg-transparent border-slate-300 rounded focus:ring-emerald-500"
+                    />
+                    <label className="ml-3 text-black font-semibold">
+                      Boost Product
+                    </label>
+                  </div>
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-black text-sm font-semibold mb-2">
+                    Description
+                  </label>
+                  <textarea
+                    defaultValue={editModal?.description}
+                    onChange={(e) =>
+                      updateEditField("description", e.target.value)
+                    }
+                    rows="3"
+                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors resize-none"
+                  ></textarea>
+                </div>
+
+                {/* Coupon Section */}
+                <div className="md:col-span-2 border-t border-slate-200 pt-6 mt-6">
+                  <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Tag className="w-5 h-5 text-emerald-500" />
+                      Coupon Information
+                    </div>
+                    {productCoupon?._id ? (
+                      <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full flex items-center gap-1">
+                        <CheckCircle className="w-3 h-3" /> Product Coupon
+                      </span>
+                    ) : (
+                      <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full flex items-center gap-1">
+                        <Info className="w-3 h-3" /> No Direct Coupon
+                      </span>
+                    )}
+                    {subCategoryCoupon && (
+                      <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full flex items-center gap-1">
+                        <Tag className="w-3 h-3" /> Subcat Coupon (
+                        {subCategoryCoupon.code}) Active
+                      </span>
+                    )}
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                    <div>
+                      <label className="block text-black text-sm font-semibold mb-2">
+                        Coupon Code
+                      </label>
+                      <input
+                        type="text"
+                        defaultValue={productCoupon?.code || ""}
+                        placeholder="PROMO2024"
+                        onChange={(e) =>
+                          updateCouponField("code", e.target.value)
+                        }
+                        className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-black text-sm font-semibold mb-2">
+                        Discount Type
+                      </label>
+                      <select
+                        defaultValue={
+                          productCoupon?.discountType || "percentage"
+                        }
+                        onChange={(e) =>
+                          updateCouponField("discountType", e.target.value)
+                        }
+                        className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                      >
+                        <option value="percentage">Percentage (%)</option>
+                        <option value="flat">Fixed Amount (৳)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-black text-sm font-semibold mb-2">
+                        Discount Amount
+                      </label>
+                      <input
+                        type="number"
+                        defaultValue={productCoupon?.discountAmount || 0}
+                        onChange={(e) =>
+                          updateCouponField(
+                            "discountAmount",
+                            Number(e.target.value),
+                          )
+                        }
+                        className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                      />
+                    </div>
+                    <div>
+                      <button
+                        onClick={handleApplyCoupon}
+                        disabled={couponLoad}
+                        className="w-full px-4 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-semibold rounded-lg transition-colors"
+                      >
+                        {couponLoad ? "Applying..." : "Apply Coupon"}
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <p className=" mb-6">
-                Are you sure you want to delete this product? This action cannot be undone.
-              </p>
-
-              <div className="flex gap-3">
+              <div className="flex gap-3 mt-6">
                 <button
-                  onClick={confirmDelete}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-accent-content font-semibold rounded-lg transition-all transform hover:scale-105 cursor-pointer"
+                  onClick={saveEdit}
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-accent-content font-semibold rounded-lg transition-all transform hover:scale-105"
                 >
-                  Delete
+                  {load ? "Saving..." : "Save Changes"}
                 </button>
                 <button
-                  onClick={() => setDeleteModal(null)}
-                  className="flex-1 px-6 py-3 bg-slate-200 hover:bg-slate-600 hover:text-accent-content font-semibold rounded-lg transition-colors cursor-pointer"
+                  onClick={() => setEditModal(null)}
+                  className="flex-1 px-6 py-3 bg-white text-black font-semibold rounded-lg transition-colors"
                 >
                   Cancel
                 </button>
               </div>
             </div>
           </div>
-        )
-      }
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+          <div className="bg-white/70 rounded-2xl border border-pink-500/30 max-w-md w-full p-6 animate-slideUp text-black">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-3 bg-pink-500/20 rounded-full">
+                <Trash2 className="w-8 h-8 text-pink-500" />
+              </div>
+              <h2 className="text-2xl font-bold ">Delete Product</h2>
+            </div>
+
+            <p className=" mb-6">
+              Are you sure you want to delete this product? This action cannot
+              be undone.
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                onClick={confirmDelete}
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-accent-content font-semibold rounded-lg transition-all transform hover:scale-105 cursor-pointer"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => setDeleteModal(null)}
+                className="flex-1 px-6 py-3 bg-slate-200 hover:bg-slate-600 hover:text-accent-content font-semibold rounded-lg transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Custom Styles */}
       <style jsx>{`
@@ -1415,30 +1774,30 @@ const ShopPage = ({ initialData, queryParams }) => {
           -webkit-box-orient: vertical;
           overflow: hidden;
         }
-        
+
         /* Custom Scrollbar Styles */
         .scrollbar-thin::-webkit-scrollbar {
           width: 6px;
         }
-        
+
         .scrollbar-thin::-webkit-scrollbar-track {
           background: #e5e7eb;
           border-radius: 10px;
         }
-        
+
         .scrollbar-thin::-webkit-scrollbar-thumb {
-          background: #FFC900;
+          background: #ffc900;
           border-radius: 10px;
         }
-        
+
         .scrollbar-thin::-webkit-scrollbar-thumb:hover {
           background: #ffe100;
         }
-        
+
         /* Firefox */
         .scrollbar-thin {
           scrollbar-width: thin;
-          scrollbar-color: #FFC900 #e5e7eb;
+          scrollbar-color: #ffc900 #e5e7eb;
         }
       `}</style>
       {/* ✨ Animations + Glassmorphism + Scrollbar Hide */}
@@ -1463,7 +1822,7 @@ const ShopPage = ({ initialData, queryParams }) => {
           overflow: hidden;
         }
       `}</style>
-    </div >
+    </section>
   );
 };
 

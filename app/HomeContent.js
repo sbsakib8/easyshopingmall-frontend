@@ -53,7 +53,7 @@ export default function HomeContent({ initialData }) {
 
   return (
     <>
-      {role === "DROPSHIPPING" ?
+      {(role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) ?
         <DropShippingHome initialData={data} /> :
         <Hero initialData={data} />
       }
