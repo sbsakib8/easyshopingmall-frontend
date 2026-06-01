@@ -11,10 +11,10 @@ import { useCategoryWithSubcategories } from "@/src/utlis/useCategoryWithSubcate
 import { useSearchProduct } from "@/src/utlis/useSearchProduct";
 import useWebsiteInfo from "@/src/utlis/useWebsiteInfo";
 import {
+  BarChart3,
   Camera,
   ChevronDown,
   Heart,
-  LayoutDashboard,
   Menu,
   Search,
   ShoppingCart,
@@ -601,7 +601,7 @@ const Header = ({ initialData }) => {
                     className="flex items-center space-x-1 sm:space-x-2 text-gray-700 group-hover:text-emerald-600 transition-all duration-300"
                   >
                     <div className="relative p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-bg group-hover:from-emerald-100 group-hover:to-teal-100 transition-all duration-300 shadow-sm">
-                      <LayoutDashboard
+                      <BarChart3
                         size={16}
                         className="sm:w-5 sm:h-5 group-hover:scale-110 transition-transform duration-300"
                       />
