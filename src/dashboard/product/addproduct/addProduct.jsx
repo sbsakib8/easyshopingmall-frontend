@@ -38,6 +38,7 @@ const AddProductComponent = () => {
     discount: "",
     ratings: 5,
     tags: [],
+    productStatus: [],
     images: [],
     isBoost: false,
   });
@@ -225,6 +226,7 @@ const AddProductComponent = () => {
       discount: "",
       ratings: 5,
       tags: [],
+      productStatus: [],
       images: [],
       isBoost: false,
     });
@@ -243,12 +245,18 @@ const AddProductComponent = () => {
             formDataToSend.append("images", img.file),
           );
         } else if (key === "category" || key === "subCategory") {
-          formData[key].forEach((id) => formDataToSend.append(key, id));
+          const val = formData[key];
+          if (Array.isArray(val)) {
+            val.forEach((id) => formDataToSend.append(key, id));
+          } else if (val) {
+            formDataToSend.append(key, val);
+          }
         } else if (
           key === "productSize" ||
           key === "color" ||
           key === "productWeight" ||
-          key === "tags"
+          key === "tags" ||
+          key === "productStatus"
         ) {
           formData[key].forEach((item) => formDataToSend.append(key, item));
         } else {
@@ -274,7 +282,11 @@ const AddProductComponent = () => {
       }
     } catch (error) {
       console.error("Error adding product:", error);
-      toast.error("❌ Something went wrong! Please try again.");
+      const backendMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Something went wrong! Please try again.";
+      toast.error(`❌ ${backendMessage}`);
     } finally {
       setIsLoading(false);
     }
@@ -476,15 +488,61 @@ const AddProductComponent = () => {
               </div>
             </div>
 
+            {/* Product Status */}
+            <div className="mt-6 space-y-3">
+              <label className="text-accent-content font-medium flex items-center gap-2">
+                <BarChart3 size={15} className="text-orange-400" />
+                Product Status
+              </label>
+              <p className="text-xs text-gray-400">
+                Set the product market status (stored separately from tags).
+              </p>
+              <div className="flex flex-wrap gap-3">
+                {[
+                  { value: "hot", label: "🔥 Hot", activeClass: "from-orange-500 to-red-500 shadow-orange-500/20" },
+                  { value: "cold", label: "❄️ Cold", activeClass: "from-cyan-500 to-blue-500 shadow-cyan-500/20" },
+                ].map(({ value, label, activeClass }) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        productStatus: prev.productStatus.includes(value)
+                          ? prev.productStatus.filter((s) => s !== value)
+                          : [...prev.productStatus, value],
+                      }));
+                    }}
+                    className={`px-5 py-2.5 rounded-xl border flex items-center gap-2 text-sm font-medium transition-all duration-200
+                      ${
+                        formData.productStatus.includes(value)
+                          ? `bg-gradient-to-r ${activeClass} border-transparent text-white shadow-lg`
+                          : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
+                      }`}
+                  >
+                    {label}
+                    {formData.productStatus.includes(value) && (
+                      <X size={12} className="ml-0.5" />
+                    )}
+                  </button>
+                ))}
+              </div>
+              {formData.productStatus.length > 0 && (
+                <p className="text-xs text-orange-300">
+                  Active: {formData.productStatus.join(", ")}
+                </p>
+              )}
+            </div>
+
             {/* Tags */}
             <div className="mt-6 space-y-4">
               <label className="text-accent-content font-medium">
                 Product Tags
               </label>
 
-              {/* Preset badge buttons */}
+              {/* Preset badge buttons — content labels only, no status values */}
               <div className="flex flex-wrap gap-3">
-                {["hot", "cold", "new", "sale", "trending"].map((tag) => (
+                {["new", "sale", "trending", "featured", "limited"].map((tag) => (
                   <button
                     key={tag}
                     type="button"
