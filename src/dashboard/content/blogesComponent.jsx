@@ -155,7 +155,7 @@ const BlogsAdminDashboard = () => {
 
  if (loading && blogs.length === 0) {
  return (
- <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-accent-content flex items-center justify-center">
+ <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-slate-300 flex items-center justify-center">
  <div className="text-center">
  <Loader2 className="animate-spin mx-auto mb-4 text-blue-400"size={48} />
  <p className="text-gray-400">Loading blogs...</p>
@@ -166,7 +166,7 @@ const BlogsAdminDashboard = () => {
 
  if (error) {
  return (
- <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-accent-content flex items-center justify-center">
+ <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-slate-300 flex items-center justify-center">
  <div className="text-center">
  <p className="text-red-400 mb-4">Error loading blogs</p>
  <button
@@ -181,7 +181,7 @@ const BlogsAdminDashboard = () => {
 }
 
  return (
- <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-accent-content overflow-hidden">
+ <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-slate-300 overflow-hidden">
  <div className="py-5 px-2 lg:px-9">
  {/* Header Section */}
  <div className="mb-8">
@@ -208,7 +208,7 @@ const BlogsAdminDashboard = () => {
  <div className="flex items-center justify-between">
  <div>
  <p className="text-blue-300 text-sm">Total Blogs</p>
- <p className="text-2xl font-bold text-accent-content">{blogs.length}</p>
+ <p className="text-2xl font-bold text-slate-300">{blogs.length}</p>
  </div>
  <div className="bg-blue-500/30 p-3 rounded-xl">
  <Edit2 size={24} className="text-blue-300"/>
@@ -219,7 +219,7 @@ const BlogsAdminDashboard = () => {
  <div className="flex items-center justify-between">
  <div>
  <p className="text-green-300 text-sm">Published</p>
- <p className="text-2xl font-bold text-accent-content">{blogs.filter(b => b.status ==='Published').length}</p>
+ <p className="text-2xl font-bold text-slate-300">{blogs.filter(b => b.status ==='Published').length}</p>
  </div>
  <div className="bg-green-500/30 p-3 rounded-xl">
  <Eye size={24} className="text-green-300"/>
@@ -230,7 +230,7 @@ const BlogsAdminDashboard = () => {
  <div className="flex items-center justify-between">
  <div>
  <p className="text-yellow-300 text-sm">Drafts</p>
- <p className="text-2xl font-bold text-accent-content">{blogs.filter(b => b.status ==='Draft').length}</p>
+ <p className="text-2xl font-bold text-slate-300">{blogs.filter(b => b.status ==='Draft').length}</p>
  </div>
  <div className="bg-yellow-500/30 p-3 rounded-xl">
  <Edit2 size={24} className="text-yellow-300"/>
@@ -241,7 +241,7 @@ const BlogsAdminDashboard = () => {
  <div className="flex items-center justify-between">
  <div>
  <p className="text-purple-300 text-sm">Total Views</p>
- <p className="text-2xl font-bold text-accent-content">{blogs.reduce((sum, blog) => sum + (blog.views || 0), 0).toLocaleString()}</p>
+ <p className="text-2xl font-bold text-slate-300">{blogs.reduce((sum, blog) => sum + (blog.views || 0), 0).toLocaleString()}</p>
  </div>
  <div className="bg-purple-500/30 p-3 rounded-xl">
  <TrendingUp size={24} className="text-purple-300"/>
@@ -260,13 +260,13 @@ const BlogsAdminDashboard = () => {
  placeholder="Search blogs by title, author, or category..."
  value={searchTerm}
  onChange={(e) => setSearchTerm(e.target.value)}
- className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl pl-10 pr-4 py-3 text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+ className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl pl-10 pr-4 py-3 text-slate-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
  />
  </div>
  <select
  value={filterStatus}
  onChange={(e) => setFilterStatus(e.target.value)}
- className="bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-accent-content focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+ className="bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
  >
  {statuses.map(status => (
  <option key={status} value={status}>{status}</option>
@@ -294,7 +294,7 @@ const BlogsAdminDashboard = () => {
  </div>
 
  <div className="p-6">
- <h3 className="text-xl font-bold text-accent-content mb-3 group-hover:text-blue-400 line-clamp-2">
+ <h3 className="text-xl font-bold text-slate-300 mb-3 group-hover:text-blue-400 line-clamp-2">
  {blog.title}
  </h3>
 
@@ -371,7 +371,7 @@ const BlogsAdminDashboard = () => {
  type="text"
  value={formData.title}
  onChange={(e) => setFormData({...formData, title: e.target.value})}
- className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+ className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-slate-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
  placeholder="Enter blog title"
  />
  </div>
@@ -381,7 +381,7 @@ const BlogsAdminDashboard = () => {
  type="text"
  value={formData.author}
  onChange={(e) => setFormData({...formData, author: e.target.value})}
- className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+ className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-slate-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
  placeholder="Author name"
  />
  </div>
@@ -393,7 +393,7 @@ const BlogsAdminDashboard = () => {
  <select
  value={formData.category}
  onChange={(e) => setFormData({...formData, category: e.target.value})}
- className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-accent-content focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+ className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
  >
  <option value="">Select Category</option>
  {allCategorydata?.data?.map(category => (
@@ -406,7 +406,7 @@ const BlogsAdminDashboard = () => {
  <select
  value={formData.status}
  onChange={(e) => setFormData({...formData, status: e.target.value})}
- className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-accent-content focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+ className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
  >
  <option value="Draft">Draft</option>
  <option value="Published">Published</option>
@@ -420,7 +420,7 @@ const BlogsAdminDashboard = () => {
  type="file"
  accept="image/*"
  onChange={handleImageChange}
- className="w-full cursor-pointer bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-accent-content file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-500/20 file:text-blue-400 hover:file:bg-blue-500/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+ className="w-full cursor-pointer bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-500/20 file:text-blue-400 hover:file:bg-blue-500/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
  />
  </div>
 
@@ -429,7 +429,7 @@ const BlogsAdminDashboard = () => {
  <textarea
  value={formData.excerpt}
  onChange={(e) => setFormData({...formData, excerpt: e.target.value})}
- className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 h-24 resize-none"
+ className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-slate-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 h-24 resize-none"
  placeholder="Brief description of the blog post"
  />
  </div>
@@ -439,7 +439,7 @@ const BlogsAdminDashboard = () => {
  <textarea
  value={formData.content}
  onChange={(e) => setFormData({...formData, content: e.target.value})}
- className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 h-32 resize-none"
+ className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-slate-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 h-32 resize-none"
  placeholder="Write your blog content here..."
  />
  </div>
@@ -448,7 +448,7 @@ const BlogsAdminDashboard = () => {
  <button
  onClick={handleSubmit}
  disabled={submitting}
- className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-accent-content py-3 px-6 rounded-xl font-semibold transform disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
+ className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-slate-300 py-3 px-6 rounded-xl font-semibold transform disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
  >
  {submitting ? (
  <>
@@ -478,7 +478,7 @@ const BlogsAdminDashboard = () => {
  from {opacity: 0;}
  to {opacity: 1;}
 }
- 
+
  @keyframes slideUp {
  from {
  opacity: 0;
@@ -489,22 +489,22 @@ const BlogsAdminDashboard = () => {
  transform: translateY(0);
 }
 }
- 
+
  .animate-fadeIn {
  animation: fadeIn 0.3s ;
 }
- 
+
  .animate-slideUp {
  animation: slideUp 0.3s ;
 }
- 
+
  .line-clamp-2 {
  display: -webkit-box;
  -webkit-line-clamp: 2;
  -webkit-box-orient: vertical;
  overflow: hidden;
 }
- 
+
  .line-clamp-3 {
  display: -webkit-box;
  -webkit-line-clamp: 3;

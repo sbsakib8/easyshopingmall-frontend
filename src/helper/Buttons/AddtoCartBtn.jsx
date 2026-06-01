@@ -5,6 +5,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { dsCartAdd } from "@/src/redux/dropshippingCartSlice";
+import { cn } from "@/src/utlis/utils";
 
 
 
@@ -13,11 +14,11 @@ const [isClicked, setisClicked] = useState(false)
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.data);
 
-const handleAddToCart = async (productId, e, user, dispatch) => {    
-  setisClicked(true) 
+const handleAddToCart = async (productId, e, user, dispatch) => {
+  setisClicked(true)
   e.preventDefault();
  setTimeout(() => {
-   setisClicked(false) 
+   setisClicked(false)
  }, 1000);
   const product = await getProductDetailsApi(productId);
 
@@ -46,7 +47,7 @@ const handleAddToCart = async (productId, e, user, dispatch) => {
         price: product.price || product.sell_price || 0,
         sellingPrice: product.price || product.sell_price || 0,
       }));
-      
+
       toast.success(`${product.productName} sourcing কার্টে যোগ করা হয়েছে`);
     } else {
       // Normal Cart (API)
@@ -75,7 +76,7 @@ const handleAddToCart = async (productId, e, user, dispatch) => {
     <div
     disabled={isClicked}
       onClick={(e) => handleAddToCart(productId, e, user, dispatch)}
-      className={`text-accent-content cursor-pointer ${className}`}
+      className={cn("text-primary-content cursor-pointer", className)}
     >
       {children}
     </div>

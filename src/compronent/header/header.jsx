@@ -10,11 +10,13 @@ import { setSearchTerm } from "@/src/redux/shopSlice";
 import { useCategoryWithSubcategories } from "@/src/utlis/useCategoryWithSubcategories";
 import { useSearchProduct } from "@/src/utlis/useSearchProduct";
 import useWebsiteInfo from "@/src/utlis/useWebsiteInfo";
+import { cn } from "@/src/utlis/utils";
 import {
   BarChart3,
   Camera,
   ChevronDown,
   Heart,
+  LogIn,
   Menu,
   Search,
   ShoppingCart,
@@ -147,10 +149,6 @@ const Header = ({ initialData }) => {
     setIsCategoriesOpen(!isCategoriesOpen);
   };
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
   const { searchTerm: reduxSearchTerm } = useSelector(
     (state) => state.shop || {},
   );
@@ -253,33 +251,34 @@ const Header = ({ initialData }) => {
     <>
       {/* Secondary Top Bar */}
       <div
-        className={`bg-secondary text-xs sm:text-sm  backdrop-blur-sm transition-all duration-300 ${
+        className={`text-xs sm:text-sm transition-all duration-300 ${
           isScrolled ? "h-0 py-0 opacity-0" : "h-auto sm:h-[50px]"
         } hidden sm:block`}
       >
-        <div className="py-2 overflow-hidden hidden sm:block bg-gradient-to-r from-amber-400 via-yellow-400 to-orange-400">
+        <div className="py-2 overflow-hidden hidden sm:block bg-gradient-to-r from-secondary/30 from-0% via-accent/40 via-70% to-secondary/40">
           <marquee
             behavior="scroll"
             direction="left"
             scrollamount="8"
             loop="infinite"
-            className="text-sm font-semibold text-gray-800"
+            className="text-sm font-semibold text-info-content"
           >
             {siteInfo?.discountTitle}
           </marquee>
         </div>
       </div>
 
-      {/* Marquee Banner */}
-
       {/* Main Header */}
       <header
-        className={`bg-secondary shadow-lg sticky top-0 z-40 border-b border-gray-200/50 transition-all duration-300 ${
-          isScrolled ? "h-16 sm:h-20" : "h-20 sm:h-24 lg:h-[100px]"
-        }`}
+        className={cn(
+          "sticky bg-primary/60 top-0 z-40 transition-all duration-300  backdrop-blur-md space-y-2",
+          {
+            "bg-primary/20": isScrolled,
+          },
+        )}
       >
-        <Container>
-          <div className="flex items-center justify-between py-2 sm:py-3 lg:py-4">
+        <Container className="space-y-2">
+          <div className="flex items-center justify-between">
             {/* Enhanced Logo - Responsive */}
             <div className="flex items-center">
               <div className="flex items-center space-x-2 sm:space-x-3 group cursor-pointer">
@@ -300,13 +299,13 @@ const Header = ({ initialData }) => {
                 </div>
                 <div className="transform group-hover:scale-105 transition-transform duration-300">
                   <Link href={"/"} className="flex flex-row ">
-                    <span className="text-[13px] sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                    <span className="text-[13px] sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-emerald-700 to-teal-700 bg-clip-text text-transparent">
                       EASY
                     </span>
                     <span className="text-[13px] sm:text-xl lg:text-2xl font-bold text-gray-800">
                       SHOPPING
                     </span>
-                    <span className="text-[13px] sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                    <span className="text-[13px] sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-emerald-700 to-teal-700 bg-clip-text text-transparent">
                       MALL
                     </span>
                   </Link>
@@ -321,7 +320,7 @@ const Header = ({ initialData }) => {
                 <div className="relative group/main" ref={dropdownRef}>
                   <button
                     onClick={toggleCategories}
-                    className="flex items-center space-x-2 bg-bg px-4 lg:px-6 py-3 lg:py-4 hover:from-emerald-50 hover:to-teal-50 hover:text-emerald-600 transition-all duration-300 group rounded-2xl"
+                    className="flex items-center space-x-2 bg-bg px-4 lg:px-6 py-3 lg:py-4 hover:from-emerald-50 hover:to-teal-50 hover:text-secondary transition-all duration-300 group rounded-2xl"
                   >
                     <Menu
                       size={16}
@@ -342,8 +341,8 @@ const Header = ({ initialData }) => {
                   {isCategoriesOpen && (
                     <div className="absolute top-full left-0 mt-2 w-80 bg-white border border-gray-200 rounded-2xl shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-300">
                       {/* Header */}
-                      <div className="bg-gradient-to-r from-emerald-500 to-teal-500 p-4 rounded-t-2xl">
-                        <h3 className="text-accent-content font-bold text-lg flex items-center space-x-2">
+                      <div className="bg-secondary/80 p-4 rounded-t-2xl">
+                        <h3 className="text-secondary-content font-bold text-lg flex items-center space-x-2">
                           <Star className="w-5 h-5 animate-pulse" />
                           <span>Shop by Category</span>
                         </h3>
@@ -399,8 +398,8 @@ const Header = ({ initialData }) => {
                                   }}
                                   className={`flex items-center space-x-3 w-full px-6 py-4 transition-all duration-300 ${
                                     isActiveCategory
-                                      ? "bg-emerald-50 text-emerald-700"
-                                      : "hover:bg-emerald-50 text-gray-700"
+                                      ? "bg-secondary/10 text-secondary"
+                                      : "hover:bg-secondary/10 text-secondary-content"
                                   }`}
                                 >
                                   <span className="text-xl">
@@ -416,15 +415,15 @@ const Header = ({ initialData }) => {
                                 </button>
 
                                 <div
-                                  className={`absolute left-full top-0 ml-[2px] w-64 bg-bg border border-gray-100 rounded-2xl shadow-2xl transition-all duration-300 ease-out z-[60]
+                                  className={`absolute left-full top-0 ml-[2px] bg-white w-64 rounded-2xl shadow-2xl transition-all duration-300 ease-out z-[60]
                   ${
                     isActiveCategory
                       ? "opacity-100 visible translate-x-0"
                       : "opacity-0 invisible -translate-x-4"
                   }`}
                                 >
-                                  <div className="bg-gray-50/50 p-4 border-b rounded-t-2xl">
-                                    <h4 className="font-bold text-gray-800">
+                                  <div className="bg-secondary/80 p-4 rounded-t-2xl">
+                                    <h4 className="font-bold text-secondary-content">
                                       {category.name}
                                     </h4>
                                   </div>
@@ -437,7 +436,7 @@ const Header = ({ initialData }) => {
                                         }
                                         key={sub.name}
                                         href={`/shop?category=${encodeURIComponent(category.slug || category.name)}&subcategory=${encodeURIComponent(sub.slug || sub.name)}`}
-                                        className="block px-6 py-3 text-gray-600 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 font-medium"
+                                        className="block px-6 py-3 text-secondary-content hover:text-secondary hover:bg-secondary/10 transition-colors duration-200 font-medium"
                                       >
                                         {sub.name}
                                       </Link>
@@ -460,7 +459,7 @@ const Header = ({ initialData }) => {
                     size={18}
                   />
                   <input
-                    type="text"
+                    type="search"
                     placeholder="Search for products"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -509,106 +508,123 @@ const Header = ({ initialData }) => {
             </div>
 
             <div className="flex items-center space-x-2 sm:space-x-4 mx-3">
-              {data ? (
-                <Link
-                  href="/account"
-                  className="flex items-center  text-gray-700 hover:text-emerald-600 transition-all duration-300 cursor-pointer group"
-                >
-                  <div className="p-2 rounded-xl bg-bg group-hover:from-emerald-100 group-hover:to-teal-100 transition-all duration-300 shadow-sm">
-                    <User
-                      size={18}
-                      className="group-hover:scale-110 transition-transform duration-300"
-                    />
-                  </div>
-                  <div>
-                    <div className="hidden xl:block text-xs text-accent font-bold ml-1">
-                      Account
-                    </div>
-                  </div>
-                </Link>
-              ) : (
-                <Link
-                  href="/signin"
-                  className="flex items-center  text-gray-700 hover:text-emerald-600 transition-all duration-300 cursor-pointer group"
-                >
-                  <div className="p-2 rounded-xl bg-bg group-hover:from-emerald-100 group-hover:to-teal-100 transition-all duration-300 shadow-sm">
-                    <User
-                      size={16}
-                      className="group-hover:scale-110 transition-transform duration-300"
-                    />
-                  </div>
-                  <div>
-                    <div className=" hidden xl:block text-xs text-accent font-medium">
-                      SignIn
-                    </div>
-                  </div>
-                </Link>
-              )}
+              {[
+                {
+                  key: "account",
+                  href: "/account",
+                  label: "Account",
+                  icon: User,
+                  size: 18,
+                  showWhenLoggedIn: true,
+                  hoverColors:
+                    "group-hover:from-emerald-100 group-hover:to-teal-100",
+                },
+                {
+                  key: "signin",
+                  href: "/signin",
+                  label: "SignIn",
+                  icon: data ? User : LogIn,
+                  size: 16,
+                  showWhenLoggedIn: false,
+                  hoverColors:
+                    "group-hover:from-emerald-100 group-hover:to-teal-100",
+                },
+                {
+                  key: "wishlist",
+                  href: "/wishlist",
+                  label: "Wishlist",
+                  icon: Heart,
+                  size: 16,
+                  smSize: 20,
+                  showWhenLoggedIn: true,
+                  badge: String(wishlistCount),
+                  hoverColors:
+                    "group-hover:from-pink-100 group-hover:to-rose-100",
+                },
+                {
+                  key: "cart",
+                  href: "/addtocart",
+                  label: "Cart",
+                  icon: ShoppingCart,
+                  size: 16,
+                  smSize: 20,
+                  showWhenLoggedIn: true,
+                  badge: String(cartItems?.length || 0),
+                  hoverColors:
+                    "group-hover:from-emerald-100 group-hover:to-teal-100",
+                },
+                {
+                  key: "dashboard",
+                  href: "/dashboard",
+                  label: "",
+                  icon: BarChart3,
+                  size: 16,
+                  smSize: 20,
+                  showWhenLoggedIn: true,
+                  onlyForMobile: true,
+                  isAdminOnly: true,
+                  hoverColors:
+                    "group-hover:from-emerald-100 group-hover:to-teal-100",
+                },
+              ].map((item) => {
+                const isLoggedIn = !!data;
+                const shouldShow =
+                  (item.key === "account" && isLoggedIn) ||
+                  (item.key === "signin" && !isLoggedIn) ||
+                  (item.key !== "account" && item.key !== "signin");
 
-              {/* Wishlist - Responsive */}
-              <div className="relative cursor-pointer group">
-                <Link
-                  href="/wishlist"
-                  className="flex items-center space-x-1 sm:space-x-2 text-gray-700 group-hover:text-emerald-600 transition-all duration-300"
-                >
-                  <div className="relative p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-bg group-hover:from-pink-100 group-hover:to-rose-100 transition-all duration-300 shadow-sm">
-                    <Heart
-                      size={16}
-                      className="sm:w-5 sm:h-5 group-hover:scale-110 transition-transform duration-300 group-hover:text-pink-600"
-                    />
-                    {wishlistCount > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-rose-500 text-accent-content text-xs rounded-full h-4 w-4 sm:h-6 sm:w-6 flex items-center justify-center font-bold animate-bounce shadow-lg">
-                        {wishlistCount}
-                      </span>
-                    )}
-                  </div>
-                  <div className="hidden xl:block">
-                    <div className="text-xs text-accent font-bold">
-                      Wishlist
-                    </div>
-                  </div>
-                </Link>
-              </div>
+                if (!shouldShow) return null;
+                if (item.isAdminOnly && !isAdmin) return null;
 
-              {/* Cart - Responsive */}
-              <div className="relative cursor-pointer group hidden md:block">
-                <Link
-                  href="/addtocart"
-                  className="flex items-center space-x-1 sm:space-x-2 text-gray-700 group-hover:text-emerald-600 transition-all duration-300"
-                >
-                  <div className="relative p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-bg group-hover:from-emerald-100 group-hover:to-teal-100 transition-all duration-300 shadow-sm">
-                    <ShoppingCart
-                      size={16}
-                      className="sm:w-5 sm:h-5 group-hover:scale-110 transition-transform duration-300"
-                    />
-                    {cartCount > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-secondary text-accent-content text-xs rounded-full h-4 w-4 sm:h-6 sm:w-6 flex items-center justify-center font-bold animate-pulse shadow-lg">
-                        {cartItems.length}
-                      </span>
-                    )}
-                  </div>
-                  <div className="hidden xl:block">
-                    <div className="text-xs text-accent font-bold">Cart</div>
-                  </div>
-                </Link>
-              </div>
-
-              {/* Dashboard Icon Button - Responsive */}
-              {isAdmin && (
-                <div className="relative cursor-pointer group md:hidden">
-                  <Link
-                    href="/dashboard"
-                    className="flex items-center space-x-1 sm:space-x-2 text-gray-700 group-hover:text-emerald-600 transition-all duration-300"
+                return (
+                  <div
+                    key={item.key}
+                    className={cn("relative cursor-pointer group", {
+                      "md:hidden": item.onlyForMobile,
+                    })}
                   >
-                    <div className="relative p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-bg group-hover:from-emerald-100 group-hover:to-teal-100 transition-all duration-300 shadow-sm">
-                      <BarChart3
-                        size={16}
-                        className="sm:w-5 sm:h-5 group-hover:scale-110 transition-transform duration-300"
-                      />
-                    </div>
-                  </Link>
-                </div>
-              )}
+                    <Link
+                      href={item.href}
+                      className="flex items-center space-x-1 sm:space-x-2 text-gray-700 group-hover:text-emerald-600 transition-all duration-300"
+                    >
+                      <div
+                        className={`relative p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-bg ${item.hoverColors} transition-all duration-300 shadow-sm`}
+                      >
+                        <item.icon
+                          size={item.size}
+                          className={cn(
+                            "sm:w-5 sm:h-5 group-hover:scale-110 transition-transform duration-300",
+                            {
+                              "group-hover:text-pink-600":
+                                item.key === "wishlist",
+                            },
+                          )}
+                        />
+
+                        {/* Badge */}
+                        {item.badge && (
+                          <span
+                            className={cn(
+                              "absolute -top-1 bg-error/70 -right-1 text-error-content text-[10px] rounded-full size-4.5 flex items-center justify-center font-bold shadow-lg",
+                            )}
+                          >
+                            {item.badge}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Label */}
+                      {item.label && (
+                        <div className="hidden md:block">
+                          <div className="text-xs text-neutral font-bold">
+                            {item.label}
+                          </div>
+                        </div>
+                      )}
+                    </Link>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
@@ -640,7 +656,8 @@ const Header = ({ initialData }) => {
             </div>
           </div>
         </Container>
-        {/* image searche dropdown */}
+
+        {/* image search dropdown */}
         {imageSearch && (
           <div className="flex flex-col lg:hidden justify-center items-center absolute inset-0  bg-white  shadow-2xl shadow-black-100 z-999 sm:w-80 mx-auto min-h-52 mt-25 rounded-sm">
             <button
@@ -666,35 +683,33 @@ const Header = ({ initialData }) => {
         )}
 
         {/* Enhanced Navigation Menu - Responsive */}
-        <div className="bg-primary-color border-t border-gray-200/60 backdrop-blur-sm py-1 hidden md:block">
-          <Container>
-            <nav className="flex items-center justify-between ">
-              <div className="flex items-center space-x-4 lg:space-x-8">
-                {navItems.map((item, index) => (
-                  <Link
-                    key={index}
-                    href={item.href}
-                    className="relative flex items-center space-x-1 text-accent hover:text-secondary/80 font-semibold transition-all duration-300 group hover:scale-105"
-                  >
-                    <span className="text-sm lg:text-base">{item.name}</span>
-                    {item.badge && (
-                      <span className="bg-secondary text-accent-content text-xs px-2 lg:px-3 py-0.5 lg:py-1 rounded-full font-bold shadow-sm animate-pulse">
-                        {item.badge}
-                      </span>
-                    )}
-                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-secondary transition-all duration-300 group-hover:w-full rounded-full"></span>
-                  </Link>
-                ))}
-              </div>
-            </nav>
-          </Container>
-        </div>
-
-        <BottomNav
-          cartCount={cartItems.length || 0}
-          menuCategories={menuCategories}
-        />
+        <Container className="hidden md:block pt-0!">
+          <nav className=" items-center justify-between flex">
+            <div className="flex items-center space-x-4 lg:space-x-8">
+              {navItems.map((item, index) => (
+                <Link
+                  key={index}
+                  href={item.href}
+                  className="relative flex items-center space-x-1 text-primary-content hover:text-accent font-semibold transition-all duration-300 group hover:scale-105"
+                >
+                  <span className="text-sm lg:text-base">{item.name}</span>
+                  {item.badge && (
+                    <span className="bg-warning text-accent-content text-xs px-2 lg:px-3 py-0.5 lg:py-1 rounded-full font-bold shadow-sm animate-pulse">
+                      {item.badge}
+                    </span>
+                  )}
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-accent transition-all duration-300 group-hover:w-full rounded-full"></span>
+                </Link>
+              ))}
+            </div>
+          </nav>
+        </Container>
       </header>
+
+      <BottomNav
+        cartCount={cartItems.length || 0}
+        menuCategories={menuCategories}
+      />
     </>
   );
 };

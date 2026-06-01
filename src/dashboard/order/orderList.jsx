@@ -34,24 +34,24 @@ import { useMemo, useState } from "react";
 
 const statusColors = {
   pending:
-    "bg-gradient-to-r from-yellow-400 to-orange-400 text-accent-content shadow-lg shadow-yellow-500/25",
+    "bg-gradient-to-r from-yellow-400 to-orange-400 text-slate-300 shadow-lg shadow-yellow-500/25",
   processing:
-    "bg-gradient-to-r from-blue-500 to-cyan-500 text-accent-content shadow-lg shadow-blue-500/25",
+    "bg-gradient-to-r from-blue-500 to-cyan-500 text-slate-300 shadow-lg shadow-blue-500/25",
   submitted:
-    "bg-gradient-to-r from-blue-500 to-cyan-500 text-accent-content shadow-lg shadow-blue-500/25",
+    "bg-gradient-to-r from-blue-500 to-cyan-500 text-slate-300 shadow-lg shadow-blue-500/25",
   shipped:
-    "bg-gradient-to-r from-purple-500 to-pink-500 text-accent-content shadow-lg shadow-purple-500/25",
+    "bg-gradient-to-r from-purple-500 to-pink-500 text-slate-300 shadow-lg shadow-purple-500/25",
   completed:
-    "bg-gradient-to-r from-green-500 to-emerald-500 text-accent-content shadow-lg shadow-green-500/25",
-  paid: "bg-gradient-to-r from-green-500 to-emerald-500 text-accent-content shadow-lg shadow-green-500/25",
+    "bg-gradient-to-r from-green-500 to-emerald-500 text-slate-300 shadow-lg shadow-green-500/25",
+  paid: "bg-gradient-to-r from-green-500 to-emerald-500 text-slate-300 shadow-lg shadow-green-500/25",
   cancelled:
-    "bg-gradient-to-r from-red-500 to-rose-500 text-accent-content shadow-lg shadow-red-500/25",
+    "bg-gradient-to-r from-red-500 to-rose-500 text-slate-300 shadow-lg shadow-red-500/25",
 };
 
 const priorityColors = {
-  high: "bg-gradient-to-r from-red-500 to-pink-500 text-accent-content",
-  medium: "bg-gradient-to-r from-yellow-500 to-orange-500 text-accent-content",
-  low: "bg-gradient-to-r from-green-500 to-teal-500 text-accent-content",
+  high: "bg-gradient-to-r from-red-500 to-pink-500 text-slate-300",
+  medium: "bg-gradient-to-r from-yellow-500 to-orange-500 text-slate-300",
+  low: "bg-gradient-to-r from-green-500 to-teal-500 text-slate-300",
 };
 
 const statusIcons = {
@@ -235,7 +235,7 @@ const OrderManagement = () => {
         <div className="relative bg-gradient-to-r from-gray-900/80 via-blue-900/80 to-purple-900/80 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-gray-700/50 shadow-2xl shadow-blue-500/10">
           <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-accent-content mb-2">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-300 mb-2">
                 Pending{" "}
                 <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                   Orders
@@ -250,55 +250,55 @@ const OrderManagement = () => {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-accent-content shadow-xl">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-slate-300 shadow-xl">
             <div className="absolute top-0 right-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
             <div className="relative">
               <ShoppingCart className="h-8 w-8 mb-3 text-blue-400" />
               <p className="text-gray-400 text-sm">Total Orders</p>
-              <p className="text-3xl font-bold text-accent-content">
+              <p className="text-3xl font-bold text-slate-300">
                 {stats?.total}
               </p>
             </div>
           </div>
 
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-accent-content shadow-xl">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-slate-300 shadow-xl">
             <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/10 rounded-full -translate-y-10 translate-x-10"></div>
             <div className="relative">
               <CheckCircle className="h-8 w-8 mb-3 text-green-400" />
               <p className="text-gray-400 text-sm">Completed</p>
-              <p className="text-3xl font-bold text-accent-content">
+              <p className="text-3xl font-bold text-slate-300">
                 {stats?.completed}
               </p>
             </div>
           </div>
 
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-accent-content shadow-xl">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-slate-300 shadow-xl">
             <div className="absolute top-0 right-0 w-20 h-20 bg-orange-500/10 rounded-full -translate-y-10 translate-x-10"></div>
             <div className="relative">
               <Clock className="h-8 w-8 mb-3 text-orange-400" />
               <p className="text-gray-400 text-sm">Pending</p>
-              <p className="text-3xl font-bold text-accent-content">
+              <p className="text-3xl font-bold text-slate-300">
                 {stats?.pending}
               </p>
             </div>
           </div>
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-accent-content shadow-xl">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-slate-300 shadow-xl">
             <div className="absolute top-0 right-0 w-20 h-20 bg-orange-500/10 rounded-full -translate-y-10 translate-x-10"></div>
             <div className="relative">
               <LoaderIcon className="h-8 w-8 mb-3 text-orange-400" />
               <p className="text-gray-400 text-sm">Processing</p>
-              <p className="text-3xl font-bold text-accent-content">
+              <p className="text-3xl font-bold text-slate-300">
                 {stats?.processing}
               </p>
             </div>
           </div>
 
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-accent-content shadow-xl">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-slate-300 shadow-xl">
             <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/10 rounded-full -translate-y-10 translate-x-10"></div>
             <div className="relative">
               <DollarSign className="h-8 w-8 mb-3 text-purple-400" />
               <p className="text-gray-400 text-sm">Revenue</p>
-              <p className="text-3xl font-bold text-accent-content">
+              <p className="text-3xl font-bold text-slate-300">
                 ৳{stats?.revenue?.toFixed(0)}
               </p>
             </div>
@@ -317,7 +317,7 @@ const OrderManagement = () => {
                     placeholder="Search orders by customer, ID, or email..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-gradient-to-r from-gray-700/50 to-gray-800/50 backdrop-blur-sm border border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-accent-content placeholder-gray-400"
+                    className="w-full pl-12 pr-4 py-3 bg-gradient-to-r from-gray-700/50 to-gray-800/50 backdrop-blur-sm border border-gray-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-300 placeholder-gray-400"
                   />
                 </div>
               </div>
@@ -332,13 +332,13 @@ const OrderManagement = () => {
                     </span>
                     <button
                       onClick={() => handleBulkAction("delete")}
-                      className="px-3 py-1 bg-red-600 hover:bg-red-700 text-accent-content rounded-lg text-xs"
+                      className="px-3 py-1 bg-red-600 hover:bg-red-700 text-slate-300 rounded-lg text-xs"
                     >
                       Delete
                     </button>
                     <button
                       onClick={() => handleBulkAction("export")}
-                      className="px-3 py-1 bg-green-600 hover:bg-green-700 text-accent-content rounded-lg text-xs"
+                      className="px-3 py-1 bg-green-600 hover:bg-green-700 text-slate-300 rounded-lg text-xs"
                     >
                       Export
                     </button>
@@ -354,7 +354,7 @@ const OrderManagement = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Package className="h-6 w-6 text-blue-400" />
-                <h2 className="text-2xl font-bold text-accent-content">
+                <h2 className="text-2xl font-bold text-slate-300">
                   Orders ({allOrders?.length})
                 </h2>
               </div>
@@ -362,7 +362,7 @@ const OrderManagement = () => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleSelectAll}
-                  className="p-2 rounded-xl bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 text-accent-content hover:border-gray-500"
+                  className="p-2 rounded-xl bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 text-slate-300 hover:border-gray-500"
                 >
                   {selectedOrders?.size === paginatedOrders?.length ? (
                     <CheckSquare className="h-4 w-4" />
@@ -405,11 +405,11 @@ const OrderManagement = () => {
                             )}
                           </button>
 
-                          <div className="w-12 h-12 rounded-sm lg:rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-accent-content shadow-lg px-3">
+                          <div className="w-12 h-12 rounded-sm lg:rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-slate-300 shadow-lg px-3">
                             <Package className="h-6 w-6" />
                           </div>
                           <div>
-                            <h3 className="text-xs font-bold text-accent-content group-hover:text-blue-400">
+                            <h3 className="text-xs font-bold text-slate-300 group-hover:text-blue-400">
                               {order?.orderId}
                             </h3>
                             <div className="flex flex-wrap items-center gap-2 mt-1">
@@ -417,7 +417,7 @@ const OrderManagement = () => {
                                 {order?.userId?.name}
                               </span>
                               {order?.userId?.role === "DROPSHIPPING" && (
-                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary-color/20 text-primary-color border border-primary-color/30 uppercase tracking-widest">
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/20 text-primary border border-primary/30 uppercase tracking-widest">
                                   Dropshipping
                                 </span>
                               )}
@@ -431,7 +431,7 @@ const OrderManagement = () => {
                               e.stopPropagation();
                               handleViewOrder(order);
                             }}
-                            className="p-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-accent-content shadow-lg"
+                            className="p-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-slate-300 shadow-lg"
                           >
                             <Eye className="h-4 w-4" />
                           </button>
@@ -441,7 +441,7 @@ const OrderManagement = () => {
                               setConfirmationModal(true);
                               setSelectedOrder(order);
                             }}
-                            className="p-2 rounded-xl bg-red-600 hover:bg-red-700 text-accent-content shadow-lg"
+                            className="p-2 rounded-xl bg-red-600 hover:bg-red-700 text-slate-300 shadow-lg"
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>
@@ -454,7 +454,7 @@ const OrderManagement = () => {
                             <Calendar className="h-4 w-4" />
                             Date
                           </div>
-                          <div className="text-accent-content font-semibold text-base">
+                          <div className="text-slate-300 font-semibold text-base">
                             {new Date(
                               order?.products[0]?.productId?.createdAt,
                             ).toLocaleDateString()}
@@ -475,7 +475,7 @@ const OrderManagement = () => {
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">
                           {StatusIcon && (
-                            <StatusIcon className="h-5 w-5 text-accent-content" />
+                            <StatusIcon className="h-5 w-5 text-slate-300" />
                           )}
                           <span
                             className={`px-4 py-2 rounded-2xl text-sm font-semibold capitalize text-black ${statusColors[order?.order_status]}`}
@@ -529,7 +529,7 @@ const OrderManagement = () => {
                       setCurrentPage((prev) => Math.max(prev - 1, 1))
                     }
                     disabled={currentPage === 1}
-                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 text-accent-content hover:border-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 text-slate-300 hover:border-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </button>
@@ -542,8 +542,8 @@ const OrderManagement = () => {
                           key={page}
                           onClick={() => setCurrentPage(page)}
                           className={`w-10 h-10 rounded-xl ${currentPage === page
-                            ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-accent-content shadow-lg"
-                            : "bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 text-accent-content hover:border-gray-500"
+                            ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-slate-300 shadow-lg"
+                            : "bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 text-slate-300 hover:border-gray-500"
                             }`}
                         >
                           {page}
@@ -557,7 +557,7 @@ const OrderManagement = () => {
                       setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                     }
                     disabled={currentPage === totalPages}
-                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 text-accent-content hover:border-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 text-slate-300 hover:border-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <ChevronRight className="h-4 w-4" />
                   </button>
@@ -573,7 +573,7 @@ const OrderManagement = () => {
         {showModal && selectedOrder && (
           <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-40 p-4 min-h-screen">
             <div className="bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
-              <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 text-accent-content">
+              <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 text-slate-300">
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="text-2xl font-bold">Order Details</h2>
@@ -606,7 +606,7 @@ const OrderManagement = () => {
                   {/* Customer Information */}
                   <div className="space-y-4">
                     <div className="bg-gradient-to-br from-gray-700/50 to-gray-800/50 rounded-2xl p-6 border border-gray-600">
-                      <h3 className="text-lg font-bold text-accent-content mb-4 flex items-center gap-2">
+                      <h3 className="text-lg font-bold text-slate-300 mb-4 flex items-center gap-2">
                         <User className="h-5 w-5 text-blue-400" />
                         Customer Information
                       </h3>
@@ -614,11 +614,11 @@ const OrderManagement = () => {
                         <div className="flex items-center gap-3">
                           <User className="h-4 w-4 text-gray-400" />
                           <div className="flex items-center gap-2">
-                            <span className="font-medium text-accent-content">
+                            <span className="font-medium text-slate-300">
                               {selectedOrder?.userId?.name}
                             </span>
                             {selectedOrder?.userId?.role === "DROPSHIPPING" && (
-                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary-color/20 text-primary-color border border-primary-color/30 uppercase tracking-widest">
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/20 text-primary border border-primary/30 uppercase tracking-widest">
                                 Dropshipping
                               </span>
                             )}
@@ -638,28 +638,28 @@ const OrderManagement = () => {
                         </div>
                         <div className="flex flex-col items-start gap-3">
                           {/* <MapPin className="h-4 w-4 text-gray-400 mt-1"/> */}
-                          <h3 className="font-bold text-accent-content">
+                          <h3 className="font-bold text-slate-300">
                             Address Line:{" "}
                             <span className="text-gray-300 font-normal">
                               {selectedOrder?.address?.address_line || "None"}
                             </span>
                           </h3>
                           {selectedOrder?.address?.district && (
-                            <h3 className="font-bold text-accent-content">
+                            <h3 className="font-bold text-slate-300">
                               District:{" "}
                               <span className="text-gray-300 font-normal">
                                 {selectedOrder?.address?.district || "None"}
                               </span>
                             </h3>
                           )}
-                          <h3 className="font-bold text-accent-content">
+                          <h3 className="font-bold text-slate-300">
                             District:{" "}
                             <span className="text-gray-300 font-normal">
                               {selectedOrder?.address?.district || "None"}
                             </span>
                           </h3>
                           {selectedOrder?.address?.division && (
-                            <h3 className="font-bold text-accent-content">
+                            <h3 className="font-bold text-slate-300">
                               Division:{" "}
                               <span className="text-gray-300 font-normal">
                                 {selectedOrder?.address?.division || "None"}
@@ -668,7 +668,7 @@ const OrderManagement = () => {
                           )}
 
                           {selectedOrder?.address?.pincode && (
-                            <h3 className="font-bold text-accent-content">
+                            <h3 className="font-bold text-slate-300">
                               Pincode:{" "}
                               <span className="text-gray-300 font-normal">
                                 {selectedOrder?.address?.pincode || "None"}
@@ -676,7 +676,7 @@ const OrderManagement = () => {
                             </h3>
                           )}
 
-                          <h3 className="font-bold text-accent-content">
+                          <h3 className="font-bold text-slate-300">
                             Upazila Thana:{" "}
                             <span className="text-gray-300 font-normal">
                               {selectedOrder?.address?.upazila_thana || "None"}
@@ -688,14 +688,14 @@ const OrderManagement = () => {
 
                     {/* Order Summary */}
                     <div className="bg-gradient-to-br from-gray-700/50 to-gray-800/50 rounded-2xl p-6 border border-gray-600">
-                      <h3 className="text-lg font-bold text-accent-content mb-4 flex items-center gap-2">
+                      <h3 className="text-lg font-bold text-slate-300 mb-4 flex items-center gap-2">
                         <BarChart3 className="h-5 w-5 text-purple-400" />
                         Order Summary
                       </h3>
                       <div className="space-y-3">
                         <div className="flex justify-between">
                           <span className="text-gray-400">Order Date:</span>
-                          <span className="font-medium text-accent-content">
+                          <span className="font-medium text-slate-300">
                             {new Date(
                               selectedOrder?.updatedAt,
                             ).toLocaleDateString()}
@@ -704,7 +704,7 @@ const OrderManagement = () => {
 
                         <div className="flex justify-between">
                           <span className="text-gray-400">Total Items:</span>
-                          <span className="font-medium text-accent-content">
+                          <span className="font-medium text-slate-300">
                             {selectedOrder?.products.length}
                           </span>
                         </div>
@@ -716,7 +716,7 @@ const OrderManagement = () => {
                               const StatusIcon =
                                 statusIcons[selectedOrder?.order_status];
                               return StatusIcon ? (
-                                <StatusIcon className="h-4 w-4 text-accent-content" />
+                                <StatusIcon className="h-4 w-4 text-slate-300" />
                               ) : null;
                             })()}
                             <span
@@ -732,7 +732,7 @@ const OrderManagement = () => {
 
                         <div className="flex justify-between">
                           <span className="text-gray-400">Sub Total:</span>
-                          <span className="font-medium text-accent-content">
+                          <span className="font-medium text-slate-300">
                             ৳{selectedOrder?.subTotalAmt || "None"}
                           </span>
                         </div>
@@ -741,7 +741,7 @@ const OrderManagement = () => {
                           <span className="text-gray-400">
                             Delivery Charge:
                           </span>
-                          <span className="font-medium text-accent-content">
+                          <span className="font-medium text-slate-300">
                             ৳{selectedOrder?.deliveryCharge || "None"}
                           </span>
                         </div>
@@ -755,14 +755,14 @@ const OrderManagement = () => {
 
                         <div className="flex justify-between">
                           <span className="text-gray-400">Total:</span>
-                          <span className="font-medium text-accent-content">
+                          <span className="font-medium text-slate-300">
                             ৳{selectedOrder?.totalAmt || "None"}
                           </span>
                         </div>
 
                         <div className="flex justify-between">
                           <span className="text-gray-400">Payment Method:</span>
-                          <span className="font-medium text-accent-content">
+                          <span className="font-medium text-slate-300">
                             {selectedOrder?.payment_method || "None"}
                           </span>
                         </div>
@@ -773,7 +773,7 @@ const OrderManagement = () => {
                               <span className="text-gray-400">
                                 Provider Name:
                               </span>
-                              <span className="font-medium text-accent-content">
+                              <span className="font-medium text-slate-300">
                                 {selectedOrder?.payment_details?.manual
                                   ?.provider || "None"}
                               </span>
@@ -782,7 +782,7 @@ const OrderManagement = () => {
                               <span className="text-gray-400">
                                 Transaction Id:
                               </span>
-                              <span className="font-medium text-accent-content">
+                              <span className="font-medium text-slate-300">
                                 {
                                   selectedOrder?.payment_details?.manual
                                     ?.transactionId
@@ -793,7 +793,7 @@ const OrderManagement = () => {
                               <span className="text-gray-400">Paid For :</span>
                               {selectedOrder?.payment_details?.manual
                                 ?.paidFor && (
-                                  <span className="font-medium text-accent-content">
+                                  <span className="font-medium text-slate-300">
                                     {selectedOrder?.payment_details?.manual
                                       ?.paidFor || "None"}{" "}
                                   </span>
@@ -803,7 +803,7 @@ const OrderManagement = () => {
                               <span className="text-gray-400">
                                 Provider Number:
                               </span>
-                              <span className="font-medium text-accent-content">
+                              <span className="font-medium text-slate-300">
                                 {selectedOrder?.payment_details?.manual
                                   ?.senderNumber || "None"}
                               </span>
@@ -818,7 +818,7 @@ const OrderManagement = () => {
                               <span className="text-gray-400">
                                 Transaction Id:
                               </span>
-                              <span className="ml-2 text-xs text-accent-content">
+                              <span className="ml-2 text-xs text-slate-300">
                                 {selectedOrder?.payment_details?.tran_id ||
                                   "None"}
                               </span>
@@ -827,7 +827,7 @@ const OrderManagement = () => {
                               <span className="text-gray-400">
                                 Transaction Date:
                               </span>
-                              <span className="font-medium text-accent-content">
+                              <span className="font-medium text-slate-300">
                                 {new Date(
                                   selectedOrder?.payment_details?.tran_date ||
                                   "None",
@@ -838,7 +838,7 @@ const OrderManagement = () => {
                               <span className="text-gray-400">
                                 Card Issuer:
                               </span>
-                              <span className="font-medium text-accent-content">
+                              <span className="font-medium text-slate-300">
                                 {selectedOrder?.payment_details?.card_issuer ||
                                   "None"}
                               </span>
@@ -848,13 +848,13 @@ const OrderManagement = () => {
 
                         <div className="flex justify-between">
                           <span className="text-gray-400">Amount Due:</span>
-                          <span className="font-medium text-accent-content">
+                          <span className="font-medium text-slate-300">
                             ৳{selectedOrder?.amount_due}
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-400">Amount Paid:</span>
-                          <span className="font-medium text-accent-content">
+                          <span className="font-medium text-slate-300">
                             ৳{selectedOrder?.amount_paid}
                           </span>
                         </div>
@@ -879,7 +879,7 @@ const OrderManagement = () => {
                   {/* Order Items */}
                   <div className="space-y-4">
                     <div className="bg-gradient-to-br from-gray-700/50 to-gray-800/50 rounded-2xl p-3 border border-gray-600">
-                      <h3 className="text-lg font-bold text-accent-content mb-4 flex items-center gap-2">
+                      <h3 className="text-lg font-bold text-slate-300 mb-4 flex items-center gap-2">
                         <ShoppingCart className="h-5 w-5 text-green-400" />
                         Order Items
                       </h3>
@@ -897,7 +897,7 @@ const OrderManagement = () => {
                                   alt="product photo"
                                 />
                                 <div>
-                                  <h4 className="text-xs text-accent-content">
+                                  <h4 className="text-xs text-slate-300">
                                     {item?.name}
                                   </h4>
                                   <p className="text-xs text-gray-400">
@@ -990,7 +990,7 @@ const OrderManagement = () => {
                             </div>
                           )}
                         <div className="flex justify-between items-center">
-                          <span className="text-xl font-bold text-accent-content">
+                          <span className="text-xl font-bold text-slate-300">
                             Total Amount:
                           </span>
                           <span className="text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
@@ -1002,7 +1002,7 @@ const OrderManagement = () => {
 
                     {/* Action Buttons */}
                     <div className="bg-gradient-to-br from-gray-700/50 to-gray-800/50 rounded-2xl p-6 border border-gray-600">
-                      <h3 className="text-lg font-bold text-accent-content mb-4">
+                      <h3 className="text-lg font-bold text-slate-300 mb-4">
                         Quick Actions
                       </h3>
                       <div className="grid grid-cols-2 gap-3">
@@ -1010,7 +1010,7 @@ const OrderManagement = () => {
                           onClick={() =>
                             handleStatusChange(selectedOrder?._id, "processing")
                           }
-                          className="px-4 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-accent-content rounded-xl text-sm font-medium"
+                          className="px-4 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-slate-300 rounded-xl text-sm font-medium"
                         >
                           Mark Processing
                         </button>
@@ -1018,7 +1018,7 @@ const OrderManagement = () => {
                           onClick={() =>
                             handleStatusChange(selectedOrder?._id, "shipped")
                           }
-                          className="px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-accent-content rounded-xl text-sm font-medium"
+                          className="px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-slate-300 rounded-xl text-sm font-medium"
                         >
                           Mark Shipped
                         </button>
@@ -1026,7 +1026,7 @@ const OrderManagement = () => {
                           onClick={() =>
                             handleStatusChange(selectedOrder?._id, "completed")
                           }
-                          className="px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-accent-content rounded-xl text-sm font-medium"
+                          className="px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-slate-300 rounded-xl text-sm font-medium"
                         >
                           Mark Completed
                         </button>
@@ -1034,7 +1034,7 @@ const OrderManagement = () => {
                           onClick={() =>
                             handleStatusChange(selectedOrder?._id, "cancelled")
                           }
-                          className="px-4 py-3 bg-gradient-to-r from-red-600 to-rose-600 text-accent-content rounded-xl text-sm font-medium"
+                          className="px-4 py-3 bg-gradient-to-r from-red-600 to-rose-600 text-slate-300 rounded-xl text-sm font-medium"
                         >
                           Cancel Order
                         </button>
@@ -1053,7 +1053,7 @@ const OrderManagement = () => {
             <div className="w-24 h-24 bg-gradient-to-br from-gray-700 to-gray-800 rounded-full flex items-center justify-center mx-auto mb-6 border border-gray-600">
               <Package className="h-12 w-12 text-gray-400" />
             </div>
-            <h3 className="text-2xl font-bold text-accent-content mb-2">
+            <h3 className="text-2xl font-bold text-slate-300 mb-2">
               No Orders Found
             </h3>
             <p className="text-gray-400 mb-6">
@@ -1064,7 +1064,7 @@ const OrderManagement = () => {
                 setSearchTerm("");
                 setStatusFilter("all");
               }}
-              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-accent-content rounded-2xl hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl"
+              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-slate-300 rounded-2xl hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl"
             >
               Clear Filters
             </button>
@@ -1080,7 +1080,7 @@ const OrderManagement = () => {
               <div className="p-3 bg-pink-500/20 rounded-full">
                 <Trash2 className="w-8 h-8 text-pink-500" />
               </div>
-              <h2 className="text-2xl font-bold text-accent-content">
+              <h2 className="text-2xl font-bold text-slate-300">
                 Delete Product
               </h2>
             </div>
@@ -1095,13 +1095,13 @@ const OrderManagement = () => {
                 onClick={() =>
                   handleDeleteOrder(selectedOrder?._id, "cancelled")
                 }
-                className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-accent-content font-semibold rounded-lg transform"
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-slate-300 font-semibold rounded-lg transform"
               >
                 Delete
               </button>
               <button
                 onClick={() => setConfirmationModal(false)}
-                className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-accent-content font-semibold rounded-lg"
+                className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-slate-300 font-semibold rounded-lg"
               >
                 Cancel
               </button>

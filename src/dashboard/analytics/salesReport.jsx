@@ -59,7 +59,7 @@ const SalesReportDashboard = () => {
 });
 }, [searchTerm, allOrders]);
 
- // sorting by order status 
+ // sorting by order status
  const orderPriority = ["pending","completed","cancelled"];
  const sortedData = searchData?.sort((a, b) => {
  return (
@@ -202,7 +202,7 @@ const SalesReportDashboard = () => {
  <button
  onClick={() => setChartType('line')}
  className={`px-4 py-2 rounded-lg flex items-center gap-2 ${chartType ==='line'
- ?'bg-gradient-to-r from-cyan-500 to-blue-500 text-accent-content shadow-lg shadow-cyan-500/50'
+ ?'bg-gradient-to-r from-cyan-500 to-blue-500 text-slate-300 shadow-lg shadow-cyan-500/50'
  :'bg-slate-800 text-gray-400 hover:bg-slate-700'
 }`}
  >
@@ -212,7 +212,7 @@ const SalesReportDashboard = () => {
  <button
  onClick={() => setChartType('bar')}
  className={`px-4 py-2 rounded-lg flex items-center gap-2 ${chartType ==='bar'
- ?'bg-gradient-to-r from-cyan-500 to-blue-500 text-accent-content shadow-lg shadow-cyan-500/50'
+ ?'bg-gradient-to-r from-cyan-500 to-blue-500 text-slate-300 shadow-lg shadow-cyan-500/50'
  :'bg-slate-800 text-gray-400 hover:bg-slate-700'
 }`}
  >
@@ -230,10 +230,10 @@ const SalesReportDashboard = () => {
  <div className="flex items-center justify-between mb-4">
  <p className="text-blue-100 text-sm">Total Revenue</p>
  <div className="bg-white/20 p-2 rounded-lg">
- <DollarSign className="text-accent-content"size={20} />
+ <DollarSign className="text-slate-300"size={20} />
  </div>
  </div>
- <h3 className="text-3xl font-bold text-accent-content mb-2">৳{totalRevenue}</h3>
+ <h3 className="text-3xl font-bold text-slate-300 mb-2">৳{totalRevenue}</h3>
  <p className="text-green-200 text-sm">↑ +10.5% from last month</p>
  </div>
  </div>
@@ -247,7 +247,7 @@ const SalesReportDashboard = () => {
  <ShoppingCart className="text-cyan-400"size={20} />
  </div>
  </div>
- <h3 className="text-3xl font-bold text-accent-content mb-2">{filteredData?.length}</h3>
+ <h3 className="text-3xl font-bold text-slate-300 mb-2">{filteredData?.length}</h3>
  <p className="text-green-400 text-sm">↑ +8.2% from last month</p>
  </div>
  </div>
@@ -258,10 +258,10 @@ const SalesReportDashboard = () => {
  <div className="flex items-center justify-between mb-4">
  <p className="text-green-100 text-sm">Conversion Rate</p>
  <div className="bg-white/20 p-2 rounded-lg">
- <TrendingUp className="text-accent-content"size={20} />
+ <TrendingUp className="text-slate-300"size={20} />
  </div>
  </div>
- <h3 className="text-3xl font-bold text-accent-content mb-2">{email.length}%</h3>
+ <h3 className="text-3xl font-bold text-slate-300 mb-2">{email.length}%</h3>
  <p className="text-green-200 text-sm">↑ +2.1% from last month</p>
  </div>
  </div>
@@ -275,7 +275,7 @@ const SalesReportDashboard = () => {
  <XCircle className="text-cyan-400"size={20} />
  </div>
  </div>
- <h3 className="text-3xl font-bold text-accent-content mb-2">{stats.cancelledOrders}</h3>
+ <h3 className="text-3xl font-bold text-slate-300 mb-2">{stats.cancelledOrders}</h3>
  <p className="text-red-400 text-sm">↓ -4.3% from last month</p>
  </div>
  </div>
@@ -307,7 +307,7 @@ const SalesReportDashboard = () => {
  <button onClick={() => changeMonth(-1)} className="p-1 hover:bg-slate-700 rounded">
  <ChevronLeft size={20} className="text-gray-400"/>
  </button>
- <h3 className="text-accent-content font-semibold">
+ <h3 className="text-slate-300 font-semibold">
  {calendarMonth.toLocaleDateString('en-US', {month:'long', year:'numeric'})}
  </h3>
  <button onClick={() => changeMonth(1)} className="p-1 hover:bg-slate-700 rounded">
@@ -326,7 +326,7 @@ const SalesReportDashboard = () => {
  onClick={() => handleDateClick(day)}
  disabled={!day}
  className={`p-2 text-sm rounded-lg ${!day ?'invisible':
- isDateInRange(day) ?'bg-cyan-500 text-accent-content':
+ isDateInRange(day) ?'bg-cyan-500 text-slate-300':
 'bg-slate-700 text-gray-300 hover:bg-slate-600'
 }`}
  >
@@ -340,7 +340,7 @@ const SalesReportDashboard = () => {
  <div className="flex-1">
  <div className="flex items-center justify-between mb-4">
  <div className="w-6"></div>
- <h3 className="text-accent-content font-semibold">
+ <h3 className="text-slate-300 font-semibold">
  {new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1).toLocaleDateString('en-US', {month:'long', year:'numeric'})}
  </h3>
  <div className="w-6"></div>
@@ -395,7 +395,7 @@ const SalesReportDashboard = () => {
  <option value="cancelled">Cancelled</option>
  </select>
 
- <button className="ml-auto bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-accent-content px-6 py-2 rounded-lg flex items-center gap-2 shadow-lg shadow-cyan-500/30">
+ <button className="ml-auto bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-slate-300 px-6 py-2 rounded-lg flex items-center gap-2 shadow-lg shadow-cyan-500/30">
  <Download size={18} />
  Export Report
  </button>
@@ -405,7 +405,7 @@ const SalesReportDashboard = () => {
  {/* Sales Analytics Chart */}
  <div className="bg-slate-900/50 backdrop-blur-xl rounded-2xl p-6 mb-8 border border-slate-700/50">
  <div className="mb-6">
- <h2 className="text-2xl font-bold text-accent-content mb-2">Sales Analytics</h2>
+ <h2 className="text-2xl font-bold text-slate-300 mb-2">Sales Analytics</h2>
  <p className="text-gray-400">Track your daily performance</p>
  </div>
  <ResponsiveContainer width="100%"height={400}>
@@ -448,7 +448,7 @@ const SalesReportDashboard = () => {
  <div className="bg-slate-900/50 backdrop-blur-xl rounded-2xl p-6 border border-slate-700/50">
  <div className="flex flex-col md:flex-row space-y-4 items-center justify-between mb-6">
  <div>
- <h2 className="text-2xl font-bold text-accent-content mb-2">Recent Orders</h2>
+ <h2 className="text-2xl font-bold text-slate-300 mb-2">Recent Orders</h2>
  <p className="text-gray-400">Manage and track all orders</p>
  </div>
  <div className="relative">
@@ -481,10 +481,10 @@ const SalesReportDashboard = () => {
  <tr key={order?.orderId} className="border-b border-slate-800 hover:bg-slate-800/50">
  <td className="py-4 px-4 text-cyan-400 font-medium">{order?.orderId}</td>
  <td className="py-4 px-4 text-gray-300">{new Date(order?.updatedAt).toDateString()}</td>
- <td className="py-4 px-4 text-accent-content">{order?.userId?.name}</td>
- <td className="py-4 px-4 text-accent-content">{order?.products[0]?.productId?.productName}</td>
+ <td className="py-4 px-4 text-slate-300">{order?.userId?.name}</td>
+ <td className="py-4 px-4 text-slate-300">{order?.products[0]?.productId?.productName}</td>
  <td className="py-4 px-4 text-gray-300">{order?.products[0]?.quantity}</td>
- <td className="py-4 px-4 text-accent-content font-semibold">${order?.totalAmt}</td>
+ <td className="py-4 px-4 text-slate-300 font-semibold">${order?.totalAmt}</td>
  <td className="py-4 px-4">
  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${order.order_status ==='completed'?'bg-green-500/20 text-green-400':
  order.order_status ==='pending'?'bg-yellow-500/20 text-yellow-400':

@@ -77,21 +77,21 @@ const AnalyticsDashboard = () => {
  <div className="flex items-center justify-between mb-6">
  <div className="flex items-center space-x-4">
  <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
- <span className="text-accent-content font-bold text-lg">JA</span>
+ <span className="text-slate-300 font-bold text-lg">JA</span>
  </div>
  <div>
  <p className="text-gray-400 text-sm">Welcome back</p>
- <h1 className="text-accent-content text-xl font-bold">Jhon Anderson!</h1>
+ <h1 className="text-slate-300 text-xl font-bold">Jhon Anderson!</h1>
  </div>
  </div>
  <div className="flex items-center space-x-6">
  <div className="text-center">
  <p className="text-gray-400 text-sm">Active Users</p>
- <p className="text-accent-content text-lg font-bold">42.5K</p>
+ <p className="text-slate-300 text-lg font-bold">42.5K</p>
  </div>
  <div className="text-center">
  <p className="text-gray-400 text-sm">Total Users</p>
- <p className="text-accent-content text-lg font-bold">97.4K</p>
+ <p className="text-slate-300 text-lg font-bold">97.4K</p>
  </div>
  </div>
  </div>
@@ -104,7 +104,7 @@ const AnalyticsDashboard = () => {
  <div className="flex justify-between items-start mb-4">
  <div>
  <p className="text-gray-400 text-sm">Today's Sales</p>
- <h3 className="text-accent-content text-2xl font-bold">$65.4K</h3>
+ <h3 className="text-slate-300 text-2xl font-bold">$65.4K</h3>
  </div>
  <MoreHorizontal className="text-gray-400 w-5 h-5"/>
  </div>
@@ -118,7 +118,7 @@ const AnalyticsDashboard = () => {
  <div className="flex justify-between items-start mb-4">
  <div>
  <p className="text-gray-400 text-sm">Growth Rate</p>
- <h3 className="text-accent-content text-2xl font-bold">78.4%</h3>
+ <h3 className="text-slate-300 text-2xl font-bold">78.4%</h3>
  </div>
  <MoreHorizontal className="text-gray-400 w-5 h-5"/>
  </div>
@@ -130,7 +130,7 @@ const AnalyticsDashboard = () => {
  {/* User Engagement */}
  <div className="bg-gradient-to-br from-slate-800/50 to-slate-700/30 backdrop-blur-sm border border-slate-600/30 rounded-2xl p-6 hover:transform">
  <div className="flex justify-between items-center mb-2">
- <h3 className="text-accent-content text-3xl font-bold">78%</h3>
+ <h3 className="text-slate-300 text-3xl font-bold">78%</h3>
  <MoreHorizontal className="text-gray-400 w-5 h-5"/>
  </div>
  <p className="text-gray-400 text-sm mb-4">24K users increased from last month</p>
@@ -191,7 +191,7 @@ const AnalyticsDashboard = () => {
  {/* Monthly Revenue Chart */}
  <div className="lg:col-span-1 bg-gradient-to-br from-slate-800/50 to-slate-700/30 backdrop-blur-sm border border-slate-600/30 rounded-2xl p-6 hover:shadow-2xl hover:shadow-purple-500/20">
  <div className="flex justify-between items-center mb-6">
- <h3 className="text-accent-content text-lg font-semibold">Monthly Revenue</h3>
+ <h3 className="text-slate-300 text-lg font-semibold">Monthly Revenue</h3>
  <MoreHorizontal className="text-gray-400 w-5 h-5"/>
  </div>
  <div className="h-64 mb-4">
@@ -221,7 +221,7 @@ const AnalyticsDashboard = () => {
  <div className="text-center">
  <p className="text-gray-400 text-sm mb-2">Average monthly sale for every author</p>
  <div className="flex items-center justify-center space-x-2">
- <span className="text-accent-content text-2xl font-bold">68.9%</span>
+ <span className="text-slate-300 text-2xl font-bold">68.9%</span>
  <span className="text-green-400 text-sm font-medium flex items-center">
  <TrendingUp className="w-4 h-4 mr-1"/>
  34.5%
@@ -233,7 +233,7 @@ const AnalyticsDashboard = () => {
  {/* Device Type Pie Chart */}
  <div className="bg-gradient-to-br from-slate-800/50 to-slate-700/30 backdrop-blur-sm border border-slate-600/30 rounded-2xl p-6 hover:shadow-2xl hover:shadow-blue-500/20">
  <div className="flex justify-between items-center mb-6">
- <h3 className="text-accent-content text-lg font-semibold">Device Type</h3>
+ <h3 className="text-slate-300 text-lg font-semibold">Device Type</h3>
  <MoreHorizontal className="text-gray-400 w-5 h-5"/>
  </div>
  <div className="relative">
@@ -258,7 +258,7 @@ const AnalyticsDashboard = () => {
  </div>
  <div className="absolute inset-0 flex items-center justify-center">
  <div className="text-center">
- <p className="text-accent-content text-2xl font-bold">68%</p>
+ <p className="text-slate-300 text-2xl font-bold">68%</p>
  <p className="text-gray-400 text-sm">Total Views</p>
  </div>
  </div>
@@ -270,7 +270,7 @@ const AnalyticsDashboard = () => {
  <div className={`w-3 h-3 rounded-full`} style={{backgroundColor: device.color}}></div>
  <span className="text-gray-300 text-sm">{device.name}</span>
  </div>
- <span className="text-accent-content font-medium">{device.value}%</span>
+ <span className="text-slate-300 font-medium">{device.value}%</span>
  </div>
  ))}
  </div>
@@ -283,7 +283,7 @@ const AnalyticsDashboard = () => {
  <div className="flex justify-between items-center mb-4">
  <div>
  <p className="text-gray-400 text-sm">Total Clicks</p>
- <h3 className="text-accent-content text-2xl font-bold">82.7K</h3>
+ <h3 className="text-slate-300 text-2xl font-bold">82.7K</h3>
  </div>
  <MoreHorizontal className="text-gray-400 w-5 h-5"/>
  </div>
@@ -312,7 +312,7 @@ const AnalyticsDashboard = () => {
  <div className="flex justify-between items-center mb-4">
  <div>
  <p className="text-gray-400 text-sm">Total Views</p>
- <h3 className="text-accent-content text-2xl font-bold">68.4K</h3>
+ <h3 className="text-slate-300 text-2xl font-bold">68.4K</h3>
  </div>
  <MoreHorizontal className="text-gray-400 w-5 h-5"/>
  </div>
@@ -339,19 +339,19 @@ const AnalyticsDashboard = () => {
  {/* Campaign Stats */}
  <div className="bg-gradient-to-br from-slate-800/50 to-slate-700/30 backdrop-blur-sm border border-slate-600/30 rounded-2xl p-6 hover:shadow-2xl hover:shadow-pink-500/20">
  <div className="flex justify-between items-center mb-6">
- <h3 className="text-accent-content text-lg font-semibold">Campaign Stats</h3>
+ <h3 className="text-slate-300 text-lg font-semibold">Campaign Stats</h3>
  <MoreHorizontal className="text-gray-400 w-5 h-5"/>
  </div>
  {campaigns.map((campaign, index) => (
  <div key={index} className="flex items-center justify-between p-4 bg-gradient-to-r from-pink-500/20 to-purple-500/20 rounded-xl">
  <div className="flex items-center space-x-3">
  <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg flex items-center justify-center">
- <UserPlus className="w-4 h-4 text-accent-content"/>
+ <UserPlus className="w-4 h-4 text-slate-300"/>
  </div>
- <span className="text-accent-content font-medium">{campaign.name}</span>
+ <span className="text-slate-300 font-medium">{campaign.name}</span>
  </div>
  <div className="text-right">
- <p className="text-accent-content text-lg font-bold">{campaign.count}</p>
+ <p className="text-slate-300 text-lg font-bold">{campaign.count}</p>
  <p className="text-green-400 text-sm font-medium">+{campaign.growth}%</p>
  </div>
  </div>
@@ -384,7 +384,7 @@ const AnalyticsDashboard = () => {
  <div className="flex justify-between items-center mb-4">
  <div>
  <p className="text-gray-400 text-sm">Total Accounts</p>
- <h3 className="text-accent-content text-2xl font-bold">85,247</h3>
+ <h3 className="text-slate-300 text-2xl font-bold">85,247</h3>
  <p className="text-green-400 text-sm font-medium flex items-center">
  <TrendingUp className="w-4 h-4 mr-1"/>
  +23.7%
@@ -424,7 +424,7 @@ const AnalyticsDashboard = () => {
  <div className="mt-8">
  <div className="bg-gradient-to-br from-slate-800/50 to-slate-700/30 backdrop-blur-sm border border-slate-600/30 rounded-2xl p-6 hover:shadow-2xl hover:shadow-blue-500/20">
  <div className="flex justify-between items-center mb-6">
- <h3 className="text-accent-content text-lg font-semibold">Social Leads</h3>
+ <h3 className="text-slate-300 text-lg font-semibold">Social Leads</h3>
  <MoreHorizontal className="text-gray-400 w-5 h-5"/>
  </div>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -434,14 +434,14 @@ const AnalyticsDashboard = () => {
  <div className="flex items-center space-x-3">
  <div className={`w-8 h-8 rounded-lg flex items-center justify-center`} style={{backgroundColor: lead.color}}>
  {lead.platform ==='Facebook'? (
- <span className="text-accent-content text-sm font-bold">f</span>
+ <span className="text-slate-300 text-sm font-bold">f</span>
  ) : (
- <span className="text-accent-content text-sm font-bold">in</span>
+ <span className="text-slate-300 text-sm font-bold">in</span>
  )}
  </div>
- <span className="text-accent-content font-medium">{lead.platform}</span>
+ <span className="text-slate-300 font-medium">{lead.platform}</span>
  </div>
- <span className="text-accent-content text-lg font-bold">{lead.percentage}%</span>
+ <span className="text-slate-300 text-lg font-bold">{lead.percentage}%</span>
  </div>
  <div className="w-full bg-slate-700 rounded-full h-2">
  <div

@@ -139,7 +139,7 @@ const GeneralSettings = () => {
 
  <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between">
  <div>
- <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-accent-content mb-2">
+ <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-300 mb-2">
  General <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Settings</span>!
  </h1>
  <p className="text-gray-300 text-sm sm:text-base">
@@ -155,9 +155,9 @@ const GeneralSettings = () => {
  <div className="grid lg:grid-cols-4 gap-6">
  {/* Sidebar Navigation */}
  <div className="lg:col-span-1">
- <div className="bg-gradient-to-br text-accent-content from-gray-800 to-gray-900 border border-gray-700 rounded-2xl shadow-xl overflow-hidden sticky top-4">
+ <div className="bg-gradient-to-br text-slate-300 from-gray-800 to-gray-900 border border-gray-700 rounded-2xl shadow-xl overflow-hidden sticky top-4">
  <div className="p-6">
- <h3 className="text-lg font-semibold text-accent-content mb-4">Settings Menu</h3>
+ <h3 className="text-lg font-semibold text-slate-300 mb-4">Settings Menu</h3>
  <nav className="space-y-2">
  {tabs.map((tab) => {
  const Icon = tab.icon;
@@ -166,8 +166,8 @@ const GeneralSettings = () => {
  key={tab.id}
  onClick={() => setActiveTab(tab.id)}
  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl ${activeTab === tab.id
- ?'bg-gradient-to-r from-purple-500 to-blue-500 text-accent-content shadow-lg transform scale-105'
- :'text-accent-content hover:bg-gray-50 hover:text-purple-600'
+ ?'bg-gradient-to-r from-purple-500 to-blue-500 text-slate-300 shadow-lg transform scale-105'
+ :'text-slate-300 hover:bg-gray-50 hover:text-purple-600'
 }`}
  >
  <Icon className="w-5 h-5"/>
@@ -182,16 +182,16 @@ const GeneralSettings = () => {
 
  {/* Main Content */}
  <div className="lg:col-span-3">
- <div className="bg-gradient-to-br from-gray-800 text-accent-content to-gray-900 rounded-2xl shadow-xl border border-gray-700 overflow-hidden">
+ <div className="bg-gradient-to-br from-gray-800 text-slate-300 to-gray-900 rounded-2xl shadow-xl border border-gray-700 overflow-hidden">
  <div className="p-8">
  {/* Store Information Tab */}
  {activeTab ==='store'&& (
  <div className="space-y-6 animate-fadeIn">
- <h2 className="text-2xl font-bold text-accent-content mb-6">Store Information</h2>
+ <h2 className="text-2xl font-bold text-slate-300 mb-6">Store Information</h2>
 
  <div className="grid md:grid-cols-2 gap-6">
  <div>
- <label className="block text-sm font-medium text-accent-content mb-2">Store Name</label>
+ <label className="block text-sm font-medium text-slate-300 mb-2">Store Name</label>
  <input
  type="text"
  value={settings.storeName}
@@ -201,7 +201,7 @@ const GeneralSettings = () => {
  </div>
 
  <div>
- <label className="block text-sm font-medium text-accent-content mb-2">Email</label>
+ <label className="block text-sm font-medium text-slate-300 mb-2">Email</label>
  <div className="relative">
  <Mail className="absolute left-3 top-3 w-5 h-5 ttext-accent-content"/>
  <input
@@ -214,9 +214,9 @@ const GeneralSettings = () => {
  </div>
 
  <div>
- <label className="block text-sm font-medium text-accent-content mb-2">Phone</label>
+ <label className="block text-sm font-medium text-slate-300 mb-2">Phone</label>
  <div className="relative">
- <Phone className="absolute left-3 top-3 w-5 h-5 text-accent-content"/>
+ <Phone className="absolute left-3 top-3 w-5 h-5 text-slate-300"/>
  <input
  type="tel"
  value={settings.storePhone}
@@ -227,9 +227,9 @@ const GeneralSettings = () => {
  </div>
 
  <div>
- <label className="block text-sm font-medium text-accent-content mb-2">Website</label>
+ <label className="block text-sm font-medium text-slate-300 mb-2">Website</label>
  <div className="relative">
- <Globe className="absolute left-3 top-3 w-5 h-5 text-accent-content"/>
+ <Globe className="absolute left-3 top-3 w-5 h-5 text-slate-300"/>
  <input
  type="url"
  value={settings.storeWebsite}
@@ -241,7 +241,7 @@ const GeneralSettings = () => {
  </div>
 
  <div>
- <label className="block text-sm font-medium text-accent-content mb-2">Store Description</label>
+ <label className="block text-sm font-medium text-slate-300 mb-2">Store Description</label>
  <textarea
  value={settings.storeDescription}
  onChange={(e) => handleInputChange('storeDescription', e.target.value)}
@@ -251,9 +251,9 @@ const GeneralSettings = () => {
  </div>
 
  <div>
- <label className="block text-sm font-medium text-accent-content mb-2">Address</label>
+ <label className="block text-sm font-medium text-slate-300 mb-2">Address</label>
  <div className="relative">
- <MapPin className="absolute left-3 top-3 w-5 h-5 text-accent-content"/>
+ <MapPin className="absolute left-3 top-3 w-5 h-5 text-slate-300"/>
  <textarea
  value={settings.storeAddress}
  onChange={(e) => handleInputChange('storeAddress', e.target.value)}
@@ -265,7 +265,7 @@ const GeneralSettings = () => {
 
  <div className="grid md:grid-cols-4 gap-4">
  <div>
- <label className="block text-sm font-medium text-accent-content mb-2">Currency</label>
+ <label className="block text-sm font-medium text-slate-300 mb-2">Currency</label>
  <select
  value={settings.currency}
  onChange={(e) => handleInputChange('currency', e.target.value)}
@@ -278,7 +278,7 @@ const GeneralSettings = () => {
  </div>
 
  <div>
- <label className="block text-sm font-medium text-accent-content mb-2">Timezone</label>
+ <label className="block text-sm font-medium text-slate-300 mb-2">Timezone</label>
  <select
  value={settings.timezone}
  onChange={(e) => handleInputChange('timezone', e.target.value)}
@@ -291,7 +291,7 @@ const GeneralSettings = () => {
  </div>
 
  <div>
- <label className="block text-sm font-medium text-accent-content mb-2">Language</label>
+ <label className="block text-sm font-medium text-slate-300 mb-2">Language</label>
  <select
  value={settings.language}
  onChange={(e) => handleInputChange('language', e.target.value)}
@@ -304,7 +304,7 @@ const GeneralSettings = () => {
  </div>
 
  <div>
- <label className="block text-sm font-medium text-accent-content mb-2">Country</label>
+ <label className="block text-sm font-medium text-slate-300 mb-2">Country</label>
  <input
  type="text"
  value={settings.country}
@@ -319,11 +319,11 @@ const GeneralSettings = () => {
  {/* Email Settings Tab */}
  {activeTab ==='email'&& (
  <div className="space-y-6 animate-fadeIn">
- <h2 className="text-2xl font-bold text-accent-content mb-6">Email Configuration</h2>
+ <h2 className="text-2xl font-bold text-slate-300 mb-6">Email Configuration</h2>
 
  <div className="grid md:grid-cols-2 gap-6">
  <div>
- <label className="block text-sm font-medium text-accent-content mb-2">Email Provider</label>
+ <label className="block text-sm font-medium text-slate-300 mb-2">Email Provider</label>
  <select
  value={settings.emailProvider}
  onChange={(e) => handleInputChange('emailProvider', e.target.value)}
@@ -336,7 +336,7 @@ const GeneralSettings = () => {
  </div>
 
  <div>
- <label className="block text-sm font-medium text-accent-content mb-2">SMTP Host</label>
+ <label className="block text-sm font-medium text-slate-300 mb-2">SMTP Host</label>
  <input
  type="text"
  value={settings.smtpHost}
@@ -346,7 +346,7 @@ const GeneralSettings = () => {
  </div>
 
  <div>
- <label className="block text-sm font-medium text-accent-content mb-2">SMTP Port</label>
+ <label className="block text-sm font-medium text-slate-300 mb-2">SMTP Port</label>
  <input
  type="number"
  value={settings.smtpPort}
@@ -356,7 +356,7 @@ const GeneralSettings = () => {
  </div>
 
  <div>
- <label className="block text-sm font-medium text-accent-content mb-2">Username</label>
+ <label className="block text-sm font-medium text-slate-300 mb-2">Username</label>
  <input
  type="text"
  value={settings.smtpUsername}
@@ -367,7 +367,7 @@ const GeneralSettings = () => {
  </div>
 
  <div>
- <label className="block text-sm font-medium text-accent-content mb-2">Password</label>
+ <label className="block text-sm font-medium text-slate-300 mb-2">Password</label>
  <div className="relative">
  <input
  type={showPassword ?"text":"password"}
@@ -378,7 +378,7 @@ const GeneralSettings = () => {
  <button
  type="button"
  onClick={() => setShowPassword(!showPassword)}
- className="absolute right-3 top-3 text-accent-content hover:text-gray-600"
+ className="absolute right-3 top-3 text-slate-300 hover:text-gray-600"
  >
  {showPassword ? <EyeOff className="w-5 h-5"/> : <Eye className="w-5 h-5"/>}
  </button>
@@ -390,11 +390,11 @@ const GeneralSettings = () => {
  {/* Security Tab */}
  {activeTab ==='security'&& (
  <div className="space-y-6 animate-fadeIn">
- <h2 className="text-2xl font-bold text-accent-content mb-6">Security Settings</h2>
+ <h2 className="text-2xl font-bold text-slate-300 mb-6">Security Settings</h2>
 
  <div className="grid md:grid-cols-2 gap-6">
  <div>
- <label className="block text-sm font-medium text-accent-content mb-2">Session Timeout (minutes)</label>
+ <label className="block text-sm font-medium text-slate-300 mb-2">Session Timeout (minutes)</label>
  <input
  type="number"
  value={settings.sessionTimeout}
@@ -404,7 +404,7 @@ const GeneralSettings = () => {
  </div>
 
  <div>
- <label className="block text-sm font-medium text-accent-content mb-2">Password Policy</label>
+ <label className="block text-sm font-medium text-slate-300 mb-2">Password Policy</label>
  <select
  value={settings.passwordPolicy}
  onChange={(e) => handleInputChange('passwordPolicy', e.target.value)}
@@ -419,8 +419,8 @@ const GeneralSettings = () => {
 
  <div className="flex items-center justify-between p-4 bg-gray-800 rounded-lg">
  <div>
- <h3 className="font-medium text-accent-content">Two-Factor Authentication</h3>
- <p className="text-sm text-accent-content">Add extra security to your account</p>
+ <h3 className="font-medium text-slate-300">Two-Factor Authentication</h3>
+ <p className="text-sm text-slate-300">Add extra security to your account</p>
  </div>
  <label className="relative inline-flex items-center cursor-pointer">
  <input
@@ -449,8 +449,8 @@ const GeneralSettings = () => {
  ].map((item) => (
  <div key={item.key} className="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
  <div>
- <h3 className="font-medium text-accent-content">{item.label}</h3>
- <p className="text-sm text-accent-content">{item.desc}</p>
+ <h3 className="font-medium text-slate-300">{item.label}</h3>
+ <p className="text-sm text-slate-300">{item.desc}</p>
  </div>
  <label className="relative inline-flex items-center cursor-pointer">
  <input
@@ -470,10 +470,10 @@ const GeneralSettings = () => {
  {/* SEO Tab */}
  {activeTab ==='seo'&& (
  <div className="space-y-6 animate-fadeIn">
- <h2 className="text-2xl font-bold text-accent-content mb-6">SEO Settings</h2>
+ <h2 className="text-2xl font-bold text-slate-300 mb-6">SEO Settings</h2>
 
  <div>
- <label className="block text-sm font-medium text-accent-content mb-2">Meta Title</label>
+ <label className="block text-sm font-medium text-slate-300 mb-2">Meta Title</label>
  <input
  type="text"
  value={settings.metaTitle}
@@ -483,7 +483,7 @@ const GeneralSettings = () => {
  </div>
 
  <div>
- <label className="block text-sm font-medium text-accent-content mb-2">Meta Description</label>
+ <label className="block text-sm font-medium text-slate-300 mb-2">Meta Description</label>
  <textarea
  value={settings.metaDescription}
  onChange={(e) => handleInputChange('metaDescription', e.target.value)}
@@ -493,7 +493,7 @@ const GeneralSettings = () => {
  </div>
 
  <div>
- <label className="block text-sm font-medium text-accent-content mb-2">Meta Keywords</label>
+ <label className="block text-sm font-medium text-slate-300 mb-2">Meta Keywords</label>
  <input
  type="text"
  value={settings.metaKeywords}
@@ -504,7 +504,7 @@ const GeneralSettings = () => {
  </div>
 
  <div>
- <h3 className="text-lg font-medium text-accent-content mb-4">Social Media Links</h3>
+ <h3 className="text-lg font-medium text-slate-300 mb-4">Social Media Links</h3>
  <div className="grid md:grid-cols-2 gap-4">
  {[
  {key:'facebook', label:'Facebook', placeholder:'https://facebook.com/yourstore'},
@@ -513,7 +513,7 @@ const GeneralSettings = () => {
  {key:'linkedin', label:'LinkedIn', placeholder:'https://linkedin.com/company/yourstore'}
  ].map((social) => (
  <div key={social.key}>
- <label className="block text-sm font-medium text-accent-content mb-2">{social.label}</label>
+ <label className="block text-sm font-medium text-slate-300 mb-2">{social.label}</label>
  <input
  type="url"
  value={settings[social.key]}
@@ -531,7 +531,7 @@ const GeneralSettings = () => {
  {/* Payment Tab */}
  {activeTab ==='payment'&& (
  <div className="space-y-6 animate-fadeIn">
- <h2 className="text-2xl font-bold text-accent-content mb-6">Payment Methods</h2>
+ <h2 className="text-2xl font-bold text-slate-300 mb-6">Payment Methods</h2>
 
  <div className="space-y-4">
  {[
@@ -542,8 +542,8 @@ const GeneralSettings = () => {
  ].map((method) => (
  <div key={method.key} className="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
  <div>
- <h3 className="font-medium text-accent-content">{method.label}</h3>
- <p className="text-sm text-accent-content">{method.desc}</p>
+ <h3 className="font-medium text-slate-300">{method.label}</h3>
+ <p className="text-sm text-slate-300">{method.desc}</p>
  </div>
  <label className="relative inline-flex items-center cursor-pointer">
  <input
@@ -563,11 +563,11 @@ const GeneralSettings = () => {
  {/* Shipping Tab */}
  {activeTab ==='shipping'&& (
  <div className="space-y-6 animate-fadeIn">
- <h2 className="text-2xl font-bold text-accent-content mb-6">Shipping Settings</h2>
+ <h2 className="text-2xl font-bold text-slate-300 mb-6">Shipping Settings</h2>
 
  <div className="grid md:grid-cols-2 gap-6">
  <div>
- <label className="block text-sm font-medium text-accent-content mb-2">Free Shipping Threshold ($)</label>
+ <label className="block text-sm font-medium text-slate-300 mb-2">Free Shipping Threshold ($)</label>
  <input
  type="number"
  value={settings.freeShippingThreshold}
@@ -577,7 +577,7 @@ const GeneralSettings = () => {
  </div>
 
  <div>
- <label className="block text-sm font-medium text-accent-content mb-2">Default Shipping Rate ($)</label>
+ <label className="block text-sm font-medium text-slate-300 mb-2">Default Shipping Rate ($)</label>
  <input
  type="number"
  step="0.01"
@@ -589,7 +589,7 @@ const GeneralSettings = () => {
  </div>
 
  <div>
- <label className="block text-sm font-medium text-accent-content mb-2">Shipping Calculation Method</label>
+ <label className="block text-sm font-medium text-slate-300 mb-2">Shipping Calculation Method</label>
  <select
  value={settings.shippingCalculation}
  onChange={(e) => handleInputChange('shippingCalculation', e.target.value)}
@@ -607,11 +607,11 @@ const GeneralSettings = () => {
  {/* Display Tab */}
  {activeTab ==='display'&& (
  <div className="space-y-6 animate-fadeIn">
- <h2 className="text-2xl font-bold text-accent-content mb-6">Display Settings</h2>
+ <h2 className="text-2xl font-bold text-slate-300 mb-6">Display Settings</h2>
 
  <div className="grid md:grid-cols-2 gap-6">
  <div>
- <label className="block text-sm font-medium text-accent-content mb-2">Products Per Page</label>
+ <label className="block text-sm font-medium text-slate-300 mb-2">Products Per Page</label>
  <select
  value={settings.productsPerPage}
  onChange={(e) => handleInputChange('productsPerPage', e.target.value)}
@@ -633,7 +633,7 @@ const GeneralSettings = () => {
  ].map((item) => (
  <div key={item.key} className="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
  <div>
- <h3 className="font-medium text-accent-content">{item.label}</h3>
+ <h3 className="font-medium text-slate-300">{item.label}</h3>
  <p className="text-sm text-gray-300">{item.desc}</p>
  </div>
  <label className="relative inline-flex items-center cursor-pointer">
@@ -706,7 +706,7 @@ const GeneralSettings = () => {
  <button
  onClick={handleSave}
  disabled={isSaving}
- className="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-accent-content rounded-lg font-medium hover:from-purple-700 hover:to-blue-700 transform disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+ className="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-slate-300 rounded-lg font-medium hover:from-purple-700 hover:to-blue-700 transform disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
  >
  {isSaving ? (
  <>
@@ -729,7 +729,7 @@ const GeneralSettings = () => {
 
  {/* Success Toast (would be better with a proper toast library) */}
  {isSaving && (
- <div className="fixed bottom-4 right-4 bg-gradient-to-r from-green-500 to-emerald-500 text-accent-content px-6 py-4 rounded-lg shadow-lg">
+ <div className="fixed bottom-4 right-4 bg-gradient-to-r from-green-500 to-emerald-500 text-slate-300 px-6 py-4 rounded-lg shadow-lg">
  <div className="flex items-center gap-2">
  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
  <span>Saving settings...</span>
@@ -749,7 +749,7 @@ const GeneralSettings = () => {
  transform: translateY(0);
 }
 }
- 
+
  .animate-fadeIn {
  animation: fadeIn 0.5s ;
 }
@@ -758,17 +758,17 @@ const GeneralSettings = () => {
  ::-webkit-scrollbar {
  width: 8px;
 }
- 
+
  ::-webkit-scrollbar-track {
  background: #f1f1f1;
  border-radius: 4px;
 }
- 
+
  ::-webkit-scrollbar-thumb {
  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
  border-radius: 4px;
 }
- 
+
  ::-webkit-scrollbar-thumb:hover {
  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
 }
@@ -777,7 +777,7 @@ const GeneralSettings = () => {
  input, select, textarea {
  : all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
- 
+
  input:focus, select:focus, textarea:focus {
  transform: translateY(-2px);
  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
@@ -787,7 +787,7 @@ const GeneralSettings = () => {
  button {
  : all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
- 
+
  button:hover {
  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
