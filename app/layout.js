@@ -4,6 +4,7 @@ import { Lato, Roboto } from "next/font/google";
 import "./globals.css";
 import LayoutWrapper from "./LayoutWrapper";
 import ToasterClient from "./ToasterClient";
+import FacebookPixel from "./FacebookPixel";
 const lato = Lato({
   subsets: ["latin"],
   variable: "--font-lato",
@@ -90,6 +91,7 @@ export default async function RootLayout({ children }) {
         </Providers>
         <ToasterClient />
         <GoogleAnalytics gaId="G-5MQNQRZC5T" />
+        <FacebookPixel />
       </body>
     </html>
   );
