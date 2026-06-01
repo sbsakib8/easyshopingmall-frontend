@@ -33,11 +33,10 @@ export const useGetUser = () => {
                 return sum + (ref.status === 'approved' ? (ref.bonusAmount || 0) : 0);
               }, 0);
               
-              // Add to balance for global UI consistency
+              // Keep track of it separately if needed, but do not add to balance as backend already includes it
               userData = {
                 ...userData,
-                balance: (userData.balance || 0) + videoBonusApproved,
-                videoBonusApproved // Keep track of it separately if needed
+                videoBonusApproved 
               };
             }
           } catch (analyticsErr) {

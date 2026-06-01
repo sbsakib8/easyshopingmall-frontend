@@ -37,6 +37,9 @@ const DashboardHome = () => {
   const [orderChange, setOrderChange] = useState(0);
   const [productsCount, setProductsCount] = useState(0);
   const [productsChange, setProductsChange] = useState("0.0");
+  const [recentOrders, setRecentOrders] = useState([]);
+  const [topProducts, setTopProducts] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
   const { totalRevenue } = useGetRevenue();
 
   useEffect(() => {
@@ -96,6 +99,7 @@ const DashboardHome = () => {
   useEffect(() => {
     const fetchOrdersStats = async () => {
       try {
+        setOrdersLoading(true);
         const res = await OrderAllAdminGet();
         const orders = res.orders || res.data || [];
 
@@ -123,8 +127,83 @@ const DashboardHome = () => {
 
         setOrdersCount(totalOrders);
         setOrderChange(percentage.toFixed(1));
+
+        // ── Recent Orders: sort by newest, take top 4 ──
+        const sorted = [...orders].sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+        );
+        const recent = sorted.slice(0, 4).map((order) => {
+          const customerName =
+            order.shippingAddress?.name ||
+            order.user?.name ||
+            order.userId?.name ||
+            "Customer";
+          const initials = customerName
+            .split(" ")
+            .map((n) => n[0])
+            .join("")
+            .toUpperCase()
+            .slice(0, 2);
+          const timeAgo = (() => {
+            const diff = Date.now() - new Date(order.createdAt).getTime();
+            const mins = Math.floor(diff / 60000);
+            if (mins < 60) return `${mins} min ago`;
+            const hrs = Math.floor(mins / 60);
+            if (hrs < 24) return `${hrs} hour${hrs > 1 ? "s" : ""} ago`;
+            return `${Math.floor(hrs / 24)} day${Math.floor(hrs / 24) > 1 ? "s" : ""} ago`;
+          })();
+          return {
+            id: `#${order._id?.slice(-6).toUpperCase() || "------"}`,
+            customer: customerName,
+            amount: `৳${(order.totalAmt || 0).toLocaleString()}`,
+            status: order.order_status
+              ? order.order_status.charAt(0).toUpperCase() +
+                order.order_status.slice(1)
+              : "Pending",
+            time: timeAgo,
+            avatar: initials,
+          };
+        });
+        setRecentOrders(recent);
+
+        // ── Top Products: aggregate sold qty per product ──
+        const productMap = {};
+        orders.forEach((order) => {
+          (order.products || order.items || order.orderItems || []).forEach(
+            (item) => {
+              const prod = item.product || item.productId || item;
+              const id =
+                prod?._id || prod?.toString?.() || item.productId || null;
+              if (!id) return;
+              if (!productMap[id]) {
+                productMap[id] = {
+                  id,
+                  name: prod?.productName || prod?.name || "Product",
+                  price: prod?.price || 0,
+                  discount: prod?.discount || 0,
+                  ratings: prod?.ratings || 0,
+                  sold: 0,
+                };
+              }
+              productMap[id].sold += item.quantity || 1;
+            },
+          );
+        });
+        const top = Object.values(productMap)
+          .sort((a, b) => b.sold - a.sold)
+          .slice(0, 4)
+          .map((p) => ({
+            name: p.name,
+            sales: `${p.sold} sold`,
+            price: `৳${Number(p.price).toLocaleString()}`,
+            rating: p.ratings ? Number(p.ratings).toFixed(1) : "N/A",
+            trend: `+${p.sold}`,
+          }));
+        setTopProducts(top);
       } catch (error) {
         console.error("Fetch orders error:", error);
+      } finally {
+        setOrdersLoading(false);
       }
     };
 
@@ -263,71 +342,7 @@ const DashboardHome = () => {
     },
   ];
 
-  const recentOrders = [
-    {
-      id: "#ORD-001",
-      customer: "John Doe",
-      amount: "৳1,299",
-      status: "Completed",
-      time: "2 hours ago",
-      avatar: "JD",
-    },
-    {
-      id: "#ORD-002",
-      customer: "Jane Smith",
-      amount: "৳899",
-      status: "Processing",
-      time: "4 hours ago",
-      avatar: "JS",
-    },
-    {
-      id: "#ORD-003",
-      customer: "Mike Johnson",
-      amount: "৳2,199",
-      status: "Shipped",
-      time: "6 hours ago",
-      avatar: "MJ",
-    },
-    {
-      id: "#ORD-004",
-      customer: "Sarah Wilson",
-      amount: "৳1,599",
-      status: "Pending",
-      time: "8 hours ago",
-      avatar: "SW",
-    },
-  ];
-
-  const topProducts = [
-    {
-      name: "Wireless Headphones",
-      sales: "245 sold",
-      price: "৳3,299",
-      rating: 4.8,
-      trend: "+15%",
-    },
-    {
-      name: "Smart Watch",
-      sales: "189 sold",
-      price: "৳12,999",
-      rating: 4.7,
-      trend: "+12%",
-    },
-    {
-      name: "Phone Case",
-      sales: "156 sold",
-      price: "৳599",
-      rating: 4.9,
-      trend: "+8%",
-    },
-    {
-      name: "Bluetooth Speaker",
-      sales: "134 sold",
-      price: "৳2,199",
-      rating: 4.6,
-      trend: "+5%",
-    },
-  ];
+  // recentOrders and topProducts are now populated dynamically from API
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 overflow-hidden">
@@ -469,52 +484,81 @@ const DashboardHome = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-1 gap-4">
-                {recentOrders.map((order) => (
-                  <div
-                    key={order.id}
-                    className="group flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-gray-900/50 to-black/30 border border-gray-800/40 backdrop-blur-sm"
-                  >
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-gradient-to-r from-gray-800 via-slate-800 to-black rounded-2xl flex items-center justify-center shadow-lg shadow-black/50">
-                        <span className="text-accent-content font-bold text-sm">
-                          {order.avatar}
-                        </span>
+                {ordersLoading ? (
+                  Array.from({ length: 4 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="animate-pulse flex items-center justify-between p-4 rounded-2xl bg-gray-800/30 border border-gray-800/40"
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div className="w-12 h-12 bg-gray-700/50 rounded-2xl" />
+                        <div className="space-y-2">
+                          <div className="h-3 w-24 bg-gray-700/50 rounded" />
+                          <div className="h-2 w-32 bg-gray-700/30 rounded" />
+                        </div>
                       </div>
-                      <div>
-                        <div className="flex items-center space-x-2">
-                          <p className="text-sm font-bold text-accent-content">
-                            {order.id}
-                          </p>
-                          <span
-                            className={`px-2 py-1 text-xs rounded-full font-medium ${
-                              order.status === "Completed"
-                                ? "bg-green-900/50 text-green-300 border border-green-800/50"
-                                : order.status === "Processing"
-                                  ? "bg-yellow-900/50 text-yellow-300 border border-yellow-800/50"
-                                  : order.status === "Shipped"
-                                    ? "bg-blue-900/50 text-blue-300 border border-blue-800/50"
-                                    : "bg-gray-800/50 text-gray-300 border border-gray-700/50"
-                            } backdrop-blur-sm`}
-                          >
-                            {order.status}
+                      <div className="h-4 w-16 bg-gray-700/50 rounded" />
+                    </div>
+                  ))
+                ) : recentOrders.length === 0 ? (
+                  <div className="text-center py-10 text-gray-500">
+                    <ShoppingCart className="w-10 h-10 mx-auto mb-2 opacity-30" />
+                    <p className="text-sm">No orders yet</p>
+                  </div>
+                ) : (
+                  recentOrders.map((order) => (
+                    <div
+                      key={order.id}
+                      className="group flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-gray-900/50 to-black/30 border border-gray-800/40 backdrop-blur-sm"
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div className="w-12 h-12 bg-gradient-to-r from-gray-800 via-slate-800 to-black rounded-2xl flex items-center justify-center shadow-lg shadow-black/50">
+                          <span className="text-accent-content font-bold text-sm">
+                            {order.avatar}
                           </span>
                         </div>
-                        <p className="text-xs text-gray-400 mt-1">
-                          {order.customer} • {order.time}
+                        <div>
+                          <div className="flex items-center space-x-2">
+                            <p className="text-sm font-bold text-accent-content">
+                              {order.id}
+                            </p>
+                            <span
+                              className={`px-2 py-1 text-xs rounded-full font-medium ${
+                                order.status === "Completed" ||
+                                order.status === "completed"
+                                  ? "bg-green-900/50 text-green-300 border border-green-800/50"
+                                  : order.status === "Processing" ||
+                                      order.status === "processing"
+                                    ? "bg-yellow-900/50 text-yellow-300 border border-yellow-800/50"
+                                    : order.status === "Shipped" ||
+                                        order.status === "shipped"
+                                      ? "bg-blue-900/50 text-blue-300 border border-blue-800/50"
+                                      : order.status === "Cancelled" ||
+                                          order.status === "cancelled"
+                                        ? "bg-red-900/50 text-red-300 border border-red-800/50"
+                                        : "bg-gray-800/50 text-gray-300 border border-gray-700/50"
+                              } backdrop-blur-sm`}
+                            >
+                              {order.status}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-400 mt-1">
+                            {order.customer} • {order.time}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-lg font-bold text-accent-content">
+                          {order.amount}
                         </p>
+                        <div className="flex items-center space-x-1 text-green-400">
+                          <TrendingUp className="w-3 h-3" />
+                          <span className="text-xs font-medium">Active</span>
+                        </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-lg font-bold text-accent-content">
-                        {order.amount}
-                      </p>
-                      <div className="flex items-center space-x-1 text-green-400">
-                        <TrendingUp className="w-3 h-3" />
-                        <span className="text-xs font-medium">Active</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
           </div>
@@ -540,45 +584,68 @@ const DashboardHome = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-1 gap-4">
-                {topProducts.map((product) => (
-                  <div
-                    key={product.name}
-                    className="group flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-gray-900/50 to-black/30 border border-gray-800/40 backdrop-blur-sm"
-                  >
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-gradient-to-r from-zinc-800 via-gray-800 to-slate-900 rounded-2xl flex items-center justify-center shadow-lg shadow-black/50">
-                        <Package className="w-5 h-5 text-accent-content" />
+                {ordersLoading ? (
+                  Array.from({ length: 4 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="animate-pulse flex items-center justify-between p-4 rounded-2xl bg-gray-800/30 border border-gray-800/40"
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div className="w-12 h-12 bg-gray-700/50 rounded-2xl" />
+                        <div className="space-y-2">
+                          <div className="h-3 w-28 bg-gray-700/50 rounded" />
+                          <div className="h-2 w-20 bg-gray-700/30 rounded" />
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm font-bold text-accent-content">
-                          {product.name}
-                        </p>
-                        <div className="flex items-center space-x-3 mt-1">
-                          <p className="text-xs text-gray-400">
-                            {product.sales}
+                      <div className="h-4 w-16 bg-gray-700/50 rounded" />
+                    </div>
+                  ))
+                ) : topProducts.length === 0 ? (
+                  <div className="text-center py-10 text-gray-500">
+                    <Package className="w-10 h-10 mx-auto mb-2 opacity-30" />
+                    <p className="text-sm">No product sales data yet</p>
+                  </div>
+                ) : (
+                  topProducts.map((product, index) => (
+                    <div
+                      key={`${product.name}-${index}`}
+                      className="group flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-gray-900/50 to-black/30 border border-gray-800/40 backdrop-blur-sm"
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div className="w-12 h-12 bg-gradient-to-r from-zinc-800 via-gray-800 to-slate-900 rounded-2xl flex items-center justify-center shadow-lg shadow-black/50">
+                          <Package className="w-5 h-5 text-accent-content" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-accent-content">
+                            {product.name}
                           </p>
-                          <div className="flex items-center space-x-1">
-                            <Star className="w-3 h-3 text-yellow-400 fill-current" />
-                            <span className="text-xs text-gray-300 font-medium">
-                              {product.rating}
-                            </span>
+                          <div className="flex items-center space-x-3 mt-1">
+                            <p className="text-xs text-gray-400">
+                              {product.sales}
+                            </p>
+                            <div className="flex items-center space-x-1">
+                              <Star className="w-3 h-3 text-yellow-400 fill-current" />
+                              <span className="text-xs text-gray-300 font-medium">
+                                {product.rating}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-lg font-bold text-accent-content">
-                        {product.price}
-                      </p>
-                      <div className="flex items-center space-x-1 text-green-400">
-                        <ArrowUp className="w-3 h-3" />
-                        <span className="text-xs font-bold">
-                          {product.trend}
-                        </span>
+                      <div className="text-right">
+                        <p className="text-lg font-bold text-accent-content">
+                          {product.price}
+                        </p>
+                        <div className="flex items-center space-x-1 text-green-400">
+                          <ArrowUp className="w-3 h-3" />
+                          <span className="text-xs font-bold">
+                            {product.trend}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
           </div>

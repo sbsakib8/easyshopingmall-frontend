@@ -478,11 +478,13 @@ const AddProductComponent = () => {
 
             {/* Tags */}
             <div className="mt-6 space-y-4">
-              <label className="text-accent-content">
-                Product Status Badges (Tags)
+              <label className="text-accent-content font-medium">
+                Product Tags
               </label>
-              <div className="flex gap-4">
-                {["hot", "cold"].map((tag) => (
+
+              {/* Preset badge buttons */}
+              <div className="flex flex-wrap gap-3">
+                {["hot", "cold", "new", "sale", "trending"].map((tag) => (
                   <button
                     key={tag}
                     type="button"
@@ -496,7 +498,7 @@ const AddProductComponent = () => {
                         }));
                       }
                     }}
-                    className={`px-6 py-3 rounded-xl border flex items-center gap-2 capitalize
+                    className={`px-4 py-2 rounded-xl border flex items-center gap-2 capitalize text-sm transition-all duration-200
  ${
    formData.tags.includes(tag)
      ? "bg-gradient-to-r from-blue-500 to-purple-500 border-transparent text-accent-content shadow-lg shadow-purple-500/20"
@@ -505,13 +507,61 @@ const AddProductComponent = () => {
                   >
                     {tag}
                     {formData.tags.includes(tag) && (
-                      <X size={14} className="ml-1" />
+                      <X size={12} className="ml-0.5" />
                     )}
                   </button>
                 ))}
               </div>
+
+              {/* Custom tag input */}
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={newTag}
+                  onChange={(e) => setNewTag(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      addTag();
+                    }
+                  }}
+                  className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="Type a custom tag and press Enter or click +"
+                />
+                <button
+                  type="button"
+                  onClick={addTag}
+                  className="px-5 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-accent-content rounded-xl hover:from-blue-600 hover:to-purple-600 flex items-center gap-1 font-medium"
+                >
+                  <Plus size={18} />
+                </button>
+              </div>
+
+              {/* All active tags displayed as chips */}
+              {formData.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {formData.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="bg-gradient-to-r from-blue-500/30 to-purple-500/30 border border-purple-500/40 text-accent-content px-3 py-1 rounded-full text-sm flex items-center gap-1.5 capitalize"
+                    >
+                      <Tag size={11} className="text-purple-300" />
+                      {tag}
+                      <button
+                        type="button"
+                        onClick={() => removeTag(tag)}
+                        className="ml-0.5 hover:bg-white/20 rounded-full p-0.5 transition-colors"
+                      >
+                        <X size={11} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+
               <p className="text-xs text-gray-400">
-                Select badges to display on the product card.
+                Choose preset badges or type custom tags. Press Enter or click +
+                to add.
               </p>
             </div>
           </div>
