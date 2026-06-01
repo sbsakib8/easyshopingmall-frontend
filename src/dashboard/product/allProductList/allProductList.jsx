@@ -1,64 +1,59 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
-import {
-  Search,
-  Package,
-  Tag,
-  Grid as GridIcon,
-  Eye,
-  Edit,
-  Trash2,
-  Star,
-  Plus,
-  Download,
-  RefreshCw,
-  X,
-  TrendingUp,
-  ArrowUp,
-  MoreVertical,
-  DollarSign,
-  Activity,
-  Zap,
-  Globe,
-} from "lucide-react";
-import { useGetProduct } from "@/src/utlis/userProduct";
-import { useSelector } from "react-redux";
-import { useRouter } from "next/navigation";
 import { UrlFrontend } from "@/src/confic/urlExport";
-import toast from "react-hot-toast";
 import { ProductDelete, ProductUpdate } from "@/src/hook/useProduct";
 import useGetRevenue from "@/src/utlis/useGetRevenue";
+import { useGetProduct } from "@/src/utlis/userProduct";
+import {
+  Activity,
+  ArrowUp,
+  DollarSign,
+  Download,
+  Edit,
+  Eye,
+  Grid as GridIcon,
+  Package,
+  Plus,
+  RefreshCw,
+  Search,
+  Star,
+  Tag,
+  Trash2,
+  X,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
 import * as XLSX from "xlsx";
 
+import CustomLoader from "@/src/compronent/loading/CustomLoader";
+import { useMobile } from "@/src/hook/useMobile";
 import {
+  Delete as DeleteIcon,
+  Edit as EditIcon,
+  Visibility as EyeIcon,
+  MoreVert as MoreVertIcon,
+} from "@mui/icons-material";
+import {
+  Box,
+  Card,
+  CardContent,
+  Chip,
+  Divider,
+  IconButton,
+  Menu,
+  MenuItem,
+  Paper,
+  Rating,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
-  IconButton,
-  Menu,
-  MenuItem,
   Typography,
-  Box,
-  Chip,
-  Rating,
-  Card,
-  CardContent,
-  Grid,
-  Divider,
 } from "@mui/material";
-import {
-  MoreVert as MoreVertIcon,
-  Visibility as EyeIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-} from "@mui/icons-material";
-import { useMobile } from "@/src/hook/useMobile";
-import CustomLoader from "@/src/compronent/loading/CustomLoader";
 
 const ProductDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -268,7 +263,7 @@ const ProductDashboard = () => {
   // if(loading)return <p>Loading...</p>
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 relative">
+    <section className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 relative">
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-blue-600/5 to-purple-600/5 rounded-full blur-3xl"></div>
@@ -288,9 +283,9 @@ const ProductDashboard = () => {
 
             <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-accent-content mb-2">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary mb-2">
                   All Product
-                  <span className="ml-2 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                  <span className="ml-2 bg-gradient-to-l from-primary to-secondary bg-clip-text text-transparent">
                     Admin
                   </span>
                 </h1>
@@ -364,7 +359,7 @@ const ProductDashboard = () => {
                   <div
                     className={`p-3 rounded-2xl bg-gradient-to-r ${card?.gradient} shadow-lg`}
                   >
-                    <card.icon className="w-6 h-6 text-accent-content" />
+                    <card.icon className="w-6 h-6 text-neutral" />
                   </div>
                   <div className="flex items-center space-x-1 text-green-400">
                     <ArrowUp className="w-4 h-4" />
@@ -376,7 +371,7 @@ const ProductDashboard = () => {
                   <p className="text-sm font-medium text-gray-400 mb-2">
                     {card?.title}
                   </p>
-                  <p className="text-3xl font-bold text-accent-content mb-1">
+                  <p className="text-3xl font-bold text-primary mb-1">
                     {card?.value}
                   </p>
                   <p className="text-xs text-gray-500">vs last month</p>
@@ -392,10 +387,10 @@ const ProductDashboard = () => {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
               <div className="flex items-center space-x-3">
                 <div className="p-2 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg">
-                  <Package className="w-5 h-5 text-accent-content" />
+                  <Package className="w-5 h-5 text-neutral" />
                 </div>
                 <div>
-                  <h2 className="text-xl sm:text-2xl font-bold text-accent-content">
+                  <h2 className="text-xl sm:text-2xl font-bold text-primary">
                     Best Selling Products
                   </h2>
                 </div>
@@ -418,11 +413,20 @@ const ProductDashboard = () => {
                   <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600/50 rounded-xl text-accent-content focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:bg-gray-700/50"
+                    className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600/50 rounded-xl text-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:bg-gray-700/50"
                   >
-                    <option value="All">All Categories</option>
+                    <option
+                      value="All"
+                      className="bg-gray-800/50 hover:bg-gray-700/50 text-slate-200"
+                    >
+                      All Categories
+                    </option>
                     {allCategorydata?.data.map((cat) => (
-                      <option key={cat._id} value={cat.name}>
+                      <option
+                        key={cat._id}
+                        value={cat.name}
+                        className="bg-gray-800/50 hover:bg-gray-700/50 text-slate-200"
+                      >
                         {cat.name}
                       </option>
                     ))}
@@ -627,7 +631,7 @@ const ProductDashboard = () => {
                               <Chip
                                 label={product.brand}
                                 size="small"
-                                className="text-white/80! uppercase bg-primary-color/20!"
+                                className="text-white/80! uppercase bg-primary/20!"
                               />
                             </TableCell>
                             <TableCell align="center">
@@ -1199,7 +1203,9 @@ const ProductDashboard = () => {
                     <input
                       type="checkbox"
                       checked={editModal?.isBoost || false}
-                      onChange={(e) => updateEditField("isBoost", e.target.checked)}
+                      onChange={(e) =>
+                        updateEditField("isBoost", e.target.checked)
+                      }
                       className="w-5 h-5 text-emerald-600 bg-transparent border-slate-500 rounded focus:ring-emerald-500"
                     />
                     <label className="ml-3 text-gray-300 font-semibold">
@@ -1475,7 +1481,7 @@ const ProductDashboard = () => {
           animation: pulse-glow 2s infinite;
         }
       `}</style>
-    </div>
+    </section>
   );
 };
 

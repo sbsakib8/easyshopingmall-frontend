@@ -17,8 +17,8 @@ const ReferralProfile = () => {
     <div className="min-h-screen bg-bg p-8">
       <div className="max-w-4xl mx-auto space-y-12">
         <div className="text-center space-y-4">
-          <div className="w-20 h-20 bg-primary-color/10 rounded-3xl flex items-center justify-center mx-auto mb-6">
-            <Share2 className="w-10 h-10 text-primary-color" />
+          <div className="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center mx-auto mb-6">
+            <Share2 className="w-10 h-10 text-primary" />
           </div>
           <h1 className="text-4xl font-black text-gray-900">Refer & Earn</h1>
           <p className="text-gray-500 max-w-xl mx-auto font-medium">
@@ -32,7 +32,7 @@ const ReferralProfile = () => {
             <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border-2 border-dashed border-gray-200">
               <span className="text-3xl font-black text-gray-900 tracking-tighter">{referralCode}</span>
               <button onClick={copyToClipboard} className="p-3 bg-white rounded-xl shadow-sm hover:bg-gray-50 transition-colors">
-                <Copy className="w-6 h-6 text-primary-color" />
+                <Copy className="w-6 h-6 text-primary" />
               </button>
             </div>
           </div>
@@ -67,7 +67,7 @@ const ReferralProfile = () => {
                 "Withdraw your earnings to your main balance."
               ].map((step, i) => (
                 <li key={i} className="flex gap-4 text-sm font-medium text-gray-600">
-                  <span className="flex-shrink-0 w-6 h-6 bg-primary-color/10 text-primary-color rounded-full flex items-center justify-center font-bold">{i+1}</span>
+                  <span className="flex-shrink-0 w-6 h-6 bg-primary/10 text-primary rounded-full flex items-center justify-center font-bold">{i+1}</span>
                   {step}
                 </li>
               ))}
@@ -78,7 +78,7 @@ const ReferralProfile = () => {
             <p className="text-sm text-gray-400 leading-relaxed font-medium">
               Referral bonuses are credited only for orders with a minimum value of 500 Taka. The bonus is added to your account after the order is successfully delivered and payment is confirmed.
             </p>
-            <button className="w-full bg-primary-color text-black py-4 rounded-2xl font-black hover:opacity-90 transition-opacity">View Details</button>
+            <button className="w-full bg-primary text-black py-4 rounded-2xl font-black hover:opacity-90 transition-opacity">View Details</button>
           </div>
         </div>
       </div>

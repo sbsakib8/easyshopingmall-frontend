@@ -1,38 +1,35 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import {
-  Plus,
-  Edit3,
-  Trash2,
-  Eye,
-  EyeOff,
-  Save,
-  X,
-  Search,
-  Filter,
-  Grid,
-  List,
-  Upload,
-  Image,
-  Tag,
-  Layers,
-  ChevronDown,
-  ChevronRight,
-  BarChart3,
-  Download,
-  Edit,
-} from "lucide-react";
+import Container from "@/src/compronent/shared/Container";
 import {
   CategoryAllGet,
   CategoryCreate,
   CategoryDelete,
   CategoryUploade,
 } from "@/src/hook/usecategory";
-import { useDispatch, useSelector } from "react-redux";
-import toast from "react-hot-toast";
 import { cn } from "@/src/utlis/utils";
-import Container from "@/src/compronent/shared/Container";
+import {
+  BarChart3,
+  Download,
+  Edit3,
+  Eye,
+  EyeOff,
+  Filter,
+  Grid,
+  Image,
+  Layers,
+  List,
+  Plus,
+  Save,
+  Search,
+  Tag,
+  Trash2,
+  Upload,
+  X,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
 
 const AddCategoriesComponent = () => {
   const [formData, setFormData] = useState({
@@ -411,9 +408,9 @@ const AddCategoriesComponent = () => {
 
             <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-accent-content mb-2">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary mb-2">
                   Categories{" "}
-                  <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
                     Add
                   </span>
                   !
@@ -436,7 +433,7 @@ const AddCategoriesComponent = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className={`text-sm ${card.textColor}`}>{card.title}</p>
-                  <p className="text-accent-content text-2xl font-bold">
+                  <p className="text-slate-300 text-2xl font-bold">
                     {card.value}
                   </p>
                 </div>
@@ -461,7 +458,7 @@ const AddCategoriesComponent = () => {
                   placeholder="Search categories..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
 
@@ -474,7 +471,7 @@ const AddCategoriesComponent = () => {
                 <select
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
-                  className="pl-10 pr-8 py-3 bg-white/10 border border-white/20 rounded-xl text-accent-content focus:outline-none focus:ring-2 focus:ring-purple-500 w-full"
+                  className="pl-10 pr-8 py-3 bg-white/10 border border-white/20 rounded-xl text-slate-300 focus:outline-none focus:ring-2 focus:ring-purple-500 w-full"
                 >
                   <option value="all" className="bg-slate-800">
                     All Categories
@@ -494,8 +491,8 @@ const AddCategoriesComponent = () => {
                   onClick={() => setViewMode("grid")}
                   className={`p-3 ${
                     viewMode === "grid"
-                      ? "bg-purple-500 text-accent-content"
-                      : "text-gray-300 hover:text-accent-content hover:bg-white/10"
+                      ? "bg-purple-500 text-slate-300"
+                      : "text-gray-300 hover:text-slate-300 hover:bg-white/10"
                   }`}
                 >
                   <Grid size={20} />
@@ -504,8 +501,8 @@ const AddCategoriesComponent = () => {
                   onClick={() => setViewMode("list")}
                   className={`p-3 ${
                     viewMode === "list"
-                      ? "bg-purple-500 text-accent-content"
-                      : "text-gray-300 hover:text-accent-content hover:bg-white/10"
+                      ? "bg-purple-500 text-slate-300"
+                      : "text-gray-300 hover:text-slate-300 hover:bg-white/10"
                   }`}
                 >
                   <List size={20} />
@@ -516,7 +513,7 @@ const AddCategoriesComponent = () => {
             {/* Add Category Button */}
             <button
               onClick={() => setShowAddForm(!showAddForm)}
-              className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-accent-content rounded-xl hover:from-green-600 hover:to-emerald-600 flex items-center space-x-2 transform shadow-lg whitespace-nowrap"
+              className="px-6 py-3 bg-secondary/80 text-secondary-content rounded-xl hover:bg-secondary flex items-center space-x-2 transform shadow-lg whitespace-nowrap"
             >
               <Plus size={20} />
               <span>Add Category</span>
@@ -528,13 +525,13 @@ const AddCategoriesComponent = () => {
         {showAddForm && (
           <div className="mb-8 bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20 transform animate-slideIn">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-accent-content flex items-center">
+              <h2 className="text-2xl font-bold text-slate-300 flex items-center">
                 <Layers className="mr-3 text-green-400" />
                 {editingId ? "Edit Category" : "Add New Category"}
               </h2>
               <button
                 onClick={resetForm}
-                className="text-gray-400 hover:text-accent-content hover:bg-white/10 rounded-full p-2"
+                className="text-gray-400 hover:text-slate-300 hover:bg-white/10 rounded-full p-2"
               >
                 <X size={24} />
               </button>
@@ -544,7 +541,7 @@ const AddCategoriesComponent = () => {
               {/* Left Column - Basic Info */}
               <div className="space-y-6">
                 <div className="space-y-2">
-                  <label className="text-accent-content font-medium">
+                  <label className="text-slate-300 font-medium">
                     Category Name *
                   </label>
                   <input
@@ -552,22 +549,20 @@ const AddCategoriesComponent = () => {
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
                     placeholder="Enter category name"
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-accent-content font-medium">
-                    URL Slug
-                  </label>
+                  <label className="text-slate-300 font-medium">URL Slug</label>
                   <input
                     type="text"
                     name="slug"
                     value={formData.slug}
                     onChange={handleInputChange}
-                    className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
                     placeholder="category-url-slug"
                   />
                   <p className="text-gray-400 text-xs">
@@ -579,7 +574,7 @@ const AddCategoriesComponent = () => {
               {/* Right Column - Visual & SEO */}
               <div className="space-y-6">
                 <div className="space-y-2">
-                  <label className="text-accent-content font-medium">
+                  <label className="text-slate-300 font-medium">
                     Category Icon
                   </label>
                   <div className="grid grid-cols-6 gap-2 mb-3">
@@ -605,13 +600,13 @@ const AddCategoriesComponent = () => {
                     name="icon"
                     value={formData.icon}
                     onChange={handleInputChange}
-                    className="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 text-center"
+                    className="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 text-center"
                     placeholder="Or enter custom emoji/icon"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-accent-content font-medium">
+                  <label className="text-slate-300 font-medium">
                     Category Image
                   </label>
                   <div className="border-2 border-dashed border-white/30 rounded-xl p-4 text-center hover:border-white/50">
@@ -627,7 +622,7 @@ const AddCategoriesComponent = () => {
                           onClick={() =>
                             setFormData((prev) => ({ ...prev, image: null }))
                           }
-                          className="absolute top-2 right-2 bg-red-500 text-accent-content rounded-full p-1 hover:bg-red-600"
+                          className="absolute top-2 right-2 bg-red-500 text-slate-300 rounded-full p-1 hover:bg-red-600"
                         >
                           <X size={16} />
                         </button>
@@ -635,7 +630,7 @@ const AddCategoriesComponent = () => {
                     ) : (
                       <div>
                         <Image
-                          className="mx-auto mb-2 text-accent-content/60"
+                          className="mx-auto mb-2 text-slate-300/60"
                           size={32}
                         />
                         <input
@@ -648,7 +643,7 @@ const AddCategoriesComponent = () => {
                         />
                         <label
                           htmlFor="category-image"
-                          className="cursor-pointer text-accent-content hover:text-green-400 font-medium"
+                          className="cursor-pointer text-slate-300 hover:text-green-400 font-medium"
                         >
                           Upload Category Image
                         </label>
@@ -658,9 +653,7 @@ const AddCategoriesComponent = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-accent-content font-medium">
-                    Status
-                  </label>
+                  <label className="text-slate-300 font-medium">Status</label>
                   <div className="flex items-center p-4 bg-white/10 border border-white/20 rounded-xl">
                     <input
                       type="checkbox"
@@ -669,7 +662,7 @@ const AddCategoriesComponent = () => {
                       onChange={handleInputChange}
                       className="w-5 h-5 text-green-600 bg-transparent border-white/30 rounded focus:ring-green-500"
                     />
-                    <label className="ml-3 text-accent-content">
+                    <label className="ml-3 text-slate-300">
                       Category Active
                     </label>
                   </div>
@@ -679,13 +672,13 @@ const AddCategoriesComponent = () => {
               {/* SEO Section - Full Width */}
               <div className="lg:col-span-2">
                 <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                  <h3 className="text-lg font-bold text-accent-content mb-4 flex items-center">
+                  <h3 className="text-lg font-bold text-slate-300 mb-4 flex items-center">
                     <BarChart3 className="mr-2 text-yellow-400" size={20} />
                     SEO Settings
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <label className="text-accent-content font-medium">
+                      <label className="text-slate-300 font-medium">
                         Meta Title
                       </label>
                       <input
@@ -693,15 +686,15 @@ const AddCategoriesComponent = () => {
                         name="metaTitle"
                         value={formData.metaTitle}
                         onChange={handleInputChange}
-                        className="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                        className="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-500"
                         placeholder="SEO meta title"
                       />
                       <p className="text-xs text-gray-400">
-                        {formData.metaTitle.length}/60 characters
+                        {formData?.metaTitle?.length ?? 0}/60 characters
                       </p>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-accent-content font-medium">
+                      <label className="text-slate-300 font-medium">
                         Meta Description
                       </label>
                       <textarea
@@ -709,7 +702,7 @@ const AddCategoriesComponent = () => {
                         value={formData.metaDescription}
                         onChange={handleInputChange}
                         rows="2"
-                        className="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 resize-none"
+                        className="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 resize-none"
                         placeholder="SEO meta description"
                       />
                       <p className="text-xs text-gray-400">
@@ -726,7 +719,7 @@ const AddCategoriesComponent = () => {
               <button
                 type="button"
                 onClick={resetForm}
-                className="px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-accent-content rounded-xl hover:from-gray-700 hover:to-gray-800 flex items-center justify-center space-x-2"
+                className="px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-slate-300 rounded-xl hover:from-gray-700 hover:to-gray-800 flex items-center justify-center space-x-2"
               >
                 <X size={20} />
                 <span>Cancel</span>
@@ -736,7 +729,7 @@ const AddCategoriesComponent = () => {
                 type="button"
                 onClick={handleSubmit}
                 disabled={!formData.name.trim()}
-                className="px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-accent-content rounded-xl hover:from-green-600 hover:to-emerald-600 flex items-center justify-center space-x-2 transform shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                className="px-8 py-3  bg-secondary/80 text-secondary-content rounded-xl hover:bg-secondary flex items-center justify-center space-x-2 transform shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 <Save size={20} />
                 <span>{editingId ? "Update Category" : "Add Category"}</span>
@@ -748,7 +741,7 @@ const AddCategoriesComponent = () => {
         {/* Categories Display */}
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-accent-content flex items-center">
+            <h2 className="text-2xl font-bold text-slate-300 flex items-center">
               <Tag className="mr-3 text-blue-400" />
               Categories ({filteredCategories.length})
             </h2>
@@ -816,9 +809,7 @@ const AddCategoriesComponent = () => {
                     </div>
                   </div>
                   <div className="mb-3 mt-1">
-                    <h3 className="text-accent-content text-xs">
-                      {category.name}
-                    </h3>
+                    <h3 className="text-slate-300 text-xs">{category.name}</h3>
                     <p className="text-gray-300 text-sm">/{category.slug}</p>
                   </div>
                   {category.image && (
@@ -889,7 +880,7 @@ const AddCategoriesComponent = () => {
 
                       <div className="flex-1">
                         <div className="flex items-center space-x-4 flex-wrap">
-                          <h3 className="text-accent-content font-bold text-lg">
+                          <h3 className="text-slate-300 font-bold text-lg">
                             {category.name}
                           </h3>
                           <span
@@ -968,7 +959,7 @@ const AddCategoriesComponent = () => {
                     category.subcategories &&
                     category.subcategories.length > 0 && (
                       <div className="mt-4 ml-8 space-y-2">
-                        <h4 className="text-accent-content font-medium text-sm flex items-center">
+                        <h4 className="text-slate-300 font-medium text-sm flex items-center">
                           <List className="mr-2" size={16} />
                           Subcategories:
                         </h4>
@@ -1014,7 +1005,7 @@ const AddCategoriesComponent = () => {
                 <Tag className="mx-auto mb-4 text-gray-400" size={64} />
                 <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full blur-xl"></div>
               </div>
-              <h3 className="text-2xl font-bold text-accent-content mb-2">
+              <h3 className="text-2xl font-bold text-slate-300 mb-2">
                 No Categories Found
               </h3>
               <p className="text-gray-300 mb-8 max-w-md mx-auto">
@@ -1025,7 +1016,7 @@ const AddCategoriesComponent = () => {
               {!searchTerm && filterStatus === "all" && (
                 <button
                   onClick={() => setShowAddForm(true)}
-                  className="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-accent-content rounded-xl hover:from-purple-600 hover:to-pink-600 flex items-center space-x-2 mx-auto transform shadow-lg"
+                  className="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-slate-300 rounded-xl hover:from-purple-600 hover:to-pink-600 flex items-center space-x-2 mx-auto transform shadow-lg"
                 >
                   <Plus size={24} />
                   <span>Add Your First Category</span>
@@ -1037,7 +1028,7 @@ const AddCategoriesComponent = () => {
 
         {/* Bulk Actions Panel */}
         <div className="mt-8 bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
-          <h2 className="text-xl font-bold text-accent-content mb-6 flex items-center">
+          <h2 className="text-xl font-bold text-slate-300 mb-6 flex items-center">
             <Edit3 className="mr-3 text-yellow-400" />
             Bulk Operations
           </h2>
@@ -1048,7 +1039,7 @@ const AddCategoriesComponent = () => {
                 key={index}
                 onClick={btn.onClick}
                 className={cn(
-                  "px-4 py-2 bg-gradient-to-r text-accent-content rounded-xl",
+                  "px-4 py-2 bg-gradient-to-r text-slate-300 rounded-xl",
                   "flex items-center justify-center space-x-2 transform shadow-lg",
                   "hover:shadow-xl active:scale-95 transition-all duration-200 whitespace-nowrap",
                   btn.gradient,
@@ -1064,7 +1055,7 @@ const AddCategoriesComponent = () => {
 
         {/* Category Tree Structure */}
         <div className="mt-8 bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
-          <h2 className="text-xl font-bold text-accent-content mb-6 flex items-center">
+          <h2 className="text-xl font-bold text-slate-300 mb-6 flex items-center">
             <Layers className="mr-3 text-teal-400" />
             Category Hierarchy
           </h2>
@@ -1082,7 +1073,7 @@ const AddCategoriesComponent = () => {
                   >
                     {category.icon}
                   </div>
-                  <span className="text-accent-content font-medium">
+                  <span className="text-slate-300 font-medium">
                     {category.name}
                   </span>
                   <span
@@ -1128,14 +1119,14 @@ const AddCategoriesComponent = () => {
 
         {/* Quick Actions */}
         <div className="mt-8 bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
-          <h2 className="text-xl font-bold text-accent-content mb-6 flex items-center">
+          <h2 className="text-xl font-bold text-slate-300 mb-6 flex items-center">
             <Tag className="mr-3 text-rose-400" />
             Quick Actions
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-xl p-6 border border-white/10 hover:from-blue-500/20 hover:to-cyan-500/20">
-              <h3 className="text-accent-content font-bold mb-2">
+              <h3 className="text-slate-300 font-bold mb-2">
                 Category Templates
               </h3>
               <p className="text-gray-300 text-sm mb-4">
@@ -1147,7 +1138,7 @@ const AddCategoriesComponent = () => {
             </div>
 
             <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-xl p-6 border border-white/10 hover:from-green-500/20 hover:to-emerald-500/20">
-              <h3 className="text-accent-content font-bold mb-2">
+              <h3 className="text-slate-300 font-bold mb-2">
                 Category Analytics
               </h3>
               <p className="text-gray-300 text-sm mb-4">
@@ -1159,9 +1150,7 @@ const AddCategoriesComponent = () => {
             </div>
 
             <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-xl p-6 border border-white/10 hover:from-purple-500/20 hover:to-pink-500/20">
-              <h3 className="text-accent-content font-bold mb-2">
-                Bulk Import
-              </h3>
+              <h3 className="text-slate-300 font-bold mb-2">Bulk Import</h3>
               <p className="text-gray-300 text-sm mb-4">
                 Import categories from CSV or other sources
               </p>

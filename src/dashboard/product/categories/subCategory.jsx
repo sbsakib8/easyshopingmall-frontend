@@ -444,7 +444,7 @@ const AddSubcategoriesComponent = () => {
   ];
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 py-7 md:py-12 overflow-hidden">
+    <section className="min-h-dvh bg-gradient-to-br from-gray-900 via-black to-gray-900 py-7 md:py-12 overflow-hidden">
       <Container>
         {/* Welcome Banner */}
         <div className="mb-8 animate-slideDown">
@@ -457,9 +457,9 @@ const AddSubcategoriesComponent = () => {
 
             <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-accent-content mb-2">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary mb-2">
                   Subcategories{" "}
-                  <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
                     Management
                   </span>
                   !
@@ -482,7 +482,7 @@ const AddSubcategoriesComponent = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className={`text-sm ${card.textColor}`}>{card.title}</p>
-                  <p className="text-accent-content text-2xl font-bold">
+                  <p className="text-primary text-2xl font-bold">
                     {card.value}
                   </p>
                 </div>
@@ -503,11 +503,11 @@ const AddSubcategoriesComponent = () => {
                   size={20}
                 />
                 <input
-                  type="text"
+                  type="search"
                   placeholder="Search subcategories..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
 
@@ -520,7 +520,7 @@ const AddSubcategoriesComponent = () => {
                 <select
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
-                  className="pl-10 pr-8 py-3 bg-white/10 border border-white/20 rounded-xl text-accent-content focus:outline-none focus:ring-2 focus:ring-purple-500 w-full"
+                  className="pl-10 pr-8 py-3 bg-white/10 border border-white/20 rounded-xl text-slate-300 focus:outline-none focus:ring-2 focus:ring-purple-500 w-full"
                 >
                   <option value="all" className="bg-slate-800">
                     All Status
@@ -543,7 +543,7 @@ const AddSubcategoriesComponent = () => {
                 <select
                   value={filterCategory}
                   onChange={(e) => setFilterCategory(e.target.value)}
-                  className="pl-10 pr-8 py-3 bg-white/10 border border-white/20 rounded-xl text-accent-content focus:outline-none focus:ring-2 focus:ring-purple-500 w-full"
+                  className="pl-10 pr-8 py-3 bg-white/10 border border-white/20 rounded-xl text-slate-300 focus:outline-none focus:ring-2 focus:ring-purple-500 w-full"
                 >
                   <option value="all" className="bg-slate-800">
                     All Categories
@@ -566,8 +566,8 @@ const AddSubcategoriesComponent = () => {
                   onClick={() => setViewMode("grid")}
                   className={`p-3 ${
                     viewMode === "grid"
-                      ? "bg-purple-500 text-accent-content"
-                      : "text-gray-300 hover:text-accent-content hover:bg-white/10"
+                      ? "bg-purple-500 text-slate-300"
+                      : "text-gray-300 hover:text-slate-300 hover:bg-white/10"
                   }`}
                 >
                   <Grid size={20} />
@@ -576,8 +576,8 @@ const AddSubcategoriesComponent = () => {
                   onClick={() => setViewMode("list")}
                   className={`p-3 ${
                     viewMode === "list"
-                      ? "bg-purple-500 text-accent-content"
-                      : "text-gray-300 hover:text-accent-content hover:bg-white/10"
+                      ? "bg-purple-500 text-slate-300"
+                      : "text-gray-300 hover:text-slate-300 hover:bg-white/10"
                   }`}
                 >
                   <List size={20} />
@@ -588,7 +588,7 @@ const AddSubcategoriesComponent = () => {
             {/* Add Subcategory Button */}
             <button
               onClick={() => setShowAddForm(!showAddForm)}
-              className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-accent-content rounded-xl hover:from-green-600 hover:to-emerald-600 flex items-center space-x-2 transform shadow-lg"
+              className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-slate-300 rounded-xl hover:from-green-600 hover:to-emerald-600 flex items-center space-x-2 transform shadow-lg"
             >
               <Plus size={20} />
               <span>Add Subcategory</span>
@@ -600,13 +600,13 @@ const AddSubcategoriesComponent = () => {
         {showAddForm && (
           <div className="mb-8 bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20 transform animate-slideIn">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-accent-content flex items-center">
+              <h2 className="text-xl font-bold text-slate-300 flex items-center">
                 <Layers className="mr-3 text-green-400" />
                 {editingId ? "Edit Subcategory" : "Add New Subcategory"}
               </h2>
               <button
                 onClick={resetForm}
-                className="text-gray-400 hover:text-accent-content hover:bg-white/10 rounded-full p-2"
+                className="text-gray-400 hover:text-slate-300 hover:bg-white/10 rounded-full p-2"
               >
                 <X size={24} />
               </button>
@@ -616,14 +616,14 @@ const AddSubcategoriesComponent = () => {
               {/* Left Column */}
               <div className="space-y-6">
                 <div className="space-y-2">
-                  <label className="text-accent-content font-medium">
+                  <label className="text-slate-300 font-medium">
                     Parent Category *
                   </label>
                   <select
                     name="category"
                     value={formData.category}
                     onChange={handleInputChange}
-                    className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 focus:outline-none focus:ring-2 focus:ring-green-500"
                     required
                   >
                     <option value="" className="bg-slate-800">
@@ -642,7 +642,7 @@ const AddSubcategoriesComponent = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-accent-content font-medium">
+                  <label className="text-slate-300 font-medium">
                     Subcategory Name *
                   </label>
                   <input
@@ -650,22 +650,20 @@ const AddSubcategoriesComponent = () => {
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
                     placeholder="Enter subcategory name"
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-accent-content font-medium">
-                    URL Slug
-                  </label>
+                  <label className="text-slate-300 font-medium">URL Slug</label>
                   <input
                     type="text"
                     name="slug"
                     value={formData.slug}
                     onChange={handleInputChange}
-                    className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
                     placeholder="subcategory-url-slug"
                   />
                   <p className="text-gray-400 text-xs">
@@ -677,7 +675,7 @@ const AddSubcategoriesComponent = () => {
               {/* Right Column */}
               <div className="space-y-6">
                 <div className="space-y-2">
-                  <label className="text-accent-content font-medium">
+                  <label className="text-slate-300 font-medium">
                     Subcategory Icon
                   </label>
                   <div className="grid grid-cols-6 gap-2 mb-3 max-h-40 overflow-y-auto p-2 bg-white/5 rounded-xl">
@@ -703,13 +701,13 @@ const AddSubcategoriesComponent = () => {
                     name="icon"
                     value={formData.icon}
                     onChange={handleInputChange}
-                    className="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 text-center"
+                    className="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 text-center"
                     placeholder="Or enter custom emoji/icon"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-accent-content font-medium">
+                  <label className="text-slate-300 font-medium">
                     Subcategory Image
                   </label>
                   <div className="border-2 border-dashed border-white/30 rounded-xl p-4 text-center hover:border-white/50">
@@ -725,7 +723,7 @@ const AddSubcategoriesComponent = () => {
                           onClick={() =>
                             setFormData((prev) => ({ ...prev, image: null }))
                           }
-                          className="absolute top-2 right-2 bg-red-500 text-accent-content rounded-full p-1 hover:bg-red-600"
+                          className="absolute top-2 right-2 bg-red-500 text-slate-300 rounded-full p-1 hover:bg-red-600"
                         >
                           <X size={16} />
                         </button>
@@ -733,7 +731,7 @@ const AddSubcategoriesComponent = () => {
                     ) : (
                       <div>
                         <Image
-                          className="mx-auto mb-2 text-accent-content/60"
+                          className="mx-auto mb-2 text-slate-300/60"
                           size={32}
                         />
                         <input
@@ -746,7 +744,7 @@ const AddSubcategoriesComponent = () => {
                         />
                         <label
                           htmlFor="subcategory-image"
-                          className="cursor-pointer text-accent-content hover:text-green-400 font-medium"
+                          className="cursor-pointer text-slate-300 hover:text-green-400 font-medium"
                         >
                           Upload Subcategory Image
                         </label>
@@ -756,9 +754,7 @@ const AddSubcategoriesComponent = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-accent-content font-medium">
-                    Status
-                  </label>
+                  <label className="text-slate-300 font-medium">Status</label>
                   <div className="flex items-center p-4 bg-white/10 border border-white/20 rounded-xl">
                     <input
                       type="checkbox"
@@ -767,7 +763,7 @@ const AddSubcategoriesComponent = () => {
                       onChange={handleInputChange}
                       className="w-5 h-5 text-green-600 bg-transparent border-white/30 rounded focus:ring-green-500"
                     />
-                    <label className="ml-3 text-accent-content">
+                    <label className="ml-3 text-slate-300">
                       Subcategory Active
                     </label>
                   </div>
@@ -777,13 +773,13 @@ const AddSubcategoriesComponent = () => {
               {/* SEO Section */}
               <div className="lg:col-span-2">
                 <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                  <h3 className="text-lg font-bold text-accent-content mb-4 flex items-center">
+                  <h3 className="text-lg font-bold text-slate-300 mb-4 flex items-center">
                     <BarChart3 className="mr-2 text-yellow-400" size={20} />
                     SEO Settings
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <label className="text-accent-content font-medium">
+                      <label className="text-slate-300 font-medium">
                         Meta Title
                       </label>
                       <input
@@ -791,7 +787,7 @@ const AddSubcategoriesComponent = () => {
                         name="metaTitle"
                         value={formData.metaTitle}
                         onChange={handleInputChange}
-                        className="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                        className="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-500"
                         placeholder="SEO meta title"
                       />
                       <p className="text-xs text-gray-400">
@@ -799,7 +795,7 @@ const AddSubcategoriesComponent = () => {
                       </p>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-accent-content font-medium">
+                      <label className="text-slate-300 font-medium">
                         Meta Description
                       </label>
                       <textarea
@@ -807,7 +803,7 @@ const AddSubcategoriesComponent = () => {
                         value={formData.metaDescription}
                         onChange={handleInputChange}
                         rows="2"
-                        className="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 resize-none"
+                        className="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 resize-none"
                         placeholder="SEO meta description"
                       />
                       <p className="text-xs text-gray-400">
@@ -824,7 +820,7 @@ const AddSubcategoriesComponent = () => {
               <button
                 type="button"
                 onClick={resetForm}
-                className="px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-accent-content rounded-xl hover:from-gray-700 hover:to-gray-800 flex items-center justify-center space-x-2"
+                className="px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-slate-300 rounded-xl hover:from-gray-700 hover:to-gray-800 flex items-center justify-center space-x-2"
               >
                 <X size={20} />
                 <span>Cancel</span>
@@ -834,7 +830,7 @@ const AddSubcategoriesComponent = () => {
                 type="button"
                 onClick={handleSubmit}
                 disabled={!formData.name.trim() || !formData.category}
-                className="px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-accent-content rounded-xl hover:from-green-600 hover:to-emerald-600 flex items-center justify-center space-x-2 transform shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                className="px-8 py-3 bg-secondary/80 hover:bg-secondary text-secondary-content rounded-xl flex items-center justify-center space-x-2 transform shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 <Save size={20} />
                 <span>
@@ -848,7 +844,7 @@ const AddSubcategoriesComponent = () => {
         {/* Subcategories Display */}
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-accent-content flex items-center">
+            <h2 className="text-2xl font-bold text-slate-300 flex items-center">
               <Tag className="mr-3 text-blue-400" />
               Subcategories ({filteredSubcategories.length})
             </h2>
@@ -919,7 +915,7 @@ const AddSubcategoriesComponent = () => {
                     </div>
 
                     <div className="my-3 min-h-[100px]">
-                      <h3 className="text-accent-content font-bold text-xs">
+                      <h3 className="text-slate-300 font-bold text-xs">
                         {subcategory.name}
                       </h3>
                       <p className="text-gray-300 text-sm">
@@ -995,7 +991,7 @@ const AddSubcategoriesComponent = () => {
 
                         <div className="flex-1">
                           <div className="flex items-center space-x-4 flex-wrap gap-2">
-                            <h3 className="text-accent-content font-bold text-lg">
+                            <h3 className="text-slate-200 font-bold text-lg">
                               {subcategory.name}
                             </h3>
                             <span
@@ -1076,7 +1072,7 @@ const AddSubcategoriesComponent = () => {
                 <Tag className="mx-auto mb-4 text-gray-400" size={64} />
                 <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full blur-xl"></div>
               </div>
-              <h3 className="text-2xl font-bold text-accent-content mb-2">
+              <h3 className="text-2xl font-bold text-gray-400 mb-2">
                 No Subcategories Found
               </h3>
               <p className="text-gray-300 mb-8 max-w-md mx-auto">
@@ -1091,7 +1087,7 @@ const AddSubcategoriesComponent = () => {
                 filterCategory === "all" && (
                   <button
                     onClick={() => setShowAddForm(true)}
-                    className="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-accent-content rounded-xl hover:from-purple-600 hover:to-pink-600 flex items-center space-x-2 mx-auto transform shadow-lg"
+                    className="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-slate-300 rounded-xl hover:from-purple-600 hover:to-pink-600 flex items-center space-x-2 mx-auto transform shadow-lg"
                   >
                     <Plus size={24} />
                     <span>Add Your First Subcategory</span>
@@ -1103,7 +1099,7 @@ const AddSubcategoriesComponent = () => {
 
         {/* Bulk Actions Panel */}
         <div className="mt-8 bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
-          <h2 className="text-xl font-bold text-accent-content mb-6 flex items-center">
+          <h2 className="text-xl font-bold text-slate-300 mb-6 flex items-center">
             <Edit3 className="mr-3 text-yellow-400" />
             Bulk Operations
           </h2>
@@ -1114,7 +1110,7 @@ const AddSubcategoriesComponent = () => {
                 key={index}
                 onClick={btn.onClick}
                 className={cn(
-                  "px-4 py-2 bg-gradient-to-r text-accent-content rounded-xl",
+                  "px-4 py-2 bg-gradient-to-r text-slate-300 rounded-xl",
                   "flex items-center justify-center space-x-2 transform shadow-lg",
                   "hover:shadow-xl active:scale-95 transition-all duration-200",
                   btn.gradient,
@@ -1131,7 +1127,7 @@ const AddSubcategoriesComponent = () => {
 
         {/* Subcategory Hierarchy */}
         <div className="mt-8 bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
-          <h2 className="text-2xl font-bold text-accent-content mb-6 flex items-center">
+          <h2 className="text-2xl font-bold text-slate-300 mb-6 flex items-center">
             <Layers className="mr-3 text-teal-400" />
             Subcategory Hierarchy
           </h2>
@@ -1156,7 +1152,7 @@ const AddSubcategoriesComponent = () => {
                     >
                       {category.icon}
                     </div>
-                    <span className="text-accent-content font-bold text-lg">
+                    <span className="text-slate-300 font-bold text-lg">
                       {category.name}
                     </span>
                     <span className="text-gray-400 text-sm">
@@ -1221,14 +1217,14 @@ const AddSubcategoriesComponent = () => {
 
         {/* Quick Actions */}
         <div className="mt-8 mb-8 bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
-          <h2 className="text-2xl font-bold text-accent-content mb-6 flex items-center">
+          <h2 className="text-2xl font-bold text-slate-300 mb-6 flex items-center">
             <Tag className="mr-3 text-rose-400" />
             Quick Actions
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-xl p-6 border border-white/10 hover:from-blue-500/20 hover:to-cyan-500/20">
-              <h3 className="text-accent-content font-bold mb-2">
+              <h3 className="text-slate-300 font-bold mb-2">
                 Subcategory Templates
               </h3>
               <p className="text-gray-300 text-sm mb-4">
@@ -1243,7 +1239,7 @@ const AddSubcategoriesComponent = () => {
             </div>
 
             <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-xl p-6 border border-white/10 hover:from-green-500/20 hover:to-emerald-500/20">
-              <h3 className="text-accent-content font-bold mb-2">
+              <h3 className="text-slate-300 font-bold mb-2">
                 Subcategory Analytics
               </h3>
               <p className="text-gray-300 text-sm mb-4">
@@ -1258,9 +1254,7 @@ const AddSubcategoriesComponent = () => {
             </div>
 
             <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-xl p-6 border border-white/10 hover:from-purple-500/20 hover:to-pink-500/20">
-              <h3 className="text-accent-content font-bold mb-2">
-                Bulk Import
-              </h3>
+              <h3 className="text-slate-300 font-bold mb-2">Bulk Import</h3>
               <p className="text-gray-300 text-sm mb-4">
                 Import subcategories from CSV
               </p>

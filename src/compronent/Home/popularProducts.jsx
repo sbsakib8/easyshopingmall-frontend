@@ -7,31 +7,24 @@ import {
   ShoppingCart,
   Sparkles,
   Star,
-  Tag
 } from "lucide-react";
-import CustomLoader from '@/src/compronent/loading/CustomLoader';
-import { ProductGridSkeleton } from '@/src/compronent/loading/ProductGridSkeleton';
 import Image from "next/image";
-import Link from "next/link";
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useRouter } from "next/navigation"; // Import useRouter
+import { useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
-import { useRouter } from "next/navigation"; // Import useRouter
 
 // 🧠 Import your hooks
+import Skeleton, { CardSkeleton } from "@/src/compronent/loading/Skeleton";
+import AddtoCartBtn from "@/src/helper/Buttons/AddtoCartBtn";
+import { useWishlist } from "@/src/utlis/useWishList";
 import { addToCartApi } from "../../hook/useCart";
 import {
   addToWishlistApi,
   getWishlistApi,
   removeFromWishlistApi,
 } from "../../hook/useWishlist";
-import { useGetcategory } from "../../utlis/usecategory";
-import { useGetProduct } from "../../utlis/userProduct";
-import { useCategoryWithSubcategories } from "../../utlis/useCategoryWithSubcategories";
-import { useWishlist } from "@/src/utlis/useWishList";
 import { setQuickViewProduct } from "../../redux/shopSlice";
-import Skeleton, { CardSkeleton } from "@/src/compronent/loading/Skeleton";
-import AddtoCartBtn from "@/src/helper/Buttons/AddtoCartBtn";
 
 // Helper function to determine if product is new or old
 const isProductNew = (createdDate) => {
@@ -52,11 +45,13 @@ const PopularProducts = ({ initialData }) => {
   // Internal state for retry support
   const [products, setProducts] = useState(initialData?.products || []);
   const [errorState, setErrorState] = useState(false);
-  const [loadingLocal, setLoadingLocal] = useState(!initialData?.products?.length);
+  const [loadingLocal, setLoadingLocal] = useState(
+    !initialData?.products?.length,
+  );
 
   const dispatch = useDispatch();
   const router = useRouter();
-  const { wishlist } = useWishlist()
+  const { wishlist } = useWishlist();
   const user = useSelector((state) => state.user.data);
 
   const shopCategories = initialData?.categories || [];
@@ -67,7 +62,8 @@ const PopularProducts = ({ initialData }) => {
       setLoadingLocal(true);
       setErrorState(false);
       const res = await ProductAllGet({ page: 1, limit: 100 });
-      const fetchedProducts = res.data || res.products || (Array.isArray(res) ? res : []);
+      const fetchedProducts =
+        res.data || res.products || (Array.isArray(res) ? res : []);
       setProducts(fetchedProducts);
     } catch (err) {
       console.error("Manual fetch error:", err);
@@ -145,10 +141,12 @@ const PopularProducts = ({ initialData }) => {
       let categoryName = "GENERAL";
       if (Array.isArray(p.category) && p.category.length > 0) {
         const cat = p.category[0];
-        categoryName = (typeof cat === 'string' ? cat : cat?.name)?.toUpperCase() || "GENERAL";
-      } else if (typeof p.category === 'object' && p.category?.name) {
+        categoryName =
+          (typeof cat === "string" ? cat : cat?.name)?.toUpperCase() ||
+          "GENERAL";
+      } else if (typeof p.category === "object" && p.category?.name) {
         categoryName = p.category.name?.toUpperCase() || "GENERAL";
-      } else if (typeof p.category === 'string') {
+      } else if (typeof p.category === "string") {
         categoryName = p.category.toUpperCase();
       }
 
@@ -156,10 +154,12 @@ const PopularProducts = ({ initialData }) => {
       let subCategoryName = null;
       if (Array.isArray(p.subCategory) && p.subCategory.length > 0) {
         const subCat = p.subCategory[0];
-        subCategoryName = (typeof subCat === 'string' ? subCat : subCat?.name)?.toUpperCase() || null;
-      } else if (typeof p.subCategory === 'object' && p.subCategory?.name) {
+        subCategoryName =
+          (typeof subCat === "string" ? subCat : subCat?.name)?.toUpperCase() ||
+          null;
+      } else if (typeof p.subCategory === "object" && p.subCategory?.name) {
         subCategoryName = p.subCategory.name?.toUpperCase() || null;
-      } else if (typeof p.subCategory === 'string') {
+      } else if (typeof p.subCategory === "string") {
         subCategoryName = p.subCategory.toUpperCase();
       }
 
@@ -177,7 +177,11 @@ const PopularProducts = ({ initialData }) => {
         subCategory: subCategoryName,
         badge: p.tags?.[0] || "New",
         isNew: isProductNew(p.createdAt || p.created_at || p.createdDate),
-        discount: p.discount || (p.oldPrice && p.price ? Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100) : 0),
+        discount:
+          p.discount ||
+          (p.oldPrice && p.price
+            ? Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100)
+            : 0),
       };
     });
 
@@ -189,12 +193,12 @@ const PopularProducts = ({ initialData }) => {
       // When ALL is selected, get 5 products from each subcategory within each category
       const productsByCategory = {};
 
-      mergedData.products.forEach(p => {
+      mergedData.products.forEach((p) => {
         if (!productsByCategory[p.category]) {
           productsByCategory[p.category] = {};
         }
 
-        const subCatKey = p.subCategory || 'NO_SUBCATEGORY';
+        const subCatKey = p.subCategory || "NO_SUBCATEGORY";
         if (!productsByCategory[p.category][subCatKey]) {
           productsByCategory[p.category][subCatKey] = [];
         }
@@ -203,19 +207,17 @@ const PopularProducts = ({ initialData }) => {
 
       // Take 5 products from each subcategory within each category
       const result = [];
-      Object.keys(productsByCategory).forEach(catName => {
+      Object.keys(productsByCategory).forEach((catName) => {
         const subcategories = productsByCategory[catName];
-        Object.keys(subcategories).forEach(subCatName => {
+        Object.keys(subcategories).forEach((subCatName) => {
           const productsInSubCat = subcategories[subCatName];
           result.push(...productsInSubCat.slice(0, 5));
         });
       });
 
-
-
       // Ensure absolute uniqueness before returning to avoid React key errors
       const seen = new Set();
-      return result.filter(p => {
+      return result.filter((p) => {
         const id = p.id || p._id;
         if (seen.has(id)) return false;
         seen.add(id);
@@ -224,12 +226,14 @@ const PopularProducts = ({ initialData }) => {
     }
 
     // When a specific category is selected, get 5 products from each subcategory
-    const categoryProducts = mergedData.products.filter((p) => p.category === activeCategory);
+    const categoryProducts = mergedData.products.filter(
+      (p) => p.category === activeCategory,
+    );
 
     // Group by subcategory
     const productsBySubCategory = {};
-    categoryProducts.forEach(p => {
-      const subCatKey = p.subCategory || 'NO_SUBCATEGORY';
+    categoryProducts.forEach((p) => {
+      const subCatKey = p.subCategory || "NO_SUBCATEGORY";
       if (!productsBySubCategory[subCatKey]) {
         productsBySubCategory[subCatKey] = [];
       }
@@ -238,7 +242,7 @@ const PopularProducts = ({ initialData }) => {
 
     // Take 5 products from each subcategory
     const result = [];
-    Object.keys(productsBySubCategory).forEach(subCatName => {
+    Object.keys(productsBySubCategory).forEach((subCatName) => {
       const productsInSubCat = productsBySubCategory[subCatName];
       result.push(...productsInSubCat.slice(0, 5));
     });
@@ -248,7 +252,7 @@ const PopularProducts = ({ initialData }) => {
 
   const filteredProducts = useMemo(() => {
     const filtered = currentProducts.filter((p) =>
-      p.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+      p.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()),
     );
     // Limit to 50 products for home page to show all categories
 
@@ -259,10 +263,11 @@ const PopularProducts = ({ initialData }) => {
     return [...Array(5)].map((_, i) => (
       <Star
         key={i}
-        className={`w-3 h-3 sm:w-4 sm:h-4 ${i < Math.floor(rating)
-          ? "text-yellow-400 fill-current"
-          : "text-gray-300"
-          }`}
+        className={`w-3 h-3 sm:w-4 sm:h-4 ${
+          i < Math.floor(rating)
+            ? "text-yellow-400 fill-current"
+            : "text-gray-300"
+        }`}
       />
     ));
   };
@@ -312,7 +317,6 @@ const PopularProducts = ({ initialData }) => {
 
       // Sync with Redux (backend truth)
       await getWishlistApi(dispatch);
-
     } catch (err) {
       console.error("Wishlist toggle error:", err);
     }
@@ -332,7 +336,7 @@ const PopularProducts = ({ initialData }) => {
           quantity: 1,
           price: product.price,
         },
-        dispatch
+        dispatch,
       );
       toast.success(`${product.name} added to cart`);
     } catch (err) {
@@ -344,14 +348,13 @@ const PopularProducts = ({ initialData }) => {
 
   // Removed internal loading/error skeletons
 
-
   return (
-    <div className="min-h-screen bg-bg">
+    <section className="min-h-dvh bg-bg">
       {/* Header & Categories */}
       <div className=" backdrop-blur-lg border-b border-white/20 shadow-xl">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="text-center mb-6">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 bg-clip-text text-transparent mb-2">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2">
               Popular Products
             </h1>
             <p className="text-gray-600 text-sm sm:text-base">
@@ -364,11 +367,11 @@ const PopularProducts = ({ initialData }) => {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
-                type="text"
+                type="search"
                 placeholder="Search products..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white/50 backdrop-blur-sm"
+                className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white/50 backdrop-blur-sm"
               />
             </div>
           </div>
@@ -377,35 +380,40 @@ const PopularProducts = ({ initialData }) => {
           <div className="flex justify-center">
             <button
               onClick={() => setShowCategories(!showCategories)}
-              className={`flex sm:hidden items-center space-x-2 px-4 py-2 sm:py-3 rounded-full font-medium ${activeCategory === "ALL"
-                ? "bg-secondary text-accent-content shadow-lg"
-                : "bg-accent-content hover:bg-white/90 border border-gray-200"
-                } mb-5 md:mb-0 gap-2`}
+              className={`flex sm:hidden items-center space-x-2 px-4 py-2 sm:py-3 rounded-full font-medium bg-primary text-primary-content shadow-lg mb-5 md:mb-0 gap-2`}
             >
               {showCategories ? "Hide" : "Show"} Categories
-              {showCategories ? <ArrowUp color="white" /> : <ArrowDown color="white" />}
-
+              {showCategories ? (
+                <ArrowUp color="white" />
+              ) : (
+                <ArrowDown color="white" />
+              )}
             </button>
           </div>
 
-          <div className={` ${showCategories ? "flex" : "hidden"} sm:flex flex-col sm:flex-row sm:flex-wrap overflow-x-auto pt-20 sm:pt-0 justify-center gap-2 sm:gap-3 max-h-60 sm:max-h-full scroll-auto `}>
+          <div
+            className={` ${showCategories ? "flex" : "hidden"} sm:flex flex-col sm:flex-row sm:flex-wrap overflow-x-auto pt-20 sm:pt-0 justify-center gap-2 sm:gap-3 max-h-60 sm:max-h-full scroll-auto `}
+          >
             <button
               onClick={() => setActiveCategory("ALL")}
-              className={`flex items-center space-x-2 px-4 py-2 sm:py-3 rounded-full font-medium ${activeCategory === "ALL"
-                ? "bg-secondary text-accent-content shadow-lg"
-                : "bg-accent-content hover:bg-white/90 border border-gray-200"
-                }`}
+              className={`flex items-center space-x-2 px-4 py-2 sm:py-3 rounded-full font-medium text-primary-content ${
+                activeCategory === "ALL"
+                  ? "bg-primary shadow-lg"
+                  : "bg-gray-100 hover:bg-gray-200 border border-gray-200"
+              }`}
             >
               All
             </button>
+
             {mergedData.categories.map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => setActiveCategory(cat.id)}
-                className={`flex items-center space-x-2 px-4 py-2 sm:py-3 rounded-full font-medium ${activeCategory === cat.id
-                  ? `bg-secondary text-accent-content shadow-lg`
-                  : "bg-white/70 text-gray-700 hover:bg-white/90 border border-gray-200"
-                  }`}
+                className={`flex items-center space-x-2 px-4 py-2 sm:py-3 rounded-full font-medium text-primary-content ${
+                  activeCategory === cat.id
+                    ? `bg-primary shadow-lg`
+                    : "bg-gray-100 hover:bg-gray-200 border border-gray-200"
+                }`}
               >
                 <span>{cat.icon}</span>
                 <span>{cat.name}</span>
@@ -441,29 +449,42 @@ const PopularProducts = ({ initialData }) => {
                 <div className="absolute top-0 left-0 flex justify-between w-full">
                   <div className="flex items-start">
                     {product.isNew && (
-                      <span className="bg-green-500 text-accent-content px-1 py-1 rounded text-[8px] font-semibold">NEW</span>
+                      <span className="bg-green-500 text-accent-content px-1 py-1 rounded text-[8px] font-semibold">
+                        NEW
+                      </span>
                     )}
-                    {product.retailSale > product.price ? <span className="bg-yellow-500 text-black px-1 py-1 mx-[2px] rounded text-[8px] font-semibold">
-                      -{(product.retailSale - product.price)}৳
-                    </span> : 0}
+                    {product.retailSale > product.price ? (
+                      <span className="bg-yellow-500 text-black px-1 py-1 mx-[2px] rounded text-[8px] font-semibold">
+                        -{product.retailSale - product.price}৳
+                      </span>
+                    ) : (
+                      0
+                    )}
                   </div>
                   {product.productStatus?.length > 0 && (
-                    <span className={` ${product.productStatus.includes("hot") ? 'text-red-500' : 'text-blue-400 '} max-h-6  bg-black px-1 py-1 rounded-md text-xs font-bold ${product.productStatus.includes("none") ? 'hidden' : ''}`}>{product.productStatus}</span>
+                    <span
+                      className={` ${product.productStatus.includes("hot") ? "text-red-500" : "text-blue-400 "} max-h-6  bg-black px-1 py-1 rounded-md text-xs font-bold ${product.productStatus.includes("none") ? "hidden" : ""}`}
+                    >
+                      {product.productStatus}
+                    </span>
                   )}
                 </div>
 
                 {/* Action Buttons */}
-                <div className={`absolute ${product.productStatus?.length > 0 ? "top-6" : "top-0"}  bg-white rounded-md right-0 space-y-2`}>
+                <div
+                  className={`absolute ${product.productStatus?.length > 0 ? "top-6" : "top-0"}  bg-white rounded-md right-0 space-y-2`}
+                >
                   <button
                     onClick={(e) => {
                       e.preventDefault();
                       toggleWishlist(product.id); // Call our fixed toggle function
                     }}
                     className={`p-2 cursor-pointer rounded-lg
-      ${localWishlist.has(product.id)
-                        ? "text-red-500 bg-red-100"
-                        : "text-gray-400 hover:text-red-500 hover:bg-red-50"
-                      }`}
+      ${
+        localWishlist.has(product.id)
+          ? "text-red-500 bg-red-100"
+          : "text-gray-400 hover:text-red-500 hover:bg-red-50"
+      }`}
                   >
                     <Heart
                       className="w-3 h-3"
@@ -479,14 +500,18 @@ const PopularProducts = ({ initialData }) => {
                   <h3 className="font-semibold text-sm text-gray-800 mb-1 group-hover:text-purple-600 transition-colors duration-300 line-clamp-2">
                     {product.name}
                   </h3>
-                  <p className="text-xs text-gray-500 mb-2">{product.category}</p>
+                  <p className="text-xs text-gray-500 mb-2">
+                    {product.category}
+                  </p>
 
                   {/* Rating */}
                   <div className="flex items-center gap-1 mb-2">
                     <div className="flex items-center">
                       {renderStars(product.rating)}
                     </div>
-                    <span className="text-xs text-gray-500">({product.rating})</span>
+                    <span className="text-xs text-gray-500">
+                      ({product.rating})
+                    </span>
                   </div>
                 </div>
 
@@ -508,23 +533,15 @@ const PopularProducts = ({ initialData }) => {
                     onClick={(e) => {
                       e.stopPropagation();
                     }}
-                    className={`w-full py-1.5 px-2 rounded font-medium text-xs cursor-pointer ${
-                      (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING"))
-                        ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:opacity-90 shadow-sm"
-                        : "bg-btn-color text-accent-content hover:bg-btn-color/80"
-                    }`}
+                    className={`w-full py-1.5 px-2 bg-primary/80 hover:bg-primary rounded font-medium text-xs cursor-pointer mt-auto`}
                   >
-                    <AddtoCartBtn
-                      productId={product.id}
-
-                    >
+                    <AddtoCartBtn productId={product.id}>
                       <span className="flex items-center justify-center gap-1">
                         <ShoppingCart className="w-3 h-3" />
                         Add to Cart
                       </span>
                     </AddtoCartBtn>
                   </button>
-
                 </div>
               </div>
             </div>
@@ -534,7 +551,10 @@ const PopularProducts = ({ initialData }) => {
               {/* Animated Background Glows */}
               <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
                 <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-emerald-500/10 blur-[120px] rounded-full animate-pulse" />
-                <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-teal-500/10 blur-[120px] rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
+                <div
+                  className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-teal-500/10 blur-[120px] rounded-full animate-pulse"
+                  style={{ animationDelay: "1s" }}
+                />
               </div>
 
               <div className="relative z-10 flex flex-col items-center">
@@ -548,10 +568,13 @@ const PopularProducts = ({ initialData }) => {
 
                 <div className="text-center space-y-4 max-w-lg px-6">
                   <h3 className="text-4xl font-extrabold text-slate-800 tracking-tight">
-                    Data is Coming! <span className="inline-block animate-bounce">✨</span>
+                    Data is Coming!{" "}
+                    <span className="inline-block animate-bounce">✨</span>
                   </h3>
                   <p className="text-slate-500 text-lg sm:text-xl font-medium leading-relaxed">
-                    We're meticulously curating our latest collection. Stay tuned! In the meantime, try adjusting your search or explore other categories.
+                    We're meticulously curating our latest collection. Stay
+                    tuned! In the meantime, try adjusting your search or explore
+                    other categories.
                   </p>
                 </div>
 
@@ -581,8 +604,12 @@ const PopularProducts = ({ initialData }) => {
               <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Search className="w-10 h-10 text-red-500" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">Failed to load products</h3>
-              <p className="text-gray-600 mb-8">There was a problem connecting to the server. Please try again.</p>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                Failed to load products
+              </h3>
+              <p className="text-gray-600 mb-8">
+                There was a problem connecting to the server. Please try again.
+              </p>
               <button
                 onClick={manualFetch}
                 className="px-8 py-3 bg-red-500 text-accent-content rounded-xl hover:bg-red-600 transform hover:scale-105 transition-all shadow-lg shadow-red-200 font-bold"
@@ -616,7 +643,7 @@ const PopularProducts = ({ initialData }) => {
           overflow: hidden;
         }
       `}</style>
-    </div>
+    </section>
   );
 };
 

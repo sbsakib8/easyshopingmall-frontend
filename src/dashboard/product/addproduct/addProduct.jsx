@@ -285,7 +285,7 @@ const AddProductComponent = () => {
   };
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 overflow-hidden">
+    <section className="min-h-dvh bg-gradient-to-br from-gray-900 via-black to-gray-900 overflow-hidden">
       {/* main section */}
       <div className={` py-5 px-2 lg:px-9`}>
         {/* Header */}
@@ -297,7 +297,7 @@ const AddProductComponent = () => {
               <div className="absolute bottom-6 left-6 w-1 h-1 bg-purple-400 rounded-full"></div>
               <div className="absolute top-1/2 right-1/3 w-1 h-1 bg-cyan-400 rounded-full"></div>
             </div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-content mb-2">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-2">
               Add New Product
             </h1>
             <p className="text-blue-100 text-xs sm:text-sm md:text-base">
@@ -312,16 +312,14 @@ const AddProductComponent = () => {
         >
           {/* Basic Information */}
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
-            <h2 className="text-lg md:text-xl font-semibold text-accent-content mb-6 flex items-center">
+            <h2 className="text-lg md:text-xl font-semibold text-secondary mb-6 flex items-center">
               <Package className="mr-3 text-blue-400" />
               Basic Information
             </h2>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-accent-content">
-                  Product Name
-                </label>
+                <label className="text-slate-300">Product Name</label>
                 <input
                   type="text"
                   name="productName"
@@ -334,7 +332,7 @@ const AddProductComponent = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-accent-content">Brand</label>
+                <label className="text-slate-300">Brand</label>
                 <input
                   type="text"
                   name="brand"
@@ -346,9 +344,7 @@ const AddProductComponent = () => {
               </div>
 
               <div className="lg:col-span-2 space-y-2">
-                <label className="text-accent-content">
-                  Description
-                </label>
+                <label className="text-slate-300">Description</label>
                 <textarea
                   name="description"
                   value={formData.description}
@@ -364,7 +360,7 @@ const AddProductComponent = () => {
 
           {/* Categories & Classification */}
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
-            <h2 className="text-lg md:text-xl font-semibold text-accent-content mb-6 flex items-center">
+            <h2 className="text-lg md:text-xl font-semibold text-secondary mb-6 flex items-center">
               <Tag className="mr-3 text-green-400" />
               Categories & Classification
             </h2>
@@ -372,14 +368,12 @@ const AddProductComponent = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* CATEGORY */}
               <div className="space-y-2">
-                <label className="text-accent-content">
-                  Category
-                </label>
+                <label className="text-slate-300">Category</label>
                 <select
                   name="category"
                   value={formData.category[0] || ""}
                   onChange={handleInputChange}
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content focus:outline-none focus:ring-2 focus:ring-green-500 mt-1"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-200 focus:outline-none focus:ring-2 focus:ring-green-500 mt-1"
                   required
                 >
                   <option value="" className="bg-slate-800">
@@ -406,15 +400,13 @@ const AddProductComponent = () => {
 
               {/* SUB CATEGORY */}
               <div className="space-y-2">
-                <label className="text-accent-content">
-                  Sub Category
-                </label>
+                <label className="text-slate-300">Sub Category</label>
                 <select
                   name="subCategory"
                   value={formData.subCategory[0] || ""}
                   onChange={handleInputChange}
                   disabled={!formData.category.length}
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 mt-1"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 mt-1"
                 >
                   <option value="" className="bg-slate-800">
                     Select Sub Category
@@ -440,9 +432,7 @@ const AddProductComponent = () => {
 
               {/* FEATURED */}
               <div className="space-y-2">
-                <label className="text-accent-content">
-                  Featured Product
-                </label>
+                <label className="text-slate-300">Featured Product</label>
                 <div className="flex items-center p-4 bg-white/10 border border-white/20 rounded-xl mt-1">
                   <input
                     type="checkbox"
@@ -451,16 +441,14 @@ const AddProductComponent = () => {
                     onChange={handleInputChange}
                     className="w-5 h-5 text-green-600 bg-transparent border-white/30 rounded focus:ring-green-500"
                   />
-                  <label className="ml-3 text-accent-content text-nowrap">
+                  <label className="ml-3 text-slate-300 text-nowrap">
                     Mark as Featured
                   </label>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-accent-content">
-                  Boost Product
-                </label>
+                <label className="text-slate-300">Boost Product</label>
                 <div className="flex items-center p-4 bg-white/10 border border-white/20 rounded-xl mt-1">
                   <input
                     type="checkbox"
@@ -469,16 +457,14 @@ const AddProductComponent = () => {
                     onChange={handleInputChange}
                     className="w-5 h-5 text-emerald-600 bg-transparent border-white/30 rounded focus:ring-emerald-500"
                   />
-                  <label className="ml-3 text-accent-content">
-                    Mark as Boost
-                  </label>
+                  <label className="ml-3 text-slate-300">Mark as Boost</label>
                 </div>
               </div>
             </div>
 
             {/* Tags */}
             <div className="mt-6 space-y-4">
-              <label className="text-accent-content">
+              <label className="text-slate-300">
                 Product Status Badges (Tags)
               </label>
               <div className="flex gap-4">
@@ -518,7 +504,7 @@ const AddProductComponent = () => {
 
           {/* Product Details */}
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
-            <h2 className="text-lg md:text-xl font-semibold text-accent-content mb-6 flex items-center">
+            <h2 className="text-lg md:text-xl font-semibold text-secondary mb-6 flex items-center">
               <BarChart3 className="mr-3 text-yellow-400" />
               Product Details
             </h2>
@@ -526,9 +512,7 @@ const AddProductComponent = () => {
             <div className="grid grid-cols-1 gap-6">
               {/* add weight */}
               <div className="">
-                <label className="text-accent-content">
-                  Product weight
-                </label>
+                <label className="text-slate-300">Product weight</label>
                 <div className="flex flex-wrap gap-2">
                   {formData.productWeight.map((weight) => (
                     <span
@@ -569,9 +553,7 @@ const AddProductComponent = () => {
 
               {/* add size */}
               <div className="">
-                <label className="text-accent-content">
-                  Product size
-                </label>
+                <label className="text-slate-300">Product size</label>
                 <div className="flex flex-wrap gap-2">
                   {formData.productSize.map((size) => (
                     <span
@@ -612,9 +594,7 @@ const AddProductComponent = () => {
 
               {/* add color */}
               <div className="">
-                <label className="text-accent-content">
-                  Product Color
-                </label>
+                <label className="text-slate-300">Product Color</label>
                 <div className="flex flex-wrap gap-2">
                   {formData.color.map((color) => (
                     <span
@@ -657,16 +637,14 @@ const AddProductComponent = () => {
 
           {/* Pricing & Inventory */}
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
-            <h2 className="text-lg md:text-xl font-semibold text-accent-content mb-6 flex items-center">
+            <h2 className="text-lg md:text-xl font-semibold text-secondary mb-6 flex items-center">
               <DollarSign className="mr-3 text-green-400" />
               Pricing & Inventory
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-accent-content">
-                  Price (৳)
-                </label>
+                <label className="text-slate-300">Price (৳)</label>
                 <input
                   type="number"
                   name="price"
@@ -680,24 +658,20 @@ const AddProductComponent = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-accent-content">
-                  Stock Quantity
-                </label>
+                <label className="text-slate-300">Stock Quantity</label>
                 <input
                   type="number"
                   name="productStock"
                   value={formData.productStock}
                   onChange={handleInputChange}
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent mt-1"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent mt-1"
                   placeholder="Available quantity"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-accent-content">
-                  Discount (%)
-                </label>
+                <label className="text-slate-300">Discount (%)</label>
                 <input
                   type="number"
                   name="discount"
@@ -705,22 +679,20 @@ const AddProductComponent = () => {
                   onChange={handleInputChange}
                   min="0"
                   max="100"
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent mt-1"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent mt-1"
                   placeholder="0"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-accent-content">
-                  Product Rank
-                </label>
+                <label className="text-slate-300">Product Rank</label>
                 <input
                   type="number"
                   name="productRank"
                   value={formData.productRank}
                   onChange={handleInputChange}
                   min="1"
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent mt-1"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent mt-1"
                   placeholder="Product ranking"
                 />
               </div>
@@ -728,9 +700,7 @@ const AddProductComponent = () => {
 
             {/* Ratings */}
             <div className="mt-6 space-y-2">
-              <label className="text-accent-content">
-                Initial Rating
-              </label>
+              <label className="text-slate-300">Initial Rating</label>
               <div className="flex items-center space-x-2">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
@@ -751,7 +721,7 @@ const AddProductComponent = () => {
                     />
                   </button>
                 ))}
-                <span className="text-accent-content ml-2">
+                <span className="text-slate-300 ml-2">
                   {formData.ratings}/5
                 </span>
               </div>
@@ -760,7 +730,7 @@ const AddProductComponent = () => {
 
           {/* Media Upload */}
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20 md:col-span-full">
-            <h2 className="text-lg md:text-xl font-semibold text-accent-content mb-6 flex items-center">
+            <h2 className="text-lg md:text-xl font-semibold text-secondary mb-6 flex items-center">
               <Camera className="mr-3 text-purple-400" />
               Product Images
             </h2>
@@ -779,11 +749,8 @@ const AddProductComponent = () => {
               }}
               onDragLeave={() => setDragOver(false)}
             >
-              <Upload
-                className="mx-auto mb-4 text-accent-content/60"
-                size={48}
-              />
-              <p className="text-accent-content mb-4 text-base md:text-lg">
+              <Upload className="mx-auto mb-4 text-slate-300" size={48} />
+              <p className="text-slate-300 mb-4 text-base md:text-lg">
                 Drag & drop images here or click to browse
               </p>
               <input
@@ -796,7 +763,7 @@ const AddProductComponent = () => {
               />
               <label
                 htmlFor="image-upload"
-                className="cursor-pointer bg-gradient-to-r from-purple-500 to-pink-500 text-accent-content px-6 py-2.5 rounded-xl hover:from-purple-600 hover:to-pink-600 inline-block"
+                className="cursor-pointer bg-gradient-to-r from-purple-500 to-pink-500 text-slate-300 px-6 py-2.5 rounded-xl hover:from-purple-600 hover:to-pink-600 inline-block"
               >
                 Browse Images
               </label>
@@ -805,7 +772,7 @@ const AddProductComponent = () => {
             {/* Image Preview */}
             {formData.images.length > 0 && (
               <div className="mt-6">
-                <h3 className="text-accent-content font-medium mb-4">
+                <h3 className="text-slate-300 font-medium mb-4">
                   Uploaded Images ({formData.images.length})
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -824,7 +791,7 @@ const AddProductComponent = () => {
                         <X size={16} />
                       </button>
                       <div className="absolute bottom-2 left-2 right-2">
-                        <p className="text-accent-content text-xs bg-black/50 rounded px-2 py-1 truncate">
+                        <p className="text-slate-300 text-xs bg-black/50 rounded px-2 py-1 truncate">
                           {image.name}
                         </p>
                       </div>
@@ -840,7 +807,7 @@ const AddProductComponent = () => {
             <button
               type="button"
               onClick={handlePreview}
-              className="px-4 py-2.5 bg-gradient-to-r from-gray-600 to-gray-700 text-accent-content rounded-xl hover:from-gray-700 hover:to-gray-800 flex items-center justify-center gap-1.5 transform"
+              className="px-4 py-2.5 bg-gradient-to-r from-gray-600 to-gray-700 text-slate-300 rounded-xl hover:from-gray-700 hover:to-gray-800 flex items-center justify-center gap-1.5 transform"
             >
               <Eye size={20} />
               <span>Preview Product</span>
@@ -849,7 +816,7 @@ const AddProductComponent = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className={`px-4 py-2.5 rounded-xl text-accent-content flex items-center justify-center space-x-2 shadow-lg 
+              className={`px-4 py-2.5 rounded-xl text-accent-content flex items-center justify-center space-x-2 shadow-lg
  ${
    isLoading
      ? "bg-gray-500 cursor-not-allowed"
