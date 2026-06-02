@@ -301,15 +301,15 @@ const ProductDashboard = () => {
               </div>
               <div className="mt-4 sm:mt-0 flex items-center space-x-4">
                 <div className="text-right">
-                  <p className="text-lg font-bold text-accent-content">
+                  <p className="text-lg font-bold text-slate-300">
                     {currentTime.toLocaleDateString("en-BD")}
                   </p>
                   <p className="text-blue-300 text-sm">
                     {currentTime.toLocaleTimeString("en-BD")}
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center shadow-lg">
-                  <Activity className="w-6 h-6 text-accent-content" />
+                <div className="w-12 h-12 bg-secondary rounded-2xl flex items-center justify-center shadow-lg">
+                  <Activity className="w-6 h-6 text-secondary-content" />
                 </div>
               </div>
             </div>

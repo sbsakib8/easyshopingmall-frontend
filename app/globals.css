@@ -84,7 +84,7 @@
 /* For Firefox */
 .scrollbar-thin {
   scrollbar-width: thin;
-  scrollbar-color: #ffc900 #e5e7eb;
+  scrollbar-color: var(--color-primary) var(--color-bg);
 }
 /* ===== Chart Animations ===== */
 

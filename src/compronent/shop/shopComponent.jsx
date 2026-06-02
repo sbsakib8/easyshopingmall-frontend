@@ -143,14 +143,15 @@ const ProductCard = React.memo(
 
           {/* Badges */}
           <div className="absolute top-0 left-0 flex justify-between w-full">
-            <div className="flex items-start">
+            <div className="flex items-start space-x-2">
               {isNew && (
-                <span className="bg-btn-color text-accent-content px-1 py-1 rounded text-[8px] font-semibold">
+                <span className="bg-secondary text-secondary-content px-1 py-1 rounded text-[8px] font-semibold">
                   NEW
                 </span>
               )}
+
               {productRank > productPrice ? (
-                <span className="bg-yellow-500 text-black px-1 py-1 mx-[2px] rounded text-[8px] font-semibold">
+                <span className="bg-warning text-warning-content px-1 py-1 rounded text-[8px] font-semibold">
                   -{productRank - productPrice}৳
                 </span>
               ) : null}
@@ -170,7 +171,7 @@ const ProductCard = React.memo(
 
           {/* Action Buttons (Wishlist) */}
           <div
-            className={`absolute ${product.productStatus?.length > 0 ? "top-6" : "top-0"} bg-accent-content rounded-md right-0 space-y-2`}
+            className={`absolute ${product.productStatus?.length > 0 ? "top-6" : "top-0"} rounded-md right-0 space-y-2`}
           >
             <button
               onClick={(e) => {
@@ -219,7 +220,7 @@ const ProductCard = React.memo(
 
           {!inStock && (
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-              <span className="bg-red-500 text-accent-content px-3 py-1 rounded font-semibold text-xs">
+              <span className="bg-error text-error-content px-3 py-1 rounded font-semibold text-xs">
                 Out of Stock
               </span>
             </div>
@@ -267,7 +268,7 @@ const ProductCard = React.memo(
                 }}
                 disabled={!inStock}
                 className={`w-full py-1.5 px-2 rounded font-medium text-xs ${inStock
-                  ? "bg-btn-color text-accent-content hover:bg-btn-color/80"
+                  ? "bg-primary/80 hover:bg-primary text-primary-content"
                   : "bg-gray-300 text-gray-500 cursor-not-allowed"
                   }`}
               >
@@ -290,7 +291,7 @@ const ProductCard = React.memo(
                   }}
                   disabled={!inStock}
                   className={`py-1.5 px-2 rounded font-medium text-xs ${inStock
-                    ? "bg-btn-color text-accent-content hover:bg-green-700"
+                    ? "bg-primary/80 hover:bg-primary text-primary-content"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
                     }`}
                 >
@@ -310,7 +311,7 @@ const ProductCard = React.memo(
                     e.stopPropagation();
                     handleEdit(product);
                   }}
-                  className="p-2 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-accent-content rounded-lg shadow-lg"
+                  className="p-2 bg-secondary/80 hover:bg-secondary text-secondary-content rounded-lg shadow-lg"
                 >
                   <Edit size={16} />
                 </button>
@@ -319,7 +320,7 @@ const ProductCard = React.memo(
                     e.stopPropagation();
                     setDeleteModal({ ...product, id: productId });
                   }}
-                  className="p-2 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-400 hover:to-pink-400 text-accent-content rounded-lg shadow-lg cursor-pointer"
+                  className="p-2 bg-error/80 hover:bg-error text-error-content rounded-lg shadow-lg cursor-pointer"
                 >
                   <Trash2 size={16} />
                 </button>
