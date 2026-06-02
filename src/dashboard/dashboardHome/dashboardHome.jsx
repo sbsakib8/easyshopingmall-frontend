@@ -42,6 +42,7 @@ const DashboardHome = () => {
   const [topProducts, setTopProducts] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
   const { totalRevenue } = useGetRevenue();
+  const [revenueChange, setRevenueChange] = useState("0.0");
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -115,10 +116,12 @@ const DashboardHome = () => {
           return new Date(d.getFullYear(), d.getMonth(), d.getDate());
         };
 
-        const yesterdayOrders = orders.filter(
+        const yesterdayOrdersList = orders.filter(
           (order) =>
             toDateOnly(order.createdAt).getTime() === yesterday.getTime(),
-        ).length;
+        );
+
+        const yesterdayOrders = yesterdayOrdersList.length;
 
         let percentage = 0;
         if (yesterdayOrders > 0) {
@@ -128,6 +131,18 @@ const DashboardHome = () => {
 
         setOrdersCount(totalOrders);
         setOrderChange(percentage.toFixed(1));
+
+        // Revenue calculations
+        const currentRevenue = orders.filter((o) => o?.order_status === "completed").reduce((sum, o) => sum + o.totalAmt, 0);
+        const pastRevenue = yesterdayOrdersList.filter((o) => o?.order_status === "completed").reduce((sum, o) => sum + o.totalAmt, 0);
+        
+        let revPercentage = 0;
+        if (pastRevenue > 0) {
+          revPercentage = ((currentRevenue - pastRevenue) / pastRevenue) * 100;
+        } else if (currentRevenue > 0) {
+          revPercentage = 100;
+        }
+        setRevenueChange(revPercentage.toFixed(1));
 
         // ── Recent Orders: sort by newest, take top 4 ──
         const sorted = [...orders].sort(
@@ -159,7 +174,7 @@ const DashboardHome = () => {
             amount: `৳${(order.totalAmt || 0).toLocaleString()}`,
             status: order.order_status
               ? order.order_status.charAt(0).toUpperCase() +
-                order.order_status.slice(1)
+              order.order_status.slice(1)
               : "Pending",
             time: timeAgo,
             avatar: initials,
@@ -290,8 +305,8 @@ const DashboardHome = () => {
     {
       title: "Total Revenue",
       value: totalRevenue,
-      change: "+0.00%",
-      changeType: "positive",
+      change: `${Number(revenueChange) > 0 ? "+" : ""}${revenueChange}%`,
+      changeType: Number(revenueChange) >= 0 ? "positive" : "negative",
       icon: DollarSign,
       gradient: "from-black via-gray-900 to-slate-800",
       shadowColor: "shadow-black/50",
@@ -334,13 +349,13 @@ const DashboardHome = () => {
       description: "Configure system",
       route: "/dashboard/settings/userupdate",
     },
-    {
-      label: "Reports",
-      icon: FileText,
-      gradient: "from-black to-gray-800",
-      description: "Generate reports",
-      route: "/dashboard/analytics",
-    },
+    // {
+    //   label: "Reports",
+    //   icon: FileText,
+    //   gradient: "from-black to-gray-800",
+    //   description: "Generate reports",
+    //   route: "/dashboard/analytics",
+    // },
   ];
 
   // recentOrders and topProducts are now populated dynamically from API
@@ -524,21 +539,20 @@ const DashboardHome = () => {
                               {order.id}
                             </p>
                             <span
-                              className={`px-2 py-1 text-xs rounded-full font-medium ${
-                                order.status === "Completed" ||
-                                order.status === "completed"
+                              className={`px-2 py-1 text-xs rounded-full font-medium ${order.status === "Completed" ||
+                                  order.status === "completed"
                                   ? "bg-green-900/50 text-green-300 border border-green-800/50"
                                   : order.status === "Processing" ||
-                                      order.status === "processing"
+                                    order.status === "processing"
                                     ? "bg-yellow-900/50 text-yellow-300 border border-yellow-800/50"
                                     : order.status === "Shipped" ||
-                                        order.status === "shipped"
+                                      order.status === "shipped"
                                       ? "bg-blue-900/50 text-blue-300 border border-blue-800/50"
                                       : order.status === "Cancelled" ||
-                                          order.status === "cancelled"
+                                        order.status === "cancelled"
                                         ? "bg-red-900/50 text-red-300 border border-red-800/50"
                                         : "bg-gray-800/50 text-gray-300 border border-gray-700/50"
-                              } backdrop-blur-sm`}
+                                } backdrop-blur-sm`}
                             >
                               {order.status}
                             </span>
@@ -738,8 +752,7 @@ const DashboardHome = () => {
                     className="flex items-center space-x-3 p-3 rounded-xl bg-gray-900/30 border border-gray-800/40 backdrop-blur-sm"
                   >
                     <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center shadow-md ${
-                        activity.type === "order"
+                      className={`w-8 h-8 rounded-full flex items-center justify-center shadow-md ${activity.type === "order"
                           ? "bg-gradient-to-r from-gray-700 to-gray-800"
                           : activity.type === "product"
                             ? "bg-gradient-to-r from-slate-700 to-slate-800"
@@ -748,7 +761,7 @@ const DashboardHome = () => {
                               : activity.type === "payment"
                                 ? "bg-gradient-to-r from-gray-800 to-black"
                                 : "bg-gradient-to-r from-slate-800 to-gray-900"
-                      }`}
+                        }`}
                     >
                       <div className="w-2 h-2 bg-white rounded-full"></div>
                     </div>

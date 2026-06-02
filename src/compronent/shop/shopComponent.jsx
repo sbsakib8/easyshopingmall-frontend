@@ -734,13 +734,23 @@ const ShopPage = ({ initialData, queryParams }) => {
     dispatch(resetFilters());
     router.push("/shop");
   };
-  // handle delete functionality
   const confirmDelete = async () => {
     try {
       if (!deleteModal) return;
       await ProductDelete(deleteModal.id);
       setDeleteModal(null);
-      dispatch(fetchShopProducts({ limit: 10000 })); // Refresh full list
+      dispatch(fetchShopProducts({
+        page: currentPage,
+        limit: productsPerPage,
+        search: debouncedSearchTerm,
+        categoryId: filterCategory === "all" ? undefined : filterCategory,
+        subCategoryId: filterSubCategory === "all" ? undefined : filterSubCategory,
+        brand: filterBrand === "all" ? undefined : filterBrand,
+        gender: filterGender === "all" ? undefined : filterGender,
+        minPrice: priceRange[0],
+        maxPrice: priceRange[1],
+        sortBy: sortBy,
+      })); // Refresh list with active filters
       toast.success("Product deleted successfully");
     } catch (error) {
       console.log(error);
@@ -864,11 +874,23 @@ const ShopPage = ({ initialData, queryParams }) => {
         productStock: editModal.productStock,
         video_link: editModal.video_link,
         isBoost: editModal.isBoost,
+        tags: editModal.tags,
       };
       const res = await ProductUpdate(updatePayload);
       if (res.success) {
         toast.success("Product updated successfully!");
-        dispatch(fetchShopProducts({ limit: 10000 })); // Refresh full list
+        dispatch(fetchShopProducts({
+          page: currentPage,
+          limit: productsPerPage,
+          search: debouncedSearchTerm,
+          categoryId: filterCategory === "all" ? undefined : filterCategory,
+          subCategoryId: filterSubCategory === "all" ? undefined : filterSubCategory,
+          brand: filterBrand === "all" ? undefined : filterBrand,
+          gender: filterGender === "all" ? undefined : filterGender,
+          minPrice: priceRange[0],
+          maxPrice: priceRange[1],
+          sortBy: sortBy,
+        })); // Refresh list with active filters
         setEditModal(null);
       } else {
         toast.error(res.message);
@@ -1579,6 +1601,24 @@ const ShopPage = ({ initialData, queryParams }) => {
                     <option defaultValue="hot">hot</option>
                     <option defaultValue="cold">cold</option>
                   </select>
+                </div>
+
+                <div>
+                  <label className="block text-black text-sm font-semibold mb-2">
+                    Product Tags
+                  </label>
+                  <input
+                    type="text"
+                    defaultValue={editModal?.tags?.join(", ") || ""}
+                    onChange={(e) =>
+                      updateEditField(
+                        "tags",
+                        e.target.value.split(",").map((t) => t.trim()).filter(Boolean)
+                      )
+                    }
+                    placeholder="New, Sale, Trending"
+                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
                 </div>
 
                 <div className="md:col-span-2">

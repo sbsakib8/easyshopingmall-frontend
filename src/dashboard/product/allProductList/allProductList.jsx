@@ -24,7 +24,8 @@ import {
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { setAdminProductSearchTerm, setAdminProductCategory } from "@/src/redux/searchSlice";
 import * as XLSX from "xlsx";
 
 import CustomLoader from "@/src/compronent/loading/CustomLoader";
@@ -56,8 +57,12 @@ import {
 } from "@mui/material";
 
 const ProductDashboard = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const dispatch = useDispatch();
+  const searchTerm = useSelector((state) => state.search.adminProductSearchTerm);
+  const selectedCategory = useSelector((state) => state.search.adminProductCategory);
+  
+  const setSearchTerm = (term) => dispatch(setAdminProductSearchTerm(term));
+  const setSelectedCategory = (category) => dispatch(setAdminProductCategory(category));
   const [spin, setSpin] = useState(false);
   const Router = useRouter();
   const [page, setPage] = useState(1);
@@ -216,6 +221,7 @@ const ProductDashboard = () => {
     try {
       if (!deleteModal) return;
       await ProductDelete(deleteModal);
+      setProducts((prev) => prev.filter((p) => p._id !== deleteModal));
       setDeleteModal(null);
       toast.success("Product deleted successfully");
     } catch (error) {
@@ -1182,6 +1188,24 @@ const ProductDashboard = () => {
                     <option value="hot">Hot</option>
                     <option value="cold">Cold</option>
                   </select>
+                </div>
+
+                <div>
+                  <label className="block text-gray-300 text-sm font-semibold mb-2">
+                    Product Tags
+                  </label>
+                  <input
+                    type="text"
+                    value={editModal?.tags?.join(", ") || ""}
+                    onChange={(e) =>
+                      updateEditField(
+                        "tags",
+                        e.target.value.split(",").map((t) => t.trim()).filter(Boolean)
+                      )
+                    }
+                    placeholder="New, Sale, Trending"
+                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500"
+                  />
                 </div>
 
                 <div className="md:col-span-2">

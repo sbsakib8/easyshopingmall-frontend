@@ -1,19 +1,39 @@
 "use client";
-import React, { useState, useEffect, useMemo } from "react";
-import {
-    Play, Lock, CheckCircle, Clock, XCircle, ShieldCheck, CreditCard,
-    Info, Youtube, Star, Video, ArrowRight, Layout, Search, Sparkles,
-    Film, Send, History, Check, ExternalLink, AlertCircle, RefreshCw,
-    Download, ArrowLeft, Crown, Zap, ChevronRight, BookOpen
-} from "lucide-react";
-import axios from "axios";
-import { toast } from "react-hot-toast";
-import { UrlBackend } from "@/src/confic/urlExport";
-import { useGetUser } from "@/src/utlis/useGetuser";
-import { ProductAllGet } from "@/src/hook/useProduct";
-import { WebsiteinfoAllGet } from "@/src/hook/content/useWebsiteInfo";
 import Container from "@/src/compronent/shared/Container";
+import { UrlBackend } from "@/src/confic/urlExport";
 import BackButton from "@/src/dropShipping/BackButton/BackButton";
+import { WebsiteinfoAllGet } from "@/src/hook/content/useWebsiteInfo";
+import { ProductAllGet } from "@/src/hook/useProduct";
+import { useGetUser } from "@/src/utlis/useGetuser";
+import axios from "axios";
+import {
+    AlertCircle,
+    ArrowLeft,
+    BookOpen,
+    Check,
+    CheckCircle,
+    ChevronRight,
+    Clock,
+    CreditCard,
+    Crown,
+    Download,
+    Film,
+    History,
+    Info,
+    Lock,
+    Play,
+    RefreshCw,
+    Search,
+    Send,
+    ShieldCheck,
+    Sparkles,
+    Video,
+    XCircle,
+    Youtube,
+    Zap
+} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { toast } from "react-hot-toast";
 
 // ─── Helper: YouTube ID Extractor ────────────────────────────────────────────
 const getYoutubeEmbedUrl = (url) => {
@@ -43,7 +63,7 @@ const PaymentForm = ({ paymentData, setPaymentData, onSubmit, submitting, title 
                 <span className="text-[10px] font-black text-emerald-800 uppercase tracking-widest">পেমেন্ট নির্দেশিকা</span>
             </div>
             <p className="text-xs text-emerald-700 font-medium leading-relaxed">
-                অনুগ্রহ করে আমাদের বিকাশ/নগদ নম্বরে <span className="font-black">&#2547;{price}</span> (সেন্ড মানি) পাঠান। এরপর নিচে লেনদেনের বিবরণ দিন।
+                অনুগ্রহ করে আমাদের বিকাশ/নগদ নম্বরে <span className="font-bold">(01626420774)</span> <span className="font-black">&#2547;{price}</span> (সেন্ড মানি) পাঠান। এরপর নিচে লেনদেনের বিবরণ দিন।
             </p>
         </div>
         <form onSubmit={onSubmit} className="space-y-4">
@@ -75,7 +95,7 @@ const PaymentForm = ({ paymentData, setPaymentData, onSubmit, submitting, title 
                 {submitting ? (<><RefreshCw className="animate-spin" size={16} /> Submitting...</>) : (<><ShieldCheck size={16} /> {title}</>)}
             </button>
         </form>
-    </div>
+    </div >
 );
 
 // ─── Main Component ───────────────────────────────────────────────────────────
@@ -192,11 +212,11 @@ const DropshippingVideo = () => {
         e.preventDefault();
         setSubmitting(true);
         try {
-            const res = await axios.post(`${UrlBackend}/video-access/create`, { 
-                ...paymentData, 
+            const res = await axios.post(`${UrlBackend}/video-access/create`, {
+                ...paymentData,
                 amount: currentCoursePrice,
-                videoType: "premium_training", 
-                courseId: selectedCourseId 
+                videoType: "premium_training",
+                courseId: selectedCourseId
             }, { withCredentials: true });
             if (res.data.success) { toast.success("Payment submitted! Waiting for admin approval."); fetchData(); }
         } catch (error) {
