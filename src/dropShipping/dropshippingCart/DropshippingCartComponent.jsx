@@ -56,8 +56,8 @@ const DropshippingCartComponent = () => {
       toast.error("Your cart is empty");
       return;
     }
-    
-    const hasInvalidPrice = items.some(item => 
+
+    const hasInvalidPrice = items.some(item =>
       item.sellingPrice === "" || Number(item.sellingPrice) < item.price
     );
 
@@ -74,7 +74,7 @@ const DropshippingCartComponent = () => {
         <div className="text-center p-8 bg-white shadow-xl rounded-2xl">
           <h2 className="text-2xl font-bold mb-4">Access Denied</h2>
           <p className="text-gray-600 mb-6">Please sign in to access your dropshipping cart.</p>
-          <Link href="/signin" className="bg-primary-color text-black px-6 py-3 rounded-xl font-bold">Sign In</Link>
+          <Link href="/signin" className="bg-primary text-black px-6 py-3 rounded-xl font-bold">Sign In</Link>
         </div>
       </div>
     );

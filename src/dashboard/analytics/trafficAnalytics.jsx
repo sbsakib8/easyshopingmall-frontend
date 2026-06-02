@@ -151,7 +151,7 @@ const TrafficAnalyticsDashboard = () => {
  key={range}
  onClick={() => setSelectedTimeRange(range)}
  className={`px-6 py-3 rounded-xl font-medium ${selectedTimeRange === range
- ?"bg-gradient-to-r from-blue-500 to-purple-500 text-accent-content shadow-lg shadow-blue-500/25 -glow scale-105"
+ ?"bg-gradient-to-r from-blue-500 to-purple-500 text-slate-300 shadow-lg shadow-blue-500/25 -glow scale-105"
  :"backdrop-blur-sm bg-white/10 text-gray-300 hover:bg-white/20 border border-white/20"
 }`}
  >
@@ -235,7 +235,7 @@ const TrafficAnalyticsDashboard = () => {
  {/* Charts */}
  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 -up">
  <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-4 shadow-xl hover:bg-white/10">
- <h3 className="text-lg font-semibold mb-3 text-accent-content text-center">Visitors Trend</h3>
+ <h3 className="text-lg font-semibold mb-3 text-slate-300 text-center">Visitors Trend</h3>
  {isLoading ? (
  <div className="h-48 bg-white/5 rounded"></div>
  ) : (
@@ -284,7 +284,7 @@ const TrafficAnalyticsDashboard = () => {
 
  {/* Pie Chart */}
  <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-4 shadow-xl hover:bg-white/10">
- <h3 className="text-lg font-semibold mb-3 text-accent-content text-center">Revenue Breakdown</h3>
+ <h3 className="text-lg font-semibold mb-3 text-slate-300 text-center">Revenue Breakdown</h3>
  {isLoading ? (
  <div className="h-80 w-full bg-white/5 rounded"></div>
  ) : (
@@ -334,7 +334,7 @@ const TrafficAnalyticsDashboard = () => {
  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 -up">
  {/* Enhanced Top Pages */}
  <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl hover:bg-white/10">
- <h3 className="text-xl font-semibold mb-4 text-accent-content">Top Pages</h3>
+ <h3 className="text-xl font-semibold mb-4 text-slate-300">Top Pages</h3>
  {isLoading ? (
  <div className="space-y-3">
  {Array(5)
@@ -351,7 +351,7 @@ const TrafficAnalyticsDashboard = () => {
  className="flex items-center justify-between p-3 bg-white/5 rounded-lg hover:bg-white/10 cursor-pointer border border-white/10 hover:border-white/20"
  >
  <div>
- <p className="font-medium text-accent-content">{page.page}</p>
+ <p className="font-medium text-slate-300">{page.page}</p>
  <p className="text-sm text-gray-300">{formatNumber(page.views)} views</p>
  </div>
  <div className="text-right">
@@ -367,7 +367,7 @@ const TrafficAnalyticsDashboard = () => {
 
  {/* Enhanced Traffic Sources */}
  <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl hover:bg-white/10">
- <h3 className="text-xl font-semibold mb-4 text-accent-content">Traffic Sources</h3>
+ <h3 className="text-xl font-semibold mb-4 text-slate-300">Traffic Sources</h3>
  {isLoading ? (
  <div className="space-y-3">
  {Array(4)
@@ -384,7 +384,7 @@ const TrafficAnalyticsDashboard = () => {
  className="flex items-center justify-between p-3 bg-white/5 rounded-lg hover:bg-white/10 cursor-pointer border border-white/10 hover:border-white/20"
  >
  <div>
- <p className="font-medium text-accent-content">{source.source}</p>
+ <p className="font-medium text-slate-300">{source.source}</p>
  <p className="text-sm text-gray-300">{formatNumber(source.visitors)} visitors</p>
  </div>
  <div className="text-right">
@@ -406,7 +406,7 @@ const TrafficAnalyticsDashboard = () => {
 
  {/* Enhanced Device Stats */}
  <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl hover:bg-white/10">
- <h3 className="text-xl font-semibold mb-4 text-accent-content">Device Breakdown</h3>
+ <h3 className="text-xl font-semibold mb-4 text-slate-300">Device Breakdown</h3>
  {isLoading ? (
  <div className="space-y-3">
  {Array(3)
@@ -420,7 +420,7 @@ const TrafficAnalyticsDashboard = () => {
  {deviceStats.map((device, index) => (
  <div key={index} className="space-y-2">
  <div className="flex justify-between items-center">
- <span className="font-medium text-accent-content">{device.device}</span>
+ <span className="font-medium text-slate-300">{device.device}</span>
  <span className="text-sm text-gray-300">{device.percentage}%</span>
  </div>
  <div className="w-full h-3 bg-white/20 rounded-full overflow-hidden">
@@ -447,7 +447,7 @@ const TrafficAnalyticsDashboard = () => {
 
  <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl hover:bg-white/10 -up">
  <div className="flex items-center justify-between mb-4">
- <h3 className="text-xl font-semibold text-accent-content">Real-time Activity</h3>
+ <h3 className="text-xl font-semibold text-slate-300">Real-time Activity</h3>
  <div className="flex items-center gap-2">
  <div className="w-3 h-3 bg-green-400 rounded-full shadow-lg shadow-green-400/50"></div>
  <span className="text-sm text-gray-300">Live</span>

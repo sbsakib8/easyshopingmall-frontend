@@ -46,7 +46,7 @@ function Signup() {
       referralCode,
     };
 
-    try {      
+    try {
 
       const res = await UseAuth(user, router);
       if (res.success) {
@@ -124,23 +124,23 @@ function Signup() {
 
 
             </div>
-            <button disabled={isLoading} type='submit' className='w-full bg-primary-color text-accent-content py-2 rounded-md hover:bg-[#609283] cursor-pointer transition duration-200 disabled:opacity-70 disabled:bg-gray-300'>
-              {isLoading ? 
-              
+            <button disabled={isLoading} type='submit' className='w-full bg-primary text-accent-content py-2 rounded-md hover:bg-[#609283] cursor-pointer transition duration-200 disabled:opacity-70 disabled:bg-gray-300'>
+              {isLoading ?
+
               <span className="w-full flex justify-center items-center gap-2">
-            
-          
+
+
              <FiLoader className="animate-spin" />
                Signing up
               </span>
-              
+
               : "Sign Up"}
             </button>
 
             <span className='flex justify-center items-center'>Or</span>
 
 
-            <div onClick={handleGoogleSignIn} type='button' className='w-full flex justify-center items-center  text-black border border-primary-color py-3 rounded-md hover:bg-gray-200 cursor-pointer transition-all duration-300 delay-200'>
+            <div onClick={handleGoogleSignIn} type='button' className='w-full flex justify-center items-center  text-black border border-primary py-3 rounded-md hover:bg-gray-200 cursor-pointer transition-all duration-300 delay-200'>
               <FcGoogle className='text-2xl mr-2' />
               <button>Sign Up with Google</button>
 

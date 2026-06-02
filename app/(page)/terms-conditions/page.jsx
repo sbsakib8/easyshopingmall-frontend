@@ -200,7 +200,7 @@ const TermsConditions = async () => {
 
     return (
         <div className="min-h-screen bg-bg text-accent">
-            <div className="bg-gradient-to-b from-primary-color/10 to-transparent py-16 sm:py-24">
+            <div className="bg-gradient-to-b from-primary/10 to-transparent py-16 sm:py-24">
                 <div className="container mx-auto px-4 text-center">
                     <div className="inline-flex items-center justify-center p-3 bg-secondary/10 rounded-2xl mb-6">
                         <FileText className="w-10 h-10 text-secondary" />
@@ -287,7 +287,7 @@ const TermsConditions = async () => {
                                 )}
 
                                 {section.footer && (
-                                    <div className={`mt-8 p-4 rounded-xl border font-medium ${section.title.includes("নিষিদ্ধ") ? "bg-red-50 border-red-100 text-red-700" : "bg-primary-color/5 border-primary-color/10 text-primary-color"}`}>
+                                    <div className={`mt-8 p-4 rounded-xl border font-medium ${section.title.includes("নিষিদ্ধ") ? "bg-red-50 border-red-100 text-red-700" : "bg-primary/5 border-primary/10 text-primary"}`}>
                                         {section.footer}
                                     </div>
                                 )}
@@ -296,7 +296,7 @@ const TermsConditions = async () => {
                     </div>
 
                     <div className="mt-16 text-center px-4">
-                        <div className="inline-block p-1 rounded-full bg-gradient-to-r from-secondary/20 via-primary-color/20 to-secondary/20 mb-6">
+                        <div className="inline-block p-1 rounded-full bg-gradient-to-r from-secondary/20 via-primary/20 to-secondary/20 mb-6">
                             <div className="bg-white px-8 sm:px-12 py-6 rounded-full shadow-lg">
                                 <h2 className="text-2xl sm:text-3xl font-extrabold text-accent mb-2 flex items-center justify-center gap-3">
                                     <CheckCircle className="w-8 h-8 text-secondary" />

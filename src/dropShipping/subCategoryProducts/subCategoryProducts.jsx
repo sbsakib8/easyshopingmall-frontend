@@ -446,7 +446,7 @@ const SubCategoryProductsContent = ({ id }) => {
                 {showEndDots && (
                   <button
                     onClick={() => setPage(totalPages)}
-                    className="w-10 h-10 rounded-xl font-bold text-sm bg-white border border-slate-200 hover:border-primary-color"
+                    className="w-10 h-10 rounded-xl font-bold text-sm bg-white border border-slate-200 hover:border-primary"
                   >
                     {totalPages}
                   </button>

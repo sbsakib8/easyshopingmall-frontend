@@ -259,7 +259,7 @@ const MyAnalytics = () => {
         {[
           {
             label: "Available Balance",
-            value: (summary.currentBalance || data?.balance || 0) + videoBonusStats.approved,
+            value: (summary.currentBalance || data?.balance || 0),
             icon: Target,
             color: "text-teal-600",
             bg: "bg-teal-50",
@@ -278,7 +278,7 @@ const MyAnalytics = () => {
           },
           {
             label: "Pending Revenue",
-            value: summary.pendingProfit + videoBonusStats.pending,
+            value: summary.pendingProfit,
             icon: Clock,
             color: "text-amber-600",
             bg: "bg-amber-50",
@@ -287,7 +287,7 @@ const MyAnalytics = () => {
           },
           {
             label: "Referral Income",
-            value: summary.referralIncome + videoBonusStats.approved,
+            value: summary.referralIncome,
             icon: TrendingUp,
             color: "text-blue-600",
             bg: "bg-blue-50",

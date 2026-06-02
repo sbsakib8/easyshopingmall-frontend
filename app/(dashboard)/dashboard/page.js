@@ -1,11 +1,11 @@
-import DashboardHome from'@/src/dashboard/dashboardHome/dashboardHome'
+import DashboardHome from "@/src/dashboard/dashboardHome/dashboardHome";
 
 function dashboard() {
- return (
- <div>
- <DashboardHome/>
- </div>
- )
+  return (
+    <>
+      <DashboardHome />
+    </>
+  );
 }
 
-export default dashboard
+export default dashboard;

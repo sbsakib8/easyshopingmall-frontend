@@ -24,18 +24,18 @@ import {
 
 const statusColors = {
   pending:
-    "bg-gradient-to-r from-yellow-400 to-orange-400 text-accent-content shadow-lg shadow-yellow-500/25",
+    "bg-gradient-to-r from-yellow-400 to-orange-400 text-slate-300 shadow-lg shadow-yellow-500/25",
   processing:
-    "bg-gradient-to-r from-blue-500 to-cyan-500 text-accent-content shadow-lg shadow-blue-500/25",
+    "bg-gradient-to-r from-blue-500 to-cyan-500 text-slate-300 shadow-lg shadow-blue-500/25",
   submitted:
-    "bg-gradient-to-r from-blue-500 to-cyan-500 text-accent-content shadow-lg shadow-blue-500/25",
+    "bg-gradient-to-r from-blue-500 to-cyan-500 text-slate-300 shadow-lg shadow-blue-500/25",
   shipped:
-    "bg-gradient-to-r from-purple-500 to-pink-500 text-accent-content shadow-lg shadow-purple-500/25",
+    "bg-gradient-to-r from-purple-500 to-pink-500 text-slate-300 shadow-lg shadow-purple-500/25",
   completed:
-    "bg-gradient-to-r from-green-500 to-emerald-500 text-accent-content shadow-lg shadow-green-500/25",
-  paid: "bg-gradient-to-r from-green-500 to-emerald-500 text-accent-content shadow-lg shadow-green-500/25",
+    "bg-gradient-to-r from-green-500 to-emerald-500 text-slate-300 shadow-lg shadow-green-500/25",
+  paid: "bg-gradient-to-r from-green-500 to-emerald-500 text-slate-300 shadow-lg shadow-green-500/25",
   cancelled:
-    "bg-gradient-to-r from-red-500 to-rose-500 text-accent-content shadow-lg shadow-red-500/25",
+    "bg-gradient-to-r from-red-500 to-rose-500 text-slate-300 shadow-lg shadow-red-500/25",
 };
 
 const PendingOrdersPage = () => {
@@ -141,7 +141,7 @@ const PendingOrdersPage = () => {
 
             <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-accent-content mb-2">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-300 mb-2">
                   Processing{" "}
                   <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                     Order
@@ -160,34 +160,34 @@ const PendingOrdersPage = () => {
         <div
           className={`grid grid-cols-1 sm:grid-cols-3 gap-6 transform ${animateCards ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"} mb-8`}
         >
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-accent-content shadow-xl hover:shadow-2xl">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-slate-300 shadow-xl hover:shadow-2xl">
             <div className="absolute top-0 right-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
             <div className="relative">
               <ShoppingCart className="h-8 w-8 mb-3 text-blue-400" />
               <p className="text-gray-400 text-sm">Total Orders</p>
-              <p className="text-3xl font-bold text-accent-content">
+              <p className="text-3xl font-bold text-slate-300">
                 {stats?.total}
               </p>
             </div>
           </div>
 
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-accent-content shadow-xl hover:shadow-2xl">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-slate-300 shadow-xl hover:shadow-2xl">
             <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/10 rounded-full -translate-y-10 translate-x-10"></div>
             <div className="relative">
               <CircleX className="h-8 w-8 mb-3 text-red-400" />
               <p className="text-gray-400 text-sm">Cancelled</p>
-              <p className="text-3xl font-bold text-accent-content">
+              <p className="text-3xl font-bold text-slate-300">
                 {stats?.cancelled}
               </p>
             </div>
           </div>
 
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-accent-content shadow-xl hover:shadow-2xl">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-slate-300 shadow-xl hover:shadow-2xl">
             <div className="absolute top-0 right-0 w-20 h-20 bg-orange-500/10 rounded-full -translate-y-10 translate-x-10"></div>
             <div className="relative">
               <Truck className="h-8 w-8 mb-3 text-orange-400" />
               <p className="text-gray-400 text-sm">Shipped</p>
-              <p className="text-3xl font-bold text-accent-content">
+              <p className="text-3xl font-bold text-slate-300">
                 {stats?.shipped}
               </p>
             </div>
@@ -202,7 +202,7 @@ const PendingOrdersPage = () => {
               placeholder="Search orders, customers, or IDs..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-3 pl-12 bg-gray-800/50 border border-gray-700 rounded-xl text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
+              className="w-full px-4 py-3 pl-12 bg-gray-800/50 border border-gray-700 rounded-xl text-slate-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
             />
             <svg
               className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
@@ -236,7 +236,7 @@ const PendingOrdersPage = () => {
               {/* Order Header */}
               <div className="flex justify-between items-start gap-1.5 mb-4">
                 <div>
-                  <h3 className="font-bold text-accent-content mb-1">
+                  <h3 className="font-bold text-slate-300 mb-1">
                     {order?.orderId}
                   </h3>
                   <p className="text-gray-400 text-sm">
@@ -252,7 +252,7 @@ const PendingOrdersPage = () => {
 
               {/* Customer Info */}
               <div className="mb-4">
-                <h4 className="text-accent-content font-semibold mb-2">
+                <h4 className="text-slate-300 font-semibold mb-2">
                   {order.customer}
                 </h4>
                 <p className="text-gray-400 text-sm mb-1">{order.email}</p>
@@ -261,7 +261,7 @@ const PendingOrdersPage = () => {
 
               {/* Order Items */}
               <div className="mb-4">
-                <h5 className="text-accent-content font-medium mb-2">
+                <h5 className="text-slate-300 font-medium mb-2">
                   Items ({order?.products.length})
                 </h5>
                 <div className="space-y-1">
@@ -284,7 +284,7 @@ const PendingOrdersPage = () => {
               {/* Total and Payment */}
               <div className="mb-6">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-accent-content font-semibold">
+                  <span className="text-slate-300 font-semibold">
                     Delivery Charge:
                   </span>
                   <span className="text-green-400 font-bold text-lg">
@@ -292,7 +292,7 @@ const PendingOrdersPage = () => {
                   </span>
                 </div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-accent-content font-semibold">
+                  <span className="text-slate-300 font-semibold">
                     Total:
                   </span>
                   <span className="text-green-400 font-bold text-lg">
@@ -300,7 +300,7 @@ const PendingOrdersPage = () => {
                   </span>
                 </div>
 
-                <p className="text-accent-content font-bold text-sm flex justify-between">
+                <p className="text-slate-300 font-bold text-sm flex justify-between">
                   Payment Method:{" "}
                   <span className="text-gray-400 font-semibold">
                     {order?.payment_method}
@@ -350,7 +350,7 @@ const PendingOrdersPage = () => {
               <button
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
-                className="px-4 py-2 rounded-xl bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 text-accent-content hover:border-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 text-slate-300 hover:border-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
@@ -363,8 +363,8 @@ const PendingOrdersPage = () => {
                       key={page}
                       onClick={() => setCurrentPage(page)}
                       className={`w-10 h-10 rounded-xl ${currentPage === page
-                        ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-accent-content shadow-lg"
-                        : "bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 text-accent-content hover:border-gray-500"
+                        ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-slate-300 shadow-lg"
+                        : "bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 text-slate-300 hover:border-gray-500"
                         }`}
                     >
                       {page}
@@ -378,7 +378,7 @@ const PendingOrdersPage = () => {
                   setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                 }
                 disabled={currentPage === totalPages}
-                className="px-4 py-2 rounded-xl bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 text-accent-content hover:border-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 text-slate-300 hover:border-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ChevronRight className="h-4 w-4" />
               </button>
@@ -404,7 +404,7 @@ const PendingOrdersPage = () => {
                 />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold text-accent-content mb-2">
+            <h3 className="text-xl font-semibold text-slate-300 mb-2">
               No Orders Found
             </h3>
             <p className="text-gray-400">
@@ -439,14 +439,14 @@ const PendingOrdersPage = () => {
                     </svg>
                   </button>
                 </div>
-                <h2 className="text-2xl font-bold text-accent-content mb-6">
+                <h2 className="text-2xl font-bold text-slate-300 mb-6">
                   Order Details
                 </h2>
 
                 {/* Order Info */}
                 <div className="grid md:grid-cols-2 gap-6 mb-6">
                   <div>
-                    <h3 className="text-lg font-semibold text-accent-content mb-3">
+                    <h3 className="text-lg font-semibold text-slate-300 mb-3">
                       Order Information
                     </h3>
                     <div className="space-y-2">
@@ -479,7 +479,7 @@ const PendingOrdersPage = () => {
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-semibold text-accent-content mb-3">
+                    <h3 className="text-lg font-semibold text-slate-300 mb-3">
                       Customer Information
                     </h3>
                     <div className="space-y-2">
@@ -501,7 +501,7 @@ const PendingOrdersPage = () => {
 
                 {/* Shipping Address */}
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-accent-content mb-3">
+                  <h3 className="text-lg font-semibold text-slate-300 mb-3">
                     Shipping Address
                   </h3>
                   <p className="text-gray-300 bg-gray-800/50 p-3 rounded-lg">
@@ -512,7 +512,7 @@ const PendingOrdersPage = () => {
 
                 {/* Order Items */}
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-accent-content mb-3">
+                  <h3 className="text-lg font-semibold text-slate-300 mb-3">
                     Order Items
                   </h3>
                   <div className="space-y-3">
@@ -533,7 +533,7 @@ const PendingOrdersPage = () => {
                             alt={item?.name || "Product"}
                           />
                           <div>
-                            <p className="text-accent-content font-medium">
+                            <p className="text-slate-300 font-medium">
                               {item?.name}
                             </p>
                             <p className="text-gray-400 text-sm">
@@ -581,7 +581,7 @@ const PendingOrdersPage = () => {
                     ))}
                   </div>
                   <div className="flex justify-between items-center m-2">
-                    <span className="text-accent-content font-semibold">
+                    <span className="text-slate-300 font-semibold">
                       Delivery Charge:
                     </span>
                     <span className="text-green-400 font-bold text-lg">
@@ -629,7 +629,7 @@ const PendingOrdersPage = () => {
                         </div>
                       )}
                     <div className="flex justify-between items-center">
-                      <span className="text-xl font-bold text-accent-content">
+                      <span className="text-xl font-bold text-slate-300">
                         Total:
                       </span>
                       <span className="text-2xl font-bold text-green-400">
@@ -648,7 +648,7 @@ const PendingOrdersPage = () => {
                         setConfirmationModal(true);
                       }
                     }}
-                    className="flex-1 px-6 py-3 bg-green-600 hover:bg-green-700 text-accent-content rounded-lg font-medium"
+                    className="flex-1 px-6 py-3 bg-green-600 hover:bg-green-700 text-slate-300 rounded-lg font-medium"
                   >
                     Approve Order
                   </button>
@@ -657,7 +657,7 @@ const PendingOrdersPage = () => {
                       setStatus("cancelled");
                       setConfirmationModal(true);
                     }}
-                    className="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-accent-content rounded-lg font-medium"
+                    className="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-slate-300 rounded-lg font-medium"
                   >
                     Reject Order
                   </button>
@@ -680,7 +680,7 @@ const PendingOrdersPage = () => {
                   <Trash2 className="w-8 h-8 text-pink-500" />
                 )}
               </div>
-              <h2 className="text-2xl font-bold text-accent-content">
+              <h2 className="text-2xl font-bold text-slate-300">
                 {" "}
                 {status === "shipped" ? "Approve" : "Reject"} Product
               </h2>
@@ -694,7 +694,7 @@ const PendingOrdersPage = () => {
             <div className="flex gap-3">
               <button
                 onClick={() => handleStatusChange()}
-                className={`flex-1 px-6 py-3 ${status === "shipped" ? "bg-gradient-to-r from-green-500 to-green-500 hover:from-green-600 hover:to-green-600" : "bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600"} text-accent-content font-semibold rounded-lg transform `}
+                className={`flex-1 px-6 py-3 ${status === "shipped" ? "bg-gradient-to-r from-green-500 to-green-500 hover:from-green-600 hover:to-green-600" : "bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600"} text-slate-300 font-semibold rounded-lg transform `}
               >
                 {status === "shipped" ? "Approve" : "Reject"}
               </button>
@@ -704,7 +704,7 @@ const PendingOrdersPage = () => {
                   setSelectedOrder(null);
                   setConfirmationModal(false);
                 }}
-                className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-accent-content font-semibold rounded-lg"
+                className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-slate-300 font-semibold rounded-lg"
               >
                 Cancel
               </button>

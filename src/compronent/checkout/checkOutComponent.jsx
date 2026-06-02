@@ -492,9 +492,9 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
       });
       setManualOrderStep('payment_submitted');
 
-      // update product stock 
+      // update product stock
       cartItems.forEach(async item => {
-        // stock verification 
+        // stock verification
         if (item.productId.productStock < item.quantity) {
           toast.error("অতিরিক্ত পরিমাণ যোগ করা হয়েছে")
           return
@@ -573,7 +573,7 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
         </div>
       </div> */}
       <div className="w-full px-5 flex justify-center items-center pt-16 gap-2 ">
-        <button className="text-sm bg-primary-color px-3 py-2 rounded-2xl">সম্পূর্ণ অর্ডার গাইডলাইন এখানে দেখুন</button>
+        <button className="text-sm bg-primary px-3 py-2 rounded-2xl">সম্পূর্ণ অর্ডার গাইডলাইন এখানে দেখুন</button>
         <img onClick={() => setShowGuideVideo(!showGuideVideo)} src="https://cdn-icons-png.freepik.com/256/13983/13983898.png?semt=ais_white_label" className="w-10 h-10 cursor-pointer" alt="" />
       </div>
       {/* guide video  */}

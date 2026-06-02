@@ -1,25 +1,23 @@
 "use client";
 
-import React, { useState } from "react";
+import socket from "@/src/confic/socket";
+import { ProductCreate, ProductNotification } from "@/src/hook/useProduct";
 import {
-  Upload,
-  X,
-  Plus,
-  Star,
-  Save,
-  Eye,
-  Package,
-  Tag,
-  DollarSign,
   BarChart3,
   Camera,
-  MapPin,
+  DollarSign,
+  Eye,
+  Package,
+  Plus,
+  Save,
+  Star,
+  Tag,
+  Upload,
+  X
 } from "lucide-react";
-import { ProductCreate, ProductNotification } from "@/src/hook/useProduct";
-import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import socket from "@/src/confic/socket";
-import { useEffect } from "react";
+import { useSelector } from "react-redux";
 
 const AddProductComponent = () => {
   const [formData, setFormData] = useState({
@@ -38,6 +36,7 @@ const AddProductComponent = () => {
     discount: "",
     ratings: 5,
     tags: [],
+    productStatus: [],
     images: [],
     isBoost: false,
   });
@@ -225,6 +224,7 @@ const AddProductComponent = () => {
       discount: "",
       ratings: 5,
       tags: [],
+      productStatus: [],
       images: [],
       isBoost: false,
     });
@@ -243,12 +243,18 @@ const AddProductComponent = () => {
             formDataToSend.append("images", img.file),
           );
         } else if (key === "category" || key === "subCategory") {
-          formData[key].forEach((id) => formDataToSend.append(key, id));
+          const val = formData[key];
+          if (Array.isArray(val)) {
+            val.forEach((id) => formDataToSend.append(key, id));
+          } else if (val) {
+            formDataToSend.append(key, val);
+          }
         } else if (
           key === "productSize" ||
           key === "color" ||
           key === "productWeight" ||
-          key === "tags"
+          key === "tags" ||
+          key === "productStatus"
         ) {
           formData[key].forEach((item) => formDataToSend.append(key, item));
         } else {
@@ -274,7 +280,11 @@ const AddProductComponent = () => {
       }
     } catch (error) {
       console.error("Error adding product:", error);
-      toast.error("❌ Something went wrong! Please try again.");
+      const backendMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Something went wrong! Please try again.";
+      toast.error(`❌ ${backendMessage}`);
     } finally {
       setIsLoading(false);
     }
@@ -285,7 +295,7 @@ const AddProductComponent = () => {
   };
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 overflow-hidden">
+    <section className="min-h-dvh bg-gradient-to-br from-gray-900 via-black to-gray-900 overflow-hidden">
       {/* main section */}
       <div className={` py-5 px-2 lg:px-9`}>
         {/* Header */}
@@ -297,7 +307,7 @@ const AddProductComponent = () => {
               <div className="absolute bottom-6 left-6 w-1 h-1 bg-purple-400 rounded-full"></div>
               <div className="absolute top-1/2 right-1/3 w-1 h-1 bg-cyan-400 rounded-full"></div>
             </div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-content mb-2">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-2">
               Add New Product
             </h1>
             <p className="text-blue-100 text-xs sm:text-sm md:text-base">
@@ -312,49 +322,45 @@ const AddProductComponent = () => {
         >
           {/* Basic Information */}
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
-            <h2 className="text-lg md:text-xl font-semibold text-accent-content mb-6 flex items-center">
+            <h2 className="text-lg md:text-xl font-semibold text-secondary mb-6 flex items-center">
               <Package className="mr-3 text-blue-400" />
               Basic Information
             </h2>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-accent-content">
-                  Product Name
-                </label>
+                <label className="text-slate-300">Product Name</label>
                 <input
                   type="text"
                   name="productName"
                   value={formData.productName}
                   onChange={handleInputChange}
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-1"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-1"
                   placeholder="Enter product name"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-accent-content">Brand</label>
+                <label className="text-slate-300">Brand</label>
                 <input
                   type="text"
                   name="brand"
                   value={formData.brand}
                   onChange={handleInputChange}
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-1"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-1"
                   placeholder="Enter brand name"
                 />
               </div>
 
               <div className="lg:col-span-2 space-y-2">
-                <label className="text-accent-content">
-                  Description
-                </label>
+                <label className="text-slate-300">Description</label>
                 <textarea
                   name="description"
                   value={formData.description}
                   onChange={handleInputChange}
                   rows="4"
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none mt-1"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none mt-1"
                   placeholder="Enter detailed product description"
                   required
                 />
@@ -364,7 +370,7 @@ const AddProductComponent = () => {
 
           {/* Categories & Classification */}
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
-            <h2 className="text-lg md:text-xl font-semibold text-accent-content mb-6 flex items-center">
+            <h2 className="text-lg md:text-xl font-semibold text-secondary mb-6 flex items-center">
               <Tag className="mr-3 text-green-400" />
               Categories & Classification
             </h2>
@@ -372,14 +378,12 @@ const AddProductComponent = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* CATEGORY */}
               <div className="space-y-2">
-                <label className="text-accent-content">
-                  Category
-                </label>
+                <label className="text-slate-300">Category</label>
                 <select
                   name="category"
                   value={formData.category[0] || ""}
                   onChange={handleInputChange}
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content focus:outline-none focus:ring-2 focus:ring-green-500 mt-1"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-200 focus:outline-none focus:ring-2 focus:ring-green-500 mt-1"
                   required
                 >
                   <option value="" className="bg-slate-800">
@@ -406,15 +410,13 @@ const AddProductComponent = () => {
 
               {/* SUB CATEGORY */}
               <div className="space-y-2">
-                <label className="text-accent-content">
-                  Sub Category
-                </label>
+                <label className="text-slate-300">Sub Category</label>
                 <select
                   name="subCategory"
                   value={formData.subCategory[0] || ""}
                   onChange={handleInputChange}
                   disabled={!formData.category.length}
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 mt-1"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 mt-1"
                 >
                   <option value="" className="bg-slate-800">
                     Select Sub Category
@@ -440,9 +442,7 @@ const AddProductComponent = () => {
 
               {/* FEATURED */}
               <div className="space-y-2">
-                <label className="text-accent-content">
-                  Featured Product
-                </label>
+                <label className="text-slate-300">Featured Product</label>
                 <div className="flex items-center p-4 bg-white/10 border border-white/20 rounded-xl mt-1">
                   <input
                     type="checkbox"
@@ -451,16 +451,14 @@ const AddProductComponent = () => {
                     onChange={handleInputChange}
                     className="w-5 h-5 text-green-600 bg-transparent border-white/30 rounded focus:ring-green-500"
                   />
-                  <label className="ml-3 text-accent-content text-nowrap">
+                  <label className="ml-3 text-slate-300 text-nowrap">
                     Mark as Featured
                   </label>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-accent-content">
-                  Boost Product
-                </label>
+                <label className="text-slate-300">Boost Product</label>
                 <div className="flex items-center p-4 bg-white/10 border border-white/20 rounded-xl mt-1">
                   <input
                     type="checkbox"
@@ -469,20 +467,65 @@ const AddProductComponent = () => {
                     onChange={handleInputChange}
                     className="w-5 h-5 text-emerald-600 bg-transparent border-white/30 rounded focus:ring-emerald-500"
                   />
-                  <label className="ml-3 text-accent-content">
-                    Mark as Boost
-                  </label>
+                  <label className="ml-3 text-slate-300">Mark as Boost</label>
                 </div>
               </div>
             </div>
 
+            {/* Product Status */}
+            <div className="mt-6 space-y-3">
+              <label className="text-slate-300 font-medium flex items-center gap-2">
+                <BarChart3 size={15} className="text-orange-400" />
+                Product Status
+              </label>
+              <p className="text-xs text-gray-400">
+                Set the product market status (stored separately from tags).
+              </p>
+              <div className="flex flex-wrap gap-3">
+                {[
+                  { value: "hot", label: "🔥 Hot", activeClass: "from-orange-500 to-red-500 shadow-orange-500/20" },
+                  { value: "cold", label: "❄️ Cold", activeClass: "from-cyan-500 to-blue-500 shadow-cyan-500/20" },
+                ].map(({ value, label, activeClass }) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        productStatus: prev.productStatus.includes(value)
+                          ? prev.productStatus.filter((s) => s !== value)
+                          : [...prev.productStatus, value],
+                      }));
+                    }}
+                    className={`px-5 py-2.5 rounded-xl border flex items-center gap-2 text-sm font-medium transition-all duration-200
+                      ${formData.productStatus.includes(value)
+                        ? `bg-gradient-to-r ${activeClass} border-transparent text-white shadow-lg`
+                        : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
+                      }`}
+                  >
+                    {label}
+                    {formData.productStatus.includes(value) && (
+                      <X size={12} className="ml-0.5" />
+                    )}
+                  </button>
+                ))}
+              </div>
+              {formData.productStatus.length > 0 && (
+                <p className="text-xs text-orange-300">
+                  Active: {formData.productStatus.join(", ")}
+                </p>
+              )}
+            </div>
+
             {/* Tags */}
             <div className="mt-6 space-y-4">
-              <label className="text-accent-content">
-                Product Status Badges (Tags)
+              <label className="text-slate-300 font-medium">
+                Product Tags
               </label>
-              <div className="flex gap-4">
-                {["hot", "cold"].map((tag) => (
+
+              {/* Preset badge buttons — content labels only, no status values */}
+              <div className="flex flex-wrap gap-3">
+                {["new", "sale", "trending", "featured", "limited"].map((tag) => (
                   <button
                     key={tag}
                     type="button"
@@ -496,29 +539,76 @@ const AddProductComponent = () => {
                         }));
                       }
                     }}
-                    className={`px-6 py-3 rounded-xl border flex items-center gap-2 capitalize
- ${
-   formData.tags.includes(tag)
-     ? "bg-gradient-to-r from-blue-500 to-purple-500 border-transparent text-accent-content shadow-lg shadow-purple-500/20"
-     : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
- }`}
+                    className={`px-4 py-2 rounded-xl border flex items-center gap-2 capitalize text-sm transition-all duration-200
+ ${formData.tags.includes(tag)
+                        ? "bg-gradient-to-r from-blue-500 to-purple-500 border-transparent text-slate-300 shadow-lg shadow-purple-500/20"
+                        : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
+                      }`}
                   >
                     {tag}
                     {formData.tags.includes(tag) && (
-                      <X size={14} className="ml-1" />
+                      <X size={12} className="ml-0.5" />
                     )}
                   </button>
                 ))}
               </div>
+
+              {/* Custom tag input */}
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={newTag}
+                  onChange={(e) => setNewTag(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      addTag();
+                    }
+                  }}
+                  className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="Type a custom tag and press Enter or click +"
+                />
+                <button
+                  type="button"
+                  onClick={addTag}
+                  className="px-5 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-slate-300 rounded-xl hover:from-blue-600 hover:to-purple-600 flex items-center gap-1 font-medium"
+                >
+                  <Plus size={18} />
+                </button>
+              </div>
+
+              {/* All active tags displayed as chips */}
+              {formData.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {formData.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="bg-gradient-to-r from-blue-500/30 to-purple-500/30 border border-purple-500/40 text-slate-300 px-3 py-1 rounded-full text-sm flex items-center gap-1.5 capitalize"
+                    >
+                      <Tag size={11} className="text-purple-300" />
+                      {tag}
+                      <button
+                        type="button"
+                        onClick={() => removeTag(tag)}
+                        className="ml-0.5 hover:bg-white/20 rounded-full p-0.5 transition-colors"
+                      >
+                        <X size={11} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+
               <p className="text-xs text-gray-400">
-                Select badges to display on the product card.
+                Choose preset badges or type custom tags. Press Enter or click +
+                to add.
               </p>
             </div>
           </div>
 
           {/* Product Details */}
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
-            <h2 className="text-lg md:text-xl font-semibold text-accent-content mb-6 flex items-center">
+            <h2 className="text-lg md:text-xl font-semibold text-secondary mb-6 flex items-center">
               <BarChart3 className="mr-3 text-yellow-400" />
               Product Details
             </h2>
@@ -526,14 +616,12 @@ const AddProductComponent = () => {
             <div className="grid grid-cols-1 gap-6">
               {/* add weight */}
               <div className="">
-                <label className="text-accent-content">
-                  Product weight
-                </label>
+                <label className="text-slate-300">Product weight</label>
                 <div className="flex flex-wrap gap-2">
                   {formData.productWeight.map((weight) => (
                     <span
                       key={weight}
-                      className="bg-gradient-to-r from-blue-500 to-purple-500 text-accent-content px-3 py-1 rounded-full text-sm flex items-center"
+                      className="bg-gradient-to-r from-blue-500 to-purple-500 text-slate-300 px-3 py-1 rounded-full text-sm flex items-center"
                     >
                       {weight}
                       <button
@@ -554,13 +642,13 @@ const AddProductComponent = () => {
                     onKeyPress={(e) =>
                       e.key === "Enter" && (e.preventDefault(), addweight())
                     }
-                    className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Add product weight"
                   />
                   <button
                     type="button"
                     onClick={addweight}
-                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-accent-content rounded-xl hover:from-blue-600 hover:to-purple-600 flex items-center"
+                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-slate-300 rounded-xl hover:from-blue-600 hover:to-purple-600 flex items-center"
                   >
                     <Plus size={20} />
                   </button>
@@ -569,14 +657,12 @@ const AddProductComponent = () => {
 
               {/* add size */}
               <div className="">
-                <label className="text-accent-content">
-                  Product size
-                </label>
+                <label className="text-slate-300">Product size</label>
                 <div className="flex flex-wrap gap-2">
                   {formData.productSize.map((size) => (
                     <span
                       key={size}
-                      className="bg-gradient-to-r from-blue-500 to-purple-500 text-accent-content px-3 py-1 rounded-full text-sm flex items-center"
+                      className="bg-gradient-to-r from-blue-500 to-purple-500 text-slate-300 px-3 py-1 rounded-full text-sm flex items-center"
                     >
                       {size}
                       <button
@@ -597,13 +683,13 @@ const AddProductComponent = () => {
                     onKeyPress={(e) =>
                       e.key === "Enter" && (e.preventDefault(), addsize())
                     }
-                    className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Add product size"
                   />
                   <button
                     type="button"
                     onClick={addsize}
-                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-accent-content rounded-xl hover:from-blue-600 hover:to-purple-600 flex items-center"
+                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-slate-300 rounded-xl hover:from-blue-600 hover:to-purple-600 flex items-center"
                   >
                     <Plus size={20} />
                   </button>
@@ -612,14 +698,12 @@ const AddProductComponent = () => {
 
               {/* add color */}
               <div className="">
-                <label className="text-accent-content">
-                  Product Color
-                </label>
+                <label className="text-slate-300">Product Color</label>
                 <div className="flex flex-wrap gap-2">
                   {formData.color.map((color) => (
                     <span
                       key={color}
-                      className="bg-gradient-to-r from-blue-500 to-purple-500 text-accent-content px-3 py-1 rounded-full text-sm flex items-center"
+                      className="bg-gradient-to-r from-blue-500 to-purple-500 text-slate-300 px-3 py-1 rounded-full text-sm flex items-center"
                     >
                       {color}
                       <button
@@ -640,13 +724,13 @@ const AddProductComponent = () => {
                     onKeyPress={(e) =>
                       e.key === "Enter" && (e.preventDefault(), addcolor())
                     }
-                    className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Add product color"
                   />
                   <button
                     type="button"
                     onClick={addcolor}
-                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-accent-content rounded-xl hover:from-blue-600 hover:to-purple-600 flex items-center"
+                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-slate-300 rounded-xl hover:from-blue-600 hover:to-purple-600 flex items-center"
                   >
                     <Plus size={20} />
                   </button>
@@ -657,47 +741,41 @@ const AddProductComponent = () => {
 
           {/* Pricing & Inventory */}
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
-            <h2 className="text-lg md:text-xl font-semibold text-accent-content mb-6 flex items-center">
+            <h2 className="text-lg md:text-xl font-semibold text-secondary mb-6 flex items-center">
               <DollarSign className="mr-3 text-green-400" />
               Pricing & Inventory
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-accent-content">
-                  Price (৳)
-                </label>
+                <label className="text-slate-300">Price (৳)</label>
                 <input
                   type="number"
                   name="price"
                   value={formData.price}
                   onChange={handleInputChange}
                   step="0.01"
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent mt-1"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent mt-1"
                   placeholder="0.00"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-accent-content">
-                  Stock Quantity
-                </label>
+                <label className="text-slate-300">Stock Quantity</label>
                 <input
                   type="number"
                   name="productStock"
                   value={formData.productStock}
                   onChange={handleInputChange}
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent mt-1"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent mt-1"
                   placeholder="Available quantity"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-accent-content">
-                  Discount (%)
-                </label>
+                <label className="text-slate-300">Discount (%)</label>
                 <input
                   type="number"
                   name="discount"
@@ -705,22 +783,20 @@ const AddProductComponent = () => {
                   onChange={handleInputChange}
                   min="0"
                   max="100"
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent mt-1"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent mt-1"
                   placeholder="0"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-accent-content">
-                  Product Rank
-                </label>
+                <label className="text-slate-300">Product Rank</label>
                 <input
                   type="number"
                   name="productRank"
                   value={formData.productRank}
                   onChange={handleInputChange}
                   min="1"
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent mt-1"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent mt-1"
                   placeholder="Product ranking"
                 />
               </div>
@@ -728,9 +804,7 @@ const AddProductComponent = () => {
 
             {/* Ratings */}
             <div className="mt-6 space-y-2">
-              <label className="text-accent-content">
-                Initial Rating
-              </label>
+              <label className="text-slate-300">Initial Rating</label>
               <div className="flex items-center space-x-2">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
@@ -743,15 +817,14 @@ const AddProductComponent = () => {
                   >
                     <Star
                       size={24}
-                      className={`${
-                        star <= formData.ratings
+                      className={`${star <= formData.ratings
                           ? "text-yellow-400 fill-current"
                           : "text-gray-400"
-                      } `}
+                        } `}
                     />
                   </button>
                 ))}
-                <span className="text-accent-content ml-2">
+                <span className="text-slate-300 ml-2">
                   {formData.ratings}/5
                 </span>
               </div>
@@ -760,18 +833,17 @@ const AddProductComponent = () => {
 
           {/* Media Upload */}
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20 md:col-span-full">
-            <h2 className="text-lg md:text-xl font-semibold text-accent-content mb-6 flex items-center">
+            <h2 className="text-lg md:text-xl font-semibold text-secondary mb-6 flex items-center">
               <Camera className="mr-3 text-purple-400" />
               Product Images
             </h2>
 
             {/* Drag & Drop Upload Area */}
             <div
-              className={`border-2 border-dashed rounded-2xl p-8 text-center ${
-                dragOver
+              className={`border-2 border-dashed rounded-2xl p-8 text-center ${dragOver
                   ? "border-blue-400 bg-blue-500/20"
                   : "border-white/30 hover:border-white/50"
-              }`}
+                }`}
               onDrop={handleDrop}
               onDragOver={(e) => {
                 e.preventDefault();
@@ -779,11 +851,8 @@ const AddProductComponent = () => {
               }}
               onDragLeave={() => setDragOver(false)}
             >
-              <Upload
-                className="mx-auto mb-4 text-accent-content/60"
-                size={48}
-              />
-              <p className="text-accent-content mb-4 text-base md:text-lg">
+              <Upload className="mx-auto mb-4 text-slate-300" size={48} />
+              <p className="text-slate-300 mb-4 text-base md:text-lg">
                 Drag & drop images here or click to browse
               </p>
               <input
@@ -796,7 +865,7 @@ const AddProductComponent = () => {
               />
               <label
                 htmlFor="image-upload"
-                className="cursor-pointer bg-gradient-to-r from-purple-500 to-pink-500 text-accent-content px-6 py-2.5 rounded-xl hover:from-purple-600 hover:to-pink-600 inline-block"
+                className="cursor-pointer bg-gradient-to-r from-purple-500 to-pink-500 text-slate-300 px-6 py-2.5 rounded-xl hover:from-purple-600 hover:to-pink-600 inline-block"
               >
                 Browse Images
               </label>
@@ -805,7 +874,7 @@ const AddProductComponent = () => {
             {/* Image Preview */}
             {formData.images.length > 0 && (
               <div className="mt-6">
-                <h3 className="text-accent-content font-medium mb-4">
+                <h3 className="text-slate-300 font-medium mb-4">
                   Uploaded Images ({formData.images.length})
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -819,12 +888,12 @@ const AddProductComponent = () => {
                       <button
                         type="button"
                         onClick={() => removeImage(image.id)}
-                        className="absolute top-2 right-2 bg-red-500 text-accent-content rounded-full p-1 opacity-0 group-hover:opacity-100 hover:bg-red-600"
+                        className="absolute top-2 right-2 bg-red-500 text-slate-300 rounded-full p-1 opacity-0 group-hover:opacity-100 hover:bg-red-600"
                       >
                         <X size={16} />
                       </button>
                       <div className="absolute bottom-2 left-2 right-2">
-                        <p className="text-accent-content text-xs bg-black/50 rounded px-2 py-1 truncate">
+                        <p className="text-slate-300 text-xs bg-black/50 rounded px-2 py-1 truncate">
                           {image.name}
                         </p>
                       </div>
@@ -840,7 +909,7 @@ const AddProductComponent = () => {
             <button
               type="button"
               onClick={handlePreview}
-              className="px-4 py-2.5 bg-gradient-to-r from-gray-600 to-gray-700 text-accent-content rounded-xl hover:from-gray-700 hover:to-gray-800 flex items-center justify-center gap-1.5 transform"
+              className="px-4 py-2.5 bg-gradient-to-r from-gray-600 to-gray-700 text-slate-300 rounded-xl hover:from-gray-700 hover:to-gray-800 flex items-center justify-center gap-1.5 transform"
             >
               <Eye size={20} />
               <span>Preview Product</span>
@@ -849,18 +918,17 @@ const AddProductComponent = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className={`px-4 py-2.5 rounded-xl text-accent-content flex items-center justify-center space-x-2 shadow-lg 
- ${
-   isLoading
-     ? "bg-gray-500 cursor-not-allowed"
-     : "bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 transform"
- }
+              className={`px-4 py-2.5 rounded-xl text-slate-300 flex items-center justify-center space-x-2 shadow-lg
+ ${isLoading
+                  ? "bg-gray-500 cursor-not-allowed"
+                  : "bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 transform"
+                }
  `}
             >
               {isLoading ? (
                 <>
                   <svg
-                    className="animate-spin h-5 w-5 text-accent-content"
+                    className="animate-spin h-5 w-5 text-slate-300"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -897,7 +965,7 @@ const AddProductComponent = () => {
  <div className="flex items-center justify-between">
  <div>
  <p className="text-cyan-300 text-sm">Total Products</p>
- <p className="text-accent-content text-2xl font-bold">1,248</p>
+ <p className="text-slate-300 text-2xl font-bold">1,248</p>
  </div>
  <Package className="text-cyan-400"size={32} />
  </div>
@@ -907,7 +975,7 @@ const AddProductComponent = () => {
  <div className="flex items-center justify-between">
  <div>
  <p className="text-emerald-300 text-sm">Active Categories</p>
- <p className="text-accent-content text-2xl font-bold">24</p>
+ <p className="text-slate-300 text-2xl font-bold">24</p>
  </div>
  <Tag className="text-emerald-400"size={32} />
  </div>
@@ -917,7 +985,7 @@ const AddProductComponent = () => {
  <div className="flex items-center justify-between">
  <div>
  <p className="text-pink-300 text-sm">Featured Products</p>
- <p className="text-accent-content text-2xl font-bold">156</p>
+ <p className="text-slate-300 text-2xl font-bold">156</p>
  </div>
  <Star className="text-pink-400"size={32} />
  </div>
