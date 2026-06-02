@@ -10,12 +10,22 @@
   --color-accent-content: white;
 } */
 @theme {
-  --color-primary-color: #ffc900;
-  --color-secondary: #f87171cc;
+  --color-primary: oklch(70% 0.14 182.503);
+  --color-primary-content: oklch(27% 0.046 192.524);
+  --color-secondary: oklch(69% 0.17 162.48);
+  --color-secondary-content: oklch(26% 0.051 172.552);
+  --color-neutral: oklch(20% 0.042 265.755);
+  --color-neutral-content: oklch(98% 0.003 247.858);
+  --color-error: oklch(50% 0.213 27.518);
+  --color-error-content: oklch(93% 0.032 17.717);
+  --color-info: oklch(78% 0.154 211.53);
+  --color-info-content: oklch(30% 0.056 229.695);
+  --color-warning: oklch(85% 0.199 91.936);
+  --color-warning-content: oklch(28% 0.066 53.813);
+  --color-accent: oklch(76% 0.188 70.08);
+  --color-accent-content: oklch(27% 0.077 45.635);
   --color-btn-color: #478c1f;
   --color-bg: #fffde1;
-  --color-accent: black;
-  --color-accent-content: white;
 
   --color-base-400: #cadcae;
   --color-base-500: #ffc900;
@@ -35,7 +45,7 @@
 /* header style  */
 
 .MuiToolbar-root {
-  @apply !bg-primary-color;
+  @apply !bg-primary;
 }
 
 .container {
@@ -43,7 +53,7 @@
 }
 
 .MuiInputBase-root {
-  @apply !border-2  border-primary-color! !outline-none !rounded-lg !shadow-sm w-full! h-13!;
+  @apply !border-2  border-primary! !outline-none !rounded-lg !shadow-sm w-full! h-13!;
 }
 
 /* Custom Scrollbar Styles */
@@ -56,11 +66,11 @@
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  @apply bg-primary-color rounded-full;
+  @apply bg-primary rounded-full;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  @apply bg-primary-color/80;
+  @apply bg-primary/80;
 }
 
 .scrollbar-hide::-webkit-scrollbar {
@@ -74,7 +84,7 @@
 /* For Firefox */
 .scrollbar-thin {
   scrollbar-width: thin;
-  scrollbar-color: #ffc900 #e5e7eb;
+  scrollbar-color: var(--color-primary) var(--color-bg);
 }
 /* ===== Chart Animations ===== */
 

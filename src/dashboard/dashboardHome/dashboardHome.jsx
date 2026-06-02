@@ -25,6 +25,7 @@ import { getAllUser, getUserProfile } from "@/src/hook/useAuth";
 import { OrderAllAdminGet } from "@/src/utlis/useOrder";
 import { ProductAllGet } from "@/src/hook/useProduct";
 import useGetRevenue from "@/src/utlis/useGetRevenue";
+import Container from "@/src/compronent/shared/Container"
 
 const DashboardHome = () => {
   const router = useRouter();
@@ -37,7 +38,11 @@ const DashboardHome = () => {
   const [orderChange, setOrderChange] = useState(0);
   const [productsCount, setProductsCount] = useState(0);
   const [productsChange, setProductsChange] = useState("0.0");
+  const [recentOrders, setRecentOrders] = useState([]);
+  const [topProducts, setTopProducts] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
   const { totalRevenue } = useGetRevenue();
+  const [revenueChange, setRevenueChange] = useState("0.0");
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -96,6 +101,7 @@ const DashboardHome = () => {
   useEffect(() => {
     const fetchOrdersStats = async () => {
       try {
+        setOrdersLoading(true);
         const res = await OrderAllAdminGet();
         const orders = res.orders || res.data || [];
 
@@ -110,10 +116,12 @@ const DashboardHome = () => {
           return new Date(d.getFullYear(), d.getMonth(), d.getDate());
         };
 
-        const yesterdayOrders = orders.filter(
+        const yesterdayOrdersList = orders.filter(
           (order) =>
             toDateOnly(order.createdAt).getTime() === yesterday.getTime(),
-        ).length;
+        );
+
+        const yesterdayOrders = yesterdayOrdersList.length;
 
         let percentage = 0;
         if (yesterdayOrders > 0) {
@@ -123,8 +131,95 @@ const DashboardHome = () => {
 
         setOrdersCount(totalOrders);
         setOrderChange(percentage.toFixed(1));
+
+        // Revenue calculations
+        const currentRevenue = orders.filter((o) => o?.order_status === "completed").reduce((sum, o) => sum + o.totalAmt, 0);
+        const pastRevenue = yesterdayOrdersList.filter((o) => o?.order_status === "completed").reduce((sum, o) => sum + o.totalAmt, 0);
+        
+        let revPercentage = 0;
+        if (pastRevenue > 0) {
+          revPercentage = ((currentRevenue - pastRevenue) / pastRevenue) * 100;
+        } else if (currentRevenue > 0) {
+          revPercentage = 100;
+        }
+        setRevenueChange(revPercentage.toFixed(1));
+
+        // ── Recent Orders: sort by newest, take top 4 ──
+        const sorted = [...orders].sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+        );
+        const recent = sorted.slice(0, 4).map((order) => {
+          const customerName =
+            order.shippingAddress?.name ||
+            order.user?.name ||
+            order.userId?.name ||
+            "Customer";
+          const initials = customerName
+            .split(" ")
+            .map((n) => n[0])
+            .join("")
+            .toUpperCase()
+            .slice(0, 2);
+          const timeAgo = (() => {
+            const diff = Date.now() - new Date(order.createdAt).getTime();
+            const mins = Math.floor(diff / 60000);
+            if (mins < 60) return `${mins} min ago`;
+            const hrs = Math.floor(mins / 60);
+            if (hrs < 24) return `${hrs} hour${hrs > 1 ? "s" : ""} ago`;
+            return `${Math.floor(hrs / 24)} day${Math.floor(hrs / 24) > 1 ? "s" : ""} ago`;
+          })();
+          return {
+            id: `#${order._id?.slice(-6).toUpperCase() || "------"}`,
+            customer: customerName,
+            amount: `৳${(order.totalAmt || 0).toLocaleString()}`,
+            status: order.order_status
+              ? order.order_status.charAt(0).toUpperCase() +
+              order.order_status.slice(1)
+              : "Pending",
+            time: timeAgo,
+            avatar: initials,
+          };
+        });
+        setRecentOrders(recent);
+
+        // ── Top Products: aggregate sold qty per product ──
+        const productMap = {};
+        orders.forEach((order) => {
+          (order.products || order.items || order.orderItems || []).forEach(
+            (item) => {
+              const prod = item.product || item.productId || item;
+              const id =
+                prod?._id || prod?.toString?.() || item.productId || null;
+              if (!id) return;
+              if (!productMap[id]) {
+                productMap[id] = {
+                  id,
+                  name: prod?.productName || prod?.name || "Product",
+                  price: prod?.price || 0,
+                  discount: prod?.discount || 0,
+                  ratings: prod?.ratings || 0,
+                  sold: 0,
+                };
+              }
+              productMap[id].sold += item.quantity || 1;
+            },
+          );
+        });
+        const top = Object.values(productMap)
+          .sort((a, b) => b.sold - a.sold)
+          .slice(0, 4)
+          .map((p) => ({
+            name: p.name,
+            sales: `${p.sold} sold`,
+            price: `৳${Number(p.price).toLocaleString()}`,
+            rating: p.ratings ? Number(p.ratings).toFixed(1) : "N/A",
+            trend: `+${p.sold}`,
+          }));
+        setTopProducts(top);
       } catch (error) {
         console.error("Fetch orders error:", error);
+      } finally {
+        setOrdersLoading(false);
       }
     };
 
@@ -210,8 +305,8 @@ const DashboardHome = () => {
     {
       title: "Total Revenue",
       value: totalRevenue,
-      change: "+0.00%",
-      changeType: "positive",
+      change: `${Number(revenueChange) > 0 ? "+" : ""}${revenueChange}%`,
+      changeType: Number(revenueChange) >= 0 ? "positive" : "negative",
       icon: DollarSign,
       gradient: "from-black via-gray-900 to-slate-800",
       shadowColor: "shadow-black/50",
@@ -254,87 +349,23 @@ const DashboardHome = () => {
       description: "Configure system",
       route: "/dashboard/settings/userupdate",
     },
-    {
-      label: "Reports",
-      icon: FileText,
-      gradient: "from-black to-gray-800",
-      description: "Generate reports",
-      route: "/dashboard/analytics",
-    },
+    // {
+    //   label: "Reports",
+    //   icon: FileText,
+    //   gradient: "from-black to-gray-800",
+    //   description: "Generate reports",
+    //   route: "/dashboard/analytics",
+    // },
   ];
 
-  const recentOrders = [
-    {
-      id: "#ORD-001",
-      customer: "John Doe",
-      amount: "৳1,299",
-      status: "Completed",
-      time: "2 hours ago",
-      avatar: "JD",
-    },
-    {
-      id: "#ORD-002",
-      customer: "Jane Smith",
-      amount: "৳899",
-      status: "Processing",
-      time: "4 hours ago",
-      avatar: "JS",
-    },
-    {
-      id: "#ORD-003",
-      customer: "Mike Johnson",
-      amount: "৳2,199",
-      status: "Shipped",
-      time: "6 hours ago",
-      avatar: "MJ",
-    },
-    {
-      id: "#ORD-004",
-      customer: "Sarah Wilson",
-      amount: "৳1,599",
-      status: "Pending",
-      time: "8 hours ago",
-      avatar: "SW",
-    },
-  ];
-
-  const topProducts = [
-    {
-      name: "Wireless Headphones",
-      sales: "245 sold",
-      price: "৳3,299",
-      rating: 4.8,
-      trend: "+15%",
-    },
-    {
-      name: "Smart Watch",
-      sales: "189 sold",
-      price: "৳12,999",
-      rating: 4.7,
-      trend: "+12%",
-    },
-    {
-      name: "Phone Case",
-      sales: "156 sold",
-      price: "৳599",
-      rating: 4.9,
-      trend: "+8%",
-    },
-    {
-      name: "Bluetooth Speaker",
-      sales: "134 sold",
-      price: "৳2,199",
-      rating: 4.6,
-      trend: "+5%",
-    },
-  ];
+  // recentOrders and topProducts are now populated dynamically from API
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 overflow-hidden">
-      <main className="py-5 px-2 lg:px-9">
+    <section className="min-h-dvh bg-gradient-to-br from-gray-900 via-black to-gray-900 overflow-hidden py-8 md:py-12">
+      <Container>
         {/* Welcome Section */}
         <div className="mb-8">
-          <div className="bg-gradient-to-r from-gray-900 via-black to-slate-900 rounded-3xl p-6 sm:p-8 text-accent-content shadow-2xl shadow-black/50 relative overflow-hidden backdrop-blur-xl border border-gray-800/50">
+          <div className="bg-gradient-to-r from-gray-900 via-black to-slate-900 rounded-3xl p-6 sm:p-8 text-slate-300 shadow-2xl shadow-black/50 relative overflow-hidden backdrop-blur-xl border border-gray-800/50">
             {/* Animated background elements */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-16 translate-x-16 backdrop-blur-sm"></div>
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/3 rounded-full translate-y-12 -translate-x-12 backdrop-blur-sm"></div>
@@ -381,7 +412,7 @@ const DashboardHome = () => {
                   <div
                     className={`p-3 rounded-2xl bg-gradient-to-r ${card.gradient} shadow-lg ${card.shadowColor}`}
                   >
-                    <card.icon className="w-6 h-6 text-accent-content" />
+                    <card.icon className="w-6 h-6 text-slate-300" />
                   </div>
                   <div className="flex items-center space-x-1 text-green-400">
                     <ArrowUp className="w-4 h-4" />
@@ -393,7 +424,7 @@ const DashboardHome = () => {
                   <p className="text-sm font-medium text-gray-400 mb-1">
                     {card.title}
                   </p>
-                  <p className="text-3xl font-bold text-accent-content mb-2">
+                  <p className="text-3xl font-bold text-slate-300 mb-2">
                     {card.value}
                   </p>
                   <p className="text-xs text-gray-500">from last month</p>
@@ -430,10 +461,10 @@ const DashboardHome = () => {
                   <div
                     className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-r ${action.gradient} flex items-center justify-center shadow-lg shadow-black/50`}
                   >
-                    <action.icon className="w-5 h-5 sm:w-6 sm:h-6 text-accent-content" />
+                    <action.icon className="w-5 h-5 sm:w-6 sm:h-6 text-slate-300" />
                   </div>
                   <div className="text-start">
-                    <p className="text-sm font-bold text-accent-content mb-1">
+                    <p className="text-sm font-bold text-slate-300 mb-1">
                       {action.label}
                     </p>
                     <p className="text-xs text-gray-400">
@@ -456,65 +487,93 @@ const DashboardHome = () => {
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-3">
                   <div className="p-2 rounded-xl bg-gradient-to-r from-gray-800 to-black shadow-lg shadow-black/50">
-                    <ShoppingCart className="w-5 h-5 text-accent-content" />
+                    <ShoppingCart className="w-5 h-5 text-slate-300" />
                   </div>
-                  <h3 className="text-lg sm:text-xl font-bold text-accent-content">
+                  <h3 className="text-lg sm:text-xl font-bold text-slate-300">
                     Recent Orders
                   </h3>
                 </div>
-                <button className="group flex items-center space-x-2 text-gray-300 hover:text-accent-content text-sm font-semibold">
+                <button className="group flex items-center space-x-2 text-gray-300 hover:text-slate-300 text-sm font-semibold">
                   <span>View All</span>
                   <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-1 gap-4">
-                {recentOrders.map((order) => (
-                  <div
-                    key={order.id}
-                    className="group flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-gray-900/50 to-black/30 border border-gray-800/40 backdrop-blur-sm"
-                  >
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-gradient-to-r from-gray-800 via-slate-800 to-black rounded-2xl flex items-center justify-center shadow-lg shadow-black/50">
-                        <span className="text-accent-content font-bold text-sm">
-                          {order.avatar}
-                        </span>
+                {ordersLoading ? (
+                  Array.from({ length: 4 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="animate-pulse flex items-center justify-between p-4 rounded-2xl bg-gray-800/30 border border-gray-800/40"
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div className="w-12 h-12 bg-gray-700/50 rounded-2xl" />
+                        <div className="space-y-2">
+                          <div className="h-3 w-24 bg-gray-700/50 rounded" />
+                          <div className="h-2 w-32 bg-gray-700/30 rounded" />
+                        </div>
                       </div>
-                      <div>
-                        <div className="flex items-center space-x-2">
-                          <p className="text-sm font-bold text-accent-content">
-                            {order.id}
-                          </p>
-                          <span
-                            className={`px-2 py-1 text-xs rounded-full font-medium ${
-                              order.status === "Completed"
-                                ? "bg-green-900/50 text-green-300 border border-green-800/50"
-                                : order.status === "Processing"
-                                  ? "bg-yellow-900/50 text-yellow-300 border border-yellow-800/50"
-                                  : order.status === "Shipped"
-                                    ? "bg-blue-900/50 text-blue-300 border border-blue-800/50"
-                                    : "bg-gray-800/50 text-gray-300 border border-gray-700/50"
-                            } backdrop-blur-sm`}
-                          >
-                            {order.status}
+                      <div className="h-4 w-16 bg-gray-700/50 rounded" />
+                    </div>
+                  ))
+                ) : recentOrders.length === 0 ? (
+                  <div className="text-center py-10 text-gray-500">
+                    <ShoppingCart className="w-10 h-10 mx-auto mb-2 opacity-30" />
+                    <p className="text-sm">No orders yet</p>
+                  </div>
+                ) : (
+                  recentOrders.map((order) => (
+                    <div
+                      key={order.id}
+                      className="group flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-gray-900/50 to-black/30 border border-gray-800/40 backdrop-blur-sm"
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div className="w-12 h-12 bg-gradient-to-r from-gray-800 via-slate-800 to-black rounded-2xl flex items-center justify-center shadow-lg shadow-black/50">
+                          <span className="text-slate-300 font-bold text-sm">
+                            {order.avatar}
                           </span>
                         </div>
-                        <p className="text-xs text-gray-400 mt-1">
-                          {order.customer} • {order.time}
+                        <div>
+                          <div className="flex items-center space-x-2">
+                            <p className="text-sm font-bold text-slate-300">
+                              {order.id}
+                            </p>
+                            <span
+                              className={`px-2 py-1 text-xs rounded-full font-medium ${order.status === "Completed" ||
+                                  order.status === "completed"
+                                  ? "bg-green-900/50 text-green-300 border border-green-800/50"
+                                  : order.status === "Processing" ||
+                                    order.status === "processing"
+                                    ? "bg-yellow-900/50 text-yellow-300 border border-yellow-800/50"
+                                    : order.status === "Shipped" ||
+                                      order.status === "shipped"
+                                      ? "bg-blue-900/50 text-blue-300 border border-blue-800/50"
+                                      : order.status === "Cancelled" ||
+                                        order.status === "cancelled"
+                                        ? "bg-red-900/50 text-red-300 border border-red-800/50"
+                                        : "bg-gray-800/50 text-gray-300 border border-gray-700/50"
+                                } backdrop-blur-sm`}
+                            >
+                              {order.status}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-400 mt-1">
+                            {order.customer} • {order.time}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-lg font-bold text-slate-300">
+                          {order.amount}
                         </p>
+                        <div className="flex items-center space-x-1 text-green-400">
+                          <TrendingUp className="w-3 h-3" />
+                          <span className="text-xs font-medium">Active</span>
+                        </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-lg font-bold text-accent-content">
-                        {order.amount}
-                      </p>
-                      <div className="flex items-center space-x-1 text-green-400">
-                        <TrendingUp className="w-3 h-3" />
-                        <span className="text-xs font-medium">Active</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
           </div>
@@ -527,58 +586,81 @@ const DashboardHome = () => {
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-3">
                   <div className="p-2 rounded-xl bg-gradient-to-r from-zinc-800 via-gray-800 to-slate-900 shadow-lg shadow-black/50">
-                    <Package className="w-5 h-5 text-accent-content" />
+                    <Package className="w-5 h-5 text-slate-300" />
                   </div>
-                  <h3 className="text-lg sm:text-xl font-bold text-accent-content">
+                  <h3 className="text-lg sm:text-xl font-bold text-slate-300">
                     Top Selling Products
                   </h3>
                 </div>
-                <button className="group flex items-center space-x-2 text-gray-300 hover:text-accent-content text-sm font-semibold">
+                <button className="group flex items-center space-x-2 text-gray-300 hover:text-slate-300 text-sm font-semibold">
                   <span>View All</span>
                   <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-1 gap-4">
-                {topProducts.map((product) => (
-                  <div
-                    key={product.name}
-                    className="group flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-gray-900/50 to-black/30 border border-gray-800/40 backdrop-blur-sm"
-                  >
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-gradient-to-r from-zinc-800 via-gray-800 to-slate-900 rounded-2xl flex items-center justify-center shadow-lg shadow-black/50">
-                        <Package className="w-5 h-5 text-accent-content" />
+                {ordersLoading ? (
+                  Array.from({ length: 4 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="animate-pulse flex items-center justify-between p-4 rounded-2xl bg-gray-800/30 border border-gray-800/40"
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div className="w-12 h-12 bg-gray-700/50 rounded-2xl" />
+                        <div className="space-y-2">
+                          <div className="h-3 w-28 bg-gray-700/50 rounded" />
+                          <div className="h-2 w-20 bg-gray-700/30 rounded" />
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm font-bold text-accent-content">
-                          {product.name}
-                        </p>
-                        <div className="flex items-center space-x-3 mt-1">
-                          <p className="text-xs text-gray-400">
-                            {product.sales}
+                      <div className="h-4 w-16 bg-gray-700/50 rounded" />
+                    </div>
+                  ))
+                ) : topProducts.length === 0 ? (
+                  <div className="text-center py-10 text-gray-500">
+                    <Package className="w-10 h-10 mx-auto mb-2 opacity-30" />
+                    <p className="text-sm">No product sales data yet</p>
+                  </div>
+                ) : (
+                  topProducts.map((product, index) => (
+                    <div
+                      key={`${product.name}-${index}`}
+                      className="group flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-gray-900/50 to-black/30 border border-gray-800/40 backdrop-blur-sm"
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div className="w-12 h-12 bg-gradient-to-r from-zinc-800 via-gray-800 to-slate-900 rounded-2xl flex items-center justify-center shadow-lg shadow-black/50">
+                          <Package className="w-5 h-5 text-slate-300" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-slate-300">
+                            {product.name}
                           </p>
-                          <div className="flex items-center space-x-1">
-                            <Star className="w-3 h-3 text-yellow-400 fill-current" />
-                            <span className="text-xs text-gray-300 font-medium">
-                              {product.rating}
-                            </span>
+                          <div className="flex items-center space-x-3 mt-1">
+                            <p className="text-xs text-gray-400">
+                              {product.sales}
+                            </p>
+                            <div className="flex items-center space-x-1">
+                              <Star className="w-3 h-3 text-yellow-400 fill-current" />
+                              <span className="text-xs text-gray-300 font-medium">
+                                {product.rating}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-lg font-bold text-accent-content">
-                        {product.price}
-                      </p>
-                      <div className="flex items-center space-x-1 text-green-400">
-                        <ArrowUp className="w-3 h-3" />
-                        <span className="text-xs font-bold">
-                          {product.trend}
-                        </span>
+                      <div className="text-right">
+                        <p className="text-lg font-bold text-slate-300">
+                          {product.price}
+                        </p>
+                        <div className="flex items-center space-x-1 text-green-400">
+                          <ArrowUp className="w-3 h-3" />
+                          <span className="text-xs font-bold">
+                            {product.trend}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
           </div>
@@ -594,9 +676,9 @@ const DashboardHome = () => {
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-3">
                   <div className="p-2 rounded-xl bg-gradient-to-r from-gray-800 to-black shadow-lg shadow-black/50">
-                    <BarChart3 className="w-5 h-5 text-accent-content" />
+                    <BarChart3 className="w-5 h-5 text-slate-300" />
                   </div>
-                  <h3 className="text-lg sm:text-xl font-bold text-accent-content">
+                  <h3 className="text-lg sm:text-xl font-bold text-slate-300">
                     Sales Overview
                   </h3>
                 </div>
@@ -610,7 +692,7 @@ const DashboardHome = () => {
               <div className="h-48 sm:h-64 bg-gradient-to-br from-gray-900/30 to-black/20 rounded-2xl border border-gray-800/30 backdrop-blur-sm flex items-center justify-center">
                 <div className="text-center">
                   <div className="w-16 h-16 bg-gradient-to-r from-gray-800 to-black rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-black/50">
-                    <BarChart3 className="w-8 h-8 text-accent-content" />
+                    <BarChart3 className="w-8 h-8 text-slate-300" />
                   </div>
                   <p className="text-gray-300 font-medium">
                     Chart will be rendered here
@@ -630,9 +712,9 @@ const DashboardHome = () => {
             <div className="relative z-10">
               <div className="flex items-center space-x-3 mb-6">
                 <div className="p-2 rounded-xl bg-gradient-to-r from-slate-800 to-gray-900 shadow-lg shadow-black/50">
-                  <Activity className="w-5 h-5 text-accent-content" />
+                  <Activity className="w-5 h-5 text-slate-300" />
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold text-accent-content">
+                <h3 className="text-lg sm:text-xl font-bold text-slate-300">
                   Live Activity
                 </h3>
               </div>
@@ -670,8 +752,7 @@ const DashboardHome = () => {
                     className="flex items-center space-x-3 p-3 rounded-xl bg-gray-900/30 border border-gray-800/40 backdrop-blur-sm"
                   >
                     <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center shadow-md ${
-                        activity.type === "order"
+                      className={`w-8 h-8 rounded-full flex items-center justify-center shadow-md ${activity.type === "order"
                           ? "bg-gradient-to-r from-gray-700 to-gray-800"
                           : activity.type === "product"
                             ? "bg-gradient-to-r from-slate-700 to-slate-800"
@@ -680,12 +761,12 @@ const DashboardHome = () => {
                               : activity.type === "payment"
                                 ? "bg-gradient-to-r from-gray-800 to-black"
                                 : "bg-gradient-to-r from-slate-800 to-gray-900"
-                      }`}
+                        }`}
                     >
                       <div className="w-2 h-2 bg-white rounded-full"></div>
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-accent-content">
+                      <p className="text-sm font-medium text-slate-300">
                         {activity.action}
                       </p>
                       <p className="text-xs text-gray-400">{activity.time}</p>
@@ -712,7 +793,7 @@ const DashboardHome = () => {
 
         {/* Performance Metrics */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-          <div className="bg-gradient-to-br from-gray-800 to-black rounded-2xl p-6 text-accent-content shadow-xl shadow-black/50 relative overflow-hidden backdrop-blur-xl border border-gray-700/50">
+          <div className="bg-gradient-to-br from-gray-800 to-black rounded-2xl p-6 text-slate-300 shadow-xl shadow-black/50 relative overflow-hidden backdrop-blur-xl border border-gray-700/50">
             <div className="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-full -translate-y-10 translate-x-10 backdrop-blur-sm"></div>
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-4">
@@ -726,7 +807,7 @@ const DashboardHome = () => {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-slate-800 to-gray-900 rounded-2xl p-6 text-accent-content shadow-xl shadow-black/50 relative overflow-hidden backdrop-blur-xl border border-gray-700/50">
+          <div className="bg-gradient-to-br from-slate-800 to-gray-900 rounded-2xl p-6 text-slate-300 shadow-xl shadow-black/50 relative overflow-hidden backdrop-blur-xl border border-gray-700/50">
             <div className="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-full -translate-y-10 translate-x-10 backdrop-blur-sm"></div>
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-4">
@@ -740,7 +821,7 @@ const DashboardHome = () => {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-zinc-800 to-slate-900 rounded-2xl p-6 text-accent-content shadow-xl shadow-black/50 relative overflow-hidden backdrop-blur-xl border border-gray-700/50">
+          <div className="bg-gradient-to-br from-zinc-800 to-slate-900 rounded-2xl p-6 text-slate-300 shadow-xl shadow-black/50 relative overflow-hidden backdrop-blur-xl border border-gray-700/50">
             <div className="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-full -translate-y-10 translate-x-10 backdrop-blur-sm"></div>
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-4">
@@ -754,7 +835,7 @@ const DashboardHome = () => {
             </div>
           </div>
         </div>
-      </main>
+      </Container>
 
       <style jsx>{`
         /* Glassmorphism effects */
@@ -807,7 +888,7 @@ const DashboardHome = () => {
           }
         }
       `}</style>
-    </div>
+    </section>
   );
 };
 

@@ -196,7 +196,7 @@ const HomeSliderPage = () => {
  <div className="flex items-center justify-between">
  <div className="flex items-center space-x-4">
  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg transform">
- <svg className="w-6 h-6 text-accent-content"fill="none"stroke="currentColor"viewBox="0 0 24 24">
+ <svg className="w-6 h-6 text-slate-300"fill="none"stroke="currentColor"viewBox="0 0 24 24">
  <path
  strokeLinecap="round"
  strokeLinejoin="round"
@@ -252,7 +252,7 @@ const HomeSliderPage = () => {
  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
  />
  </svg>
- <h3 className="text-2xl font-bold text-accent-content">Live Preview</h3>
+ <h3 className="text-2xl font-bold text-slate-300">Live Preview</h3>
  </div>
 
  {sliders?.length > 0 ? (
@@ -266,7 +266,7 @@ const HomeSliderPage = () => {
  className="w-full h-full object-cover"
  />
  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"/>
- <div className="absolute bottom-6 left-6 right-6 text-accent-content transform group-hover:translate-y-[-4px]">
+ <div className="absolute bottom-6 left-6 right-6 text-slate-300 transform group-hover:translate-y-[-4px]">
  <h4 className="text-2xl font-bold mb-3 text-balance">{sliders[currentSlide]?.title}</h4>
  <p className="text-gray-200 text-lg opacity-90 text-pretty">
  {sliders[currentSlide]?.Description}
@@ -280,7 +280,7 @@ const HomeSliderPage = () => {
  className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center"
  onClick={prevSlide}
  >
- <svg className="w-6 h-6 text-accent-content"fill="none"stroke="currentColor"viewBox="0 0 24 24">
+ <svg className="w-6 h-6 text-slate-300"fill="none"stroke="currentColor"viewBox="0 0 24 24">
  <path strokeLinecap="round"strokeLinejoin="round"strokeWidth={2} d="M15 19l-7-7 7-7"/>
  </svg>
  </button>
@@ -288,7 +288,7 @@ const HomeSliderPage = () => {
  className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center"
  onClick={nextSlide}
  >
- <svg className="w-6 h-6 text-accent-content"fill="none"stroke="currentColor"viewBox="0 0 24 24">
+ <svg className="w-6 h-6 text-slate-300"fill="none"stroke="currentColor"viewBox="0 0 24 24">
  <path strokeLinecap="round"strokeLinejoin="round"strokeWidth={2} d="M9 5l7 7-7 7"/>
  </svg>
  </button>
@@ -335,7 +335,7 @@ const HomeSliderPage = () => {
  <svg className="w-6 h-6 text-green-400"fill="none"stroke="currentColor"viewBox="0 0 24 24">
  <path strokeLinecap="round"strokeLinejoin="round"strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
  </svg>
- <h3 className="text-2xl font-bold text-accent-content">Add New Slider</h3>
+ <h3 className="text-2xl font-bold text-slate-300">Add New Slider</h3>
  </div>
 
  <div className="space-y-6">
@@ -346,7 +346,7 @@ const HomeSliderPage = () => {
  placeholder="Enter slider title"
  value={formData.title}
  onChange={(e) => setFormData({...formData, title: e.target.value})}
- className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+ className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-slate-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
  />
  </div>
 
@@ -357,7 +357,7 @@ const HomeSliderPage = () => {
  value={formData.Description}
  onChange={(e) => setFormData({...formData, Description: e.target.value})}
  rows={3}
- className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+ className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-slate-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
  />
  </div>
 
@@ -369,11 +369,11 @@ const HomeSliderPage = () => {
  placeholder="Image URL or upload"
  value={formData.images}
  onChange={(e) => setFormData({...formData, images: e.target.value})}
- className="flex-1 px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+ className="flex-1 px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-slate-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
  />
  <button
  onClick={() => fileInputRef.current?.click()}
- className="px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-accent-content rounded-xl shadow-lg"
+ className="px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-slate-300 rounded-xl shadow-lg"
  >
  <svg className="w-5 h-5"fill="none"stroke="currentColor"viewBox="0 0 24 24">
  <path
@@ -402,7 +402,7 @@ const HomeSliderPage = () => {
  placeholder="/collections/sale"
  value={formData.linkUrl}
  onChange={(e) => setFormData({...formData, linkUrl: e.target.value})}
- className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+ className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-slate-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
  />
  </div>
 
@@ -411,7 +411,7 @@ const HomeSliderPage = () => {
  <button
  onClick={handleAddSlider}
  disabled={!formData.title || !formData.images}
- className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:from-gray-700 disabled:to-gray-800 disabled:cursor-not-allowed text-accent-content font-semibold rounded-xl hover:scale-[1.02] shadow-lg flex items-center justify-center gap-2"
+ className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:from-gray-700 disabled:to-gray-800 disabled:cursor-not-allowed text-slate-300 font-semibold rounded-xl hover:scale-[1.02] shadow-lg flex items-center justify-center gap-2"
  >
  <svg className="w-5 h-5"fill="none"stroke="currentColor"viewBox="0 0 24 24">
  <path strokeLinecap="round"strokeLinejoin="round"strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
@@ -425,7 +425,7 @@ const HomeSliderPage = () => {
 
  <div className="mt-12 -in-up">
  <div className="bg-gradient-to-br from-gray-900/50 to-black/50 backdrop-blur-sm border border-gray-800/50 rounded-2xl p-6 shadow-2xl">
- <h3 className="text-2xl font-bold text-accent-content mb-6">Manage Sliders</h3>
+ <h3 className="text-2xl font-bold text-slate-300 mb-6">Manage Sliders</h3>
 
  {sliders?.length === 0 ? (
  <div className="text-center py-12">
@@ -460,7 +460,7 @@ const HomeSliderPage = () => {
  className="w-full md:w-24 h-20 object-cover rounded-lg shadow-lg"
  />
  <div className="flex-1">
- <h4 className="font-bold text-accent-content text-lg mb-2">{slider?.title}</h4>
+ <h4 className="font-bold text-slate-300 text-lg mb-2">{slider?.title}</h4>
  <p className="text-gray-300 text-sm mb-3 text-pretty">{slider?.Description}</p>
  <div className="flex flex-wrap items-center gap-3">
  <span
@@ -522,7 +522,7 @@ const HomeSliderPage = () => {
  {editingSlider && (
  <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 -in">
  <div className="bg-gradient-to-br from-gray-900 to-black border border-gray-700 rounded-2xl p-8 max-w-md w-full max-h-[90vh] overflow-y-auto shadow-2xl">
- <h3 className="text-2xl font-bold text-accent-content mb-6">Edit Slider</h3>
+ <h3 className="text-2xl font-bold text-slate-300 mb-6">Edit Slider</h3>
  <div className="space-y-4">
  <div>
  <label className="block text-gray-300 text-sm font-medium mb-2">Title</label>
@@ -530,7 +530,7 @@ const HomeSliderPage = () => {
  type="text"
  value={formData.title}
  onChange={(e) => setFormData({...formData, title: e.target.value})}
- className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-accent-content focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
  />
  </div>
  <div>
@@ -539,7 +539,7 @@ const HomeSliderPage = () => {
  value={formData.Description}
  onChange={(e) => setFormData({...formData, Description: e.target.value})}
  rows={3}
- className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-accent-content focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+ className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
  />
  </div>
  <div>
@@ -550,11 +550,11 @@ const HomeSliderPage = () => {
  placeholder="Image URL or upload"
  value={formData.images}
  onChange={(e) => setFormData({...formData, images: e.target.value})}
- className="flex-1 px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+ className="flex-1 px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-slate-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
  />
  <button
  onClick={() => fileInputRef.current?.click()}
- className="px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-accent-content rounded-xl shadow-lg"
+ className="px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-slate-300 rounded-xl shadow-lg"
  >
  <svg className="w-5 h-5"fill="none"stroke="currentColor"viewBox="0 0 24 24">
  <path
@@ -581,7 +581,7 @@ const HomeSliderPage = () => {
  type="text"
  value={formData.linkUrl}
  onChange={(e) => setFormData({...formData, linkUrl: e.target.value})}
- className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-accent-content focus:outline-none focus:ring-2 focus:ring-blue-500"
+ className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
  />
  </div>
 
@@ -589,13 +589,13 @@ const HomeSliderPage = () => {
  <div className="flex gap-3 pt-4">
  <button
  onClick={handleUpdateSlider}
- className="flex-1 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-accent-content font-semibold rounded-xl"
+ className="flex-1 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-slate-300 font-semibold rounded-xl"
  >
  Update Slider
  </button>
  <button
  onClick={() => setEditingSlider(null)}
- className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-accent-content font-semibold rounded-xl"
+ className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-slate-300 font-semibold rounded-xl"
  >
  Cancel
  </button>
@@ -617,7 +617,7 @@ const HomeSliderPage = () => {
  transform: translateY(0);
 }
 }
- 
+
  @keyframes fade-in-left {
  from {
  opacity: 0;
@@ -628,7 +628,7 @@ const HomeSliderPage = () => {
  transform: translateX(0);
 }
 }
- 
+
  @keyframes fade-in-right {
  from {
  opacity: 0;
@@ -639,7 +639,7 @@ const HomeSliderPage = () => {
  transform: translateX(0);
 }
 }
- 
+
  @keyframes fade-in {
  from {
  opacity: 0;
@@ -648,7 +648,7 @@ const HomeSliderPage = () => {
  opacity: 1;
 }
 }
- 
+
  @keyframes scale-in {
  from {
  opacity: 0;
@@ -659,23 +659,23 @@ const HomeSliderPage = () => {
  transform: scale(1);
 }
 }
- 
+
  .-in-up {
  animation: fade-in-up 0.6s ;
 }
- 
+
  .-in-left {
  animation: fade-in-left 0.6s ;
 }
- 
+
  .-in-right {
  animation: fade-in-right 0.6s ;
 }
- 
+
  .-in {
  animation: fade-in 0.3s ;
 }
- 
+
  . {
  animation: scale-in 0.3s ;
 }
