@@ -186,7 +186,7 @@ const PrivacyPolicy = async () => {
 
     return (
         <div className="min-h-screen bg-bg">
-            <div className="bg-gradient-to-b from-primary-color/10 to-transparent py-16 sm:py-24">
+            <div className="bg-gradient-to-b from-primary/10 to-transparent py-16 sm:py-24">
                 <div className="container mx-auto px-4 text-center">
                     <div className="inline-flex items-center justify-center p-3 bg-secondary/10 rounded-2xl mb-6">
                         <ShieldCheck className="w-10 h-10 text-secondary" />
@@ -288,7 +288,7 @@ const PrivacyPolicy = async () => {
                     </div>
 
                     <div className="mt-16 text-center px-4">
-                        <div className="inline-block p-1 rounded-full bg-gradient-to-r from-secondary/20 via-primary-color/20 to-secondary/20 mb-6">
+                        <div className="inline-block p-1 rounded-full bg-gradient-to-r from-secondary/20 via-primary/20 to-secondary/20 mb-6">
                             <div className="bg-white px-6 sm:px-10 py-5 rounded-full shadow-sm">
                                 <p className="text-accent font-bold text-base sm:text-lg">
                                     EasyShoppingMallBD ব্যবহার করার মাধ্যমে আপনি এই Privacy Policy-তে সম্মতি দিচ্ছেন।

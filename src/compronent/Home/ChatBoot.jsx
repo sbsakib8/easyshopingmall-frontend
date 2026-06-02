@@ -1,19 +1,19 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
-import { X, Send, MessageCircle } from "lucide-react";
-import { FaWhatsapp, FaFacebookMessenger, FaRobot } from "react-icons/fa";
 import {
-  Fab,
   Box,
+  ClickAwayListener,
+  Fab,
   Grow,
   Paper,
-  ClickAwayListener,
   Tooltip,
   useTheme,
-  alpha,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { MessageCircle, X } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+import { FaFacebookMessenger, FaWhatsapp } from "react-icons/fa";
 
 const ChatBoot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -45,12 +45,12 @@ const ChatBoot = () => {
   ];
 
   const ActionButton = styled(Fab)(({ theme }) => ({
-    background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+    // background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
     color: "white",
     width: 56,
     height: 56,
     "&:hover": {
-      background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
+      // background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
       transform: "scale(1.05)",
     },
     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -59,7 +59,7 @@ const ChatBoot = () => {
   return (
     <ClickAwayListener onClickAway={handleClose}>
       <Box
-      className="bottom-24! md:bottom-6!"
+        className="bottom-24! md:bottom-6!"
         sx={{
           position: "fixed",
           right: 24,
@@ -92,7 +92,7 @@ const ChatBoot = () => {
                   arrow
                   enterDelay={300}
                 >
-                  <a
+                  <Link
                     href={option.href}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -119,7 +119,7 @@ const ChatBoot = () => {
                     >
                       {option.icon}
                     </Paper>
-                  </a>
+                  </Link>
                 </Tooltip>
               </Grow>
             ))}
@@ -129,6 +129,7 @@ const ChatBoot = () => {
         {/* Main Action Button */}
         <ActionButton
           onClick={handleToggle}
+          className="bg-primary/80! hover:bg-primary!"
           sx={{
             transform: isOpen ? "rotate(45deg)" : "rotate(0deg)",
             transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",

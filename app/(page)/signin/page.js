@@ -125,7 +125,7 @@ const Signin = () => {
               </Box>
               <Link
                 href="/forgotpassword"
-                className="text-primary-color flex justify-end hover:underline hover:text-black transition-all delay-100 text-sm"
+                className="text-primary flex justify-end hover:underline hover:text-black transition-all delay-100 text-sm"
               >
                 Forgot Password?
               </Link>
@@ -133,7 +133,7 @@ const Signin = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-primary-color text-accent-content py-2 rounded-md hover:bg-[#609283] cursor-pointer transition duration-200 disabled:opacity-70 disabled:bg-gray-300"
+              className="w-full bg-primary text-accent-content py-2 rounded-md hover:bg-[#609283] cursor-pointer transition duration-200 disabled:opacity-70 disabled:bg-gray-300"
             >
               {isLoading ? (
                 <span className="w-full flex justify-center items-center gap-2">
@@ -150,7 +150,7 @@ const Signin = () => {
             <div
               onClick={handleGoogleSignIn}
               type="button"
-              className="w-full flex justify-center items-center  text-black border border-primary-color py-3 rounded-md hover:bg-gray-200 cursor-pointer transition-all duration-300 delay-200"
+              className="w-full flex justify-center items-center  text-black border border-primary py-3 rounded-md hover:bg-gray-200 cursor-pointer transition-all duration-300 delay-200"
             >
               <FcGoogle className="text-2xl mr-2" />
               <button>Sign In with Google</button>
