@@ -25,6 +25,7 @@ import { getAllUser, getUserProfile } from "@/src/hook/useAuth";
 import { OrderAllAdminGet } from "@/src/utlis/useOrder";
 import { ProductAllGet } from "@/src/hook/useProduct";
 import useGetRevenue from "@/src/utlis/useGetRevenue";
+import Container from "@/src/compronent/shared/Container"
 
 const DashboardHome = () => {
   const router = useRouter();
@@ -345,11 +346,11 @@ const DashboardHome = () => {
   // recentOrders and topProducts are now populated dynamically from API
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 overflow-hidden">
-      <main className="py-5 px-2 lg:px-9">
+    <section className="min-h-dvh bg-gradient-to-br from-gray-900 via-black to-gray-900 overflow-hidden py-8 md:py-12">
+      <Container>
         {/* Welcome Section */}
         <div className="mb-8">
-          <div className="bg-gradient-to-r from-gray-900 via-black to-slate-900 rounded-3xl p-6 sm:p-8 text-accent-content shadow-2xl shadow-black/50 relative overflow-hidden backdrop-blur-xl border border-gray-800/50">
+          <div className="bg-gradient-to-r from-gray-900 via-black to-slate-900 rounded-3xl p-6 sm:p-8 text-slate-300 shadow-2xl shadow-black/50 relative overflow-hidden backdrop-blur-xl border border-gray-800/50">
             {/* Animated background elements */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-16 translate-x-16 backdrop-blur-sm"></div>
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/3 rounded-full translate-y-12 -translate-x-12 backdrop-blur-sm"></div>
@@ -396,7 +397,7 @@ const DashboardHome = () => {
                   <div
                     className={`p-3 rounded-2xl bg-gradient-to-r ${card.gradient} shadow-lg ${card.shadowColor}`}
                   >
-                    <card.icon className="w-6 h-6 text-accent-content" />
+                    <card.icon className="w-6 h-6 text-slate-300" />
                   </div>
                   <div className="flex items-center space-x-1 text-green-400">
                     <ArrowUp className="w-4 h-4" />
@@ -408,7 +409,7 @@ const DashboardHome = () => {
                   <p className="text-sm font-medium text-gray-400 mb-1">
                     {card.title}
                   </p>
-                  <p className="text-3xl font-bold text-accent-content mb-2">
+                  <p className="text-3xl font-bold text-slate-300 mb-2">
                     {card.value}
                   </p>
                   <p className="text-xs text-gray-500">from last month</p>
@@ -445,10 +446,10 @@ const DashboardHome = () => {
                   <div
                     className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-r ${action.gradient} flex items-center justify-center shadow-lg shadow-black/50`}
                   >
-                    <action.icon className="w-5 h-5 sm:w-6 sm:h-6 text-accent-content" />
+                    <action.icon className="w-5 h-5 sm:w-6 sm:h-6 text-slate-300" />
                   </div>
                   <div className="text-start">
-                    <p className="text-sm font-bold text-accent-content mb-1">
+                    <p className="text-sm font-bold text-slate-300 mb-1">
                       {action.label}
                     </p>
                     <p className="text-xs text-gray-400">
@@ -471,13 +472,13 @@ const DashboardHome = () => {
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-3">
                   <div className="p-2 rounded-xl bg-gradient-to-r from-gray-800 to-black shadow-lg shadow-black/50">
-                    <ShoppingCart className="w-5 h-5 text-accent-content" />
+                    <ShoppingCart className="w-5 h-5 text-slate-300" />
                   </div>
-                  <h3 className="text-lg sm:text-xl font-bold text-accent-content">
+                  <h3 className="text-lg sm:text-xl font-bold text-slate-300">
                     Recent Orders
                   </h3>
                 </div>
-                <button className="group flex items-center space-x-2 text-gray-300 hover:text-accent-content text-sm font-semibold">
+                <button className="group flex items-center space-x-2 text-gray-300 hover:text-slate-300 text-sm font-semibold">
                   <span>View All</span>
                   <ChevronRight className="w-4 h-4" />
                 </button>
@@ -513,13 +514,13 @@ const DashboardHome = () => {
                     >
                       <div className="flex items-center space-x-4">
                         <div className="w-12 h-12 bg-gradient-to-r from-gray-800 via-slate-800 to-black rounded-2xl flex items-center justify-center shadow-lg shadow-black/50">
-                          <span className="text-accent-content font-bold text-sm">
+                          <span className="text-slate-300 font-bold text-sm">
                             {order.avatar}
                           </span>
                         </div>
                         <div>
                           <div className="flex items-center space-x-2">
-                            <p className="text-sm font-bold text-accent-content">
+                            <p className="text-sm font-bold text-slate-300">
                               {order.id}
                             </p>
                             <span
@@ -548,7 +549,7 @@ const DashboardHome = () => {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-lg font-bold text-accent-content">
+                        <p className="text-lg font-bold text-slate-300">
                           {order.amount}
                         </p>
                         <div className="flex items-center space-x-1 text-green-400">
@@ -571,13 +572,13 @@ const DashboardHome = () => {
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-3">
                   <div className="p-2 rounded-xl bg-gradient-to-r from-zinc-800 via-gray-800 to-slate-900 shadow-lg shadow-black/50">
-                    <Package className="w-5 h-5 text-accent-content" />
+                    <Package className="w-5 h-5 text-slate-300" />
                   </div>
-                  <h3 className="text-lg sm:text-xl font-bold text-accent-content">
+                  <h3 className="text-lg sm:text-xl font-bold text-slate-300">
                     Top Selling Products
                   </h3>
                 </div>
-                <button className="group flex items-center space-x-2 text-gray-300 hover:text-accent-content text-sm font-semibold">
+                <button className="group flex items-center space-x-2 text-gray-300 hover:text-slate-300 text-sm font-semibold">
                   <span>View All</span>
                   <ChevronRight className="w-4 h-4" />
                 </button>
@@ -613,10 +614,10 @@ const DashboardHome = () => {
                     >
                       <div className="flex items-center space-x-4">
                         <div className="w-12 h-12 bg-gradient-to-r from-zinc-800 via-gray-800 to-slate-900 rounded-2xl flex items-center justify-center shadow-lg shadow-black/50">
-                          <Package className="w-5 h-5 text-accent-content" />
+                          <Package className="w-5 h-5 text-slate-300" />
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-accent-content">
+                          <p className="text-sm font-bold text-slate-300">
                             {product.name}
                           </p>
                           <div className="flex items-center space-x-3 mt-1">
@@ -633,7 +634,7 @@ const DashboardHome = () => {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-lg font-bold text-accent-content">
+                        <p className="text-lg font-bold text-slate-300">
                           {product.price}
                         </p>
                         <div className="flex items-center space-x-1 text-green-400">
@@ -661,9 +662,9 @@ const DashboardHome = () => {
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-3">
                   <div className="p-2 rounded-xl bg-gradient-to-r from-gray-800 to-black shadow-lg shadow-black/50">
-                    <BarChart3 className="w-5 h-5 text-accent-content" />
+                    <BarChart3 className="w-5 h-5 text-slate-300" />
                   </div>
-                  <h3 className="text-lg sm:text-xl font-bold text-accent-content">
+                  <h3 className="text-lg sm:text-xl font-bold text-slate-300">
                     Sales Overview
                   </h3>
                 </div>
@@ -677,7 +678,7 @@ const DashboardHome = () => {
               <div className="h-48 sm:h-64 bg-gradient-to-br from-gray-900/30 to-black/20 rounded-2xl border border-gray-800/30 backdrop-blur-sm flex items-center justify-center">
                 <div className="text-center">
                   <div className="w-16 h-16 bg-gradient-to-r from-gray-800 to-black rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-black/50">
-                    <BarChart3 className="w-8 h-8 text-accent-content" />
+                    <BarChart3 className="w-8 h-8 text-slate-300" />
                   </div>
                   <p className="text-gray-300 font-medium">
                     Chart will be rendered here
@@ -697,9 +698,9 @@ const DashboardHome = () => {
             <div className="relative z-10">
               <div className="flex items-center space-x-3 mb-6">
                 <div className="p-2 rounded-xl bg-gradient-to-r from-slate-800 to-gray-900 shadow-lg shadow-black/50">
-                  <Activity className="w-5 h-5 text-accent-content" />
+                  <Activity className="w-5 h-5 text-slate-300" />
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold text-accent-content">
+                <h3 className="text-lg sm:text-xl font-bold text-slate-300">
                   Live Activity
                 </h3>
               </div>
@@ -752,7 +753,7 @@ const DashboardHome = () => {
                       <div className="w-2 h-2 bg-white rounded-full"></div>
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-accent-content">
+                      <p className="text-sm font-medium text-slate-300">
                         {activity.action}
                       </p>
                       <p className="text-xs text-gray-400">{activity.time}</p>
@@ -779,7 +780,7 @@ const DashboardHome = () => {
 
         {/* Performance Metrics */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-          <div className="bg-gradient-to-br from-gray-800 to-black rounded-2xl p-6 text-accent-content shadow-xl shadow-black/50 relative overflow-hidden backdrop-blur-xl border border-gray-700/50">
+          <div className="bg-gradient-to-br from-gray-800 to-black rounded-2xl p-6 text-slate-300 shadow-xl shadow-black/50 relative overflow-hidden backdrop-blur-xl border border-gray-700/50">
             <div className="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-full -translate-y-10 translate-x-10 backdrop-blur-sm"></div>
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-4">
@@ -793,7 +794,7 @@ const DashboardHome = () => {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-slate-800 to-gray-900 rounded-2xl p-6 text-accent-content shadow-xl shadow-black/50 relative overflow-hidden backdrop-blur-xl border border-gray-700/50">
+          <div className="bg-gradient-to-br from-slate-800 to-gray-900 rounded-2xl p-6 text-slate-300 shadow-xl shadow-black/50 relative overflow-hidden backdrop-blur-xl border border-gray-700/50">
             <div className="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-full -translate-y-10 translate-x-10 backdrop-blur-sm"></div>
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-4">
@@ -807,7 +808,7 @@ const DashboardHome = () => {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-zinc-800 to-slate-900 rounded-2xl p-6 text-accent-content shadow-xl shadow-black/50 relative overflow-hidden backdrop-blur-xl border border-gray-700/50">
+          <div className="bg-gradient-to-br from-zinc-800 to-slate-900 rounded-2xl p-6 text-slate-300 shadow-xl shadow-black/50 relative overflow-hidden backdrop-blur-xl border border-gray-700/50">
             <div className="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-full -translate-y-10 translate-x-10 backdrop-blur-sm"></div>
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-4">
@@ -821,7 +822,7 @@ const DashboardHome = () => {
             </div>
           </div>
         </div>
-      </main>
+      </Container>
 
       <style jsx>{`
         /* Glassmorphism effects */
@@ -874,7 +875,7 @@ const DashboardHome = () => {
           }
         }
       `}</style>
-    </div>
+    </section>
   );
 };
 

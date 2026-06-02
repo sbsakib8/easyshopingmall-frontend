@@ -335,7 +335,7 @@ const AddProductComponent = () => {
                   name="productName"
                   value={formData.productName}
                   onChange={handleInputChange}
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-1"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-1"
                   placeholder="Enter product name"
                   required
                 />
@@ -348,7 +348,7 @@ const AddProductComponent = () => {
                   name="brand"
                   value={formData.brand}
                   onChange={handleInputChange}
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-1"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-1"
                   placeholder="Enter brand name"
                 />
               </div>
@@ -360,7 +360,7 @@ const AddProductComponent = () => {
                   value={formData.description}
                   onChange={handleInputChange}
                   rows="4"
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none mt-1"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none mt-1"
                   placeholder="Enter detailed product description"
                   required
                 />
@@ -474,7 +474,7 @@ const AddProductComponent = () => {
 
             {/* Product Status */}
             <div className="mt-6 space-y-3">
-              <label className="text-accent-content font-medium flex items-center gap-2">
+              <label className="text-slate-300 font-medium flex items-center gap-2">
                 <BarChart3 size={15} className="text-orange-400" />
                 Product Status
               </label>
@@ -519,7 +519,7 @@ const AddProductComponent = () => {
 
             {/* Tags */}
             <div className="mt-6 space-y-4">
-              <label className="text-accent-content font-medium">
+              <label className="text-slate-300 font-medium">
                 Product Tags
               </label>
 
@@ -541,7 +541,7 @@ const AddProductComponent = () => {
                     }}
                     className={`px-4 py-2 rounded-xl border flex items-center gap-2 capitalize text-sm transition-all duration-200
  ${formData.tags.includes(tag)
-                        ? "bg-gradient-to-r from-blue-500 to-purple-500 border-transparent text-accent-content shadow-lg shadow-purple-500/20"
+                        ? "bg-gradient-to-r from-blue-500 to-purple-500 border-transparent text-slate-300 shadow-lg shadow-purple-500/20"
                         : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
                       }`}
                   >
@@ -565,13 +565,13 @@ const AddProductComponent = () => {
                       addTag();
                     }
                   }}
-                  className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   placeholder="Type a custom tag and press Enter or click +"
                 />
                 <button
                   type="button"
                   onClick={addTag}
-                  className="px-5 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-accent-content rounded-xl hover:from-blue-600 hover:to-purple-600 flex items-center gap-1 font-medium"
+                  className="px-5 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-slate-300 rounded-xl hover:from-blue-600 hover:to-purple-600 flex items-center gap-1 font-medium"
                 >
                   <Plus size={18} />
                 </button>
@@ -583,7 +583,7 @@ const AddProductComponent = () => {
                   {formData.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="bg-gradient-to-r from-blue-500/30 to-purple-500/30 border border-purple-500/40 text-accent-content px-3 py-1 rounded-full text-sm flex items-center gap-1.5 capitalize"
+                      className="bg-gradient-to-r from-blue-500/30 to-purple-500/30 border border-purple-500/40 text-slate-300 px-3 py-1 rounded-full text-sm flex items-center gap-1.5 capitalize"
                     >
                       <Tag size={11} className="text-purple-300" />
                       {tag}
@@ -621,7 +621,7 @@ const AddProductComponent = () => {
                   {formData.productWeight.map((weight) => (
                     <span
                       key={weight}
-                      className="bg-gradient-to-r from-blue-500 to-purple-500 text-accent-content px-3 py-1 rounded-full text-sm flex items-center"
+                      className="bg-gradient-to-r from-blue-500 to-purple-500 text-slate-300 px-3 py-1 rounded-full text-sm flex items-center"
                     >
                       {weight}
                       <button
@@ -642,13 +642,13 @@ const AddProductComponent = () => {
                     onKeyPress={(e) =>
                       e.key === "Enter" && (e.preventDefault(), addweight())
                     }
-                    className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Add product weight"
                   />
                   <button
                     type="button"
                     onClick={addweight}
-                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-accent-content rounded-xl hover:from-blue-600 hover:to-purple-600 flex items-center"
+                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-slate-300 rounded-xl hover:from-blue-600 hover:to-purple-600 flex items-center"
                   >
                     <Plus size={20} />
                   </button>
@@ -662,7 +662,7 @@ const AddProductComponent = () => {
                   {formData.productSize.map((size) => (
                     <span
                       key={size}
-                      className="bg-gradient-to-r from-blue-500 to-purple-500 text-accent-content px-3 py-1 rounded-full text-sm flex items-center"
+                      className="bg-gradient-to-r from-blue-500 to-purple-500 text-slate-300 px-3 py-1 rounded-full text-sm flex items-center"
                     >
                       {size}
                       <button
@@ -683,13 +683,13 @@ const AddProductComponent = () => {
                     onKeyPress={(e) =>
                       e.key === "Enter" && (e.preventDefault(), addsize())
                     }
-                    className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Add product size"
                   />
                   <button
                     type="button"
                     onClick={addsize}
-                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-accent-content rounded-xl hover:from-blue-600 hover:to-purple-600 flex items-center"
+                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-slate-300 rounded-xl hover:from-blue-600 hover:to-purple-600 flex items-center"
                   >
                     <Plus size={20} />
                   </button>
@@ -703,7 +703,7 @@ const AddProductComponent = () => {
                   {formData.color.map((color) => (
                     <span
                       key={color}
-                      className="bg-gradient-to-r from-blue-500 to-purple-500 text-accent-content px-3 py-1 rounded-full text-sm flex items-center"
+                      className="bg-gradient-to-r from-blue-500 to-purple-500 text-slate-300 px-3 py-1 rounded-full text-sm flex items-center"
                     >
                       {color}
                       <button
@@ -724,13 +724,13 @@ const AddProductComponent = () => {
                     onKeyPress={(e) =>
                       e.key === "Enter" && (e.preventDefault(), addcolor())
                     }
-                    className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 p-3 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Add product color"
                   />
                   <button
                     type="button"
                     onClick={addcolor}
-                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-accent-content rounded-xl hover:from-blue-600 hover:to-purple-600 flex items-center"
+                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-slate-300 rounded-xl hover:from-blue-600 hover:to-purple-600 flex items-center"
                   >
                     <Plus size={20} />
                   </button>
@@ -755,7 +755,7 @@ const AddProductComponent = () => {
                   value={formData.price}
                   onChange={handleInputChange}
                   step="0.01"
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-accent-content placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent mt-1"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent mt-1"
                   placeholder="0.00"
                   required
                 />
@@ -888,7 +888,7 @@ const AddProductComponent = () => {
                       <button
                         type="button"
                         onClick={() => removeImage(image.id)}
-                        className="absolute top-2 right-2 bg-red-500 text-accent-content rounded-full p-1 opacity-0 group-hover:opacity-100 hover:bg-red-600"
+                        className="absolute top-2 right-2 bg-red-500 text-slate-300 rounded-full p-1 opacity-0 group-hover:opacity-100 hover:bg-red-600"
                       >
                         <X size={16} />
                       </button>
@@ -918,7 +918,7 @@ const AddProductComponent = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className={`px-4 py-2.5 rounded-xl text-accent-content flex items-center justify-center space-x-2 shadow-lg
+              className={`px-4 py-2.5 rounded-xl text-slate-300 flex items-center justify-center space-x-2 shadow-lg
  ${isLoading
                   ? "bg-gray-500 cursor-not-allowed"
                   : "bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 transform"
@@ -928,7 +928,7 @@ const AddProductComponent = () => {
               {isLoading ? (
                 <>
                   <svg
-                    className="animate-spin h-5 w-5 text-accent-content"
+                    className="animate-spin h-5 w-5 text-slate-300"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -965,7 +965,7 @@ const AddProductComponent = () => {
  <div className="flex items-center justify-between">
  <div>
  <p className="text-cyan-300 text-sm">Total Products</p>
- <p className="text-accent-content text-2xl font-bold">1,248</p>
+ <p className="text-slate-300 text-2xl font-bold">1,248</p>
  </div>
  <Package className="text-cyan-400"size={32} />
  </div>
@@ -975,7 +975,7 @@ const AddProductComponent = () => {
  <div className="flex items-center justify-between">
  <div>
  <p className="text-emerald-300 text-sm">Active Categories</p>
- <p className="text-accent-content text-2xl font-bold">24</p>
+ <p className="text-slate-300 text-2xl font-bold">24</p>
  </div>
  <Tag className="text-emerald-400"size={32} />
  </div>
@@ -985,7 +985,7 @@ const AddProductComponent = () => {
  <div className="flex items-center justify-between">
  <div>
  <p className="text-pink-300 text-sm">Featured Products</p>
- <p className="text-accent-content text-2xl font-bold">156</p>
+ <p className="text-slate-300 text-2xl font-bold">156</p>
  </div>
  <Star className="text-pink-400"size={32} />
  </div>
