@@ -69,7 +69,7 @@ function Categories({ initialData }) {
             >
               {/* Trending Badge */}
               {item.trending && (
-                <div className="absolute top-3 right-3 z-10 bg-gradient-to-r from-primary-color to-secondary text-accent-content text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                <div className="absolute top-3 right-3 z-10 bg-gradient-to-r from-primary to-secondary text-accent-content text-xs px-2 py-1 rounded-full flex items-center gap-1">
                   <TrendingUp className="w-3 h-3" /> Hot
                 </div>
               )}
@@ -100,7 +100,7 @@ function Categories({ initialData }) {
                   ))}
                 </div>
                 <div className="mt-auto">
-                  <button className="w-full bg-btn-color text-accent-content py-1.5 rounded-md text-xs font-medium">
+                  <button className="w-full bg-primary/80 hover:bg-primary transition-all text-primary-content py-1.5 rounded-md text-xs font-medium">
                     Explore Now
                   </button>
                 </div>

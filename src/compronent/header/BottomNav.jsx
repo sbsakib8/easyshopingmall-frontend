@@ -1,19 +1,18 @@
 "use client";
 
 import { cn } from "@/src/utlis/utils";
+import {
+  AddShoppingCart,
+  GridView,
+  HomeFilled,
+  Info,
+  MailRounded,
+  NewspaperRounded,
+  ShopRounded,
+} from "@mui/icons-material";
 import { Badge } from "@mui/material";
 import Drawer from "@mui/material/Drawer";
-import {
-  ChevronRight,
-  Home,
-  Info,
-  Menu,
-  Newspaper,
-  Phone,
-  ShoppingBag,
-  ShoppingCart,
-  X,
-} from "lucide-react";
+import { ChevronRight, X } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -24,19 +23,19 @@ const BottomNav = ({ cartCount = 0, menuCategories = [] }) => {
   const [activeCategory, setActiveCategory] = useState(null);
 
   const navItems = [
-    { icon: Home, href: "/", key: "home", label: "Home" },
-    { icon: ShoppingBag, href: "/shop", key: "shop", label: "Shop" },
-    { icon: Newspaper, href: "/blog", key: "blog", label: "Blog" },
-    { icon: Phone, href: "/contact", key: "contact", label: "Contact" },
-    { icon: Info, href: "/about", key: "about", label: "About" },
+    { icon: HomeFilled, href: "/", key: "home", label: "Home" },
+    { icon: NewspaperRounded, href: "/blog", key: "blog", label: "Blog" },
     {
-      icon: ShoppingCart,
+      icon: AddShoppingCart,
       href: "/addtocart",
       key: "cart",
       label: "Cart",
       badge: String(cartCount),
     },
-    { icon: Menu, key: "categories", label: "Categories" },
+    { icon: ShopRounded, href: "/shop", key: "shop", label: "Shop" },
+    { icon: MailRounded, href: "/contact", key: "contact", label: "Contact" },
+    { icon: Info, href: "/about", key: "about", label: "About" },
+    { icon: GridView, key: "menu", label: "Category" },
   ];
 
   const handleClick = (item) => {
@@ -54,9 +53,11 @@ const BottomNav = ({ cartCount = 0, menuCategories = [] }) => {
     setActiveCategory(activeCategory?.id === category.id ? null : category);
   };
 
-  const handleSubcategoryClick = (subcategory) => {
+  const handleSubcategoryClick = (category, subcategory) => {
+    const categorySlug = category.slug || category.name;
+    const subcategorySlug = subcategory.slug || subcategory.name;
     router.push(
-      `/shop?category=${subcategory.categoryId.slug}&subcategory=${subcategory.slug}`,
+      `/shop?category=${encodeURIComponent(categorySlug)}&subcategory=${encodeURIComponent(subcategorySlug)}`,
     );
     setMenuOpen(false);
     setActiveCategory(null);
@@ -71,11 +72,12 @@ const BottomNav = ({ cartCount = 0, menuCategories = [] }) => {
   return (
     <>
       {/* Modern Floating Bottom Navigation */}
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 md:hidden w-full flex justify-center pointer-events-none">
-        <div className="rounded-[2.5rem] bg-gradient-to-r from-gray-900/80 via-black/60 to-gray-800/80 backdrop-blur-md shadow-[0_8px_32px_0_rgba(30,144,255,0.18),0_1.5px_8px_0_rgba(30,144,255,0.1)] p-2.5 sm:py-2 relative overflow-visible pointer-events-auto grid grid-cols-7 place-items-center w-[98vw] max-w-lg mx-auto">
-          {navItems.map((item) => {
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 z-50 md:hidden w-full flex justify-center pointer-events-none">
+        <div className="rounded-tr-2xl rounded-tl-2xl bg-gradient-to-r from-slate-300/80 via-white/30 to-slate-400/80 backdrop-blur-md shadow-[0_8px_32px_0_rgba(30,144,255,0.18),0_1.5px_8px_0_rgba(30,144,255,0.1)] px-3.5 py-2.5 relative overflow-visible pointer-events-auto grid grid-cols-8 place-items-center w-full max-w-lg mx-auto">
+          {navItems.map((item, idx) => {
             const Icon = item.icon;
             const active = isActive(item);
+            const shopButton = item.key === "shop";
 
             return (
               <button
@@ -86,44 +88,100 @@ const BottomNav = ({ cartCount = 0, menuCategories = [] }) => {
                 aria-pressed={active}
                 aria-label={item.label}
                 className={cn(
-                  "group flex flex-col items-center justify-center flex-1 transition-all duration-200 text-white space-y-1",
+                  "group flex flex-col items-center justify-between flex-1 transition-all duration-200 h-full",
+                  {
+                    "col-span-2 w-3/5 mx-auto relative justify-end": shopButton,
+                  },
                 )}
               >
                 <span
                   className={cn(
-                    "flex items-center justify-center transition-all duration-200 size-8 sm:size-10 rounded-xl active:scale-95",
+                    "flex items-center justify-center transition-all duration-200 active:scale-95 relative",
                     {
-                      "size-12 sm:size-14 rounded-full bg-white/30 backdrop-blur-md shadow-lg border-4 border-white/20 scale-110 hover:scale-125 active:scale-100 -mt-4":
-                        active,
+                      "size-17 sm:size-20! absolute -top-12 sm:-top-14 rounded-full p-3 overflow-hidden":
+                        shopButton,
                     },
                   )}
                 >
-                  {item.badge !== undefined ? (
-                    <Badge
-                      badgeContent={item.badge}
-                      color="error"
-                      sx={{
-                        "& .MuiBadge-badge": {
-                          fontSize: "10px",
-                          minWidth: "18px",
-                          height: "18px",
-                        },
-                      }}
-                    >
-                      <Icon className={"size-6 sm:size-7"} strokeWidth={2.2} />
-                    </Badge>
-                  ) : (
-                    <Icon className={"size-6 sm:size-7"} strokeWidth={2.2} />
+                  {/* Running Gradient Border */}
+                  {shopButton && (
+                    <div className="absolute inset-0 rounded-full overflow-hidden">
+                      {/* Animated Running Border */}
+                      <div
+                        className="absolute inset-[-4px] rounded-full
+                   bg-[conic-gradient(transparent_0deg,transparent_85deg,#10b981_115deg,#34d399_165deg,#6ee7b7_205deg,#34d399_245deg,transparent_300deg,transparent_360deg)]
+                   animate-[spin_2.8s_linear_infinite]
+                   blur-[1.5px]"
+                      />
+
+                      {/* Inner Glass Background - Perfectly Circular */}
+                      <div
+                        className="absolute inset-[3px] rounded-full
+                      bg-gradient-to-r from-slate-300/80 via-white/70 to-slate-400/80
+                      backdrop-blur-md"
+                      />
+                    </div>
                   )}
+
+                  {/* Icon Container with Z-index */}
+                  <div className="relative z-10 flex items-center justify-center w-full h-full">
+                    {item.badge !== undefined ? (
+                      <Badge
+                        badgeContent={item.badge}
+                        color="error"
+                        sx={{
+                          "& .MuiBadge-badge": {
+                            fontSize: "12px",
+                            minWidth: "16px",
+                            height: "16px",
+                          },
+                        }}
+                      >
+                        <Icon
+                          className={cn(
+                            "text-black/90 sm:text-3xl transition-transform",
+                            {
+                              "text-emerald-600": active,
+                              "animate-[pulse_2.5s_ease-in-out_infinite]":
+                                shopButton,
+                            },
+                          )}
+                        />
+                      </Badge>
+                    ) : (
+                      <Icon
+                        className={cn(
+                          "text-black/80 sm:text-3xl! transition-transform",
+                          {
+                            "text-emerald-500": active,
+                            "text-4xl! sm:text-5xl!": shopButton,
+                            "animate-[pulse_2.5s_ease-in-out_infinite]":
+                              shopButton,
+                          },
+                        )}
+                      />
+                    )}
+                  </div>
                 </span>
-                <span className="text-xs">{item.label}</span>
+
+                <span
+                  className={cn(
+                    "text-[8px] text-black sm:text-[10px] uppercase font-semibold",
+                    {
+                      "font-bold text-emerald-600": active,
+                      relative: shopButton,
+                    },
+                  )}
+                >
+                  {item.label}
+                </span>
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* Menu Panel */}
+      {/* Categories Panel */}
       <Drawer
         open={menuOpen}
         onClose={() => {
@@ -199,7 +257,9 @@ const BottomNav = ({ cartCount = 0, menuCategories = [] }) => {
                         {category?.subcategories?.map((sub) => (
                           <button
                             key={sub.id}
-                            onClick={() => handleSubcategoryClick(sub)}
+                            onClick={() =>
+                              handleSubcategoryClick(category, sub)
+                            }
                             type="button"
                             title={sub.name}
                             aria-label={sub.name}
@@ -218,7 +278,7 @@ const BottomNav = ({ cartCount = 0, menuCategories = [] }) => {
           )}
         </div>
       </Drawer>
-      {/* Important: Bottom padding for mobile */}
+
       <div className="h-20 md:hidden" aria-hidden />
     </>
   );

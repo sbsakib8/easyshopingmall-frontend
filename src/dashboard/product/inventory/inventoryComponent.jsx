@@ -20,7 +20,7 @@ const InventoryDashboard = () => {
  search:""
 }), []);
 
- // product get 
+ // product get
  const {product, loading, error, refetch} = useGetProduct(formData)
  // get category data
  const allCategorydata = useSelector((state) => state.category.allCategorydata);
@@ -45,7 +45,7 @@ const InventoryDashboard = () => {
  const [selectedTab, setSelectedTab] = useState('products');
  const [lowStockThreshold, setLowStockThreshold] = useState(1);
 
- // action function click handle 
+ // action function click handle
  const [viewModal, setViewModal] = useState(null);
  const [editModal, setEditModal] = useState(null);
  const [deleteModal, setDeleteModal] = useState(null);
@@ -191,7 +191,7 @@ const InventoryDashboard = () => {
 };
 
 
- // notification 
+ // notification
  useEffect(() => {
  socket.on("connect", () => {
  // console.log("🟢 Socket connected:", socket.id);
@@ -269,7 +269,7 @@ const InventoryDashboard = () => {
 
  <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between">
  <div>
- <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-accent-content mb-2">
+ <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-300 mb-2">
  Inventory <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Dashboard</span>!
  </h1>
  <p className="text-gray-300 text-sm sm:text-base">
@@ -288,10 +288,10 @@ const InventoryDashboard = () => {
  <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
  <div className="relative z-10">
  <div className="flex items-center justify-between mb-4">
- <TrendingUp className="w-8 h-8 text-accent-content/90"/>
+ <TrendingUp className="w-8 h-8 text-slate-300/90"/>
  <div className="text-4xl">✅</div>
  </div>
- <div className="text-3xl font-black text-accent-content mb-1">{stats?.inStockProducts}</div>
+ <div className="text-3xl font-black text-slate-300 mb-1">{stats?.inStockProducts}</div>
  <div className="text-green-100 font-medium">In Stock</div>
  <div className="mt-2 text-xs text-green-200">Well stocked items</div>
  </div>
@@ -301,10 +301,10 @@ const InventoryDashboard = () => {
  <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
  <div className="relative z-10">
  <div className="flex items-center justify-between mb-4">
- <AlertTriangle className="w-8 h-8 text-accent-content/90"/>
+ <AlertTriangle className="w-8 h-8 text-slate-300/90"/>
  <div className="text-4xl">⚠️</div>
  </div>
- <div className="text-3xl font-black text-accent-content mb-1">{stats?.lowStockProducts}</div>
+ <div className="text-3xl font-black text-slate-300 mb-1">{stats?.lowStockProducts}</div>
  <div className="text-amber-100 font-medium">Low Stock</div>
  <div className="mt-2 text-xs text-amber-200">Needs attention</div>
  </div>
@@ -314,10 +314,10 @@ const InventoryDashboard = () => {
  <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
  <div className="relative z-10">
  <div className="flex items-center justify-between mb-4">
- <Package className="w-8 h-8 text-accent-content/90"/>
+ <Package className="w-8 h-8 text-slate-300/90"/>
  <div className="text-4xl">📦</div>
  </div>
- <div className="text-3xl font-black text-accent-content mb-1">{stats?.outOfStockProducts}</div>
+ <div className="text-3xl font-black text-slate-300 mb-1">{stats?.outOfStockProducts}</div>
  <div className="text-blue-100 font-medium">Out Of Stock </div>
  <div className="mt-2 text-xs text-blue-200">+12% from last month</div>
  </div>
@@ -327,10 +327,10 @@ const InventoryDashboard = () => {
  <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
  <div className="relative z-10">
  <div className="flex items-center justify-between mb-4">
- <TrendingDown className="w-8 h-8 text-accent-content/90"/>
+ <TrendingDown className="w-8 h-8 text-slate-300/90"/>
  <div className="text-4xl">💰</div>
  </div>
- <div className="text-3xl font-black text-accent-content mb-1">৳{stats.totalValue.toLocaleString()}</div>
+ <div className="text-3xl font-black text-slate-300 mb-1">৳{stats.totalValue.toLocaleString()}</div>
  <div className="text-rose-100 font-medium">Total Value</div>
  <div className="mt-2 text-xs text-rose-200">Inventory worth</div>
  </div>
@@ -350,7 +350,7 @@ const InventoryDashboard = () => {
  onClick={() => setSelectedTab(tab.id)}
  className={`flex items-center space-x-2 px-6 py-3 rounded-2xl font-semibold ${selectedTab === tab.id
  ?'bg-gradient-to-r from-white/90 to-white/70 text-gray-800 shadow-lg scale-105'
- :'text-accent-content/80 hover:text-accent-content hover:bg-white/10'
+ :'text-slate-300/80 hover:text-slate-300 hover:bg-white/10'
 }`}
  >
  <span className="text-lg">{tab.emoji}</span>
@@ -368,20 +368,20 @@ const InventoryDashboard = () => {
  <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
  <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto flex-1">
  <div className="relative group">
- <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-accent-content/60 w-5 h-5 group-hover:text-accent-content/80"/>
+ <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-300/60 w-5 h-5 group-hover:text-slate-300/80"/>
  <input
  type="text"
  placeholder="🔍 Search products..."
  value={searchTerm}
  onChange={(e) => setSearchTerm(e.target.value)}
- className="pl-12 pr-4 py-3 bg-white/20 border border-white/30 rounded-2xl placeholder-white/60 text-accent-content focus:ring-2 focus:ring-cyan-400 focus:border-transparent w-full sm:w-80 hover:bg-white/25"
+ className="pl-12 pr-4 py-3 bg-white/20 border border-white/30 rounded-2xl placeholder-white/60 text-slate-300 focus:ring-2 focus:ring-cyan-400 focus:border-transparent w-full sm:w-80 hover:bg-white/25"
  />
  </div>
 
  <select
  value={selectedCategory}
  onChange={(e) => setSelectedCategory(e.target.value)}
- className="px-4 py-3 bg-gray-800/50 border border-gray-600/50 rounded-xl text-accent-content focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:bg-gray-700/50"
+ className="px-4 py-3 bg-gray-800/50 border border-gray-600/50 rounded-xl text-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:bg-gray-700/50"
  >
  <option value="All">All Categories</option>
  {allCategorydata?.data.map(cat => (
@@ -392,7 +392,7 @@ const InventoryDashboard = () => {
  <select
  value={sortBy}
  onChange={(e) => setSortBy(e.target.value)}
- className="px-4 py-3 bg-white/20 border border-white/30 rounded-2xl text-accent-content focus:ring-2 focus:ring-cyan-400 focus:border-transparent hover:bg-white/25"
+ className="px-4 py-3 bg-white/20 border border-white/30 rounded-2xl text-slate-300 focus:ring-2 focus:ring-cyan-400 focus:border-transparent hover:bg-white/25"
  >
  <option value="name"className="bg-gray-800">Sort by Name</option>
  <option value="price"className="bg-gray-800">Sort by Price</option>
@@ -402,11 +402,11 @@ const InventoryDashboard = () => {
  </div>
 
  <div className="flex flex-col lg:flex-row gap-3 w-full lg:w-auto">
- <button className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500 text-accent-content rounded-2xl hover:from-emerald-600 hover:via-green-600 hover:to-teal-600 hover:shadow-xl hover:shadow-emerald-500/25 flex-1 lg:flex-none justify-center font-semibold">
+ <button className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500 text-slate-300 rounded-2xl hover:from-emerald-600 hover:via-green-600 hover:to-teal-600 hover:shadow-xl hover:shadow-emerald-500/25 flex-1 lg:flex-none justify-center font-semibold">
  <Upload className="w-5 h-5"/>
  <span>📤 Import</span>
  </button>
- <button className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-500 via-cyan-500 to-indigo-500 text-accent-content rounded-2xl hover:from-blue-600 hover:via-cyan-600 hover:to-indigo-600 hover:shadow-xl hover:shadow-blue-500/25 flex-1 lg:flex-none justify-center font-semibold">
+ <button className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-500 via-cyan-500 to-indigo-500 text-slate-300 rounded-2xl hover:from-blue-600 hover:via-cyan-600 hover:to-indigo-600 hover:shadow-xl hover:shadow-blue-500/25 flex-1 lg:flex-none justify-center font-semibold">
  <Download className="w-5 h-5"/>
  <span>📥 Export</span>
  </button>
@@ -415,7 +415,7 @@ const InventoryDashboard = () => {
  setEditingProduct(null);
  setShowModal(true);
 }}
- className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 text-accent-content rounded-2xl hover:from-purple-600 hover:via-pink-600 hover:to-rose-600 hover:shadow-xl hover:shadow-purple-500/25 flex-1 lg:flex-none justify-center font-semibold"
+ className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 text-slate-300 rounded-2xl hover:from-purple-600 hover:via-pink-600 hover:to-rose-600 hover:shadow-xl hover:shadow-purple-500/25 flex-1 lg:flex-none justify-center font-semibold"
  >
  <Plus className="w-5 h-5"/>
  <span>✨ Add Product</span>
@@ -430,8 +430,8 @@ const InventoryDashboard = () => {
  <button
  onClick={() => setViewMode('grid')}
  className={`px-4 py-2 rounded-xl ${viewMode ==='grid'
- ?'bg-black/90 text-accent-content shadow-lg'
- :'text-accent-content/80 hover:text-accent-content hover:bg-white/10'
+ ?'bg-black/90 text-slate-300 shadow-lg'
+ :'text-slate-300/80 hover:text-slate-300 hover:bg-white/10'
 }`}
  >
  🔲 Grid
@@ -440,7 +440,7 @@ const InventoryDashboard = () => {
  onClick={() => setViewMode('table')}
  className={`px-4 py-2 rounded-xl ${viewMode ==='table'
  ?'bg-white/90 text-gray-800 shadow-lg'
- :'text-accent-content/80 hover:text-accent-content hover:bg-white/10'
+ :'text-slate-300/80 hover:text-slate-300 hover:bg-white/10'
 }`}
  >
  📋 Table
@@ -465,7 +465,7 @@ const InventoryDashboard = () => {
  >
  {/* Trending Badge */}
  {product.trending ==='up'&& (
- <div className="absolute -top-2 -right-2 bg-gradient-to-r from-green-400 to-emerald-500 text-accent-content px-3 py-1 rounded-full text-xs font-bold">
+ <div className="absolute -top-2 -right-2 bg-gradient-to-r from-green-400 to-emerald-500 text-slate-300 px-3 py-1 rounded-full text-xs font-bold">
  🔥 HOT
  </div>
  )}
@@ -475,7 +475,7 @@ const InventoryDashboard = () => {
  {product?.images ? <img src={product.images[0]} alt={product.productName} className="w-16 h-16 object-cover rounded-lg"/> :"📦"}
  </div>
  <div className="relative">
- <button className="p-2 text-accent-content/70 hover:text-accent-content hover:bg-white/20 rounded-xl">
+ <button className="p-2 text-slate-300/70 hover:text-slate-300 hover:bg-white/20 rounded-xl">
  <MoreHorizontal className="w-5 h-5"/>
  </button>
  </div>
@@ -483,19 +483,19 @@ const InventoryDashboard = () => {
 
  <div className="space-y-4">
  <div>
- <h3 className="font-bold text-accent-content text-lg leading-tight mb-2 group-hover:text-cyan-300">
+ <h3 className="font-bold text-slate-300 text-lg leading-tight mb-2 group-hover:text-cyan-300">
  {product?.productName}
  </h3>
  <div className="flex flex-col gap-2">
- <span className="px-3 py-1 bg-white/20 text-accent-content/90 rounded-full text-xs font-medium">
+ <span className="px-3 py-1 bg-white/20 text-slate-300/90 rounded-full text-xs font-medium">
  {product?.category[0]?.name}
  </span>
- <span className="text-sm text-accent-content/70 font-mono">{product?.sku}</span>
+ <span className="text-sm text-slate-300/70 font-mono">{product?.sku}</span>
  </div>
  </div>
 
  <div className="flex items-center justify-between">
- <span className="text-2xl font-black text-accent-content">৳{product?.price}</span>
+ <span className="text-2xl font-black text-slate-300">৳{product?.price}</span>
  <span className={`flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-bold ${stockStatus.status ==='In Stock'?'bg-green-500/20 text-green-300':
  stockStatus.status ==='Low Stock'?'bg-yellow-500/20 text-yellow-300':
 'bg-red-500/20 text-red-300'
@@ -506,7 +506,7 @@ const InventoryDashboard = () => {
 
  <div className="space-y-2">
  <div className="space-y-1">
- <span className={`inline-flex items-center px-2 py-1 rounded-lg text-xs font-bold bg-gradient-to-r ${getStatusColor(product?.productStock)} text-accent-content shadow-md`}>
+ <span className={`inline-flex items-center px-2 py-1 rounded-lg text-xs font-bold bg-gradient-to-r ${getStatusColor(product?.productStock)} text-slate-300 shadow-md`}>
  {product?.productStock}
  </span>
  <p className="text-xs text-gray-400">{getStatusText(product?.productStock)}</p>
@@ -554,13 +554,13 @@ const InventoryDashboard = () => {
  <table className="w-full">
  <thead>
  <tr className="bg-gradient-to-r from-purple-600/50 via-pink-600/50 to-rose-600/50 border-b border-white/20">
- <th className="px-6 py-4 text-left font-bold text-accent-content">Product</th>
- <th className="px-6 py-4 text-left font-bold text-accent-content hidden md:table-cell">SKU</th>
- <th className="px-6 py-4 text-left font-bold text-accent-content hidden lg:table-cell">Category</th>
- <th className="px-6 py-4 text-left font-bold text-accent-content">Stock</th>
- <th className="px-6 py-4 text-left font-bold text-accent-content hidden lg:table-cell">Price</th>
- <th className="px-6 py-4 text-left font-bold text-accent-content">Status</th>
- <th className="px-6 py-4 text-left font-bold text-accent-content">Actions</th>
+ <th className="px-6 py-4 text-left font-bold text-slate-300">Product</th>
+ <th className="px-6 py-4 text-left font-bold text-slate-300 hidden md:table-cell">SKU</th>
+ <th className="px-6 py-4 text-left font-bold text-slate-300 hidden lg:table-cell">Category</th>
+ <th className="px-6 py-4 text-left font-bold text-slate-300">Stock</th>
+ <th className="px-6 py-4 text-left font-bold text-slate-300 hidden lg:table-cell">Price</th>
+ <th className="px-6 py-4 text-left font-bold text-slate-300">Status</th>
+ <th className="px-6 py-4 text-left font-bold text-slate-300">Actions</th>
  </tr>
  </thead>
  <tbody>
@@ -580,31 +580,31 @@ const InventoryDashboard = () => {
  {product?.images ? <img src={product.images[0]} alt={product.productName} className="w-12 h-12 object-cover rounded-xl"/> :""}
  </div>
  <div>
- <div className="font-bold text-accent-content group-hover:text-cyan-300">
+ <div className="font-bold text-slate-300 group-hover:text-cyan-300">
  {product.productName}
  </div>
- <div className="text-sm text-accent-content/60 md:hidden">SKU: {product?.sku}</div>
+ <div className="text-sm text-slate-300/60 md:hidden">SKU: {product?.sku}</div>
  </div>
  </div>
  </td>
- <td className="px-6 py-4 text-accent-content/80 hidden md:table-cell font-mono text-sm">
+ <td className="px-6 py-4 text-slate-300/80 hidden md:table-cell font-mono text-sm">
  {product?.sku}
  </td>
- <td className="px-6 py-4 text-accent-content/80 hidden lg:table-cell">
- <span className="px-3 py-1 bg-white/20 text-accent-content/90 rounded-full text-xs font-medium">
+ <td className="px-6 py-4 text-slate-300/80 hidden lg:table-cell">
+ <span className="px-3 py-1 bg-white/20 text-slate-300/90 rounded-full text-xs font-medium">
  {product?.category[0].name}
  </span>
  </td>
  <td className="px-6 py-4">
  <div className="flex items-center space-x-2">
- <span className={`inline-flex items-center px-2 py-1 rounded-lg text-xs font-bold bg-gradient-to-r ${getStatusColor(product?.productStock)} text-accent-content shadow-md`}>
+ <span className={`inline-flex items-center px-2 py-1 rounded-lg text-xs font-bold bg-gradient-to-r ${getStatusColor(product?.productStock)} text-slate-300 shadow-md`}>
  {product?.productStock}
  </span>
  {product.trending ==='up'&& <TrendingUp className="w-4 h-4 text-green-400"/>}
  {product.trending ==='down'&& <TrendingDown className="w-4 h-4 text-red-400"/>}
  </div>
  </td>
- <td className="px-6 py-4 text-accent-content/80 hidden lg:table-cell font-bold">
+ <td className="px-6 py-4 text-slate-300/80 hidden lg:table-cell font-bold">
  ${product?.price}
  </td>
  <td className="px-6 py-4">
@@ -656,7 +656,7 @@ const InventoryDashboard = () => {
  {selectedTab ==='alerts'&& (
  <div className="space-y-4">
  <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-6">
- <h2 className="text-2xl font-bold text-accent-content mb-6 flex items-center space-x-3">
+ <h2 className="text-2xl font-bold text-slate-300 mb-6 flex items-center space-x-3">
  <AlertTriangle className="w-6 h-6 text-yellow-400"/>
  <span>🚨 Stock Alerts</span>
  </h2>
@@ -676,12 +676,12 @@ const InventoryDashboard = () => {
  {product?.images ? <img src={product.images[0]} alt={product.productName} className="w-12 h-12 object-cover rounded-xl"/> :""}
  </div>
  <div className="flex-1">
- <h4 className="font-bold text-accent-content">{product?.productName}</h4>
- <p className="text-sm text-accent-content/70">
+ <h4 className="font-bold text-slate-300">{product?.productName}</h4>
+ <p className="text-sm text-slate-300/70">
  {product?.productStock === 0 ?"❌ Out of stock": `⚠️ Only ${product?.productStock} units left`}
  </p>
  </div>
- <button className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-green-600 text-accent-content rounded-xl hover:from-emerald-600 hover:to-green-700 font-semibold">
+ <button className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-green-600 text-slate-300 rounded-xl hover:from-emerald-600 hover:to-green-700 font-semibold">
  🔄 Restock
  </button>
  </div>
@@ -690,8 +690,8 @@ const InventoryDashboard = () => {
  {products.filter(p => p.productStock <= lowStockThreshold).length === 0 && (
  <div className="text-center py-12">
  <div className="text-8xl mb-4">🎉</div>
- <h3 className="text-2xl font-bold text-accent-content mb-2">All Good!</h3>
- <p className="text-accent-content/70">No stock alerts at the moment. Everything is well-stocked!</p>
+ <h3 className="text-2xl font-bold text-slate-300 mb-2">All Good!</h3>
+ <p className="text-slate-300/70">No stock alerts at the moment. Everything is well-stocked!</p>
  </div>
  )}
  </div>
@@ -704,7 +704,7 @@ const InventoryDashboard = () => {
  <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
  <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-emerald-500/30 max-w-3xl w-full max-h-[90vh] overflow-y-auto animate-slideUp">
  <div className="sticky top-0 bg-gradient-to-r from-emerald-600 to-teal-600 p-6 flex justify-between items-center z-10">
- <h2 className="text-2xl font-bold text-accent-content flex items-center gap-2">
+ <h2 className="text-2xl font-bold text-slate-300 flex items-center gap-2">
  <Edit className="w-6 h-6"/>
  Edit Product
  </h2>
@@ -712,7 +712,7 @@ const InventoryDashboard = () => {
  onClick={() => setEditModal(null)}
  className="p-2 hover:bg-white/10 rounded-lg"
  >
- <X className="w-6 h-6 text-accent-content"/>
+ <X className="w-6 h-6 text-slate-300"/>
  </button>
  </div>
 
@@ -724,7 +724,7 @@ const InventoryDashboard = () => {
  type="text"
  value={editModal?.productName}
  onChange={(e) => updateEditField('productName', e.target.value)}
- className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500"
+ className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-300 focus:outline-none focus:border-emerald-500"
  />
  </div>
 
@@ -734,7 +734,7 @@ const InventoryDashboard = () => {
  type="text"
  value={editModal?.sku}
  onChange={(e) => updateEditField('sku', e.target.value)}
- className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500"
+ className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-300 focus:outline-none focus:border-emerald-500"
  />
  </div>
 
@@ -744,7 +744,7 @@ const InventoryDashboard = () => {
  type="text"
  value={editModal?.brand}
  onChange={(e) => updateEditField('brand', e.target.value)}
- className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500"
+ className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-300 focus:outline-none focus:border-emerald-500"
  />
  </div>
 
@@ -754,7 +754,7 @@ const InventoryDashboard = () => {
  type="number"
  value={editModal?.price}
  onChange={(e) => updateEditField('price', Number(e.target.value))}
- className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500"
+ className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-300 focus:outline-none focus:border-emerald-500"
  />
  </div>
 
@@ -764,7 +764,7 @@ const InventoryDashboard = () => {
  type="number"
  value={editModal?.discount}
  onChange={(e) => updateEditField('discount', Number(e.target.value))}
- className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500"
+ className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-300 focus:outline-none focus:border-emerald-500"
  />
  </div>
 
@@ -774,7 +774,7 @@ const InventoryDashboard = () => {
  type="number"
  value={editModal?.productStock}
  onChange={(e) => updateEditField('productStock', Number(e.target.value))}
- className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500"
+ className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-300 focus:outline-none focus:border-emerald-500"
  />
  </div>
 
@@ -787,7 +787,7 @@ const InventoryDashboard = () => {
  max="5"
  value={editModal?.ratings}
  onChange={(e) => updateEditField('ratings', Number(e.target.value))}
- className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500"
+ className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-300 focus:outline-none focus:border-emerald-500"
  />
  </div>
 
@@ -797,7 +797,7 @@ const InventoryDashboard = () => {
  value={editModal?.description}
  onChange={(e) => updateEditField('description', e.target.value)}
  rows="3"
- className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500 resize-none"
+ className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-300 focus:outline-none focus:border-emerald-500 resize-none"
  ></textarea>
  </div>
 
@@ -817,13 +817,13 @@ const InventoryDashboard = () => {
  <div className="flex gap-3 mt-6">
  <button
  onClick={saveEdit}
- className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-accent-content font-semibold rounded-lg transform"
+ className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-slate-300 font-semibold rounded-lg transform"
  >
  {load ?"Saving...":"Save Changes"}
  </button>
  <button
  onClick={() => setEditModal(null)}
- className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-accent-content font-semibold rounded-lg"
+ className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-slate-300 font-semibold rounded-lg"
  >
  Cancel
  </button>
@@ -839,7 +839,7 @@ const InventoryDashboard = () => {
  <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
  <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-purple-500/30 max-w-3xl w-full max-h-[90vh] overflow-y-auto animate-slideUp">
  <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-purple-600 p-6 flex justify-between items-center z-10">
- <h2 className="text-2xl font-bold text-accent-content flex items-center gap-2">
+ <h2 className="text-2xl font-bold text-slate-300 flex items-center gap-2">
  <Eye className="w-6 h-6"/>
  Product Details
  </h2>
@@ -847,7 +847,7 @@ const InventoryDashboard = () => {
  onClick={() => setViewModal(null)}
  className="p-2 hover:bg-white/10 rounded-lg"
  >
- <X className="w-6 h-6 text-accent-content"/>
+ <X className="w-6 h-6 text-slate-300"/>
  </button>
  </div>
 
@@ -859,10 +859,10 @@ const InventoryDashboard = () => {
  className="w-full md:w-64 h-64 rounded-xl object-cover border-2 border-purple-500/30"
  />
  <div className="flex-1">
- <h3 className="text-3xl font-bold text-accent-content mb-2">{viewModal?.productName}</h3>
+ <h3 className="text-3xl font-bold text-slate-300 mb-2">{viewModal?.productName}</h3>
  <div className="flex gap-2 mb-4">
  {renderStars(viewModal?.ratings)}
- <span className="text-accent-content font-semibold">({viewModal?.ratings}.0)</span>
+ <span className="text-slate-300 font-semibold">({viewModal?.ratings}.0)</span>
  </div>
  <p className="text-gray-300 mb-4">{viewModal?.description}</p>
  <div className="flex gap-2 flex-wrap">
@@ -882,7 +882,7 @@ const InventoryDashboard = () => {
  <Package className="w-5 h-5 text-cyan-400"/>
  <span className="text-gray-400 text-sm">SKU</span>
  </div>
- <p className="text-accent-content font-semibold">{viewModal?.sku}</p>
+ <p className="text-slate-300 font-semibold">{viewModal?.sku}</p>
  </div>
 
  <div className="bg-slate-700/30 rounded-xl p-4 border border-slate-600/50">
@@ -890,7 +890,7 @@ const InventoryDashboard = () => {
  <DollarSign className="w-5 h-5 text-emerald-400"/>
  <span className="text-gray-400 text-sm">Price</span>
  </div>
- <p className="text-accent-content font-semibold text-2xl">৳{viewModal?.price}</p>
+ <p className="text-slate-300 font-semibold text-2xl">৳{viewModal?.price}</p>
  </div>
 
  <div className="bg-slate-700/30 rounded-xl p-4 border border-slate-600/50">
@@ -906,13 +906,13 @@ const InventoryDashboard = () => {
  <Package className="w-5 h-5 text-orange-400"/>
  <span className="text-gray-400 text-sm">Stock</span>
  </div>
- <p className="text-accent-content font-semibold text-2xl">{viewModal?.productStock}</p>
+ <p className="text-slate-300 font-semibold text-2xl">{viewModal?.productStock}</p>
  <p className="text-gray-400 text-sm">{getStatusText(viewModal?.productStock)}</p>
  </div>
 
  <div className="bg-slate-700/30 rounded-xl p-4 border border-slate-600/50">
  <span className="text-gray-400 text-sm">Brand</span>
- <p className="text-accent-content font-semibold mt-2">{viewModal?.brand}</p>
+ <p className="text-slate-300 font-semibold mt-2">{viewModal?.brand}</p>
  </div>
 
  <div className="bg-slate-700/30 rounded-xl p-4 border border-slate-600/50">
@@ -923,7 +923,7 @@ const InventoryDashboard = () => {
 
  {viewModal?.images?.length > 1 && (
  <div className="mt-6">
- <h4 className="text-accent-content font-semibold mb-3">All Images</h4>
+ <h4 className="text-slate-300 font-semibold mb-3">All Images</h4>
  <div className="grid grid-cols-3 gap-3">
  {viewModal?.images.map((img, idx) => (
  <img
@@ -949,7 +949,7 @@ const InventoryDashboard = () => {
  <div className="p-3 bg-pink-500/20 rounded-full">
  <Trash2 className="w-8 h-8 text-pink-500"/>
  </div>
- <h2 className="text-2xl font-bold text-accent-content">Delete Product</h2>
+ <h2 className="text-2xl font-bold text-slate-300">Delete Product</h2>
  </div>
 
  <p className="text-gray-300 mb-6">
@@ -959,13 +959,13 @@ const InventoryDashboard = () => {
  <div className="flex gap-3">
  <button
  onClick={confirmDelete}
- className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-accent-content font-semibold rounded-lg transform"
+ className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-slate-300 font-semibold rounded-lg transform"
  >
  Delete
  </button>
  <button
  onClick={() => setDeleteModal(null)}
- className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-accent-content font-semibold rounded-lg"
+ className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-slate-300 font-semibold rounded-lg"
  >
  Cancel
  </button>
@@ -978,15 +978,15 @@ const InventoryDashboard = () => {
  {filteredProducts.length === 0 && selectedTab ==='products'&& (
  <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-12 text-center">
  <div className="text-8xl mb-6">🔍</div>
- <h3 className="text-2xl font-bold text-accent-content mb-2">No products found</h3>
- <p className="text-accent-content/70 mb-6 text-lg">Try adjusting your search criteria or add new products</p>
+ <h3 className="text-2xl font-bold text-slate-300 mb-2">No products found</h3>
+ <p className="text-slate-300/70 mb-6 text-lg">Try adjusting your search criteria or add new products</p>
  <button
  onClick={() => {
  setEditingProduct(null);
 
  setShowModal(true);
 }}
- className="px-8 py-4 bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 text-accent-content rounded-2xl hover:from-purple-600 hover:via-pink-600 hover:to-rose-600 hover:shadow-xl font-bold text-lg"
+ className="px-8 py-4 bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 text-slate-300 rounded-2xl hover:from-purple-600 hover:via-pink-600 hover:to-rose-600 hover:shadow-xl font-bold text-lg"
  >
  ✨ Add First Product
  </button>
@@ -1006,7 +1006,7 @@ const InventoryDashboard = () => {
  transform: translateY(0) scale(1);
 }
 }
- 
+
  @keyframes fadeIn {
  from {
  opacity: 0;
@@ -1107,7 +1107,7 @@ const InventoryDashboard = () => {
  .mobile-stack {
  display: block !important;
 }
- 
+
  .mobile-stack > * {
  width: 100% !important;
  margin-bottom: 1rem;

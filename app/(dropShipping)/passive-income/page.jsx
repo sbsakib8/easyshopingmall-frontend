@@ -27,13 +27,13 @@ const PassiveIncome = () => {
               </div>
               <h3 className="text-xl font-bold text-gray-900">{s.title}</h3>
               <p className="text-sm text-gray-500 leading-relaxed">{s.desc}</p>
-              <button className="text-primary-color font-bold text-sm hover:underline">Learn More →</button>
+              <button className="text-primary font-bold text-sm hover:underline">Learn More →</button>
             </div>
           ))}
         </div>
 
-        <div className="bg-primary-color/10 p-12 rounded-[3rem] border border-primary-color/20">
-          <TrendingUp className="w-12 h-12 text-primary-color mx-auto mb-4" />
+        <div className="bg-primary/10 p-12 rounded-[3rem] border border-primary/20">
+          <TrendingUp className="w-12 h-12 text-primary mx-auto mb-4" />
           <h2 className="text-2xl font-black text-gray-900 mb-2">Coming Soon: Automatic Payouts</h2>
           <p className="text-gray-600 font-medium">We are integrating a seamless payout system. Your earnings will be credited directly to your balance.</p>
         </div>

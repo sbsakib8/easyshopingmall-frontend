@@ -135,7 +135,7 @@ const ContactPage = ({ initialSiteInfo }) => {
           {/* Contact Info Cards */}
           <div className="lg:col-span-1 space-y-6">
             {/* Phone Card */}
-            <div className="bg-secondary backdrop-blur-lg rounded-3xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-500 hover:scale-105 hover:rotate-1 group">
+            <div className="bg-secondary/7 backdrop-blur-lg rounded-3xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-500 hover:scale-105 hover:rotate-1 group">
               <div className="flex items-center space-x-4">
                 <div className="w-14 h-14 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                   <Phone className="w-7 h-7 text-accent" />
@@ -148,7 +148,7 @@ const ContactPage = ({ initialSiteInfo }) => {
             </div>
 
             {/* Email Card */}
-            <div className="bg-secondary backdrop-blur-lg rounded-3xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-500 hover:scale-105 hover:-rotate-1 group">
+            <div className="bg-secondary/7 backdrop-blur-lg rounded-3xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-500 hover:scale-105 hover:-rotate-1 group">
               <div className="flex items-center space-x-4">
                 <div className="w-14 h-14 bg-gradient-to-r from-pink-400 to-red-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                   <Mail className="w-7 h-7 text-accent" />
@@ -161,7 +161,7 @@ const ContactPage = ({ initialSiteInfo }) => {
             </div>
 
             {/* Location Card */}
-            <div className="bg-secondary backdrop-blur-lg rounded-3xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-500 hover:scale-105 hover:rotate-1 group">
+            <div className="bg-secondary/7 backdrop-blur-lg rounded-3xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-500 hover:scale-105 hover:rotate-1 group">
               <div className="flex items-center space-x-4">
                 <div className="w-14 h-14 bg-gradient-to-r from-purple-400 to-pink-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                   <MapPin className="w-7 h-7 text-accent" />
@@ -174,7 +174,7 @@ const ContactPage = ({ initialSiteInfo }) => {
             </div>
 
             {/* Office Hours Card */}
-            <div className="bg-secondary backdrop-blur-lg rounded-3xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-500 hover:scale-105 hover:-rotate-1 group">
+            <div className="bg-secondary/7 backdrop-blur-lg rounded-3xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-500 hover:scale-105 hover:-rotate-1 group">
               <div className="flex items-center space-x-4">
                 <div className="w-14 h-14 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                   <Clock className="w-7 h-7 text-accent" />
@@ -189,7 +189,7 @@ const ContactPage = ({ initialSiteInfo }) => {
 
           {/* Contact Form */}
           <div className="lg:col-span-2">
-            <div className="bg-secondary backdrop-blur-lg rounded-3xl p-8 lg:p-12 border border-white/20 hover:bg-secondary transition-all duration-500">
+            <div className="bg-secondary/7 backdrop-blur-lg rounded-3xl p-8 lg:p-12 border border-white/20 hover:bg-secondary/10 transition-all duration-500">
               <h2 className="text-3xl lg:text-4xl font-bold text-accent mb-8 text-center">
                 আমাদের সাথে যোগাযোগ করুন
               </h2>
@@ -295,9 +295,9 @@ const ContactPage = ({ initialSiteInfo }) => {
                   <button
                     onClick={handleSubmit}
                     disabled={loading}
-                    className={`bg-primary-color text-accent inline-flex items-center px-12 py-4  font-semibold rounded-2xl
+                    className={`bg-primary/80 hover:bg-primary text-primary-content inline-flex items-center px-12 py-4  font-semibold rounded-2xl
     transition-all duration-300 group cursor-pointer
-    ${loading ? "opacity-60 cursor-not-allowed" : "hover:scale-105 hover:shadow-2xl hover:shadow-primary-color/25"}`}
+    ${loading ? "opacity-60 cursor-not-allowed" : "hover:scale-105 hover:shadow-2xl hover:shadow-primary/25"}`}
                   >
                     {loading ? (
                       <svg

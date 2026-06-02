@@ -111,10 +111,10 @@ const PaymentSettings = () => {
  <div className="flex items-center justify-between mb-4">
  <div className="flex items-center space-x-3">
  <div className={`p-3 rounded-lg bg-gradient-to-r ${config.enabled ?'from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/25':'from-gray-600 to-gray-700'}`}>
- <Icon className="w-6 h-6 text-accent-content drop-shadow-sm"/>
+ <Icon className="w-6 h-6 text-slate-300 drop-shadow-sm"/>
  </div>
  <div>
- <h3 className="text-lg font-semibold text-accent-content">{title}</h3>
+ <h3 className="text-lg font-semibold text-slate-300">{title}</h3>
  <p className="text-sm text-gray-300">{description}</p>
  </div>
  </div>
@@ -147,7 +147,7 @@ const PaymentSettings = () => {
  <select
  value={value.toString()}
  onChange={(e) => handleSettingChange(gateway, key, e.target.value ==='true')}
- className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-accent-content rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-400"
+ className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-400"
  >
  <option value="true">Yes</option>
  <option value="false">No</option>
@@ -158,7 +158,7 @@ const PaymentSettings = () => {
  type={isSecret && !showKey ?'password':'text'}
  value={value}
  onChange={(e) => handleSettingChange(gateway, key, e.target.value)}
- className="w-full px-3 py-2 pr-10 border border-gray-600 bg-gray-700 text-accent-content rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-400 placeholder-gray-400"
+ className="w-full px-3 py-2 pr-10 border border-gray-600 bg-gray-700 text-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-400 placeholder-gray-400"
  placeholder={`Enter ${key}`}
  />
  {isSecret && (
@@ -180,7 +180,7 @@ const PaymentSettings = () => {
  <div className="flex space-x-2 pt-4">
  <button
  onClick={() => testConnection(gateway)}
- className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-accent-content rounded-lg hover:from-blue-700 hover:to-blue-800 flex items-center justify-center space-x-2 shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40"
+ className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-slate-300 rounded-lg hover:from-blue-700 hover:to-blue-800 flex items-center justify-center space-x-2 shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40"
  >
  <RefreshCw className="w-4 h-4"/>
  <span>Test Connection</span>
@@ -207,7 +207,7 @@ const PaymentSettings = () => {
 
  <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between">
  <div>
- <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-accent-content mb-2">
+ <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-300 mb-2">
  Payment <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Settings</span>!
  </h1>
  <p className="text-gray-300 text-sm sm:text-base">
@@ -231,8 +231,8 @@ const PaymentSettings = () => {
  key={id}
  onClick={() => setActiveTab(id)}
  className={`flex items-center space-x-2 px-4 py-3 rounded-lg font-medium ${activeTab === id
- ?'bg-gradient-to-r from-blue-600 to-purple-600 text-accent-content shadow-lg shadow-blue-600/25'
- :'text-gray-300 hover:text-accent-content hover:bg-gray-600'
+ ?'bg-gradient-to-r from-blue-600 to-purple-600 text-slate-300 shadow-lg shadow-blue-600/25'
+ :'text-gray-300 hover:text-slate-300 hover:bg-gray-600'
 }`}
  >
  <Icon className="w-5 h-5"/>
@@ -290,14 +290,14 @@ const PaymentSettings = () => {
  {activeTab ==='general'&& (
  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
  <div className="bg-gradient-to-br from-gray-800 via-gray-700 to-gray-800 rounded-xl shadow-2xl p-6 border border-gray-600">
- <h3 className="text-lg font-semibold text-accent-content mb-4">Transaction Settings</h3>
+ <h3 className="text-lg font-semibold text-slate-300 mb-4">Transaction Settings</h3>
  <div className="space-y-4">
  <div>
  <label className="block text-sm font-medium text-gray-200 mb-2">Default Currency</label>
  <select
  value={generalSettings.defaultCurrency}
  onChange={(e) => handleGeneralSettingChange('defaultCurrency', e.target.value)}
- className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-accent-content rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-400"
+ className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-400"
  >
  <option value="BDT">BDT - Bangladeshi Taka</option>
  <option value="USD">USD - US Dollar</option>
@@ -311,7 +311,7 @@ const PaymentSettings = () => {
  type="number"
  value={generalSettings.minimumAmount}
  onChange={(e) => handleGeneralSettingChange('minimumAmount', parseFloat(e.target.value))}
- className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-accent-content rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-400 placeholder-gray-400"
+ className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-400 placeholder-gray-400"
  />
  </div>
 
@@ -321,7 +321,7 @@ const PaymentSettings = () => {
  type="number"
  value={generalSettings.maximumAmount}
  onChange={(e) => handleGeneralSettingChange('maximumAmount', parseFloat(e.target.value))}
- className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-accent-content rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-400 placeholder-gray-400"
+ className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-400 placeholder-gray-400"
  />
  </div>
 
@@ -332,14 +332,14 @@ const PaymentSettings = () => {
  step="0.1"
  value={generalSettings.transactionFee}
  onChange={(e) => handleGeneralSettingChange('transactionFee', parseFloat(e.target.value))}
- className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-accent-content rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-400 placeholder-gray-400"
+ className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-400 placeholder-gray-400"
  />
  </div>
  </div>
  </div>
 
  <div className="bg-gradient-to-br from-gray-800 via-gray-700 to-gray-800 rounded-xl shadow-2xl p-6 border border-gray-600">
- <h3 className="text-lg font-semibold text-accent-content mb-4">Payment Options</h3>
+ <h3 className="text-lg font-semibold text-slate-300 mb-4">Payment Options</h3>
  <div className="space-y-4">
  {[
  {key:'autoRefund', label:'Enable Auto Refunds'},
@@ -366,7 +366,7 @@ const PaymentSettings = () => {
  type="number"
  value={generalSettings.paymentTimeout}
  onChange={(e) => handleGeneralSettingChange('paymentTimeout', parseInt(e.target.value))}
- className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-accent-content rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-400 placeholder-gray-400"
+ className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-400 placeholder-gray-400"
  />
  </div>
 
@@ -377,7 +377,7 @@ const PaymentSettings = () => {
  step="0.1"
  value={generalSettings.taxRate}
  onChange={(e) => handleGeneralSettingChange('taxRate', parseFloat(e.target.value))}
- className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-accent-content rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-400 placeholder-gray-400"
+ className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-400 placeholder-gray-400"
  />
  </div>
  </div>
@@ -387,7 +387,7 @@ const PaymentSettings = () => {
 
  {activeTab ==='security'&& (
  <div className="bg-gradient-to-br from-gray-800 via-gray-700 to-gray-800 rounded-xl shadow-2xl p-6 border border-gray-600">
- <h3 className="text-lg font-semibold text-accent-content mb-4">Security Settings</h3>
+ <h3 className="text-lg font-semibold text-slate-300 mb-4">Security Settings</h3>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  <div className="space-y-4">
  <div className="p-4 bg-gradient-to-r from-green-900/50 to-emerald-900/50 rounded-lg border border-green-700">
@@ -421,7 +421,7 @@ const PaymentSettings = () => {
  <input
  type="number"
  defaultValue={30}
- className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-accent-content rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-400 placeholder-gray-400"
+ className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-400 placeholder-gray-400"
  />
  </div>
  </div>
@@ -431,11 +431,11 @@ const PaymentSettings = () => {
 
  {activeTab ==='currencies'&& (
  <div className="bg-gradient-to-br from-gray-800 via-gray-700 to-gray-800 rounded-xl shadow-2xl p-6 border border-gray-600">
- <h3 className="text-lg font-semibold text-accent-content mb-4">Supported Currencies</h3>
+ <h3 className="text-lg font-semibold text-slate-300 mb-4">Supported Currencies</h3>
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
  {['BDT','USD','EUR','GBP','JPY','CAD'].map((currency) => (
  <div key={currency} className="flex items-center justify-between p-3 border border-gray-600 bg-gray-700 rounded-lg hover:bg-gray-600">
- <span className="font-medium text-accent-content">{currency}</span>
+ <span className="font-medium text-slate-300">{currency}</span>
  <label className="relative inline-flex items-center cursor-pointer">
  <input
  type="checkbox"
@@ -455,7 +455,7 @@ const PaymentSettings = () => {
  <div className="fixed bottom-6 right-6">
  <button
  onClick={saveSettings}
- className="bg-gradient-to-r from-green-600 to-emerald-600 text-accent-content px-6 py-3 rounded-full shadow-2xl hover:from-green-700 hover:to-emerald-700 flex items-center space-x-2 border border-green-500 shadow-green-600/25 hover:shadow-green-600/40"
+ className="bg-gradient-to-r from-green-600 to-emerald-600 text-slate-300 px-6 py-3 rounded-full shadow-2xl hover:from-green-700 hover:to-emerald-700 flex items-center space-x-2 border border-green-500 shadow-green-600/25 hover:shadow-green-600/40"
  >
  <Save className="w-5 h-5"/>
  <span>Save Settings</span>
@@ -474,7 +474,7 @@ const PaymentSettings = () => {
  transform: translateY(0);
 }
 }
- 
+
  .animate-fadeIn {
  animation: fadeIn 0.5s ;
 }

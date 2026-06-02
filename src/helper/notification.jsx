@@ -1,11 +1,16 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+
 import { Bell } from "lucide-react";
-import socket from "../confic/socket"; // socket.io client instance
-import { useGetnotification } from "../utlis/useNotificationsGet";
-import { NotificationAllRead, NotificationDelete, NotificationSingleRead } from "../hook/useNotification";
+import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { IoCloseSharp } from "react-icons/io5";
+import socket from "../confic/socket"; // socket.io client instance
+import {
+  NotificationAllRead,
+  NotificationDelete,
+  NotificationSingleRead,
+} from "../hook/useNotification";
+import { useGetnotification } from "../utlis/useNotificationsGet";
 
 const NotificationDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -50,7 +55,7 @@ const NotificationDropdown = () => {
     try {
       await NotificationSingleRead(id);
       setNotifications((prev) =>
-        prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
+        prev.map((n) => (n._id === id ? { ...n, isRead: true } : n)),
       );
     } catch (error) {
       console.error("Error marking as read:", error);
@@ -97,9 +102,6 @@ const NotificationDropdown = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-
-
-
   const timeAgo = (timestamp) => {
     const now = new Date();
     const created = new Date(timestamp);
@@ -117,17 +119,17 @@ const NotificationDropdown = () => {
       {/* Bell Icon Button */}
       <button
         onClick={toggleDropdown}
-        className="relative cursor-pointer p-3 rounded-xl bg-gradient-to-r from-gray-700 to-gray-900 
-        hover:from-gray-600 hover:to-gray-800 transform hover:scale-105 transition-all duration-300 
+        className="relative cursor-pointer p-3 rounded-xl bg-gradient-to-r from-gray-700 to-gray-900
+        hover:from-gray-600 hover:to-gray-800 transform hover:scale-105 transition-all duration-300
         shadow-lg hover:shadow-xl border border-gray-600/50 group"
       >
-        <Bell className="w-5 h-5 text-accent-content" />
+        <Bell className="w-5 h-5 text-white" />
 
         {unreadCount > 0 && (
           <span
-            className="absolute -top-2 -right-2 w-6 h-6 
-          bg-gradient-to-r from-red-600 to-red-700 text-accent-content text-xs rounded-full 
-          flex items-center justify-center shadow-lg 
+            className="absolute -top-2 -right-2 w-6 h-6
+          bg-error/90 text-error-content text-xs font-medium rounded-full
+          flex items-center justify-center shadow-lg
           border border-red-500/50"
           >
             {unreadCount}
@@ -138,11 +140,11 @@ const NotificationDropdown = () => {
       {/* Dropdown */}
       {isOpen && (
         <div
-          className="absolute -right-20 lg:right-0 mt-3 w-80 bg-gray-900 border border-gray-700 
+          className="absolute -right-20 lg:right-0 mt-3 w-80 bg-gray-900 border border-gray-700
         rounded-xl shadow-xl p-3 animate-fadeIn z-50"
         >
           <div className="flex justify-between items-center py-2 px-1">
-            <h3 className="text-accent-content font-semibold">Notifications</h3>
+            <h3 className="text-white font-semibold">Notifications</h3>
             <button
               onClick={markAllAsRead}
               className="text-xs text-blue-400 hover:text-blue-300"
@@ -152,7 +154,7 @@ const NotificationDropdown = () => {
           </div>
 
           <div
-            className="max-h-64 overflow-y-auto scrollbar-thin 
+            className="max-h-64 overflow-y-auto scrollbar-thin
           scrollbar-thumb-gray-600 scrollbar-track-gray-800"
           >
             {notifications?.length === 0 ? (
@@ -164,14 +166,20 @@ const NotificationDropdown = () => {
                 <div
                   key={notify._id}
                   onClick={() => markAsRead(notify._id)}
-                  className={`  cursor-pointer rounded-lg p-3 mb-2 transition 
-                  ${notify.isRead
+                  className={`  cursor-pointer rounded-lg p-3 mb-2 transition
+                  ${
+                    notify.isRead
                       ? "bg-gray-800 text-gray-400"
-                      : "bg-gray-700 text-accent-content shadow-md"
-                    } hover:bg-gray-600`}
+                      : "bg-gray-700 text-slate-300 shadow-md"
+                  } hover:bg-gray-600`}
                 >
                   <div className=" relative w-full  ">
-                    <span onClick={() => handleDelete(notify._id)} className=" absolute top-0 right-0 hover:text-red-600 "><IoCloseSharp className=" text-2xl" /></span>
+                    <span
+                      onClick={() => handleDelete(notify._id)}
+                      className=" absolute top-0 right-0 hover:text-red-600 "
+                    >
+                      <IoCloseSharp className=" text-2xl" />
+                    </span>
                   </div>
                   <p className="text-sm font-medium">{notify.title}</p>
                   <p className="text-xs text-gray-300">{notify.message}</p>
