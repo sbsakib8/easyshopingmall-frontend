@@ -48,10 +48,6 @@
   @apply !bg-primary;
 }
 
-.container {
-  @apply w-[98%] lg:w-[97%]  mx-auto md:py-5 lg:py-3 py-4;
-}
-
 .MuiInputBase-root {
   @apply !border-2  border-primary! !outline-none !rounded-lg !shadow-sm w-full! h-13!;
 }
@@ -59,23 +55,21 @@
 /* Custom Scrollbar Styles */
 .scrollbar-thin::-webkit-scrollbar {
   width: 6px;
+  display: none;
 }
 
 .scrollbar-thin::-webkit-scrollbar-track {
-  @apply bg-gray-200 rounded-full;
+  @apply  rounded-full;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  @apply bg-primary rounded-full;
+  @apply bg-primary/80 rounded-full;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  @apply bg-primary/80;
+  @apply bg-primary;
 }
 
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;

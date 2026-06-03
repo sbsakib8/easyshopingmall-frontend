@@ -278,8 +278,6 @@ const BottomNav = ({ cartCount = 0, menuCategories = [] }) => {
           )}
         </div>
       </Drawer>
-
-      <div className="h-20 md:hidden" aria-hidden />
     </>
   );
 };
