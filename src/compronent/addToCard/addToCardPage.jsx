@@ -1,10 +1,19 @@
 "use client";
-import { addToCartApi, getCartApi, removeCartItemApi, updateCartItemApi } from '@/src/hook/useCart';
+import Skeleton from "@/src/compronent/loading/Skeleton";
+import {
+  addToCartApi,
+  getCartApi,
+  removeCartItemApi,
+  updateCartItemApi,
+} from "@/src/hook/useCart";
 import { applyCouponCode } from "@/src/hook/useCoupon";
-import Skeleton from '@/src/compronent/loading/Skeleton';
-import { removeItemLocal, updateQuantityLocal, setCoupon, clearCoupon } from '@/src/redux/cartSlice';
+import {
+  clearCoupon,
+  removeItemLocal,
+  setCoupon,
+  updateQuantityLocal,
+} from "@/src/redux/cartSlice";
 import { useGetSubcategory } from "@/src/utlis/useSubcategory";
-import toast from "react-hot-toast";
 import {
   AlertCircle,
   ArrowRight,
@@ -24,32 +33,39 @@ import {
   Tag,
   Trash2,
   Truck,
-  X
-} from 'lucide-react';
-import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+  X,
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import toast from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
 import {
   addToWishlistApi,
-  removeFromWishlistApi
+  removeFromWishlistApi,
 } from "../../hook/useWishlist";
-import { useRouter } from 'next/navigation';
-import Section from '../shared/Section';
-
+import Section from "../shared/Section";
 
 const ShoppingCartComponent = () => {
   const dispatch = useDispatch();
-  const { items: rawItems = [], loading, error, appliedCoupon, couponDiscount } = useSelector((state) => state.cart);
+  const {
+    items: rawItems = [],
+    loading,
+    error,
+    appliedCoupon,
+    couponDiscount,
+  } = useSelector((state) => state.cart);
   const { data: wishlistItems } = useSelector((state) => state?.wishlist?.data);
   const user = useSelector((state) => state.user.data);
   const router = useRouter();
-  const { items: dsItems = [] } = useSelector((state) => state.dropshippingCart);
-  const [couponCode, setCouponCode] = useState('');
+  const { items: dsItems = [] } = useSelector(
+    (state) => state.dropshippingCart,
+  );
+  const [couponCode, setCouponCode] = useState("");
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
   const [showCouponInput, setShowCouponInput] = useState(false);
   const [localWishlist, setLocalWishlist] = useState(new Set());
   const { subcategory, loading: subcategoryLoading } = useGetSubcategory();
-
 
   useEffect(() => {
     if (user?._id) {
@@ -61,7 +77,6 @@ const ShoppingCartComponent = () => {
   useEffect(() => {
     setLocalWishlist(new Set((wishlistItems || []).map((item) => item.id)));
   }, [wishlistItems]);
-
 
   const toggleWishlist = async (id) => {
     try {
@@ -76,7 +91,6 @@ const ShoppingCartComponent = () => {
       // 🔥 Sync UI with Redux (source of truth)
       const updated = new Set(wishlist.data.map((item) => item.id));
       setLocalWishlist(updated);
-
     } catch (err) {
       console.error("Wishlist toggle error:", err);
     }
@@ -120,28 +134,25 @@ const ShoppingCartComponent = () => {
   //   };
   // });
 
-
   const cartItems = rawItems.map((item) => {
     const product = item.productId || {};
     const id = product._id || item.productId_id;
     const categoryId =
-      product.category?.[0]?._id ||
-      product.category?._id ||
-      null;
+      product.category?.[0]?._id || product.category?._id || null;
 
     return {
       id,
       productId: id,
       categoryId,
-      name: product.productName || product.name || 'Product',
+      name: product.productName || product.name || "Product",
       price: item.price ?? product.price ?? 0,
       originalPrice: product.oldPrice ?? product.price ?? 0,
       quantity: item.quantity ?? 1,
-      image: product.images?.[0] || 'https://via.placeholder.com/100x100',
+      image: product.images?.[0] || "https://via.placeholder.com/100x100",
       inStock: (product.stock ?? 1) > 0,
       rating: product.ratings,
-      color: item.color || 'Default',
-      size: item.size || 'N/A',
+      color: item.color || "Default",
+      size: item.size || "N/A",
     };
   });
 
@@ -163,10 +174,9 @@ const ShoppingCartComponent = () => {
         productId,
         quantity: newQty,
       },
-      dispatch
+      dispatch,
     );
   };
-
 
   const removeItem = (productId) => {
     if (!user?._id) return;
@@ -177,7 +187,6 @@ const ShoppingCartComponent = () => {
     // 🔥 Backend remove
     removeCartItemApi(user._id, productId, dispatch);
   };
-
 
   const applyCoupon = async () => {
     if (!couponCode) {
@@ -190,17 +199,19 @@ const ShoppingCartComponent = () => {
       const resp = await applyCouponCode({
         code: couponCode,
         checkoutAmount: subtotal,
-        cartItems: cartItems
+        cartItems: cartItems,
       });
 
       if (resp.success) {
         toast.success(resp.message || "Coupon applied!");
-        dispatch(setCoupon({
-          coupon: resp.coupon,
-          discountAmount: resp.discountAmount
-        }));
+        dispatch(
+          setCoupon({
+            coupon: resp.coupon,
+            discountAmount: resp.discountAmount,
+          }),
+        );
         setShowCouponInput(false);
-        setCouponCode('');
+        setCouponCode("");
       } else {
         toast.error(resp.message || "Invalid or inactive coupon");
       }
@@ -212,15 +223,13 @@ const ShoppingCartComponent = () => {
   };
 
   const cartCategoryIds = useMemo(() => {
-    return [...new Set(
-      cartItems
-        .map(item => item.categoryId)
-        .filter(Boolean)
-    )];
+    return [
+      ...new Set(cartItems.map((item) => item.categoryId).filter(Boolean)),
+    ];
   }, [cartItems]);
 
   const cartProductIds = useMemo(() => {
-    return cartItems.map(item => item.productId);
+    return cartItems.map((item) => item.productId);
   }, [cartItems]);
 
   const handleAddToCart = async (product) => {
@@ -234,20 +243,23 @@ const ShoppingCartComponent = () => {
   const suggestedItems = useMemo(() => {
     if (!subcategory || !cartCategoryIds.length) return [];
 
-    return subcategory.filter(item =>
-      cartCategoryIds.includes(item.category?._id) &&
-      !cartProductIds.includes(item._id)
+    return subcategory.filter(
+      (item) =>
+        cartCategoryIds.includes(item.category?._id) &&
+        !cartProductIds.includes(item._id),
     );
   }, [subcategory, cartCategoryIds, cartProductIds]);
 
-
-const handleContinueShopping = () => {
-  if (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) {
-    router.push('/all-products');
-  } else {
-    router.push('/shop');
-  }
-}
+  const handleContinueShopping = () => {
+    if (
+      user?.role === "DROPSHIPPING" ||
+      user?.roles?.includes("DROPSHIPPING")
+    ) {
+      router.push("/all-products");
+    } else {
+      router.push("/shop");
+    }
+  };
 
   const removeCoupon = () => {
     dispatch(clearCoupon());
@@ -257,18 +269,23 @@ const handleContinueShopping = () => {
     e.preventDefault();
     if (isDS) {
       if (dsItems.length === 0) {
-        toast.error("Your dropshipping cart is empty. Please add items to your DS cart first.");
-        router.push('/all-products');
+        toast.error(
+          "Your dropshipping cart is empty. Please add items to your DS cart first.",
+        );
+        router.push("/all-products");
         return;
       }
 
-      const hasInvalidPrice = dsItems.some(item =>
-        item.sellingPrice === "" || Number(item.sellingPrice) < item.price
+      const hasInvalidPrice = dsItems.some(
+        (item) =>
+          item.sellingPrice === "" || Number(item.sellingPrice) < item.price,
       );
 
       if (hasInvalidPrice) {
-        toast.error("Selling price cannot be less than cost price in your dropshipping cart. Please fix it before checkout.");
-        router.push('/dropshipping-addtocart');
+        toast.error(
+          "Selling price cannot be less than cost price in your dropshipping cart. Please fix it before checkout.",
+        );
+        router.push("/dropshipping-addtocart");
         return;
       }
       router.push("/dropshipping-checkout");
@@ -281,8 +298,14 @@ const handleContinueShopping = () => {
     }
   };
 
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const savings = cartItems.reduce((sum, item) => sum + ((item.originalPrice - item.price) * item.quantity), 0);
+  const subtotal = cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0,
+  );
+  const savings = cartItems.reduce(
+    (sum, item) => sum + (item.originalPrice - item.price) * item.quantity,
+    0,
+  );
   const shipping = 0; // Shipping calculated at checkout
 
   const total = subtotal - (couponDiscount || 0) + shipping;
@@ -290,13 +313,17 @@ const handleContinueShopping = () => {
 
   if (!user?._id) {
     return (
-      <Section className="min-h-dvh flex items-center justify-center bg-bg">
+      <Section className="min-h-[calc(dvh-400px)] grid place-items-center bg-bg">
         <div className="bg-white shadow-lg rounded-2xl p-8 text-center max-w-md">
-          <h2 className="text-2xl font-bold mb-2 text-gray-900">Please sign in</h2>
-          <p className="text-gray-600 mb-4">You need to log in to view your cart.</p>
+          <h2 className="text-2xl font-bold mb-2 text-gray-900">
+            Please sign in
+          </h2>
+          <p className="text-gray-600 mb-4">
+            You need to log in to view your cart.
+          </p>
           <Link
             href="/signin"
-            className="inline-block bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-accent-content px-6 py-3 rounded-xl font-semibold hover:from-teal-700 hover:to-green-700 transition-all"
+            className="inline-block bg-primary/80 hover:bg-primary text-primary-content px-4 py-2 rounded-md font-semibold transition-all"
           >
             Go to Sign In
           </Link>
@@ -361,7 +388,8 @@ const handleContinueShopping = () => {
     );
   }
 
-  const isDS = user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING");
+  const isDS =
+    user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING");
 
   return (
     <Section className="min-h-dvh bg-bg">
@@ -370,7 +398,7 @@ const handleContinueShopping = () => {
         <nav className="flex items-center gap-2 text-sm font-medium flex-wrap">
           <Link
             href="/"
-            className={`flex items-center gap-1 transition-colors ${isDS ? 'text-slate-400 hover:text-emerald-600' : 'text-gray-400 hover:text-teal-600'}`}
+            className={`flex items-center gap-1 transition-colors ${isDS ? "text-slate-400 hover:text-emerald-600" : "text-gray-400 hover:text-teal-600"}`}
           >
             <Home className="w-3.5 h-3.5" />
             Home
@@ -378,13 +406,23 @@ const handleContinueShopping = () => {
           <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
           {isDS ? (
             <>
-              <Link href="/all-products" className="text-slate-400 hover:text-emerald-600 transition-colors">Products</Link>
+              <Link
+                href="/all-products"
+                className="text-slate-400 hover:text-emerald-600 transition-colors"
+              >
+                Products
+              </Link>
               <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
               <span className="text-emerald-600 font-bold">DS Cart</span>
             </>
           ) : (
             <>
-              <Link href="/shop" className="text-gray-400 hover:text-teal-600 transition-colors">Shop</Link>
+              <Link
+                href="/shop"
+                className="text-gray-400 hover:text-teal-600 transition-colors"
+              >
+                Shop
+              </Link>
               <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
               <span className="text-teal-600 font-bold">Cart</span>
             </>
@@ -393,11 +431,15 @@ const handleContinueShopping = () => {
       </div>
 
       {/* ── Header ── */}
-      <div className={`shadow-sm border-b ${isDS ? 'bg-white border-emerald-50' : 'bg-bg'}`}>
+      <div
+        className={`shadow-sm border-b ${isDS ? "bg-white border-emerald-50" : "bg-bg"}`}
+      >
         <div className="max-w-7xl mx-auto px-4 py-5">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
-              <h1 className={`text-2xl font-bold flex items-center gap-3 ${ isDS ? 'text-gray-900' : 'text-gray-900'}`}>
+              <h1
+                className={`text-2xl font-bold flex items-center gap-3 ${isDS ? "text-gray-900" : "text-gray-900"}`}
+              >
                 {isDS ? (
                   <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center flex-shrink-0">
                     <ShoppingCart className="w-5 h-5 text-white" />
@@ -405,13 +447,14 @@ const handleContinueShopping = () => {
                 ) : (
                   <ShoppingCart className="w-8 h-8 text-teal-600" />
                 )}
-                {isDS ? 'Dropshipping Cart' : 'Shopping Cart'}
+                {isDS ? "Dropshipping Cart" : "Shopping Cart"}
               </h1>
-              <p className={`mt-1 text-sm ${isDS ? 'text-slate-500' : 'text-gray-600'}`}>
+              <p
+                className={`mt-1 text-sm ${isDS ? "text-slate-500" : "text-gray-600"}`}
+              >
                 {isDS
                   ? `${totalItems} item(s) — set your selling price before checkout`
-                  : `${totalItems} items in your cart`
-                }
+                  : `${totalItems} items in your cart`}
               </p>
             </div>
             <div className="hidden md:flex items-center gap-5 text-sm">
@@ -446,9 +489,14 @@ const handleContinueShopping = () => {
             <div className="w-32 h-32 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <ShoppingCart className="w-16 h-16 text-gray-400" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Your cart is empty</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              Your cart is empty
+            </h2>
             <p className="text-gray-600 mb-8">Add some items to get started</p>
-            <button onClick={handleContinueShopping} className="bg-secondary hover:bg-secondary/80 hover:text-accent text-accent-content px-8 py-3 rounded-xl font-medium transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1">
+            <button
+              onClick={handleContinueShopping}
+              className="bg-secondary hover:bg-secondary/80 hover:text-accent text-accent-content px-8 py-3 rounded-xl font-medium transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1"
+            >
               Continue Shopping
             </button>
           </div>
@@ -462,7 +510,7 @@ const handleContinueShopping = () => {
                   key={item.productId}
                   className="bg-bg cursor-pointer rounded-2xl shadow-lg py-6 px-3 hover:shadow-xl transition-all duration-300"
                   style={{
-                    animation: `slideIn 0.5s ease-out ${index * 0.1}s both`
+                    animation: `slideIn 0.5s ease-out ${index * 0.1}s both`,
                   }}
                 >
                   <div className="flex items-start space-x-4">
@@ -484,7 +532,9 @@ const handleContinueShopping = () => {
                     <div className="flex-1">
                       <div className="flex justify-between flex-wrap items-start">
                         <div>
-                          <h3 className="font-semibold text-lg text-gray-900 mb-1">{item.name}</h3>
+                          <h3 className="font-semibold text-lg text-gray-900 mb-1">
+                            {item.name}
+                          </h3>
                           <div className="flex items-center space-x-4 text-sm text-gray-600 mb-2">
                             <span>Color: {item.color}</span>
                             <span>Size: {item.size}</span>
@@ -494,9 +544,13 @@ const handleContinueShopping = () => {
                             </div>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <span className="text-xl font-bold text-gray-900">৳{item.price.toLocaleString()}</span>
+                            <span className="text-xl font-bold text-gray-900">
+                              ৳{item.price.toLocaleString()}
+                            </span>
                             {item.originalPrice > item.price && (
-                              <span className="text-sm text-gray-500 line-through">৳{item.originalPrice.toLocaleString()}</span>
+                              <span className="text-sm text-gray-500 line-through">
+                                ৳{item.originalPrice.toLocaleString()}
+                              </span>
                             )}
                           </div>
                         </div>
@@ -522,14 +576,19 @@ const handleContinueShopping = () => {
                               toggleWishlist(item?.productId);
                             }}
                             className={`p-2 rounded-lg transition-all duration-300
-      ${localWishlist.has(item?.productId)
-                                ? "text-red-500 bg-red-100"
-                                : "text-gray-400 hover:text-red-500 hover:bg-red-50"
-                              }`}
+      ${
+        localWishlist.has(item?.productId)
+          ? "text-red-500 bg-red-100"
+          : "text-gray-400 hover:text-red-500 hover:bg-red-50"
+      }`}
                           >
                             <Heart
                               className="w-5 h-5"
-                              fill={localWishlist.has(item?.productId) ? "red" : "none"}
+                              fill={
+                                localWishlist.has(item?.productId)
+                                  ? "red"
+                                  : "none"
+                              }
                             />
                           </button>
 
@@ -561,15 +620,21 @@ const handleContinueShopping = () => {
                         {/* Quantity Controls */}
                         <div className="flex items-center space-x-3">
                           <button
-                            onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                            onClick={() =>
+                              updateQuantity(item.productId, item.quantity - 1)
+                            }
                             className="w-8 h-8 cursor-pointer rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition-all duration-300"
                             disabled={!item.inStock}
                           >
                             <Minus className="w-4 h-4" />
                           </button>
-                          <span className="font-semibold text-lg w-8 text-center">{item.quantity}</span>
+                          <span className="font-semibold text-lg w-8 text-center">
+                            {item.quantity}
+                          </span>
                           <button
-                            onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                            onClick={() =>
+                              updateQuantity(item.productId, item.quantity + 1)
+                            }
                             className="w-8 h-8 cursor-pointer rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition-all duration-300"
                             disabled={!item.inStock}
                           >
@@ -582,13 +647,13 @@ const handleContinueShopping = () => {
                 </div>
                 // </Link>
               ))}
-
-
             </div>
             {/* Order Summary */}
             <div className="lg:col-span-1 row-span-2">
               <div className="bg-bg rounded-2xl shadow-lg p-6 sticky top-6">
-                <h3 className="font-semibold text-lg text-gray-900 mb-6">Order Summary</h3>
+                <h3 className="font-semibold text-lg text-gray-900 mb-6">
+                  Order Summary
+                </h3>
 
                 {/* Coupon Section */}
                 <div className="mb-6">
@@ -637,7 +702,9 @@ const handleContinueShopping = () => {
                     <div className="bg-green-50 border border-green-200 rounded-xl p-3 flex items-center justify-between">
                       <div className="flex items-center space-x-2 text-green-700">
                         <Percent className="w-4 h-4" />
-                        <span className="font-medium">{appliedCoupon?.code} Applied</span>
+                        <span className="font-medium">
+                          {appliedCoupon?.code} Applied
+                        </span>
                       </div>
                       <button
                         onClick={removeCoupon}
@@ -687,7 +754,9 @@ const handleContinueShopping = () => {
                     <div>
                       <p className="font-medium text-teal-900">ডেলিভারি তথ্য</p>
                       <p className="text-sm text-teal-700">
-                        আপনার অবস্থানের ওপর ভিত্তি করে চেকআউট পেজে ডেলিভারি চার্জ নির্ধারণ করা হবে। ২,০০০ টাকার বেশি অর্ডারে ফ্রি ডেলিভারি।
+                        আপনার অবস্থানের ওপর ভিত্তি করে চেকআউট পেজে ডেলিভারি
+                        চার্জ নির্ধারণ করা হবে। ২,০০০ টাকার বেশি অর্ডারে ফ্রি
+                        ডেলিভারি।
                       </p>
                     </div>
                   </div>
@@ -762,7 +831,6 @@ const handleContinueShopping = () => {
                       >
                         Add to Cart
                       </button>
-
                     </div>
                   ))}
                 </div>
@@ -784,7 +852,7 @@ const handleContinueShopping = () => {
           }
         }
       `}</style>
-    </Section >
+    </Section>
   );
 };
 
