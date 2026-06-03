@@ -274,7 +274,7 @@ const Header = ({ initialData }) => {
       {/* Main Header */}
       <header
         className={cn(
-          "sticky bg-primary/60 top-0 z-40 transition-all duration-300  backdrop-blur-md space-y-2",
+          "sticky bg-primary/60 top-0 z-40 transition-all duration-300  backdrop-blur-md md:space-y-2",
           {
             "bg-primary/20": isScrolled,
           },
