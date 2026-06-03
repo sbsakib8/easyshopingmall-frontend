@@ -1,10 +1,9 @@
 "use client";
+import Skeleton from '@/src/compronent/loading/Skeleton';
 import { addToCartApi, getCartApi, removeCartItemApi, updateCartItemApi } from '@/src/hook/useCart';
 import { applyCouponCode } from "@/src/hook/useCoupon";
-import Skeleton from '@/src/compronent/loading/Skeleton';
-import { removeItemLocal, updateQuantityLocal, setCoupon, clearCoupon } from '@/src/redux/cartSlice';
+import { clearCoupon, removeItemLocal, setCoupon, updateQuantityLocal } from '@/src/redux/cartSlice';
 import { useGetSubcategory } from "@/src/utlis/useSubcategory";
-import toast from "react-hot-toast";
 import {
   AlertCircle,
   ArrowRight,
@@ -27,13 +26,14 @@ import {
   X
 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
+import toast from "react-hot-toast";
 import { useDispatch, useSelector } from 'react-redux';
 import {
   addToWishlistApi,
   removeFromWishlistApi
 } from "../../hook/useWishlist";
-import { useRouter } from 'next/navigation';
 
 
 const ShoppingCartComponent = () => {
@@ -240,13 +240,13 @@ const ShoppingCartComponent = () => {
   }, [subcategory, cartCategoryIds, cartProductIds]);
 
 
-const handleContinueShopping = () => {
-  if (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) {
-    router.push('/all-products');
-  } else {
-    router.push('/shop');
+  const handleContinueShopping = () => {
+    if (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) {
+      router.push('/all-products');
+    } else {
+      router.push('/shop');
+    }
   }
-}
 
   const removeCoupon = () => {
     dispatch(clearCoupon());
@@ -396,7 +396,7 @@ const handleContinueShopping = () => {
         <div className="max-w-7xl mx-auto px-4 py-5">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
-              <h1 className={`text-2xl font-bold flex items-center gap-3 ${ isDS ? 'text-gray-900' : 'text-gray-900'}`}>
+              <h1 className={`text-2xl font-bold flex items-center gap-3 ${isDS ? 'text-gray-900' : 'text-gray-900'}`}>
                 {isDS ? (
                   <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center flex-shrink-0">
                     <ShoppingCart className="w-5 h-5 text-white" />
@@ -695,7 +695,7 @@ const handleContinueShopping = () => {
                 {/* Delivery Time */}
                 <div className="flex items-center space-x-2 text-sm text-gray-600 mb-6">
                   <Clock className="w-4 h-4" />
-                  <span>সম্ভাব্য ডেলিভারি: ২-৩ কার্যদিবস</span>
+                  <span>সম্ভাব্য ডেলিভারি: 3-5 কার্যদিবস</span>
                 </div>
 
                 {/* Go to Checkout Button */}
@@ -761,7 +761,7 @@ const handleContinueShopping = () => {
                       >
                         Add to Cart
                       </button>
-                      
+
                     </div>
                   ))}
                 </div>
