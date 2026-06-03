@@ -74,7 +74,7 @@ const Signin = () => {
 
   return (
     <AuthRedirect>
-      <Section className="flex justify-center items-center h-auto py-20 bg-gray-100">
+      <Section className="flex justify-center items-center h-auto bg-gray-100">
         <div className="bg-white p-8 rounded-lg shadow-md w-[95%] md:w-[500px] lg:w-[600px] ">
           <h1 className="text-[27px] font-semibold mb-4">Sign In</h1>
           <form onSubmit={handleSubmit} className="space-y-4 mt-16">
@@ -158,7 +158,7 @@ const Signin = () => {
               <button>Sign In with Google</button>
             </div>
             <p className="text-center text-sm text-gray-600">
-              Not have an account{" "}
+              Don't have an account?{" "}
               <Link href="/signup" className="text-blue-600 hover:underline">
                 SignUp
               </Link>
