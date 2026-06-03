@@ -51,9 +51,9 @@ const blog = async () => {
   const initialData = await getBlogData();
 
   return (
-    <div>
+    <>
       <BlogPage initialData={initialData} />
-    </div>
+    </>
   )
 }
 
