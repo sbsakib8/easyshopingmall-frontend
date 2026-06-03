@@ -505,6 +505,13 @@ const ShopPage = ({ initialData, queryParams }) => {
   const user = useSelector((state) => state.user?.data);
   const { wishlist } = useWishlist();
 
+  // Redirect dropshipping users away from shop
+  useEffect(() => {
+    if (user?.role === "DROPSHIPPING") {
+      router.push("/forbidden");
+    }
+  }, [user, router]);
+
   // Fetch categories and subcategories from API if not provided in initialData
   const {
     categories: apiCategories,

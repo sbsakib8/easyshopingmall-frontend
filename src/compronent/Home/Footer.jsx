@@ -63,6 +63,9 @@ function Footer({ initialData }) {
               <Link href={"/delivery"}>Delivery Information</Link>
             </p>
             <p className=" text-[16px] my-3 hover:text-primary cursor-pointer hover:transition-al hover:ml-4 hover:duration-200">
+              <Link href={"/dropshipping"}>Dropshipping</Link>
+            </p>
+            <p className=" text-[16px] my-3 hover:text-primary cursor-pointer hover:transition-al hover:ml-4 hover:duration-200">
               <Link href={"/privacy-policy"}>Privacy Policy</Link>
             </p>
             <p className=" text-[16px] my-3 hover:text-primary cursor-pointer hover:transition-al hover:ml-4 hover:duration-200">
@@ -92,6 +95,9 @@ function Footer({ initialData }) {
               <Link href={"/delivery"}>Delivery Information</Link>
             </p>
             <p className=" text-[16px] my-3 hover:text-primary cursor-pointer hover:transition-al hover:ml-4 hover:duration-200">
+              <Link href={"/dropshipping"}>Dropshipping</Link>
+            </p>
+            <p className=" text-[16px] my-3 hover:text-primary cursor-pointer hover:transition-al hover:ml-4 hover:duration-200">
               <Link href={"/privacy-policy"}>Privacy Policy</Link>
             </p>
             <p className=" text-[16px] my-3 hover:text-primary cursor-pointer hover:transition-al hover:ml-4 hover:duration-200">
@@ -119,6 +125,9 @@ function Footer({ initialData }) {
             </p>
             <p className=" text-[16px] my-3 hover:text-primary cursor-pointer hover:transition-al hover:ml-4 hover:duration-200">
               <Link href={"/delivery"}>Delivery Information</Link>
+            </p>
+            <p className=" text-[16px] my-3 hover:text-primary cursor-pointer hover:transition-al hover:ml-4 hover:duration-200">
+              <Link href={"/dropshipping"}>Dropshipping</Link>
             </p>
             <p className=" text-[16px] my-3 hover:text-primary cursor-pointer hover:transition-al hover:ml-4 hover:duration-200">
               <Link href={"/privacy-policy"}>Privacy Policy</Link>
