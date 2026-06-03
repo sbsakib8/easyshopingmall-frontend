@@ -1,14 +1,13 @@
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-import WishlistComponent from '@/src/compronent/wishlist/wishLisPage'
-import React from 'react'
+import WishlistComponent from "@/src/compronent/wishlist/wishLisPage";
 
-const wishlist=()=> {
+const wishlist = () => {
   return (
-    <div>
-        <WishlistComponent/>
-    </div>
-  )
-}
+    <>
+      <WishlistComponent />
+    </>
+  );
+};
 
-export default wishlist
+export default wishlist;

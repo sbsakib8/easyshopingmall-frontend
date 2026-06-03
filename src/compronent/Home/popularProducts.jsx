@@ -384,6 +384,7 @@ const PopularProducts = ({ initialData }) => {
             </div>
           </div>
 
+          {/* Categories */}
           <div className="w-full overflow-hidden flex items-center justify-center">
             <div
               className={cn(
@@ -613,29 +614,6 @@ const PopularProducts = ({ initialData }) => {
           )}
         </div>
       </Container>
-
-      {/* ✨ Animations + Glassmorphism + Scrollbar Hide */}
-      <style jsx>{`
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-        .backdrop-blur-sm {
-          backdrop-filter: blur(8px);
-        }
-        .backdrop-blur-lg {
-          backdrop-filter: blur(16px);
-        }
-        .line-clamp-2 {
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-      `}</style>
     </Section>
   );
 };

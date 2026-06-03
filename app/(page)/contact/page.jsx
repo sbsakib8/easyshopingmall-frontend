@@ -23,10 +23,11 @@ export const metadata = {
 
 const contact = async () => {
   const siteInfo = await getWebsiteInfo();
+  
   return (
-    <div>
+    <>
       <ContactPage initialSiteInfo={siteInfo} />
-    </div>
+    </>
   )
 }
 
