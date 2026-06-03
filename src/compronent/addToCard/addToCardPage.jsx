@@ -34,6 +34,7 @@ import {
   removeFromWishlistApi
 } from "../../hook/useWishlist";
 import { useRouter } from 'next/navigation';
+import Section from '../shared/Section';
 
 
 const ShoppingCartComponent = () => {
@@ -289,7 +290,7 @@ const handleContinueShopping = () => {
 
   if (!user?._id) {
     return (
-      <div className="min-h-screen lg:mt-24 py-5 flex items-center justify-center bg-bg">
+      <Section className="min-h-dvh flex items-center justify-center bg-bg">
         <div className="bg-white shadow-lg rounded-2xl p-8 text-center max-w-md">
           <h2 className="text-2xl font-bold mb-2 text-gray-900">Please sign in</h2>
           <p className="text-gray-600 mb-4">You need to log in to view your cart.</p>
@@ -300,13 +301,13 @@ const handleContinueShopping = () => {
             Go to Sign In
           </Link>
         </div>
-      </div>
+      </Section>
     );
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen lg:mt-24 py-5 bg-bg">
+      <Section className="min-h-dvh bg-bg">
         <div className="bg-bg shadow-sm border-b mb-8">
           <div className="max-w-7xl mx-auto px-4 py-6">
             <Skeleton className="h-10 w-64" />
@@ -348,22 +349,22 @@ const handleContinueShopping = () => {
             </div>
           </div>
         </div>
-      </div>
+      </Section>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen lg:mt-24 py-5 flex items-center justify-center bg-bg">
+      <Section className="min-h-dvh flex items-center justify-center bg-bg">
         <p className="text-red-500 text-lg">{error}</p>
-      </div>
+      </Section>
     );
   }
 
   const isDS = user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING");
 
   return (
-    <div className="min-h-screen lg:pt-8 py-5 bg-bg">
+    <Section className="min-h-dvh bg-bg">
       {/* ── Breadcrumb ── */}
       <div className="max-w-7xl mx-auto px-4 pt-4 pb-2">
         <nav className="flex items-center gap-2 text-sm font-medium flex-wrap">
@@ -520,7 +521,7 @@ const handleContinueShopping = () => {
                               // Call API to sync with Redux
                               toggleWishlist(item?.productId);
                             }}
-                            className={`p-2 rounded-lg transition-all duration-300 
+                            className={`p-2 rounded-lg transition-all duration-300
       ${localWishlist.has(item?.productId)
                                 ? "text-red-500 bg-red-100"
                                 : "text-gray-400 hover:text-red-500 hover:bg-red-50"
@@ -761,7 +762,7 @@ const handleContinueShopping = () => {
                       >
                         Add to Cart
                       </button>
-                      
+
                     </div>
                   ))}
                 </div>
@@ -783,7 +784,7 @@ const handleContinueShopping = () => {
           }
         }
       `}</style>
-    </div >
+    </Section >
   );
 };
 

@@ -1,4 +1,5 @@
 "use client";
+
 import { FcGoogle } from "react-icons/fc";
 import { FaRegEye } from "react-icons/fa";
 import { FaEyeSlash } from "react-icons/fa";
@@ -14,6 +15,7 @@ import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "@/firebase";
 import AuthRedirect from "@/src/utlis/authRedirect";
 import { useDispatch } from "react-redux";
+import Section from "@/src/compronent/shared/Section";
 
 const Signin = () => {
   const [email, setEmail] = useState("");
@@ -72,7 +74,7 @@ const Signin = () => {
 
   return (
     <AuthRedirect>
-      <div className="flex justify-center items-center lg:mt-20 h-auto py-20 bg-gray-100">
+      <Section className="flex justify-center items-center h-auto py-20 bg-gray-100">
         <div className="bg-white p-8 rounded-lg shadow-md w-[95%] md:w-[500px] lg:w-[600px] ">
           <h1 className="text-[27px] font-semibold mb-4">Sign In</h1>
           <form onSubmit={handleSubmit} className="space-y-4 mt-16">
@@ -157,13 +159,13 @@ const Signin = () => {
             </div>
             <p className="text-center text-sm text-gray-600">
               Not have an account{" "}
-              <a href="/signup" className="text-blue-600 hover:underline">
+              <Link href="/signup" className="text-blue-600 hover:underline">
                 SignUp
-              </a>
+              </Link>
             </p>
           </form>
         </div>
-      </div>
+      </Section>
     </AuthRedirect>
   );
 };
