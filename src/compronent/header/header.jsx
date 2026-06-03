@@ -250,12 +250,15 @@ const Header = ({ initialData }) => {
   return (
     <>
       {/* Secondary Top Bar */}
-      <div
-        className={`text-xs sm:text-sm transition-all duration-300 ${
-          isScrolled ? "h-0 py-0 opacity-0" : "h-auto sm:h-[50px]"
-        } hidden sm:block`}
+      <section
+        className={cn(
+          "text-xs sm:text-sm transition-all duration-300  hidden sm:block bg-gradient-to-r from-secondary/30 from-0% via-accent/40 via-70% to-secondary/40",
+          {
+            "h-0 py-0 opacity-0": isScrolled,
+          },
+        )}
       >
-        <div className="py-2 overflow-hidden hidden sm:block bg-gradient-to-r from-secondary/30 from-0% via-accent/40 via-70% to-secondary/40">
+        <Container className="py-1 flex items-center justify-center">
           <marquee
             behavior="scroll"
             direction="left"
@@ -265,13 +268,13 @@ const Header = ({ initialData }) => {
           >
             {siteInfo?.discountTitle}
           </marquee>
-        </div>
-      </div>
+        </Container>
+      </section>
 
       {/* Main Header */}
       <header
         className={cn(
-          "sticky bg-primary/60 top-0 z-40 transition-all duration-300  backdrop-blur-md space-y-2",
+          "sticky bg-primary/60 top-0 z-40 transition-all duration-300  backdrop-blur-md md:space-y-2",
           {
             "bg-primary/20": isScrolled,
           },

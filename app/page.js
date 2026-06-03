@@ -134,7 +134,7 @@ export default async function Home() {
   };
 
   return (
-    <div>
+    <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
@@ -144,6 +144,6 @@ export default async function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
       />
       <HomeContent initialData={initialData} />
-    </div>
+    </>
   );
 }
