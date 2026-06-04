@@ -8,6 +8,7 @@ import {
   ClipboardList,
   Coins,
   Heart,
+  HelpCircleIcon,
   Home,
   LayoutDashboard,
   LogIn,
@@ -82,6 +83,10 @@ const DropShippingNavbar = () => {
       name: "Payment Request",
       href: "/payment-request",
       icon: <Coins size={18} />,
+    },  {
+      name: "Support",
+      href: "/support",
+      icon: <HelpCircleIcon size={18} />,
     },
   ];
 
