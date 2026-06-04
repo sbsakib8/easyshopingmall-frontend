@@ -1,8 +1,10 @@
 "use client";
 
 import logo from "@/app/icon.png";
+import Container from "@/src/compronent/shared/Container";
 import { useGetUser } from "@/src/utlis/useGetuser";
 import { cn } from "@/src/utlis/utils";
+import { Drawer } from "@mui/material";
 import {
   ChevronDown,
   ClipboardList,
@@ -83,7 +85,8 @@ const DropShippingNavbar = () => {
       name: "Payment Request",
       href: "/payment-request",
       icon: <Coins size={18} />,
-    },  {
+    },
+    {
       name: "Support",
       href: "/support",
       icon: <HelpCircleIcon size={18} />,
@@ -106,11 +109,9 @@ const DropShippingNavbar = () => {
     <>
       {/* Main Header */}
       <header
-        className={`bg-white/70 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-gray-200/50 ${
-          isScrolled ? "h-16 sm:h-20" : "h-20 sm:h-24 lg:h-[100px]"
-        }`}
+        className={`bg-white/70 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-gray-200/50`}
       >
-        <div className="mx-auto px-2 sm:px-4 lg:px-32">
+        <Container className="py-0">
           <div className="flex items-center justify-between py-2 sm:py-3 lg:py-4">
             {/* Enhanced Logo - Responsive */}
             <div className="flex items-center">
@@ -264,132 +265,132 @@ const DropShippingNavbar = () => {
               ))}
             </div>
           </div>
-        </div>
+        </Container>
 
-        {/* Enhanced Mobile Menu - Fully Responsive */}
-        <div
-          className={`fixed inset-0 z-50 ${
-            isMobileMenuOpen
-              ? "opacity-100 pointer-events-auto"
-              : "opacity-0 pointer-events-none"
-          }`}
+        <Drawer
+          anchor="left"
+          open={isMobileMenuOpen}
+          onClose={toggleMobileMenu}
         >
-          {/* Backdrop/Overlay */}
-          <div
-            className="absolute min-h-screen inset-0 bg-black/60 backdrop-blur-md"
-            onClick={toggleMobileMenu}
-          ></div>
+          {/* Enhanced Mobile Menu - Fully Responsive */}
+          <div className={`fixed inset-0 z-50 `}>
+            {/* Backdrop/Overlay */}
+            <div
+              className="absolute min-h-screen inset-0 bg-black/60 backdrop-blur-md"
+              onClick={toggleMobileMenu}
+            ></div>
 
-          {/* Side Menu */}
-          <div
-            className={`absolute top-0 left-0 h-screen w-[280px] sm:w-[320px] bg-white/80 backdrop-blur-2xl border-r border-white/50 shadow-[0_0_40px_rgba(0,0,0,0.1)] ${
-              isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-            } overflow-y-auto flex flex-col`}
-          >
-            <div className="p-6 bg-white/30 border-b border-gray-200/50 flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="bg-white p-2 rounded-xl shadow-sm border border-gray-100">
-                  <Link href="/">
-                    <Image
-                      onClick={toggleMobileMenu}
-                      src={logo}
-                      width={35}
-                      height={35}
-                      alt="Logo"
-                      className="object-contain"
-                    />
-                  </Link>
+            {/* Side Menu */}
+            <div
+              className={`absolute top-0 left-0 h-screen w-[280px] sm:w-[320px] bg-white/80 backdrop-blur-2xl border-r border-white/50 shadow-[0_0_40px_rgba(0,0,0,0.1)] overflow-y-auto flex flex-col`}
+            >
+              <div className="p-6 bg-white/30 border-b border-gray-200/50 flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="bg-white p-2 rounded-xl shadow-sm border border-gray-100">
+                    <Link href="/">
+                      <Image
+                        onClick={toggleMobileMenu}
+                        src={logo}
+                        width={35}
+                        height={35}
+                        alt="Logo"
+                        className="object-contain"
+                      />
+                    </Link>
+                  </div>
+                  <span className="font-bold text-gray-800 text-lg tracking-wide">
+                    MENU
+                  </span>
                 </div>
-                <span className="font-bold text-gray-800 text-lg tracking-wide">
-                  MENU
-                </span>
+                <button
+                  onClick={toggleMobileMenu}
+                  className="p-2 bg-white/60 hover:bg-white border border-gray-200 rounded-full group shadow-sm"
+                >
+                  <X size={20} className="text-gray-700" />
+                </button>
               </div>
-              <button
-                onClick={toggleMobileMenu}
-                className="p-2 bg-white/60 hover:bg-white border border-gray-200 rounded-full group shadow-sm"
-              >
-                <X size={20} className="text-gray-700" />
-              </button>
-            </div>
 
-            <nav className="p-4 space-y-2 flex-grow">
-              {navItems.map((item, index) => {
-                const hasSubLinks = item.subLink && item.subLink.length > 0;
-                const isExpanded = expandedItem === item.name;
+              <nav className="p-4 space-y-2 flex-grow">
+                {navItems.map((item, index) => {
+                  const hasSubLinks = item.subLink && item.subLink.length > 0;
+                  const isExpanded = expandedItem === item.name;
 
-                return (
-                  <div key={index} className="space-y-1">
-                    {hasSubLinks ? (
-                      <button
-                        onClick={() =>
-                          setExpandedItem(isExpanded ? null : item.name)
-                        }
-                        className={`w-full flex items-center justify-between py-2.5 px-4 rounded-full font-medium ${
-                          isExpanded
-                            ? "bg-black text-white shadow-sm"
-                            : "text-gray-600 hover:bg-gray-100 hover:text-black"
-                        }`}
+                  return (
+                    <div key={index} className="space-y-1">
+                      {hasSubLinks ? (
+                        <button
+                          onClick={() =>
+                            setExpandedItem(isExpanded ? null : item.name)
+                          }
+                          className={`w-full flex items-center justify-between py-2.5 px-4 rounded-full font-medium ${
+                            isExpanded
+                              ? "bg-black text-white shadow-sm"
+                              : "text-gray-600 hover:bg-gray-100 hover:text-black"
+                          }`}
+                        >
+                          <div className="flex items-center space-x-3">
+                            {item.icon}
+                            <span className="text-sm">{item.name}</span>
+                          </div>
+                          <div className={isExpanded ? "rotate-180" : ""}>
+                            <ChevronDown size={16} />
+                          </div>
+                        </button>
+                      ) : (
+                        <Link
+                          onClick={() => {
+                            toggleMobileMenu();
+                            setExpandedItem(null);
+                          }}
+                          href={item.href}
+                          className="w-full flex items-center justify-between py-2.5 px-4 text-gray-600 hover:bg-gray-100 hover:text-black rounded-full font-medium group"
+                        >
+                          <div className="flex items-center space-x-3">
+                            {item.icon}
+                            <span className="text-sm">{item.name}</span>
+                          </div>
+                          {item.badge && (
+                            <span className="bg-emerald-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm">
+                              {item.badge}
+                            </span>
+                          )}
+                        </Link>
+                      )}
+
+                      {/* Sub-links (Instant Toggle) */}
+                      <div
+                        className={`${isExpanded ? "block mt-2" : "hidden"}`}
                       >
-                        <div className="flex items-center space-x-3">
-                          {item.icon}
-                          <span className="text-sm">{item.name}</span>
+                        <div className="pl-6 space-y-0.5 border-l-2 border-gray-100 ml-4 mt-1">
+                          {item.subLink?.map((sub, sIndex) => (
+                            <Link
+                              key={sIndex}
+                              href={sub.href}
+                              onClick={() => {
+                                toggleMobileMenu();
+                                setExpandedItem(null);
+                              }}
+                              className="block py-2 px-4 text-[13px] text-gray-500 hover:text-black hover:bg-gray-100 rounded-full font-medium"
+                            >
+                              {sub.name}
+                            </Link>
+                          ))}
                         </div>
-                        <div className={isExpanded ? "rotate-180" : ""}>
-                          <ChevronDown size={16} />
-                        </div>
-                      </button>
-                    ) : (
-                      <Link
-                        onClick={() => {
-                          toggleMobileMenu();
-                          setExpandedItem(null);
-                        }}
-                        href={item.href}
-                        className="w-full flex items-center justify-between py-2.5 px-4 text-gray-600 hover:bg-gray-100 hover:text-black rounded-full font-medium group"
-                      >
-                        <div className="flex items-center space-x-3">
-                          {item.icon}
-                          <span className="text-sm">{item.name}</span>
-                        </div>
-                        {item.badge && (
-                          <span className="bg-emerald-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm">
-                            {item.badge}
-                          </span>
-                        )}
-                      </Link>
-                    )}
-
-                    {/* Sub-links (Instant Toggle) */}
-                    <div className={`${isExpanded ? "block mt-2" : "hidden"}`}>
-                      <div className="pl-6 space-y-0.5 border-l-2 border-gray-100 ml-4 mt-1">
-                        {item.subLink?.map((sub, sIndex) => (
-                          <Link
-                            key={sIndex}
-                            href={sub.href}
-                            onClick={() => {
-                              toggleMobileMenu();
-                              setExpandedItem(null);
-                            }}
-                            className="block py-2 px-4 text-[13px] text-gray-500 hover:text-black hover:bg-gray-100 rounded-full font-medium"
-                          >
-                            {sub.name}
-                          </Link>
-                        ))}
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </nav>
+                  );
+                })}
+              </nav>
 
-            {/* Optional Footer or Logout in Menu if needed */}
-            <div className="p-6 border-t border-gray-200/50 bg-gray-50/30">
-              <p className="text-[10px] text-gray-400 font-medium text-center uppercase tracking-widest">
-                Easy Shopping Mall &copy; 2026
-              </p>
+              {/* Optional Footer or Logout in Menu if needed */}
+              <div className="p-6 border-t border-gray-200/50 bg-gray-50/30">
+                <p className="text-[10px] text-gray-400 font-medium text-center uppercase tracking-widest">
+                  Easy Shopping Mall &copy; 2026
+                </p>
+              </div>
             </div>
           </div>
-        </div>
+        </Drawer>
       </header>
     </>
   );
