@@ -33,6 +33,11 @@ const Header = ({ initialData }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [hoveredCategoryId, setHoveredCategoryId] = useState(null);
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [showLiveResults, setShowLiveResults] = useState(false);
@@ -570,14 +575,15 @@ const Header = ({ initialData }) => {
                     "group-hover:from-emerald-100 group-hover:to-teal-100",
                 },
               ].map((item) => {
-                const isLoggedIn = !!data;
+                const isLoggedIn = mounted ? !!data : false;
+                const isAdminUser = mounted ? isAdmin : false;
                 const shouldShow =
                   (item.key === "account" && isLoggedIn) ||
                   (item.key === "signin" && !isLoggedIn) ||
                   (item.key !== "account" && item.key !== "signin");
 
                 if (!shouldShow) return null;
-                if (item.isAdminOnly && !isAdmin) return null;
+                if (item.isAdminOnly && !isAdminUser) return null;
 
                 return (
                   <div

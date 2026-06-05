@@ -76,11 +76,11 @@ const Carousel = ({ initialData }) => {
                     }`}
                 >
                   <Image
-                    src={slide?.images?.[0] || ""}
-                    alt={slide?.title}
+                    src={(Array.isArray(slide?.images) ? slide?.images[0] : (slide?.images || slide?.image)) || "/img/product.jpg"}
+                    alt={slide?.title || "Banner"}
                     width={1200}
                     height={600}
-                    className="w-full h-full "
+                    className="w-full h-full object-cover"
                   />
                 </div>
               ))}
@@ -149,11 +149,11 @@ const Carousel = ({ initialData }) => {
                 }`}
             >
               <Image
-                src={slide?.images || slide?.image}
-                alt={slide?.title}
+                src={(Array.isArray(slide?.images) ? slide?.images[0] : (slide?.images || slide?.image)) || "/img/product.jpg"}
+                alt={slide?.title || "Thumbnail"}
                 width={1200}
                 height={600}
-                className="w-16 h-10 "
+                className="w-16 h-10 object-cover"
               />
             </button >
           ))}

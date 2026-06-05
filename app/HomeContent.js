@@ -69,9 +69,9 @@ export default function HomeContent({ initialData }) {
   return (
     <>
       {role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING") ? (
-        <DropShippingHome initialData={data} />
+        <DropShippingHome initialData={displayData} />
       ) : (
-        <Hero initialData={data} />
+        <Hero initialData={displayData} />
       )}
     </>
   );
