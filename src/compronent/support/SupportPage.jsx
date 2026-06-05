@@ -74,10 +74,10 @@ const SupportPage = () => {
       description:
         "হোয়াটসঅ্যাপে সংযুক্ত থাকুন। আমাদের গ্রুপ দৈনিক হট-সেলিং পণ্যের পরামর্শ, তাৎক্ষণিক অর্ডার যাচাইকরণ, প্ল্যাটফর্ম কনফিগারেশন সাহায্য এবং ডেলিভারি স্টatus অ্যালার্ট অফার করে।",
       url: "https://wa.me/message/easyshopingmall",
-      actionText: "হোয়াটসঅ্যাপ কমিউনিটিতে যোগ দিন",
+      actionText: "হোয়াটসঅ্যাপ গ্রুপে যোগ দিন",
     },
   ];
-  
+
   return (
     <Section className="relative min-h-[calc(100vh-120px)] bg-[var(--color-bg)] py-16 md:py-24 overflow-hidden">
       {/* Decorative Background Glows */}
@@ -93,7 +93,7 @@ const SupportPage = () => {
             সহায়তা কেন্দ্র
           </div>
 
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-[var(--color-neutral)] leading-tight animate-fade-in">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-[var(--color-neutral)] leading-tight animate-fade-in">
             আমরা আজ আপনাকে{" "}
             <span className="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] bg-clip-text text-transparent">
               কীভাবে সাহায্য করতে পারি
@@ -101,7 +101,7 @@ const SupportPage = () => {
             ?
           </h1>
 
-          <p className="text-[var(--color-neutral)]/70 text-sm sm:text-base md:text-lg max-w-2xl mx-auto leading-relaxed animate-fade-in delay-100">
+          <p className="text-[var(--color-neutral)]/70 opacity-70 text-sm md:text-base lg:text-lg max-w-2xl mx-auto leading-relaxed animate-fade-in delay-100">
             যোগাযোগের জন্য নিচের যেকোনো একটি চ্যানেল নির্বাচন করুন আমাদের
             সাপোর্ট এজেন্টদের সাথে সংযোগ স্থাপন করতে অথবা আমাদের কমিউনিটি গ্রুপে
             যোগ দিতে। আমরা আপনার ব্যবসাকে সহায়তা করতে ২৪/৭ উপলব্ধ আছি।
@@ -109,7 +109,7 @@ const SupportPage = () => {
         </div>
 
         {/* Glassmorphic Channels Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-8 max-w-5xl mx-auto">
           {supportChannels.map((channel, index) => {
             const Icon = channel.icon;
 
@@ -117,7 +117,7 @@ const SupportPage = () => {
               <div
                 key={channel.id}
                 style={{ animationDelay: `${index * 150}ms` }}
-                className={`group relative flex flex-col justify-between rounded-3xl p-6 md:p-8
+                className={`group relative flex flex-col justify-between rounded-3xl gap-4 p-6 md:p-8
                   bg-white/40 backdrop-blur-xl border border-white/40
                   hover:border-[var(--color-primary)]/30 hover:bg-white/60
                   transition-all duration-500 ease-out shadow-lg hover:shadow-2xl hover:-translate-y-2
@@ -133,49 +133,40 @@ const SupportPage = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <div
-                        className={`w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center transition-transform duration-500 group-hover:scale-110 shadow-sm ${channel.iconBg}`}
+                        className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-transform duration-500 group-hover:scale-110 shadow-sm ${channel.iconBg}`}
                       >
-                        <Icon className="w-6 h-6 md:w-7 md:h-7" />
+                        <Icon className="w-6 h-6" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-semibold text-[var(--color-neutral)] tracking-tight">
+                        <h3 className="text-base font-semibold text-[var(--color-neutral)] tracking-tight">
                           {channel.title}
                         </h3>
-                        <p className="text-xs text-[var(--color-primary-content)]/60">
+                        <p className="text-[10px] text-[var(--color-primary-content)]/60">
                           {channel.subtitle}
                         </p>
                       </div>
                     </div>
-
-                    <Link
-                      href={channel.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[var(--color-neutral)]/40 group-hover:text-[var(--color-primary)] transition-colors duration-300"
-                    >
-                      <ArrowUpRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                    </Link>
                   </div>
 
                   {/* Card Description */}
-                  <p className="text-[var(--color-neutral)]/80 text-sm md:text-[15px] leading-relaxed">
+                  <p className="text-[var(--color-neutral)]/70 opacity-70 text-xs md:text-[15px] leading-relaxed">
                     {channel.description}
                   </p>
                 </div>
 
                 {/* Card Button */}
-                <div className="relative z-10 pt-6 mt-6 border-t border-white/20">
-                  <a
+                <div className="relative z-10 mt-auto border-t border-white/20">
+                  <Link
                     href={channel.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`flex items-center justify-center gap-2 w-full py-3.5 px-6 font-bold rounded-2xl cursor-pointer text-white text-sm tracking-wide
+                    className={`flex items-center justify-center gap-2 w-full py-2 px-4 font-medium rounded-2xl cursor-pointer text-white text-sm tracking-wide
                       transition-all duration-300 shadow-md transform hover:scale-[1.02]
                       ${channel.btnBg}`}
                   >
                     <span>{channel.actionText}</span>
                     <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                  </a>
+                  </Link>
                 </div>
               </div>
             );
