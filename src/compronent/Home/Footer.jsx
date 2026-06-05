@@ -1,4 +1,8 @@
+"use client";
+
+import { useGetUser } from "@/src/utlis/useGetuser";
 import useWebsiteInfo from "@/src/utlis/useWebsiteInfo";
+import { cn } from "@/src/utlis/utils";
 import Link from "next/link";
 import { FaInstagram, FaTwitter, FaYoutube } from "react-icons/fa";
 import {
@@ -8,8 +12,6 @@ import {
 } from "react-icons/io5";
 import { MdAddCall, MdEmail } from "react-icons/md";
 import Container from "../shared/Container";
-import {cn}from "@/src/utlis/utils"
-
 
 const iconMap = {
   "fa-facebook": IoLogoFacebook,
@@ -22,6 +24,12 @@ function Footer({ initialData }) {
   const { data: siteInfoFetched, loading: siteLoading } = useWebsiteInfo();
   const siteInfo = siteInfoFetched || initialData;
   const socialLinks = siteInfo?.socialLinks || [];
+  const { user } = useGetUser();
+  const isDropshippingUser =
+    user?.role?.toUpperCase() === "DROPSHIPPING" ||
+    user?.roles?.includes("DROPSHIPPING");
+
+  console.log(user);
 
   const footerNavLinks = [
     {
@@ -66,7 +74,11 @@ function Footer({ initialData }) {
   ];
 
   return (
-    <footer className="bg-primary/10 pb-26 md:pb-0">
+    <footer
+      className={cn("bg-primary/10", {
+        "pb-26 md:pb-0": !isDropshippingUser,
+      })}
+    >
       <Container className="py-8 lg:py-12 space-y-6">
         {/* main div */}
         <div className="grid sm:grid-cols-3 lg:grid-cols-5 gap-6">
@@ -106,12 +118,16 @@ function Footer({ initialData }) {
 
               <div className="space-y-3">
                 {item.links.map((link, i) => (
-
-                    <Link href={link.href} key={i}
+                  <Link
+                    href={link.href}
+                    key={i}
                     className={cn(
                       "text-[16px] block hover:text-primary cursor-pointer transition-all duration-200 hover:ml-4",
                       "hover:transition-all hover:duration-200",
-                    )}>{link.label}</Link>
+                    )}
+                  >
+                    {link.label}
+                  </Link>
                 ))}
               </div>
             </div>
