@@ -549,8 +549,13 @@ const ShippedOrdersPage = () => {
                         <div className="flex gap-2">
                           <img
                             className="w-15 h-15 rounded-sm object-cover"
-                            src={item?.image[0]}
-                            alt=""
+                            src={
+                              (item?.image && item.image[0]) ||
+                              (item?.productId?.images &&
+                                item.productId.images[0]) ||
+                              "/img/product.jpg"
+                            }
+                            alt={item?.name || "Product"}
                           />
                           <div>
                             <p className="text-slate-300 font-medium">

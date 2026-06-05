@@ -892,10 +892,11 @@ const AccountPage = () => {
                         console.log("orders", order);
                         const firstProduct =
                           order.products && order.products[0];
-                        const image =
-                          firstProduct?.image?.[0] ||
-                          firstProduct?.productId?.images?.[0] ||
-                          "/banner/img/placeholder.png";
+                        let image = "/img/product.jpg";
+                        if (firstProduct) {
+                          const imgData = firstProduct.image || firstProduct.productId?.images;
+                          image = (Array.isArray(imgData) ? imgData[0] : (typeof imgData === 'string' ? imgData : null)) || "/img/product.jpg";
+                        }
 
                         const id = order._id;
 
@@ -1094,7 +1095,7 @@ const AccountPage = () => {
                           prod.image ||
                           prod.images?.[0] ||
                           (Array.isArray(prod.image) ? prod.image[0] : null) ||
-                          "/banner/img/placeholder.png";
+                          "/img/product.jpg";
                         const name =
                           prod.productName ||
                           prod.name ||

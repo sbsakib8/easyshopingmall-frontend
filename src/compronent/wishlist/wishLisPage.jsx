@@ -44,8 +44,8 @@ const ProductCard = React.memo(
           }`}
         >
           <Image
-            src={item.image}
-            alt={item.name}
+            src={item.image || "/img/product.jpg"}
+            alt={item.name || "Product image"}
             width={500}
             height={500}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"

@@ -134,16 +134,15 @@ const PopularProducts = ({ initialData }) => {
       color: c.color || "from-slate-500 to-gray-600",
     }));
 
-    categories.forEach((cat) => {
-      if (cat.id !== "ALL") {
-        categories.unshift({
-          id: "ALL",
-          name: "ALL",
-          icon: <Sparkles className="w-4 h-4" />,
-          color: "from-slate-500 to-gray-600",
-        });
-      }
-    });
+    // Prepend "ALL" exactly once
+    if (categories.length > 0) {
+      categories.unshift({
+        id: "ALL",
+        name: "ALL",
+        icon: <Sparkles className="w-4 h-4" />,
+        color: "from-slate-500 to-gray-600",
+      });
+    }
 
     const productsData = products.map((p) => {
       // Handle category - can be array or object

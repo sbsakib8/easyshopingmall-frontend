@@ -893,8 +893,13 @@ const OrderManagement = () => {
                               <div className="flex">
                                 <img
                                   className="w-15 h-15 object-cover object-top rounded-sm mr-1"
-                                  src={item?.image[0]}
-                                  alt="product photo"
+                                  src={
+                                    (item?.image && item.image[0]) ||
+                                    (item?.productId?.images &&
+                                      item.productId.images[0]) ||
+                                    "/img/product.jpg"
+                                  }
+                                  alt={item?.name || "Product"}
                                 />
                                 <div>
                                   <h4 className="text-xs text-slate-300">

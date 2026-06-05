@@ -3,6 +3,7 @@
 import { createManualPaymentOrder, createSslPaymentOrder, submitManualPayment } from "@/src/hook/useOrder";
 import { applyCouponCode } from "@/src/hook/useCoupon";
 import { ProductNotification, ProductUpdate } from "@/src/hook/useProduct";
+import { getCartApi } from "@/src/hook/useCart";
 import { cartClear, setCoupon, clearCoupon } from "@/src/redux/cartSlice";
 import { AlertTriangle, Copy, MapPin, Shield, ShoppingBag, ShoppingCart, Star, Truck } from "lucide-react";
 import Link from "next/link";
@@ -12,10 +13,18 @@ import { useDispatch, useSelector } from "react-redux";
 import LocationSelects from "../LocationSelects";
 import ReactPlayer from 'react-player'
 
-
-
 import { userget } from "@/src/redux/userSlice";
 import { cartSuccess } from "@/src/redux/cartSlice";
+
+// Robust image extractor — handles images[] array, image string, or nested productId object
+const getImageUrl = (item) => {
+  const p = item.productId || {};
+  if (p.images && p.images.length > 0) return p.images[0];
+  if (p.image) return Array.isArray(p.image) ? p.image[0] : p.image;
+  if (item.images && item.images.length > 0) return item.images[0];
+  if (item.image) return Array.isArray(item.image) ? item.image[0] : item.image;
+  return "/img/product.jpg";
+};
 
 export default function CheckoutComponent({ initialUser, initialCartItems }) {
   const user = useSelector((state) => state.user?.data) || initialUser;
@@ -37,20 +46,15 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
     pincode: "",
   });
 
-  // Hydrate Redux from Server Data (Optional but recommended for consistency)
+  // Fetch cart from API on mount so checkout always has fresh populated product data (images, names, prices)
   useEffect(() => {
-    if (initialUser && !items?.length) {
-      // Only hydrate if Redux is empty to avoid overwriting client-side changes
-      // Logic can be adjusted based on needs
+    if (user?._id) {
+      getCartApi(user._id, dispatch);
     }
-    // We can dispatch to sync state if needed, but local state usage above handles the view.
     if (initialUser && user?._id !== initialUser._id) {
       dispatch(userget({ data: initialUser }));
     }
-    if (initialCartItems?.length > 0 && items?.length === 0) {
-      dispatch(cartSuccess(initialCartItems));
-    }
-  }, [initialUser, initialCartItems, dispatch]);
+  }, [user?._id, dispatch]);
 
   const [selectedManualMethod, setSelectedManualMethod] = useState(null);
   const [createdOrder, setCreatedOrder] = useState(null);
@@ -212,7 +216,7 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
         return {
           productId: product._id || item.productId,
           name: product.productName || item.name,
-          image: product.images || item.image,
+          image: (product.images && product.images.length > 0) ? product.images : (item.image ? (Array.isArray(item.image) ? item.image : [item.image]) : []),
           quantity: item.quantity,
           price: price,
           totalPrice: (Number(price) || 0) * (Number(item.quantity) || 0),
@@ -419,7 +423,7 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
         return {
           productId: product._id || item.productId,
           name: product.productName || item.name,
-          image: product.images || item.image,
+          image: (product.images && product.images.length > 0) ? product.images : (item.image ? (Array.isArray(item.image) ? item.image : [item.image]) : []),
           quantity: item.quantity,
           price: price,
           totalPrice: (Number(price) || 0) * (Number(item.quantity) || 0),
@@ -675,7 +679,12 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
                   {cartItems.map((item) => (
                     <div key={item._id || item.id} className="flex items-center space-x-4 p-4 bg-bg shadow-xl rounded-xl">
                       <div className="relative">
-                        <img src={item.productId.images?.[0] || item.image || "/placeholder.svg"} alt={item.productId?.productName || item.name || "Product"} className="w-16 h-16 object-cover rounded-xl" />
+                        <img
+                          src={getImageUrl(item)}
+                          alt={item.productId?.productName || item.name || "Product"}
+                          className="w-16 h-16 object-cover rounded-xl"
+                          onError={(e) => { e.target.onerror = null; e.target.src = "/img/product.jpg"; }}
+                        />
                         <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-xs text-accent-content font-bold">{item.quantity}</div>
                       </div>
 

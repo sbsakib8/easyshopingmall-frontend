@@ -222,8 +222,8 @@ function OrderDetailsModal({ order, onClose }) {
                 order.products.map((p, idx) => {
                   const product = p.productId || p;
                   const name = p.name || product.productName || "N/A";
-                  const images = p.image || product.images || [];
-                  const image = images[0] || "/banner/img/placeholder.png";
+                  const rawImage = p.image || product.images;
+                  const image = (Array.isArray(rawImage) ? rawImage[0] : (typeof rawImage === 'string' ? rawImage : null)) || "/banner/img/placeholder.png";
 
                   return (
                     <div

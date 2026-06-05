@@ -529,8 +529,13 @@ const CompletedOrdersPage = () => {
                           <div className="flex gap-2">
                             <img
                               className="w-15 h-15 rounded-sm object-cover"
-                              src={item?.image[0]}
-                              alt=""
+                              src={
+                                (item?.image && item.image[0]) ||
+                                (item?.productId?.images &&
+                                  item.productId.images[0]) ||
+                                "/img/product.jpg"
+                              }
+                              alt={item?.name || "Product"}
                             />
                             <div>
                               <p className="text-slate-300 font-medium">
@@ -579,14 +584,6 @@ const CompletedOrdersPage = () => {
                           </div>
                         </div>
                       ))}
-                    </div>
-                    <div className="flex justify-between items-center m-2">
-                      <span className="text-slate-300 font-semibold">
-                        Delivery Charge:
-                      </span>
-                      <span className="text-green-400 font-bold text-lg">
-                        ৳{selectedOrder?.deliveryCharge}
-                      </span>
                     </div>
                     <div className="flex justify-between items-center m-2">
                       <span className="text-slate-300 font-semibold">Delivery Charge:</span>

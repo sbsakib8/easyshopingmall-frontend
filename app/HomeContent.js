@@ -51,11 +51,25 @@ export default function HomeContent({ initialData }) {
 
   if (loading && !data) return <HomeSkeleton />;
 
+  const isDropshipper = role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING");
+  const filteredBanners = (data?.banners || []).filter(banner => {
+    if (isDropshipper) {
+      return banner.sliderFor === "DROPSHIPPING";
+    } else {
+      return banner.sliderFor === "USER" || !banner.sliderFor;
+    }
+  });
+
+  const displayData = {
+    ...data,
+    banners: filteredBanners
+  };
+
   return (
     <>
-      {(role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) ?
-        <DropShippingHome initialData={data} /> :
-        <Hero initialData={data} />
+      {isDropshipper ?
+        <DropShippingHome initialData={displayData} /> :
+        <Hero initialData={displayData} />
       }
     </>
   );

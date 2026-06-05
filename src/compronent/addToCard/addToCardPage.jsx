@@ -34,7 +34,6 @@ import {
   addToWishlistApi,
   removeFromWishlistApi
 } from "../../hook/useWishlist";
-import { useRouter } from 'next/navigation';
 import Section from '../shared/Section';
 
 
@@ -130,19 +129,24 @@ const ShoppingCartComponent = () => {
       product.category?._id ||
       null;
 
+    const originalPrice = product.productRank || product.price || 0;
+    const price = item.price ?? product.price ?? 0;
+    const discount = originalPrice > price ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
+
     return {
       id,
       productId: id,
       categoryId,
       name: product.productName || product.name || 'Product',
-      price: item.price ?? product.price ?? 0,
-      originalPrice: product.oldPrice ?? product.price ?? 0,
+      price,
+      originalPrice,
       quantity: item.quantity ?? 1,
-      image: product.images?.[0] || 'https://via.placeholder.com/100x100',
+      image: product.image || product.images?.[0] || '/img/product.jpg',
       inStock: (product.stock ?? 1) > 0,
       rating: product.ratings,
       color: item.color || 'Default',
       size: item.size || 'N/A',
+      discount,
     };
   });
 
@@ -744,13 +748,13 @@ const ShoppingCartComponent = () => {
                       className="border border-gray-200 rounded-xl p-3 hover:shadow-lg transition-all duration-300 group"
                     >
                       <img
-                        src={item.image}
-                        alt={item.name}
+                        src={item.images?.[0] || (Array.isArray(item.image) ? item.image[0] : item.image) || '/img/product.jpg'}
+                        alt={item.productName || item.name}
                         className="w-full h-20 object-cover rounded-lg mb-2"
                       />
 
                       <h4 className="text-sm font-medium text-gray-900 mb-1 group-hover:text-teal-600">
-                        {item.name}
+                        {item.productName || item.name}
                       </h4>
 
                       <p className="text-xs text-gray-500 mb-2">

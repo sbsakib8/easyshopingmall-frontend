@@ -1,7 +1,7 @@
 
 import axios from "axios";
 import { UrlBackend } from "../confic/urlExport";
-import { userget } from "../redux/userSlice";
+import { userget, clearUser } from "../redux/userSlice";
 // signup
 export const UseAuth = async (formData, route) => {
   try {
@@ -42,8 +42,8 @@ export const UserSignin = async (formData, route, dispatch) => {
   }
 };
 
-// logout 
-export const Logout = async (route) => {
+// logout
+export const Logout = async (route, dispatch) => {
   try {
     const response = await axios.get(`${UrlBackend}/users/signout`, {
       withCredentials: true,
@@ -51,6 +51,12 @@ export const Logout = async (route) => {
     if (response.data.success) {
       if (typeof window !== "undefined") {
         localStorage.removeItem("user");
+      }
+      // Always clear the redux user (and any user-scoped slices that listen
+      // for this action, e.g. the dropshipping cart) so the next session
+      // does not leak data from the previous account on the same browser.
+      if (dispatch) {
+        dispatch(clearUser());
       }
       route.push("/signin");
     }

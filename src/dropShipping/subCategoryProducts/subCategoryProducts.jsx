@@ -138,7 +138,7 @@ const ProductCard = React.memo(
           className={`relative aspect-2/3 overflow-hidden w-full h-14 md:h-32`}
         >
           <Image
-            src={product.images?.[0] || "/banner/img/placeholder.png"}
+            src={product.images?.[0] || (Array.isArray(product.image) ? product.image[0] : product.image) || "/img/product.jpg"}
             alt={product.productName}
             width={200}
             height={170}
@@ -302,8 +302,9 @@ const SubCategoryProductsContent = ({ id }) => {
       limit,
       search: "",
       subCategoryId: id,
+      sortBy: pageType === "new-products" ? "newest" : undefined,
     }),
-    [page, id],
+    [page, id, pageType],
   );
 
   useEffect(() => {

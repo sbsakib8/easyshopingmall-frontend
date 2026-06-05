@@ -28,6 +28,7 @@ const HomeSliderPage = () => {
  Description:"",
  images:"",
  linkUrl:"",
+ sliderFor: "USER",
 })
 
  const fileInputRef = useRef(null)
@@ -45,6 +46,7 @@ const HomeSliderPage = () => {
  data.append("title", formData.title);
  data.append("Description", formData.Description);
  data.append("Link_URL", formData.linkUrl);
+ data.append("sliderFor", formData.sliderFor || "USER");
  data.append("active", true);
 
  if (formData.images) {
@@ -69,6 +71,7 @@ const HomeSliderPage = () => {
  Description:"",
  images:"",
  linkUrl:"",
+ sliderFor: "USER",
 });
 
  setIsAddDialogOpen(false);
@@ -86,6 +89,7 @@ const HomeSliderPage = () => {
  Description: slider.Description,
  images: slider.images,
  linkUrl: slider.linkUrl,
+ sliderFor: slider.sliderFor || "USER",
 })
 }
 
@@ -98,6 +102,7 @@ const HomeSliderPage = () => {
  updatedData.append("title", formData.title ||"");
  updatedData.append("Description", formData.Description ||"");
  updatedData.append("Link_URL", formData.linkUrl ||"");
+ updatedData.append("sliderFor", formData.sliderFor || "USER");
  updatedData.append("active", editingSlider.active ?? true);
 
  if (formData.images instanceof File) {
@@ -118,6 +123,7 @@ const HomeSliderPage = () => {
  Description:"",
  images:"",
  linkUrl:"",
+ sliderFor: "USER",
 });
 
  if (typeof refetch ==="function") refetch();
@@ -260,7 +266,9 @@ const HomeSliderPage = () => {
  <div className="aspect-[2/1] relative group">
  <img
  src={
- sliders[currentSlide]?.images ||"/placeholder.svg?height=400&width=800&query=slider preview"
+ (Array.isArray(sliders[currentSlide]?.images)
+  ? sliders[currentSlide]?.images[0]
+  : sliders[currentSlide]?.images) || "/img/product.jpg"
 }
  alt={sliders[currentSlide]?.title}
  className="w-full h-full object-cover"
@@ -405,7 +413,17 @@ const HomeSliderPage = () => {
  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-slate-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
  />
  </div>
-
+ <div>
+ <label className="block text-gray-300 text-sm font-medium mb-2">Slider For</label>
+ <select
+ value={formData.sliderFor}
+ onChange={(e) => setFormData({...formData, sliderFor: e.target.value})}
+ className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+ >
+ <option value="USER">🛒 Retail Users</option>
+ <option value="DROPSHIPPING">📦 Dropshippers</option>
+ </select>
+ </div>
  </div>
 
  <button
@@ -455,7 +473,10 @@ const HomeSliderPage = () => {
  style={{animationDelay: `${index * 100}ms`}}
  >
  <img
- src={slider?.images ||"/placeholder.svg?height=80&width=120&query=slider thumbnail"}
+ src={
+ (Array.isArray(slider?.images) ? slider.images[0] : slider?.images) ||
+  "/img/product.jpg"
+}
  alt={slider?.title}
  className="w-full md:w-24 h-20 object-cover rounded-lg shadow-lg"
  />
@@ -470,6 +491,15 @@ const HomeSliderPage = () => {
 }`}
  >
  {slider?.active ?"Active":"Inactive"}
+ </span>
+ <span
+ className={`px-3 py-1 rounded-full text-xs font-medium ${
+ slider?.sliderFor ==="DROPSHIPPING"
+ ?"bg-purple-500/20 text-purple-300 border border-purple-500/30"
+ :"bg-blue-500/20 text-blue-300 border border-blue-500/30"
+ }`}
+ >
+ {slider?.sliderFor ==="DROPSHIPPING" ?"📦 Dropshipping":"🛒 Retail"}
  </span>
  </div>
  </div>
@@ -584,7 +614,17 @@ const HomeSliderPage = () => {
  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
  />
  </div>
-
+ <div>
+ <label className="block text-gray-300 text-sm font-medium mb-2">Slider For</label>
+ <select
+ value={formData.sliderFor}
+ onChange={(e) => setFormData({...formData, sliderFor: e.target.value})}
+ className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+ >
+ <option value="USER">🛒 Retail Users</option>
+ <option value="DROPSHIPPING">📦 Dropshippers</option>
+ </select>
+ </div>
  </div>
  <div className="flex gap-3 pt-4">
  <button
@@ -606,7 +646,7 @@ const HomeSliderPage = () => {
  )}
  </div>
 
- <style jsx>{`
+ <style>{`
  @keyframes fade-in-up {
  from {
  opacity: 0;
@@ -676,7 +716,7 @@ const HomeSliderPage = () => {
  animation: fade-in 0.3s ;
 }
 
- . {
+ .scale-in {
  animation: scale-in 0.3s ;
 }
  `}</style>

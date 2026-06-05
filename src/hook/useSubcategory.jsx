@@ -21,15 +21,18 @@ export const SubCategoryCreate = async (formData,) => {
 };
 
 // subcatagory ALL GET
-export const SubCategoryAllGet = async (dispatch) => {
+export const SubCategoryAllGet = async (dispatch, filterType) => {
   try {
-    const response = await axios.get(`${UrlBackend}/subcategories`, {
+    const url = filterType 
+      ? `${UrlBackend}/subcategories?filterType=${filterType}` 
+      : `${UrlBackend}/subcategories`;
+    const response = await axios.get(url, {
       withCredentials: true,
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
-    if (dispatch) {
+    if (dispatch && !filterType) {
       dispatch(subcategoryGet(response.data));
     }
     return response.data;

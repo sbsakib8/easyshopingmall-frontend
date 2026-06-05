@@ -241,7 +241,7 @@ const Header = ({ initialData }) => {
       name: p.name || p.productName || p.title || "Untitled",
       price: Number(p.price ?? p.sell_price ?? 0) || 0,
       originalPrice: Number(p.originalPrice ?? p.oldPrice ?? 0) || 0,
-      image: p.image || p.images?.[0] || "/banner/img/placeholder.png",
+      image: p.image || p.images?.[0] || "/img/product.jpg",
       rating: Number(p.rating ?? p.ratings) || 4,
       reviews: Number(p.reviews ?? p.reviewCount ?? 0) || 0,
     }));

@@ -485,7 +485,7 @@ const ShopPage = ({ initialData, queryParams }) => {
         return {
           id: prod._id || prod.id || String(prod?._id || prod?.id || ""),
           name: prod.productName || prod.name || prod.title || "Product",
-          image: prod.images?.[0] || prod.image || "/images/placeholder.png",
+          image: prod.images?.[0] || prod.image || "/img/product.jpg",
           price: Number(prod.price ?? prod.sell_price ?? prod.amount) || 0,
           quantity: item.quantity || 1,
           brand: prod.brand || prod.manufacturer || "",
@@ -495,7 +495,7 @@ const ShopPage = ({ initialData, queryParams }) => {
       return {
         id: item.id || item._id || "",
         name: item.name || item.productName || "Product",
-        image: item.image || item.images?.[0] || "/images/placeholder.png",
+        image: item.image || item.images?.[0] || "/img/product.jpg",
         price: Number(item.price) || 0,
         quantity: item.quantity || 1,
         brand: item.brand || "",
@@ -507,7 +507,7 @@ const ShopPage = ({ initialData, queryParams }) => {
 
   // Redirect dropshipping users away from shop
   useEffect(() => {
-    if (user?.role === "DROPSHIPPING") {
+    if (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) {
       router.push("/forbidden");
     }
   }, [user, router]);
@@ -654,19 +654,20 @@ const ShopPage = ({ initialData, queryParams }) => {
   // Toggle wishlist (uses API + redux)
   const toggleWishlist = useCallback(
     async (product) => {
+      const productId = product._id || product.id;
       if (!user?._id) {
         toast.error("Please sign in to add to wishlist");
         return;
       }
       try {
         const exists = (wishlist || []).some(
-          (i) => i.id === product.id || favorite.includes(product.id),
-        );
+          (i) => i.id === productId || i._id === productId,
+        ) || (favorite || []).includes(productId);
         if (exists) {
-          await removeFromWishlistApi(product.id, dispatch);
+          await removeFromWishlistApi(productId, dispatch);
           toast.success("Removed from wishlist");
         } else {
-          await addToWishlistApi(product.id, dispatch);
+          await addToWishlistApi(productId, dispatch);
           toast.success("Added to wishlist");
         }
       } catch (err) {
