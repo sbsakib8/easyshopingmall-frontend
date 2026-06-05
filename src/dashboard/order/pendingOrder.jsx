@@ -525,9 +525,10 @@ const PendingOrdersPage = () => {
                           <img
                             className="w-16 h-16 rounded-lg object-cover border border-gray-700 shadow-sm"
                             src={
-                              (item?.image && item.image[0]) ||
-                              (item?.productId?.images &&
-                                item.productId.images[0]) ||
+                              (Array.isArray(item?.image) ? item.image[0] : (typeof item?.image === 'string' ? item.image : null)) ||
+                              (Array.isArray(item?.images) ? item.images[0] : (typeof item?.images === 'string' ? item.images : null)) ||
+                              (Array.isArray(item?.productId?.images) ? item.productId.images[0] : (typeof item?.productId?.images === 'string' ? item.productId.images : null)) ||
+                              (Array.isArray(item?.productId?.image) ? item.productId.image[0] : (typeof item?.productId?.image === 'string' ? item.productId.image : null)) ||
                               "/img/product.jpg"
                             }
                             alt={item?.name || "Product"}

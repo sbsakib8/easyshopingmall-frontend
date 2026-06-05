@@ -52,6 +52,7 @@ const AccountPage = () => {
   const searchParams = useSearchParams();
   const tabFromUrl = searchParams.get("tab");
 
+  const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState(tabFromUrl || "profile");
   const [isEditing, setIsEditing] = useState(false);
   const [showImageUpload, setShowImageUpload] = useState(false);
@@ -59,13 +60,17 @@ const AccountPage = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [profileData, setProfileData] = useState({
-    name: data?.name,
-    email: data?.email,
-    phone: data?.mobile,
-    dateOfBirth: "1995-05-15",
-    gender: "Male",
-    referralCode: data?.referralCode || "",
+    name: "",
+    email: "",
+    phone: "",
+    dateOfBirth: "",
+    gender: "",
+    referralCode: "",
   });
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const [addressData, setAddressData] = useState({
     _id: "",
@@ -486,9 +491,9 @@ const AccountPage = () => {
                     </button>
                   </div>
                   <h3 className="font-semibold text-lg mt-4 text-gray-900">
-                    {profileData.name}
+                    {mounted ? profileData.name : ""}
                   </h3>
-                  <p className="text-gray-500 text-sm">{profileData.email}</p>
+                  <p className="text-gray-500 text-sm">{mounted ? profileData.email : ""}</p>
                 </div>
 
                 {/* Navigation */}
@@ -892,10 +897,12 @@ const AccountPage = () => {
                         console.log("orders", order);
                         const firstProduct =
                           order.products && order.products[0];
-                        const image =
-                          firstProduct?.image?.[0] ||
-                          firstProduct?.productId?.images?.[0] ||
-                          "/banner/img/placeholder.png";
+                        let image = "/img/product.jpg";
+                        if (firstProduct) {
+                          const resolvedProduct = firstProduct?.productId || firstProduct;
+                          const imgData = (firstProduct?.image?.length > 0 ? firstProduct.image : null) || (firstProduct?.images?.length > 0 ? firstProduct.images : null) || (resolvedProduct?.images?.length > 0 ? resolvedProduct.images : null) || (resolvedProduct?.image?.length > 0 ? resolvedProduct.image : null);
+                          image = (Array.isArray(imgData) ? imgData[0] : (typeof imgData === 'string' ? imgData : null)) || "/img/product.jpg";
+                        }
 
                         const id = order._id;
 
@@ -1094,7 +1101,7 @@ const AccountPage = () => {
                           prod.image ||
                           prod.images?.[0] ||
                           (Array.isArray(prod.image) ? prod.image[0] : null) ||
-                          "/banner/img/placeholder.png";
+                          "/img/product.jpg";
                         const name =
                           prod.productName ||
                           prod.name ||

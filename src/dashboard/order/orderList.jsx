@@ -893,8 +893,14 @@ const OrderManagement = () => {
                               <div className="flex">
                                 <img
                                   className="w-15 h-15 object-cover object-top rounded-sm mr-1"
-                                  src={item?.image[0]}
-                                  alt="product photo"
+                                  src={
+                                    (Array.isArray(item?.image) ? item.image[0] : (typeof item?.image === 'string' ? item.image : null)) ||
+                                    (Array.isArray(item?.images) ? item.images[0] : (typeof item?.images === 'string' ? item.images : null)) ||
+                                    (Array.isArray(item?.productId?.images) ? item.productId.images[0] : (typeof item?.productId?.images === 'string' ? item.productId.images : null)) ||
+                                    (Array.isArray(item?.productId?.image) ? item.productId.image[0] : (typeof item?.productId?.image === 'string' ? item.productId.image : null)) ||
+                                    "/img/product.jpg"
+                                  }
+                                  alt={item?.name || "Product"}
                                 />
                                 <div>
                                   <h4 className="text-xs text-slate-300">

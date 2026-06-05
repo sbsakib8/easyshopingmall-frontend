@@ -21,7 +21,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { UrlBackend } from '@/src/confic/urlExport';
 import LocationSelects from '@/src/compronent/LocationSelects';
-import { applyCouponCode } from '@/src/hook/useCoupon';
+import { applyDropshippingCouponCode } from '@/src/hook/useCoupon';
 
 /* ─────────────────────────────────────────────
    Dropshipping brand palette (no main-site tokens)
@@ -30,6 +30,17 @@ import { applyCouponCode } from '@/src/hook/useCoupon';
    Page bg         → slate-50
    Section header  → emerald gradient
 ───────────────────────────────────────────── */
+
+// Robust image extractor — handles images[] array, image string, or nested productId object
+const getImageUrl = (item) => {
+  const p = item.productId || {};
+  if (p.images && p.images.length > 0) return p.images[0];
+  if (p.image) return Array.isArray(p.image) ? p.image[0] : p.image;
+  if (item.images && item.images.length > 0) return item.images[0];
+  if (item.image) return Array.isArray(item.image) ? item.image[0] : item.image;
+  return "/img/product.jpg";
+};
+
 
 // Reusable section card wrapper for DS checkout
 const DSCard = ({ icon: Icon, title, children }) => (
@@ -118,18 +129,17 @@ const DropshippingCheckoutComponent = () => {
 
     setIsApplyingCoupon(true);
     try {
-      const resp = await applyCouponCode({
+      const resp = await applyDropshippingCouponCode({
         code: couponCode,
-        checkoutAmount: subtotal,
         cartItems: items.map(item => ({
-          productId: item.productId._id,
+          productId: item.productId._id || item.productId,
           quantity: item.quantity,
-          price: item.sellingPrice || item.price
+          price: item.price
         }))
       });
 
       if (resp.success) {
-        toast.success(resp.message || "কুপন সফলভাবে প্রযোজ্য হয়েছে!");
+        toast.success(resp.message || "কুপন সফলভাবে প্রযোজ্য হয়েছে!");
         dispatch(setDsCoupon({
           coupon: resp.coupon,
           discountAmount: resp.discountAmount
@@ -677,9 +687,10 @@ const DropshippingCheckoutComponent = () => {
                     <div key={item.productId._id} className="group flex gap-4 items-start p-2 rounded-2xl hover:bg-slate-50 transition-colors">
                       <div className="relative">
                         <img
-                          src={item.productId.images?.[0]}
-                          alt={item.productId.productName}
+                          src={getImageUrl(item)}
+                          alt={item.productId?.productName || item.name || 'Product'}
                           className="w-16 h-16 object-cover rounded-xl flex-shrink-0 border border-slate-100 shadow-sm transition-transform group-hover:scale-105"
+                          onError={(e) => { e.target.onerror = null; e.target.src = "/img/product.jpg"; }}
                         />
                         <span className="absolute -top-2 -right-2 bg-emerald-600 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white shadow-sm">
                           {item.quantity}

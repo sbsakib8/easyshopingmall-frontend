@@ -219,11 +219,11 @@ function OrderDetailsModal({ order, onClose }) {
             </h3>
             <div className="space-y-3">
               {order.products && order.products.length > 0 ? (
-                order.products.map((p, idx) => {
-                  const product = p.productId || p;
-                  const name = p.name || product.productName || "N/A";
-                  const images = p.image || product.images || [];
-                  const image = images[0] || "/banner/img/placeholder.png";
+                order.products.map((item, idx) => {
+                  const resolvedProduct = item.productId || item;
+                  const name = item.name || resolvedProduct.productName || "N/A";
+                  const imgData = (item.image?.length > 0 ? item.image : null) || (item.images?.length > 0 ? item.images : null) || (resolvedProduct.images?.length > 0 ? resolvedProduct.images : null) || (resolvedProduct.image?.length > 0 ? resolvedProduct.image : null);
+                  const productImage = (Array.isArray(imgData) ? imgData[0] : (typeof imgData === 'string' ? imgData : null)) || "/banner/img/placeholder.png";
 
                   return (
                     <div
@@ -231,28 +231,22 @@ function OrderDetailsModal({ order, onClose }) {
                       className="flex items-center gap-4 border rounded-xl p-4 bg-white hover:shadow-md transition-shadow"
                     >
                       <img
-                        src={image}
+                        src={productImage}
                         alt={name}
                         className="w-20 h-20 rounded-lg object-cover flex-shrink-0 border"
                       />
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-gray-900 mb-1">{name}</p>
                         <div className="flex flex-wrap gap-3 text-xs text-gray-600">
-                          <span>Qty: <span className="font-medium text-gray-900">{p.quantity || 0}</span></span>
-                          <span>Price: <span className="font-medium text-gray-900">৳{p.price || 0}</span></span>
-                          {p.category && p.category.length > 0 && (
-                            <span>Category: <span className="font-medium text-gray-900">{p.category.join(", ")}</span></span>
-                          )}
-                          {p.subCategory && p.subCategory.length > 0 && (
-                            <span>Subcategory: <span className="font-medium text-gray-900">{p.subCategory.join(", ")}</span></span>
-                          )}
-                          {p.size && <span>Size: <span className="font-medium text-gray-900">{p.size}</span></span>}
-                          {p.color && <span>Color: <span className="font-medium text-gray-900">{p.color}</span></span>}
-                          {p.weight && <span>Weight: <span className="font-medium text-gray-900">{p.weight}</span></span>}
+                          <span>Qty: <span className="font-medium text-gray-900">{item.quantity || 0}</span></span>
+                          <span>Price: <span className="font-medium text-gray-900">৳{item.price || 0}</span></span>
+                          {item.size && <span>Size: <span className="font-medium text-gray-900">{item.size}</span></span>}
+                          {item.color && <span>Color: <span className="font-medium text-gray-900">{item.color}</span></span>}
+                          {item.weight && <span>Weight: <span className="font-medium text-gray-900">{item.weight}</span></span>}
                         </div>
                       </div>
                       <p className="font-bold text-emerald-600 text-lg flex-shrink-0">
-                        ৳{p.totalPrice || 0}
+                        ৳{item.totalPrice || 0}
                       </p>
                     </div>
                   );

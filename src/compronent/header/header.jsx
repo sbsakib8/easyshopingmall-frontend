@@ -33,6 +33,11 @@ const Header = ({ initialData }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [hoveredCategoryId, setHoveredCategoryId] = useState(null);
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [showLiveResults, setShowLiveResults] = useState(false);
@@ -241,7 +246,7 @@ const Header = ({ initialData }) => {
       name: p.name || p.productName || p.title || "Untitled",
       price: Number(p.price ?? p.sell_price ?? 0) || 0,
       originalPrice: Number(p.originalPrice ?? p.oldPrice ?? 0) || 0,
-      image: p.image || p.images?.[0] || "/banner/img/placeholder.png",
+      image: p.image || p.images?.[0] || "/img/product.jpg",
       rating: Number(p.rating ?? p.ratings) || 4,
       reviews: Number(p.reviews ?? p.reviewCount ?? 0) || 0,
     }));
@@ -570,14 +575,15 @@ const Header = ({ initialData }) => {
                     "group-hover:from-emerald-100 group-hover:to-teal-100",
                 },
               ].map((item) => {
-                const isLoggedIn = !!data;
+                const isLoggedIn = mounted ? !!data : false;
+                const isAdminUser = mounted ? isAdmin : false;
                 const shouldShow =
                   (item.key === "account" && isLoggedIn) ||
                   (item.key === "signin" && !isLoggedIn) ||
                   (item.key !== "account" && item.key !== "signin");
 
                 if (!shouldShow) return null;
-                if (item.isAdminOnly && !isAdmin) return null;
+                if (item.isAdminOnly && !isAdminUser) return null;
 
                 return (
                   <div

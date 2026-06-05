@@ -465,10 +465,9 @@ const OrderDetails = ({ id }) => {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {products.map((product, index) => {
-                      const img =
-                        product.image?.[0] ||
-                        product.images?.[0] ||
-                        "/placeholder.jpg";
+                      const resolvedProduct = product.productId || product;
+                      const imgData = (product.image?.length > 0 ? product.image : null) || (product.images?.length > 0 ? product.images : null) || (resolvedProduct.images?.length > 0 ? resolvedProduct.images : null) || (resolvedProduct.image?.length > 0 ? resolvedProduct.image : null);
+                      const img = (Array.isArray(imgData) ? imgData[0] : (typeof imgData === 'string' ? imgData : null)) || "/placeholder.jpg";
                       return (
                         <tr
                           key={index}
@@ -528,10 +527,9 @@ const OrderDetails = ({ id }) => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:hidden">
                 {products.map((product) => {
-                  const img =
-                    product.image?.[0] ||
-                    product.images?.[0] ||
-                    "/placeholder.jpg";
+                  const resolvedProduct = product.productId || product;
+                  const imgData = (product.image?.length > 0 ? product.image : null) || (product.images?.length > 0 ? product.images : null) || (resolvedProduct.images?.length > 0 ? resolvedProduct.images : null) || (resolvedProduct.image?.length > 0 ? resolvedProduct.image : null);
+                  const img = (Array.isArray(imgData) ? imgData[0] : (typeof imgData === 'string' ? imgData : null)) || "/placeholder.jpg";
 
                   const unitPrice = product.sellingPrice || product.price;
                   const totalPrice =

@@ -426,10 +426,9 @@ const OrderList = () => {
                         {currentOrders.map((order) => {
                           const addr = order.address || {};
                           const firstProduct = order.products?.[0];
-                          const productImg =
-                            firstProduct?.image?.[0] ||
-                            firstProduct?.images?.[0] ||
-                            "/images/placeholder.jpg";
+                          const resolvedProduct = firstProduct?.productId || firstProduct;
+                          const imgData = (firstProduct?.image?.length > 0 ? firstProduct.image : null) || (firstProduct?.images?.length > 0 ? firstProduct.images : null) || (resolvedProduct?.images?.length > 0 ? resolvedProduct.images : null) || (resolvedProduct?.image?.length > 0 ? resolvedProduct.image : null);
+                          const productImg = (Array.isArray(imgData) ? imgData[0] : (typeof imgData === 'string' ? imgData : null)) || "/images/placeholder.jpg";
 
                           const totalCost = (order.products || []).reduce(
                             (s, p) =>
@@ -566,10 +565,9 @@ const OrderList = () => {
                   {currentOrders.map((order) => {
                     const addr = order.address || {};
                     const firstProduct = order.products?.[0];
-                    const productImg =
-                      firstProduct?.image?.[0] ||
-                      firstProduct?.images?.[0] ||
-                      "/images/placeholder.jpg";
+                    const resolvedProduct = firstProduct?.productId || firstProduct;
+                    const imgData = (firstProduct?.image?.length > 0 ? firstProduct.image : null) || (firstProduct?.images?.length > 0 ? firstProduct.images : null) || (resolvedProduct?.images?.length > 0 ? resolvedProduct.images : null) || (resolvedProduct?.image?.length > 0 ? resolvedProduct.image : null);
+                    const productImg = (Array.isArray(imgData) ? imgData[0] : (typeof imgData === 'string' ? imgData : null)) || "/images/placeholder.jpg";
 
                     const totalCost = (order.products || []).reduce(
                       (s, p) =>

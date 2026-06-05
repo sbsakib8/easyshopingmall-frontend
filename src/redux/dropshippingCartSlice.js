@@ -1,49 +1,80 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-// Helper to load state from localStorage
-const loadCartFromStorage = () => {
-    if (typeof window === "undefined") return [];
+const cartKey = (userId) => (userId ? `ds_cart_${userId}` : null);
+const couponKey = (userId) => (userId ? `ds_appliedCoupon_${userId}` : null);
+const discountKey = (userId) => (userId ? `ds_couponDiscount_${userId}` : null);
+
+const safeParse = (raw, fallback) => {
+    if (typeof window === "undefined" || !raw) return fallback;
     try {
-        const savedCart = localStorage.getItem("ds_cart");
-        return savedCart ? JSON.parse(savedCart) : [];
-    } catch (err) {
-        return [];
+        return JSON.parse(raw);
+    } catch {
+        return fallback;
     }
 };
 
-// Helper to save state to localStorage
-const saveCartToStorage = (items) => {
-    if (typeof window !== "undefined") {
-        localStorage.setItem("ds_cart", JSON.stringify(items));
+const loadCartForUser = (userId) => {
+    const key = cartKey(userId);
+    if (!key) return [];
+    return safeParse(localStorage.getItem(key), []);
+};
+
+const loadCouponForUser = (userId) => {
+    const key = couponKey(userId);
+    if (!key) return null;
+    return safeParse(localStorage.getItem(key), null);
+};
+
+const loadDiscountForUser = (userId) => {
+    const key = discountKey(userId);
+    if (!key) return 0;
+    const v = localStorage.getItem(key);
+    return v ? Number(v) : 0;
+};
+
+const persistCart = (userId, items) => {
+    const key = cartKey(userId);
+    if (!key || typeof window === "undefined") return;
+    localStorage.setItem(key, JSON.stringify(items));
+};
+
+const persistCoupon = (userId, coupon) => {
+    const key = couponKey(userId);
+    if (!key || typeof window === "undefined") return;
+    if (coupon) {
+        localStorage.setItem(key, JSON.stringify(coupon));
+    } else {
+        localStorage.removeItem(key);
     }
 };
 
-const getStoredDsCoupon = () => {
-    if (typeof window === "undefined") return null;
-    try {
-        const stored = localStorage.getItem("ds_appliedCoupon");
-        return stored ? JSON.parse(stored) : null;
-    } catch (e) {
-        return null;
+const persistDiscount = (userId, discount) => {
+    const key = discountKey(userId);
+    if (!key || typeof window === "undefined") return;
+    if (discount) {
+        localStorage.setItem(key, discount.toString());
+    } else {
+        localStorage.removeItem(key);
     }
 };
 
-const getStoredDsDiscount = () => {
-    if (typeof window === "undefined") return 0;
-    try {
-        const stored = localStorage.getItem("ds_couponDiscount");
-        return stored ? Number(stored) : 0;
-    } catch (e) {
-        return 0;
-    }
+// Clean up legacy unscoped keys (ds_cart / ds_appliedCoupon / ds_couponDiscount)
+// that the previous version of this slice used. Scoped keys are now the
+// source of truth, so the old keys are safe to drop on the client.
+const cleanupLegacyKeys = () => {
+    if (typeof window === "undefined") return;
+    localStorage.removeItem("ds_cart");
+    localStorage.removeItem("ds_appliedCoupon");
+    localStorage.removeItem("ds_couponDiscount");
 };
 
 const dropshippingCartSlice = createSlice({
     name: "dropshippingCart",
     initialState: {
-        items: loadCartFromStorage(),
-        appliedCoupon: getStoredDsCoupon(),
-        couponDiscount: getStoredDsDiscount(),
+        items: [],
+        appliedCoupon: null,
+        couponDiscount: 0,
+        currentUserId: null,
         loading: false,
         error: null,
     },
@@ -57,7 +88,7 @@ const dropshippingCartSlice = createSlice({
         dsCartSuccess: (state, action) => {
             state.loading = false;
             state.items = action.payload || [];
-            saveCartToStorage(state.items);
+            persistCart(state.currentUserId, state.items);
         },
 
         dsCartAdd: (state, action) => {
@@ -83,13 +114,13 @@ const dropshippingCartSlice = createSlice({
                     });
                 }
             }
-            saveCartToStorage(state.items);
+            persistCart(state.currentUserId, state.items);
         },
 
         dsCartUpdate: (state, action) => {
             state.loading = false;
             state.items = action.payload.products || action.payload || [];
-            saveCartToStorage(state.items);
+            persistCart(state.currentUserId, state.items);
         },
 
         dsCartRemove: (state, action) => {
@@ -98,7 +129,7 @@ const dropshippingCartSlice = createSlice({
             state.items = state.items.filter(
                 (item) => (item.productId?._id || item.productId) !== productId
             );
-            saveCartToStorage(state.items);
+            persistCart(state.currentUserId, state.items);
         },
 
         dsCartClear: (state) => {
@@ -106,11 +137,9 @@ const dropshippingCartSlice = createSlice({
             state.items = [];
             state.appliedCoupon = null;
             state.couponDiscount = 0;
-            saveCartToStorage([]);
-            if (typeof window !== "undefined") {
-                localStorage.removeItem("ds_appliedCoupon");
-                localStorage.removeItem("ds_couponDiscount");
-            }
+            persistCart(state.currentUserId, []);
+            persistCoupon(state.currentUserId, null);
+            persistDiscount(state.currentUserId, 0);
         },
 
         dsCartError: (state, action) => {
@@ -121,19 +150,15 @@ const dropshippingCartSlice = createSlice({
         setDsCoupon: (state, action) => {
             state.appliedCoupon = action.payload.coupon;
             state.couponDiscount = action.payload.discountAmount;
-            if (typeof window !== "undefined") {
-                localStorage.setItem("ds_appliedCoupon", JSON.stringify(action.payload.coupon));
-                localStorage.setItem("ds_couponDiscount", action.payload.discountAmount.toString());
-            }
+            persistCoupon(state.currentUserId, state.appliedCoupon);
+            persistDiscount(state.currentUserId, state.couponDiscount);
         },
 
         clearDsCoupon: (state) => {
             state.appliedCoupon = null;
             state.couponDiscount = 0;
-            if (typeof window !== "undefined") {
-                localStorage.removeItem("ds_appliedCoupon");
-                localStorage.removeItem("ds_couponDiscount");
-            }
+            persistCoupon(state.currentUserId, null);
+            persistDiscount(state.currentUserId, 0);
         },
 
         updateDsQuantityLocal: (state, action) => {
@@ -146,7 +171,7 @@ const dropshippingCartSlice = createSlice({
                 match.totalPrice = match.price * match.quantity;
                 match.profit = ((match.sellingPrice || match.price) - match.price) * match.quantity;
             }
-            saveCartToStorage(state.items);
+            persistCart(state.currentUserId, state.items);
         },
 
         updateDsSellingPriceLocal: (state, action) => {
@@ -159,8 +184,56 @@ const dropshippingCartSlice = createSlice({
                 const sp = sellingPrice === "" ? 0 : Number(sellingPrice);
                 match.profit = (sp - match.price) * match.quantity;
             }
-            saveCartToStorage(state.items);
+            persistCart(state.currentUserId, state.items);
         },
+
+        // Switches the in-memory cart to the supplied user's persisted cart.
+        // Pass `null` to clear the cart (e.g. when the user logs out).
+        dsCartLoadForUser: (state, action) => {
+            const newUserId = action.payload || null;
+            if (newUserId === state.currentUserId) return;
+
+            state.currentUserId = newUserId;
+            if (newUserId) {
+                state.items = loadCartForUser(newUserId);
+                state.appliedCoupon = loadCouponForUser(newUserId);
+                state.couponDiscount = loadDiscountForUser(newUserId);
+            } else {
+                state.items = [];
+                state.appliedCoupon = null;
+                state.couponDiscount = 0;
+            }
+        },
+    },
+
+    // Keep the dropshipping cart in sync with the currently authenticated
+    // user so that switching accounts in the same browser never leaks the
+    // previous user's items into the new session.
+    extraReducers: (builder) => {
+        cleanupLegacyKeys();
+
+        builder
+            .addCase("user/userget", (state, action) => {
+                const newUserId = action.payload?._id || null;
+                if (newUserId === state.currentUserId) return;
+
+                state.currentUserId = newUserId;
+                if (newUserId) {
+                    state.items = loadCartForUser(newUserId);
+                    state.appliedCoupon = loadCouponForUser(newUserId);
+                    state.couponDiscount = loadDiscountForUser(newUserId);
+                } else {
+                    state.items = [];
+                    state.appliedCoupon = null;
+                    state.couponDiscount = 0;
+                }
+            })
+            .addCase("user/clearUser", (state) => {
+                state.currentUserId = null;
+                state.items = [];
+                state.appliedCoupon = null;
+                state.couponDiscount = 0;
+            });
     },
 });
 
@@ -176,6 +249,7 @@ export const {
     clearDsCoupon,
     updateDsQuantityLocal,
     updateDsSellingPriceLocal,
+    dsCartLoadForUser,
 } = dropshippingCartSlice.actions;
 
 export default dropshippingCartSlice.reducer;

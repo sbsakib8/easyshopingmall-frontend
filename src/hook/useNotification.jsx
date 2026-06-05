@@ -38,7 +38,7 @@ export const NotificationAllGet = async () => {
 //  mark single read
 export const NotificationSingleRead = async (id) => {
   try {
-    const response = await axios.put(`${UrlBackend}/notification/${id}/read`,{
+    const response = await axios.put(`${UrlBackend}/notification/${id}/read`, {}, {
       withCredentials: true,
     });
     return response.data; 
@@ -51,7 +51,7 @@ export const NotificationSingleRead = async (id) => {
 // mark-all-read
 export const NotificationAllRead = async () => {
   try {
-    const response = await axios.put(`${UrlBackend}/notification/mark-all-read`,{
+    const response = await axios.put(`${UrlBackend}/notification/mark-all-read`, {}, {
       withCredentials: true,
     });
     return response.data; 

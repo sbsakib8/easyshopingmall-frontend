@@ -254,11 +254,10 @@ const PopularProducts = ({ initialData }) => {
     return [...Array(5)].map((_, i) => (
       <Star
         key={i}
-        className={`w-3 h-3 sm:w-4 sm:h-4 ${
-          i < Math.floor(rating)
+        className={`w-3 h-3 sm:w-4 sm:h-4 ${i < Math.floor(rating)
             ? "text-yellow-400 fill-current"
             : "text-gray-300"
-        }`}
+          }`}
       />
     ));
   };
@@ -452,11 +451,10 @@ const PopularProducts = ({ initialData }) => {
                       toggleWishlist(product.id);
                     }}
                     className={`p-2 cursor-pointer rounded-lg
-      ${
-        localWishlist.has(product.id)
-          ? "text-red-500 bg-red-100"
-          : "text-gray-400 hover:text-red-500 hover:bg-red-50"
-      }`}
+      ${localWishlist.has(product.id)
+                        ? "text-red-500 bg-red-100"
+                        : "text-gray-400 hover:text-red-500 hover:bg-red-50"
+                      }`}
                   >
                     <Heart
                       className="w-3 h-3"

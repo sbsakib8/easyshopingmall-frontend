@@ -18,6 +18,17 @@ import { useRouter } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import toast from "react-hot-toast";
 
+// Robust image extractor — handles images[] array, image string, or nested productId object
+const getImageUrl = (item) => {
+  const p = item.productId || {};
+  if (p.images && p.images.length > 0) return p.images[0];
+  if (p.image) return Array.isArray(p.image) ? p.image[0] : p.image;
+  if (item.images && item.images.length > 0) return item.images[0];
+  if (item.image) return Array.isArray(item.image) ? item.image[0] : item.image;
+  return "/img/product.jpg";
+};
+
+
 const DropshippingCartComponent = () => {
   const dispatch = useDispatch();
   const router = useRouter();
@@ -120,7 +131,12 @@ const DropshippingCartComponent = () => {
               {items.map((item) => (
                 <div key={item.productId._id} className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow group">
                   <div className="flex flex-col md:flex-row gap-6">
-                    <img src={item.productId.images?.[0]} alt={item.productId.productName} className="w-full md:w-32 h-32 object-cover rounded-2xl" />
+                    <img
+                      src={getImageUrl(item)}
+                      alt={item.productId?.productName || item.name || "Product"}
+                      className="w-full md:w-32 h-32 object-cover rounded-2xl"
+                      onError={(e) => { e.target.onerror = null; e.target.src = "/img/product.jpg"; }}
+                    />
                     <div className="flex-1 space-y-4">
                       <div className="flex justify-between items-start">
                         <div>

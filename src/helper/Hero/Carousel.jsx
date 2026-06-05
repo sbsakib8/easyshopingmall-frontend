@@ -68,20 +68,19 @@ const Carousel = ({ initialData }) => {
               {slides?.map((slide, index) => (
                 <div
                   key={slide._id}
-                  className={`absolute inset-0 transition-all duration-700 ease-in-out ${
-                    index === currentSlide
-                      ? "opacity-100 translate-x-0"
-                      : index < currentSlide
-                        ? "opacity-0 -translate-x-full"
-                        : "opacity-0 translate-x-full"
-                  }`}
+                  className={`absolute inset-0 transition-all duration-700 ease-in-out ${index === currentSlide
+                    ? "opacity-100 translate-x-0"
+                    : index < currentSlide
+                      ? "opacity-0 -translate-x-full"
+                      : "opacity-0 translate-x-full"
+                    }`}
                 >
                   <Image
-                    src={slide?.images?.[0] || ""}
-                    alt={slide?.title}
+                    src={(Array.isArray(slide?.images) ? slide?.images[0] : (slide?.images || slide?.image)) || "/img/product.jpg"}
+                    alt={slide?.title || "Banner"}
                     width={1200}
                     height={600}
-                    className="w-full h-full "
+                    className="w-full h-full object-cover"
                   />
                 </div>
               ))}
@@ -129,11 +128,10 @@ const Carousel = ({ initialData }) => {
             <button
               key={index}
               onClick={() => goToSlide(index)}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                index === currentSlide
-                  ? "bg-blue-600 w-8"
-                  : "bg-gray-300 hover:bg-gray-400"
-              }`}
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentSlide
+                ? "bg-blue-600 w-8"
+                : "bg-gray-300 hover:bg-gray-400"
+                }`}
               aria-label={`Go to slide ${index + 1}`}
             />
           ))}
@@ -145,24 +143,23 @@ const Carousel = ({ initialData }) => {
             <button
               key={index}
               onClick={() => goToSlide(index)}
-              className={`relative overflow-hidden rounded-lg transition-all duration-300 ${
-                index === currentSlide
-                  ? "ring-2 ring-blue-500 ring-offset-2"
-                  : "opacity-60 hover:opacity-80"
-              }`}
+              className={`relative overflow-hidden rounded-lg transition-all duration-300 ${index === currentSlide
+                ? "ring-2 ring-blue-500 ring-offset-2"
+                : "opacity-60 hover:opacity-80"
+                }`}
             >
               <Image
-                src={slide?.images || slide?.image}
-                alt={slide?.title}
+                src={(Array.isArray(slide?.images) ? slide?.images[0] : (slide?.images || slide?.image)) || "/img/product.jpg"}
+                alt={slide?.title || "Thumbnail"}
                 width={1200}
                 height={600}
-                className="w-16 h-10 "
+                className="w-16 h-10 object-cover"
               />
-            </button>
+            </button >
           ))}
-        </div>
-      </Container>
-    </Section>
+        </div >
+      </Container >
+    </Section >
   );
 };
 
