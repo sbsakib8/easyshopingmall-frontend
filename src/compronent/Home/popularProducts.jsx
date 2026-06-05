@@ -8,7 +8,6 @@ import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 
 // 🧠 Import your hooks
-import Skeleton, { CardSkeleton } from "@/src/compronent/loading/Skeleton";
 import AddtoCartBtn from "@/src/helper/Buttons/AddtoCartBtn";
 import { useWishlist } from "@/src/utlis/useWishList";
 import { cn } from "@/src/utlis/utils";
@@ -19,6 +18,7 @@ import {
   removeFromWishlistApi,
 } from "../../hook/useWishlist";
 import { setQuickViewProduct } from "../../redux/shopSlice";
+import { PopularProductsSkeleton } from "../loading/HomeSkeleton";
 import Container from "../shared/Container";
 import Section from "../shared/Section";
 
@@ -104,23 +104,7 @@ const PopularProducts = ({ initialData }) => {
   const loading = loadingLocal;
   const isError = errorState;
 
-  if (loading && !isError) {
-    return (
-      <Section className="min-h-dvh pt-0 md:pt-0">
-        <Container className="space-y-8">
-          <div className="flex items-center gap-2">
-            <Skeleton className="h-8 w-48" />
-            <Skeleton className="h-6 w-12" />
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
-            {[...Array(10)].map((_, i) => (
-              <CardSkeleton key={i} />
-            ))}
-          </div>
-        </Container>
-      </Section>
-    );
-  }
+  if (loading && !isError) <PopularProductsSkeleton />;
 
   // 🧩 Merge structured dataset using shop categories
   const mergedData = useMemo(() => {
@@ -133,16 +117,6 @@ const PopularProducts = ({ initialData }) => {
       icon: c.icon || <Sparkles className="w-4 h-4" />,
       color: c.color || "from-slate-500 to-gray-600",
     }));
-
-    // Prepend "ALL" exactly once
-    if (categories.length > 0) {
-      categories.unshift({
-        id: "ALL",
-        name: "ALL",
-        icon: <Sparkles className="w-4 h-4" />,
-        color: "from-slate-500 to-gray-600",
-      });
-    }
 
     const productsData = products.map((p) => {
       // Handle category - can be array or object
@@ -195,6 +169,15 @@ const PopularProducts = ({ initialData }) => {
 
     return { products: productsData, categories };
   }, [products, shopCategories]);
+
+  if (!mergedData.categories.some((cat) => cat.id === "ALL")) {
+    mergedData.categories.unshift({
+      id: "ALL",
+      name: "ALL",
+      icon: <Sparkles className="w-4 h-4" />,
+      color: "from-slate-500 to-gray-600",
+    });
+  }
 
   const currentProducts = useMemo(() => {
     if (activeCategory === "ALL") {
@@ -271,11 +254,10 @@ const PopularProducts = ({ initialData }) => {
     return [...Array(5)].map((_, i) => (
       <Star
         key={i}
-        className={`w-3 h-3 sm:w-4 sm:h-4 ${
-          i < Math.floor(rating)
+        className={`w-3 h-3 sm:w-4 sm:h-4 ${i < Math.floor(rating)
             ? "text-yellow-400 fill-current"
             : "text-gray-300"
-        }`}
+          }`}
       />
     ));
   };
@@ -447,11 +429,7 @@ const PopularProducts = ({ initialData }) => {
                       <span className="bg-accent text-accent-content px-1 py-1 mx-[2px] rounded text-[8px] font-semibold">
                         -{product.retailSale - product.price}৳
                       </span>
-                    ) : (
-                      <span className="bg-accent text-accent-content px-1 py-1 mx-[2px] rounded text-[8px] font-semibold">
-                        0৳
-                      </span>
-                    )}
+                    ) : null}
                   </div>
 
                   {product.productStatus?.length > 0 && (
@@ -473,11 +451,10 @@ const PopularProducts = ({ initialData }) => {
                       toggleWishlist(product.id);
                     }}
                     className={`p-2 cursor-pointer rounded-lg
-      ${
-        localWishlist.has(product.id)
-          ? "text-red-500 bg-red-100"
-          : "text-gray-400 hover:text-red-500 hover:bg-red-50"
-      }`}
+      ${localWishlist.has(product.id)
+                        ? "text-red-500 bg-red-100"
+                        : "text-gray-400 hover:text-red-500 hover:bg-red-50"
+                      }`}
                   >
                     <Heart
                       className="w-3 h-3"

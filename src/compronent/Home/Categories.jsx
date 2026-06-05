@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import Skeleton from "../loading/Skeleton";
+import { FeaturedSubCategoriesSkeleton } from "../loading/HomeSkeleton";
 import Container from "../shared/Container";
 import Section from "../shared/Section";
 
@@ -25,25 +25,7 @@ function Categories({ initialData }) {
 
   const loopData = [...(subCategory || []), ...(subCategory || [])];
 
-  if (loading && !subCategory) {
-    return (
-      <Section>
-        <Container>
-          <div className="flex gap-4 overflow-hidden">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="w-48 flex-shrink-0">
-                <div className="bg-white rounded-2xl shadow-lg p-6 space-y-4">
-                  <Skeleton className="w-full h-32 rounded-lg" />
-                  <Skeleton className="h-4 w-3/4 mx-auto" />
-                  <Skeleton className="h-8 w-full mt-4" />
-                </div>
-              </div>
-            ))}
-          </div>
-        </Container>
-      </Section>
-    );
-  }
+  if (loading && !subCategory) <FeaturedSubCategoriesSkeleton />;
 
   return (
     <Section>

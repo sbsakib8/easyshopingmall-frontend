@@ -1,15 +1,16 @@
 "use client";
 
+import WishlistPageLoading from "@/app/(page)/wishlist/loading";
+import Container from "@/src/compronent/shared/Container";
 import BackButton from "@/src/dropShipping/BackButton/BackButton";
 import { getWishlistApi, removeFromWishlistApi } from "@/src/hook/useWishlist";
+import { cn } from "@/src/utlis/utils";
 import { Grid, Heart, List, ShoppingCart, Star, Trash2 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import Container from "@/src/compronent/shared/Container";
-import Image from "next/image";
-import { cn } from "@/src/utlis/utils";
-import WishlistPageLoading from "@/app/(page)/wishlist/loading";
+import Section from "../shared/Section";
 
 const ProductCard = React.memo(
   ({ item = {}, viewMode = "grid", removeFromWishlist }) => {
@@ -156,22 +157,22 @@ const WishlistComponent = () => {
 
   if (!user) {
     return (
-      <section className="min-h-dvh lg:pt-24 py-5 flex items-center justify-center bg-bg">
+      <Section className="min-h-[calc(dvh-400px)] grid place-items-center bg-bg">
         <div className="bg-white shadow-lg rounded-2xl p-8 text-center max-w-md">
           <h2 className="text-2xl font-bold mb-2 text-gray-900">
             Please sign in
           </h2>
           <p className="text-gray-600 mb-4">
-            You need to log in to view your wishlist.
+            You need to log in to view your cart.
           </p>
           <Link
             href="/signin"
-            className="inline-block bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-accent-content px-6 py-3 rounded-xl font-semibold hover:from-teal-700 hover:to-green-700 transition-all"
+            className="inline-block bg-primary/80 hover:bg-primary text-primary-content px-4 py-2 rounded-md font-semibold transition-all"
           >
             Go to Sign In
           </Link>
         </div>
-      </section>
+      </Section>
     );
   }
 
@@ -233,19 +234,20 @@ const WishlistComponent = () => {
 
   if (error)
     return (
-      <section className="min-h-dvh relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-emerald-50/70 py-10 md:py-16">
+      <Section className="min-h-[calc(100dvh-400px)] grid place-items-center bg-bg">
         {/* Animated Background Decor */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="absolute top-0 -left-40 w-[600px] h-[600px] bg-emerald-100/40 rounded-full blur-[120px] animate-float-slow"></div>
           <div className="absolute bottom-0 -right-40 w-[700px] h-[700px] bg-teal-100/30 rounded-full blur-[120px] animate-float-medium"></div>
           <div className="absolute top-1/2 left-1/4 w-[400px] h-[400px] bg-sky-100/30 rounded-full blur-[100px] animate-float-fast"></div>
         </div>
+
         {error}
-      </section>
+      </Section>
     );
 
   return (
-    <section className="min-h-dvh relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-emerald-50/70 py-10 md:py-16">
+    <Section className="min-h-[calc(100dvh-500px)] relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-emerald-50/70 py-10 md:py-16">
       {/* Animated Background Decor */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-0 -left-40 w-[600px] h-[600px] bg-emerald-100/40 rounded-full blur-[120px] animate-float-slow"></div>
@@ -417,7 +419,7 @@ const WishlistComponent = () => {
           overflow: hidden;
         }
       `}</style>
-    </section>
+    </Section>
   );
 };
 
