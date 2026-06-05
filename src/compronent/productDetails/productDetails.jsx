@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addToCartApi, getCartApi } from "@/src/hook/useCart";
 import { getProductDetailsApi } from "@/src/hook/useProductDetails";
 import { getProductCouponsApi } from "@/src/hook/useProductCoupons";
-import { getApprovedReviews, submitReview } from "@/src/hook/useReview";
+import { getApprovedReviews, submitReview, deleteReview } from "@/src/hook/useReview";
 import { decreaseProductQuantity, increaseProductQuantity } from "@/src/hook/useUpdateProduct";
 import { addToWishlistApi, removeFromWishlistApi } from "@/src/hook/useWishlist";
 import { useGetProduct } from "@/src/utlis/userProduct";
@@ -1398,6 +1398,26 @@ const ProductDetails = ({ initialProduct }) => {
 
                         {/* Comment */}
                         <p className="text-gray-600 text-sm sm:text-base">{review.comment}</p>
+
+                        {/* Delete button – only shown for review owner */}
+                        {((review.userId?._id || review.userId?.id) === (user?._id || user?.id)) && (
+                          <button
+                            onClick={async () => {
+                              if (!confirm("Are you sure you want to delete your review?")) return;
+                              try {
+                                await deleteReview(review._id || review.id);
+                                toast.success("Review deleted");
+                                const data = await getApprovedReviews(params?.id);
+                                setReviewList(data);
+                              } catch {
+                                toast.error("Failed to delete review");
+                              }
+                            }}
+                            className="mt-3 text-xs text-red-500 hover:text-red-700 transition-colors self-end"
+                          >
+                            Delete Review
+                          </button>
+                        )}
                       </div>
                     ))}
                 </div>

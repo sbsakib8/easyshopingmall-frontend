@@ -13,6 +13,7 @@ import {
 import Link from "next/link";
 import { useSelector } from "react-redux";
 import Container from "@/src/compronent/shared/Container";
+import Section from "@/src/compronent/shared/Section";
 
 const overview = [
   {
@@ -97,17 +98,18 @@ function Overview() {
   const data = useSelector((state) => state.user.data);
 
   return (
-    <section className="py-12 md:py-16 lg:py-20">
+    <Section>
       <Container className="relative z-10">
         {/* Header */}
         <div className="text-center mb-10">
-          <h2 className="text-3xl lg:text-4xl font-extrabold text-gray-900 tracking-tight mb-3">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-gray-900 tracking-tight mb-3">
             Overview
           </h2>
           <div className="flex flex-col items-center gap-2">
             <p className="text-gray-600 font-medium">Select Section</p>
           </div>
         </div>
+
         <div className="container grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
           {overview.map((view) => (
             <Link
@@ -124,7 +126,7 @@ function Overview() {
           ))}
         </div>
       </Container>
-    </section>
+    </Section>
   );
 }
 

@@ -7,6 +7,10 @@ import {
   IoTimeOutline,
 } from "react-icons/io5";
 import { MdAddCall, MdEmail } from "react-icons/md";
+import Container from "../shared/Container";
+import {cn}from "@/src/utlis/utils"
+
+
 const iconMap = {
   "fa-facebook": IoLogoFacebook,
   "fa-instagram": FaInstagram,
@@ -19,159 +23,137 @@ function Footer({ initialData }) {
   const siteInfo = siteInfoFetched || initialData;
   const socialLinks = siteInfo?.socialLinks || [];
 
+  const footerNavLinks = [
+    {
+      title: "Company",
+      links: [
+        { label: "About", href: "/about" },
+        { label: "Delivery Information", href: "/delivery" },
+        { label: "Dropshipping", href: "/dropshipping" },
+        { label: "Privacy Policy", href: "/privacy-policy" },
+        { label: "Terms & Conditions", href: "/terms-conditions" },
+        { label: "Contact Us", href: "/contact" },
+        { label: "Support Center", href: "/" },
+        { label: "Careers", href: "/" },
+      ],
+    },
+    {
+      title: "Corporate",
+      links: [
+        { label: "About", href: "/about" },
+        { label: "Delivery Information", href: "/delivery" },
+        { label: "Dropshipping", href: "/dropshipping" },
+        { label: "Privacy Policy", href: "/privacy-policy" },
+        { label: "Terms & Conditions", href: "/terms-conditions" },
+        { label: "Contact Us", href: "/contact" },
+        { label: "Support Center", href: "/" },
+        { label: "Careers", href: "/" },
+      ],
+    },
+    {
+      title: "Popular",
+      links: [
+        { label: "About", href: "/about" },
+        { label: "Delivery Information", href: "/delivery" },
+        { label: "Dropshipping", href: "/dropshipping" },
+        { label: "Privacy Policy", href: "/privacy-policy" },
+        { label: "Terms & Conditions", href: "/terms-conditions" },
+        { label: "Contact Us", href: "/contact" },
+        { label: "Support Center", href: "/" },
+        { label: "Careers", href: "/" },
+      ],
+    },
+  ];
+
   return (
-    <footer className="px-20 mx-auto bg-primary/10 pb-20 md:pb-0">
-      {/* main div */}
-      <div className="w-[98%] lg:w-[95%] flex flex-wrap justify-between items-stretch gap-4 lg:gap-0 py-4 px-2 lg:px-0">
-        <div className="w-[400px] h-auto">
-          <h3 className="text-[22px] font-bold text-accent-content">
-            EasyShoppingMall
-          </h3>
-          <p className=" text-[17px] mt-2">
-            Awesome grocery store website template
-          </p>
+    <footer className="bg-primary/10 pb-26 md:pb-0">
+      <Container className="py-8 lg:py-12 space-y-6">
+        {/* main div */}
+        <div className="grid sm:grid-cols-3 lg:grid-cols-5 gap-6">
+          <div className="sm:col-span-3 lg:col-span-2">
+            <h3 className="text-[22px] font-bold text-accent-content">
+              EasyShoppingMall
+            </h3>
+            <p className=" text-[17px] mt-2">
+              Awesome grocery store website template
+            </p>
 
-          <div>
-            <div className="flex items-center gap-2 my-3">
-              <IoLocationOutline className=" text-[20px] text-primary font-medium" />
-              <p className=" text-[16px]">{siteInfo?.address || ""} </p>
-            </div>
-            <div className="flex items-center gap-2 my-3">
-              <MdAddCall className=" text-[20px] text-primary font-medium" />
-              <p className=" text-[16px]"> Call Us: {siteInfo?.number}</p>
-            </div>
-            <div className="flex items-center gap-2 my-3">
-              <MdEmail className=" text-[20px] text-primary font-medium" />
-              <p className=" text-[16px]"> Email: {siteInfo?.email}</p>
-            </div>
-            <div className="flex items-center gap-2 my-3">
-              <IoTimeOutline className=" text-[20px] text-primary font-medium" />
-              <p className=" text-[16px]">{siteInfo?.deliveryText}</p>
+            <div>
+              <div className="flex items-center gap-2 my-3">
+                <IoLocationOutline className=" text-[20px] text-primary font-medium" />
+                <p className=" text-[16px]">{siteInfo?.address || ""} </p>
+              </div>
+              <div className="flex items-center gap-2 my-3">
+                <MdAddCall className=" text-[20px] text-primary font-medium" />
+                <p className=" text-[16px]"> Call Us: {siteInfo?.number}</p>
+              </div>
+              <div className="flex items-center gap-2 my-3">
+                <MdEmail className=" text-[20px] text-primary font-medium" />
+                <p className=" text-[16px]"> Email: {siteInfo?.email}</p>
+              </div>
+              <div className="flex items-center gap-2 my-3">
+                <IoTimeOutline className=" text-[20px] text-primary font-medium" />
+                <p className=" text-[16px]">{siteInfo?.deliveryText}</p>
+              </div>
             </div>
           </div>
+
+          {footerNavLinks.map((item, index) => (
+            <div key={index} className="">
+              <h3 className="text-[20px] text-accent-content font-bold mb-4">
+                {item.title}
+              </h3>
+
+              <div className="space-y-3">
+                {item.links.map((link, i) => (
+
+                    <Link href={link.href} key={i}
+                    className={cn(
+                      "text-[16px] block hover:text-primary cursor-pointer transition-all duration-200 hover:ml-4",
+                      "hover:transition-all hover:duration-200",
+                    )}>{link.label}</Link>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
 
-        <div className="w-[200px] h-auto">
-          <h3 className=" text-[20px] text-accent-content font-bold">
-            Company
-          </h3>
+        <div className="w-full bg-gray-200 h-[1px]"></div>
+
+        <div className="flex flex-col md:flex-row justify-between items-center">
           <div>
-            <p className=" text-[16px] my-3 hover:text-primary cursor-pointer hover:transition-al hover:ml-4 hover:duration-200">
-              <Link href={"/about"}>About</Link>
-            </p>
-            <p className=" text-[16px] my-3 hover:text-primary cursor-pointer hover:transition-al hover:ml-4 hover:duration-200">
-              <Link href={"/delivery"}>Delivery Information</Link>
-            </p>
-            <p className=" text-[16px] my-3 hover:text-primary cursor-pointer hover:transition-al hover:ml-4 hover:duration-200">
-              <Link href={"/privacy-policy"}>Privacy Policy</Link>
-            </p>
-            <p className=" text-[16px] my-3 hover:text-primary cursor-pointer hover:transition-al hover:ml-4 hover:duration-200">
-              <Link href={"/terms-conditions"}>Terms & Conditions</Link>
-            </p>
-            <p className=" text-[16px] my-3 hover:text-primary cursor-pointer hover:transition-al hover:ml-4 hover:duration-200">
-              <Link href={"/contact"}>Contact Us</Link>
-            </p>
-            <p className=" text-[16px] my-3 hover:text-primary cursor-pointer hover:transition-al hover:ml-4 hover:duration-200">
-              <Link href={"/"}>Support Center</Link>
-            </p>
-            <p className=" text-[16px] my-3 hover:text-primary cursor-pointer hover:transition-al hover:ml-4 hover:duration-200">
-              <Link href={"/"}>Careers</Link>
+            <p className=" text-center text-wrap text-[16px]">
+              © {new Date().getFullYear()} EasyShoppingMall. All rights
+              reserved.
             </p>
           </div>
-        </div>
 
-        <div className="w-[200px] h-auto">
-          <h3 className=" text-[20px] text-accent-content font-bold">
-            Corporate
-          </h3>
-          <div>
-            <p className=" text-[16px] my-3 hover:text-primary cursor-pointer hover:transition-al hover:ml-4 hover:duration-200">
-              <Link href={"/about"}>About</Link>
-            </p>
-            <p className=" text-[16px] my-3 hover:text-primary cursor-pointer hover:transition-al hover:ml-4 hover:duration-200">
-              <Link href={"/delivery"}>Delivery Information</Link>
-            </p>
-            <p className=" text-[16px] my-3 hover:text-primary cursor-pointer hover:transition-al hover:ml-4 hover:duration-200">
-              <Link href={"/privacy-policy"}>Privacy Policy</Link>
-            </p>
-            <p className=" text-[16px] my-3 hover:text-primary cursor-pointer hover:transition-al hover:ml-4 hover:duration-200">
-              <Link href={"/terms-conditions"}>Terms & Conditions</Link>
-            </p>
-            <p className=" text-[16px] my-3 hover:text-primary cursor-pointer hover:transition-al hover:ml-4 hover:duration-200">
-              <Link href={"/contact"}>Contact Us</Link>
-            </p>
-            <p className=" text-[16px] my-3 hover:text-primary cursor-pointer hover:transition-al hover:ml-4 hover:duration-200">
-              <Link href={"/"}>Support Center</Link>
-            </p>
-            <p className=" text-[16px] my-3 hover:text-primary cursor-pointer hover:transition-al hover:ml-4 hover:duration-200">
-              <Link href={"/"}>Careers</Link>
-            </p>
-          </div>
-        </div>
+          <div className="flex justify-between items-center gap-4">
+            <h3 className="text-[19px] font-medium text-accent">Follow Us:</h3>
 
-        <div className="w-[200px] h-auto">
-          <h3 className=" text-[20px] text-accent-content font-bold">
-            Popular
-          </h3>
-          <div>
-            <p className=" text-[16px] my-3 hover:text-primary cursor-pointer hover:transition-al hover:ml-4 hover:duration-200">
-              <Link href={"/about"}>About</Link>
-            </p>
-            <p className=" text-[16px] my-3 hover:text-primary cursor-pointer hover:transition-al hover:ml-4 hover:duration-200">
-              <Link href={"/delivery"}>Delivery Information</Link>
-            </p>
-            <p className=" text-[16px] my-3 hover:text-primary cursor-pointer hover:transition-al hover:ml-4 hover:duration-200">
-              <Link href={"/privacy-policy"}>Privacy Policy</Link>
-            </p>
-            <p className=" text-[16px] my-3 hover:text-primary cursor-pointer hover:transition-al hover:ml-4 hover:duration-200">
-              <Link href={"/terms-conditions"}>Terms & Conditions</Link>
-            </p>
-            <p className=" text-[16px] my-3 hover:text-primary cursor-pointer hover:transition-al hover:ml-4 hover:duration-200">
-              <Link href={"/contact"}>Contact Us</Link>
-            </p>
-            <p className=" text-[16px] my-3 hover:text-primary cursor-pointer hover:transition-al hover:ml-4 hover:duration-200">
-              <Link href={"/"}>Support Center</Link>
-            </p>
-            <p className=" text-[16px] my-3 hover:text-primary cursor-pointer hover:transition-al hover:ml-4 hover:duration-200">
-              <Link href={"/"}>Careers</Link>
-            </p>
-          </div>
-        </div>
-      </div>
-      <p className=" w-[98%] bg-gray-200 h-[1px] "></p>
+            {socialLinks
+              .filter((link) => link.active)
+              .map((link, index) => {
+                const IconComponent = iconMap[link.icon];
+                if (!IconComponent) return null;
 
-      <div className=" flex flex-col md:flex-row justify-between items-center mt-3">
-        <div>
-          <p className=" text-center text-wrap text-[16px] my-4">
-            © {new Date().getFullYear()} EasyShoppingMall. All rights reserved.
-          </p>
-        </div>
-
-        <div className="flex justify-between items-center gap-4">
-          <h3 className="text-[19px] font-medium text-accent">Follow Us:</h3>
-
-          {socialLinks
-            .filter((link) => link.active)
-            .map((link, index) => {
-              const IconComponent = iconMap[link.icon];
-              if (!IconComponent) return null;
-
-              return (
-                <Link
-                  key={index}
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 bg-secondary/80 hover:bg-secondary rounded-full
+                return (
+                  <Link
+                    key={index}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 bg-secondary/80 hover:bg-secondary rounded-full
                      flex justify-center items-center cursor-pointer
                      transition-all duration-200 delay-100"
-                >
-                  <IconComponent className="text-2xl text-secondary-content" />
-                </Link>
-              );
-            })}
+                  >
+                    <IconComponent className="text-2xl text-secondary-content" />
+                  </Link>
+                );
+              })}
+          </div>
         </div>
-      </div>
+      </Container>
     </footer>
   );
 }
