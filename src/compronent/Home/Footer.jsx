@@ -29,8 +29,6 @@ function Footer({ initialData }) {
     user?.role?.toUpperCase() === "DROPSHIPPING" ||
     user?.roles?.includes("DROPSHIPPING");
 
-  console.log(user);
-
   const footerNavLinks = [
     {
       title: "Company",
