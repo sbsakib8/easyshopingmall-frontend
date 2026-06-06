@@ -2,16 +2,16 @@
 
 import { FacebookOutlined, Telegram, WhatsApp } from "@mui/icons-material";
 import { ArrowUpRight, HelpCircle, ShieldCheck } from "lucide-react";
+import Link from "next/link";
 import Container from "../shared/Container";
 import Section from "../shared/Section";
-import Link from "next/link";
 
 const SupportPage = () => {
   const supportChannels = [
     {
       id: "facebook",
-      title: "Official Facebook Page",
-      subtitle: "Updates & Announcements",
+      title: "অফিসিয়াল ফেসবুক গ্রুপ",
+      subtitle: "আপডেট ও ঘোষণা",
       icon: FacebookOutlined,
       colorClass:
         "from-blue-500/20 to-blue-600/30 border-blue-400/30 text-blue-500",
@@ -21,14 +21,14 @@ const SupportPage = () => {
       btnBg:
         "bg-gradient-to-r from-blue-500/80 to-blue-600/80 hover:from-blue-500 hover:to-blue-600 shadow-blue-500/20",
       description:
-        "Like and follow our Facebook page to get the latest product releases, marketing tips, dropshipping tutorials, and live event announcements.",
+        "সর্বশেষ পণ্য রিলিজ, মার্কেটিং টিপস, ড্রপশিপিং টিউটোরিয়াল এবং লাইভ ইভেন্টের ঘোষণা পেতে আমাদের ফেসবুক পৃষ্ঠাটি লাইক ও ফলো করুন।",
       url: "https://facebook.com/easyshopingmall",
-      actionText: "Visit Facebook Page",
+      actionText: "ফেসবুক পৃষ্ঠা দেখুন",
     },
     {
       id: "messenger",
-      title: "Facebook Messenger Group",
-      subtitle: "Fast Agent Chat",
+      title: "ফেসবুক মেসেঞ্জার গ্রুপ",
+      subtitle: "দ্রুত এজেন্ট চ্যাট",
       icon: FacebookOutlined,
       colorClass:
         "from-purple-500/20 to-pink-500/30 border-purple-400/30 text-purple-500",
@@ -38,14 +38,14 @@ const SupportPage = () => {
       btnBg:
         "bg-gradient-to-r from-purple-500/80 to-pink-500/80 hover:from-purple-500 hover:to-pink-500 shadow-purple-500/20",
       description:
-        "Chat directly with our customer care agents or join our active messenger group for quick query resolutions, stock availability checks, and general assistance.",
+        "আমাদের গ্রাহক সেবা এজেন্টদের সাথে সরাসরি চ্যাট করুন বা আমাদের সক্রিয় মেসেঞ্জার গ্রুপে যোগ দিন দ্রুত সমস্যার সমাধান, স্টকের প্রাপ্যতা যাচাই এবং সাধারণ সহায়তার জন্য।",
       url: "https://m.me/easyshopingmall",
-      actionText: "Open Messenger Chat",
+      actionText: "মেসেঞ্জার চ্যাট খুলুন",
     },
     {
       id: "telegram",
-      title: "Telegram Support & Channel",
-      subtitle: "24/7 Client Circle",
+      title: "টেলিগ্রাম সাপোর্ট ও চ্যানেল",
+      subtitle: "২৪/৭ ক্লায়েন্ট সার্কেল",
       icon: Telegram,
       colorClass:
         "from-cyan-500/20 to-blue-500/30 border-cyan-400/30 text-cyan-500",
@@ -55,14 +55,14 @@ const SupportPage = () => {
       btnBg:
         "bg-gradient-to-r from-cyan-500/80 to-blue-500/80 hover:from-cyan-500 hover:to-blue-500 shadow-cyan-500/20",
       description:
-        "Join our official Telegram community. Here you will find regular updates, downloadable media assets for marketing, instant dropshipping stock feeds, and a network of store owners supporting each other.",
+        "আমাদের অফিসিয়াল টেলিগ্রাম কমিউনিটিতে যোগ দিন। এখানে আপনি নিয়মিত আপডেট, মার্কেটিংয়ের জন্য ডাউনলোডযোগ্য মিডিয়া অ্যাসেট, তাত্ক্ষণিক ড্রপশিপিং স্টক ফিড এবং একে অপরকে সহায়তা করা স্টোর মালিকদের একটি নেটওয়ার্ক পাবেন।",
       url: "https://t.me/easyshopingmall",
-      actionText: "Join Telegram Channel",
+      actionText: "টেলিগ্রাম চ্যানেলে যোগ দিন",
     },
     {
       id: "whatsapp",
-      title: "WhatsApp Group Hub",
-      subtitle: "Instant Community Help",
+      title: "হোয়াটসঅ্যাপ গ্রুপ হাব",
+      subtitle: "তাৎক্ষণিক কমিউনিটি সহায়তা",
       icon: WhatsApp,
       colorClass:
         "from-emerald-500/20 to-teal-500/30 border-emerald-400/30 text-emerald-500",
@@ -72,9 +72,9 @@ const SupportPage = () => {
       btnBg:
         "bg-gradient-to-r from-emerald-500/80 to-teal-500/80 hover:from-emerald-500 hover:to-teal-500 shadow-emerald-500/20",
       description:
-        "Stay connected on WhatsApp. Our group offers daily hot-selling product suggestions, immediate order verification, platform configuration help, and delivery status alerts.",
+        "হোয়াটসঅ্যাপে সংযুক্ত থাকুন। আমাদের গ্রুপ দৈনিক হট-সেলিং পণ্যের পরামর্শ, তাৎক্ষণিক অর্ডার যাচাইকরণ, প্ল্যাটফর্ম কনফিগারেশন সাহায্য এবং ডেলিভারি স্টatus অ্যালার্ট অফার করে।",
       url: "https://wa.me/message/easyshopingmall",
-      actionText: "Join WhatsApp Community",
+      actionText: "হোয়াটসঅ্যাপ গ্রুপে যোগ দিন",
     },
   ];
 
@@ -90,26 +90,26 @@ const SupportPage = () => {
         <div className="max-w-3xl mx-auto text-center mb-16 space-y-4">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/20 text-[var(--color-primary-content)] text-xs md:text-sm font-semibold tracking-wide uppercase animate-fade-in">
             <HelpCircle className="w-4 h-4 animate-spin-slow text-[var(--color-primary)]" />
-            Support Center
+            সহায়তা কেন্দ্র
           </div>
 
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-[var(--color-neutral)] leading-tight animate-fade-in">
-            How Can We{" "}
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-[var(--color-neutral)] leading-tight animate-fade-in">
+            আমরা আজ আপনাকে{" "}
             <span className="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] bg-clip-text text-transparent">
-              Help You
-            </span>{" "}
-            Today?
+              কীভাবে সাহায্য করতে পারি
+            </span>
+            ?
           </h1>
 
-          <p className="text-[var(--color-neutral)]/70 text-sm sm:text-base md:text-lg max-w-2xl mx-auto leading-relaxed animate-fade-in delay-100">
-            Select one of our communication channels below to connect with our
-            support agents or join our community groups. We are available 24/7
-            to support your business.
+          <p className="text-[var(--color-neutral)]/70 opacity-70 text-sm md:text-base lg:text-lg max-w-2xl mx-auto leading-relaxed animate-fade-in delay-100">
+            যোগাযোগের জন্য নিচের যেকোনো একটি চ্যানেল নির্বাচন করুন আমাদের
+            সাপোর্ট এজেন্টদের সাথে সংযোগ স্থাপন করতে অথবা আমাদের কমিউনিটি গ্রুপে
+            যোগ দিতে। আমরা আপনার ব্যবসাকে সহায়তা করতে ২৪/৭ উপলব্ধ আছি।
           </p>
         </div>
 
         {/* Glassmorphic Channels Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-8 max-w-5xl mx-auto">
           {supportChannels.map((channel, index) => {
             const Icon = channel.icon;
 
@@ -117,7 +117,7 @@ const SupportPage = () => {
               <div
                 key={channel.id}
                 style={{ animationDelay: `${index * 150}ms` }}
-                className={`group relative flex flex-col justify-between rounded-3xl p-6 md:p-8
+                className={`group relative flex flex-col justify-between rounded-3xl gap-4 p-6 md:p-8
                   bg-white/40 backdrop-blur-xl border border-white/40
                   hover:border-[var(--color-primary)]/30 hover:bg-white/60
                   transition-all duration-500 ease-out shadow-lg hover:shadow-2xl hover:-translate-y-2
@@ -133,49 +133,40 @@ const SupportPage = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <div
-                        className={`w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center transition-transform duration-500 group-hover:scale-110 shadow-sm ${channel.iconBg}`}
+                        className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-transform duration-500 group-hover:scale-110 shadow-sm ${channel.iconBg}`}
                       >
-                        <Icon className="w-6 h-6 md:w-7 md:h-7" />
+                        <Icon className="w-6 h-6" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-semibold text-[var(--color-neutral)] tracking-tight">
+                        <h3 className="text-base font-semibold text-[var(--color-neutral)] tracking-tight">
                           {channel.title}
                         </h3>
-                        <p className="text-xs text-[var(--color-primary-content)]/60">
+                        <p className="text-[10px] text-[var(--color-primary-content)]/60">
                           {channel.subtitle}
                         </p>
                       </div>
                     </div>
-
-                    <Link
-                      href={channel.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[var(--color-neutral)]/40 group-hover:text-[var(--color-primary)] transition-colors duration-300"
-                    >
-                      <ArrowUpRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                    </Link>
                   </div>
 
                   {/* Card Description */}
-                  <p className="text-[var(--color-neutral)]/80 text-sm md:text-[15px] leading-relaxed">
+                  <p className="text-[var(--color-neutral)]/70 opacity-70 text-xs md:text-[15px] leading-relaxed">
                     {channel.description}
                   </p>
                 </div>
 
                 {/* Card Button */}
-                <div className="relative z-10 pt-6 mt-6 border-t border-white/20">
-                  <a
+                <div className="relative z-10 mt-auto border-t border-white/20">
+                  <Link
                     href={channel.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`flex items-center justify-center gap-2 w-full py-3.5 px-6 font-bold rounded-2xl cursor-pointer text-white text-sm tracking-wide
+                    className={`flex items-center justify-center gap-2 w-full py-2 px-4 font-medium rounded-2xl cursor-pointer text-white text-sm tracking-wide
                       transition-all duration-300 shadow-md transform hover:scale-[1.02]
                       ${channel.btnBg}`}
                   >
                     <span>{channel.actionText}</span>
                     <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                  </a>
+                  </Link>
                 </div>
               </div>
             );
@@ -190,14 +181,14 @@ const SupportPage = () => {
             </div>
             <div className="space-y-2">
               <h4 className="text-lg md:text-xl font-bold text-[var(--color-neutral)]">
-                Our Instant Support Pledge
+                আমাদের তাত্ক্ষণিক সহায়তার অঙ্গীকার
               </h4>
               <p className="text-xs md:text-sm text-[var(--color-neutral)]/75 leading-relaxed font-medium">
-                We are dedicated to providing you with premium assistance.
-                Connecting to any group guarantees you receive priority support.
-                If your issue requires custom account settings adjustments, we
-                will coordinate directly via messenger or email within 15
-                minutes.
+                আমরা আপনাকে প্রিমিয়াম সহায়তা প্রদানের জন্য নিবেদিত। যেকোনো
+                গ্রুপে সংযুক্ত হওয়ার মাধ্যমে আপনি অগ্রাধিকার সমর্থন পাওয়ার
+                নিশ্চয়তা পাবেন। যদি আপনার সমস্যার জন্য কাস্টম অ্যাকাউন্ট সেটিংস
+                সামঞ্জস্যের প্রয়োজন হয়, আমরা ১৫ মিনিটের মধ্যে সরাসরি মেসেঞ্জার
+                বা ইমেইলের মাধ্যমে সমন্বয় করব।
               </p>
             </div>
           </div>
