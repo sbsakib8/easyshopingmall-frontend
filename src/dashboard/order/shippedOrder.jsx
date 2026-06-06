@@ -11,6 +11,7 @@ import {
   ChevronRight,
   CircleCheckBig,
   CircleX,
+  RefreshCw,
   ShoppingCart,
   Trash2,
   Truck,
@@ -31,6 +32,8 @@ const statusColors = {
   paid: "bg-gradient-to-r from-green-500 to-emerald-500 text-slate-300 shadow-lg shadow-green-500/25",
   cancelled:
     "bg-gradient-to-r from-red-500 to-rose-500 text-slate-300 shadow-lg shadow-red-500/25",
+  return:
+    "bg-gradient-to-r from-orange-500 to-amber-500 text-slate-300 shadow-lg shadow-orange-500/25",
 };
 
 const ShippedOrdersPage = () => {
@@ -508,11 +511,11 @@ const ShippedOrdersPage = () => {
                   <div className="space-y-2">
                     <p className="text-gray-300">
                       <span className="text-gray-500">Name:</span>{" "}
-                      {selectedOrder?.userId?.email}
+                      {selectedOrder?.userId?.name}
                     </p>
                     <p className="text-gray-300">
                       <span className="text-gray-500">Email:</span>{" "}
-                      {selectedOrder?.userId?.name}
+                      {selectedOrder?.userId?.email}
                     </p>
                     <p className="text-gray-300">
                       <span className="text-gray-500">Phone:</span>{" "}
@@ -632,11 +635,16 @@ const ShippedOrdersPage = () => {
                           <div className="flex justify-between items-center">
                             <span className="text-gray-400 text-sm">
                               Total Earnings:
+                              {Number(selectedOrder?.couponDiscount) > 0 && (
+                                <span className="ml-2 text-[10px] text-emerald-400 font-bold uppercase tracking-tighter">
+                                  (incl. coupon compensation)
+                                </span>
+                              )}
                             </span>
                             <span className="text-2xl font-black text-blue-400">
                               ৳
-                              {selectedOrder?.products
-                                .reduce((sum, p) => {
+                              {(selectedOrder?.products.reduce(
+                                (sum, p) => {
                                   const cost =
                                     Number(p.costPrice || p.price) || 0;
                                   const selling = Number(p.sellingPrice) || 0;
@@ -646,10 +654,15 @@ const ShippedOrdersPage = () => {
                                       ? (selling - cost) * (p.quantity || 1)
                                       : 0)
                                   );
-                                }, 0)
-                                .toLocaleString(undefined, {
-                                  minimumFractionDigits: 2,
-                                })}
+                                },
+                                0,
+                              ) +
+                                (Number(selectedOrder?.couponDiscount) || 0)).toLocaleString(
+                                  undefined,
+                                  {
+                                    minimumFractionDigits: 2,
+                                  },
+                                )}
                             </span>
                           </div>
                         </div>
@@ -690,6 +703,18 @@ const ShippedOrdersPage = () => {
                     setConfirmationModal(true);
                   },
                 },
+                ...((selectedOrder.order_status !== "return" && selectedOrder.order_status !== "cancelled")
+                  ? [
+                    {
+                      label: "Mark as Returned (Customer Rejected)",
+                      variant: "return",
+                      onClick: () => {
+                        setStatus("return");
+                        setConfirmationModal(true);
+                      },
+                    },
+                  ]
+                  : []),
               ].map((action, index) => (
                 <button
                   key={index}
@@ -700,6 +725,8 @@ const ShippedOrdersPage = () => {
                     "bg-green-600 hover:bg-green-700 text-slate-300",
                     action.variant === "danger" &&
                     "bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-slate-300",
+                    action.variant === "return" &&
+                    "bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-300",
                   )}
                 >
                   {action.label}
@@ -718,27 +745,51 @@ const ShippedOrdersPage = () => {
               <div className="p-3 bg-pink-500/20 rounded-full">
                 {status === "completed" ? (
                   <CircleCheckBig className="w-8 h-8 text-green-500" />
+                ) : status === "return" ? (
+                  <RefreshCw className="w-8 h-8 text-orange-500" />
                 ) : (
                   <Trash2 className="w-8 h-8 text-pink-500" />
                 )}
               </div>
               <h2 className="text-2xl font-bold text-slate-300">
                 {" "}
-                {status === "cancelled" ? "Cancelled" : "Delivered"} Product
+                {status === "cancelled"
+                  ? "Cancelled"
+                  : status === "return"
+                    ? "Returned"
+                    : "Delivered"}{" "}
+                Product
               </h2>
             </div>
 
             <p className="text-gray-300 mb-6">
-              Are you sure you want to delete this product? This action cannot
-              be undone.
+              Are you sure you want to update this order to{" "}
+              <span className="font-bold capitalize">{status}</span>?
+              {status === "return" && (
+                <>
+                  {" "}
+                  For <strong>COD</strong> dropshipping orders this will deduct
+                  the delivery charge (৳{selectedOrder?.deliveryCharge || 0})
+                  from the dropshipper's balance.
+                </>
+              )}
             </p>
 
             <div className="flex gap-3">
               <button
                 onClick={() => handleStatusChange()}
-                className={`flex-1 px-6 py-3 ${status === "completed" ? "bg-gradient-to-r from-green-500 to-green-500 hover:from-green-600 hover:to-green-600" : "bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600"} text-slate-300 font-semibold rounded-lg transform cursor-pointer`}
+                className={`flex-1 px-6 py-3 ${status === "completed"
+                    ? "bg-gradient-to-r from-green-500 to-green-500 hover:from-green-600 hover:to-green-600"
+                    : status === "return"
+                      ? "bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600"
+                      : "bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600"
+                  } text-slate-300 font-semibold rounded-lg transform cursor-pointer`}
               >
-                {status === "cancelled" ? "Confirmed" : "Delivered"}
+                {status === "cancelled"
+                  ? "Confirmed"
+                  : status === "return"
+                    ? "Mark as Returned"
+                    : "Delivered"}
               </button>
               <button
                 onClick={() => {

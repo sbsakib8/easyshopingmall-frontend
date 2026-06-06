@@ -1,5 +1,7 @@
 "use client";
+
 import Container from "@/src/compronent/shared/Container";
+import Section from "@/src/compronent/shared/Section";
 import { UrlBackend } from "@/src/confic/urlExport";
 import BackButton from "@/src/dropShipping/BackButton/BackButton";
 import { WebsiteinfoAllGet } from "@/src/hook/content/useWebsiteInfo";
@@ -143,6 +145,8 @@ const DropshippingVideo = () => {
     const demoVideo = useMemo(() => videos.find(v => v.videoType === "demo"), [videos]);
     const freeVideos = useMemo(() => videos.filter(v => v.videoType === "free"), [videos]);
 
+
+
     const handleCourseSelect = (courseId) => {
         setSelectedCourseId(courseId);
         const courseModules = modules.filter(m => m.courseId === courseId);
@@ -268,7 +272,7 @@ const DropshippingVideo = () => {
     );
 
     return (
-        <div className="min-h-screen bg-slate-50/30 py-8 lg:py-12 overflow-x-hidden">
+        <Section className="min-h-dvh bg-slate-50/30 py-8 overflow-x-hidden">
             <Container>
                 <div className="flex flex-col-reverse md:flex-row md:items-center justify-between gap-3 mb-6">
                     <div className="space-y-2">
@@ -318,10 +322,10 @@ const DropshippingVideo = () => {
                                                 <span className="bg-emerald-500/20 text-emerald-400 px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-500/30 inline-flex items-center gap-1.5">
                                                     <Sparkles size={12} className="animate-pulse" /> PLATFORM TRAILER
                                                 </span>
-                                                <h3 className="text-2xl lg:text-3xl font-black text-white tracking-tight uppercase leading-tight">
+                                                <h3 className="hidden md:block text-2xl lg:text-3xl font-black text-white tracking-tight uppercase leading-tight">
                                                     {demoVideo.title}
                                                 </h3>
-                                                <p className="text-slate-400 font-medium text-xs leading-relaxed">
+                                                <p className="text-slate-400 font-medium text-xs leading-relaxed hidden md:block">
                                                     {demoVideo.description || "Watch this quick advertisement to see how our dropshipping platform works and how you can scale your sales instantly!"}
                                                 </p>
                                                 <div className="flex items-center gap-4 pt-2">
@@ -375,7 +379,7 @@ const DropshippingVideo = () => {
                                                             allowFullScreen
                                                         ></iframe>
                                                     </div>
-                                                    <div className="p-5 flex-1 flex flex-col justify-between gap-3">
+                                                    <div className="p-5 flex-1 hidden md:flex flex-col justify-between">
                                                         <div>
                                                             <span className="bg-emerald-50 text-emerald-600 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border border-emerald-200/50 inline-block mb-2">
                                                                 Standalone Free
@@ -776,7 +780,7 @@ const DropshippingVideo = () => {
                 )}
 
             </Container>
-        </div>
+        </Section>
     );
 };
 

@@ -11,6 +11,7 @@ import {
   ArrowRight,
   CreditCard,
   Loader2,
+  RefreshCw,
   Truck,
   Wallet,
 } from "lucide-react";
@@ -117,6 +118,12 @@ const OrderDetails = ({ id }) => {
     (order.order_status === "pending" || order.order_status === "processing") &&
     !hasPaidFull;
 
+  // Show a banner if order is "return" (admin marked customer-rejected) and
+  // delivery charge was deducted from the dropshipper's balance
+  const showReturnBanner =
+    order.order_status === "return" && order.deliveryChargeDeducted;
+  const returnDeductedAmount = Number(order.deliveryChargeDeductedAmount) || 0;
+
   // Use dropshipper's own branding if available
   const displayBrandName = user?.shopName || "EasyShoppingMall";
   const displayBrandLogo = user?.shopLogo;
@@ -126,6 +133,25 @@ const OrderDetails = ({ id }) => {
       <section className="min-h-screen bg-bg py-10">
         <Container className="px-2 max-w-3xl lg:max-w-4xl space-y-6">
           <BackButton />
+
+          {/* Return / Customer-Rejected Banner */}
+          {showReturnBanner && (
+            <div className="bg-gradient-to-r from-orange-50 to-amber-50 border-2 border-orange-200 rounded-2xl p-5 flex items-start gap-3 shadow-sm">
+              <div className="p-2 bg-orange-100 rounded-full shrink-0">
+                <RefreshCw className="w-5 h-5 text-orange-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-orange-700 font-bold text-base mb-1">
+                  অর্ডার ফেরত / Order Returned (Customer Rejected)
+                </h3>
+                <p className="text-orange-600 text-sm">
+                  গ্রাহক পণ্যটি গ্রহণ করেননি এবং ডেলিভারি চার্জ প্রদান করেননি।{" "}
+                  <strong>৳{returnDeductedAmount}</strong> ডেলিভারি চার্জ আপনার
+                  ব্যালেন্স থেকে কেটে নেওয়া হয়েছে।
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Payment Prompt Section */}
           {showPaymentPrompt && (
@@ -255,7 +281,15 @@ const OrderDetails = ({ id }) => {
               {/* Status Indicator */}
               <div className="flex items-center justify-center gap-2 mb-4">
                 <div
-                  className={`w-3 h-3 rounded-full animate-pulse ${order.order_status === "completed" ? "bg-emerald-500" : "bg-amber-500"}`}
+                  className={`w-3 h-3 rounded-full animate-pulse ${
+                    order.order_status === "completed" || order.order_status === "delivered"
+                      ? "bg-emerald-500"
+                      : order.order_status === "return"
+                        ? "bg-orange-500"
+                        : order.order_status === "cancelled"
+                          ? "bg-rose-500"
+                          : "bg-amber-500"
+                  }`}
                 />
                 <p className="text-slate-400 uppercase tracking-[0.125em] text-xs font-semibold">
                   {order.order_status} INVOICE

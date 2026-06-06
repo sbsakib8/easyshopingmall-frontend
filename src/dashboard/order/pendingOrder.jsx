@@ -36,6 +36,8 @@ const statusColors = {
   paid: "bg-gradient-to-r from-green-500 to-emerald-500 text-slate-300 shadow-lg shadow-green-500/25",
   cancelled:
     "bg-gradient-to-r from-red-500 to-rose-500 text-slate-300 shadow-lg shadow-red-500/25",
+  return:
+    "bg-gradient-to-r from-orange-500 to-amber-500 text-slate-300 shadow-lg shadow-orange-500/25",
 };
 
 const PendingOrdersPage = () => {
@@ -607,11 +609,16 @@ const PendingOrdersPage = () => {
                           <div className="flex justify-between items-center">
                             <span className="text-gray-400 text-sm">
                               Calculated Earnings:
+                              {Number(selectedOrder?.couponDiscount) > 0 && (
+                                <span className="ml-2 text-[10px] text-emerald-400 font-bold uppercase tracking-tighter">
+                                  (incl. coupon compensation)
+                                </span>
+                              )}
                             </span>
                             <span className="text-2xl font-black text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0.4)]">
                               ৳
-                              {selectedOrder?.products
-                                .reduce((sum, p) => {
+                              {(selectedOrder?.products.reduce(
+                                (sum, p) => {
                                   const cost =
                                     Number(p.costPrice || p.price) || 0;
                                   const selling = Number(p.sellingPrice) || 0;
@@ -621,10 +628,15 @@ const PendingOrdersPage = () => {
                                       ? (selling - cost) * (p.quantity || 1)
                                       : 0)
                                   );
-                                }, 0)
-                                .toLocaleString(undefined, {
+                                },
+                                0,
+                              ) +
+                                (Number(selectedOrder?.couponDiscount) || 0)).toLocaleString(
+                                undefined,
+                                {
                                   minimumFractionDigits: 2,
-                                })}
+                                },
+                              )}
                             </span>
                           </div>
                         </div>
