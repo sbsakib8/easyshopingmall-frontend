@@ -511,11 +511,11 @@ const ShippedOrdersPage = () => {
                   <div className="space-y-2">
                     <p className="text-gray-300">
                       <span className="text-gray-500">Name:</span>{" "}
-                      {selectedOrder?.userId?.email}
+                      {selectedOrder?.userId?.name}
                     </p>
                     <p className="text-gray-300">
                       <span className="text-gray-500">Email:</span>{" "}
-                      {selectedOrder?.userId?.name}
+                      {selectedOrder?.userId?.email}
                     </p>
                     <p className="text-gray-300">
                       <span className="text-gray-500">Phone:</span>{" "}
@@ -658,11 +658,11 @@ const ShippedOrdersPage = () => {
                                 0,
                               ) +
                                 (Number(selectedOrder?.couponDiscount) || 0)).toLocaleString(
-                                undefined,
-                                {
-                                  minimumFractionDigits: 2,
-                                },
-                              )}
+                                  undefined,
+                                  {
+                                    minimumFractionDigits: 2,
+                                  },
+                                )}
                             </span>
                           </div>
                         </div>
@@ -778,13 +778,12 @@ const ShippedOrdersPage = () => {
             <div className="flex gap-3">
               <button
                 onClick={() => handleStatusChange()}
-                className={`flex-1 px-6 py-3 ${
-                  status === "completed"
+                className={`flex-1 px-6 py-3 ${status === "completed"
                     ? "bg-gradient-to-r from-green-500 to-green-500 hover:from-green-600 hover:to-green-600"
                     : status === "return"
                       ? "bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600"
                       : "bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600"
-                } text-slate-300 font-semibold rounded-lg transform cursor-pointer`}
+                  } text-slate-300 font-semibold rounded-lg transform cursor-pointer`}
               >
                 {status === "cancelled"
                   ? "Confirmed"
