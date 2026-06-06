@@ -111,10 +111,12 @@ const DropshippingCheckoutComponent = () => {
     return sum + (sp * item.quantity);
   }, 0);
 
+  const perItemCouponShare = items.length > 0 ? (couponDiscount || 0) / items.length : 0;
+
   const totalProfit = items.reduce((sum, item) => {
     const sp = item.sellingPrice === "" ? 0 : (item.sellingPrice ?? item.price);
     return sum + ((sp - item.price) * item.quantity);
-  }, 0);
+  }, 0) + (couponDiscount || 0);
   const [deliveryCharge, setDeliveryCharge] = useState(100);
   const total = subtotal + deliveryCharge - (couponDiscount || 0);
 
@@ -711,7 +713,7 @@ const DropshippingCheckoutComponent = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           <p className="text-[10px] font-black text-blue-600 uppercase tracking-tighter">লাভ:</p>
-                          <p className="text-xs font-black text-blue-600">৳{(((item.sellingPrice || item.price) - item.price) * item.quantity).toLocaleString()}</p>
+                          <p className="text-xs font-black text-blue-600">৳{((((item.sellingPrice === "" ? 0 : (item.sellingPrice ?? item.price)) - item.price) * item.quantity) + perItemCouponShare).toLocaleString()}</p>
                         </div>
                       </div>
                     </div>
@@ -744,7 +746,7 @@ const DropshippingCheckoutComponent = () => {
                 <div className="space-y-4 pt-6 border-t border-dashed border-slate-200">
                   <div className="flex justify-between items-center text-sm">
                     <span className="font-bold text-slate-500">সাবটোটাল (পণ্যের দাম)</span>
-                    <span className="font-black text-slate-900">৳{subtotal.toLocaleString()}</span>
+                    <span className="font-black text-slate-900">৳{(subtotal - (couponDiscount || 0)).toLocaleString()}</span>
                   </div>
 
                   <div className="flex justify-between items-center text-sm">
@@ -761,7 +763,7 @@ const DropshippingCheckoutComponent = () => {
 
                   {appliedCoupon && (
                     <div className="flex justify-between items-center text-sm text-emerald-600 font-semibold bg-emerald-50/50 p-3 rounded-2xl border border-emerald-100/50">
-                      <span>ডিসকাউন্ট ({appliedCoupon.code}) <button onClick={removeDsCoupon} className="text-rose-500 text-xs ml-2 underline hover:text-rose-600 transition-colors">সরান</button></span>
+                      <span>কুপন প্রয়োগ ({appliedCoupon.code}) <button onClick={removeDsCoupon} className="text-rose-500 text-xs ml-2 underline hover:text-rose-600 transition-colors">সরান</button></span>
                       <span className="font-black">- ৳{couponDiscount.toLocaleString()}</span>
                     </div>
                   )}
@@ -773,13 +775,15 @@ const DropshippingCheckoutComponent = () => {
 
 
                   <div className="pt-4 border-t-2 border-slate-100 space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-black text-slate-400 uppercase tracking-widest">অর্ডারের মোট মূল্য</span>
-                      <span className="text-base font-bold text-slate-500 line-through opacity-50">৳{(total + (couponDiscount || 0) + 50).toLocaleString()}</span>
-                    </div>
+                    {appliedCoupon && (subtotal + deliveryCharge + 50) > total && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs font-black text-slate-400 uppercase tracking-widest">আগের মূল্য</span>
+                        <span className="text-base font-bold text-slate-500 line-through opacity-50">৳{(subtotal + deliveryCharge + 50).toLocaleString()}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between items-end">
                       <div className="flex flex-col">
-                        <span className="text-xs font-black text-emerald-700 uppercase tracking-[0.2em]">এখন পরিশোধযোগ্য</span>
+                        <span className="text-xs font-black text-emerald-700 uppercase tracking-[0.2em]">অর্ডারের মোট মূল্য</span>
                         <p className="text-[10px] text-slate-400 font-bold leading-tight">নিরাপদ লেনদেন</p>
                       </div>
                       <div className="text-right">

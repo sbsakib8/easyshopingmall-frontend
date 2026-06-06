@@ -30,6 +30,8 @@ const statusColors = {
   paid: "bg-gradient-to-r from-green-500 to-emerald-500 text-slate-300 shadow-lg shadow-green-500/25",
   cancelled:
     "bg-gradient-to-r from-red-500 to-rose-500 text-slate-300 shadow-lg shadow-red-500/25",
+  return:
+    "bg-gradient-to-r from-orange-500 to-amber-500 text-slate-300 shadow-lg shadow-orange-500/25",
 };
 
 const CompletedOrdersPage = () => {
@@ -70,8 +72,11 @@ const CompletedOrdersPage = () => {
     const cancelled = allOrders?.filter(
       (o) => o?.order_status === "cancelled",
     )?.length;
+    const returned = allOrders?.filter(
+      (o) => o?.order_status === "return",
+    )?.length;
 
-    return { total, cancelled, completed };
+    return { total, cancelled, completed, returned };
   }, [allOrders]);
 
   const handleViewDetails = (order) => {
@@ -472,6 +477,18 @@ const CompletedOrdersPage = () => {
                           <RefreshCw className="w-4 h-4" /> Start Processing
                         </button>
                       )}
+
+                      {selectedOrder?.order_status !== "return" &&
+                        selectedOrder?.order_status !== "cancelled" && (
+                          <button
+                            onClick={() =>
+                              openConfirmation(selectedOrder, "return")
+                            }
+                            className="flex items-center gap-2 px-4 py-2 bg-orange-600/20 border border-orange-500/30 text-orange-400 rounded-xl hover:bg-orange-600/30 transition-all font-bold text-sm cursor-pointer"
+                          >
+                            <RefreshCw className="w-4 h-4" /> Mark as Returned (Customer Rejected)
+                          </button>
+                        )}
                     </div>
                   </div>
 
@@ -614,11 +631,16 @@ const CompletedOrdersPage = () => {
                             <div className="flex justify-between items-center">
                               <span className="text-gray-400 text-sm">
                                 Total Earnings:
+                                {Number(selectedOrder?.couponDiscount) > 0 && (
+                                  <span className="ml-2 text-[10px] text-emerald-400 font-bold uppercase tracking-tighter">
+                                    (incl. coupon compensation)
+                                  </span>
+                                )}
                               </span>
                               <span className="text-2xl font-black text-blue-400">
                                 ৳
-                                {selectedOrder?.products
-                                  .reduce((sum, p) => {
+                                {(selectedOrder?.products.reduce(
+                                  (sum, p) => {
                                     const cost =
                                       Number(p.costPrice || p.price) || 0;
                                     const selling = Number(p.sellingPrice) || 0;
@@ -628,10 +650,15 @@ const CompletedOrdersPage = () => {
                                         ? (selling - cost) * (p.quantity || 1)
                                         : 0)
                                     );
-                                  }, 0)
-                                  .toLocaleString(undefined, {
+                                  },
+                                  0,
+                                ) +
+                                  (Number(selectedOrder?.couponDiscount) || 0)).toLocaleString(
+                                  undefined,
+                                  {
                                     minimumFractionDigits: 2,
-                                  })}
+                                  },
+                                )}
                               </span>
                             </div>
                           </div>
@@ -681,6 +708,14 @@ const CompletedOrdersPage = () => {
                 " This will mark the order as delivered and finalize it."}
               {status === "cancelled" &&
                 " This will cancel the order and cannot be undone."}
+              {status === "return" && (
+                <>
+                  {" "}
+                  For <strong>COD</strong> dropshipping orders this will deduct
+                  the delivery charge (৳{selectedOrder?.deliveryCharge || 0})
+                  from the dropshipper's balance.
+                </>
+              )}
             </p>
 
             <div className="flex gap-3">
@@ -690,7 +725,9 @@ const CompletedOrdersPage = () => {
                   ? "bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700"
                   : status === "cancelled"
                     ? "bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700"
-                    : "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                    : status === "return"
+                      ? "bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700"
+                      : "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
                   } text-white shadow-lg`}
               >
                 Confirm {status}

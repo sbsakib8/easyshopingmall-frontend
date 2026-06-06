@@ -60,7 +60,7 @@ const SalesReportDashboard = () => {
 }, [searchTerm, allOrders]);
 
  // sorting by order status
- const orderPriority = ["pending","completed","cancelled"];
+ const orderPriority = ["pending","completed","cancelled","return"];
  const sortedData = searchData?.sort((a, b) => {
  return (
  orderPriority.indexOf(a.order_status) -

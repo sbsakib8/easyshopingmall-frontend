@@ -17,6 +17,7 @@ import {
   Truck,
   ArrowRight,
   Eye,
+  RefreshCw,
 } from "lucide-react";
 import Link from "next/link";
 import { useMyOrders } from "@/src/utlis/useMyOrders";
@@ -51,6 +52,10 @@ const StatusBadge = ({ status, className = "" }) => {
     completed: {
       cls: "bg-teal-50 text-teal-700 border-teal-200",
       icon: <CheckCircle2 className="w-3 h-3" />,
+    },
+    return: {
+      cls: "bg-orange-50 text-orange-700 border-orange-200",
+      icon: <RefreshCw className="w-3 h-3" />,
     },
   };
 
@@ -207,6 +212,7 @@ const OrderList = () => {
       (o) => o.order_status === "delivered",
     ).length;
     const pending = orders.filter((o) => o.order_status === "pending").length;
+    const returned = orders.filter((o) => o.order_status === "return").length;
     const totalProfit = orders
       .filter((o) => o.order_status === "delivered")
       .reduce(
@@ -222,7 +228,7 @@ const OrderList = () => {
           ),
         0,
       );
-    return { total, delivered, pending, totalProfit };
+    return { total, delivered, pending, returned, totalProfit };
   }, [orders]);
 
   /* ── Filter + search ── */
@@ -281,6 +287,7 @@ const OrderList = () => {
     "delivered",
     "cancelled",
     "completed",
+    "return",
   ];
 
   return (
