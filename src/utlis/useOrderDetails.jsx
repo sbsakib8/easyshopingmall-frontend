@@ -1,14 +1,16 @@
 "use client";
+
 import { useEffect, useState, useCallback } from "react";
 import { OrderGetDetails } from "./useOrder";
 
 export const useOrderDetails = (orderId) => {
-  const [order, setOrder] = useState(null);
+  const [order, setOrder] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const fetchOrderDetails = useCallback(async () => {
-    if (!orderId) return;
+    if (!orderId) return {};
+
     try {
       setLoading(true);
       const data = await OrderGetDetails(orderId);
@@ -16,6 +18,7 @@ export const useOrderDetails = (orderId) => {
       setError(null);
     } catch (err) {
       setError(err);
+      setOrder({})
       console.error("Fetch order details error:", err);
     } finally {
       setLoading(false);
