@@ -36,7 +36,7 @@ const LearningHub = () => {
                 const [coursesRes, modsRes, vidsRes] = await Promise.all([
                     axios.get(`${UrlBackend}/video-course/all`, { withCredentials: true }), // Using public/user route
                     axios.get(`${UrlBackend}/video-module/all`, { withCredentials: true }),
-                    axios.get(`${UrlBackend}/video-content/all`, { withCredentials: true }) // Assuming public/user route exists
+                    axios.get(`${UrlBackend}/video-content/all?scope=course`, { withCredentials: true }) // Assuming public/user route exists
                 ]);
                 
                 const fetchedCourses = coursesRes.data.success ? coursesRes.data.data : [];

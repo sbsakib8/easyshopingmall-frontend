@@ -142,8 +142,8 @@ const DropshippingVideo = () => {
         return activeCourse.discountPrice > 0 ? activeCourse.discountPrice : activeCourse.price;
     }, [activeCourse, premiumVideoPrice]);
 
-    const demoVideo = useMemo(() => videos.find(v => v.videoType === "demo"), [videos]);
-    const freeVideos = useMemo(() => videos.filter(v => v.videoType === "free"), [videos]);
+    const demoVideo = useMemo(() => videos.find(v => v.videoType === "demo" && !v.moduleId), [videos]);
+    const freeVideos = useMemo(() => videos.filter(v => !v.moduleId), [videos]);
 
 
 
@@ -164,15 +164,18 @@ const DropshippingVideo = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const [accessResult, videosResult, coursesResult, modulesResult, websiteInfoResult] = await Promise.allSettled([
+            const [accessResult, standaloneVideosResult, courseVideosResult, coursesResult, modulesResult, websiteInfoResult] = await Promise.allSettled([
                 axios.get(`${UrlBackend}/video-access/my-access`, { withCredentials: true }),
-                axios.get(`${UrlBackend}/video-content/all`, { withCredentials: true }),
+                axios.get(`${UrlBackend}/video-content/all?scope=standalone`, { withCredentials: true }),
+                axios.get(`${UrlBackend}/video-content/all?scope=course`, { withCredentials: true }),
                 axios.get(`${UrlBackend}/video-course/all`, { withCredentials: true }),
                 axios.get(`${UrlBackend}/video-module/all`, { withCredentials: true }),
                 WebsiteinfoAllGet()
             ]);
             if (accessResult.status === "fulfilled" && accessResult.value.data.success) setAccessRequests(accessResult.value.data.data);
-            if (videosResult.status === "fulfilled" && videosResult.value.data.success) setVideos(videosResult.value.data.data);
+            const standaloneData = standaloneVideosResult.status === "fulfilled" && standaloneVideosResult.value.data.success ? standaloneVideosResult.value.data.data : [];
+            const courseData = courseVideosResult.status === "fulfilled" && courseVideosResult.value.data.success ? courseVideosResult.value.data.data : [];
+            setVideos([...standaloneData, ...courseData]);
             if (coursesResult.status === "fulfilled" && coursesResult.value.data.success) setCourses(coursesResult.value.data.data);
             if (modulesResult.status === "fulfilled" && modulesResult.value.data.success) setModules(modulesResult.value.data.data);
             if (websiteInfoResult.status === "fulfilled") {
