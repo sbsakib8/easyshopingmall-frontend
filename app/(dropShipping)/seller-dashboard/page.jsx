@@ -1,10 +1,11 @@
 "use client";
 
 import Container from "@/src/compronent/shared/Container";
+import Section from "@/src/compronent/shared/Section";
 import BackButton from "@/src/dropShipping/BackButton/BackButton";
 import { useGetUser } from "@/src/utlis/useGetuser";
 import { useMyOrders } from "@/src/utlis/useMyOrders";
-import { Loader2, TrendingUp, Wallet } from "lucide-react";
+import { TrendingUp, Wallet } from "lucide-react";
 import React, { useMemo } from "react";
 import {
   FiBox,
@@ -14,7 +15,7 @@ import {
   FiSettings,
 } from "react-icons/fi";
 
-function SallerDashboard() {
+function SellerDashboard() {
   const { orders = [], loading: ordersLoading } = useMyOrders();
   const { user, loading: userLoading } = useGetUser();
 
@@ -121,23 +122,19 @@ function SallerDashboard() {
     ];
   }, [orders]);
 
-  if (ordersLoading || userLoading) {
-    return (
-      <div className="min-h-screen bg-slate-50/50 flex items-center justify-center">
-        <Loader2 className="w-12 h-12 text-emerald-600 animate-spin" />
-      </div>
-    );
-  }
-
   return (
-    <section className="min-h-screen bg-gradient-to-b from-slate-50 to-white pt-2">
+    <Section className="min-h-dvh bg-gradient-to-b from-slate-50 to-white">
       <Container>
         <BackButton className="mb-4 -mt-2" />
         {/* Header & Balance Card */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <div className="lg:col-span-2">
             <h2 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight mb-2">
-              Welcome Back, {user?.name?.split(" ")[0]}! 👋
+              {userLoading ? (
+                <span className="animate-pulse">Loading...</span>
+              ) : (
+                `Welcome Back, ${user?.name?.split(" ")[0]}! 👋`
+              )}
             </h2>
             <p className="text-sm md:text-base text-gray-500 font-semibold leading-relaxed">
               Track your sales, profits, and orders in real-time
@@ -156,9 +153,15 @@ function SallerDashboard() {
                 </span>
               </div>
               <div>
-                <p className="text-xs opacity-75 mb-2 uppercase tracking-widest font-semibold">Your Balance</p>
+                <p className="text-xs opacity-75 mb-2 uppercase tracking-widest font-semibold">
+                  Your Balance
+                </p>
                 <h3 className="text-4xl md:text-5xl font-black leading-tight mb-2">
-                  ৳{Number(user?.balance || 0).toLocaleString()}
+                  {userLoading ? (
+                    <span className="animate-pulse">Loading...</span>
+                  ) : (
+                    `৳${Number(user?.balance || 0).toLocaleString()}`
+                  )}
                 </h3>
                 <p className="text-xs font-semibold opacity-80">
                   Ready to withdraw anytime
@@ -179,14 +182,15 @@ function SallerDashboard() {
             >
               <div className="flex items-center gap-2 mb-3">
                 <div
-                  className={`p-2 rounded-lg transition-transform group-hover:scale-110 ${item.color === "emerald"
-                    ? "bg-emerald-100 text-emerald-600"
-                    : item.color === "amber"
-                      ? "bg-amber-100 text-amber-600"
-                      : item.color === "blue"
-                        ? "bg-blue-100 text-blue-600"
-                        : "bg-red-100 text-red-600"
-                    }`}
+                  className={`p-2 rounded-lg transition-transform group-hover:scale-110 ${
+                    item.color === "emerald"
+                      ? "bg-emerald-100 text-emerald-600"
+                      : item.color === "amber"
+                        ? "bg-amber-100 text-amber-600"
+                        : item.color === "blue"
+                          ? "bg-blue-100 text-blue-600"
+                          : "bg-red-100 text-red-600"
+                  }`}
                 >
                   {React.cloneElement(item.icon, { size: 16 })}
                 </div>
@@ -195,9 +199,13 @@ function SallerDashboard() {
                 <p className="text-[9px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest">
                   {item.title}
                 </p>
-                <p className="text-xl md:text-2xl font-black text-gray-900">
-                  {item.order}
-                </p>
+                {ordersLoading ? (
+                  <span className="animate-pulse">Loading...</span>
+                ) : (
+                  <p className="text-xl md:text-2xl font-black text-gray-900">
+                    {item.order}
+                  </p>
+                )}
               </div>
             </div>
           ))}
@@ -212,16 +220,19 @@ function SallerDashboard() {
             >
               {/* Left Icon */}
               <div
-                className={`w-14 h-14 md:w-16 md:h-16 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105 ${view.color === "emerald"
-                  ? "bg-emerald-100 text-emerald-600"
-                  : view.color === "amber"
-                    ? "bg-amber-100 text-amber-600"
-                    : view.color === "blue"
-                      ? "bg-blue-100 text-blue-600"
-                      : "bg-red-100 text-red-600"
-                  }`}
+                className={`w-14 h-14 md:w-16 md:h-16 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105 ${
+                  view.color === "emerald"
+                    ? "bg-emerald-100 text-emerald-600"
+                    : view.color === "amber"
+                      ? "bg-amber-100 text-amber-600"
+                      : view.color === "blue"
+                        ? "bg-blue-100 text-blue-600"
+                        : "bg-red-100 text-red-600"
+                }`}
               >
-                {React.cloneElement(view.icon, { className: "text-xl md:text-2xl" })}
+                {React.cloneElement(view.icon, {
+                  className: "text-xl md:text-2xl",
+                })}
               </div>
 
               {/* Content */}
@@ -243,27 +254,39 @@ function SallerDashboard() {
                     <p className="text-[9px] md:text-[10px] font-black text-gray-500 uppercase tracking-wider mb-1.5">
                       Orders
                     </p>
-                    <p className="text-lg md:text-xl font-black text-gray-900">
-                      {view.order}
-                    </p>
+                    {ordersLoading ? (
+                      <span className="animate-pulse">Loading...</span>
+                    ) : (
+                      <p className="text-lg md:text-xl font-black text-gray-900">
+                        {view.order}
+                      </p>
+                    )}
                   </div>
 
                   <div className="bg-gradient-to-br from-emerald-50 to-emerald-50/50 p-3 md:p-4 rounded-xl border border-emerald-100">
                     <p className="text-[9px] md:text-[10px] font-black text-emerald-700 uppercase tracking-wider mb-1.5">
                       Profit
                     </p>
-                    <p className="text-lg md:text-xl font-black text-emerald-700">
-                      ৳{view.profit.toLocaleString()}
-                    </p>
+                    {ordersLoading ? (
+                      <span className="animate-pulse">Loading...</span>
+                    ) : (
+                      <p className="text-lg md:text-xl font-black text-emerald-700">
+                        ৳{view.profit.toLocaleString()}
+                      </p>
+                    )}
                   </div>
 
                   <div className="bg-gradient-to-br from-teal-50 to-teal-50/50 p-3 md:p-4 rounded-xl border border-teal-100">
                     <p className="text-[9px] md:text-[10px] font-black text-teal-700 uppercase tracking-wider mb-1.5">
                       Volume
                     </p>
-                    <p className="text-lg md:text-xl font-black text-teal-700">
-                      ৳{view.sellPrice.toLocaleString()}
-                    </p>
+                    {ordersLoading ? (
+                      <span className="animate-pulse">Loading...</span>
+                    ) : (
+                      <p className="text-lg md:text-xl font-black text-teal-700">
+                        ৳{view.sellPrice.toLocaleString()}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -298,8 +321,8 @@ function SallerDashboard() {
           </a>
         </div>
       </Container>
-    </section>
+    </Section>
   );
 }
 
-export default SallerDashboard;
+export default SellerDashboard;
