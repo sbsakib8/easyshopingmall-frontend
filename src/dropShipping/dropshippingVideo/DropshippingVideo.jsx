@@ -9,30 +9,30 @@ import { ProductAllGet } from "@/src/hook/useProduct";
 import { useGetUser } from "@/src/utlis/useGetuser";
 import axios from "axios";
 import {
-    AlertCircle,
-    ArrowLeft,
-    BookOpen,
-    Check,
-    CheckCircle,
-    ChevronRight,
-    Clock,
-    CreditCard,
-    Crown,
-    Download,
-    Film,
-    History,
-    Info,
-    Lock,
-    Play,
-    RefreshCw,
-    Search,
-    Send,
-    ShieldCheck,
-    Sparkles,
-    Video,
-    XCircle,
-    Youtube,
-    Zap,
+  AlertCircle,
+  ArrowLeft,
+  BookOpen,
+  Check,
+  CheckCircle,
+  ChevronRight,
+  Clock,
+  CreditCard,
+  Crown,
+  Download,
+  Film,
+  History,
+  Info,
+  Lock,
+  Play,
+  RefreshCw,
+  Search,
+  Send,
+  ShieldCheck,
+  Sparkles,
+  Video,
+  XCircle,
+  Youtube,
+  Zap,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
@@ -673,7 +673,10 @@ const DropshippingVideo = () => {
                   {loading ? (
                     <>
                       {Array.from({ length: 3 }).map((_, index) => (
-                        <div key={index} className="bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm animate-pulse flex flex-col justify-between">
+                        <div
+                          key={index}
+                          className="bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm animate-pulse flex flex-col justify-between"
+                        >
                           <div>
                             {/* Cover */}
                             <div className="aspect-[2/1] bg-gray-200 relative">
@@ -1319,11 +1322,32 @@ const DropshippingVideo = () => {
                 </button>
               </div>
               {loadingRequests ? (
-                <div className="flex-1 flex flex-col items-center justify-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-emerald-500 mb-2" />
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                    Loading requests...
-                  </p>
+                <div className="space-y-4 max-h-[600px] overflow-y-auto pr-1">
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <div className="p-5 rounded-3xl border border-slate-100 animate-pulse">
+                      {/* Header */}
+                      <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-4">
+                        <div className="flex items-start gap-4">
+                          {/* Product Image */}
+                          <div className="w-12 h-12 bg-slate-200 rounded-2xl shrink-0" />
+
+                          <div className="flex-1">
+                            {/* Product Title */}
+                            <div className="h-4 bg-slate-200 rounded w-48 mb-2" />
+
+                            {/* Type + Date */}
+                            <div className="flex gap-2">
+                              <div className="h-5 w-20 bg-slate-200 rounded-full" />
+                              <div className="h-4 w-16 bg-slate-200 rounded" />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Status */}
+                        <div className="h-7 w-24 bg-slate-200 rounded-full" />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ) : myRequests.length === 0 ? (
                 <div className="flex-1 border border-dashed border-slate-100 rounded-[2rem] flex flex-col items-center justify-center p-8 text-center bg-slate-50/20">
