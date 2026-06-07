@@ -111,12 +111,10 @@ const DropshippingCheckoutComponent = () => {
     return sum + (sp * item.quantity);
   }, 0);
 
-  const perItemCouponShare = items.length > 0 ? (couponDiscount || 0) / items.length : 0;
-
   const totalProfit = items.reduce((sum, item) => {
     const sp = item.sellingPrice === "" ? 0 : (item.sellingPrice ?? item.price);
     return sum + ((sp - item.price) * item.quantity);
-  }, 0) + (couponDiscount || 0);
+  }, 0);
   const [deliveryCharge, setDeliveryCharge] = useState(100);
   const total = subtotal + deliveryCharge - (couponDiscount || 0);
 
@@ -703,7 +701,7 @@ const DropshippingCheckoutComponent = () => {
                           {item.productId.productName}
                         </p>
                         <div className="flex items-center gap-2 mt-1.5">
-                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">ক্রয় মূল্য:</p>
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">ড্রপশিপিং প্রাইস:</p>
                           <p className="text-xs font-bold text-slate-600">৳{(item.price * item.quantity).toLocaleString()}</p>
                         </div>
 
@@ -713,7 +711,7 @@ const DropshippingCheckoutComponent = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           <p className="text-[10px] font-black text-blue-600 uppercase tracking-tighter">লাভ:</p>
-                          <p className="text-xs font-black text-blue-600">৳{((((item.sellingPrice === "" ? 0 : (item.sellingPrice ?? item.price)) - item.price) * item.quantity) + perItemCouponShare).toLocaleString()}</p>
+                          <p className="text-xs font-black text-blue-600">৳{(((item.sellingPrice === "" ? 0 : (item.sellingPrice ?? item.price)) - item.price) * item.quantity).toLocaleString()}</p>
                         </div>
                       </div>
                     </div>

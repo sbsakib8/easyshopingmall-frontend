@@ -651,6 +651,14 @@ const ProductDashboard = () => {
                               >
                                 ${product.price}
                               </Typography>
+                              {product.dropshippingPrice != null && (
+                                <Typography
+                                  variant="caption"
+                                  sx={{ display: "block", color: "#22d3ee", fontWeight: 700, mt: 0.5 }}
+                                >
+                                  DS: ৳{product.dropshippingPrice}
+                                </Typography>
+                              )}
                             </TableCell>
                             <TableCell align="center">
                               <Chip
@@ -941,6 +949,21 @@ const ProductDashboard = () => {
 
                 <div className="bg-slate-700/30 rounded-xl p-4 border border-slate-600/50">
                   <div className="flex items-center gap-2 mb-2">
+                    <Tag className="w-5 h-5 text-cyan-400" />
+                    <span className="text-gray-400 text-sm">Dropshipping Price</span>
+                  </div>
+                  <p className="text-accent-content font-semibold text-2xl">
+                    ৳{viewModal?.dropshippingPrice ?? viewModal?.price}
+                  </p>
+                  <p className="text-cyan-300 text-[10px] font-bold uppercase tracking-tighter mt-1">
+                    {viewModal?.dropshippingPrice != null
+                      ? "DS cost (custom)"
+                      : "Falls back to regular price"}
+                  </p>
+                </div>
+
+                <div className="bg-slate-700/30 rounded-xl p-4 border border-slate-600/50">
+                  <div className="flex items-center gap-2 mb-2">
                     <Tag className="w-5 h-5 text-purple-400" />
                     <span className="text-gray-400 text-sm">Discount</span>
                   </div>
@@ -1068,6 +1091,27 @@ const ProductDashboard = () => {
                     }
                     className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500"
                   />
+                </div>
+
+                <div>
+                  <label className="block text-gray-300 text-sm font-semibold mb-2">
+                    Dropshipping Price
+                  </label>
+                  <input
+                    type="number"
+                    value={editModal?.dropshippingPrice ?? ""}
+                    onChange={(e) =>
+                      updateEditField(
+                        "dropshippingPrice",
+                        e.target.value === "" ? null : Number(e.target.value),
+                      )
+                    }
+                    placeholder="Leave empty to use Price"
+                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-cyan-500"
+                  />
+                  <p className="text-cyan-300 text-[10px] font-bold uppercase tracking-tighter mt-1">
+                    Wholesale cost for the dropshipper. Empty = regular Price.
+                  </p>
                 </div>
 
                 <div>

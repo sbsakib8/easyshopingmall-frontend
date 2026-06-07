@@ -103,40 +103,49 @@ function OrderDetailsModal({ order, onClose }) {
           </div>
 
           {/* Dropshipping Rewards (Conditional) */}
-          {(order.profitAmount > 0 || order.referralBonusAmount > 0) && (
-            <div className="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-2xl p-6 text-white shadow-lg border border-emerald-400/30 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-black text-lg flex items-center gap-2">
-                  <div className="p-2 bg-white/20 rounded-xl">
-                    <span className="text-xl">💰</span>
-                  </div>
-                  Dropshipping Rewards
-                </h3>
-                <span className="px-3 py-1 bg-white/20 rounded-full text-[10px] font-black uppercase tracking-widest">
-                  Verified Earning
-                </span>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {order.profitAmount > 0 && (
-                  <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-sm border border-white/10 group hover:bg-white/20 transition-all">
-                    <p className="text-emerald-100 text-[10px] font-black uppercase tracking-wider mb-1 opacity-80">Order Sales Profit</p>
-                    <p className="text-3xl font-black tracking-tighter">৳{order.profitAmount.toLocaleString()}</p>
-                  </div>
-                )}
-                {order.referralBonusAmount > 0 && (
-                  <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-sm border border-white/10 group hover:bg-white/20 transition-all">
-                    <p className="text-emerald-100 text-[10px] font-black uppercase tracking-wider mb-1 opacity-80">
-                      {order.referralPercentage || (order.subTotalAmt > 0 ? Math.round((order.referralBonusAmount / order.subTotalAmt) * 100) : 0)}% Referral Bonus
-                    </p>
-                    <p className="text-3xl font-black tracking-tighter">৳{order.referralBonusAmount.toLocaleString()}</p>
-                  </div>
-                )}
-              </div>
-              <p className="mt-4 text-[10px] text-emerald-100 font-bold italic opacity-60 flex items-center gap-1">
-                <span>✨</span> Rewards are automatically credited to your balance once the order status is 'Delivered' or 'Completed'.
-              </p>
+          {(order.profitAmount > 0 || order.referralBonusAmount > 0) && (() => {
+    // Live-calculate profit from product data (sellingPrice - costPrice) to avoid showing stale stored value
+    const liveProfit = (order.products || []).reduce((sum, p) => {
+      const cost = Number(p.costPrice || p.price) || 0;
+      const selling = Number(p.sellingPrice) || cost;
+      return sum + (selling > cost ? (selling - cost) * (p.quantity || 1) : 0);
+    }, 0) + (Number(order.couponDiscount) || 0);
+    const displayProfit = liveProfit > 0 ? liveProfit : (order.profitAmount || 0);
+    return (
+      <div className="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-2xl p-6 text-white shadow-lg border border-emerald-400/30 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-black text-lg flex items-center gap-2">
+            <div className="p-2 bg-white/20 rounded-xl">
+              <span className="text-xl">💰</span>
+            </div>
+            Dropshipping Rewards
+          </h3>
+          <span className="px-3 py-1 bg-white/20 rounded-full text-[10px] font-black uppercase tracking-widest">
+            Verified Earning
+          </span>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {displayProfit > 0 && (
+            <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-sm border border-white/10 group hover:bg-white/20 transition-all">
+              <p className="text-emerald-100 text-[10px] font-black uppercase tracking-wider mb-1 opacity-80">Order Sales Profit</p>
+              <p className="text-3xl font-black tracking-tighter">৳{displayProfit.toLocaleString()}</p>
             </div>
           )}
+          {order.referralBonusAmount > 0 && (
+            <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-sm border border-white/10 group hover:bg-white/20 transition-all">
+              <p className="text-emerald-100 text-[10px] font-black uppercase tracking-wider mb-1 opacity-80">
+                {order.referralPercentage || (order.subTotalAmt > 0 ? Math.round((order.referralBonusAmount / order.subTotalAmt) * 100) : 0)}% Referral Bonus
+              </p>
+              <p className="text-3xl font-black tracking-tighter">৳{order.referralBonusAmount.toLocaleString()}</p>
+            </div>
+          )}
+        </div>
+        <p className="mt-4 text-[10px] text-emerald-100 font-bold italic opacity-60 flex items-center gap-1">
+          <span>✨</span> Rewards are automatically credited to your balance once the order status is 'Delivered' or 'Completed'.
+        </p>
+      </div>
+    );
+  })()}
 
           {/* Status & Date */}
           <div className="grid md:grid-cols-3 gap-4">
@@ -239,7 +248,14 @@ function OrderDetailsModal({ order, onClose }) {
                         <p className="font-semibold text-gray-900 mb-1">{name}</p>
                         <div className="flex flex-wrap gap-3 text-xs text-gray-600">
                           <span>Qty: <span className="font-medium text-gray-900">{item.quantity || 0}</span></span>
-                          <span>Price: <span className="font-medium text-gray-900">৳{item.price || 0}</span></span>
+                          {item.sellingPrice && item.sellingPrice !== item.price ? (
+                             <>
+                               <span>DS Cost: <span className="font-medium text-blue-700">৳{item.price || 0}</span></span>
+                               <span>Selling: <span className="font-medium text-emerald-700">৳{item.sellingPrice}</span></span>
+                             </>
+                           ) : (
+                             <span>Price: <span className="font-medium text-gray-900">৳{item.price || 0}</span></span>
+                           )}
                           {item.size && <span>Size: <span className="font-medium text-gray-900">{item.size}</span></span>}
                           {item.color && <span>Color: <span className="font-medium text-gray-900">{item.color}</span></span>}
                           {item.weight && <span>Weight: <span className="font-medium text-gray-900">{item.weight}</span></span>}

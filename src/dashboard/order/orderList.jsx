@@ -934,7 +934,7 @@ const OrderManagement = () => {
                                   item?.sellingPrice !== item?.price && (
                                     <div className="mt-1 pt-1 border-t border-gray-700/50">
                                       <p className="text-[10px] text-blue-400 font-bold">
-                                        Cost: ৳{item?.price.toFixed(2)}
+                                        {(selectedOrder?.userId?.role === "DROPSHIPPING" || (Array.isArray(selectedOrder?.userId?.roles) && selectedOrder?.userId?.roles.includes("DROPSHIPPING"))) ? "Dropshipping Cost" : "Cost"}: ৳{item?.price.toFixed(2)}
                                       </p>
                                       <p className="text-[10px] text-emerald-400 font-bold">
                                         Profit: ৳

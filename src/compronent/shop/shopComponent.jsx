@@ -96,7 +96,8 @@ const ProductCard = React.memo(
     const productName = product.productName || product.name;
     const productImage =
       product.image || product.images?.[0] || "/img/product.jpg";
-    const productPrice = Number(product.price ?? product.sell_price) || 0;
+    const isDropshipping = user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING");
+    const productPrice = isDropshipping ? (Number(product.dropshippingPrice ?? product.price ?? product.sell_price) || 0) : (Number(product.price ?? product.sell_price) || 0);
     const productRank = Number(product.productRank ?? product.retailSale) || 0;
     const inStock = (product.productStock ?? product.stock ?? 1) > 0;
     const isNew = isProductNew(

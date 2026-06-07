@@ -67,6 +67,7 @@ const normalizeProductDetail = (data) => {
     images: data.images?.length > 0 ? data.images : ["/img/product.jpg"],
     tags: Array.isArray(data.tags) ? data.tags : [],
     video_link: data.video_link || "",
+    dropshippingPrice: Number(data.dropshippingPrice ?? data.price ?? 0) || 0,
   };
 };
 
@@ -392,8 +393,8 @@ const ProductDetails = ({ initialProduct }) => {
   };
 
   const handleAddToCart = async () => {
-    if(quantity>product.stock) return toast.error("অতিরিক্ত পরিমাণ যোগ করা হয়েছে")   
-     
+    if (quantity > product.stock) return toast.error("অতিরিক্ত পরিমাণ যোগ করা হয়েছে")
+
     if (!user?._id) {
       toast.error("Please sign in to add items to cart");
       return;
@@ -412,6 +413,7 @@ const ProductDetails = ({ initialProduct }) => {
     try {
       if (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) {
         // Dropshipping Cart (Local)
+        const dsCost = product.dropshippingPrice ?? product.price ?? 0;
         dispatch(dsCartAdd({
           productId: {
             _id: product.id,
@@ -419,13 +421,13 @@ const ProductDetails = ({ initialProduct }) => {
             images: product.images,
           },
           quantity,
-          price: product.price,
-          sellingPrice: product.price, // Default to cost
+          price: dsCost,
+          sellingPrice: dsCost, // Default to cost
           size: selectedSize,
           color: selectedColor,
           weight: product.weight || null,
         }));
-        
+
         toast.success(`${product.name} added to sourcing cart`);
         router.push("/dropshipping-addtocart");
       } else {
@@ -738,7 +740,7 @@ const ProductDetails = ({ initialProduct }) => {
             {/* Price */}
             <div className="flex items-center space-x-7">
               <span className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                ৳{product?.price?.toFixed(0) || 0}
+                ৳{isDropshipping ? (product?.dropshippingPrice?.toFixed(0) || 0) : (product?.price?.toFixed(0) || 0)}
               </span>
 
               <div>
@@ -981,11 +983,10 @@ const ProductDetails = ({ initialProduct }) => {
                           toast.success("Description copied!");
                           setTimeout(() => setDescCopied(false), 2000);
                         }}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 border ${
-                          descCopied
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 border ${descCopied
                             ? "bg-green-500 text-white border-green-500 scale-95 shadow-md"
                             : "bg-white text-blue-600 border-blue-200 hover:bg-blue-50 hover:border-blue-400 hover:shadow-md"
-                        }`}
+                          }`}
                       >
                         {descCopied ? (
                           <>
@@ -1180,11 +1181,10 @@ const ProductDetails = ({ initialProduct }) => {
                                     toast.success("Coupon code copied!");
                                     setTimeout(() => setCouponCopied(null), 2500);
                                   }}
-                                  className={`flex-shrink-0 flex flex-col items-center justify-center gap-1 px-5 py-3 rounded-xl font-bold text-sm transition-all duration-300 shadow-md ${
-                                    couponCopied === coupon.code
+                                  className={`flex-shrink-0 flex flex-col items-center justify-center gap-1 px-5 py-3 rounded-xl font-bold text-sm transition-all duration-300 shadow-md ${couponCopied === coupon.code
                                       ? "bg-green-500 text-white scale-95 shadow-green-300"
                                       : "bg-gradient-to-r from-violet-500 to-purple-600 text-white hover:from-violet-600 hover:to-purple-700 hover:shadow-purple-300 hover:-translate-y-0.5"
-                                  }`}
+                                    }`}
                                 >
                                   {couponCopied === coupon.code ? (
                                     <>
