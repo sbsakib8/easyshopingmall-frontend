@@ -1,4 +1,5 @@
-import { useSelector } from "react-redux";
+import { useMemo } from "react";
+import { isDSOrder } from "@/src/utlis/orderHelpers";
 
 function getStatusColor(status) {
   if (!status) return "bg-gray-100 text-gray-800";
@@ -26,13 +27,12 @@ function getStatusColor(status) {
 function OrderDetailsModal({ order, onClose }) {
   if (!order) return null;
 
-  // Get customer data from the order itself (especially for referred orders)
+  const isDS = isDSOrder(order);
   const customer = order.userId || {};
   const customerEmail = customer.email || "N/A";
   const customerImage = customer.image || "";
   const customerName = customer.name || "User";
 
-  // Extract address details from the API response
   const address = order.address || {};
   const addressLine = address.address_line || "";
   const district = address.district || "";
@@ -42,14 +42,55 @@ function OrderDetailsModal({ order, onClose }) {
   const mobile = address.mobile || "";
   const country = address.country || "";
 
-  // Format full address
   const fullAddress = [addressLine, upazila, district, division, pincode, country]
     .filter(Boolean)
     .join(", ");
 
-  // Extract payment details
   const paymentDetails = order.payment_details || {};
   const manualPayment = paymentDetails.manual || null;
+
+  const orderProducts = order.products || [];
+
+  const correctedProducts = useMemo(() => {
+    if (!orderProducts.length) return [];
+
+    return orderProducts.map((item) => {
+      const resolvedProduct = item.productId || {};
+
+      if (isDS) {
+        return { ...item, _effectivePrice: item.sellingPrice || item.price || 0, _effectiveTotal: item.totalPrice || (item.sellingPrice || item.price || 0) * (Number(item.quantity) || 1) };
+      }
+
+      const retailPrice = Number(resolvedProduct.price) || Number(item.price) || 0;
+      const storedPrice = Number(item.price) || 0;
+
+      if (retailPrice !== storedPrice && retailPrice > 0) {
+        return {
+          ...item,
+          _effectivePrice: retailPrice,
+          _effectiveTotal: retailPrice * (Number(item.quantity) || 1),
+        };
+      }
+
+      return { ...item, _effectivePrice: item.price || 0, _effectiveTotal: item.totalPrice || 0 };
+    });
+  }, [orderProducts, isDS]);
+
+  const recalculatedSubtotal = useMemo(() => {
+    return correctedProducts.reduce((sum, item) => sum + (item._effectiveTotal || 0), 0);
+  }, [correctedProducts]);
+
+  const hasCorrectedPrices = !isDS && correctedProducts.some((item) => {
+    const resolvedProduct = item.productId || {};
+    const retailPrice = Number(resolvedProduct.price) || 0;
+    const storedPrice = Number(item.price) || 0;
+    return retailPrice > 0 && retailPrice !== storedPrice;
+  });
+
+  const displaySubtotal = hasCorrectedPrices ? recalculatedSubtotal : (order.subTotalAmt || order.subtotal || 0);
+  const displayTotal = hasCorrectedPrices
+    ? displaySubtotal + (Number(order.deliveryCharge) || 0) - (Number(order.couponDiscount) || 0)
+    : (order.totalAmt || 0);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-3">
@@ -103,9 +144,8 @@ function OrderDetailsModal({ order, onClose }) {
           </div>
 
           {/* Dropshipping Rewards (Conditional) */}
-          {(order.profitAmount > 0 || order.referralBonusAmount > 0) && (() => {
-    // Live-calculate profit from product data (sellingPrice - costPrice) to avoid showing stale stored value
-    const liveProfit = (order.products || []).reduce((sum, p) => {
+          {(order.profitAmount > 0 || order.referralBonusAmount > 0) && isDS && (() => {
+    const liveProfit = orderProducts.reduce((sum, p) => {
       const cost = Number(p.costPrice || p.price) || 0;
       const selling = Number(p.sellingPrice) || cost;
       return sum + (selling > cost ? (selling - cost) * (p.quantity || 1) : 0);
@@ -159,7 +199,7 @@ function OrderDetailsModal({ order, onClose }) {
             <div className="bg-green-50 border rounded-xl p-4">
               <p className="text-xs text-gray-500 mb-2">Payment Status</p>
               <span className={`inline-block px-3 py-1 text-xs rounded-full font-bold capitalize ${getStatusColor(order.payment_status)}`}>
-                {order.payment_status === "paid" ? "পরিশোধিত (Paid)" : order.payment_status === "submitted" ? "পেমেন্ট জমা হয়েছে (Submitted)" : "অপরিশোধিত (Unpaid)"}
+                {order.payment_status === "paid" ? "পরিশোধিত (Paid)" : order.payment_status === "submitted" ? "পেমেন্ট জমা হয়েছে (Submitted)" : "অপরিশোধিত (Unpaid)"}
               </span>
             </div>
 
@@ -227,9 +267,9 @@ function OrderDetailsModal({ order, onClose }) {
               Ordered Products
             </h3>
             <div className="space-y-3">
-              {order.products && order.products.length > 0 ? (
-                order.products.map((item, idx) => {
-                  const resolvedProduct = item.productId || item;
+              {correctedProducts.length > 0 ? (
+                correctedProducts.map((item, idx) => {
+                  const resolvedProduct = item.productId || {};
                   const name = item.name || resolvedProduct.productName || "N/A";
                   const imgData = (item.image?.length > 0 ? item.image : null) || (item.images?.length > 0 ? item.images : null) || (resolvedProduct.images?.length > 0 ? resolvedProduct.images : null) || (resolvedProduct.image?.length > 0 ? resolvedProduct.image : null);
                   const productImage = (Array.isArray(imgData) ? imgData[0] : (typeof imgData === 'string' ? imgData : null)) || "/banner/img/placeholder.png";
@@ -248,13 +288,13 @@ function OrderDetailsModal({ order, onClose }) {
                         <p className="font-semibold text-gray-900 mb-1">{name}</p>
                         <div className="flex flex-wrap gap-3 text-xs text-gray-600">
                           <span>Qty: <span className="font-medium text-gray-900">{item.quantity || 0}</span></span>
-                          {item.sellingPrice && item.sellingPrice !== item.price ? (
+                          {isDS && item.sellingPrice && item.sellingPrice !== item.price ? (
                              <>
                                <span>DS Cost: <span className="font-medium text-blue-700">৳{item.price || 0}</span></span>
                                <span>Selling: <span className="font-medium text-emerald-700">৳{item.sellingPrice}</span></span>
                              </>
                            ) : (
-                             <span>Price: <span className="font-medium text-gray-900">৳{item.price || 0}</span></span>
+                             <span>Price: <span className="font-medium text-gray-900">৳{item._effectivePrice || 0}</span></span>
                            )}
                           {item.size && <span>Size: <span className="font-medium text-gray-900">{item.size}</span></span>}
                           {item.color && <span>Color: <span className="font-medium text-gray-900">{item.color}</span></span>}
@@ -262,7 +302,7 @@ function OrderDetailsModal({ order, onClose }) {
                         </div>
                       </div>
                       <p className="font-bold text-emerald-600 text-lg flex-shrink-0">
-                        ৳{item.totalPrice || 0}
+                        ৳{item._effectiveTotal || 0}
                       </p>
                     </div>
                   );
@@ -330,7 +370,7 @@ function OrderDetailsModal({ order, onClose }) {
             <div className="space-y-3 text-sm">
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">Subtotal</span>
-                <span className="font-semibold text-gray-800">৳{order.subTotalAmt || order.subtotal || 0}</span>
+                <span className="font-semibold text-gray-800">৳{displaySubtotal.toLocaleString()}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">Delivery Charge</span>
@@ -350,14 +390,14 @@ function OrderDetailsModal({ order, onClose }) {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-red-600 font-medium">Amount Due</span>
-                  <span className="font-bold text-red-600">৳{order.amount_due || 0}</span>
+                  <span className="font-bold text-red-600">৳{Math.max(0, displayTotal - (order.amount_paid || 0)).toLocaleString()}</span>
                 </div>
               </div>
 
               <div className="bg-white rounded-lg p-4 mt-4 border-2 border-teal-200">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-800 font-bold text-base">Total Amount</span>
-                  <span className="text-teal-600 font-bold text-xl">৳{order.totalAmt || 0}</span>
+                  <span className="text-teal-600 font-bold text-xl">৳{displayTotal.toLocaleString()}</span>
                 </div>
               </div>
             </div>

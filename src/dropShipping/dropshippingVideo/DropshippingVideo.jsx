@@ -265,13 +265,23 @@ const DropshippingVideo = () => {
       if (
         videosResult.status === "fulfilled" &&
         videosResult.value.data.success
-      )
-        setVideos(videosResult.value.data.data);
+      ) {
+        const sorted = [...videosResult.value.data.data].sort((a, b) => {
+          if (a.createdAt && b.createdAt) return new Date(b.createdAt) - new Date(a.createdAt);
+          return (b._id || "").localeCompare(a._id || "");
+        });
+        setVideos(sorted);
+      }
       if (
         coursesResult.status === "fulfilled" &&
         coursesResult.value.data.success
-      )
-        setCourses(coursesResult.value.data.data);
+      ) {
+        const sortedCourses = [...coursesResult.value.data.data].sort((a, b) => {
+          if (a.createdAt && b.createdAt) return new Date(b.createdAt) - new Date(a.createdAt);
+          return (b._id || "").localeCompare(a._id || "");
+        });
+        setCourses(sortedCourses);
+      }
       if (
         modulesResult.status === "fulfilled" &&
         modulesResult.value.data.success
