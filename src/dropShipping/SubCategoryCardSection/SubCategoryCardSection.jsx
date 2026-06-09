@@ -79,7 +79,7 @@ const SubCategoryCard = ({ image, name, path, idx = 0 }) => {
       {/* Image Container */}
       <div className="relative h-32 sm:h-40 overflow-hidden">
         <Image
-          src={image || "/placeholder.png"}
+          src={image || "/img/product.jpg"}
           alt={name}
           width={200}
           height={170}
@@ -119,7 +119,7 @@ const SubCategoryCard = ({ image, name, path, idx = 0 }) => {
 };
 
 const SubCategoryCardSection = ({ pageType }) => {
-  const { subcategory = [], loading } = useGetSubcategory();
+  const { subcategory = [], loading } = useGetSubcategory(pageType);
   const user = useSelector((state) => state.user.data);
 
   if (loading) {
@@ -207,7 +207,7 @@ const SubCategoryCardSection = ({ pageType }) => {
                         idx={idx}
                         name={cat?.name || ""}
                         path={cat.path}
-                        image={cat?.image || "/placeholder.png"}
+                        image={cat?.image || "/img/product.jpg"}
                       />
                     ))}
                   </div>

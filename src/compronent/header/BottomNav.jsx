@@ -73,7 +73,7 @@ const BottomNav = ({ cartCount = 0, menuCategories = [] }) => {
     <>
       {/* Modern Floating Bottom Navigation */}
       <div className="fixed bottom-0 left-1/2 -translate-x-1/2 z-50 md:hidden w-full flex justify-center pointer-events-none">
-        <div className="rounded-tr-2xl rounded-tl-2xl bg-gradient-to-r from-slate-300/80 via-white/30 to-slate-400/80 backdrop-blur-md shadow-[0_8px_32px_0_rgba(30,144,255,0.18),0_1.5px_8px_0_rgba(30,144,255,0.1)] px-3.5 py-2.5 relative overflow-visible pointer-events-auto grid grid-cols-8 place-items-center w-full max-w-lg mx-auto">
+        <div className="rounded-tr-2xl rounded-tl-2xl bg-primary/20 backdrop-blur-md shadow-[0_8px_32px_0_rgba(30,144,255,0.18),0_1.5px_8px_0_rgba(30,144,255,0.1)] px-3.5 py-2.5 relative overflow-visible pointer-events-auto grid grid-cols-8 place-items-center w-full max-w-lg mx-auto">
           {navItems.map((item, idx) => {
             const Icon = item.icon;
             const active = isActive(item);
@@ -141,7 +141,7 @@ const BottomNav = ({ cartCount = 0, menuCategories = [] }) => {
                           className={cn(
                             "text-black/90 sm:text-3xl transition-transform",
                             {
-                              "text-emerald-600": active,
+                              "text-secondary": active,
                               "animate-[pulse_2.5s_ease-in-out_infinite]":
                                 shopButton,
                             },
@@ -153,7 +153,7 @@ const BottomNav = ({ cartCount = 0, menuCategories = [] }) => {
                         className={cn(
                           "text-black/80 sm:text-3xl! transition-transform",
                           {
-                            "text-emerald-500": active,
+                            "text-secondary": active,
                             "text-4xl! sm:text-5xl!": shopButton,
                             "animate-[pulse_2.5s_ease-in-out_infinite]":
                               shopButton,
@@ -168,7 +168,7 @@ const BottomNav = ({ cartCount = 0, menuCategories = [] }) => {
                   className={cn(
                     "text-[8px] text-black sm:text-[10px] uppercase font-semibold",
                     {
-                      "font-bold text-emerald-600": active,
+                      "font-bold text-secondary": active,
                       relative: shopButton,
                     },
                   )}
@@ -278,8 +278,6 @@ const BottomNav = ({ cartCount = 0, menuCategories = [] }) => {
           )}
         </div>
       </Drawer>
-
-      <div className="h-20 md:hidden" aria-hidden />
     </>
   );
 };

@@ -14,6 +14,7 @@ import {
   ChevronRight,
   Clock,
   DollarSign,
+  Loader2,
   PieChartIcon,
   RefreshCw,
   Target,
@@ -75,7 +76,7 @@ function EmptyState({
 }
 
 export default function DropshippingAnalytics() {
-  const [data, setData] = useState(null);
+  const [data, setData] = useState({});
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState("all");
   const [customDates, setCustomDates] = useState({ start: "", end: "" });
@@ -108,11 +109,18 @@ export default function DropshippingAnalytics() {
         : null;
     }
 
-    const res = await getDropshippingAnalytics(startDate, endDate);
-    if (res?.success) {
+    try {
+      const res = await getDropshippingAnalytics(startDate, endDate);
+
+      if (!res?.success) {
+        setData({});
+        return;
+      }
+
       setData(res.data);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -156,26 +164,7 @@ export default function DropshippingAnalytics() {
       }));
   }, [data?.orderPipeline]);
 
-  if (loading && !data) {
-    return (
-      <section className="min-h-screen bg-slate-950 flex flex-col items-center justify-center gap-6">
-        <div className="relative">
-          <div className="w-16 h-16 border-4 border-indigo-500/10 rounded-full" />
-          <div className="w-16 h-16 border-4 border-t-indigo-500 rounded-full animate-spin absolute top-0 left-0" />
-        </div>
-        <div className="text-center">
-          <p className="text-white font-black text-xl tracking-tight">
-            Gathering Intelligence
-          </p>
-          <p className="text-gray-500 text-sm mt-1 animate-pulse">
-            Analyzing platform-wide dropshipping performance...
-          </p>
-        </div>
-      </section>
-    );
-  }
-
-  const { summary = {}, dropshippers = [], recentActivity = [] } = data ?? {};
+  const { summary = {}, dropshippers = [], recentActivity = [] } = data;
 
   const kpiCards = [
     {
@@ -432,12 +421,18 @@ export default function DropshippingAnalytics() {
                   <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.15em] mb-1">
                     {card.label}
                   </p>
-                  <h3
-                    className={`text-2xl font-black tracking-tight ${card.color}`}
-                  >
-                    {card.isCurrency === false ? "" : "৳"}
-                    {card.value.toLocaleString()}
-                  </h3>
+                  {loading ? (
+                    <>
+                      <Loader2 className="animate-spin text-blue-400" />
+                    </>
+                  ) : (
+                    <h3
+                      className={`text-2xl font-black tracking-tight ${card.color}`}
+                    >
+                      {card.isCurrency === false ? "" : "৳"}
+                      {card.value.toLocaleString()}
+                    </h3>
+                  )}
                   {card.subtitle && (
                     <p className="text-[10px] text-gray-600 mt-1.5 font-bold uppercase tracking-tighter">
                       {card.subtitle}
@@ -475,114 +470,158 @@ export default function DropshippingAnalytics() {
               </div>
             </div>
 
-            <ActivityComponent
-              mode={trendDataLength === 0 ? "visible" : "hidden"}
-            >
+            {loading ? (
+              <>
+                <div className="overflow-x-auto scrollbar-hide rounded-2xl border border-gray-800 bg-gray-900/50 p-1 animate-pulse">
+                  <div className="min-w-[700px] md:min-w-full h-[380px] md:h-[420px] relative bg-slate-950/50 rounded-xl overflow-hidden">
+                    {/* Fake Y Axis */}
+                    <div className="absolute left-4 top-6 bottom-12 w-10 flex flex-col justify-between text-right">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <div key={i} className="h-3 w-8 bg-slate-700 rounded" />
+                      ))}
+                    </div>
+
+                    {/* Fake Chart Area */}
+                    <div className="absolute inset-0 pt-8 pb-12 px-14">
+                      {/* Fake Grid Lines */}
+                      <div className="absolute inset-0 flex flex-col justify-between py-2">
+                        {Array.from({ length: 6 }).map((_, i) => (
+                          <div key={i} className="h-px w-full bg-slate-800" />
+                        ))}
+                      </div>
+
+                      {/* Fake Area / Curve */}
+                      <div className="absolute bottom-12 left-12 right-8 h-3/4">
+                        <div
+                          className="w-full h-full bg-gradient-to-t from-indigo-500/30 to-transparent rounded"
+                          style={{
+                            clipPath:
+                              "polygon(0 85%, 8% 65%, 18% 75%, 32% 45%, 48% 55%, 65% 35%, 78% 50%, 92% 28%, 100% 40%, 100% 100%, 0 100%)",
+                          }}
+                        />
+                        {/* Highlight line */}
+                        <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-indigo-400/80" />
+                      </div>
+                    </div>
+
+                    {/* Fake X Axis Labels */}
+                    <div className="absolute bottom-6 left-14 right-8 flex justify-between">
+                      {Array.from({ length: 7 }).map((_, i) => (
+                        <div
+                          key={i}
+                          className="h-3 w-10 bg-slate-700 rounded text-center"
+                        />
+                      ))}
+                    </div>
+
+                    {/* Subtle shimmer effect */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-[shimmer_2.5s_infinite]" />
+                  </div>
+                </div>
+              </>
+            ) : trendDataLength === 0 ? (
               <EmptyState
                 icon={TrendingUp}
                 title="No Trend Data Available"
                 description="There is no sales or payout data for the selected time period."
               />
-            </ActivityComponent>
+            ) : (
+              <>
+                <div className="w-full">
+                  <div className="overflow-x-auto scrollbar-hide rounded-2xl border border-gray-800 bg-gray-900/50 p-1">
+                    <div className="min-w-[700px] md:min-w-full h-[380px] md:h-[420px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={trendData}>
+                          <defs>
+                            <linearGradient
+                              id="colorAdmin"
+                              x1="0"
+                              y1="0"
+                              x2="0"
+                              y2="1"
+                            >
+                              <stop
+                                offset="5%"
+                                stopColor="#6366f1"
+                                stopOpacity={0.3}
+                              />
+                              <stop
+                                offset="95%"
+                                stopColor="#6366f1"
+                                stopOpacity={0}
+                              />
+                            </linearGradient>
+                          </defs>
 
-            <ActivityComponent
-              mode={trendDataLength !== 0 ? "visible" : "hidden"}
-            >
-              <div className="w-full">
-                {/* Scrollable Container */}
-                <div className="overflow-x-auto scrollbar-hide rounded-2xl border border-gray-800 bg-gray-900/50 p-1">
-                  <div className="min-w-[700px] md:min-w-full h-[380px] md:h-[420px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={trendData}>
-                        <defs>
-                          <linearGradient
-                            id="colorAdmin"
-                            x1="0"
-                            y1="0"
-                            x2="0"
-                            y2="1"
-                          >
-                            <stop
-                              offset="5%"
-                              stopColor="#6366f1"
-                              stopOpacity={0.3}
-                            />
-                            <stop
-                              offset="95%"
-                              stopColor="#6366f1"
-                              stopOpacity={0}
-                            />
-                          </linearGradient>
-                        </defs>
+                          <CartesianGrid
+                            strokeDasharray="3 3"
+                            vertical={false}
+                            stroke="#1e293b"
+                          />
 
-                        <CartesianGrid
-                          strokeDasharray="3 3"
-                          vertical={false}
-                          stroke="#1e293b"
-                        />
+                          <XAxis
+                            dataKey="name"
+                            axisLine={false}
+                            tickLine={false}
+                            tick={{
+                              fill: "#94a3b8",
+                              fontSize: 11,
+                              fontWeight: 600,
+                            }}
+                            interval={0} // Show all labels
+                          />
 
-                        <XAxis
-                          dataKey="name"
-                          axisLine={false}
-                          tickLine={false}
-                          tick={{
-                            fill: "#94a3b8",
-                            fontSize: 11,
-                            fontWeight: 600,
-                          }}
-                          interval={0} // Show all labels
-                        />
+                          <YAxis
+                            axisLine={false}
+                            tickLine={false}
+                            tick={{
+                              fill: "#94a3b8",
+                              fontSize: 11,
+                              fontWeight: 600,
+                            }}
+                            tickFormatter={(val) =>
+                              `৳${val > 999 ? (val / 1000).toFixed(1) + "k" : val}`
+                            }
+                          />
 
-                        <YAxis
-                          axisLine={false}
-                          tickLine={false}
-                          tick={{
-                            fill: "#94a3b8",
-                            fontSize: 11,
-                            fontWeight: 600,
-                          }}
-                          tickFormatter={(val) =>
-                            `৳${val > 999 ? (val / 1000).toFixed(1) + "k" : val}`
-                          }
-                        />
+                          <Tooltip
+                            contentStyle={{
+                              backgroundColor: "#1e2937",
+                              borderRadius: "18px",
+                              border: "1px solid #475569",
+                              boxShadow: "0 30px 60px -15px rgb(0 0 0 / 0.7)",
+                              padding: "16px 20px",
+                              color: "#f8fafc",
+                            }}
+                            itemStyle={{ color: "#c7d2fe", fontWeight: 700 }}
+                            labelStyle={{
+                              color: "#94a3b8",
+                              fontSize: "12px",
+                              fontWeight: 500,
+                            }}
+                            formatter={(value) => [
+                              `৳${value.toLocaleString()}`,
+                              "Total Payouts",
+                            ]}
+                            cursor={{ stroke: "#818cf8", strokeWidth: 2 }}
+                          />
 
-                        <Tooltip
-                          contentStyle={{
-                            backgroundColor: "#1e2937",
-                            borderRadius: "18px",
-                            border: "1px solid #475569",
-                            boxShadow: "0 30px 60px -15px rgb(0 0 0 / 0.7)",
-                            padding: "16px 20px",
-                            color: "#f8fafc",
-                          }}
-                          itemStyle={{ color: "#c7d2fe", fontWeight: 700 }}
-                          labelStyle={{
-                            color: "#94a3b8",
-                            fontSize: "12px",
-                            fontWeight: 500,
-                          }}
-                          formatter={(value) => [
-                            `৳${value.toLocaleString()}`,
-                            "Total Payouts",
-                          ]}
-                          cursor={{ stroke: "#818cf8", strokeWidth: 2 }}
-                        />
-
-                        <Area
-                          type="monotone"
-                          dataKey="profit"
-                          stroke="#6366f1"
-                          strokeWidth={4}
-                          fillOpacity={1}
-                          fill="url(#colorAdmin)"
-                          animationDuration={2000}
-                        />
-                      </AreaChart>
-                    </ResponsiveContainer>
+                          <Area
+                            type="monotone"
+                            dataKey="profit"
+                            stroke="#6366f1"
+                            strokeWidth={4}
+                            fillOpacity={1}
+                            fill="url(#colorAdmin)"
+                            animationDuration={2000}
+                          />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </ActivityComponent>
+              </>
+            )}
           </div>
 
           {/* Order Status Mix */}
@@ -601,83 +640,116 @@ export default function DropshippingAnalytics() {
               </div>
             </div>
 
-            <ActivityComponent
-              mode={pipelineDataLength === 0 ? "visible" : "hidden"}
-            >
+            {loading ? (
+              <>
+                <div className="h-[280px] w-full flex items-center justify-center">
+                  <div className="relative w-[240px] h-[240px] animate-pulse">
+                    {/* Donut background */}
+                    <div className="w-full h-full rounded-full border-[35px] border-slate-700 relative">
+                      {/* Hollow center */}
+                      <div className="absolute inset-[38px] bg-slate-900 rounded-full" />
+
+                      {/* Fake colored segments */}
+                      <div
+                        className="absolute inset-0 rounded-full"
+                        style={{
+                          background: `conic-gradient(#a855f7 0deg 80deg, #06b6d4 80deg 160deg, #eab308 160deg 250deg, #ef4444 250deg 360deg)`,
+                          opacity: 0.5,
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {[...Array.from({ length: 4 })].map((_, idx) => (
+                  <div
+                    kay={idx}
+                    className="flex items-center gap-1.5 justify-between p-2 rounded-xl bg-gray-950/30 border border-gray-800/50 animate-pulse"
+                  >
+                    <div className="flex items-center gap-2">
+                      {/* Colored dot skeleton */}
+                      <div className="size-2.5 rounded-full bg-slate-700" />
+
+                      {/* Label skeleton */}
+                      <div className="h-3 w-20 bg-slate-700 rounded" />
+                    </div>
+
+                    {/* Value skeleton */}
+                    <div className="h-3 w-12 bg-slate-700 rounded" />
+                  </div>
+                ))}
+              </>
+            ) : pipelineDataLength !== 0 ? (
+              <>
+                <div className="h-[280px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={pipelineData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={75}
+                        outerRadius={105}
+                        paddingAngle={8}
+                        dataKey="value"
+                        animationDuration={1500}
+                      >
+                        {pipelineData.map((entry, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={COLORS[index % COLORS.length]}
+                            stroke="rgba(0,0,0,0)"
+                          />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "#0f172a",
+                          borderRadius: "15px",
+                          border: "1px solid #1e293b",
+                          color: "#ffffff",
+                          fontSize: "13px",
+                          padding: "8px 12px",
+                        }}
+                        itemStyle={{ color: "#ffffff" }}
+                        labelStyle={{ color: "#cbd5e1" }}
+                        cursor={{ stroke: "#64748b", strokeWidth: 1 }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 2xl:grid-cols-2 gap-x-6 gap-y-3 mt-6">
+                  {pipelineData.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center gap-1.5 justify-between p-2 rounded-xl bg-gray-950/30 border border-gray-800/50"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <div
+                          className="size-2.5 flex items-center justify-center rounded-full"
+                          style={{
+                            backgroundColor: COLORS[idx % COLORS.length],
+                          }}
+                        />
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider">
+                          {item.name}
+                        </span>
+                      </div>
+                      <span className="text-xs font-black text-white">
+                        {item.value}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
               <EmptyState
                 icon={PieChartIcon}
                 title="No Pipeline Data"
                 description="There is no data available to display in the pipeline chart."
               />
-            </ActivityComponent>
-
-            <ActivityComponent
-              mode={pipelineDataLength !== 0 ? "visible" : "hidden"}
-            >
-              <div className="h-[280px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={pipelineData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={75}
-                      outerRadius={105}
-                      paddingAngle={8}
-                      dataKey="value"
-                      animationDuration={1500}
-                    >
-                      {pipelineData.map((entry, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={COLORS[index % COLORS.length]}
-                          stroke="rgba(0,0,0,0)"
-                        />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: "#0f172a",
-                        borderRadius: "15px",
-                        border: "1px solid #1e293b",
-                        color: "#ffffff",
-                        fontSize: "13px",
-                        padding: "8px 12px",
-                      }}
-                      itemStyle={{ color: "#ffffff" }}
-                      labelStyle={{ color: "#cbd5e1" }}
-                      cursor={{ stroke: "#64748b", strokeWidth: 1 }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </ActivityComponent>
-
-            <ActivityComponent
-              mode={pipelineDataLength !== 0 ? "visible" : "hidden"}
-            >
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 2xl:grid-cols-2 gap-x-6 gap-y-3 mt-6">
-                {pipelineData.map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center gap-1.5 justify-between p-2 rounded-xl bg-gray-950/30 border border-gray-800/50"
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <div
-                        className="size-2.5 flex items-center justify-center rounded-full"
-                        style={{ backgroundColor: COLORS[idx % COLORS.length] }}
-                      />
-                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider">
-                        {item.name}
-                      </span>
-                    </div>
-                    <span className="text-xs font-black text-white">
-                      {item.value}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </ActivityComponent>
+            )}
           </div>
         </div>
 
@@ -707,23 +779,10 @@ export default function DropshippingAnalytics() {
             </div>
           </div>
 
-          {/* No Data State */}
-          <ActivityComponent
-            mode={dropshippers.length === 0 ? "visible" : "hidden"}
-          >
-            <EmptyState
-              icon={Users}
-              title="No Partners Found"
-              description="There are no dropshippers or partners available at the moment."
-            />
-          </ActivityComponent>
-
           {/* Table  */}
-          <ActivityComponent
-            mode={dropshippers.length !== 0 ? "visible" : "hidden"}
-          >
-            <div className="max-h-[600px] overflow-y-auto scrollbar-hide">
-              <table className="w-full text-left">
+          <div className="max-h-[600px] overflow-y-auto scrollbar-hide">
+            <table className="w-full text-left">
+              {!loading && dropshippers.length > 0 && (
                 <thead className="sticky top-0 bg-slate-900/95 backdrop-blur-md z-20">
                   <tr className="border-b border-gray-800">
                     {[
@@ -764,9 +823,71 @@ export default function DropshippingAnalytics() {
                     ))}
                   </tr>
                 </thead>
+              )}
 
-                <tbody className="divide-y divide-gray-800/50">
-                  {dropshippers.map((ds) => (
+              <tbody className="divide-y divide-gray-800/50">
+                {loading ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <tr className="animate-pulse border-b border-gray-800">
+                      <td className="px-8 py-6">
+                        <div className="flex items-center gap-4">
+                          {/* Avatar Skeleton */}
+                          <div className="w-12 h-12 rounded-2xl bg-slate-700" />
+
+                          <div className="whitespace-nowrap">
+                            {/* Name */}
+                            <div className="h-4 w-40 bg-slate-700 rounded mb-1.5" />
+                            {/* Shop Name */}
+                            <div className="h-3 w-28 bg-slate-700 rounded" />
+                          </div>
+
+                          {/* Chevron placeholder */}
+                          <div className="ml-auto w-4 h-4 bg-slate-700 rounded" />
+                        </div>
+                      </td>
+
+                      {/* Total Orders */}
+                      <td className="px-4 py-6 text-center">
+                        <div className="flex flex-col gap-1 items-center">
+                          <div className="h-5 w-12 bg-slate-700 rounded" />
+                          <div className="h-3 w-16 bg-slate-700 rounded" />
+                        </div>
+                      </td>
+
+                      {/* Revenue */}
+                      <td className="px-4 py-6 text-right">
+                        <div className="h-5 w-24 bg-slate-700 rounded ml-auto" />
+                      </td>
+
+                      {/* Profit Paid + Bonus */}
+                      <td className="px-4 py-6 text-right">
+                        <div className="flex flex-col gap-1 items-end">
+                          <div className="h-5 w-28 bg-slate-700 rounded" />
+                          <div className="h-3 w-20 bg-slate-700 rounded" />
+                        </div>
+                      </td>
+
+                      {/* Balance */}
+                      <td className="px-4 py-6 text-right">
+                        <div className="h-5 w-24 bg-slate-700 rounded ml-auto" />
+                      </td>
+
+                      {/* Referred Users */}
+                      <td className="px-8 py-6 text-center">
+                        <div className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-slate-700" />
+                      </td>
+                    </tr>
+                  ))
+                ) : dropshippers.length === 0 ? (
+                  <>
+                    <EmptyState
+                      icon={Users}
+                      title="No Partners Found"
+                      description="There are no dropshippers or partners available at the moment."
+                    />
+                  </>
+                ) : (
+                  dropshippers.map((ds) => (
                     <React.Fragment key={ds._id}>
                       <tr
                         className={`group cursor-pointer transition-all hover:bg-gray-800/20 ${expandedDropshipper === ds._id ? "bg-indigo-500/5" : ""}`}
@@ -881,11 +1002,11 @@ export default function DropshippingAnalytics() {
                         </tr>
                       </ActivityComponent>
                     </React.Fragment>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </ActivityComponent>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         {/* Section 4: Activity Feed */}
@@ -912,58 +1033,70 @@ export default function DropshippingAnalytics() {
             </div>
 
             {/* No Data State */}
-            <ActivityComponent
-              mode={recentActivity.length === 0 ? "visible" : "hidden"}
-            >
+
+            {!loading && recentActivity.length === 0 && (
               <EmptyState
                 icon={Award}
                 title="No Recent Activity"
                 description="There are no recent profit or referral events to display."
               />
-            </ActivityComponent>
+            )}
 
-            <ActivityComponent
-              mode={recentActivity.length !== 0 ? "visible" : "hidden"}
-            >
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
-                {recentActivity.slice(0, 12).map((event, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center gap-4 p-5 bg-gray-950/50 border border-gray-800/50 rounded-3xl hover:border-emerald-500/30 transition-all hover:-translate-y-1"
-                  >
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
+              {loading
+                ? Array.from({ length: 12 }).map((_, idx) => (
                     <div
-                      className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-lg ${
-                        event.type === "profit"
-                          ? "bg-blue-500/10 text-blue-400"
-                          : "bg-purple-500/10 text-purple-400"
-                      }`}
+                      key={idx}
+                      className="flex items-center gap-4 p-5 bg-gray-950/50 border border-gray-800/50 rounded-3xl animate-pulse"
                     >
-                      {event.type === "profit" ? (
-                        <DollarSign className="w-5 h-5" />
-                      ) : (
-                        <Award className="w-5 h-5" />
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="text-[10px] font-black text-gray-500 uppercase tracking-tighter">
-                          Order #{event.orderId?.slice(-6).toUpperCase()}
-                        </p>
-                        <span className="text-[9px] font-bold text-gray-600">
-                          {new Date(event.date).toLocaleDateString()}
-                        </span>
+                      <div className="w-10 h-10 rounded-2xl bg-slate-700 shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="h-3 w-28 bg-slate-700 rounded" />
+                          <div className="h-3 w-16 bg-slate-700 rounded" />
+                        </div>
+                        <div className="h-5 w-32 bg-slate-700 rounded mt-2" />
+                        <div className="h-3 w-40 bg-slate-700 rounded mt-3" />
                       </div>
-                      <p className="text-sm font-black text-white mt-0.5 truncate">
-                        ৳{event.amount.toLocaleString()}
-                      </p>
-                      <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase leading-none">
-                        To: {event.dropshipper}
-                      </p>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </ActivityComponent>
+                  ))
+                : recentActivity.slice(0, 12).map((event, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center gap-4 p-5 bg-gray-950/50 border border-gray-800/50 rounded-3xl hover:border-emerald-500/30 transition-all hover:-translate-y-1"
+                    >
+                      <div
+                        className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-lg ${
+                          event.type === "profit"
+                            ? "bg-blue-500/10 text-blue-400"
+                            : "bg-purple-500/10 text-purple-400"
+                        }`}
+                      >
+                        {event.type === "profit" ? (
+                          <DollarSign className="w-5 h-5" />
+                        ) : (
+                          <Award className="w-5 h-5" />
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-[10px] font-black text-gray-500 uppercase tracking-tighter">
+                            Order #{event.orderId?.slice(-6).toUpperCase()}
+                          </p>
+                          <span className="text-[9px] font-bold text-gray-600">
+                            {new Date(event.date).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <p className="text-sm font-black text-white mt-0.5 truncate">
+                          ৳{event.amount.toLocaleString()}
+                        </p>
+                        <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase leading-none">
+                          To: {event.dropshipper}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+            </div>
           </div>
         </div>
       </Container>

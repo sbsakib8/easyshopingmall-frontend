@@ -60,7 +60,7 @@ const ProductDashboard = () => {
   const dispatch = useDispatch();
   const searchTerm = useSelector((state) => state.search.adminProductSearchTerm);
   const selectedCategory = useSelector((state) => state.search.adminProductCategory);
-  
+
   const setSearchTerm = (term) => dispatch(setAdminProductSearchTerm(term));
   const setSelectedCategory = (category) => dispatch(setAdminProductCategory(category));
   const [spin, setSpin] = useState(false);
@@ -453,7 +453,7 @@ const ProductDashboard = () => {
                       placeholder="Search by name, ID , SKU , Stock , brand, ..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-12 pr-4 py-3 bg-gray-800/50 border border-gray-600/50 rounded-xl text-accent-content placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-gray-700/50"
+                      className="w-full pl-12 pr-4 py-3 bg-gray-800/50 border border-gray-600/50 rounded-xl text-slate-300 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-gray-700/50"
                     />
                   </div>
                 </div>
@@ -462,21 +462,21 @@ const ProductDashboard = () => {
               <div className="flex flex-wrap gap-3">
                 <button
                   onClick={addProdcut}
-                  className="flex items-center cursor-pointer space-x-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-accent-content rounded-xl shadow-lg hover:shadow-green-500/25 font-medium"
+                  className="flex items-center cursor-pointer space-x-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-slate-300 rounded-xl shadow-lg hover:shadow-green-500/25 font-medium"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Add Product</span>
                 </button>
                 <button
                   onClick={handleExport}
-                  className="flex items-center space-x-2 px-4 py-3 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-600/50 text-gray-300 hover:text-accent-content rounded-xl"
+                  className="flex items-center space-x-2 px-4 py-3 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-600/50 text-gray-300 hover:text-slate-300 rounded-xl"
                 >
                   <Download className="w-4 h-4" />
                   <span className="hidden sm:inline">Export</span>
                 </button>
                 <button
                   onClick={() => reFreshData()}
-                  className="flex items-center space-x-2 px-4 py-3 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-600/50 text-gray-300 hover:text-accent-content rounded-xl cursor-pointer"
+                  className="flex items-center space-x-2 px-4 py-3 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-600/50 text-gray-300 hover:text-slate-300 rounded-xl cursor-pointer"
                 >
                   <RefreshCw
                     className={`w-4 h-4 ${spin ? "animate-spin" : ""}`}
@@ -651,6 +651,14 @@ const ProductDashboard = () => {
                               >
                                 ${product.price}
                               </Typography>
+                              {product.dropshippingPrice != null && (
+                                <Typography
+                                  variant="caption"
+                                  sx={{ display: "block", color: "#22d3ee", fontWeight: 700, mt: 0.5 }}
+                                >
+                                  DS: ৳{product.dropshippingPrice}
+                                </Typography>
+                              )}
                             </TableCell>
                             <TableCell align="center">
                               <Chip
@@ -872,12 +880,13 @@ const ProductDashboard = () => {
           )
         )}
       </div>
+
       {/* View Modal */}
       {viewModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
           <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-purple-500/30 max-w-3xl w-full max-h-[90vh] overflow-y-auto animate-slideUp">
             <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-purple-600 p-6 flex justify-between items-center z-10">
-              <h2 className="text-2xl font-bold text-accent-content flex items-center gap-2">
+              <h2 className="text-2xl font-bold text-slate-300 flex items-center gap-2">
                 <Eye className="w-6 h-6" />
                 Product Details
               </h2>
@@ -885,7 +894,7 @@ const ProductDashboard = () => {
                 onClick={() => setViewModal(null)}
                 className="p-2 hover:bg-white/10 rounded-lg"
               >
-                <X className="w-6 h-6 text-accent-content" />
+                <X className="w-6 h-6 text-slate-300" />
               </button>
             </div>
 
@@ -897,12 +906,12 @@ const ProductDashboard = () => {
                   className="w-full md:w-64 h-64 rounded-xl object-cover border-2 border-purple-500/30"
                 />
                 <div className="flex-1">
-                  <h3 className="text-3xl font-bold text-accent-content mb-2">
+                  <h3 className="text-3xl font-bold text-slate-300 mb-2">
                     {viewModal?.productName}
                   </h3>
                   <div className="flex gap-2 mb-4">
                     {renderStars(viewModal?.ratings)}
-                    <span className="text-accent-content font-semibold">
+                    <span className="text-slate-300 font-semibold">
                       ({viewModal?.ratings}.0)
                     </span>
                   </div>
@@ -924,7 +933,7 @@ const ProductDashboard = () => {
                     <Package className="w-5 h-5 text-cyan-400" />
                     <span className="text-gray-400 text-sm">SKU</span>
                   </div>
-                  <p className="text-accent-content font-semibold">
+                  <p className="text-slate-300 font-semibold">
                     {viewModal?.sku}
                   </p>
                 </div>
@@ -934,8 +943,23 @@ const ProductDashboard = () => {
                     <DollarSign className="w-5 h-5 text-emerald-400" />
                     <span className="text-gray-400 text-sm">Price</span>
                   </div>
-                  <p className="text-accent-content font-semibold text-2xl">
+                  <p className="text-slate-300 font-semibold text-2xl">
                     ৳{viewModal?.price}
+                  </p>
+                </div>
+
+                <div className="bg-slate-700/30 rounded-xl p-4 border border-slate-600/50">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Tag className="w-5 h-5 text-cyan-400" />
+                    <span className="text-gray-400 text-sm">Dropshipping Price</span>
+                  </div>
+                  <p className="text-slate-300 font-semibold text-2xl">
+                    ৳{viewModal?.dropshippingPrice ?? viewModal?.price}
+                  </p>
+                  <p className="text-cyan-300 text-[10px] font-bold uppercase tracking-tighter mt-1">
+                    {viewModal?.dropshippingPrice != null
+                      ? "DS cost (custom)"
+                      : "Falls back to regular price"}
                   </p>
                 </div>
 
@@ -954,7 +978,7 @@ const ProductDashboard = () => {
                     <Package className="w-5 h-5 text-orange-400" />
                     <span className="text-gray-400 text-sm">Stock</span>
                   </div>
-                  <p className="text-accent-content font-semibold text-2xl">
+                  <p className="text-slate-300 font-semibold text-2xl">
                     {viewModal?.productStock}
                   </p>
                   <p className="text-gray-400 text-sm">
@@ -964,7 +988,7 @@ const ProductDashboard = () => {
 
                 <div className="bg-slate-700/30 rounded-xl p-4 border border-slate-600/50">
                   <span className="text-gray-400 text-sm">Brand</span>
-                  <p className="text-accent-content font-semibold mt-2">
+                  <p className="text-slate-300 font-semibold mt-2">
                     {viewModal?.brand}
                   </p>
                 </div>
@@ -979,7 +1003,7 @@ const ProductDashboard = () => {
 
               {viewModal?.images?.length > 1 && (
                 <div className="mt-6">
-                  <h4 className="text-accent-content font-semibold mb-3">
+                  <h4 className="text-slate-300 font-semibold mb-3">
                     All Images
                   </h4>
                   <div className="grid grid-cols-3 gap-3">
@@ -1004,7 +1028,7 @@ const ProductDashboard = () => {
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
           <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-emerald-500/30 max-w-3xl w-full max-h-[90vh] overflow-y-auto animate-slideUp">
             <div className="sticky top-0 bg-gradient-to-r from-emerald-600 to-teal-600 p-6 flex justify-between items-center z-10">
-              <h2 className="text-2xl font-bold text-accent-content flex items-center gap-2">
+              <h2 className="text-2xl font-bold text-slate-300 flex items-center gap-2">
                 <Edit className="w-6 h-6" />
                 Edit Product
               </h2>
@@ -1012,7 +1036,7 @@ const ProductDashboard = () => {
                 onClick={() => setEditModal(null)}
                 className="p-2 hover:bg-white/10 rounded-lg"
               >
-                <X className="w-6 h-6 text-accent-content" />
+                <X className="w-6 h-6 text-slate-300" />
               </button>
             </div>
 
@@ -1028,7 +1052,7 @@ const ProductDashboard = () => {
                     onChange={(e) =>
                       updateEditField("productName", e.target.value)
                     }
-                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500"
+                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-300 focus:outline-none focus:border-emerald-500"
                   />
                 </div>
 
@@ -1040,7 +1064,7 @@ const ProductDashboard = () => {
                     type="text"
                     value={editModal?.sku}
                     onChange={(e) => updateEditField("sku", e.target.value)}
-                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500"
+                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-300 focus:outline-none focus:border-emerald-500"
                   />
                 </div>
 
@@ -1052,7 +1076,7 @@ const ProductDashboard = () => {
                     type="text"
                     value={editModal?.brand}
                     onChange={(e) => updateEditField("brand", e.target.value)}
-                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500"
+                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-300 focus:outline-none focus:border-emerald-500"
                   />
                 </div>
 
@@ -1066,8 +1090,29 @@ const ProductDashboard = () => {
                     onChange={(e) =>
                       updateEditField("price", Number(e.target.value))
                     }
-                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500"
+                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-300 focus:outline-none focus:border-emerald-500"
                   />
+                </div>
+
+                <div>
+                  <label className="block text-gray-300 text-sm font-semibold mb-2">
+                    Dropshipping Price
+                  </label>
+                  <input
+                    type="number"
+                    value={editModal?.dropshippingPrice ?? ""}
+                    onChange={(e) =>
+                      updateEditField(
+                        "dropshippingPrice",
+                        e.target.value === "" ? null : Number(e.target.value),
+                      )
+                    }
+                    placeholder="Leave empty to use Price"
+                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-300 focus:outline-none focus:border-cyan-500"
+                  />
+                  <p className="text-cyan-300 text-[10px] font-bold uppercase tracking-tighter mt-1">
+                    Wholesale cost for the dropshipper. Empty = regular Price.
+                  </p>
                 </div>
 
                 <div>
@@ -1080,7 +1125,7 @@ const ProductDashboard = () => {
                     onChange={(e) =>
                       updateEditField("discount", Number(e.target.value))
                     }
-                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500"
+                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-300 focus:outline-none focus:border-emerald-500"
                   />
                 </div>
 
@@ -1094,7 +1139,7 @@ const ProductDashboard = () => {
                     onChange={(e) =>
                       updateEditField("productStock", Number(e.target.value))
                     }
-                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500"
+                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-300 focus:outline-none focus:border-emerald-500"
                   />
                 </div>
 
@@ -1111,7 +1156,7 @@ const ProductDashboard = () => {
                     onChange={(e) =>
                       updateEditField("ratings", Number(e.target.value))
                     }
-                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500"
+                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-300 focus:outline-none focus:border-emerald-500"
                   />
                 </div>
 
@@ -1129,7 +1174,7 @@ const ProductDashboard = () => {
                       )
                     }
                     placeholder="M, L, XL"
-                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500"
+                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-300 focus:outline-none focus:border-emerald-500"
                   />
                 </div>
 
@@ -1147,7 +1192,7 @@ const ProductDashboard = () => {
                       )
                     }
                     placeholder="Black, Brown, Red"
-                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500"
+                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-300 focus:outline-none focus:border-emerald-500"
                   />
                 </div>
 
@@ -1161,7 +1206,7 @@ const ProductDashboard = () => {
                     onChange={(e) =>
                       updateEditField("productRank", Number(e.target.value))
                     }
-                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500"
+                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-300 focus:outline-none focus:border-emerald-500"
                   />
                 </div>
 
@@ -1182,7 +1227,7 @@ const ProductDashboard = () => {
                         val === "none" ? [] : [val],
                       );
                     }}
-                    className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500"
+                    className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-300 focus:outline-none focus:border-emerald-500"
                   >
                     <option value="none">None</option>
                     <option value="hot">Hot</option>
@@ -1204,7 +1249,7 @@ const ProductDashboard = () => {
                       )
                     }
                     placeholder="New, Sale, Trending"
-                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500"
+                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-300 focus:outline-none focus:border-emerald-500"
                   />
                 </div>
 
@@ -1218,7 +1263,7 @@ const ProductDashboard = () => {
                       updateEditField("description", e.target.value)
                     }
                     rows="3"
-                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-accent-content focus:outline-none focus:border-emerald-500 resize-none"
+                    className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-300 focus:outline-none focus:border-emerald-500 resize-none"
                   ></textarea>
                 </div>
 
@@ -1242,13 +1287,13 @@ const ProductDashboard = () => {
               <div className="flex gap-3 mt-6">
                 <button
                   onClick={saveEdit}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-accent-content font-semibold rounded-lg transform"
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-slate-300 font-semibold rounded-lg transform"
                 >
                   {load ? "Saving..." : "Save Changes"}
                 </button>
                 <button
                   onClick={() => setEditModal(null)}
-                  className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-accent-content font-semibold rounded-lg"
+                  className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-slate-300 font-semibold rounded-lg"
                 >
                   Cancel
                 </button>
@@ -1265,7 +1310,7 @@ const ProductDashboard = () => {
               <div className="p-3 bg-pink-500/20 rounded-full">
                 <Trash2 className="w-8 h-8 text-pink-500" />
               </div>
-              <h2 className="text-2xl font-bold text-accent-content">
+              <h2 className="text-2xl font-bold text-slate-300">
                 Delete Product
               </h2>
             </div>
@@ -1278,13 +1323,13 @@ const ProductDashboard = () => {
             <div className="flex gap-3">
               <button
                 onClick={confirmDelete}
-                className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-accent-content font-semibold rounded-lg transform"
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-slate-300 font-semibold rounded-lg transform"
               >
                 Delete
               </button>
               <button
                 onClick={() => setDeleteModal(null)}
-                className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-accent-content font-semibold rounded-lg"
+                className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-slate-300 font-semibold rounded-lg"
               >
                 Cancel
               </button>

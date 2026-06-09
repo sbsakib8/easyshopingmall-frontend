@@ -17,6 +17,7 @@ import {
   Save,
   Search,
   CheckCircle,
+  AlertTriangle,
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import {
@@ -46,6 +47,11 @@ const ManageCoupons = () => {
   const [editingId, setEditingId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
+  const [confirmModal, setConfirmModal] = useState({
+    open: false,
+    couponId: null,
+    couponCode: "",
+  });
 
   const [formData, setFormData] = useState({
     code: "",
@@ -81,17 +87,27 @@ const ManageCoupons = () => {
       const [couponRes, catRes, subRes] = await Promise.all([
         getAllCoupons(),
         CategoryAllGet(dispatch),
-        SubCategoryAllGet(dispatch), // Assuming this exists or I'll check its name
+        SubCategoryAllGet(dispatch),
       ]);
 
       if (couponRes.success) setCoupons(couponRes.data);
-      if (catRes.success) setCategories(catRes.data);
-      if (subRes.success) setSubCategories(subRes.data);
 
-      // Load some products for selection (or we could use a search-as-you-type)
+      // CategoryAllGet / SubCategoryAllGet return response.data which is
+      // { success, data: [...] } from the backend
+      const catData = catRes?.data || (Array.isArray(catRes) ? catRes : []);
+      setCategories(catData);
+
+      const subData = subRes?.data || (Array.isArray(subRes) ? subRes : []);
+      setSubCategories(subData);
+
+      // ProductAllGet returns raw response.data (may lack a `success` flag)
+      // extract the array from whatever shape the backend returns
       const productRes = await ProductAllGet({ limit: 100 });
-      if (productRes.success)
-        setProducts(productRes.data || productRes.products || []);
+      const prods =
+        productRes?.products ||
+        productRes?.data ||
+        (Array.isArray(productRes) ? productRes : []);
+      setProducts(prods);
     } catch (error) {
       console.error("Load data error:", error);
       toast.error("Failed to load some data");
@@ -176,16 +192,29 @@ const ManageCoupons = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this coupon?")) return;
+  const handleDelete = (id, code) => {
+    setConfirmModal({ open: true, couponId: id, couponCode: code });
+  };
+
+  const confirmDelete = async () => {
+    const idToDelete = confirmModal.couponId;
     try {
-      const res = await deleteCoupon(id);
+      // Optimistic update: remove the coupon from the local list immediately
+      // so the UI reflects the deletion even if the subsequent refetch is
+      // slow or the backend cache is stale.
+      setCoupons((prev) => prev.filter((c) => c._id !== idToDelete));
+
+      const res = await deleteCoupon(idToDelete);
       if (res.success) {
         toast.success("Coupon deleted! 🗑️");
         loadData();
       }
     } catch (error) {
       toast.error("Delete failed");
+      // Revert: re-fetch on failure to restore the correct state
+      loadData();
+    } finally {
+      setConfirmModal({ open: false, couponId: null, couponCode: "" });
     }
   };
 
@@ -372,7 +401,7 @@ const ManageCoupons = () => {
                       <option value="">All Categories</option>
                       {categories.map((cat) => (
                         <option key={cat._id} value={cat._id}>
-                          {cat.name}
+                          {cat.categoryName || cat.name}
                         </option>
                       ))}
                     </select>
@@ -394,11 +423,13 @@ const ManageCoupons = () => {
                           (sub) =>
                             !formData.applicableCategory ||
                             sub.category?._id === formData.applicableCategory ||
-                            sub.category === formData.applicableCategory,
+                            sub.category === formData.applicableCategory ||
+                            sub.categoryId?._id === formData.applicableCategory ||
+                            sub.categoryId === formData.applicableCategory,
                         )
                         .map((sub) => (
                           <option key={sub._id} value={sub._id}>
-                            {sub.name}
+                            {sub.subcategoryName || sub.name}
                           </option>
                         ))}
                     </select>
@@ -417,7 +448,7 @@ const ManageCoupons = () => {
                       <option value="">None (Apply to cart)</option>
                       {products.map((prod) => (
                         <option key={prod._id} value={prod._id}>
-                          {prod.productName}
+                          {prod.productName || prod.name}
                         </option>
                       ))}
                     </select>
@@ -755,7 +786,7 @@ const ManageCoupons = () => {
                         <span className="text-xs font-bold">Edit</span>
                       </button>
                       <button
-                        onClick={() => handleDelete(coupon._id)}
+                        onClick={() => handleDelete(coupon._id, coupon.code)}
                         className="flex-1 flex items-center justify-center space-x-2 py-2 bg-red-500/20 hover:bg-red-500/40 text-red-400 rounded-xl border border-red-500/30"
                       >
                         <Trash2 size={14} />
@@ -773,6 +804,78 @@ const ManageCoupons = () => {
           )}
         </div>
       </Container>
+
+      {/* ── Custom Delete Confirmation Modal ── */}
+      {confirmModal.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            onClick={() =>
+              setConfirmModal({ open: false, couponId: null, couponCode: "" })
+            }
+          />
+
+          {/* Modal Card */}
+          <div className="relative z-10 w-full max-w-md bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 border border-white/10 rounded-3xl shadow-2xl p-8 animate-modalPop">
+            {/* Close Button */}
+            <button
+              onClick={() =>
+                setConfirmModal({ open: false, couponId: null, couponCode: "" })
+              }
+              className="absolute top-4 right-4 p-2 rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+            >
+              <X size={16} />
+            </button>
+
+            {/* Icon */}
+            <div className="flex justify-center mb-5">
+              <div className="w-16 h-16 rounded-2xl bg-red-500/15 border border-red-500/30 flex items-center justify-center">
+                <AlertTriangle size={32} className="text-red-400" />
+              </div>
+            </div>
+
+            {/* Text */}
+            <h3 className="text-xl font-bold text-white text-center mb-2">
+              Delete Coupon?
+            </h3>
+            <p className="text-gray-400 text-center text-sm mb-2">
+              You are about to permanently delete:
+            </p>
+            <p className="text-center mb-6">
+              <span className="inline-block px-4 py-1.5 bg-red-500/10 border border-red-500/30 rounded-xl text-red-300 font-bold tracking-widest text-sm">
+                {confirmModal.couponCode}
+              </span>
+            </p>
+            <p className="text-gray-500 text-xs text-center mb-8">
+              This action cannot be undone. All usage history will be lost.
+            </p>
+
+            {/* Actions */}
+            <div className="flex gap-3">
+              <button
+                onClick={() =>
+                  setConfirmModal({
+                    open: false,
+                    couponId: null,
+                    couponCode: "",
+                  })
+                }
+                className="flex-1 py-3 rounded-2xl bg-white/10 hover:bg-white/15 text-white font-semibold transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="flex-1 py-3 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-semibold shadow-lg transition-all flex items-center justify-center gap-2"
+              >
+                <Trash2 size={16} />
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style jsx>{`
         @keyframes slideDown {
@@ -800,6 +903,19 @@ const ManageCoupons = () => {
         }
         .animate-slideIn {
           animation: slideIn 0.5s forwards;
+        }
+        @keyframes modalPop {
+          from {
+            opacity: 0;
+            transform: scale(0.92) translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+          }
+        }
+        .animate-modalPop {
+          animation: modalPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
       `}</style>
     </section>

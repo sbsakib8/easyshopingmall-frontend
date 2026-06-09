@@ -37,6 +37,7 @@ const handleAddToCart = async (productId, e, user, dispatch) => {
   try {
     if (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) {
       // Dropshipping Cart (Local)
+      const dsCost = product.dropshippingPrice ?? product.price ?? product.sell_price ?? 0;
       dispatch(dsCartAdd({
         productId: {
           _id: product._id || product.id,
@@ -44,8 +45,8 @@ const handleAddToCart = async (productId, e, user, dispatch) => {
           images: product.images || [],
         },
         quantity: 1,
-        price: product.price || product.sell_price || 0,
-        sellingPrice: product.price || product.sell_price || 0,
+        price: dsCost,
+        sellingPrice: dsCost,
       }));
 
       toast.success(`${product.productName} sourcing কার্টে যোগ করা হয়েছে`);

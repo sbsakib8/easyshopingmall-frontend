@@ -98,8 +98,8 @@ const ProductCard = React.memo(
         dsCartAdd({
           productId: product,
           quantity: 1,
-          price: product.price || 0,
-          sellingPrice: product.price || 0,
+          price: product.dropshippingPrice ?? product.price ?? 0,
+          sellingPrice: product.dropshippingPrice ?? product.price ?? 0,
           profit: 0,
         }),
       );
@@ -138,7 +138,7 @@ const ProductCard = React.memo(
           className={`relative aspect-2/3 overflow-hidden w-full h-14 md:h-32`}
         >
           <Image
-            src={product.images?.[0] || "/banner/img/placeholder.png"}
+            src={product.images?.[0] || (Array.isArray(product.image) ? product.image[0] : product.image) || "/img/product.jpg"}
             alt={product.productName}
             width={200}
             height={170}
@@ -228,7 +228,7 @@ const ProductCard = React.memo(
               </div>
 
               <p className="text-sm lg:text-base font-semibold text-slate-900 tracking-tight">
-                ৳{product.price}
+                ৳{(user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) ? (product.dropshippingPrice ?? product.price) : product.price}
               </p>
             </div>
           </div>
@@ -302,8 +302,9 @@ const SubCategoryProductsContent = ({ id }) => {
       limit,
       search: "",
       subCategoryId: id,
+      sortBy: pageType === "new-products" ? "newest" : undefined,
     }),
-    [page, id],
+    [page, id, pageType],
   );
 
   useEffect(() => {

@@ -1,5 +1,5 @@
 "use client";
-import { Logout, updateUserProfile, getAddress, createAddress, updateAddress } from "@/src/hook/useAuth";
+import { getAddress, Logout, updateUserProfile } from "@/src/hook/useAuth";
 import { clearUser, userget } from "@/src/redux/userSlice";
 import AuthUserNothave from "@/src/utlis/AuthUserNothave";
 import { OrderAllGet } from "@/src/utlis/useOrder";
@@ -7,7 +7,7 @@ import { useWishlist } from "@/src/utlis/useWishList";
 import {
   Calendar,
   Camera,
-  CreditCard,
+  DollarSign,
   Edit3,
   Eye,
   Heart,
@@ -16,23 +16,23 @@ import {
   MapPin,
   Package,
   Phone,
-  Plus,
   Save,
   Settings,
   Share2,
   Trash2,
   User,
   Users,
-  DollarSign,
   X,
   Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import OrderDetailsModal from "../productDetails/OrderDetailsModal";
+import Container from "../shared/Container";
+import Section from "../shared/Section";
 
 const AccountPage = () => {
   // user data fatch
@@ -44,11 +44,15 @@ const AccountPage = () => {
   const { items: cartItems } = useSelector((state) => state.cart);
 
   // Calculate cart product count (same as header)
-  const cartCount = (cartItems || []).reduce((sum, item) => sum + (item.quantity || 1), 0);
+  const cartCount = (cartItems || []).reduce(
+    (sum, item) => sum + (item.quantity || 1),
+    0,
+  );
 
   const searchParams = useSearchParams();
-  const tabFromUrl = searchParams.get('tab');
+  const tabFromUrl = searchParams.get("tab");
 
+  const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState(tabFromUrl || "profile");
   const [isEditing, setIsEditing] = useState(false);
   const [showImageUpload, setShowImageUpload] = useState(false);
@@ -56,13 +60,17 @@ const AccountPage = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [profileData, setProfileData] = useState({
-    name: data?.name,
-    email: data?.email,
-    phone: data?.mobile,
-    dateOfBirth: "1995-05-15",
-    gender: "Male",
-    referralCode: data?.referralCode || "",
+    name: "",
+    email: "",
+    phone: "",
+    dateOfBirth: "",
+    gender: "",
+    referralCode: "",
   });
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const [addressData, setAddressData] = useState({
     _id: "",
@@ -78,21 +86,19 @@ const AccountPage = () => {
   const [orders, setOrders] = useState([]);
   const { wishlist, loading: wishlistLoading } = useWishlist();
 
-
-
   // derive addresses from user data if available
   const addresses =
     (data &&
       (data.addresses ||
         (data.address_details
           ? [
-            {
-              id: 1,
-              type: "Home",
-              address: data.address_details,
-              isDefault: true,
-            },
-          ]
+              {
+                id: 1,
+                type: "Home",
+                address: data.address_details,
+                isDefault: true,
+              },
+            ]
           : []))) ||
     [];
 
@@ -143,8 +149,8 @@ const AccountPage = () => {
     try {
       const date = new Date(dateString);
       const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
       return `${year}-${month}-${day}`;
     } catch (error) {
       console.error("Date formatting error:", error);
@@ -195,7 +201,7 @@ const AccountPage = () => {
         } catch (error) {
           console.error("Failed to load addresses:", error);
           // Set defaults with user's mobile
-          setAddressData(prev => ({
+          setAddressData((prev) => ({
             ...prev,
             mobile: data.mobile || "",
           }));
@@ -224,7 +230,7 @@ const AccountPage = () => {
         {
           method: "POST",
           body: formData,
-        }
+        },
       );
 
       const data = await response.json();
@@ -360,7 +366,10 @@ const AccountPage = () => {
         dispatch(userget(updatedUser));
 
         // Update local address state from the populated address_details
-        if (updatedUser.address_details && updatedUser.address_details.length > 0) {
+        if (
+          updatedUser.address_details &&
+          updatedUser.address_details.length > 0
+        ) {
           const addr = updatedUser.address_details[0];
           setAddressData({
             _id: addr._id || "",
@@ -382,7 +391,10 @@ const AccountPage = () => {
     } catch (error) {
       console.error("=== Error updating profile ===");
       console.error("Error object:", error);
-      const errorMessage = error.response?.data?.message || error.message || "Failed to update profile";
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to update profile";
       toast.error(errorMessage);
     }
   };
@@ -395,6 +407,10 @@ const AccountPage = () => {
         return "text-blue-600 bg-blue-100";
       case "Processing":
         return "text-yellow-600 bg-yellow-100";
+      case "Return":
+        return "text-orange-600 bg-orange-100";
+      case "Cancelled":
+        return "text-red-600 bg-red-100";
       default:
         return "text-gray-600 bg-gray-100";
     }
@@ -403,20 +419,23 @@ const AccountPage = () => {
   const TabButton = ({ id, icon: Icon, label, count }) => (
     <button
       onClick={() => setActiveTab(id)}
-      className={`flex items-center cursor-pointer space-x-3 w-full px-4 py-3 rounded-xl transition-all duration-300 group ${activeTab === id
-        ? "bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 text-accent-content shadow-lg transform scale-105"
-        : "text-gray-600 hover:bg-gray-50 hover:text-teal-600"
-        }`}
+      className={`flex items-center cursor-pointer space-x-3 w-full px-4 py-3 rounded-xl transition-all duration-300 group ${
+        activeTab === id
+          ? "bg-gradient-to-r  from-emerald-600 via-green-600 to-teal-600 text-accent-content shadow-lg transform scale-105"
+          : "text-gray-600 hover:bg-gray-50 hover:text-teal-600"
+      }`}
     >
       <Icon
-        className={`w-5 h-5 transition-transform duration-300 ${activeTab === id ? "scale-110" : "group-hover:scale-110"
-          }`}
+        className={`w-5 h-5 transition-transform duration-300 ${
+          activeTab === id ? "scale-110" : "group-hover:scale-110"
+        }`}
       />
       <span className="font-medium">{label}</span>
       {count && (
         <span
-          className={`ml-auto px-2 py-1 text-xs rounded-full ${activeTab === id ? "bg-white/20" : "bg-blue-100 text-blue-600"
-            }`}
+          className={`ml-auto px-2 py-1 text-xs rounded-full ${
+            activeTab === id ? "bg-white/20" : "bg-blue-100 text-blue-600"
+          }`}
         >
           {count}
         </span>
@@ -444,16 +463,16 @@ const AccountPage = () => {
 
   return (
     <AuthUserNothave>
-      <div className="min-h-screen lg:mt-24 py-5 bg-gradient-to-br from-blue-50 via-white to-purple-50">
-        {/* Header */}
-        <div className="bg-white shadow-sm border-b">
-          <div className="max-w-7xl mx-auto px-4 py-6">
+      <Section className="min-h-dvh bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <Container className="space-y-12">
+          {/* Header */}
+          <div>
             <h1 className="text-3xl font-bold text-gray-900">My Account</h1>
-            <p className="text-gray-600 mt-1">Manage your profile and account settings</p>
+            <p className="text-gray-600 mt-1">
+              Manage your profile and account settings
+            </p>
           </div>
-        </div>
 
-        <div className=" container mx-auto px-4 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Sidebar */}
             <div className="lg:col-span-1">
@@ -475,8 +494,10 @@ const AccountPage = () => {
                       <Camera className="w-4 h-4 text-gray-600" />
                     </button>
                   </div>
-                  <h3 className="font-semibold text-lg mt-4 text-gray-900">{profileData.name}</h3>
-                  <p className="text-gray-500 text-sm">{profileData.email}</p>
+                  <h3 className="font-semibold text-lg mt-4 text-gray-900">
+                    {mounted ? profileData.name : ""}
+                  </h3>
+                  <p className="text-gray-500 text-sm">{mounted ? profileData.email : ""}</p>
                 </div>
 
                 {/* Navigation */}
@@ -495,7 +516,8 @@ const AccountPage = () => {
                     count={wishlist?.length || 0}
                   />
                   <TabButton id="addresses" icon={MapPin} label="Addresses" />
-                  {(data?.role === "DROPSHIPPING" || data?.roles?.includes("DROPSHIPPING")) && (
+                  {(data?.role === "DROPSHIPPING" ||
+                    data?.roles?.includes("DROPSHIPPING")) && (
                     <TabButton
                       id="referrals"
                       icon={Users}
@@ -523,17 +545,28 @@ const AccountPage = () => {
                   <div className="p-8">
                     <div className="flex justify-between items-center mb-8">
                       <div>
-                        <h2 className="text-2xl font-bold text-gray-900">Profile Information</h2>
-                        <p className="text-gray-600">Update your personal information</p>
+                        <h2 className="text-2xl font-bold text-gray-900">
+                          Profile Information
+                        </h2>
+                        <p className="text-gray-600">
+                          Update your personal information
+                        </p>
                       </div>
                       <button
-                        onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
-                        className={`flex items-center  cursor-pointer space-x-2 px-6 py-3 rounded-xl font-medium transition-all duration-300 ${isEditing
-                          ? "bg-teal-500 hover:bg-teal-800 text-accent-content shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-                          : "bg-green-500 hover:bg-green-600 text-accent-content shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-                          }`}
+                        onClick={() =>
+                          isEditing ? handleSave() : setIsEditing(true)
+                        }
+                        className={`flex items-center  cursor-pointer space-x-2 px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
+                          isEditing
+                            ? "bg-teal-500 hover:bg-teal-800 text-accent-content shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                            : "bg-green-500 hover:bg-green-600 text-accent-content shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                        }`}
                       >
-                        {isEditing ? <Save className="w-4 h-4" /> : <Edit3 className="w-4 h-4" />}
+                        {isEditing ? (
+                          <Save className="w-4 h-4" />
+                        ) : (
+                          <Edit3 className="w-4 h-4" />
+                        )}
                         <span className=" hidden md:block">
                           {isEditing ? "Save Changes" : "Edit Profile"}
                         </span>
@@ -542,78 +575,113 @@ const AccountPage = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">Full Name</label>
+                        <label className="text-sm font-medium text-gray-700">
+                          Full Name
+                        </label>
                         <div className="relative">
                           <User className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                           <input
                             type="text"
                             value={profileData.name || ""}
-                            onChange={(e) => handleInputChange("name", e.target.value)}
+                            onChange={(e) =>
+                              handleInputChange("name", e.target.value)
+                            }
                             disabled={!isEditing}
                             placeholder="Enter your full name"
-                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${!isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
-                              }`}
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
+                              !isEditing
+                                ? "bg-gray-50"
+                                : "bg-white hover:border-gray-300"
+                            }`}
                           />
                         </div>
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">Email Address</label>
+                        <label className="text-sm font-medium text-gray-700">
+                          Email Address
+                        </label>
                         <div className="relative">
                           <Mail className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                           <input
                             type="email"
                             value={profileData.email || ""}
-                            onChange={(e) => handleInputChange("email", e.target.value)}
+                            onChange={(e) =>
+                              handleInputChange("email", e.target.value)
+                            }
                             disabled={!isEditing}
                             placeholder="Enter your email"
-                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-teal-500 transition-all duration-300 ${!isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
-                              }`}
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-teal-500 transition-all duration-300 ${
+                              !isEditing
+                                ? "bg-gray-50"
+                                : "bg-white hover:border-gray-300"
+                            }`}
                           />
                         </div>
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">Phone Number</label>
+                        <label className="text-sm font-medium text-gray-700">
+                          Phone Number
+                        </label>
                         <div className="relative">
                           <Phone className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                           <input
                             type="tel"
                             value={profileData.phone || ""}
-                            onChange={(e) => handleInputChange("phone", e.target.value)}
+                            onChange={(e) =>
+                              handleInputChange("phone", e.target.value)
+                            }
                             disabled={!isEditing}
                             placeholder="Enter your phone number"
-                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${!isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
-                              }`}
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
+                              !isEditing
+                                ? "bg-gray-50"
+                                : "bg-white hover:border-gray-300"
+                            }`}
                           />
                         </div>
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">Date of Birth</label>
+                        <label className="text-sm font-medium text-gray-700">
+                          Date of Birth
+                        </label>
                         <div className="relative">
                           <Calendar className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                           <input
                             type="date"
                             value={profileData.dateOfBirth || ""}
-                            onChange={(e) => handleInputChange("dateOfBirth", e.target.value)}
+                            onChange={(e) =>
+                              handleInputChange("dateOfBirth", e.target.value)
+                            }
                             disabled={!isEditing}
-                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-teal-500 transition-all duration-300 ${!isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
-                              }`}
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-teal-500 transition-all duration-300 ${
+                              !isEditing
+                                ? "bg-gray-50"
+                                : "bg-white hover:border-gray-300"
+                            }`}
                           />
                         </div>
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">Gender</label>
+                        <label className="text-sm font-medium text-gray-700">
+                          Gender
+                        </label>
                         <div className="relative">
                           <User className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                           <select
                             value={profileData.gender || "Male"}
-                            onChange={(e) => handleInputChange("gender", e.target.value)}
+                            onChange={(e) =>
+                              handleInputChange("gender", e.target.value)
+                            }
                             disabled={!isEditing}
-                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-teal-500 transition-all duration-300 ${!isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
-                              }`}
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-teal-500 transition-all duration-300 ${
+                              !isEditing
+                                ? "bg-gray-50"
+                                : "bg-white hover:border-gray-300"
+                            }`}
                           >
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
@@ -623,9 +691,12 @@ const AccountPage = () => {
                       </div>
 
                       {/* Referral Code (Only for DROPSHIPPING) */}
-                      {(data?.role === "DROPSHIPPING" || data?.roles?.includes("DROPSHIPPING")) && (
+                      {(data?.role === "DROPSHIPPING" ||
+                        data?.roles?.includes("DROPSHIPPING")) && (
                         <div className="space-y-2">
-                          <label className="text-sm font-medium text-gray-700">Referral Code</label>
+                          <label className="text-sm font-medium text-gray-700">
+                            Referral Code
+                          </label>
                           <div className="relative group">
                             <Zap className="absolute left-3 top-3 w-5 h-5 text-amber-500" />
                             <input
@@ -637,7 +708,9 @@ const AccountPage = () => {
                             <button
                               type="button"
                               onClick={() => {
-                                navigator.clipboard.writeText(profileData.referralCode);
+                                navigator.clipboard.writeText(
+                                  profileData.referralCode,
+                                );
                                 toast.success("Referral code copied!");
                               }}
                               className="absolute right-3 top-2.5 p-1.5 bg-amber-200 hover:bg-amber-300 text-amber-800 rounded-lg transition-colors cursor-pointer"
@@ -646,102 +719,164 @@ const AccountPage = () => {
                               <Share2 className="w-4 h-4" />
                             </button>
                           </div>
-                          <p className="text-xs text-amber-600 font-medium italic">Share this code to earn referral bonuses!</p>
+                          <p className="text-xs text-amber-600 font-medium italic">
+                            Share this code to earn referral bonuses!
+                          </p>
                         </div>
                       )}
 
                       <div className="md:col-span-2 space-y-2">
-                        <label className="text-sm font-medium text-gray-700">Address Line</label>
+                        <label className="text-sm font-medium text-gray-700">
+                          Address Line
+                        </label>
                         <div className="relative">
                           <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                           <input
                             type="text"
                             value={addressData.address_line || ""}
-                            onChange={(e) => setAddressData({ ...addressData, address_line: e.target.value })}
+                            onChange={(e) =>
+                              setAddressData({
+                                ...addressData,
+                                address_line: e.target.value,
+                              })
+                            }
                             disabled={!isEditing}
                             placeholder="Street address, House/Building number"
-                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${!isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
-                              }`}
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
+                              !isEditing
+                                ? "bg-gray-50"
+                                : "bg-white hover:border-gray-300"
+                            }`}
                           />
                         </div>
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">District</label>
+                        <label className="text-sm font-medium text-gray-700">
+                          District
+                        </label>
                         <div className="relative">
                           <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                           <input
                             type="text"
                             value={addressData.district || ""}
-                            onChange={(e) => setAddressData({ ...addressData, district: e.target.value })}
+                            onChange={(e) =>
+                              setAddressData({
+                                ...addressData,
+                                district: e.target.value,
+                              })
+                            }
                             disabled={!isEditing}
                             placeholder="Enter district"
-                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${!isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
-                              }`}
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
+                              !isEditing
+                                ? "bg-gray-50"
+                                : "bg-white hover:border-gray-300"
+                            }`}
                           />
                         </div>
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">Division</label>
+                        <label className="text-sm font-medium text-gray-700">
+                          Division
+                        </label>
                         <div className="relative">
                           <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                           <input
                             type="text"
                             value={addressData.division || ""}
-                            onChange={(e) => setAddressData({ ...addressData, division: e.target.value })}
+                            onChange={(e) =>
+                              setAddressData({
+                                ...addressData,
+                                division: e.target.value,
+                              })
+                            }
                             disabled={!isEditing}
                             placeholder="Enter division"
-                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${!isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
-                              }`}
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
+                              !isEditing
+                                ? "bg-gray-50"
+                                : "bg-white hover:border-gray-300"
+                            }`}
                           />
                         </div>
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">Upazila/Thana</label>
+                        <label className="text-sm font-medium text-gray-700">
+                          Upazila/Thana
+                        </label>
                         <div className="relative">
                           <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                           <input
                             type="text"
                             value={addressData.upazila_thana || ""}
-                            onChange={(e) => setAddressData({ ...addressData, upazila_thana: e.target.value })}
+                            onChange={(e) =>
+                              setAddressData({
+                                ...addressData,
+                                upazila_thana: e.target.value,
+                              })
+                            }
                             disabled={!isEditing}
                             placeholder="Enter upazila or thana"
-                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${!isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
-                              }`}
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
+                              !isEditing
+                                ? "bg-gray-50"
+                                : "bg-white hover:border-gray-300"
+                            }`}
                           />
                         </div>
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">Pincode</label>
+                        <label className="text-sm font-medium text-gray-700">
+                          Pincode
+                        </label>
                         <div className="relative">
                           <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                           <input
                             type="text"
                             value={addressData.pincode || ""}
-                            onChange={(e) => setAddressData({ ...addressData, pincode: e.target.value })}
+                            onChange={(e) =>
+                              setAddressData({
+                                ...addressData,
+                                pincode: e.target.value,
+                              })
+                            }
                             disabled={!isEditing}
                             placeholder="Enter pincode"
-                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${!isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
-                              }`}
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
+                              !isEditing
+                                ? "bg-gray-50"
+                                : "bg-white hover:border-gray-300"
+                            }`}
                           />
                         </div>
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">Country</label>
+                        <label className="text-sm font-medium text-gray-700">
+                          Country
+                        </label>
                         <div className="relative">
                           <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                           <input
                             type="text"
                             value={addressData.country || "Bangladesh"}
-                            onChange={(e) => setAddressData({ ...addressData, country: e.target.value })}
+                            onChange={(e) =>
+                              setAddressData({
+                                ...addressData,
+                                country: e.target.value,
+                              })
+                            }
                             disabled={!isEditing}
                             placeholder="Enter country"
-                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${!isEditing ? "bg-gray-50" : "bg-white hover:border-gray-300"
-                              }`}
+                            className={`w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-green-500 transition-all duration-300 ${
+                              !isEditing
+                                ? "bg-gray-50"
+                                : "bg-white hover:border-gray-300"
+                            }`}
                           />
                         </div>
                       </div>
@@ -754,34 +889,46 @@ const AccountPage = () => {
                   <div className="p-4 md:p-8">
                     {" "}
                     <div className="mb-6 md:mb-8">
-                      <h2 className="text-xl md:text-2xl font-bold text-gray-900">Order History</h2>
+                      <h2 className="text-xl md:text-2xl font-bold text-gray-900">
+                        Order History
+                      </h2>
                       <p className="text-sm md:text-base text-gray-600">
                         Track and manage your orders
                       </p>
                     </div>
                     <div className="space-y-4">
                       {orders.map((order, index) => {
-                        console.log("orders", order)
-                        const firstProduct = order.products && order.products[0];
-                        const image =
-                          firstProduct?.image?.[0] ||
-                          firstProduct?.productId?.images?.[0] ||
-                          "/banner/img/placeholder.png";
+                        console.log("orders", order);
+                        const firstProduct =
+                          order.products && order.products[0];
+                        let image = "/img/product.jpg";
+                        if (firstProduct) {
+                          const resolvedProduct = firstProduct?.productId || firstProduct;
+                          const imgData = (firstProduct?.image?.length > 0 ? firstProduct.image : null) || (firstProduct?.images?.length > 0 ? firstProduct.images : null) || (resolvedProduct?.images?.length > 0 ? resolvedProduct.images : null) || (resolvedProduct?.image?.length > 0 ? resolvedProduct.image : null);
+                          image = (Array.isArray(imgData) ? imgData[0] : (typeof imgData === 'string' ? imgData : null)) || "/img/product.jpg";
+                        }
 
                         const id = order._id;
 
                         const date = order.createdAt
                           ? new Date(order.createdAt).toLocaleDateString()
                           : "";
-                        const itemsCount = (order.products && order.products.length) || 0;
-                        const status = order.order_status || order.payment_status || "pending";
-                        const totalAmt = order.totalAmt ?? order.subTotalAmt ?? 0;
+                        const itemsCount =
+                          (order.products && order.products.length) || 0;
+                        const status =
+                          order.order_status ||
+                          order.payment_status ||
+                          "pending";
+                        const totalAmt =
+                          order.totalAmt ?? order.subTotalAmt ?? 0;
 
                         return (
                           <div
                             key={id}
                             className="border border-gray-200 rounded-xl p-4 md:p-6 hover:shadow-lg transition-all duration-300 hover:border-blue-300 group"
-                            style={{ animation: `slideIn 0.5s ease-out ${index * 0.1}s both` }}
+                            style={{
+                              animation: `slideIn 0.5s ease-out ${index * 0.1}s both`,
+                            }}
                           >
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                               <div className="flex items-center space-x-4">
@@ -806,13 +953,17 @@ const AccountPage = () => {
                                 <div className="flex items-center space-x-3">
                                   {order.profitAmount > 0 && (
                                     <div className="flex flex-col items-end">
-                                      <span className="text-[9px] font-black text-emerald-600 uppercase tracking-tighter">Profit</span>
-                                      <span className="text-sm font-black text-emerald-600">৳{order.profitAmount}</span>
+                                      <span className="text-[9px] font-black text-emerald-600 uppercase tracking-tighter">
+                                        Profit
+                                      </span>
+                                      <span className="text-sm font-black text-emerald-600">
+                                        ৳{order.profitAmount}
+                                      </span>
                                     </div>
                                   )}
                                   <span
                                     className={`px-3 py-1 text-xs md:text-sm font-medium rounded-full capitalize ${getStatusColor(
-                                      order.order_status || "pending"
+                                      order.order_status || "pending",
                                     )}`}
                                   >
                                     {order.order_status || "pending"}
@@ -822,14 +973,20 @@ const AccountPage = () => {
                                       order.payment_status === "paid"
                                         ? "text-green-600 bg-green-100"
                                         : order.payment_status === "submitted"
-                                        ? "text-blue-600 bg-blue-100"
-                                        : "text-red-600 bg-red-100"
+                                          ? "text-blue-600 bg-blue-100"
+                                          : "text-red-600 bg-red-100"
                                     }`}
                                   >
-                                    {order.payment_status === "paid" ? "পরিশোধিত (Paid)" : order.payment_status === "submitted" ? "পেমেন্ট জমা হয়েছে (Submitted)" : "অপরিশোধিত (Unpaid)"}
+                                    {order.payment_status === "paid"
+                                      ? "পরিশোধিত (Paid)"
+                                      : order.payment_status === "submitted"
+                                        ? "পেমেন্ট জমা হয়েছে (Submitted)"
+                                        : "অপরিশোধিত (Unpaid)"}
                                   </span>
                                   <div className="flex flex-col items-end">
-                                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Total</span>
+                                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">
+                                      Total
+                                    </span>
                                     <span className="font-bold text-base md:text-lg text-gray-900 leading-none">
                                       ৳{totalAmt}
                                     </span>
@@ -847,7 +1004,6 @@ const AccountPage = () => {
                           </div>
                         );
                       })}
-
                     </div>
                   </div>
                 )}
@@ -857,16 +1013,24 @@ const AccountPage = () => {
                   <div className="p-8">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
                       <div>
-                        <h2 className="text-2xl font-bold text-gray-900">Referral Dashboard</h2>
-                        <p className="text-gray-600">Track your referrals and earnings</p>
+                        <h2 className="text-2xl font-bold text-gray-900">
+                          Referral Dashboard
+                        </h2>
+                        <p className="text-gray-600">
+                          Track your referrals and earnings
+                        </p>
                       </div>
                       <div className="bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-xl flex items-center gap-3">
                         <div className="bg-emerald-500 p-1.5 rounded-lg">
                           <DollarSign className="w-4 h-4 text-white" />
                         </div>
                         <div>
-                          <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Current Balance</p>
-                          <p className="text-lg font-black text-emerald-900">৳{(data?.balance || 0).toLocaleString()}</p>
+                          <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">
+                            Current Balance
+                          </p>
+                          <p className="text-lg font-black text-emerald-900">
+                            ৳{(data?.balance || 0).toLocaleString()}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -874,19 +1038,35 @@ const AccountPage = () => {
                     {/* Stats Grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
                       <div className="bg-gradient-to-br from-white to-emerald-50 p-6 rounded-2xl border border-emerald-100 shadow-sm">
-                        <p className="text-sm font-medium text-emerald-800">Total Referrals</p>
-                        <p className="text-3xl font-black text-emerald-900 mt-2">{data?.referrals?.count || 0}</p>
-                        <p className="text-xs text-emerald-600 mt-1">Active registered users</p>
+                        <p className="text-sm font-medium text-emerald-800">
+                          Total Referrals
+                        </p>
+                        <p className="text-3xl font-black text-emerald-900 mt-2">
+                          {data?.referrals?.count || 0}
+                        </p>
+                        <p className="text-xs text-emerald-600 mt-1">
+                          Active registered users
+                        </p>
                       </div>
                       <div className="bg-gradient-to-br from-white to-blue-50 p-6 rounded-2xl border border-blue-100 shadow-sm">
-                        <p className="text-sm font-medium text-blue-800">Referral Orders</p>
-                        <p className="text-3xl font-black text-blue-900 mt-2">{data?.referrals?.orders?.length || 0}</p>
-                        <p className="text-xs text-blue-600 mt-1">Orders placed by your team</p>
+                        <p className="text-sm font-medium text-blue-800">
+                          Referral Orders
+                        </p>
+                        <p className="text-3xl font-black text-blue-900 mt-2">
+                          {data?.referrals?.orders?.length || 0}
+                        </p>
+                        <p className="text-xs text-blue-600 mt-1">
+                          Orders placed by your team
+                        </p>
                       </div>
                       <div className="bg-gradient-to-br from-white to-amber-50 p-6 rounded-2xl border border-amber-100 shadow-sm">
-                        <p className="text-sm font-medium text-amber-800">Referral Code</p>
+                        <p className="text-sm font-medium text-amber-800">
+                          Referral Code
+                        </p>
                         <div className="flex items-center gap-2 mt-2">
-                          <p className="text-xl font-black text-amber-900 uppercase tracking-widest">{data?.referralCode}</p>
+                          <p className="text-xl font-black text-amber-900 uppercase tracking-widest">
+                            {data?.referralCode}
+                          </p>
                           <button
                             onClick={() => {
                               navigator.clipboard.writeText(data?.referralCode);
@@ -897,7 +1077,9 @@ const AccountPage = () => {
                             <Share2 className="w-4 h-4" />
                           </button>
                         </div>
-                        <p className="text-xs text-amber-600 mt-1">Copy & share with friends</p>
+                        <p className="text-xs text-amber-600 mt-1">
+                          Copy & share with friends
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -907,8 +1089,12 @@ const AccountPage = () => {
                 {activeTab === "wishlist" && (
                   <div className="p-8">
                     <div className="mb-8">
-                      <h2 className="text-2xl font-bold text-gray-900">My Wishlist</h2>
-                      <p className="text-gray-600">Items you've saved for later</p>
+                      <h2 className="text-2xl font-bold text-gray-900">
+                        My Wishlist
+                      </h2>
+                      <p className="text-gray-600">
+                        Items you've saved for later
+                      </p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -919,8 +1105,12 @@ const AccountPage = () => {
                           prod.image ||
                           prod.images?.[0] ||
                           (Array.isArray(prod.image) ? prod.image[0] : null) ||
-                          "/banner/img/placeholder.png";
-                        const name = prod.productName || prod.name || item.name || "Product";
+                          "/img/product.jpg";
+                        const name =
+                          prod.productName ||
+                          prod.name ||
+                          item.name ||
+                          "Product";
                         const price = prod.price ?? item.price ?? 0;
 
                         return (
@@ -928,7 +1118,9 @@ const AccountPage = () => {
                             href={`/productdetails/${id}`}
                             key={id || index}
                             className="border cursor-pointer border-gray-200 rounded-xl p-4 hover:shadow-lg transition-all duration-300 group hover:border-blue-300"
-                            style={{ animation: `slideIn 0.5s ease-out ${index * 0.1}s both` }}
+                            style={{
+                              animation: `slideIn 0.5s ease-out ${index * 0.1}s both`,
+                            }}
                           >
                             <div className="relative">
                               <img
@@ -943,7 +1135,9 @@ const AccountPage = () => {
                             <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
                               {name}
                             </h3>
-                            <p className="text-lg font-bold text-blue-600 mb-3">৳{price}</p>
+                            <p className="text-lg font-bold text-blue-600 mb-3">
+                              ৳{price}
+                            </p>
                             <div className="flex space-x-2">
                               <button className="flex-1 cursor-pointer bg-teal-500 hover:bg-green-600 text-accent-content py-2 rounded-lg font-medium transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1">
                                 Add to Cart
@@ -963,8 +1157,12 @@ const AccountPage = () => {
                 {activeTab === "addresses" && (
                   <div className="p-4 md:p-8">
                     <div className="mb-6 md:mb-8">
-                      <h2 className="text-xl md:text-2xl font-bold text-gray-900">Delivery Address</h2>
-                      <p className="text-sm md:text-base text-gray-600">Your saved delivery information</p>
+                      <h2 className="text-xl md:text-2xl font-bold text-gray-900">
+                        Delivery Address
+                      </h2>
+                      <p className="text-sm md:text-base text-gray-600">
+                        Your saved delivery information
+                      </p>
                     </div>
 
                     {data && (
@@ -992,8 +1190,12 @@ const AccountPage = () => {
                                 )}
                               </div>
                               <div>
-                                <p className="font-bold text-gray-900 text-xl">{data.name || "User"}</p>
-                                <p className="text-base text-gray-600">{data.email || ""}</p>
+                                <p className="font-bold text-gray-900 text-xl">
+                                  {data.name || "User"}
+                                </p>
+                                <p className="text-base text-gray-600">
+                                  {data.email || ""}
+                                </p>
                                 {data.customerstatus && (
                                   <span className="inline-block mt-1 px-3 py-1 rounded-full text-sm font-semibold bg-purple-100 text-purple-800 capitalize">
                                     {data.customerstatus}
@@ -1011,18 +1213,29 @@ const AccountPage = () => {
                             </h4>
                             <div className="grid md:grid-cols-2 gap-3 text-sm">
                               <div>
-                                <p className="text-gray-500 text-xs mb-1">Full Name</p>
-                                <p className="text-gray-800 font-medium">{data.name || "N/A"}</p>
+                                <p className="text-gray-500 text-xs mb-1">
+                                  Full Name
+                                </p>
+                                <p className="text-gray-800 font-medium">
+                                  {data.name || "N/A"}
+                                </p>
                               </div>
                               <div>
-                                <p className="text-gray-500 text-xs mb-1">Contact Number</p>
-                                <p className="text-gray-800 font-medium">{data.mobile || "N/A"}</p>
+                                <p className="text-gray-500 text-xs mb-1">
+                                  Contact Number
+                                </p>
+                                <p className="text-gray-800 font-medium">
+                                  {data.mobile || "N/A"}
+                                </p>
                               </div>
                             </div>
                           </div>
 
                           {/* Address Information */}
-                          {(addressData.address_line || addressData.district || addressData.division || data.address_details) && (
+                          {(addressData.address_line ||
+                            addressData.district ||
+                            addressData.division ||
+                            data.address_details) && (
                             <div className="bg-white rounded-lg p-4 border border-emerald-100">
                               <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
                                 <MapPin className="w-4 h-4 text-emerald-600" />
@@ -1031,60 +1244,96 @@ const AccountPage = () => {
                               <div className="space-y-3 text-sm">
                                 {addressData.address_line && (
                                   <div>
-                                    <p className="text-gray-500 text-xs mb-1">Address Line</p>
-                                    <p className="text-gray-800 font-medium">{addressData.address_line}</p>
+                                    <p className="text-gray-500 text-xs mb-1">
+                                      Address Line
+                                    </p>
+                                    <p className="text-gray-800 font-medium">
+                                      {addressData.address_line}
+                                    </p>
                                   </div>
                                 )}
                                 <div className="grid md:grid-cols-2 gap-3">
                                   {addressData.upazila_thana && (
                                     <div>
-                                      <p className="text-gray-500 text-xs mb-1">Upazila/Thana</p>
-                                      <p className="text-gray-800 font-medium">{addressData.upazila_thana}</p>
+                                      <p className="text-gray-500 text-xs mb-1">
+                                        Upazila/Thana
+                                      </p>
+                                      <p className="text-gray-800 font-medium">
+                                        {addressData.upazila_thana}
+                                      </p>
                                     </div>
                                   )}
                                   {addressData.district && (
                                     <div>
-                                      <p className="text-gray-500 text-xs mb-1">District</p>
-                                      <p className="text-gray-800 font-medium">{addressData.district}</p>
+                                      <p className="text-gray-500 text-xs mb-1">
+                                        District
+                                      </p>
+                                      <p className="text-gray-800 font-medium">
+                                        {addressData.district}
+                                      </p>
                                     </div>
                                   )}
                                   {addressData.division && (
                                     <div>
-                                      <p className="text-gray-500 text-xs mb-1">Division</p>
-                                      <p className="text-gray-800 font-medium">{addressData.division}</p>
+                                      <p className="text-gray-500 text-xs mb-1">
+                                        Division
+                                      </p>
+                                      <p className="text-gray-800 font-medium">
+                                        {addressData.division}
+                                      </p>
                                     </div>
                                   )}
                                   {addressData.pincode && (
                                     <div>
-                                      <p className="text-gray-500 text-xs mb-1">Pincode</p>
-                                      <p className="text-gray-800 font-medium">{addressData.pincode}</p>
+                                      <p className="text-gray-500 text-xs mb-1">
+                                        Pincode
+                                      </p>
+                                      <p className="text-gray-800 font-medium">
+                                        {addressData.pincode}
+                                      </p>
                                     </div>
                                   )}
                                   {addressData.country && (
                                     <div>
-                                      <p className="text-gray-500 text-xs mb-1">Country</p>
-                                      <p className="text-gray-800 font-medium">{addressData.country}</p>
+                                      <p className="text-gray-500 text-xs mb-1">
+                                        Country
+                                      </p>
+                                      <p className="text-gray-800 font-medium">
+                                        {addressData.country}
+                                      </p>
                                     </div>
                                   )}
                                   {addressData.mobile && (
                                     <div>
-                                      <p className="text-gray-500 text-xs mb-1">Contact Number</p>
-                                      <p className="text-gray-800 font-medium">{addressData.mobile}</p>
+                                      <p className="text-gray-500 text-xs mb-1">
+                                        Contact Number
+                                      </p>
+                                      <p className="text-gray-800 font-medium">
+                                        {addressData.mobile}
+                                      </p>
                                     </div>
                                   )}
                                 </div>
-                                {!addressData.address_line && !addressData.district && data.address_details && (
-                                  <div>
-                                    <p className="text-gray-500 text-xs mb-1">Full Address</p>
-                                    <p className="text-gray-800 font-medium">
-                                      {typeof data.address_details === 'string'
-                                        ? data.address_details
-                                        : Array.isArray(data.address_details) && data.address_details.length > 0
-                                          ? data.address_details[0]
-                                          : "No address available"}
-                                    </p>
-                                  </div>
-                                )}
+                                {!addressData.address_line &&
+                                  !addressData.district &&
+                                  data.address_details && (
+                                    <div>
+                                      <p className="text-gray-500 text-xs mb-1">
+                                        Full Address
+                                      </p>
+                                      <p className="text-gray-800 font-medium">
+                                        {typeof data.address_details ===
+                                        "string"
+                                          ? data.address_details
+                                          : Array.isArray(
+                                                data.address_details,
+                                              ) &&
+                                              data.address_details.length > 0
+                                            ? data.address_details[0]
+                                            : "No address available"}
+                                      </p>
+                                    </div>
+                                  )}
                               </div>
                             </div>
                           )}
@@ -1096,27 +1345,35 @@ const AccountPage = () => {
                               Email Address
                             </h4>
                             <div className="text-sm">
-                              <p className="text-gray-500 text-xs mb-1">Email</p>
-                              <p className="text-gray-800 font-medium">{data.email || "N/A"}</p>
+                              <p className="text-gray-500 text-xs mb-1">
+                                Email
+                              </p>
+                              <p className="text-gray-800 font-medium">
+                                {data.email || "N/A"}
+                              </p>
                             </div>
                           </div>
 
                           {/* Status Information */}
                           <div className="bg-white rounded-lg p-4 border border-emerald-100">
-                            <h4 className="text-sm font-semibold text-gray-700 mb-3">Account Status</h4>
+                            <h4 className="text-sm font-semibold text-gray-700 mb-3">
+                              Account Status
+                            </h4>
                             <div className="flex flex-wrap gap-3">
                               <div className="flex items-center gap-2">
-                                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${data.verify_email
-                                  ? 'bg-green-100 text-green-800'
-                                  : 'bg-yellow-100 text-yellow-800'
-                                  }`}>
-                                  {data.verify_email ? '✓ Email Verified' : '⚠ Email Not Verified'}
+                                <span
+                                  className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                    data.verify_email
+                                      ? "bg-green-100 text-green-800"
+                                      : "bg-yellow-100 text-yellow-800"
+                                  }`}
+                                >
+                                  {data.verify_email
+                                    ? "✓ Email Verified"
+                                    : "⚠ Email Not Verified"}
                                 </span>
                               </div>
-                              <div className="flex items-center gap-2">
-
-                              </div>
-
+                              <div className="flex items-center gap-2"></div>
                             </div>
                           </div>
 
@@ -1124,13 +1381,19 @@ const AccountPage = () => {
                           <div className="bg-gradient-to-r from-emerald-100 to-teal-100 rounded-lg p-4 border border-emerald-200">
                             <div className="flex items-center justify-between">
                               <div>
-                                <p className="text-gray-600 text-xs mb-1">Member Since</p>
+                                <p className="text-gray-600 text-xs mb-1">
+                                  Member Since
+                                </p>
                                 <p className="text-gray-800 font-bold">
-                                  {data.createdAt ? new Date(data.createdAt).toLocaleDateString('en-US', {
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric'
-                                  }) : 'N/A'}
+                                  {data.createdAt
+                                    ? new Date(
+                                        data.createdAt,
+                                      ).toLocaleDateString("en-US", {
+                                        year: "numeric",
+                                        month: "long",
+                                        day: "numeric",
+                                      })
+                                    : "N/A"}
                                 </p>
                               </div>
                               <Calendar className="w-8 h-8 text-emerald-600 opacity-50" />
@@ -1142,34 +1405,61 @@ const AccountPage = () => {
                   </div>
                 )}
 
-
-
                 {/* Settings Tab */}
                 {activeTab === "settings" && (
                   <div className="p-8">
                     <div className="mb-8">
-                      <h2 className="text-2xl font-bold text-gray-900">Account Settings</h2>
-                      <p className="text-gray-600">Manage your account preferences</p>
+                      <h2 className="text-2xl font-bold text-gray-900">
+                        Account Settings
+                      </h2>
+                      <p className="text-gray-600">
+                        Manage your account preferences
+                      </p>
                     </div>
 
                     <div className="space-y-6">
                       <div className="border border-gray-200 rounded-xl p-6">
-                        <h3 className="font-semibold text-gray-900 mb-4">Notifications</h3>
+                        <h3 className="font-semibold text-gray-900 mb-4">
+                          Notifications
+                        </h3>
                         <div className="space-y-4">
                           {[
-                            { id: "email", label: "Email notifications", enabled: true },
-                            { id: "sms", label: "SMS notifications", enabled: false },
-                            { id: "push", label: "Push notifications", enabled: true },
+                            {
+                              id: "email",
+                              label: "Email notifications",
+                              enabled: true,
+                            },
+                            {
+                              id: "sms",
+                              label: "SMS notifications",
+                              enabled: false,
+                            },
+                            {
+                              id: "push",
+                              label: "Push notifications",
+                              enabled: true,
+                            },
                           ].map((setting) => (
-                            <div key={setting.id} className="flex items-center justify-between">
-                              <span className="text-gray-700">{setting.label}</span>
+                            <div
+                              key={setting.id}
+                              className="flex items-center justify-between"
+                            >
+                              <span className="text-gray-700">
+                                {setting.label}
+                              </span>
                               <button
-                                className={`w-12 h-6 cursor-pointer rounded-full transition-all duration-300 ${setting.enabled ? "bg-teal-500" : "bg-gray-300"
-                                  }`}
+                                className={`w-12 h-6 cursor-pointer rounded-full transition-all duration-300 ${
+                                  setting.enabled
+                                    ? "bg-teal-500"
+                                    : "bg-gray-300"
+                                }`}
                               >
                                 <div
-                                  className={`w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-300 ${setting.enabled ? "translate-x-6" : "translate-x-1"
-                                    }`}
+                                  className={`w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-300 ${
+                                    setting.enabled
+                                      ? "translate-x-6"
+                                      : "translate-x-1"
+                                  }`}
                                 />
                               </button>
                             </div>
@@ -1178,10 +1468,12 @@ const AccountPage = () => {
                       </div>
 
                       <div className="border border-gray-200 rounded-xl p-6">
-                        <h3 className="font-semibold text-gray-900 mb-4">Security</h3>
+                        <h3 className="font-semibold text-gray-900 mb-4">
+                          Security
+                        </h3>
                         <div className="space-y-3">
                           <button
-                            onClick={() => router.push('/forgotpassword')}
+                            onClick={() => router.push("/forgotpassword")}
                             className="w-full text-left p-3 hover:bg-gray-50 rounded-lg transition-colors duration-300"
                           >
                             Change Password
@@ -1200,7 +1492,7 @@ const AccountPage = () => {
               </div>
             </div>
           </div>
-        </div>
+        </Container>
 
         <style jsx>{`
           @keyframes slideIn {
@@ -1217,10 +1509,18 @@ const AccountPage = () => {
 
         {/* Image Upload Modal */}
         {showImageUpload && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ backdropFilter: 'blur(8px)', backgroundColor: 'rgba(0, 0, 0, 0.3)' }}>
+          <div
+            className="fixed inset-0 flex items-center justify-center z-50 p-4"
+            style={{
+              backdropFilter: "blur(8px)",
+              backgroundColor: "rgba(0, 0, 0, 0.3)",
+            }}
+          >
             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 transform transition-all">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-bold text-gray-900">Update Profile Picture</h3>
+                <h3 className="text-2xl font-bold text-gray-900">
+                  Update Profile Picture
+                </h3>
                 <button
                   onClick={() => {
                     setShowImageUpload(false);
@@ -1325,10 +1625,11 @@ const AccountPage = () => {
                   <button
                     onClick={handleImageUpload}
                     disabled={!selectedImage || uploadingImage}
-                    className={`flex-1 px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center justify-center space-x-2 ${!selectedImage || uploadingImage
-                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                      : "bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-accent-content hover:shadow-lg hover:scale-105"
-                      }`}
+                    className={`flex-1 px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center justify-center space-x-2 ${
+                      !selectedImage || uploadingImage
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 text-accent-content hover:shadow-lg hover:scale-105"
+                    }`}
                   >
                     {uploadingImage ? (
                       <>
@@ -1347,13 +1648,14 @@ const AccountPage = () => {
             </div>
           </div>
         )}
+
         {selectedOrder && (
           <OrderDetailsModal
             order={selectedOrder}
             onClose={() => setSelectedOrder(null)}
           />
         )}
-      </div>
+      </Section>
     </AuthUserNothave>
   );
 };

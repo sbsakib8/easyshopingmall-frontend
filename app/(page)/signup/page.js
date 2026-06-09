@@ -14,6 +14,7 @@ import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "@/firebase";
 import AuthRedirect from "@/src/utlis/authRedirect";
 import { useDispatch } from "react-redux";
+import Section from "@/src/compronent/shared/Section";
 
 function Signup() {
   const [name, setName] = useState('');
@@ -89,7 +90,7 @@ function Signup() {
 
   return (
     <AuthRedirect>
-      <div className='flex justify-center lg:mt-20 items-center h-auto py-20 bg-gray-100'>
+      <Section className='flex justify-center items-center h-auto bg-gray-100'>
         <div className='bg-white p-8 rounded-lg shadow-md w-[95%] md:w-[500px] lg:w-[600px] '>
           <h1 className='text-2xl font-medium mb-4'>Sign Up</h1>
           <form onSubmit={handleSubmit} className='space-y-4 mt-16'>
@@ -148,7 +149,7 @@ function Signup() {
             <p className='text-center text-sm text-gray-600'>Already have an account? <Link href='/signin' className='text-blue-600 hover:underline'>SignIn</Link></p>
           </form>
         </div>
-      </div>
+      </Section>
     </AuthRedirect>
   )
 }

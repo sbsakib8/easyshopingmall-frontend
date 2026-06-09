@@ -1,16 +1,18 @@
 "use client";
-import Image from "next/image";
-import Select from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
-import ToggleButton from "@mui/material/ToggleButton";
-import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+
 import { ProductGridSkeleton } from "@/src/compronent/loading/ProductGridSkeleton";
+import AddtoCartBtn from "@/src/helper/Buttons/AddtoCartBtn";
 import {
   addToCartApi,
   getCartApi,
   removeCartItemApi,
   updateCartItemApi,
 } from "@/src/hook/useCart";
+import {
+  createCouponCode,
+  getAllCoupons,
+  updateCouponCode,
+} from "@/src/hook/useCoupon";
 import { ProductDelete, ProductUpdate } from "@/src/hook/useProduct";
 import {
   addToWishlistApi,
@@ -18,6 +20,7 @@ import {
 } from "@/src/hook/useWishlist";
 import {
   fetchShopProducts,
+  hydrate,
   resetFilters,
   setCurrentPage,
   setDebouncedSearch,
@@ -29,20 +32,16 @@ import {
   setViewMode,
   syncFromUrl,
   toggleFilters,
-  hydrate,
 } from "@/src/redux/shopSlice";
-import { getCategoryId, getSubCategoryId } from "@/src/utlis/filterHelpers";
 import { useCategoryWithSubcategories } from "@/src/utlis/useCategoryWithSubcategories";
 import { useWishlist } from "@/src/utlis/useWishList";
-import {
-  createCouponCode,
-  getAllCoupons,
-  updateCouponCode,
-} from "@/src/hook/useCoupon";
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
+import ToggleButton from "@mui/material/ToggleButton";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import {
   ArrowUp,
   CheckCircle,
-  ChevronDown,
   Edit,
   Filter,
   Grid,
@@ -59,17 +58,13 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  useRef,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
-import AddtoCartBtn from "@/src/helper/Buttons/AddtoCartBtn";
+import Container from "../shared/Container";
+import Section from "../shared/Section";
 
 // Helper function to determine if product is new or old
 const isProductNew = (createdDate) => {
@@ -101,7 +96,8 @@ const ProductCard = React.memo(
     const productName = product.productName || product.name;
     const productImage =
       product.image || product.images?.[0] || "/img/product.jpg";
-    const productPrice = Number(product.price ?? product.sell_price) || 0;
+    const isDropshipping = user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING");
+    const productPrice = isDropshipping ? (Number(product.dropshippingPrice ?? product.price ?? product.sell_price) || 0) : (Number(product.price ?? product.sell_price) || 0);
     const productRank = Number(product.productRank ?? product.retailSale) || 0;
     const inStock = (product.productStock ?? product.stock ?? 1) > 0;
     const isNew = isProductNew(
@@ -115,10 +111,11 @@ const ProductCard = React.memo(
       return [...Array(5)].map((_, i) => (
         <Star
           key={i}
-          className={`w-3 h-3 sm:w-4 sm:h-4 ${i < Math.floor(rating)
-            ? "text-yellow-400 fill-current"
-            : "text-black"
-            }`}
+          className={`w-3 h-3 sm:w-4 sm:h-4 ${
+            i < Math.floor(rating)
+              ? "text-yellow-400 fill-current"
+              : "text-black"
+          }`}
         />
       ));
     };
@@ -138,7 +135,7 @@ const ProductCard = React.memo(
             width={400}
             height={400}
             loading="lazy"
-            className={`w-full object-cover ${viewMode === "list" ? "h-full" : "h-40 sm:h-44"}`}
+            className={`w-full object-cover ${viewMode === "list" ? "h-full" : "h-32"}`}
           />
 
           {/* Badges */}
@@ -150,12 +147,13 @@ const ProductCard = React.memo(
                 </span>
               )}
 
-              {productRank > productPrice ? (
+              {productRank > !productPrice ? (
                 <span className="bg-warning text-warning-content px-1 py-1 rounded text-[8px] font-semibold">
                   -{productRank - productPrice}৳
                 </span>
               ) : null}
             </div>
+
             {product.productStatus &&
               product.productStatus.length > 0 &&
               !product.productStatus.includes("none") && (
@@ -193,13 +191,14 @@ const ProductCard = React.memo(
                 setFavorite([...favorite, productId]);
               }}
               className={`p-1 cursor-pointer rounded-lg
-              ${wishlist &&
-                  wishlist.some(
-                    (item) => item.id === productId || item._id === productId,
-                  )
+              ${
+                wishlist &&
+                wishlist.some(
+                  (item) => item.id === productId || item._id === productId,
+                )
                   ? "text-red-500 bg-red-100"
                   : "text-gray-400 bg-bg hover:text-red-500 hover:bg-red-50"
-                }`}
+              }`}
             >
               <Heart
                 className="w-3 h-3"
@@ -209,7 +208,7 @@ const ProductCard = React.memo(
                     wishlist.some(
                       (item) => item.id === productId || item._id === productId,
                     )) ||
-                    (user && favorite && favorite.includes(productId))
+                  (user && favorite && favorite.includes(productId))
                     ? "red"
                     : "none"
                 }
@@ -232,7 +231,7 @@ const ProductCard = React.memo(
         >
           <div>
             <h3
-              className={`font-semibold text-sm text-gray-800 mb-1 group-hover:text-secondary line-clamp-2`}
+              className={`font-semibold text-sm text-gray-800 mb-1 group-hover:text-primary line-clamp-1`}
             >
               {productName}
             </h3>
@@ -267,10 +266,11 @@ const ProductCard = React.memo(
                   // addToCart(product)
                 }}
                 disabled={!inStock}
-                className={`w-full py-1.5 px-2 rounded font-medium text-xs ${inStock
-                  ? "bg-primary/80 hover:bg-primary text-primary-content"
-                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  }`}
+                className={`w-full py-1.5 px-2 rounded font-medium text-xs ${
+                  inStock
+                    ? "bg-primary/80 hover:bg-primary text-primary-content"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
               >
                 {inStock ? (
                   <AddtoCartBtn productId={productId}>
@@ -290,10 +290,11 @@ const ProductCard = React.memo(
                     // addToCart(product)
                   }}
                   disabled={!inStock}
-                  className={`py-1.5 px-2 rounded font-medium text-xs ${inStock
-                    ? "bg-primary/80 hover:bg-primary text-primary-content"
-                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                    }`}
+                  className={`py-1.5 px-2 rounded font-medium text-xs ${
+                    inStock
+                      ? "bg-primary/80 hover:bg-primary text-primary-content"
+                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  }`}
                 >
                   {inStock ? (
                     <span className="flex items-center justify-center gap-1">
@@ -485,7 +486,7 @@ const ShopPage = ({ initialData, queryParams }) => {
         return {
           id: prod._id || prod.id || String(prod?._id || prod?.id || ""),
           name: prod.productName || prod.name || prod.title || "Product",
-          image: prod.images?.[0] || prod.image || "/images/placeholder.png",
+          image: prod.images?.[0] || prod.image || "/img/product.jpg",
           price: Number(prod.price ?? prod.sell_price ?? prod.amount) || 0,
           quantity: item.quantity || 1,
           brand: prod.brand || prod.manufacturer || "",
@@ -495,7 +496,7 @@ const ShopPage = ({ initialData, queryParams }) => {
       return {
         id: item.id || item._id || "",
         name: item.name || item.productName || "Product",
-        image: item.image || item.images?.[0] || "/images/placeholder.png",
+        image: item.image || item.images?.[0] || "/img/product.jpg",
         price: Number(item.price) || 0,
         quantity: item.quantity || 1,
         brand: item.brand || "",
@@ -504,6 +505,13 @@ const ShopPage = ({ initialData, queryParams }) => {
   }, [reduxCart]);
   const user = useSelector((state) => state.user?.data);
   const { wishlist } = useWishlist();
+
+  // Redirect dropshipping users away from shop
+  useEffect(() => {
+    if (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) {
+      router.push("/forbidden");
+    }
+  }, [user, router]);
 
   // Fetch categories and subcategories from API if not provided in initialData
   const {
@@ -647,19 +655,20 @@ const ShopPage = ({ initialData, queryParams }) => {
   // Toggle wishlist (uses API + redux)
   const toggleWishlist = useCallback(
     async (product) => {
+      const productId = product._id || product.id;
       if (!user?._id) {
         toast.error("Please sign in to add to wishlist");
         return;
       }
       try {
         const exists = (wishlist || []).some(
-          (i) => i.id === product.id || favorite.includes(product.id),
-        );
+          (i) => i.id === productId || i._id === productId,
+        ) || (favorite || []).includes(productId);
         if (exists) {
-          await removeFromWishlistApi(product.id, dispatch);
+          await removeFromWishlistApi(productId, dispatch);
           toast.success("Removed from wishlist");
         } else {
-          await addToWishlistApi(product.id, dispatch);
+          await addToWishlistApi(productId, dispatch);
           toast.success("Added to wishlist");
         }
       } catch (err) {
@@ -735,23 +744,27 @@ const ShopPage = ({ initialData, queryParams }) => {
     dispatch(resetFilters());
     router.push("/shop");
   };
+
   const confirmDelete = async () => {
     try {
       if (!deleteModal) return;
       await ProductDelete(deleteModal.id);
       setDeleteModal(null);
-      dispatch(fetchShopProducts({
-        page: currentPage,
-        limit: productsPerPage,
-        search: debouncedSearchTerm,
-        categoryId: filterCategory === "all" ? undefined : filterCategory,
-        subCategoryId: filterSubCategory === "all" ? undefined : filterSubCategory,
-        brand: filterBrand === "all" ? undefined : filterBrand,
-        gender: filterGender === "all" ? undefined : filterGender,
-        minPrice: priceRange[0],
-        maxPrice: priceRange[1],
-        sortBy: sortBy,
-      })); // Refresh list with active filters
+      dispatch(
+        fetchShopProducts({
+          page: currentPage,
+          limit: productsPerPage,
+          search: debouncedSearchTerm,
+          categoryId: filterCategory === "all" ? undefined : filterCategory,
+          subCategoryId:
+            filterSubCategory === "all" ? undefined : filterSubCategory,
+          brand: filterBrand === "all" ? undefined : filterBrand,
+          gender: filterGender === "all" ? undefined : filterGender,
+          minPrice: priceRange[0],
+          maxPrice: priceRange[1],
+          sortBy: sortBy,
+        }),
+      ); // Refresh list with active filters
       toast.success("Product deleted successfully");
     } catch (error) {
       console.log(error);
@@ -823,10 +836,10 @@ const ShopPage = ({ initialData, queryParams }) => {
           ? selectedProduct.subCategory.map((sc) => (sc._id || sc).toString())
           : selectedProduct?.subCategory
             ? [
-              (
-                selectedProduct.subCategory._id || selectedProduct.subCategory
-              ).toString(),
-            ]
+                (
+                  selectedProduct.subCategory._id || selectedProduct.subCategory
+                ).toString(),
+              ]
             : [];
 
         const foundSubCatCoupon = couponsData?.data?.find(
@@ -880,18 +893,21 @@ const ShopPage = ({ initialData, queryParams }) => {
       const res = await ProductUpdate(updatePayload);
       if (res.success) {
         toast.success("Product updated successfully!");
-        dispatch(fetchShopProducts({
-          page: currentPage,
-          limit: productsPerPage,
-          search: debouncedSearchTerm,
-          categoryId: filterCategory === "all" ? undefined : filterCategory,
-          subCategoryId: filterSubCategory === "all" ? undefined : filterSubCategory,
-          brand: filterBrand === "all" ? undefined : filterBrand,
-          gender: filterGender === "all" ? undefined : filterGender,
-          minPrice: priceRange[0],
-          maxPrice: priceRange[1],
-          sortBy: sortBy,
-        })); // Refresh list with active filters
+        dispatch(
+          fetchShopProducts({
+            page: currentPage,
+            limit: productsPerPage,
+            search: debouncedSearchTerm,
+            categoryId: filterCategory === "all" ? undefined : filterCategory,
+            subCategoryId:
+              filterSubCategory === "all" ? undefined : filterSubCategory,
+            brand: filterBrand === "all" ? undefined : filterBrand,
+            gender: filterGender === "all" ? undefined : filterGender,
+            minPrice: priceRange[0],
+            maxPrice: priceRange[1],
+            sortBy: sortBy,
+          }),
+        ); // Refresh list with active filters
         setEditModal(null);
       } else {
         toast.error(res.message);
@@ -911,10 +927,10 @@ const ShopPage = ({ initialData, queryParams }) => {
   };
 
   return (
-    <section className="min-h-screen bg-bg pt-10 md:pt-32 lg:pt-0">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <Section className="bg-bg">
+      <Container>
         {/* Top Filter Bar */}
-        <div className="bg-white lg:mt-28 rounded-lg shadow-md p-4 mb-6">
+        <div className="bg-white rounded-lg shadow-md p-4 mb-6">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
             <div className="flex items-center gap-4 flex-wrap">
               <span className="text-gray-600 font-medium whitespace-nowrap">
@@ -1299,10 +1315,11 @@ const ShopPage = ({ initialData, queryParams }) => {
             {/* Products */}
             {!productsLoading && currentProducts.length > 0 && (
               <div
-                className={`${viewMode === "grid"
-                  ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6"
-                  : "space-y-6"
-                  }`}
+                className={`${
+                  viewMode === "grid"
+                    ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6"
+                    : "space-y-6"
+                }`}
               >
                 {currentProducts.map((product) => (
                   <ProductCard
@@ -1332,10 +1349,11 @@ const ShopPage = ({ initialData, queryParams }) => {
                     dispatch(setCurrentPage(Math.max(1, currentPage - 1)))
                   }
                   disabled={currentPage === 1}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${currentPage === 1
-                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                    : "bg-secondary text-accent-content hover:bg-secondary"
-                    }`}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${
+                    currentPage === 1
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      : "bg-secondary text-accent-content hover:bg-secondary"
+                  }`}
                 >
                   Previous
                 </button>
@@ -1358,10 +1376,11 @@ const ShopPage = ({ initialData, queryParams }) => {
                   <button
                     key={page}
                     onClick={() => dispatch(setCurrentPage(page))}
-                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${currentPage === page
-                      ? "bg-secondary text-accent-content transform scale-110"
-                      : "bg-white border border-gray-300 hover:bg-purple-50"
-                      }`}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
+                      currentPage === page
+                        ? "bg-secondary text-accent-content transform scale-110"
+                        : "bg-white border border-gray-300 hover:bg-purple-50"
+                    }`}
                   >
                     {page}
                   </button>
@@ -1388,10 +1407,11 @@ const ShopPage = ({ initialData, queryParams }) => {
                     )
                   }
                   disabled={currentPage === totalPages}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${currentPage === totalPages
-                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                    : "bg-secondary text-accent-content hover:bg-secondary"
-                    }`}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${
+                    currentPage === totalPages
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      : "bg-secondary text-accent-content hover:bg-secondary"
+                  }`}
                 >
                   Next
                 </button>
@@ -1399,7 +1419,7 @@ const ShopPage = ({ initialData, queryParams }) => {
             )}
           </div>
         </div>
-      </div>
+      </Container>
 
       {/* Edit Modal */}
       {editModal && (
@@ -1614,7 +1634,10 @@ const ShopPage = ({ initialData, queryParams }) => {
                     onChange={(e) =>
                       updateEditField(
                         "tags",
-                        e.target.value.split(",").map((t) => t.trim()).filter(Boolean)
+                        e.target.value
+                          .split(",")
+                          .map((t) => t.trim())
+                          .filter(Boolean),
                       )
                     }
                     placeholder="New, Sale, Trending"
@@ -1640,7 +1663,9 @@ const ShopPage = ({ initialData, queryParams }) => {
                     <input
                       type="checkbox"
                       checked={editModal?.isBoost || false}
-                      onChange={(e) => updateEditField("isBoost", e.target.checked)}
+                      onChange={(e) =>
+                        updateEditField("isBoost", e.target.checked)
+                      }
                       className="w-5 h-5 text-emerald-600 bg-transparent border-slate-300 rounded focus:ring-emerald-500"
                     />
                     <label className="ml-3 text-black font-semibold">
@@ -1768,13 +1793,13 @@ const ShopPage = ({ initialData, queryParams }) => {
 
       {/* Delete Confirmation Modal */}
       {deleteModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
-          <div className="bg-white/70 rounded-2xl border border-pink-500/30 max-w-md w-full p-6 animate-slideUp text-black">
+        <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+          <div className="bg-error/15 rounded-md max-w-md w-full p-6 animate-slideUp">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-3 bg-pink-500/20 rounded-full">
-                <Trash2 className="w-8 h-8 text-pink-500" />
+              <div className="p-3 bg-error/10 rounded-full">
+                <Trash2 className="w-8 h-8 text-error" />
               </div>
-              <h2 className="text-2xl font-bold ">Delete Product</h2>
+              <h2 className="text-2xl font-bold text-error">Delete Product</h2>
             </div>
 
             <p className=" mb-6">
@@ -1785,13 +1810,13 @@ const ShopPage = ({ initialData, queryParams }) => {
             <div className="flex gap-3">
               <button
                 onClick={confirmDelete}
-                className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-accent-content font-semibold rounded-lg transition-all transform hover:scale-105 cursor-pointer"
+                className="flex-1 px-4 py-2 bg-error/80 hover:bg-error text-error-content font-semibold rounded-md transition-all transform hover:scale-105 cursor-pointer"
               >
                 Delete
               </button>
               <button
                 onClick={() => setDeleteModal(null)}
-                className="flex-1 px-6 py-3 bg-slate-200 hover:bg-slate-600 hover:text-accent-content font-semibold rounded-lg transition-colors cursor-pointer"
+                className="flex-1 px-4 py-2 bg-slate-200 hover:bg-slate-300 font-semibold rounded-md transition-colors cursor-pointer"
               >
                 Cancel
               </button>
@@ -1799,71 +1824,7 @@ const ShopPage = ({ initialData, queryParams }) => {
           </div>
         </div>
       )}
-
-      {/* Custom Styles */}
-      <style jsx>{`
-        .line-clamp-1 {
-          display: -webkit-box;
-          -webkit-line-clamp: 1;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-
-        .line-clamp-2 {
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-
-        /* Custom Scrollbar Styles */
-        .scrollbar-thin::-webkit-scrollbar {
-          width: 6px;
-        }
-
-        .scrollbar-thin::-webkit-scrollbar-track {
-          background: #e5e7eb;
-          border-radius: 10px;
-        }
-
-        .scrollbar-thin::-webkit-scrollbar-thumb {
-          background: #ffc900;
-          border-radius: 10px;
-        }
-
-        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-          background: #ffe100;
-        }
-
-        /* Firefox */
-        .scrollbar-thin {
-          scrollbar-width: thin;
-          scrollbar-color: #ffc900 #e5e7eb;
-        }
-      `}</style>
-      {/* ✨ Animations + Glassmorphism + Scrollbar Hide */}
-      <style jsx>{`
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-        .backdrop-blur-sm {
-          backdrop-filter: blur(8px);
-        }
-        .backdrop-blur-lg {
-          backdrop-filter: blur(16px);
-        }
-        .line-clamp-2 {
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-      `}</style>
-    </section>
+    </Section>
   );
 };
 

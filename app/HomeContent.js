@@ -1,4 +1,5 @@
-'use client'
+"use client";
+
 import Hero from "@/src/compronent/Home/Hero";
 import HomeSkeleton from "@/src/compronent/loading/HomeSkeleton";
 import DropShippingHome from "@/src/dropShipping/dropShippingHome/dropShippingHome";
@@ -10,7 +11,7 @@ import { useSelector } from "react-redux";
 
 export default function HomeContent({ initialData }) {
   const user = useSelector((state) => state.user.data);
-  const role = user?.role || 'USER';
+  const role = user?.role || "USER";
   const [data, setData] = useState(initialData);
   const [loading, setLoading] = useState(!initialData);
 
@@ -29,7 +30,7 @@ export default function HomeContent({ initialData }) {
         const [banners, categories, productsRes] = await Promise.all([
           HomeBannerAllGet(),
           CategoryAllGet(),
-          ProductAllGet({ page: 1, limit: 100 }) 
+          ProductAllGet({ page: 1, limit: 100 }),
         ]);
 
         const products = productsRes?.data || productsRes?.products || [];
@@ -51,12 +52,27 @@ export default function HomeContent({ initialData }) {
 
   if (loading && !data) return <HomeSkeleton />;
 
+  const isDropshipper = role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING");
+  const filteredBanners = (data?.banners || []).filter(banner => {
+    if (isDropshipper) {
+      return banner.sliderFor === "DROPSHIPPING";
+    } else {
+      return banner.sliderFor === "USER" || !banner.sliderFor;
+    }
+  });
+
+  const displayData = {
+    ...data,
+    banners: filteredBanners
+  };
+
   return (
     <>
-      {(role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) ?
-        <DropShippingHome initialData={data} /> :
-        <Hero initialData={data} />
-      }
+      {role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING") ? (
+        <DropShippingHome initialData={displayData} />
+      ) : (
+        <Hero initialData={displayData} />
+      )}
     </>
   );
 }

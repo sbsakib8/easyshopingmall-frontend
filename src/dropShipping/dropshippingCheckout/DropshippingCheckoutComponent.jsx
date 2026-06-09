@@ -21,7 +21,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { UrlBackend } from '@/src/confic/urlExport';
 import LocationSelects from '@/src/compronent/LocationSelects';
-import { applyCouponCode } from '@/src/hook/useCoupon';
+import { applyDropshippingCouponCode } from '@/src/hook/useCoupon';
 
 /* ─────────────────────────────────────────────
    Dropshipping brand palette (no main-site tokens)
@@ -30,6 +30,17 @@ import { applyCouponCode } from '@/src/hook/useCoupon';
    Page bg         → slate-50
    Section header  → emerald gradient
 ───────────────────────────────────────────── */
+
+// Robust image extractor — handles images[] array, image string, or nested productId object
+const getImageUrl = (item) => {
+  const p = item.productId || {};
+  if (p.images && p.images.length > 0) return p.images[0];
+  if (p.image) return Array.isArray(p.image) ? p.image[0] : p.image;
+  if (item.images && item.images.length > 0) return item.images[0];
+  if (item.image) return Array.isArray(item.image) ? item.image[0] : item.image;
+  return "/img/product.jpg";
+};
+
 
 // Reusable section card wrapper for DS checkout
 const DSCard = ({ icon: Icon, title, children }) => (
@@ -103,7 +114,7 @@ const DropshippingCheckoutComponent = () => {
   const totalProfit = items.reduce((sum, item) => {
     const sp = item.sellingPrice === "" ? 0 : (item.sellingPrice ?? item.price);
     return sum + ((sp - item.price) * item.quantity);
-  }, 0);
+  }, 0) + (couponDiscount || 0);
   const [deliveryCharge, setDeliveryCharge] = useState(100);
   const total = subtotal + deliveryCharge - (couponDiscount || 0);
 
@@ -118,18 +129,17 @@ const DropshippingCheckoutComponent = () => {
 
     setIsApplyingCoupon(true);
     try {
-      const resp = await applyCouponCode({
+      const resp = await applyDropshippingCouponCode({
         code: couponCode,
-        checkoutAmount: subtotal,
         cartItems: items.map(item => ({
-          productId: item.productId._id,
+          productId: item.productId._id || item.productId,
           quantity: item.quantity,
-          price: item.sellingPrice || item.price
+          price: item.price
         }))
       });
 
       if (resp.success) {
-        toast.success(resp.message || "কুপন সফলভাবে প্রযোজ্য হয়েছে!");
+        toast.success(resp.message || "কুপন সফলভাবে প্রযোজ্য হয়েছে!");
         dispatch(setDsCoupon({
           coupon: resp.coupon,
           discountAmount: resp.discountAmount
@@ -206,17 +216,22 @@ const DropshippingCheckoutComponent = () => {
     try {
       const payload = {
         userId: user._id,
-        products: items.map(item => ({
-          productId: item.productId._id,
-          name: item.productId.productName,
-          image: item.productId.images || [],
-          quantity: item.quantity,
-          costPrice: item.price,
-          sellingPrice: item.sellingPrice || item.price,
-          size: item.size || null,
-          color: item.color || null,
-          weight: item.weight || null,
-        })),
+        products: items.map(item => {
+          const sp = item.sellingPrice === "" ? 0 : (item.sellingPrice ?? item.price);
+          return {
+            productId: item.productId._id,
+            name: item.productId.productName,
+            image: item.productId.images || [],
+            quantity: item.quantity,
+            costPrice: item.price,
+            sellingPrice: sp,
+            price: sp,
+            totalPrice: sp * item.quantity,
+            size: item.size || null,
+            color: item.color || null,
+            weight: item.weight || null,
+          };
+        }),
 
 
         delivery_address: {
@@ -241,6 +256,7 @@ const DropshippingCheckoutComponent = () => {
           }
         } : {},
         totalAmt: total,
+        subTotalAmt: subtotal,
         deliveryCharge,
         appliedCoupon: appliedCoupon?.code || null,
         couponDiscount: couponDiscount || 0,
@@ -677,9 +693,10 @@ const DropshippingCheckoutComponent = () => {
                     <div key={item.productId._id} className="group flex gap-4 items-start p-2 rounded-2xl hover:bg-slate-50 transition-colors">
                       <div className="relative">
                         <img
-                          src={item.productId.images?.[0]}
-                          alt={item.productId.productName}
+                          src={getImageUrl(item)}
+                          alt={item.productId?.productName || item.name || 'Product'}
                           className="w-16 h-16 object-cover rounded-xl flex-shrink-0 border border-slate-100 shadow-sm transition-transform group-hover:scale-105"
+                          onError={(e) => { e.target.onerror = null; e.target.src = "/img/product.jpg"; }}
                         />
                         <span className="absolute -top-2 -right-2 bg-emerald-600 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white shadow-sm">
                           {item.quantity}
@@ -690,7 +707,7 @@ const DropshippingCheckoutComponent = () => {
                           {item.productId.productName}
                         </p>
                         <div className="flex items-center gap-2 mt-1.5">
-                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">ক্রয় মূল্য:</p>
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">ড্রপশিপিং প্রাইস:</p>
                           <p className="text-xs font-bold text-slate-600">৳{(item.price * item.quantity).toLocaleString()}</p>
                         </div>
 
@@ -700,7 +717,12 @@ const DropshippingCheckoutComponent = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           <p className="text-[10px] font-black text-blue-600 uppercase tracking-tighter">লাভ:</p>
-                          <p className="text-xs font-black text-blue-600">৳{(((item.sellingPrice || item.price) - item.price) * item.quantity).toLocaleString()}</p>
+                          <p className="text-xs font-black text-blue-600">৳{(() => {
+                            const sp = (item.sellingPrice === "" ? 0 : (item.sellingPrice ?? item.price));
+                            const baseProfit = (sp - item.price) * item.quantity;
+                            const couponShare = subtotal > 0 ? ((sp * item.quantity) / subtotal) * (couponDiscount || 0) : 0;
+                            return (baseProfit + couponShare).toLocaleString();
+                          })()}</p>
                         </div>
                       </div>
                     </div>
@@ -750,7 +772,7 @@ const DropshippingCheckoutComponent = () => {
 
                   {appliedCoupon && (
                     <div className="flex justify-between items-center text-sm text-emerald-600 font-semibold bg-emerald-50/50 p-3 rounded-2xl border border-emerald-100/50">
-                      <span>ডিসকাউন্ট ({appliedCoupon.code}) <button onClick={removeDsCoupon} className="text-rose-500 text-xs ml-2 underline hover:text-rose-600 transition-colors">সরান</button></span>
+                      <span>কুপন প্রয়োগ ({appliedCoupon.code}) <button onClick={removeDsCoupon} className="text-rose-500 text-xs ml-2 underline hover:text-rose-600 transition-colors">সরান</button></span>
                       <span className="font-black">- ৳{couponDiscount.toLocaleString()}</span>
                     </div>
                   )}
@@ -762,13 +784,15 @@ const DropshippingCheckoutComponent = () => {
 
 
                   <div className="pt-4 border-t-2 border-slate-100 space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-black text-slate-400 uppercase tracking-widest">অর্ডারের মোট মূল্য</span>
-                      <span className="text-base font-bold text-slate-500 line-through opacity-50">৳{(total + (couponDiscount || 0) + 50).toLocaleString()}</span>
-                    </div>
+                    {appliedCoupon && (subtotal + deliveryCharge + 50) > total && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs font-black text-slate-400 uppercase tracking-widest">আগের মূল্য</span>
+                        <span className="text-base font-bold text-slate-500 line-through opacity-50">৳{(subtotal + deliveryCharge + 50).toLocaleString()}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between items-end">
                       <div className="flex flex-col">
-                        <span className="text-xs font-black text-emerald-700 uppercase tracking-[0.2em]">এখন পরিশোধযোগ্য</span>
+                        <span className="text-xs font-black text-emerald-700 uppercase tracking-[0.2em]">অর্ডারের মোট মূল্য</span>
                         <p className="text-[10px] text-slate-400 font-bold leading-tight">নিরাপদ লেনদেন</p>
                       </div>
                       <div className="text-right">

@@ -17,6 +17,7 @@ import {
   Truck,
   ArrowRight,
   Eye,
+  RefreshCw,
 } from "lucide-react";
 import Link from "next/link";
 import { useMyOrders } from "@/src/utlis/useMyOrders";
@@ -51,6 +52,10 @@ const StatusBadge = ({ status, className = "" }) => {
     completed: {
       cls: "bg-teal-50 text-teal-700 border-teal-200",
       icon: <CheckCircle2 className="w-3 h-3" />,
+    },
+    return: {
+      cls: "bg-orange-50 text-orange-700 border-orange-200",
+      icon: <RefreshCw className="w-3 h-3" />,
     },
   };
 
@@ -207,6 +212,7 @@ const OrderList = () => {
       (o) => o.order_status === "delivered",
     ).length;
     const pending = orders.filter((o) => o.order_status === "pending").length;
+    const returned = orders.filter((o) => o.order_status === "return").length;
     const totalProfit = orders
       .filter((o) => o.order_status === "delivered")
       .reduce(
@@ -219,10 +225,11 @@ const OrderList = () => {
                 Number(p.costPrice || p.price || 0)) *
                 (p.quantity || 1),
             0,
-          ),
+          ) +
+          (Number(o.couponDiscount) || 0),
         0,
       );
-    return { total, delivered, pending, totalProfit };
+    return { total, delivered, pending, returned, totalProfit };
   }, [orders]);
 
   /* ── Filter + search ── */
@@ -281,6 +288,7 @@ const OrderList = () => {
     "delivered",
     "cancelled",
     "completed",
+    "return",
   ];
 
   return (
@@ -426,10 +434,9 @@ const OrderList = () => {
                         {currentOrders.map((order) => {
                           const addr = order.address || {};
                           const firstProduct = order.products?.[0];
-                          const productImg =
-                            firstProduct?.image?.[0] ||
-                            firstProduct?.images?.[0] ||
-                            "/images/placeholder.jpg";
+                          const resolvedProduct = firstProduct?.productId || firstProduct;
+                          const imgData = (firstProduct?.image?.length > 0 ? firstProduct.image : null) || (firstProduct?.images?.length > 0 ? firstProduct.images : null) || (resolvedProduct?.images?.length > 0 ? resolvedProduct.images : null) || (resolvedProduct?.image?.length > 0 ? resolvedProduct.image : null);
+                          const productImg = (Array.isArray(imgData) ? imgData[0] : (typeof imgData === 'string' ? imgData : null)) || "/images/placeholder.jpg";
 
                           const totalCost = (order.products || []).reduce(
                             (s, p) =>
@@ -444,8 +451,8 @@ const OrderList = () => {
                               Number(p.sellingPrice || p.price || 0) *
                                 (p.quantity || 1),
                             0,
-                          ) - (order.couponDiscount || 0);
-                          const totalProfit = totalSell - totalCost;
+                          );
+                          const totalProfit = totalSell - totalCost + (Number(order.couponDiscount) || 0);
                           const isDS = order.products?.some(
                             (p) =>
                               p.sellingPrice > 0 && p.sellingPrice !== p.price,
@@ -566,10 +573,9 @@ const OrderList = () => {
                   {currentOrders.map((order) => {
                     const addr = order.address || {};
                     const firstProduct = order.products?.[0];
-                    const productImg =
-                      firstProduct?.image?.[0] ||
-                      firstProduct?.images?.[0] ||
-                      "/images/placeholder.jpg";
+                    const resolvedProduct = firstProduct?.productId || firstProduct;
+                    const imgData = (firstProduct?.image?.length > 0 ? firstProduct.image : null) || (firstProduct?.images?.length > 0 ? firstProduct.images : null) || (resolvedProduct?.images?.length > 0 ? resolvedProduct.images : null) || (resolvedProduct?.image?.length > 0 ? resolvedProduct.image : null);
+                    const productImg = (Array.isArray(imgData) ? imgData[0] : (typeof imgData === 'string' ? imgData : null)) || "/images/placeholder.jpg";
 
                     const totalCost = (order.products || []).reduce(
                       (s, p) =>

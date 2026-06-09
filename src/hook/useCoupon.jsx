@@ -1,7 +1,7 @@
 import axios from "axios";
 import { UrlBackend } from "../confic/urlExport";
 
-// Apply coupon code
+// Apply coupon code (regular cart)
 export const applyCouponCode = async (data) => {
     try {
         const response = await axios.post(`${UrlBackend}/coupon/apply`, data, {
@@ -11,6 +11,20 @@ export const applyCouponCode = async (data) => {
         return response.data; // { success, message, discountAmount, coupon }
     } catch (error) {
         console.error("Coupon apply error:", error.response?.data || error.message);
+        throw error;
+    }
+};
+
+// Apply coupon code for Dropshipping (cartItems sent in body, not read from DB cart)
+export const applyDropshippingCouponCode = async (data) => {
+    try {
+        const response = await axios.post(`${UrlBackend}/coupon/apply-ds`, data, {
+            withCredentials: true,
+            headers: { "Content-Type": "application/json" },
+        });
+        return response.data; // { success, message, discountAmount, coupon }
+    } catch (error) {
+        console.error("DS Coupon apply error:", error.response?.data || error.message);
         throw error;
     }
 };

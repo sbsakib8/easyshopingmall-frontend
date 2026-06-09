@@ -1,4 +1,5 @@
-import { useSelector } from "react-redux";
+import { useMemo } from "react";
+import { isDSOrder } from "@/src/utlis/orderHelpers";
 
 function getStatusColor(status) {
   if (!status) return "bg-gray-100 text-gray-800";
@@ -26,13 +27,12 @@ function getStatusColor(status) {
 function OrderDetailsModal({ order, onClose }) {
   if (!order) return null;
 
-  // Get customer data from the order itself (especially for referred orders)
+  const isDS = isDSOrder(order);
   const customer = order.userId || {};
   const customerEmail = customer.email || "N/A";
   const customerImage = customer.image || "";
   const customerName = customer.name || "User";
 
-  // Extract address details from the API response
   const address = order.address || {};
   const addressLine = address.address_line || "";
   const district = address.district || "";
@@ -42,14 +42,55 @@ function OrderDetailsModal({ order, onClose }) {
   const mobile = address.mobile || "";
   const country = address.country || "";
 
-  // Format full address
   const fullAddress = [addressLine, upazila, district, division, pincode, country]
     .filter(Boolean)
     .join(", ");
 
-  // Extract payment details
   const paymentDetails = order.payment_details || {};
   const manualPayment = paymentDetails.manual || null;
+
+  const orderProducts = order.products || [];
+
+  const correctedProducts = useMemo(() => {
+    if (!orderProducts.length) return [];
+
+    return orderProducts.map((item) => {
+      const resolvedProduct = item.productId || {};
+
+      if (isDS) {
+        return { ...item, _effectivePrice: item.sellingPrice || item.price || 0, _effectiveTotal: item.totalPrice || (item.sellingPrice || item.price || 0) * (Number(item.quantity) || 1) };
+      }
+
+      const retailPrice = Number(resolvedProduct.price) || Number(item.price) || 0;
+      const storedPrice = Number(item.price) || 0;
+
+      if (retailPrice !== storedPrice && retailPrice > 0) {
+        return {
+          ...item,
+          _effectivePrice: retailPrice,
+          _effectiveTotal: retailPrice * (Number(item.quantity) || 1),
+        };
+      }
+
+      return { ...item, _effectivePrice: item.price || 0, _effectiveTotal: item.totalPrice || 0 };
+    });
+  }, [orderProducts, isDS]);
+
+  const recalculatedSubtotal = useMemo(() => {
+    return correctedProducts.reduce((sum, item) => sum + (item._effectiveTotal || 0), 0);
+  }, [correctedProducts]);
+
+  const hasCorrectedPrices = !isDS && correctedProducts.some((item) => {
+    const resolvedProduct = item.productId || {};
+    const retailPrice = Number(resolvedProduct.price) || 0;
+    const storedPrice = Number(item.price) || 0;
+    return retailPrice > 0 && retailPrice !== storedPrice;
+  });
+
+  const displaySubtotal = hasCorrectedPrices ? recalculatedSubtotal : (order.subTotalAmt || order.subtotal || 0);
+  const displayTotal = hasCorrectedPrices
+    ? displaySubtotal + (Number(order.deliveryCharge) || 0) - (Number(order.couponDiscount) || 0)
+    : (order.totalAmt || 0);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-3">
@@ -103,40 +144,48 @@ function OrderDetailsModal({ order, onClose }) {
           </div>
 
           {/* Dropshipping Rewards (Conditional) */}
-          {(order.profitAmount > 0 || order.referralBonusAmount > 0) && (
-            <div className="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-2xl p-6 text-white shadow-lg border border-emerald-400/30 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-black text-lg flex items-center gap-2">
-                  <div className="p-2 bg-white/20 rounded-xl">
-                    <span className="text-xl">💰</span>
-                  </div>
-                  Dropshipping Rewards
-                </h3>
-                <span className="px-3 py-1 bg-white/20 rounded-full text-[10px] font-black uppercase tracking-widest">
-                  Verified Earning
-                </span>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {order.profitAmount > 0 && (
-                  <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-sm border border-white/10 group hover:bg-white/20 transition-all">
-                    <p className="text-emerald-100 text-[10px] font-black uppercase tracking-wider mb-1 opacity-80">Order Sales Profit</p>
-                    <p className="text-3xl font-black tracking-tighter">৳{order.profitAmount.toLocaleString()}</p>
-                  </div>
-                )}
-                {order.referralBonusAmount > 0 && (
-                  <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-sm border border-white/10 group hover:bg-white/20 transition-all">
-                    <p className="text-emerald-100 text-[10px] font-black uppercase tracking-wider mb-1 opacity-80">
-                      {order.referralPercentage || (order.subTotalAmt > 0 ? Math.round((order.referralBonusAmount / order.subTotalAmt) * 100) : 0)}% Referral Bonus
-                    </p>
-                    <p className="text-3xl font-black tracking-tighter">৳{order.referralBonusAmount.toLocaleString()}</p>
-                  </div>
-                )}
-              </div>
-              <p className="mt-4 text-[10px] text-emerald-100 font-bold italic opacity-60 flex items-center gap-1">
-                <span>✨</span> Rewards are automatically credited to your balance once the order status is 'Delivered' or 'Completed'.
-              </p>
+          {(order.profitAmount > 0 || order.referralBonusAmount > 0) && isDS && (() => {
+    const liveProfit = orderProducts.reduce((sum, p) => {
+      const cost = Number(p.costPrice || p.price) || 0;
+      const selling = Number(p.sellingPrice) || cost;
+      return sum + (selling > cost ? (selling - cost) * (p.quantity || 1) : 0);
+    }, 0) + (Number(order.couponDiscount) || 0);
+    const displayProfit = liveProfit > 0 ? liveProfit : (order.profitAmount || 0);
+    return (
+      <div className="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-2xl p-6 text-white shadow-lg border border-emerald-400/30 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-black text-lg flex items-center gap-2">
+            <div className="p-2 bg-white/20 rounded-xl">
+              <span className="text-xl">💰</span>
+            </div>
+            Dropshipping Rewards
+          </h3>
+          <span className="px-3 py-1 bg-white/20 rounded-full text-[10px] font-black uppercase tracking-widest">
+            Verified Earning
+          </span>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {displayProfit > 0 && (
+            <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-sm border border-white/10 group hover:bg-white/20 transition-all">
+              <p className="text-emerald-100 text-[10px] font-black uppercase tracking-wider mb-1 opacity-80">Order Sales Profit</p>
+              <p className="text-3xl font-black tracking-tighter">৳{displayProfit.toLocaleString()}</p>
             </div>
           )}
+          {order.referralBonusAmount > 0 && (
+            <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-sm border border-white/10 group hover:bg-white/20 transition-all">
+              <p className="text-emerald-100 text-[10px] font-black uppercase tracking-wider mb-1 opacity-80">
+                {order.referralPercentage || (order.subTotalAmt > 0 ? Math.round((order.referralBonusAmount / order.subTotalAmt) * 100) : 0)}% Referral Bonus
+              </p>
+              <p className="text-3xl font-black tracking-tighter">৳{order.referralBonusAmount.toLocaleString()}</p>
+            </div>
+          )}
+        </div>
+        <p className="mt-4 text-[10px] text-emerald-100 font-bold italic opacity-60 flex items-center gap-1">
+          <span>✨</span> Rewards are automatically credited to your balance once the order status is 'Delivered' or 'Completed'.
+        </p>
+      </div>
+    );
+  })()}
 
           {/* Status & Date */}
           <div className="grid md:grid-cols-3 gap-4">
@@ -150,7 +199,7 @@ function OrderDetailsModal({ order, onClose }) {
             <div className="bg-green-50 border rounded-xl p-4">
               <p className="text-xs text-gray-500 mb-2">Payment Status</p>
               <span className={`inline-block px-3 py-1 text-xs rounded-full font-bold capitalize ${getStatusColor(order.payment_status)}`}>
-                {order.payment_status === "paid" ? "পরিশোধিত (Paid)" : order.payment_status === "submitted" ? "পেমেন্ট জমা হয়েছে (Submitted)" : "অপরিশোধিত (Unpaid)"}
+                {order.payment_status === "paid" ? "পরিশোধিত (Paid)" : order.payment_status === "submitted" ? "পেমেন্ট জমা হয়েছে (Submitted)" : "অপরিশোধিত (Unpaid)"}
               </span>
             </div>
 
@@ -218,12 +267,12 @@ function OrderDetailsModal({ order, onClose }) {
               Ordered Products
             </h3>
             <div className="space-y-3">
-              {order.products && order.products.length > 0 ? (
-                order.products.map((p, idx) => {
-                  const product = p.productId || p;
-                  const name = p.name || product.productName || "N/A";
-                  const images = p.image || product.images || [];
-                  const image = images[0] || "/banner/img/placeholder.png";
+              {correctedProducts.length > 0 ? (
+                correctedProducts.map((item, idx) => {
+                  const resolvedProduct = item.productId || {};
+                  const name = item.name || resolvedProduct.productName || "N/A";
+                  const imgData = (item.image?.length > 0 ? item.image : null) || (item.images?.length > 0 ? item.images : null) || (resolvedProduct.images?.length > 0 ? resolvedProduct.images : null) || (resolvedProduct.image?.length > 0 ? resolvedProduct.image : null);
+                  const productImage = (Array.isArray(imgData) ? imgData[0] : (typeof imgData === 'string' ? imgData : null)) || "/banner/img/placeholder.png";
 
                   return (
                     <div
@@ -231,28 +280,29 @@ function OrderDetailsModal({ order, onClose }) {
                       className="flex items-center gap-4 border rounded-xl p-4 bg-white hover:shadow-md transition-shadow"
                     >
                       <img
-                        src={image}
+                        src={productImage}
                         alt={name}
                         className="w-20 h-20 rounded-lg object-cover flex-shrink-0 border"
                       />
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-gray-900 mb-1">{name}</p>
                         <div className="flex flex-wrap gap-3 text-xs text-gray-600">
-                          <span>Qty: <span className="font-medium text-gray-900">{p.quantity || 0}</span></span>
-                          <span>Price: <span className="font-medium text-gray-900">৳{p.price || 0}</span></span>
-                          {p.category && p.category.length > 0 && (
-                            <span>Category: <span className="font-medium text-gray-900">{p.category.join(", ")}</span></span>
-                          )}
-                          {p.subCategory && p.subCategory.length > 0 && (
-                            <span>Subcategory: <span className="font-medium text-gray-900">{p.subCategory.join(", ")}</span></span>
-                          )}
-                          {p.size && <span>Size: <span className="font-medium text-gray-900">{p.size}</span></span>}
-                          {p.color && <span>Color: <span className="font-medium text-gray-900">{p.color}</span></span>}
-                          {p.weight && <span>Weight: <span className="font-medium text-gray-900">{p.weight}</span></span>}
+                          <span>Qty: <span className="font-medium text-gray-900">{item.quantity || 0}</span></span>
+                          {isDS && item.sellingPrice && item.sellingPrice !== item.price ? (
+                             <>
+                               <span>DS Cost: <span className="font-medium text-blue-700">৳{item.price || 0}</span></span>
+                               <span>Selling: <span className="font-medium text-emerald-700">৳{item.sellingPrice}</span></span>
+                             </>
+                           ) : (
+                             <span>Price: <span className="font-medium text-gray-900">৳{item._effectivePrice || 0}</span></span>
+                           )}
+                          {item.size && <span>Size: <span className="font-medium text-gray-900">{item.size}</span></span>}
+                          {item.color && <span>Color: <span className="font-medium text-gray-900">{item.color}</span></span>}
+                          {item.weight && <span>Weight: <span className="font-medium text-gray-900">{item.weight}</span></span>}
                         </div>
                       </div>
                       <p className="font-bold text-emerald-600 text-lg flex-shrink-0">
-                        ৳{p.totalPrice || 0}
+                        ৳{item._effectiveTotal || 0}
                       </p>
                     </div>
                   );
@@ -320,7 +370,7 @@ function OrderDetailsModal({ order, onClose }) {
             <div className="space-y-3 text-sm">
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">Subtotal</span>
-                <span className="font-semibold text-gray-800">৳{order.subTotalAmt || order.subtotal || 0}</span>
+                <span className="font-semibold text-gray-800">৳{displaySubtotal.toLocaleString()}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">Delivery Charge</span>
@@ -340,14 +390,14 @@ function OrderDetailsModal({ order, onClose }) {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-red-600 font-medium">Amount Due</span>
-                  <span className="font-bold text-red-600">৳{order.amount_due || 0}</span>
+                  <span className="font-bold text-red-600">৳{Math.max(0, displayTotal - (order.amount_paid || 0)).toLocaleString()}</span>
                 </div>
               </div>
 
               <div className="bg-white rounded-lg p-4 mt-4 border-2 border-teal-200">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-800 font-bold text-base">Total Amount</span>
-                  <span className="text-teal-600 font-bold text-xl">৳{order.totalAmt || 0}</span>
+                  <span className="text-teal-600 font-bold text-xl">৳{displayTotal.toLocaleString()}</span>
                 </div>
               </div>
             </div>
