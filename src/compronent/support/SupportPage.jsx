@@ -9,7 +9,7 @@ import Section from "../shared/Section";
 const SupportPage = () => {
   const supportChannels = [
     {
-      id: "facebook",
+      id: "facebook_group",
       title: "অফিসিয়াল ফেসবুক গ্রুপ",
       subtitle: "আপডেট ও ঘোষণা",
       icon: FacebookOutlined,
@@ -22,29 +22,29 @@ const SupportPage = () => {
         "bg-gradient-to-r from-blue-500/80 to-blue-600/80 hover:from-blue-500 hover:to-blue-600 shadow-blue-500/20",
       description:
         "সর্বশেষ পণ্য রিলিজ, মার্কেটিং টিপস, ড্রপশিপিং টিউটোরিয়াল এবং লাইভ ইভেন্টের ঘোষণা পেতে আমাদের ফেসবুক পৃষ্ঠাটি লাইক ও ফলো করুন।",
-      url: "https://facebook.com/easyshopingmall",
-      actionText: "ফেসবুক পৃষ্ঠা দেখুন",
+      url: "https://www.facebook.com/share/g/1DsixBQwcE/",
+      actionText: "গ্রুপে যোগ দিন",
     },
     {
-      id: "messenger",
-      title: "ফেসবুক মেসেঞ্জার গ্রুপ",
-      subtitle: "দ্রুত এজেন্ট চ্যাট",
+      id: "facebook_page",
+      title: "ফেসবুক পেজ",
+      subtitle: "আমাদের অফিসিয়াল পেজ",
       icon: FacebookOutlined,
       colorClass:
-        "from-purple-500/20 to-pink-500/30 border-purple-400/30 text-purple-500",
-      hoverBg: "hover:bg-purple-500/5",
-      shadowColor: "shadow-purple-500/10",
-      iconBg: "bg-purple-500/10 text-purple-500",
+        "from-blue-600/20 to-indigo-600/30 border-blue-500/30 text-blue-600",
+      hoverBg: "hover:bg-blue-600/5",
+      shadowColor: "shadow-blue-600/10",
+      iconBg: "bg-blue-600/10 text-blue-600",
       btnBg:
-        "bg-gradient-to-r from-purple-500/80 to-pink-500/80 hover:from-purple-500 hover:to-pink-500 shadow-purple-500/20",
+        "bg-gradient-to-r from-blue-600/80 to-indigo-600/80 hover:from-blue-600 hover:to-indigo-600 shadow-blue-600/20",
       description:
-        "আমাদের গ্রাহক সেবা এজেন্টদের সাথে সরাসরি চ্যাট করুন বা আমাদের সক্রিয় মেসেঞ্জার গ্রুপে যোগ দিন দ্রুত সমস্যার সমাধান, স্টকের প্রাপ্যতা যাচাই এবং সাধারণ সহায়তার জন্য।",
-      url: "https://m.me/easyshopingmall",
-      actionText: "মেসেঞ্জার চ্যাট খুলুন",
+        "আমাদের অফিসিয়াল ফেসবুক পেজ ভিজিট করুন নতুন সব প্রোডাক্টের আপডেট পেতে, যেকোনো প্রয়োজনে সরাসরি ইনবক্স করতে এবং আমাদের কমিউনিটির সাথে যুক্ত থাকতে।",
+      url: "https://www.facebook.com/easyshoppingmall8",
+      actionText: "পেজ ভিজিট করুন",
     },
     {
-      id: "telegram",
-      title: "টেলিগ্রাম সাপোর্ট ও চ্যানেল",
+      id: "telegram_channel",
+      title: "টেলিগ্রাম চ্যানেল",
       subtitle: "২৪/৭ ক্লায়েন্ট সার্কেল",
       icon: Telegram,
       colorClass:
@@ -56,12 +56,12 @@ const SupportPage = () => {
         "bg-gradient-to-r from-cyan-500/80 to-blue-500/80 hover:from-cyan-500 hover:to-blue-500 shadow-cyan-500/20",
       description:
         "আমাদের অফিসিয়াল টেলিগ্রাম কমিউনিটিতে যোগ দিন। এখানে আপনি নিয়মিত আপডেট, মার্কেটিংয়ের জন্য ডাউনলোডযোগ্য মিডিয়া অ্যাসেট, তাত্ক্ষণিক ড্রপশিপিং স্টক ফিড এবং একে অপরকে সহায়তা করা স্টোর মালিকদের একটি নেটওয়ার্ক পাবেন।",
-      url: "https://t.me/easyshopingmall",
+      url: "https://t.me/easyshoppingmallbd",
       actionText: "টেলিগ্রাম চ্যানেলে যোগ দিন",
     },
     {
-      id: "whatsapp",
-      title: "হোয়াটসঅ্যাপ গ্রুপ হাব",
+      id: "whatsapp_group",
+      title: "হোয়াটসঅ্যাপ গ্রুপ",
       subtitle: "তাৎক্ষণিক কমিউনিটি সহায়তা",
       icon: WhatsApp,
       colorClass:
@@ -72,9 +72,26 @@ const SupportPage = () => {
       btnBg:
         "bg-gradient-to-r from-emerald-500/80 to-teal-500/80 hover:from-emerald-500 hover:to-teal-500 shadow-emerald-500/20",
       description:
-        "হোয়াটসঅ্যাপে সংযুক্ত থাকুন। আমাদের গ্রুপ দৈনিক হট-সেলিং পণ্যের পরামর্শ, তাৎক্ষণিক অর্ডার যাচাইকরণ, প্ল্যাটফর্ম কনফিগারেশন সাহায্য এবং ডেলিভারি স্টatus অ্যালার্ট অফার করে।",
-      url: "https://wa.me/message/easyshopingmall",
+        "সর্বশেষ পণ্য রিলিজ, মার্কেটিং টিপস, ড্রপশিপিং টিউটোরিয়াল এবং লাইভ ইভেন্টের ঘোষণা পেতে আমাদের হোয়াটসঅ্যাপ গ্রুপে যুক্ত হন।",
+      url: "https://whatsapp.com/channel/0029Vb5hf5D7NoZuvTebe81q",
       actionText: "হোয়াটসঅ্যাপ গ্রুপে যোগ দিন",
+    },
+    {
+      id: "whatsapp_contact",
+      title: "হোয়াটসঅ্যাপ সাপোর্ট",
+      subtitle: "সরাসরি এজেন্ট চ্যাট",
+      icon: WhatsApp,
+      colorClass:
+        "from-emerald-500/20 to-teal-500/30 border-emerald-400/30 text-emerald-500",
+      hoverBg: "hover:bg-emerald-500/5",
+      shadowColor: "shadow-emerald-500/10",
+      iconBg: "bg-emerald-500/10 text-emerald-500",
+      btnBg:
+        "bg-gradient-to-r from-emerald-500/80 to-teal-500/80 hover:from-emerald-500 hover:to-teal-500 shadow-emerald-500/20",
+      description:
+        "যেকোনো জরুরি জিজ্ঞাসা, অর্ডার ট্র্যাকিং, প্রোডাক্টের স্টক আপডেট অথবা তাৎক্ষণিক যেকোনো সহায়তার জন্য সরাসরি আমাদের অফিসিয়াল হোয়াটসঅ্যাপ নাম্বারে মেসেজ করুন।",
+      url: "https://wa.me/8801626420774",
+      actionText: "হোয়াটসঅ্যাপে চ্যাট করুন",
     },
   ];
 
@@ -109,7 +126,7 @@ const SupportPage = () => {
         </div>
 
         {/* Glassmorphic Channels Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-8 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 md:gap-8 mx-auto">
           {supportChannels.map((channel, index) => {
             const Icon = channel.icon;
 
@@ -186,9 +203,7 @@ const SupportPage = () => {
               <p className="text-xs md:text-sm text-[var(--color-neutral)]/75 leading-relaxed font-medium">
                 আমরা আপনাকে প্রিমিয়াম সহায়তা প্রদানের জন্য নিবেদিত। যেকোনো
                 গ্রুপে সংযুক্ত হওয়ার মাধ্যমে আপনি অগ্রাধিকার সমর্থন পাওয়ার
-                নিশ্চয়তা পাবেন। যদি আপনার সমস্যার জন্য কাস্টম অ্যাকাউন্ট সেটিংস
-                সামঞ্জস্যের প্রয়োজন হয়, আমরা ১৫ মিনিটের মধ্যে সরাসরি মেসেঞ্জার
-                বা ইমেইলের মাধ্যমে সমন্বয় করব।
+                নিশ্চয়তা পাবেন।
               </p>
             </div>
           </div>

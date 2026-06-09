@@ -141,7 +141,7 @@ const DropshippingCartComponent = () => {
                       <div className="flex justify-between items-start">
                         <div>
                           <h3 className="text-lg font-bold text-gray-900">{item.productId.productName}</h3>
-                          <p className="text-sm text-gray-500">Cost Price: <span className="font-bold">৳{item.price}</span></p>
+                          <p className="text-sm text-gray-500">Dropshipping Price: <span className="font-bold">৳{item.price}</span></p>
                         </div>
                         <button onClick={() => dispatch(dsCartRemove(item.productId._id))} className="text-gray-400 hover:text-red-500 p-2 rounded-xl hover:bg-red-50 transition-colors">
                           <Trash2 className="w-5 h-5" />
@@ -197,7 +197,7 @@ const DropshippingCartComponent = () => {
 
                 <div className="space-y-4">
                   <div className="flex justify-between items-center text-gray-500 font-medium">
-                    <span>Subtotal (Cost)</span>
+                    <span>Subtotal (Dropshipping Cost)</span>
                     <span className="text-gray-900 font-bold">৳{subtotal.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between items-center text-gray-500 font-medium">

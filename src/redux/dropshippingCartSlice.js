@@ -104,6 +104,15 @@ const dropshippingCartSlice = createSlice({
 
                 if (existingIndex >= 0) {
                     state.items[existingIndex].quantity += payload.quantity || 1;
+                    // Always refresh price from the latest fetch so stale localStorage prices are corrected
+                    if (payload.price !== undefined) {
+                        state.items[existingIndex].price = payload.price;
+                    }
+                    if (payload.sellingPrice !== undefined && state.items[existingIndex].sellingPrice === state.items[existingIndex].price) {
+                        // Only auto-update sellingPrice if user hasn't customised it yet (i.e. it still equals cost)
+                        state.items[existingIndex].sellingPrice = payload.sellingPrice;
+                    }
+                    state.items[existingIndex].profit = ((state.items[existingIndex].sellingPrice || state.items[existingIndex].price) - state.items[existingIndex].price) * state.items[existingIndex].quantity;
                 } else {
                     state.items.push({
                         ...payload,

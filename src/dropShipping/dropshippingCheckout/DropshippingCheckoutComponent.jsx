@@ -111,8 +111,6 @@ const DropshippingCheckoutComponent = () => {
     return sum + (sp * item.quantity);
   }, 0);
 
-  const perItemCouponShare = items.length > 0 ? (couponDiscount || 0) / items.length : 0;
-
   const totalProfit = items.reduce((sum, item) => {
     const sp = item.sellingPrice === "" ? 0 : (item.sellingPrice ?? item.price);
     return sum + ((sp - item.price) * item.quantity);
@@ -218,17 +216,22 @@ const DropshippingCheckoutComponent = () => {
     try {
       const payload = {
         userId: user._id,
-        products: items.map(item => ({
-          productId: item.productId._id,
-          name: item.productId.productName,
-          image: item.productId.images || [],
-          quantity: item.quantity,
-          costPrice: item.price,
-          sellingPrice: item.sellingPrice || item.price,
-          size: item.size || null,
-          color: item.color || null,
-          weight: item.weight || null,
-        })),
+        products: items.map(item => {
+          const sp = item.sellingPrice === "" ? 0 : (item.sellingPrice ?? item.price);
+          return {
+            productId: item.productId._id,
+            name: item.productId.productName,
+            image: item.productId.images || [],
+            quantity: item.quantity,
+            costPrice: item.price,
+            sellingPrice: sp,
+            price: sp,
+            totalPrice: sp * item.quantity,
+            size: item.size || null,
+            color: item.color || null,
+            weight: item.weight || null,
+          };
+        }),
 
 
         delivery_address: {
@@ -253,6 +256,7 @@ const DropshippingCheckoutComponent = () => {
           }
         } : {},
         totalAmt: total,
+        subTotalAmt: subtotal,
         deliveryCharge,
         appliedCoupon: appliedCoupon?.code || null,
         couponDiscount: couponDiscount || 0,
@@ -703,7 +707,7 @@ const DropshippingCheckoutComponent = () => {
                           {item.productId.productName}
                         </p>
                         <div className="flex items-center gap-2 mt-1.5">
-                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">ক্রয় মূল্য:</p>
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">ড্রপশিপিং প্রাইস:</p>
                           <p className="text-xs font-bold text-slate-600">৳{(item.price * item.quantity).toLocaleString()}</p>
                         </div>
 
@@ -713,7 +717,12 @@ const DropshippingCheckoutComponent = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           <p className="text-[10px] font-black text-blue-600 uppercase tracking-tighter">লাভ:</p>
-                          <p className="text-xs font-black text-blue-600">৳{((((item.sellingPrice === "" ? 0 : (item.sellingPrice ?? item.price)) - item.price) * item.quantity) + perItemCouponShare).toLocaleString()}</p>
+                          <p className="text-xs font-black text-blue-600">৳{(() => {
+                            const sp = (item.sellingPrice === "" ? 0 : (item.sellingPrice ?? item.price));
+                            const baseProfit = (sp - item.price) * item.quantity;
+                            const couponShare = subtotal > 0 ? ((sp * item.quantity) / subtotal) * (couponDiscount || 0) : 0;
+                            return (baseProfit + couponShare).toLocaleString();
+                          })()}</p>
                         </div>
                       </div>
                     </div>
@@ -746,7 +755,7 @@ const DropshippingCheckoutComponent = () => {
                 <div className="space-y-4 pt-6 border-t border-dashed border-slate-200">
                   <div className="flex justify-between items-center text-sm">
                     <span className="font-bold text-slate-500">সাবটোটাল (পণ্যের দাম)</span>
-                    <span className="font-black text-slate-900">৳{(subtotal - (couponDiscount || 0)).toLocaleString()}</span>
+                    <span className="font-black text-slate-900">৳{subtotal.toLocaleString()}</span>
                   </div>
 
                   <div className="flex justify-between items-center text-sm">

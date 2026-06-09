@@ -98,8 +98,8 @@ const ProductCard = React.memo(
         dsCartAdd({
           productId: product,
           quantity: 1,
-          price: product.price || 0,
-          sellingPrice: product.price || 0,
+          price: product.dropshippingPrice ?? product.price ?? 0,
+          sellingPrice: product.dropshippingPrice ?? product.price ?? 0,
           profit: 0,
         }),
       );
@@ -228,7 +228,7 @@ const ProductCard = React.memo(
               </div>
 
               <p className="text-sm lg:text-base font-semibold text-slate-900 tracking-tight">
-                ৳{product.price}
+                ৳{(user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) ? (product.dropshippingPrice ?? product.price) : product.price}
               </p>
             </div>
           </div>

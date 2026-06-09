@@ -31,6 +31,7 @@ const AddProductComponent = () => {
     productSize: [],
     color: [],
     price: "",
+    dropshippingPrice: "",
     productStock: "",
     productRank: "",
     discount: "",
@@ -219,6 +220,7 @@ const AddProductComponent = () => {
       productSize: [],
       color: [],
       price: "",
+      dropshippingPrice: "",
       productStock: "",
       productRank: "",
       discount: "",
@@ -759,6 +761,28 @@ const AddProductComponent = () => {
                   placeholder="0.00"
                   required
                 />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-slate-300 flex items-center gap-2">
+                  Dropshipping Price (৳)
+                  <span className="text-[10px] text-cyan-300 font-bold uppercase tracking-wider bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded">
+                    DS Cost
+                  </span>
+                </label>
+                <input
+                  type="number"
+                  name="dropshippingPrice"
+                  value={formData.dropshippingPrice}
+                  onChange={handleInputChange}
+                  step="0.01"
+                  min="0"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent mt-1"
+                  placeholder="Leave empty to use regular price"
+                />
+                <p className="text-[10px] text-gray-400 leading-relaxed">
+                  Wholesale price the dropshipper pays as their cost. Falls back to regular price when empty.
+                </p>
               </div>
 
               <div className="space-y-2">

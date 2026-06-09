@@ -77,7 +77,7 @@ const cartSlice = createSlice({
             const productId = action.payload;
 
             state.items = state.items.filter(
-                (item) => item.productId !== productId
+                (item) => (item.productId?._id || item.productId) !== productId
             );
         },
 
@@ -113,7 +113,7 @@ const cartSlice = createSlice({
         removeItemLocal: (state, action) => {
             const productId = action.payload;
             state.items = state.items.filter(
-                (item) => item.productId !== productId
+                (item) => (item.productId?._id || item.productId) !== productId
             );
         },
     },

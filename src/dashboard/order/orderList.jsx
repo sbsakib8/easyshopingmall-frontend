@@ -4,6 +4,8 @@ import Container from "@/src/compronent/shared/Container";
 import DashboardLoader from "@/src/helper/loading/DashboardLoader";
 import { useGetAllOrders } from "@/src/utlis/useGetAllOrders";
 import { OrderUpdate } from "@/src/utlis/useOrder";
+import { isDSOrder } from "@/src/utlis/orderHelpers";
+import { cn } from "@/src/utlis/utils";
 import {
   BarChart3,
   Calendar,
@@ -16,6 +18,7 @@ import {
   Copy,
   DollarSign,
   Eye,
+  Loader2,
   LoaderIcon,
   Mail,
   Package,
@@ -63,6 +66,84 @@ const statusIcons = {
   completed: CheckCircle,
   cancelled: XCircle,
   return: RefreshCw,
+};
+
+const SkeletonOrderCard = () => {
+  return (
+    <>
+      <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-gray-700 shadow-lg animate-pulse">
+        {/* Top Accent Bar */}
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
+
+        <div className="px-3 py-6">
+          {/* Header Section */}
+          <div className="flex flex-col-reverse gap-3 items-start justify-between mb-4">
+            <div className="flex items-center gap-4 w-full">
+              {/* Checkbox */}
+              <div className="w-7 h-7 bg-gray-700 rounded-lg"></div>
+
+              {/* Package Icon */}
+              <div className="w-12 h-12 bg-gray-700 rounded-2xl flex-shrink-0"></div>
+
+              <div className="flex-1 min-w-0">
+                {/* Order ID */}
+                <div className="h-4 w-28 bg-gray-700 rounded mb-2"></div>
+                {/* Customer Name */}
+                <div className="h-4 w-40 bg-gray-700 rounded"></div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center gap-2">
+              <div className="w-9 h-9 bg-gray-700 rounded-xl"></div>
+              <div className="w-9 h-9 bg-gray-700 rounded-xl"></div>
+            </div>
+          </div>
+
+          {/* Date & Total Cards */}
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="py-3 px-2 bg-gray-700/50 rounded-xl">
+              <div className="h-4 w-16 bg-gray-600 rounded mx-auto mb-2"></div>
+              <div className="h-5 w-20 bg-gray-600 rounded mx-auto"></div>
+            </div>
+            <div className="py-3 px-2 bg-gray-700/50 rounded-xl">
+              <div className="h-4 w-12 bg-gray-600 rounded mx-auto mb-2"></div>
+              <div className="h-5 w-24 bg-gray-600 rounded mx-auto"></div>
+            </div>
+          </div>
+
+          {/* Status & Rating */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-5 h-5 bg-gray-700 rounded"></div>
+              <div className="h-8 px-6 bg-gray-700 rounded-2xl"></div>
+            </div>
+
+            {/* Stars */}
+            <div className="flex gap-1">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="w-4 h-4 bg-gray-700 rounded"></div>
+              ))}
+            </div>
+          </div>
+
+          {/* Bottom Info */}
+          <div className="pt-4 border-t border-gray-700">
+            <div className="flex flex-wrap items-center gap-6 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-gray-700 rounded"></div>
+                <div className="h-3.5 w-36 bg-gray-700 rounded"></div>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-gray-700 rounded"></div>
+                <div className="h-3.5 w-20 bg-gray-700 rounded"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
 };
 
 const OrderManagement = () => {
@@ -229,7 +310,60 @@ const OrderManagement = () => {
     }
   };
 
-  if (ordersLoading) return <DashboardLoader />;
+  const statsCards = [
+    {
+      id: "total",
+      label: "Total Orders",
+      valueKey: "total",
+      icon: ShoppingCart,
+      iconColor: "text-blue-400",
+      accent: (
+        <div className="absolute top-0 right-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500" />
+      ),
+    },
+    {
+      id: "completed",
+      label: "Completed",
+      valueKey: "completed",
+      icon: CheckCircle,
+      iconColor: "text-green-400",
+      accent: (
+        <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/10 rounded-full -translate-y-10 translate-x-10" />
+      ),
+    },
+    {
+      id: "pending",
+      label: "Pending",
+      valueKey: "pending",
+      icon: Clock,
+      iconColor: "text-orange-400",
+      accent: (
+        <div className="absolute top-0 right-0 w-20 h-20 bg-orange-500/10 rounded-full -translate-y-10 translate-x-10" />
+      ),
+    },
+    {
+      id: "processing",
+      label: "Processing",
+      valueKey: "processing",
+      icon: LoaderIcon,
+      iconColor: "text-orange-400",
+      accent: (
+        <div className="absolute top-0 right-0 w-20 h-20 bg-orange-500/10 rounded-full -translate-y-10 translate-x-10" />
+      ),
+    },
+    {
+      id: "revenue",
+      label: "Revenue",
+      valueKey: "revenue",
+      icon: DollarSign,
+      iconColor: "text-purple-400",
+      accent: (
+        <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/10 rounded-full -translate-y-10 translate-x-10" />
+      ),
+      prefix: "৳",
+      formatValue: (value) => value?.toFixed(0) || "0",
+    },
+  ];
 
   return (
     <section className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 py-10 md:py-16">
@@ -253,59 +387,37 @@ const OrderManagement = () => {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-slate-300 shadow-xl">
-            <div className="absolute top-0 right-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
-            <div className="relative">
-              <ShoppingCart className="h-8 w-8 mb-3 text-blue-400" />
-              <p className="text-gray-400 text-sm">Total Orders</p>
-              <p className="text-3xl font-bold text-slate-300">
-                {stats?.total}
-              </p>
-            </div>
-          </div>
+          {statsCards.map((card) => {
+            const rawValue = stats?.[card.valueKey];
+            const displayValue = card.formatValue
+              ? card.formatValue(rawValue)
+              : (rawValue ?? 0);
 
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-slate-300 shadow-xl">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/10 rounded-full -translate-y-10 translate-x-10"></div>
-            <div className="relative">
-              <CheckCircle className="h-8 w-8 mb-3 text-green-400" />
-              <p className="text-gray-400 text-sm">Completed</p>
-              <p className="text-3xl font-bold text-slate-300">
-                {stats?.completed}
-              </p>
-            </div>
-          </div>
+            return (
+              <div
+                key={card.id}
+                className={cn(
+                  "relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900",
+                  "border border-gray-700 p-6 text-slate-300 shadow-xl",
+                )}
+              >
+                {card.accent}
 
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-slate-300 shadow-xl">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-orange-500/10 rounded-full -translate-y-10 translate-x-10"></div>
-            <div className="relative">
-              <Clock className="h-8 w-8 mb-3 text-orange-400" />
-              <p className="text-gray-400 text-sm">Pending</p>
-              <p className="text-3xl font-bold text-slate-300">
-                {stats?.pending}
-              </p>
-            </div>
-          </div>
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-slate-300 shadow-xl">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-orange-500/10 rounded-full -translate-y-10 translate-x-10"></div>
-            <div className="relative">
-              <LoaderIcon className="h-8 w-8 mb-3 text-orange-400" />
-              <p className="text-gray-400 text-sm">Processing</p>
-              <p className="text-3xl font-bold text-slate-300">
-                {stats?.processing}
-              </p>
-            </div>
-          </div>
-
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 p-6 text-slate-300 shadow-xl">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/10 rounded-full -translate-y-10 translate-x-10"></div>
-            <div className="relative">
-              <DollarSign className="h-8 w-8 mb-3 text-purple-400" />
-              <p className="text-gray-400 text-sm">Revenue</p>
-              <p className="text-3xl font-bold text-slate-300">
-                ৳{stats?.revenue?.toFixed(0)}
-              </p>
-            </div>
-          </div>
+                <div className="relative">
+                  <card.icon className={cn("h-8 w-8 mb-3", card.iconColor)} />
+                  <p className="text-gray-400 text-sm">{card.label}</p>
+                  {ordersLoading ? (
+                    <Loader2 className="animate-spin" />
+                  ) : (
+                    <p className="text-3xl font-bold text-slate-300">
+                      {card.prefix}
+                      {displayValue}
+                    </p>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
 
         <div className="bg-gradient-to-br from-gray-800/70 to-gray-900/70 backdrop-blur-xl rounded-3xl shadow-xl border border-gray-700 p-6">
@@ -358,7 +470,8 @@ const OrderManagement = () => {
               <div className="flex items-center gap-3">
                 <Package className="h-6 w-6 text-blue-400" />
                 <h2 className="text-2xl font-bold text-slate-300">
-                  Orders ({allOrders?.length})
+                  Orders ({ordersLoading ? <Loader2 /> : allOrders?.length || 0}
+                  )
                 </h2>
               </div>
 
@@ -379,153 +492,157 @@ const OrderManagement = () => {
 
           <div className="p-6">
             <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-              {paginatedOrders?.map((order) => {
-                const StatusIcon = statusIcons[order?.status];
-                const isSelected = selectedOrders.has(order?.orderId);
+              {ordersLoading ? (
+                <>
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <SkeletonOrderCard key={i} />
+                  ))}
+                </>
+              ) : (
+                paginatedOrders?.map((order) => {
+                  const StatusIcon = statusIcons[order?.status];
+                  const isSelected = selectedOrders.has(order?.orderId);
 
-                return (
-                  <div
-                    key={order?.orderId}
-                    className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800/50 to-gray-900/50 border ${isSelected ? "border-blue-500 shadow-lg shadow-blue-500/25" : "border-gray-700 hover:border-gray-600"} shadow-lg cursor-pointer`}
-                    onClick={() => handleViewOrder(order)}
-                  >
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
+                  return (
+                    <div
+                      key={order?.orderId}
+                      className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800/50 to-gray-900/50 border ${isSelected ? "border-blue-500 shadow-lg shadow-blue-500/25" : "border-gray-700 hover:border-gray-600"} shadow-lg cursor-pointer`}
+                      onClick={() => handleViewOrder(order)}
+                    >
+                      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
 
-                    <div className="px-3 py-6">
-                      <div className="flex flex-col-reverse gap-3 items-start justify-between mb-4">
-                        <div className="flex items-center gap-4">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleSelectOrder(order?.orderId);
-                            }}
-                            className="p-1 rounded-lg hover:bg-gray-700"
-                          >
-                            {isSelected ? (
-                              <CheckSquare className="h-5 w-5 text-blue-400" />
-                            ) : (
-                              <Square className="h-5 w-5 text-gray-400" />
-                            )}
-                          </button>
-
-                          <div className="w-12 h-12 rounded-sm lg:rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-slate-300 shadow-lg px-3">
-                            <Package className="h-6 w-6" />
-                          </div>
-                          <div>
-                            <h3 className="text-xs font-bold text-slate-300 group-hover:text-blue-400">
-                              {order?.orderId}
-                            </h3>
-                            <div className="flex flex-wrap items-center gap-2 mt-1">
-                              <span className="text-gray-300 font-medium">
-                                {order?.userId?.name}
-                              </span>
-                              {order?.userId?.role === "DROPSHIPPING" && (
-                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/20 text-primary border border-primary/30 uppercase tracking-widest">
-                                  Dropshipping
-                                </span>
+                      <div className="px-3 py-6">
+                        <div className="flex flex-col-reverse gap-3 items-start justify-between mb-4">
+                          <div className="flex items-center gap-4">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleSelectOrder(order?.orderId);
+                              }}
+                              className="p-1 rounded-lg hover:bg-gray-700"
+                            >
+                              {isSelected ? (
+                                <CheckSquare className="h-5 w-5 text-blue-400" />
+                              ) : (
+                                <Square className="h-5 w-5 text-gray-400" />
                               )}
+                            </button>
+
+                            <div className="w-12 h-12 rounded-sm lg:rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-slate-300 shadow-lg px-3">
+                              <Package className="h-6 w-6" />
+                            </div>
+                            <div>
+                              <h3 className="text-xs font-bold text-slate-300 group-hover:text-blue-400">
+                                {order?.orderId}
+                              </h3>
+                              <div className="flex flex-wrap items-center gap-2 mt-1">
+                                <span className="text-gray-300 font-medium">
+                                  {order?.userId?.name}
+                                </span>
+                                {order?.userId?.role === "DROPSHIPPING" && (
+                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/20 text-primary border border-primary/30 uppercase tracking-widest">
+                                    Dropshipping
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleViewOrder(order);
+                              }}
+                              className="p-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-slate-300 shadow-lg"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setConfirmationModal(true);
+                                setSelectedOrder(order);
+                              }}
+                              className="p-2 rounded-xl bg-red-600 hover:bg-red-700 text-slate-300 shadow-lg"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4 mb-4">
+                          <div className="text-center py-3 px-2 bg-gradient-to-br from-gray-700/50 to-gray-800/50 rounded-xl">
+                            <div className="flex items-center justify-center gap-2 text-gray-400 text-sm mb-1">
+                              <Calendar className="h-4 w-4" />
+                              Date
+                            </div>
+                            <div className="text-slate-300 font-semibold text-base">
+                              {new Date(
+                                order?.products[0]?.productId?.createdAt,
+                              ).toLocaleDateString()}
+                            </div>
+                          </div>
+
+                          <div className="text-center py-3 px-2 bg-gradient-to-br from-gray-700/50 to-gray-800/50 rounded-xl">
+                            <div className="flex items-center justify-center text-gray-400 text-sm mb-1">
+                              <DollarSign className="h-4 w-4" />
+                              Total
+                            </div>
+                            <div className="text-base font-semibold text-green-400">
+                              ৳{order?.totalAmt.toFixed(2)}
                             </div>
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleViewOrder(order);
-                            }}
-                            className="p-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-slate-300 shadow-lg"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setConfirmationModal(true);
-                              setSelectedOrder(order);
-                            }}
-                            className="p-2 rounded-xl bg-red-600 hover:bg-red-700 text-slate-300 shadow-lg"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </div>
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-2">
+                            {StatusIcon && (
+                              <StatusIcon className="h-5 w-5 text-slate-300" />
+                            )}
+                            <span
+                              className={`px-4 py-2 rounded-2xl text-sm font-semibold capitalize text-black ${statusColors[order?.order_status]}`}
+                            >
+                              {order?.order_status.charAt(0).toUpperCase() +
+                                order?.order_status.slice(1)}
+                            </span>
+                          </div>
 
-                      <div className="grid grid-cols-2 gap-4 mb-4">
-                        <div className="text-center py-3 px-2 bg-gradient-to-br from-gray-700/50 to-gray-800/50 rounded-xl">
-                          <div className="flex items-center justify-center gap-2 text-gray-400 text-sm mb-1">
-                            <Calendar className="h-4 w-4" />
-                            Date
-                          </div>
-                          <div className="text-slate-300 font-semibold text-base">
-                            {new Date(
-                              order?.products[0]?.productId?.createdAt,
-                            ).toLocaleDateString()}
-                          </div>
-                        </div>
-
-                        <div className="text-center py-3 px-2 bg-gradient-to-br from-gray-700/50 to-gray-800/50 rounded-xl">
-                          <div className="flex items-center justify-center text-gray-400 text-sm mb-1">
-                            <DollarSign className="h-4 w-4" />
-                            Total
-                          </div>
-                          <div className="text-base font-semibold text-green-400">
-                            ৳{order?.totalAmt.toFixed(2)}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-2">
-                          {StatusIcon && (
-                            <StatusIcon className="h-5 w-5 text-slate-300" />
+                          {order?.products[0]?.productId?.ratings && (
+                            <div className="flex items-center gap-1">
+                              {[...Array(5)].map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className={`h-4 w-4 ${i < order?.products[0]?.productId?.ratings ? "text-yellow-400 fill-current" : "text-gray-600"}`}
+                                />
+                              ))}
+                            </div>
                           )}
-                          <span
-                            className={`px-4 py-2 rounded-2xl text-sm font-semibold capitalize text-black ${statusColors[order?.order_status]}`}
-                          >
-                            {order?.order_status.charAt(0).toUpperCase() +
-                              order?.order_status.slice(1)}
-                          </span>
                         </div>
 
-                        {order?.products[0]?.productId?.ratings && (
-                          <div className="flex items-center gap-1">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`h-4 w-4 ${i < order?.products[0]?.productId?.ratings ? "text-yellow-400 fill-current" : "text-gray-600"}`}
-                              />
-                            ))}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="pt-4 border-t border-gray-700">
-                        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400">
-                          <div className="flex items-center gap-2">
-                            <Mail className="h-4 w-4" />
-                            {order?.customerEmail}
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Package className="h-4 w-4" />
-                            {order?.products.length} item
-                            {order?.products.length > 1 ? "s" : ""}
+                        <div className="pt-4 border-t border-gray-700">
+                          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400">
+                            <div className="flex items-center gap-2">
+                              <Mail className="h-4 w-4" />
+                              {order?.customerEmail}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Package className="h-4 w-4" />
+                              {order?.products.length} item
+                              {order?.products.length > 1 ? "s" : ""}
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })
+              )}
             </div>
 
             {/* Pagination */}
             {totalPages > 1 && (
               <div className="flex items-center justify-between pt-8 mt-8 border-t border-gray-700">
-                {/* <div className="text-sm text-gray-400">
- Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, filteredOrders.length)} of{""}
- {filteredOrders.length} orders
- </div> */}
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() =>
@@ -545,8 +662,8 @@ const OrderManagement = () => {
                           key={page}
                           onClick={() => setCurrentPage(page)}
                           className={`w-10 h-10 rounded-xl ${currentPage === page
-                            ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-slate-300 shadow-lg"
-                            : "bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 text-slate-300 hover:border-gray-500"
+                              ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-slate-300 shadow-lg"
+                              : "bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 text-slate-300 hover:border-gray-500"
                             }`}
                         >
                           {page}
@@ -569,9 +686,6 @@ const OrderManagement = () => {
             )}
           </div>
         </div>
-
-        {/* Loading Overlay */}
-        {isLoading && <DashboardLoader />}
 
         {showModal && selectedOrder && (
           <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-40 p-4 min-h-screen">
@@ -620,7 +734,7 @@ const OrderManagement = () => {
                             <span className="font-medium text-slate-300">
                               {selectedOrder?.userId?.name}
                             </span>
-                            {selectedOrder?.userId?.role === "DROPSHIPPING" && (
+                            {isDSOrder(selectedOrder) && (
                               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/20 text-primary border border-primary/30 uppercase tracking-widest">
                                 Dropshipping
                               </span>
@@ -736,7 +850,21 @@ const OrderManagement = () => {
                         <div className="flex justify-between">
                           <span className="text-gray-400">Sub Total:</span>
                           <span className="font-medium text-slate-300">
-                            ৳{selectedOrder?.subTotalAmt || "None"}
+                            {(() => {
+                              const isDS2 = isDSOrder(selectedOrder);
+                              const hasCorrectedPrices2 = !isDS2 && (selectedOrder?.products || []).some((item) => {
+                                const retailPrice = Number(item?.productId?.price) || 0;
+                                const storedPrice = Number(item?.price) || 0;
+                                return retailPrice > 0 && retailPrice !== storedPrice;
+                              });
+                              const sub2 = hasCorrectedPrices2
+                                ? (selectedOrder?.products || []).reduce((sum, item) => {
+                                  const retailPrice = Number(item?.productId?.price) || Number(item?.price) || 0;
+                                  return sum + retailPrice * (Number(item?.quantity) || 1);
+                                }, 0)
+                                : Number(selectedOrder?.subTotalAmt) || 0;
+                              return `৳${sub2}`;
+                            })()}
                           </span>
                         </div>
 
@@ -751,17 +879,42 @@ const OrderManagement = () => {
 
                         {selectedOrder?.couponDiscount > 0 && (
                           <div className="flex justify-between text-emerald-400">
-                            <span>Coupon Discount ({selectedOrder?.appliedCoupon}):</span>
-                            <span className="font-medium">- ৳{selectedOrder?.couponDiscount}</span>
+                            <span>
+                              Coupon Discount ({selectedOrder?.appliedCoupon}):
+                            </span>
+                            <span className="font-medium">
+                              - ৳{selectedOrder?.couponDiscount}
+                            </span>
                           </div>
                         )}
 
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Total:</span>
-                          <span className="font-medium text-slate-300">
-                            ৳{selectedOrder?.totalAmt || "None"}
-                          </span>
-                        </div>
+                        {(() => {
+                          const isDS2 = isDSOrder(selectedOrder);
+                          const hasCorrectedPrices2 = !isDS2 && (selectedOrder?.products || []).some((item) => {
+                            const retailPrice = Number(item?.productId?.price) || 0;
+                            const storedPrice = Number(item?.price) || 0;
+                            return retailPrice > 0 && retailPrice !== storedPrice;
+                          });
+                          const sub2 = hasCorrectedPrices2
+                            ? (selectedOrder?.products || []).reduce((sum, item) => {
+                              const retailPrice = Number(item?.productId?.price) || Number(item?.price) || 0;
+                              return sum + retailPrice * (Number(item?.quantity) || 1);
+                            }, 0)
+                            : Number(selectedOrder?.subTotalAmt) || 0;
+                          const delivery2 = Number(selectedOrder?.deliveryCharge) || 0;
+                          const coupon2 = Number(selectedOrder?.couponDiscount) || 0;
+                          const calculatedTotal2 = sub2 + delivery2 - coupon2;
+                          const storedTotal2 = Number(selectedOrder?.totalAmt) || 0;
+                          const displayTotal2 = calculatedTotal2 > 0 ? calculatedTotal2 : storedTotal2;
+                          return (
+                            <div className="flex justify-between">
+                              <span className="text-gray-400">Total:</span>
+                              <span className="font-medium text-slate-300">
+                                ৳{displayTotal2}
+                              </span>
+                            </div>
+                          );
+                        })()}
 
                         <div className="flex justify-between">
                           <span className="text-gray-400">Payment Method:</span>
@@ -852,13 +1005,48 @@ const OrderManagement = () => {
                         <div className="flex justify-between">
                           <span className="text-gray-400">Amount Due:</span>
                           <span className="font-medium text-slate-300">
-                            ৳{selectedOrder?.amount_due}
+                            {(() => {
+                              const isDS2 = isDSOrder(selectedOrder);
+                              const hasCorrectedPrices2 = !isDS2 && (selectedOrder?.products || []).some((item) => {
+                                const retailPrice = Number(item?.productId?.price) || 0;
+                                const storedPrice = Number(item?.price) || 0;
+                                return retailPrice > 0 && retailPrice !== storedPrice;
+                              });
+                              const sub2 = hasCorrectedPrices2
+                                ? (selectedOrder?.products || []).reduce((sum, item) => {
+                                  const retailPrice = Number(item?.productId?.price) || Number(item?.price) || 0;
+                                  return sum + retailPrice * (Number(item?.quantity) || 1);
+                                }, 0)
+                                : Number(selectedOrder?.subTotalAmt) || 0;
+                              const delivery2 = Number(selectedOrder?.deliveryCharge) || 0;
+                              const coupon2 = Number(selectedOrder?.couponDiscount) || 0;
+                              const calculatedTotal2 = sub2 + delivery2 - coupon2;
+                              const storedTotal2 = Number(selectedOrder?.totalAmt) || 0;
+                              const displayTotal2 = calculatedTotal2 > 0 ? calculatedTotal2 : storedTotal2;
+                              const amountDue = Math.max(0, displayTotal2 - (Number(selectedOrder?.amount_paid) || 0));
+                              return `৳${amountDue}`;
+                            })()}
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-400">Amount Paid:</span>
                           <span className="font-medium text-slate-300">
                             ৳{selectedOrder?.amount_paid}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Payment Type:</span>
+                          <span className="font-medium text-slate-300 capitalize">
+                            {selectedOrder?.payment_type || "—"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Payment Status:</span>
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${selectedOrder?.payment_status === "paid" ? "bg-green-500/20 text-green-400" :
+                              selectedOrder?.payment_status === "submitted" ? "bg-yellow-500/20 text-yellow-400" :
+                                "bg-gray-500/20 text-gray-400"
+                            }`}>
+                            {selectedOrder?.payment_status || "—"}
                           </span>
                         </div>
 
@@ -887,75 +1075,102 @@ const OrderManagement = () => {
                         Order Items
                       </h3>
                       <div className="space-y-3">
-                        {selectedOrder?.products?.map((item, index) => (
-                          <div
-                            key={index}
-                            className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 rounded-xl p-2 shadow-sm border border-gray-700"
-                          >
-                            <div className="flex justify-between items-center">
-                              <div className="flex">
-                                <img
-                                  className="w-15 h-15 object-cover object-top rounded-sm mr-1"
-                                  src={
-                                    (Array.isArray(item?.image) ? item.image[0] : (typeof item?.image === 'string' ? item.image : null)) ||
-                                    (Array.isArray(item?.images) ? item.images[0] : (typeof item?.images === 'string' ? item.images : null)) ||
-                                    (Array.isArray(item?.productId?.images) ? item.productId.images[0] : (typeof item?.productId?.images === 'string' ? item.productId.images : null)) ||
-                                    (Array.isArray(item?.productId?.image) ? item.productId.image[0] : (typeof item?.productId?.image === 'string' ? item.productId.image : null)) ||
-                                    "/img/product.jpg"
-                                  }
-                                  alt={item?.name || "Product"}
-                                />
-                                <div>
-                                  <h4 className="text-xs text-slate-300">
-                                    {item?.name}
-                                  </h4>
-                                  <p className="text-xs text-gray-400">
-                                    Quantity: {item?.quantity}
+                        {(() => {
+                          const isDS = isDSOrder(selectedOrder);
+                          const correctedItems = (selectedOrder?.products || []).map((item) => {
+                            if (isDS) return { ...item, _ep: item.sellingPrice || item.price || 0, _et: item.totalPrice || (item.sellingPrice || item.price || 0) * (Number(item?.quantity) || 1) };
+                            const retailPrice = Number(item?.productId?.price) || 0;
+                            const storedPrice = Number(item?.price) || 0;
+                            const ep = (retailPrice > 0 && retailPrice !== storedPrice) ? retailPrice : storedPrice;
+                            return { ...item, _ep: ep };
+                          });
+                          return correctedItems.map((item, index) => (
+                            <div
+                              key={index}
+                              className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 rounded-xl p-2 shadow-sm border border-gray-700"
+                            >
+                              <div className="flex justify-between items-center">
+                                <div className="flex">
+                                  <img
+                                    className="w-15 h-15 object-cover object-top rounded-sm mr-1"
+                                    src={
+                                      (Array.isArray(item?.image)
+                                        ? item.image[0]
+                                        : typeof item?.image === "string"
+                                          ? item.image
+                                          : null) ||
+                                      (Array.isArray(item?.images)
+                                        ? item.images[0]
+                                        : typeof item?.images === "string"
+                                          ? item.images
+                                          : null) ||
+                                      (Array.isArray(item?.productId?.images)
+                                        ? item.productId.images[0]
+                                        : typeof item?.productId?.images ===
+                                          "string"
+                                          ? item.productId.images
+                                          : null) ||
+                                      (Array.isArray(item?.productId?.image)
+                                        ? item.productId.image[0]
+                                        : typeof item?.productId?.image ===
+                                          "string"
+                                          ? item.productId.image
+                                          : null) ||
+                                      "/img/product.jpg"
+                                    }
+                                    alt={item?.name || "Product"}
+                                  />
+                                  <div>
+                                    <h4 className="text-xs text-slate-300">
+                                      {item?.name}
+                                    </h4>
+                                    <p className="text-xs text-gray-400">
+                                      Quantity: {item?.quantity}
+                                    </p>
+                                    <p className="text-gray-400 text-xs">
+                                      Color: {item?.color || "none"}
+                                    </p>
+                                    <p className="text-gray-400 text-xs">
+                                      Size: {item?.size || "none"}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-lg font-bold text-green-400">
+                                    ৳{item._ep.toFixed(2)}
                                   </p>
-                                  <p className="text-gray-400 text-xs">
-                                    Color: {item?.color || "none"}
+                                  <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tighter">
+                                    Unit Price
                                   </p>
-                                  <p className="text-gray-400 text-xs">
-                                    Size: {item?.size || "none"}
-                                  </p>
+                                  {isDS && item?.sellingPrice > 0 &&
+                                    item?.sellingPrice !== item?.price && (
+                                      <div className="mt-1 pt-1 border-t border-gray-700/50">
+                                        <p className="text-[10px] text-blue-400 font-bold">
+                                          Dropshipping Cost: ৳{item?.price.toFixed(2)}
+                                        </p>
+                                        <p className="text-[10px] text-emerald-400 font-bold">
+                                          Profit: ৳
+                                          {(
+                                            (Number(item?.sellingPrice || 0) -
+                                              Number(item?.price || 0)) *
+                                            Number(item?.quantity || 1)
+                                          ).toFixed(2)}
+                                        </p>
+                                        <p className="text-[9px] text-gray-400 mt-1">
+                                          ({item?.quantity || 1} × ৳
+                                          {(
+                                            Number(item?.sellingPrice || 0) -
+                                            Number(item?.price || 0)
+                                          ).toFixed(2)}{" "}
+                                          per unit)
+                                        </p>
+                                      </div>
+                                    )}
                                 </div>
                               </div>
-                              <div className="text-right">
-                                <p className="text-lg font-bold text-green-400">
-                                  ৳
-                                  {(item?.sellingPrice || item?.price).toFixed(
-                                    2,
-                                  )}
-                                </p>
-                                <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tighter">
-                                  Unit Price
-                                </p>
-                                {item?.sellingPrice > 0 &&
-                                  item?.sellingPrice !== item?.price && (
-                                    <div className="mt-1 pt-1 border-t border-gray-700/50">
-                                      <p className="text-[10px] text-blue-400 font-bold">
-                                        Cost: ৳{item?.price.toFixed(2)}
-                                      </p>
-                                      <p className="text-[10px] text-emerald-400 font-bold">
-                                        Profit: ৳
-                                        {(
-                                          (Number(item?.sellingPrice || 0) -
-                                            Number(item?.price || 0)) *
-                                          Number(item?.quantity || 1)
-                                        ).toFixed(2)}
-                                      </p>
-                                      <p className="text-[9px] text-gray-400 mt-1">
-                                        ({item?.quantity || 1} × ৳{(
-                                          Number(item?.sellingPrice || 0) -
-                                          Number(item?.price || 0)
-                                        ).toFixed(2)} per unit)
-                                      </p>
-                                    </div>
-                                  )}
-                              </div>
                             </div>
-                          </div>
-                        ))}
+                          ));
+                        })()}
                       </div>
 
                       <div className="mt-6 pt-4 border-t-2 border-gray-600">
@@ -984,8 +1199,8 @@ const OrderManagement = () => {
                                 </span>
                                 <span className="text-2xl font-black text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0.4)]">
                                   ৳
-                                  {(selectedOrder?.products.reduce(
-                                    (sum, p) => {
+                                  {(
+                                    selectedOrder?.products.reduce((sum, p) => {
                                       const cost =
                                         Number(p.costPrice || p.price) || 0;
                                       const selling = Number(p.sellingPrice) || 0;
@@ -995,15 +1210,11 @@ const OrderManagement = () => {
                                           ? (selling - cost) * (p.quantity || 1)
                                           : 0)
                                       );
-                                    },
-                                    0,
-                                  ) +
-                                    (Number(selectedOrder?.couponDiscount) || 0)).toLocaleString(
-                                    undefined,
-                                    {
-                                      minimumFractionDigits: 2,
-                                    },
-                                  )}
+                                    }, 0) +
+                                    (Number(selectedOrder?.couponDiscount) || 0)
+                                  ).toLocaleString(undefined, {
+                                    minimumFractionDigits: 2,
+                                  })}
                                 </span>
                               </div>
                             </div>
@@ -1012,9 +1223,30 @@ const OrderManagement = () => {
                           <span className="text-xl font-bold text-slate-300">
                             Total Amount:
                           </span>
-                          <span className="text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
-                            ৳{selectedOrder?.totalAmt.toFixed(2)}
-                          </span>
+                          {(() => {
+                            const isDS2 = isDSOrder(selectedOrder);
+                            const hasCorrectedPrices2 = !isDS2 && (selectedOrder?.products || []).some((item) => {
+                              const retailPrice = Number(item?.productId?.price) || 0;
+                              const storedPrice = Number(item?.price) || 0;
+                              return retailPrice > 0 && retailPrice !== storedPrice;
+                            });
+                            const sub2 = hasCorrectedPrices2
+                              ? (selectedOrder?.products || []).reduce((sum, item) => {
+                                const retailPrice = Number(item?.productId?.price) || Number(item?.price) || 0;
+                                return sum + retailPrice * (Number(item?.quantity) || 1);
+                              }, 0)
+                              : Number(selectedOrder?.subTotalAmt) || 0;
+                            const delivery2 = Number(selectedOrder?.deliveryCharge) || 0;
+                            const coupon2 = Number(selectedOrder?.couponDiscount) || 0;
+                            const calculatedTotal2 = sub2 + delivery2 - coupon2;
+                            const storedTotal2 = Number(selectedOrder?.totalAmt) || 0;
+                            const displayTotal2 = calculatedTotal2 > 0 ? calculatedTotal2 : storedTotal2;
+                            return (
+                              <span className="text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
+                                ৳{displayTotal2.toFixed(2)}
+                              </span>
+                            );
+                          })()}
                         </div>
                       </div>
                     </div>
