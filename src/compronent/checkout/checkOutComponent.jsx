@@ -78,7 +78,12 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
 
 
   // subtotal
-  const subtotal = cartItems.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 0), 0);
+  const isDSCheckout = user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING");
+  const getRetailPrice = (item) => {
+    if (isDSCheckout) return Number(item.price) || 0;
+    return Number(item.productId?.price) || Number(item.price) || 0;
+  };
+  const subtotal = cartItems.reduce((sum, item) => sum + getRetailPrice(item) * (Number(item.quantity) || 0), 0);
 
   // Calculate total with discount
   const [total, setTotal] = useState(subtotal + deliveryCharge);
@@ -127,6 +132,8 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
       setDeliveryCharge(80);
     } else if (customerInfo.district) {
       setDeliveryCharge(130);
+    } else {
+      setDeliveryCharge(60);
     }
   }, [customerInfo.district]);
 
@@ -137,12 +144,6 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
     }
   }, [manualPaymentInfo.transactionId]);
 
-  const handleDistrictChange = (district) => {
-    setSelectedDistrict(district);
-    const distObj = districts.find(d => d.district === district);
-    setUpazilaList(distObj?.upazilas || []);
-    setCustomerInfo(prev => ({ ...prev, district, area: "", division: selectedDivision }));
-  };
 
 
   const handleInputChange = (field, value) => {
@@ -212,7 +213,7 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
       userId: user._id,
       products: cartItems.map(item => {
         const product = item.productId || {};
-        const price = item.price ?? product.price ?? 0;
+        const price = isDSCheckout ? (item.price ?? product.price ?? 0) : (product.price ?? item.price ?? 0);
         return {
           productId: product._id || item.productId,
           name: product.productName || item.name,
@@ -235,6 +236,7 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
       payment_type: paymentType, // Set payment_type here
       payment_details: (override.payment_method === 'manual' || selectedPayment === 'manual') ? null : (override.payment_details || {}),
       appliedCoupon: appliedCoupon?.code || null,
+      couponDiscount: couponDiscount || 0,
     };
 
     if (payload.payment_method === 'manual') {
@@ -419,7 +421,7 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
 
       const productsPayload = cartItems.map(item => {
         const product = item.productId || {};
-        const price = item.price ?? product.price ?? 0;
+        const price = isDSCheckout ? (item.price ?? product.price ?? 0) : (product.price ?? item.price ?? 0);
         return {
           productId: product._id || item.productId,
           name: product.productName || item.name,
@@ -448,6 +450,7 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
           transactionId,
         },
         appliedCoupon: appliedCoupon?.code || null,
+        couponDiscount: couponDiscount || 0,
       };
 
       // 5️⃣ Send order creation request
@@ -694,8 +697,8 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
                       </div>
 
                       <div className="text-right">
-                        <p className="font-bold text-gray-900">৳{(item.totalPrice || (item.price || 0) * (item.quantity || 1)).toLocaleString()}</p>
-                        <p className="text-xs text-gray-500">৳{(item.price || 0).toLocaleString()} × {item.quantity}</p>
+                        <p className="font-bold text-gray-900">৳{(item.totalPrice || (getRetailPrice(item) * (item.quantity || 1))).toLocaleString()}</p>
+                        <p className="text-xs text-gray-500">৳{getRetailPrice(item).toLocaleString()} × {item.quantity}</p>
                       </div>
                     </div>
                   ))}

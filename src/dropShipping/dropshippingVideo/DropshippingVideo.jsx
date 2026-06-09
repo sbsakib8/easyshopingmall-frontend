@@ -217,14 +217,8 @@ const DropshippingVideo = () => {
       : activeCourse.price;
   }, [activeCourse, premiumVideoPrice]);
 
-  const demoVideo = useMemo(
-    () => videos.find((v) => v.videoType === "demo"),
-    [videos],
-  );
-  const freeVideos = useMemo(
-    () => videos.filter((v) => v.videoType === "free"),
-    [videos],
-  );
+  const demoVideo = useMemo(() => videos.find(v => v.videoType === "demo" && !v.moduleId), [videos]);
+  const freeVideos = useMemo(() => videos.filter(v => !v.moduleId), [videos]);
 
   const handleCourseSelect = (courseId) => {
     setSelectedCourseId(courseId);
@@ -271,13 +265,23 @@ const DropshippingVideo = () => {
       if (
         videosResult.status === "fulfilled" &&
         videosResult.value.data.success
-      )
-        setVideos(videosResult.value.data.data);
+      ) {
+        const sorted = [...videosResult.value.data.data].sort((a, b) => {
+          if (a.createdAt && b.createdAt) return new Date(b.createdAt) - new Date(a.createdAt);
+          return (b._id || "").localeCompare(a._id || "");
+        });
+        setVideos(sorted);
+      }
       if (
         coursesResult.status === "fulfilled" &&
         coursesResult.value.data.success
-      )
-        setCourses(coursesResult.value.data.data);
+      ) {
+        const sortedCourses = [...coursesResult.value.data.data].sort((a, b) => {
+          if (a.createdAt && b.createdAt) return new Date(b.createdAt) - new Date(a.createdAt);
+          return (b._id || "").localeCompare(a._id || "");
+        });
+        setCourses(sortedCourses);
+      }
       if (
         modulesResult.status === "fulfilled" &&
         modulesResult.value.data.success

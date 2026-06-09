@@ -75,6 +75,31 @@ const getYoutubeEmbedUrl = (url) => {
   return videoId ? `https://www.youtube.com/embed/${videoId}` : "";
 };
 
+const STANDALONE_VIDEO_TYPES = new Set(["standard", "demo"]);
+
+const isModuleFree = (moduleId, modules, courses) => {
+  if (!moduleId) return true;
+  const parentMod = modules.find(
+    (m) => String(m._id) === String(moduleId),
+  );
+  if (!parentMod) return true;
+  const parentCourse = courses.find(
+    (c) => String(c._id) === String(parentMod.courseId),
+  );
+  return parentCourse ? parentCourse.price <= 0 : true;
+};
+
+const resolveVideoTypeForModule = (currentType, moduleId, modules, courses) => {
+  if (!moduleId) {
+    if (STANDALONE_VIDEO_TYPES.has(currentType)) return currentType;
+    if (currentType === "free") return "standard";
+    return "standard";
+  }
+  const freeModule = isModuleFree(moduleId, modules, courses);
+  if (freeModule) return "free";
+  return "premium";
+};
+
 const VideoManagement = () => {
   const [courses, setCourses] = useState([]);
   const [modules, setModules] = useState([]);
@@ -199,43 +224,28 @@ const VideoManagement = () => {
         isActive: true,
       });
     } else if (type === "video") {
-      let normalizedVideoType = data.videoType || "premium";
-      if (!data.moduleId) {
-        if (normalizedVideoType === "standard" || normalizedVideoType === "premium") {
-          normalizedVideoType = "free";
-        }
-      } else {
-        const parentMod = modules.find(m => m._id === data.moduleId);
-        const parentCourse = parentMod ? courses.find(c => c._id === parentMod.courseId) : null;
-        const isFreeCourse = parentCourse ? parentCourse.price <= 0 : false;
-        if (isFreeCourse) {
-          normalizedVideoType = "free";
-        } else {
-          if (normalizedVideoType !== "premium" && normalizedVideoType !== "demo") {
-            normalizedVideoType = "premium";
-          }
-        }
-      }
+      const initialModId = data.moduleId || "";
+      const normalizedVideoType = resolveVideoTypeForModule(
+        data.videoType || "standard",
+        initialModId,
+        modules,
+        courses,
+      );
       setVideoFormData({
         title: data.title,
         description: data.description,
         url: data.url,
-        moduleId: data.moduleId || "",
+        moduleId: initialModId,
         videoType: normalizedVideoType,
       });
     } else if (type === "new_video") {
       const initialModId = parentId || "";
-      let initialVideoType = "premium";
-      if (!initialModId) {
-        initialVideoType = "free";
-      } else {
-        const parentMod = modules.find(m => m._id === initialModId);
-        const parentCourse = parentMod ? courses.find(c => c._id === parentMod.courseId) : null;
-        const isFreeCourse = parentCourse ? parentCourse.price <= 0 : false;
-        if (isFreeCourse) {
-          initialVideoType = "free";
-        }
-      }
+      const initialVideoType = resolveVideoTypeForModule(
+        "standard",
+        initialModId,
+        modules,
+        courses,
+      );
       setVideoFormData({
         title: "",
         description: "",
@@ -312,7 +322,26 @@ const VideoManagement = () => {
     setActionLoading(true);
     try {
       const payload = { ...videoFormData };
-      if (!payload.moduleId) delete payload.moduleId;
+      if (!payload.moduleId) {
+        if (!STANDALONE_VIDEO_TYPES.has(payload.videoType)) {
+          toast.error("Standalone videos must be 'standard' or 'demo'.");
+          setActionLoading(false);
+          return;
+        }
+        delete payload.moduleId;
+      } else {
+        const freeModule = isModuleFree(payload.moduleId, modules, courses);
+        if (freeModule && payload.videoType !== "free") {
+          toast.error("Free course modules can only hold 'free' videos.");
+          setActionLoading(false);
+          return;
+        }
+        if (!freeModule && payload.videoType !== "premium") {
+          toast.error("Premium course modules can only hold 'premium' videos.");
+          setActionLoading(false);
+          return;
+        }
+      }
       if (selectedItem.type === "video") {
         await axios.patch(
           `${UrlBackend}/video-content/update/${selectedItem.data._id}`,
@@ -332,7 +361,9 @@ const VideoManagement = () => {
       await fetchData();
       setSelectedItem(null);
     } catch (error) {
-      toast.error("Operation failed");
+      const message =
+        error?.response?.data?.message || "Operation failed";
+      toast.error(message);
     } finally {
       setActionLoading(false);
     }
@@ -391,10 +422,12 @@ const VideoManagement = () => {
         <div className="flex-1 overflow-y-auto p-3 space-y-1 custom-scrollbar">
           {courses.map((course) => {
             const courseModules = modules.filter(
-              (m) => m.courseId === course._id,
+              (m) => String(m.courseId) === String(course._id),
             );
             const isCourseExpanded = expandedCourses[course._id];
-            const isCourseSelected = selectedItem?.data?._id === course._id;
+            const isCourseSelected =
+              selectedItem?.data?._id &&
+              String(selectedItem.data._id) === String(course._id);
 
             return (
               <div key={course._id} className="select-none">
@@ -444,10 +477,14 @@ const VideoManagement = () => {
                   <div className="ml-5 pl-3 border-l border-slate-800 space-y-1 mt-1">
                     {courseModules.map((mod) => {
                       const moduleVideos = videos.filter(
-                        (v) => v.moduleId === mod._id,
+                        (v) =>
+                          v.moduleId &&
+                          String(v.moduleId) === String(mod._id),
                       );
-                      const isModExpanded = expandedModules[mod._id];
-                      const isModSelected = selectedItem?.data?._id === mod._id;
+                      const isModExpanded = expandedModules[String(mod._id)];
+                      const isModSelected =
+                        selectedItem?.data?._id &&
+                        String(selectedItem.data._id) === String(mod._id);
 
                       return (
                         <div key={mod._id}>
@@ -499,7 +536,9 @@ const VideoManagement = () => {
                             <div className="ml-4 pl-3 border-l border-slate-800/50 space-y-0.5 mt-0.5 mb-1">
                               {moduleVideos.map((video) => {
                                 const isVidSelected =
-                                  selectedItem?.data?._id === video._id;
+                                  selectedItem?.data?._id &&
+                                  String(selectedItem.data._id) ===
+                                    String(video._id);
                                 return (
                                   <div
                                     key={video._id}
@@ -543,7 +582,13 @@ const VideoManagement = () => {
 
           {/* Standalone Videos Section */}
           {(() => {
-            const standalone = videos.filter((v) => !v.moduleId || !modules.some(m => m._id === v.moduleId));
+            const moduleIdStrings = new Set(
+              modules.map((m) => String(m._id)),
+            );
+            const standalone = videos.filter((v) => {
+              if (!v.moduleId) return true;
+              return !moduleIdStrings.has(String(v.moduleId));
+            });
 
             return (
               <div className="mt-6 border-t border-slate-800/60 pt-4 pb-2">
@@ -562,7 +607,9 @@ const VideoManagement = () => {
                 </div>
                 <div className="space-y-0.5 max-h-[250px] overflow-y-auto pr-1 custom-scrollbar">
                   {standalone.map((video) => {
-                    const isVidSelected = selectedItem?.data?._id === video._id;
+                    const isVidSelected =
+                      selectedItem?.data?._id &&
+                      String(selectedItem.data._id) === String(video._id);
                     return (
                       <div
                         key={video._id}
@@ -581,7 +628,13 @@ const VideoManagement = () => {
                           {video.title}
                         </span>
                         <span
-                          className={`text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0 ${video.videoType === "demo" ? "bg-red-500/20 text-red-400" : "bg-emerald-500/20 text-emerald-400"}`}
+                          className={`text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0 ${
+                            video.videoType === "demo"
+                              ? "bg-red-500/20 text-red-400"
+                              : video.videoType === "standard"
+                                ? "bg-sky-500/20 text-sky-400"
+                                : "bg-emerald-500/20 text-emerald-400"
+                          }`}
                         >
                           {video.videoType}
                         </span>
@@ -1006,23 +1059,12 @@ const VideoManagement = () => {
                       value={videoFormData.moduleId || ""}
                       onChange={(e) => {
                         const modId = e.target.value;
-                        let nextVideoType = videoFormData.videoType;
-                        if (!modId) {
-                          if (nextVideoType === "standard" || nextVideoType === "premium") {
-                            nextVideoType = "free";
-                          }
-                        } else {
-                          const parentMod = modules.find(m => m._id === modId);
-                          const parentCourse = parentMod ? courses.find(c => c._id === parentMod.courseId) : null;
-                          const isFreeCourse = parentCourse ? parentCourse.price <= 0 : false;
-                          if (isFreeCourse) {
-                            nextVideoType = "free";
-                          } else {
-                            if (nextVideoType !== "premium" && nextVideoType !== "demo") {
-                              nextVideoType = "premium";
-                            }
-                          }
-                        }
+                        const nextVideoType = resolveVideoTypeForModule(
+                          videoFormData.videoType,
+                          modId,
+                          modules,
+                          courses,
+                        );
                         setVideoFormData({
                           ...videoFormData,
                           moduleId: modId,
@@ -1031,16 +1073,21 @@ const VideoManagement = () => {
                       }}
                     >
                       <option value="">
-                        None (Standalone Video - e.g. Demo / Promo)
+                        None (Standalone Video - Standard or Demo)
                       </option>
-                      {modules.map((m) => (
-                        <option key={m._id} value={m._id}>
-                          {courses.find((c) => c._id === m.courseId)?.title
-                            ? `${courses.find((c) => c._id === m.courseId).title} > `
-                            : ""}
-                          {m.title}
-                        </option>
-                      ))}
+                      {modules.map((m) => {
+                        const parentCourse = courses.find(
+                          (c) => String(c._id) === String(m.courseId),
+                        );
+                        return (
+                          <option key={m._id} value={String(m._id)}>
+                            {parentCourse
+                              ? `${parentCourse.title} > `
+                              : ""}
+                            {m.title}
+                          </option>
+                        );
+                      })}
                     </select>
                   </div>
                   <div className="sm:col-span-1">
@@ -1097,28 +1144,32 @@ const VideoManagement = () => {
                         if (!videoFormData.moduleId) {
                           return (
                             <>
-                              <option value="free">Free (Logged in users)</option>
-                              <option value="demo">Demo (Public/Marketing)</option>
-                              <option value="premium">Premium (Extra Paywall)</option>
+                              <option value="standard">
+                                Standard (Public Marketing)
+                              </option>
+                              <option value="demo">
+                                Demo (Public Preview)
+                              </option>
                             </>
                           );
                         }
-                        const parentMod = modules.find(m => m._id === videoFormData.moduleId);
-                        const parentCourse = parentMod ? courses.find(c => c._id === parentMod.courseId) : null;
-                        const isFreeCourse = parentCourse ? parentCourse.price <= 0 : false;
-                        
-                        if (isFreeCourse) {
+                        const freeModule = isModuleFree(
+                          videoFormData.moduleId,
+                          modules,
+                          courses,
+                        );
+                        if (freeModule) {
                           return (
-                            <option value="free">Free (Standard - Free Course)</option>
-                          );
-                        } else {
-                          return (
-                            <>
-                              <option value="premium">Premium (Requires Course Access)</option>
-                              <option value="demo">Demo (Public/Marketing)</option>
-                            </>
+                            <option value="free">
+                              Free (For Free Course Module)
+                            </option>
                           );
                         }
+                        return (
+                          <option value="premium">
+                            Premium (For Premium Course Module)
+                          </option>
+                        );
                       })()}
                     </select>
                   </div>
