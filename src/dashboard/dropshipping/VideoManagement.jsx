@@ -1,7 +1,6 @@
 "use client";
 
 import { UrlBackend } from "@/src/confic/urlExport";
-import DashboardLoader from "@/src/helper/loading/DashboardLoader";
 import { cn } from "@/src/utlis/utils";
 import axios from "axios";
 import {
@@ -79,9 +78,7 @@ const STANDALONE_VIDEO_TYPES = new Set(["standard", "demo"]);
 
 const isModuleFree = (moduleId, modules, courses) => {
   if (!moduleId) return true;
-  const parentMod = modules.find(
-    (m) => String(m._id) === String(moduleId),
-  );
+  const parentMod = modules.find((m) => String(m._id) === String(moduleId));
   if (!parentMod) return true;
   const parentCourse = courses.find(
     (c) => String(c._id) === String(parentMod.courseId),
@@ -99,6 +96,45 @@ const resolveVideoTypeForModule = (currentType, moduleId, modules, courses) => {
   if (freeModule) return "free";
   return "premium";
 };
+
+const SidebarSkeleton = () => (
+  <div className="w-full md:w-70 lg:w-96 bg-slate-900 border-r border-slate-800 flex flex-col md:h-full">
+    <div className="p-5 border-b border-slate-800">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 bg-slate-700 rounded animate-pulse" />
+          <div className="h-4 w-24 bg-slate-700 rounded animate-pulse" />
+        </div>
+        <div className="flex gap-2">
+          <div className="w-7 h-7 bg-slate-800 rounded-md animate-pulse" />
+          <div className="w-7 h-7 bg-slate-800 rounded-md animate-pulse" />
+        </div>
+      </div>
+    </div>
+    <div className="flex-1 p-3 space-y-2">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="space-y-1">
+          <div className="flex items-center gap-2 p-2">
+            <div className="w-4 h-4 bg-slate-800 rounded animate-pulse" />
+            <div className="h-4 w-32 bg-slate-700 rounded animate-pulse" />
+          </div>
+          <div className="ml-6 pl-2 space-y-1">
+            <div className="flex items-center gap-2 p-1">
+              <div className="w-3 h-3 bg-slate-800 rounded animate-pulse" />
+              <div className="h-3 w-24 bg-slate-700 rounded animate-pulse" />
+            </div>
+            <div className="ml-5 space-y-0.5">
+              <div className="flex items-center gap-2 p-1">
+                <div className="w-2 h-2 bg-slate-800 rounded animate-pulse" />
+                <div className="h-2 w-20 bg-slate-700 rounded animate-pulse" />
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
 
 const VideoManagement = () => {
   const [courses, setCourses] = useState([]);
@@ -361,8 +397,7 @@ const VideoManagement = () => {
       await fetchData();
       setSelectedItem(null);
     } catch (error) {
-      const message =
-        error?.response?.data?.message || "Operation failed";
+      const message = error?.response?.data?.message || "Operation failed";
       toast.error(message);
     } finally {
       setActionLoading(false);
@@ -393,265 +428,267 @@ const VideoManagement = () => {
     }
   };
 
-  if (loading) return <DashboardLoader />;
-
   return (
     <section className="md:h-[calc(100dvh-4rem)] bg-slate-950 flex flex-col md:flex-row text-slate-300 font-sans overflow-hidden">
       {/* ── Left Sidebar (Tree View) ── */}
-      <div className="w-full md:w-70 lg:w-96 bg-slate-900 border-r border-slate-800 flex flex-col md:h-full md:overflow-hidden md:flex-shrink-0">
-        <div className="p-5 border-b border-slate-800 bg-slate-900/50 backdrop-blur-md flex items-center justify-between md:sticky md:top-0 md:z-10">
-          <h2 className="text-sm font-bold text-slate-100 uppercase tracking-widest flex items-center gap-2">
-            <Folder className="text-blue-500" size={16} /> Curriculum
-          </h2>
-          <div className="flex gap-2">
-            <button
-              onClick={fetchData}
-              className="p-1.5 text-slate-400 hover:text-white bg-slate-800 rounded-md transition-colors"
-            >
-              <RefreshCw size={14} />
-            </button>
-            <button
-              onClick={() => selectItem("new_course")}
-              className="p-1.5 text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-500/20 rounded-md transition-colors"
-            >
-              <Plus size={14} />
-            </button>
+      {loading ? (
+        <SidebarSkeleton />
+      ) : (
+        <div className="w-full md:w-70 lg:w-96 bg-slate-900 border-r border-slate-800 flex flex-col md:h-full md:overflow-hidden md:flex-shrink-0">
+          <div className="p-5 border-b border-slate-800 bg-slate-900/50 backdrop-blur-md flex items-center justify-between md:sticky md:top-0 md:z-10">
+            <h2 className="text-sm font-bold text-slate-100 uppercase tracking-widest flex items-center gap-2">
+              <Folder className="text-blue-500" size={16} /> Curriculum
+            </h2>
+            <div className="flex gap-2">
+              <button
+                onClick={fetchData}
+                className="p-1.5 text-slate-400 hover:text-white bg-slate-800 rounded-md transition-colors"
+              >
+                <RefreshCw size={14} />
+              </button>
+              <button
+                onClick={() => selectItem("new_course")}
+                className="p-1.5 text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-500/20 rounded-md transition-colors"
+              >
+                <Plus size={14} />
+              </button>
+            </div>
           </div>
-        </div>
 
-        <div className="flex-1 overflow-y-auto p-3 space-y-1 custom-scrollbar">
-          {courses.map((course) => {
-            const courseModules = modules.filter(
-              (m) => String(m.courseId) === String(course._id),
-            );
-            const isCourseExpanded = expandedCourses[course._id];
-            const isCourseSelected =
-              selectedItem?.data?._id &&
-              String(selectedItem.data._id) === String(course._id);
+          <div className="flex-1 overflow-y-auto p-3 space-y-1 custom-scrollbar">
+            {courses.map((course) => {
+              const courseModules = modules.filter(
+                (m) => String(m.courseId) === String(course._id),
+              );
+              const isCourseExpanded = expandedCourses[course._id];
+              const isCourseSelected =
+                selectedItem?.data?._id &&
+                String(selectedItem.data._id) === String(course._id);
 
-            return (
-              <div key={course._id} className="select-none">
-                {/* Course Node */}
-                <div
-                  className={`flex items-center group rounded-lg transition-colors ${isCourseSelected ? "bg-blue-500/10 border border-blue-500/30" : "hover:bg-slate-800 border border-transparent"}`}
-                >
-                  <button
-                    onClick={() => toggleCourse(course._id)}
-                    className="p-2 text-slate-500 hover:text-slate-300"
-                  >
-                    {isCourseExpanded ? (
-                      <ChevronDown size={14} />
-                    ) : (
-                      <ChevronRight size={14} />
-                    )}
-                  </button>
+              return (
+                <div key={course._id} className="select-none">
+                  {/* Course Node */}
                   <div
-                    onClick={() => selectItem("course", course)}
-                    className="flex-1 p-2 pl-0 flex items-center gap-2 cursor-pointer"
+                    className={`flex items-center group rounded-lg transition-colors ${isCourseSelected ? "bg-blue-500/10 border border-blue-500/30" : "hover:bg-slate-800 border border-transparent"}`}
                   >
-                    <BookOpen
-                      size={14}
-                      className={
-                        isCourseSelected ? "text-blue-400" : "text-slate-500"
-                      }
-                    />
-                    <span
-                      className={`text-sm font-semibold ${isCourseSelected ? "text-blue-100" : "text-slate-300"} truncate`}
+                    <button
+                      onClick={() => toggleCourse(course._id)}
+                      className="p-2 text-slate-500 hover:text-slate-300"
                     >
-                      {course.title}
-                    </span>
-                  </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      selectItem("new_module", null, course._id);
-                    }}
-                    className="opacity-0 group-hover:opacity-100 p-2 text-slate-500 hover:text-blue-400 transition-opacity"
-                  >
-                    <PlusCircle size={14} />
-                  </button>
-                </div>
-
-                {/* Modules Nodes */}
-                {isCourseExpanded && (
-                  <div className="ml-5 pl-3 border-l border-slate-800 space-y-1 mt-1">
-                    {courseModules.map((mod) => {
-                      const moduleVideos = videos.filter(
-                        (v) =>
-                          v.moduleId &&
-                          String(v.moduleId) === String(mod._id),
-                      );
-                      const isModExpanded = expandedModules[String(mod._id)];
-                      const isModSelected =
-                        selectedItem?.data?._id &&
-                        String(selectedItem.data._id) === String(mod._id);
-
-                      return (
-                        <div key={mod._id}>
-                          {/* Module Node */}
-                          <div
-                            className={`flex items-center group rounded-lg transition-colors ${isModSelected ? "bg-purple-500/10 border border-purple-500/30" : "hover:bg-slate-800 border border-transparent"}`}
-                          >
-                            <button
-                              onClick={() => toggleModule(mod._id)}
-                              className="p-1.5 text-slate-500 hover:text-slate-300"
-                            >
-                              {isModExpanded ? (
-                                <ChevronDown size={12} />
-                              ) : (
-                                <ChevronRight size={12} />
-                              )}
-                            </button>
-                            <div
-                              onClick={() => selectItem("module", mod)}
-                              className="flex-1 p-1.5 pl-0 flex items-center gap-2 cursor-pointer"
-                            >
-                              <Layers
-                                size={12}
-                                className={
-                                  isModSelected
-                                    ? "text-purple-400"
-                                    : "text-slate-500"
-                                }
-                              />
-                              <span
-                                className={`text-xs font-medium ${isModSelected ? "text-purple-100" : "text-slate-400"} truncate`}
-                              >
-                                {mod.title}
-                              </span>
-                            </div>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                selectItem("new_video", null, mod._id);
-                              }}
-                              className="opacity-0 group-hover:opacity-100 p-1.5 text-slate-500 hover:text-purple-400 transition-opacity"
-                            >
-                              <PlusCircle size={12} />
-                            </button>
-                          </div>
-
-                          {/* Video Nodes */}
-                          {isModExpanded && (
-                            <div className="ml-4 pl-3 border-l border-slate-800/50 space-y-0.5 mt-0.5 mb-1">
-                              {moduleVideos.map((video) => {
-                                const isVidSelected =
-                                  selectedItem?.data?._id &&
-                                  String(selectedItem.data._id) ===
-                                    String(video._id);
-                                return (
-                                  <div
-                                    key={video._id}
-                                    onClick={() => selectItem("video", video)}
-                                    className={`flex items-center gap-2 p-1.5 pl-3 cursor-pointer group rounded-md transition-colors ${isVidSelected ? "bg-emerald-500/10 text-emerald-300" : "hover:bg-slate-800 text-slate-500"}`}
-                                  >
-                                    <PlayCircle
-                                      size={10}
-                                      className={
-                                        isVidSelected
-                                          ? "text-emerald-400"
-                                          : "group-hover:text-emerald-500"
-                                      }
-                                    />
-                                    <span className="text-[11px] truncate flex-1">
-                                      {video.title}
-                                    </span>
-                                  </div>
-                                );
-                              })}
-                              {moduleVideos.length === 0 && (
-                                <div className="text-[10px] text-slate-600 pl-3 py-1 italic">
-                                  No videos
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                    {courseModules.length === 0 && (
-                      <div className="text-xs text-slate-600 pl-3 py-1 italic">
-                        No modules
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-
-          {/* Standalone Videos Section */}
-          {(() => {
-            const moduleIdStrings = new Set(
-              modules.map((m) => String(m._id)),
-            );
-            const standalone = videos.filter((v) => {
-              if (!v.moduleId) return true;
-              return !moduleIdStrings.has(String(v.moduleId));
-            });
-
-            return (
-              <div className="mt-6 border-t border-slate-800/60 pt-4 pb-2">
-                <div className="flex items-center justify-between px-2 mb-2">
-                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                    <Film size={12} className="text-emerald-500" /> Standalone /
-                    Promo
-                  </h3>
-                  <button
-                    onClick={() => selectItem("new_video", null, null)}
-                    className="p-1 text-emerald-400 hover:text-white bg-emerald-500/10 hover:bg-emerald-500/20 rounded transition-colors"
-                    title="Add Standalone Video"
-                  >
-                    <Plus size={10} />
-                  </button>
-                </div>
-                <div className="space-y-0.5 max-h-[250px] overflow-y-auto pr-1 custom-scrollbar">
-                  {standalone.map((video) => {
-                    const isVidSelected =
-                      selectedItem?.data?._id &&
-                      String(selectedItem.data._id) === String(video._id);
-                    return (
-                      <div
-                        key={video._id}
-                        onClick={() => selectItem("video", video)}
-                        className={`flex items-center gap-2 p-1.5 pl-3 cursor-pointer group rounded-md transition-colors ${isVidSelected ? "bg-emerald-500/10 text-emerald-300" : "hover:bg-slate-800 text-slate-500"}`}
+                      {isCourseExpanded ? (
+                        <ChevronDown size={14} />
+                      ) : (
+                        <ChevronRight size={14} />
+                      )}
+                    </button>
+                    <div
+                      onClick={() => selectItem("course", course)}
+                      className="flex-1 p-2 pl-0 flex items-center gap-2 cursor-pointer"
+                    >
+                      <BookOpen
+                        size={14}
+                        className={
+                          isCourseSelected ? "text-blue-400" : "text-slate-500"
+                        }
+                      />
+                      <span
+                        className={`text-sm font-semibold ${isCourseSelected ? "text-blue-100" : "text-slate-300"} truncate`}
                       >
-                        <PlayCircle
-                          size={10}
-                          className={
-                            isVidSelected
-                              ? "text-emerald-400"
-                              : "group-hover:text-emerald-500"
-                          }
-                        />
-                        <span className="text-[11px] truncate flex-1">
-                          {video.title}
-                        </span>
-                        <span
-                          className={`text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0 ${
-                            video.videoType === "demo"
-                              ? "bg-red-500/20 text-red-400"
-                              : video.videoType === "standard"
-                                ? "bg-sky-500/20 text-sky-400"
-                                : "bg-emerald-500/20 text-emerald-400"
-                          }`}
-                        >
-                          {video.videoType}
-                        </span>
-                      </div>
-                    );
-                  })}
-                  {standalone.length === 0 && (
-                    <div className="text-[10px] text-slate-600 pl-3 py-1 italic">
-                      No standalone videos
+                        {course.title}
+                      </span>
+                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        selectItem("new_module", null, course._id);
+                      }}
+                      className="opacity-0 group-hover:opacity-100 p-2 text-slate-500 hover:text-blue-400 transition-opacity"
+                    >
+                      <PlusCircle size={14} />
+                    </button>
+                  </div>
+
+                  {/* Modules Nodes */}
+                  {isCourseExpanded && (
+                    <div className="ml-5 pl-3 border-l border-slate-800 space-y-1 mt-1">
+                      {courseModules.map((mod) => {
+                        const moduleVideos = videos.filter(
+                          (v) =>
+                            v.moduleId &&
+                            String(v.moduleId) === String(mod._id),
+                        );
+                        const isModExpanded = expandedModules[String(mod._id)];
+                        const isModSelected =
+                          selectedItem?.data?._id &&
+                          String(selectedItem.data._id) === String(mod._id);
+
+                        return (
+                          <div key={mod._id}>
+                            {/* Module Node */}
+                            <div
+                              className={`flex items-center group rounded-lg transition-colors ${isModSelected ? "bg-purple-500/10 border border-purple-500/30" : "hover:bg-slate-800 border border-transparent"}`}
+                            >
+                              <button
+                                onClick={() => toggleModule(mod._id)}
+                                className="p-1.5 text-slate-500 hover:text-slate-300"
+                              >
+                                {isModExpanded ? (
+                                  <ChevronDown size={12} />
+                                ) : (
+                                  <ChevronRight size={12} />
+                                )}
+                              </button>
+                              <div
+                                onClick={() => selectItem("module", mod)}
+                                className="flex-1 p-1.5 pl-0 flex items-center gap-2 cursor-pointer"
+                              >
+                                <Layers
+                                  size={12}
+                                  className={
+                                    isModSelected
+                                      ? "text-purple-400"
+                                      : "text-slate-500"
+                                  }
+                                />
+                                <span
+                                  className={`text-xs font-medium ${isModSelected ? "text-purple-100" : "text-slate-400"} truncate`}
+                                >
+                                  {mod.title}
+                                </span>
+                              </div>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  selectItem("new_video", null, mod._id);
+                                }}
+                                className="opacity-0 group-hover:opacity-100 p-1.5 text-slate-500 hover:text-purple-400 transition-opacity"
+                              >
+                                <PlusCircle size={12} />
+                              </button>
+                            </div>
+
+                            {/* Video Nodes */}
+                            {isModExpanded && (
+                              <div className="ml-4 pl-3 border-l border-slate-800/50 space-y-0.5 mt-0.5 mb-1">
+                                {moduleVideos.map((video) => {
+                                  const isVidSelected =
+                                    selectedItem?.data?._id &&
+                                    String(selectedItem.data._id) ===
+                                      String(video._id);
+                                  return (
+                                    <div
+                                      key={video._id}
+                                      onClick={() => selectItem("video", video)}
+                                      className={`flex items-center gap-2 p-1.5 pl-3 cursor-pointer group rounded-md transition-colors ${isVidSelected ? "bg-emerald-500/10 text-emerald-300" : "hover:bg-slate-800 text-slate-500"}`}
+                                    >
+                                      <PlayCircle
+                                        size={10}
+                                        className={
+                                          isVidSelected
+                                            ? "text-emerald-400"
+                                            : "group-hover:text-emerald-500"
+                                        }
+                                      />
+                                      <span className="text-[11px] truncate flex-1">
+                                        {video.title}
+                                      </span>
+                                    </div>
+                                  );
+                                })}
+                                {moduleVideos.length === 0 && (
+                                  <div className="text-[10px] text-slate-600 pl-3 py-1 italic">
+                                    No videos
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                      {courseModules.length === 0 && (
+                        <div className="text-xs text-slate-600 pl-3 py-1 italic">
+                          No modules
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
-              </div>
-            );
-          })()}
+              );
+            })}
+
+            {/* Standalone Videos Section */}
+            {(() => {
+              const moduleIdStrings = new Set(
+                modules.map((m) => String(m._id)),
+              );
+              const standalone = videos.filter((v) => {
+                if (!v.moduleId) return true;
+                return !moduleIdStrings.has(String(v.moduleId));
+              });
+
+              return (
+                <div className="mt-6 border-t border-slate-800/60 pt-4 pb-2">
+                  <div className="flex items-center justify-between px-2 mb-2">
+                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                      <Film size={12} className="text-emerald-500" /> Standalone
+                      / Promo
+                    </h3>
+                    <button
+                      onClick={() => selectItem("new_video", null, null)}
+                      className="p-1 text-emerald-400 hover:text-white bg-emerald-500/10 hover:bg-emerald-500/20 rounded transition-colors"
+                      title="Add Standalone Video"
+                    >
+                      <Plus size={10} />
+                    </button>
+                  </div>
+                  <div className="space-y-0.5 max-h-[250px] overflow-y-auto pr-1 custom-scrollbar">
+                    {standalone.map((video) => {
+                      const isVidSelected =
+                        selectedItem?.data?._id &&
+                        String(selectedItem.data._id) === String(video._id);
+                      return (
+                        <div
+                          key={video._id}
+                          onClick={() => selectItem("video", video)}
+                          className={`flex items-center gap-2 p-1.5 pl-3 cursor-pointer group rounded-md transition-colors ${isVidSelected ? "bg-emerald-500/10 text-emerald-300" : "hover:bg-slate-800 text-slate-500"}`}
+                        >
+                          <PlayCircle
+                            size={10}
+                            className={
+                              isVidSelected
+                                ? "text-emerald-400"
+                                : "group-hover:text-emerald-500"
+                            }
+                          />
+                          <span className="text-[11px] truncate flex-1">
+                            {video.title}
+                          </span>
+                          <span
+                            className={`text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0 ${
+                              video.videoType === "demo"
+                                ? "bg-red-500/20 text-red-400"
+                                : video.videoType === "standard"
+                                  ? "bg-sky-500/20 text-sky-400"
+                                  : "bg-emerald-500/20 text-emerald-400"
+                            }`}
+                          >
+                            {video.videoType}
+                          </span>
+                        </div>
+                      );
+                    })}
+                    {standalone.length === 0 && (
+                      <div className="text-[10px] text-slate-600 pl-3 py-1 italic">
+                        No standalone videos
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ── Right Workspace ── */}
       <div className="flex-1 bg-slate-950 flex flex-col h-full overflow-y-auto custom-scrollbar relative">
@@ -1081,9 +1118,7 @@ const VideoManagement = () => {
                         );
                         return (
                           <option key={m._id} value={String(m._id)}>
-                            {parentCourse
-                              ? `${parentCourse.title} > `
-                              : ""}
+                            {parentCourse ? `${parentCourse.title} > ` : ""}
                             {m.title}
                           </option>
                         );
