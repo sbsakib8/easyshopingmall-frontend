@@ -67,7 +67,7 @@ export default function DropshippingSettings() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 p-4 md:p-8 text-slate-300">
+    <section className="min-h-dvh bg-gradient-to-br from-gray-900 via-black to-gray-800 p-4 md:p-8 text-slate-300">
       <div className="max-w-4xl mx-auto">
         {/* Notification */}
         {notification.show && (
@@ -191,6 +191,6 @@ export default function DropshippingSettings() {
           animation: slideIn 0.3s ease-out forwards;
         }
       `}</style>
-    </div>
+    </section>
   );
 }
