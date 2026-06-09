@@ -35,7 +35,7 @@ function SellerDashboard() {
             const selling = Number(p.sellingPrice) || cost;
             return pSum + (selling - cost) * (p.quantity || 1);
           }, 0) || 0;
-        return sum + potentialProfit;
+        return sum + potentialProfit + (Number(order.couponDiscount) || 0);
       }, 0);
 
       const sellPrice = filteredOrders.reduce(

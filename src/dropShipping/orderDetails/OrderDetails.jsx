@@ -419,11 +419,7 @@ const OrderDetails = ({ id }) => {
                   >
                     <Truck className="w-6 h-6 group-hover:rotate-12 transition-transform hidden sm:inline-block" />
                     <p>ডেলিভারি চার্জ পেমেন্ট করুন</p>
-                    {hasPaidDelivery ? (
-                      <span className="text-xs bg-emerald-100 text-emerald-700 font-black px-2 py-0.5 rounded-full border border-emerald-200">
-                        ✓ সম্পন্ন
-                      </span>
-                    ) : (
+                    {!hasPaidDelivery && (
                       <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform hidden sm:inline-block" />
                     )}
                   </button>
@@ -453,11 +449,6 @@ const OrderDetails = ({ id }) => {
                   >
                     <CreditCard className="w-5 h-5 hidden sm:inline-block transition-transform group-hover:scale-110" />
                     <span>ফুল পেমেন্ট করুন</span>
-                    {hasPaidFull && (
-                      <span className="text-xs bg-emerald-100 text-emerald-700 font-black px-2 py-0.5 rounded-full border border-emerald-200">
-                        ✓ সম্পন্ন
-                      </span>
-                    )}
                   </button>
 
                   {/* Partial / Delivery Payment */}
@@ -475,11 +466,6 @@ const OrderDetails = ({ id }) => {
                   >
                     <Truck className="w-5 h-5 hidden sm:inline-block transition-transform group-hover:scale-110" />
                     <span>আংশিক পেমেন্ট করুন</span>
-                    {hasPaidDelivery && (
-                      <span className="text-xs bg-emerald-100 text-emerald-700 font-black px-2 py-0.5 rounded-full border border-emerald-200">
-                        ✓ সম্পন্ন
-                      </span>
-                    )}
                   </button>
                 </div>
 
@@ -497,9 +483,6 @@ const OrderDetails = ({ id }) => {
           {/* Payment Submitted Message */}
           {order.payment_status === "submitted" && (
             <div className="bg-amber-50 shadow-sm rounded-[2rem] overflow-hidden border border-amber-100 p-8 text-center space-y-4">
-              <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto">
-                <Loader2 className="w-6 h-6 text-amber-600 animate-spin" />
-              </div>
               <p className="text-amber-800 font-black text-lg tracking-tight">
                 আপনার পেমেন্ট তথ্য জমা দেওয়া হয়েছে।
               </p>

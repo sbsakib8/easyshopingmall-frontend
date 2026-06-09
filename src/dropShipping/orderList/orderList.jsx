@@ -225,7 +225,8 @@ const OrderList = () => {
                 Number(p.costPrice || p.price || 0)) *
                 (p.quantity || 1),
             0,
-          ),
+          ) +
+          (Number(o.couponDiscount) || 0),
         0,
       );
     return { total, delivered, pending, returned, totalProfit };
@@ -451,7 +452,7 @@ const OrderList = () => {
                                 (p.quantity || 1),
                             0,
                           );
-                          const totalProfit = totalSell - totalCost;
+                          const totalProfit = totalSell - totalCost + (Number(order.couponDiscount) || 0);
                           const isDS = order.products?.some(
                             (p) =>
                               p.sellingPrice > 0 && p.sellingPrice !== p.price,
