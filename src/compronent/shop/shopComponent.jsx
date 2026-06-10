@@ -877,6 +877,7 @@ const ShopPage = ({ initialData, queryParams }) => {
         _id: editModal._id || editModal.id, // Backend expects _id
         productName: editModal.productName || editModal.name,
         price: editModal.price || editModal.sell_price,
+        dropshippingPrice: editModal.dropshippingPrice,
         productRank: editModal.productRank || editModal.retailSale,
         productStatus: editModal.productStatus || [],
         brand: editModal.brand || editModal.manufacturer,
@@ -1488,6 +1489,24 @@ const ShopPage = ({ initialData, queryParams }) => {
                     onChange={(e) =>
                       updateEditField("price", Number(e.target.value))
                     }
+                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-black text-sm font-semibold mb-2">
+                    Dropshipping Price
+                  </label>
+                  <input
+                    type="number"
+                    defaultValue={editModal?.dropshippingPrice ?? ""}
+                    onChange={(e) =>
+                      updateEditField(
+                        "dropshippingPrice",
+                        e.target.value === "" ? null : Number(e.target.value),
+                      )
+                    }
+                    placeholder="Leave empty to use Price"
                     className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
                   />
                 </div>
