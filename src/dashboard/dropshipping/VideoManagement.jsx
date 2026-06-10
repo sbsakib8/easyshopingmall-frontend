@@ -196,9 +196,27 @@ const VideoManagement = () => {
           withCredentials: true,
         }),
       ]);
-      if (coursesRes.data.success) setCourses(coursesRes.data.data);
-      if (modsRes.data.success) setModules(modsRes.data.data);
-      if (vidsRes.data.success) setVideos(vidsRes.data.data);
+      if (coursesRes.data.success) {
+        const sorted = [...coursesRes.data.data].sort((a, b) => {
+          if (a.createdAt && b.createdAt) return new Date(a.createdAt) - new Date(b.createdAt);
+          return (a._id || "").localeCompare(b._id || "");
+        });
+        setCourses(sorted);
+      }
+      if (modsRes.data.success) {
+        const sorted = [...modsRes.data.data].sort((a, b) => {
+          if (a.createdAt && b.createdAt) return new Date(a.createdAt) - new Date(b.createdAt);
+          return (a._id || "").localeCompare(b._id || "");
+        });
+        setModules(sorted);
+      }
+      if (vidsRes.data.success) {
+        const sorted = [...vidsRes.data.data].sort((a, b) => {
+          if (a.createdAt && b.createdAt) return new Date(a.createdAt) - new Date(b.createdAt);
+          return (a._id || "").localeCompare(b._id || "");
+        });
+        setVideos(sorted);
+      }
     } catch (error) {
       toast.error("Failed to load data.");
     } finally {
