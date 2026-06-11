@@ -80,6 +80,7 @@ const isModuleFree = (moduleId, modules, courses) => {
   if (!moduleId) return true;
   const parentMod = modules.find((m) => String(m._id) === String(moduleId));
   if (!parentMod) return true;
+  if ((parentMod.price ?? 0) > 0) return false;
   const parentCourse = courses.find(
     (c) => String(c._id) === String(parentMod.courseId),
   );
