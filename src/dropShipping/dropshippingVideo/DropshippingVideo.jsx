@@ -267,8 +267,8 @@ const DropshippingVideo = () => {
         videosResult.value.data.success
       ) {
         const sorted = [...videosResult.value.data.data].sort((a, b) => {
-          if (a.createdAt && b.createdAt) return new Date(b.createdAt) - new Date(a.createdAt);
-          return (b._id || "").localeCompare(a._id || "");
+          if (a.createdAt && b.createdAt) return new Date(a.createdAt) - new Date(b.createdAt);
+          return (a._id || "").localeCompare(b._id || "");
         });
         setVideos(sorted);
       }
@@ -277,8 +277,8 @@ const DropshippingVideo = () => {
         coursesResult.value.data.success
       ) {
         const sortedCourses = [...coursesResult.value.data.data].sort((a, b) => {
-          if (a.createdAt && b.createdAt) return new Date(b.createdAt) - new Date(a.createdAt);
-          return (b._id || "").localeCompare(a._id || "");
+          if (a.createdAt && b.createdAt) return new Date(a.createdAt) - new Date(b.createdAt);
+          return (a._id || "").localeCompare(b._id || "");
         });
         setCourses(sortedCourses);
       }
@@ -286,7 +286,10 @@ const DropshippingVideo = () => {
         modulesResult.status === "fulfilled" &&
         modulesResult.value.data.success
       )
-        setModules(modulesResult.value.data.data);
+        setModules([...modulesResult.value.data.data].sort((a, b) => {
+          if (a.createdAt && b.createdAt) return new Date(a.createdAt) - new Date(b.createdAt);
+          return (a._id || "").localeCompare(b._id || "");
+        }));
       if (websiteInfoResult.status === "fulfilled") {
         const info =
           websiteInfoResult.value.websiteinfo?.[0] ||
