@@ -84,9 +84,6 @@ function Footer({ initialData }) {
             <h3 className="text-[22px] font-bold text-accent-content">
               EasyShoppingMall
             </h3>
-            <p className=" text-[17px] mt-2">
-              Awesome grocery store website template
-            </p>
 
             <div>
               <div className="flex items-center gap-2 my-3">
@@ -103,7 +100,7 @@ function Footer({ initialData }) {
               </div>
               <div className="flex items-center gap-2 my-3">
                 <IoTimeOutline className=" text-[20px] text-primary font-medium" />
-                <p className=" text-[16px]">{siteInfo?.deliveryText}</p>
+                <p className=" text-[16px]">{!isDropshippingUser ? "Working Hours: 24/7" : "Working Hours: 9:00 AM - 7:00 PM"}</p>
               </div>
             </div>
           </div>
