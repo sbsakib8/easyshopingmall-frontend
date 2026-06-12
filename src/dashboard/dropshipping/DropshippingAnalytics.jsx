@@ -1064,39 +1064,36 @@ export default function DropshippingAnalytics() {
 
           {/* Pagination */}
           {!loading && filteredDropshippers.length > 0 && totalPages > 1 && (
-            <div className="flex items-center justify-end sm:justify-between px-5 py-3.5 border-t border-gray-800 bg-gray-900/20 text-sm">
-              <div className="text-gray-400 text-xs hidden sm:block">
-                Showing{"   "}
-                <span className="text-white font-medium">
+            <div className="flex items-center justify-end sm:justify-between px-4 py-3 border-t border-primary/20 bg-primary/5 text-sm">
+              <div className="text-slate-200 text-xs hidden sm:block">
+                Showing{" "}
+                <span className="text-primary font-semibold">
                   {(currentPage - 1) * itemsPerPage + 1}
-                </span>
-                {"   "}
-                to{"   "}
-                <span className="text-white font-medium">
+                </span>{" "}
+                –{" "}
+                <span className="text-primary font-semibold">
                   {Math.min(
                     currentPage * itemsPerPage,
                     filteredDropshippers.length,
                   )}
-                </span>
-                {"   "}
-                of{"   "}
-                <span className="text-white font-medium">
+                </span>{" "}
+                of{" "}
+                <span className="text-primary font-semibold">
                   {filteredDropshippers.length}
-                </span>
-                {"   "}
+                </span>{" "}
                 partners
               </div>
 
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1.5">
                 <button
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="p-3 rounded-xl hover:bg-gray-800 text-gray-400 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  className="p-1.5 rounded-lg border border-primary/25 bg-primary/10 text-slate-200 hover:bg-primary/25 hover:border-primary/50 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-150"
                 >
-                  <ChevronLeft className="w-5 h-5" />
+                  <ChevronLeft className="w-3.5 h-3.5" />
                 </button>
 
-                <div className="px-4 py-2 text-xs font-mono text-gray-500">
+                <div className="px-3 py-1 rounded-lg border border-primary/25 bg-primary/10 text-[11px] font-semibold text-slate-200 tabular-nums min-w-[52px] text-center">
                   {currentPage} / {totalPages}
                 </div>
 
@@ -1105,9 +1102,9 @@ export default function DropshippingAnalytics() {
                     setCurrentPage((p) => Math.min(totalPages, p + 1))
                   }
                   disabled={currentPage === totalPages}
-                  className="p-3 rounded-xl hover:bg-gray-800 text-gray-400 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  className="p-1.5 rounded-lg border border-primary/25 bg-primary/10 text-slate-200 hover:bg-primary/25 hover:border-primary/50 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-150"
                 >
-                  <ChevronRight className="w-5 h-5" />
+                  <ChevronRight className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
