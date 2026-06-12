@@ -10,13 +10,14 @@ import dayjs from "dayjs";
 import {
   Activity,
   Award,
-  ChevronDown,
+  ChevronLeft,
   ChevronRight,
   Clock,
   DollarSign,
   Loader2,
   PieChartIcon,
   RefreshCw,
+  Search,
   Target,
   TrendingUp,
   Users,
@@ -81,6 +82,11 @@ export default function DropshippingAnalytics() {
   const [dateRange, setDateRange] = useState("all");
   const [customDates, setCustomDates] = useState({ start: "", end: "" });
   const [expandedDropshipper, setExpandedDropshipper] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterType, setFilterType] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const itemsPerPage = 6;
 
   const fetchData = async () => {
     setLoading(true);
@@ -165,6 +171,38 @@ export default function DropshippingAnalytics() {
   }, [data?.orderPipeline]);
 
   const { summary = {}, dropshippers = [], recentActivity = [] } = data;
+
+  // Filtered & Paginated Data
+  const filteredDropshippers = React.useMemo(() => {
+    return dropshippers
+      .filter((ds) => {
+        const matchesSearch =
+          !searchTerm ||
+          ds.name?.toLowerCase().includes(searchTerm.trim().toLowerCase()) ||
+          ds.shopName?.toLowerCase().includes(searchTerm.trim().toLowerCase());
+
+        let matchesFilter = true;
+        if (filterType === "new" || filterType === "old") {
+          const joinedDate = new Date(ds.joinedAt);
+          const thirtyDaysAgo = new Date();
+          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+          if (filterType === "new") {
+            matchesFilter = joinedDate >= thirtyDaysAgo;
+          } else {
+            matchesFilter = joinedDate < thirtyDaysAgo;
+          }
+        }
+        return matchesSearch && matchesFilter;
+      })
+      .sort((a, b) => new Date(b.joinedAt) - new Date(a.joinedAt));
+  }, [dropshippers, searchTerm, filterType]);
+
+  const totalPages = Math.ceil(filteredDropshippers.length / itemsPerPage);
+  const paginatedDropshippers = filteredDropshippers.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  );
 
   const kpiCards = [
     {
@@ -755,7 +793,7 @@ export default function DropshippingAnalytics() {
 
         {/* Section 3: Performance Table */}
         <div className="bg-gray-900/40 border border-gray-800 rounded-[2.5rem] overflow-hidden shadow-2xl">
-          <div className="p-8 border-b border-gray-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gray-900/20">
+          <div className="p-8 border-b border-gray-800 flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-gray-900/20">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-indigo-500/10 text-indigo-400 rounded-2xl flex items-center justify-center">
                 <Users className="w-6 h-6" />
@@ -765,24 +803,51 @@ export default function DropshippingAnalytics() {
                   Partner Performance
                 </h3>
                 <p className="text-xs text-gray-500">
-                  Ranking of {dropshippers.length ?? 0} registered dropshipping
-                  partners
+                  Ranking of {filteredDropshippers.length ?? 0} registered
+                  dropshipping partners
                 </p>
               </div>
             </div>
 
-            <div className="bg-gray-950 px-4 py-2 rounded-2xl border border-gray-800 flex items-center gap-3 w-max ml-14 sm:ml-0">
-              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-                Growth View
-              </span>
-              <ChevronDown className="w-4 h-4 text-indigo-400" />
+            {/* Search & Filter Controls */}
+            <div className="py-6 border-b flex flex-wrap lg:flex-nowrap gap-4">
+              <div className="relative flex-1 w-full max-w-md min-w-[170px] lg:min-w-[270px]">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  type="text"
+                  placeholder="Search by name or shop name..."
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setCurrentPage(1);
+                    setExpandedDropshipper(null);
+                  }}
+                  className="w-full pl-12 bg-gray-950 border border-gray-700 focus:border-indigo-500 rounded-2xl py-3.5 text-sm text-slate-300 placeholder:text-slate-300 focus:outline-none transition-colors overflow-hidden"
+                />
+              </div>
+
+              <div className="flex items-center gap-3">
+                <select
+                  value={filterType}
+                  onChange={(e) => {
+                    setFilterType(e.target.value);
+                    setCurrentPage(1);
+                    setExpandedDropshipper(null); // reset expanded on filter
+                  }}
+                  className="bg-gray-950 border text-slate-300 border-gray-700 rounded-2xl px-5 py-3.5 text-sm focus:outline-none focus:border-indigo-500 cursor-pointer"
+                >
+                  <option value="all">All</option>
+                  <option value="new">New (Last 30 days)</option>
+                  <option value="old">Older</option>
+                </select>
+              </div>
             </div>
           </div>
 
-          {/* Table  */}
-          <div className="max-h-[600px] overflow-y-auto scrollbar-hide">
+          {/* Table */}
+          <div className="overflow-x-auto scrollbar-hide">
             <table className="w-full text-left">
-              {!loading && dropshippers.length > 0 && (
+              {!loading && filteredDropshippers.length > 0 && (
                 <thead className="sticky top-0 bg-slate-900/95 backdrop-blur-md z-20">
                   <tr className="border-b border-gray-800">
                     {[
@@ -828,66 +893,55 @@ export default function DropshippingAnalytics() {
               <tbody className="divide-y divide-gray-800/50">
                 {loading ? (
                   Array.from({ length: 5 }).map((_, i) => (
-                    <tr className="animate-pulse border-b border-gray-800">
+                    <tr
+                      key={i}
+                      className="animate-pulse border-b border-gray-800"
+                    >
                       <td className="px-8 py-6">
                         <div className="flex items-center gap-4">
-                          {/* Avatar Skeleton */}
                           <div className="w-12 h-12 rounded-2xl bg-slate-700" />
-
                           <div className="whitespace-nowrap">
-                            {/* Name */}
                             <div className="h-4 w-40 bg-slate-700 rounded mb-1.5" />
-                            {/* Shop Name */}
                             <div className="h-3 w-28 bg-slate-700 rounded" />
                           </div>
-
-                          {/* Chevron placeholder */}
                           <div className="ml-auto w-4 h-4 bg-slate-700 rounded" />
                         </div>
                       </td>
-
-                      {/* Total Orders */}
                       <td className="px-4 py-6 text-center">
                         <div className="flex flex-col gap-1 items-center">
                           <div className="h-5 w-12 bg-slate-700 rounded" />
                           <div className="h-3 w-16 bg-slate-700 rounded" />
                         </div>
                       </td>
-
-                      {/* Revenue */}
                       <td className="px-4 py-6 text-right">
                         <div className="h-5 w-24 bg-slate-700 rounded ml-auto" />
                       </td>
-
-                      {/* Profit Paid + Bonus */}
                       <td className="px-4 py-6 text-right">
                         <div className="flex flex-col gap-1 items-end">
                           <div className="h-5 w-28 bg-slate-700 rounded" />
                           <div className="h-3 w-20 bg-slate-700 rounded" />
                         </div>
                       </td>
-
-                      {/* Balance */}
                       <td className="px-4 py-6 text-right">
                         <div className="h-5 w-24 bg-slate-700 rounded ml-auto" />
                       </td>
-
-                      {/* Referred Users */}
                       <td className="px-8 py-6 text-center">
                         <div className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-slate-700" />
                       </td>
                     </tr>
                   ))
-                ) : dropshippers.length === 0 ? (
-                  <>
-                    <EmptyState
-                      icon={Users}
-                      title="No Partners Found"
-                      description="There are no dropshippers or partners available at the moment."
-                    />
-                  </>
+                ) : filteredDropshippers.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="p-12">
+                      <EmptyState
+                        icon={Users}
+                        title="No Partners Found"
+                        description="No dropshipping partners match your search or filter criteria."
+                      />
+                    </td>
+                  </tr>
                 ) : (
-                  dropshippers.map((ds) => (
+                  paginatedDropshippers.map((ds) => (
                     <React.Fragment key={ds._id}>
                       <tr
                         className={`group cursor-pointer transition-all hover:bg-gray-800/20 ${expandedDropshipper === ds._id ? "bg-indigo-500/5" : ""}`}
@@ -1007,6 +1061,54 @@ export default function DropshippingAnalytics() {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination */}
+          {!loading && filteredDropshippers.length > 0 && totalPages > 1 && (
+            <div className="flex items-center justify-end sm:justify-between px-4 py-3 border-t border-primary/20 bg-primary/5 text-sm">
+              <div className="text-slate-200 text-xs hidden sm:block">
+                Showing{" "}
+                <span className="text-primary font-semibold">
+                  {(currentPage - 1) * itemsPerPage + 1}
+                </span>{" "}
+                –{" "}
+                <span className="text-primary font-semibold">
+                  {Math.min(
+                    currentPage * itemsPerPage,
+                    filteredDropshippers.length,
+                  )}
+                </span>{" "}
+                of{" "}
+                <span className="text-primary font-semibold">
+                  {filteredDropshippers.length}
+                </span>{" "}
+                partners
+              </div>
+
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="p-1.5 rounded-lg border border-primary/25 bg-primary/10 text-slate-200 hover:bg-primary/25 hover:border-primary/50 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-150"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                </button>
+
+                <div className="px-3 py-1 rounded-lg border border-primary/25 bg-primary/10 text-[11px] font-semibold text-slate-200 tabular-nums min-w-[52px] text-center">
+                  {currentPage} / {totalPages}
+                </div>
+
+                <button
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                  }
+                  disabled={currentPage === totalPages}
+                  className="p-1.5 rounded-lg border border-primary/25 bg-primary/10 text-slate-200 hover:bg-primary/25 hover:border-primary/50 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-150"
+                >
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Section 4: Activity Feed */}
