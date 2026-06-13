@@ -46,16 +46,16 @@ const Carousel = ({ initialData }) => {
   if (slides?.length === 0) {
     return (
       <Section className="py-4 md:py-8 bg-gradient-to-b from-primary/5 from-20% to-100% to-primary/30">
-        <Container className="py-0! relative h-[200px] sm:h-[400px] lg:h-[600px] w-full">
+        <div className="relative h-[200px] sm:h-[400px] lg:h-[600px] w-full px-2 sm:px-4 md:px-8 lg:px-12 2xl:px-16">
           <Skeleton className="w-full h-full rounded-md animate-pulse" />
-        </Container>
+        </div>
       </Section>
     );
   }
 
   return (
     <Section className="py-4 md:py-8 bg-gradient-to-b from-primary/5 from-20% to-100% to-primary/30">
-      <Container>
+      <div className="px-2 sm:px-4 md:px-8 lg:px-12 2xl:px-16">
         <div className=" relative h-[200px] sm:h-[400px] lg:h-[600px] w-full">
           {/* Main carousel container */}
           <div
@@ -158,7 +158,7 @@ const Carousel = ({ initialData }) => {
             </button >
           ))}
         </div >
-      </Container >
+      </div>
     </Section >
   );
 };
