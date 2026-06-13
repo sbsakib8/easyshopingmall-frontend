@@ -1,7 +1,6 @@
 "use client";
 
 import Skeleton from "@/src/compronent/loading/Skeleton";
-import Container from "@/src/compronent/shared/Container";
 import Section from "@/src/compronent/shared/Section";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
@@ -45,18 +44,18 @@ const Carousel = ({ initialData }) => {
 
   if (slides?.length === 0) {
     return (
-      <Section className="py-4 md:py-8 bg-gradient-to-b from-primary/5 from-20% to-100% to-primary/30">
-        <Container className="py-0! relative h-[200px] sm:h-[400px] lg:h-[600px] w-full">
+      <Section className="py-8 md:py-12 lg:py-16 bg-gradient-to-b from-primary/5 from-20% to-100% to-primary/30">
+        <div className="h-[240px] sm:h-[400px] md:h-[450px] lg:h-[600px] xl:h-[650px] w-full px-2 sm:px-4 md:px-8 lg:px-12 2xl:px-16">
           <Skeleton className="w-full h-full rounded-md animate-pulse" />
-        </Container>
+        </div>
       </Section>
     );
   }
 
   return (
-    <Section className="py-4 md:py-8 bg-gradient-to-b from-primary/5 from-20% to-100% to-primary/30">
-      <Container>
-        <div className=" relative h-[200px] sm:h-[400px] lg:h-[600px] w-full">
+    <Section className="py-8 md:py-12 lg:py-16 bg-gradient-to-b from-primary/5 from-20% to-100% to-primary/30">
+      <div className="px-2 sm:px-4 md:px-8 lg:px-12 xl:px-16 2xl:px-20">
+        <div className="relative h-[240px] sm:h-[400px] md:h-[450px] lg:h-[600px] xl:h-[650px] w-full">
           {/* Main carousel container */}
           <div
             className="relative w-full h-full rounded-md overflow-hidden shadow-2xl"
@@ -76,11 +75,15 @@ const Carousel = ({ initialData }) => {
                     }`}
                 >
                   <Image
-                    src={(Array.isArray(slide?.images) ? slide?.images[0] : (slide?.images || slide?.image)) || "/img/product.jpg"}
+                    src={
+                      (Array.isArray(slide?.images)
+                        ? slide?.images[0]
+                        : slide?.images || slide?.image) || "/img/product.jpg"
+                    }
                     alt={slide?.title || "Banner"}
                     width={1200}
                     height={600}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-fill"
                   />
                 </div>
               ))}
@@ -149,17 +152,21 @@ const Carousel = ({ initialData }) => {
                 }`}
             >
               <Image
-                src={(Array.isArray(slide?.images) ? slide?.images[0] : (slide?.images || slide?.image)) || "/img/product.jpg"}
+                src={
+                  (Array.isArray(slide?.images)
+                    ? slide?.images[0]
+                    : slide?.images || slide?.image) || "/img/product.jpg"
+                }
                 alt={slide?.title || "Thumbnail"}
                 width={1200}
                 height={600}
                 className="w-16 h-10 object-cover"
               />
-            </button >
+            </button>
           ))}
-        </div >
-      </Container >
-    </Section >
+        </div>
+      </div>
+    </Section>
   );
 };
 
