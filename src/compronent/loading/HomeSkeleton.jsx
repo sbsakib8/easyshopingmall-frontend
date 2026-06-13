@@ -5,10 +5,10 @@ import Section from "../shared/Section";
 
 function CarouselSkeleton() {
   return (
-    <Section className="py-4 md:py-8 bg-gradient-to-b from-primary/5 from-20% to-100% to-primary/30 animate-pulse">
+    <Section className="py-8 md:py-12 lg:py-16 bg-gradient-to-b from-primary/5 from-20% to-100% to-primary/30 animate-pulse">
       {/* Container matching your custom element's dimensions */}
       <div className="px-2 sm:px-4 md:px-8 lg:px-12 2xl:px-16">
-        <div className="py-0! relative h-[200px] sm:h-[400px] lg:h-[600px] w-full">
+        <div className="relative h-[240px] sm:h-[400px] md:h-[450px] lg:h-[600px] xl:h-[650px] w-full">
           {/* Main carousel container skeleton */}
           <div className="relative w-full h-full rounded-md overflow-hidden bg-gray-200 shadow-2xl">
             {/* Main Image Placeholder */}
