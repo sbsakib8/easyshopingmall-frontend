@@ -1,7 +1,6 @@
 "use client";
 
 import Skeleton from "@/src/compronent/loading/Skeleton";
-import Container from "@/src/compronent/shared/Container";
 import Section from "@/src/compronent/shared/Section";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
@@ -68,13 +67,12 @@ const Carousel = ({ initialData }) => {
               {slides?.map((slide, index) => (
                 <div
                   key={slide._id}
-                  className={`absolute inset-0 transition-all duration-700 ease-in-out ${
-                    index === currentSlide
-                      ? "opacity-100 translate-x-0"
-                      : index < currentSlide
-                        ? "opacity-0 -translate-x-full"
-                        : "opacity-0 translate-x-full"
-                  }`}
+                  className={`absolute inset-0 transition-all duration-700 ease-in-out ${index === currentSlide
+                    ? "opacity-100 translate-x-0"
+                    : index < currentSlide
+                      ? "opacity-0 -translate-x-full"
+                      : "opacity-0 translate-x-full"
+                    }`}
                 >
                   <Image
                     src={
@@ -85,7 +83,7 @@ const Carousel = ({ initialData }) => {
                     alt={slide?.title || "Banner"}
                     width={1200}
                     height={600}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-fill"
                   />
                 </div>
               ))}
@@ -133,11 +131,10 @@ const Carousel = ({ initialData }) => {
             <button
               key={index}
               onClick={() => goToSlide(index)}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                index === currentSlide
-                  ? "bg-blue-600 w-8"
-                  : "bg-gray-300 hover:bg-gray-400"
-              }`}
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentSlide
+                ? "bg-blue-600 w-8"
+                : "bg-gray-300 hover:bg-gray-400"
+                }`}
               aria-label={`Go to slide ${index + 1}`}
             />
           ))}
@@ -149,11 +146,10 @@ const Carousel = ({ initialData }) => {
             <button
               key={index}
               onClick={() => goToSlide(index)}
-              className={`relative overflow-hidden rounded-lg transition-all duration-300 ${
-                index === currentSlide
-                  ? "ring-2 ring-blue-500 ring-offset-2"
-                  : "opacity-60 hover:opacity-80"
-              }`}
+              className={`relative overflow-hidden rounded-lg transition-all duration-300 ${index === currentSlide
+                ? "ring-2 ring-blue-500 ring-offset-2"
+                : "opacity-60 hover:opacity-80"
+                }`}
             >
               <Image
                 src={
