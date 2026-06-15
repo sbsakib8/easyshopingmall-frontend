@@ -2,11 +2,13 @@
 import React from 'react';
 import { Share2, Users, Gift, Copy, Check } from 'lucide-react';
 import { useSelector } from 'react-redux';
+import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 
 const ReferralProfile = () => {
   const user = useSelector((state) => state.user.data);
   const referralCode = user?.referralCode || "EASY-USER-123";
+  const router = useRouter();
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(referralCode);
@@ -45,7 +47,7 @@ const ReferralProfile = () => {
             </div>
             <div className="bg-gray-50 p-6 rounded-3xl text-center space-y-2">
               <Gift className="w-6 h-6 text-purple-500 mx-auto" />
-              <p className="text-2xl font-black text-gray-900">৳0</p>
+              <p className="text-2xl font-black text-gray-900">৳{user?.balance || 0}</p>
               <p className="text-xs font-bold text-gray-400 uppercase">Total Earned</p>
             </div>
             <div className="bg-gray-50 p-6 rounded-3xl text-center space-y-2">
@@ -78,7 +80,12 @@ const ReferralProfile = () => {
             <p className="text-sm text-gray-400 leading-relaxed font-medium">
               Referral bonuses are credited only for orders with a minimum value of 500 Taka. The bonus is added to your account after the order is successfully delivered and payment is confirmed.
             </p>
-            <button className="w-full bg-primary text-black py-4 rounded-2xl font-black hover:opacity-90 transition-opacity">View Details</button>
+            <button
+              onClick={() => router.push("/referral-activity")}
+              className="w-full bg-primary text-black py-4 rounded-2xl font-black hover:opacity-90 transition-opacity"
+            >
+              View Details
+            </button>
           </div>
         </div>
       </div>
