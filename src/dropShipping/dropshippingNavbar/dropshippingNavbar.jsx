@@ -21,6 +21,7 @@ import {
   Sparkles,
   TrendingUp,
   User,
+  Users,
   Video,
   X,
 } from "lucide-react";
