@@ -1,9 +1,11 @@
-import MyAnalytics from "@/src/dashboard/dropshipping/MyAnalytics";
+"use client";
 
-export const metadata = {
-  title: "My Analytics | EasyShoppingMall Dashboard",
-  description: "View your personal dropshipping performance and referral income.",
-};
+import dynamic from "next/dynamic";
+
+const MyAnalytics = dynamic(
+  () => import("@/src/dashboard/dropshipping/MyAnalytics"),
+  { ssr: false, loading: () => <div className="flex items-center justify-center h-96"><p>Loading analytics...</p></div> }
+);
 
 export default function MyAnalyticsPage() {
   return <MyAnalytics />;

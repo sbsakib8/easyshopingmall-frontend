@@ -80,7 +80,7 @@ const DropShippingNavbar = () => {
     },
 
     // {name:"Passive Income", href:"/passive-income", icon: <Coins size={18} />, subLink: [{name:"Box Leader", href:"/box-leader"}, {name:"Auditor", href:"/auditor"}, {name:"Member", href:"/member"}]},
-    // {name:"Referral Profile", href:"/referral-profile", icon: <Users size={18} />, subLink: [{name:"Referral Profit", href:"/referral-profit"}]},
+    {name:"Referral Profile", href:"/referral-profile", icon: <Users size={18} />},
     {
       name: "Payment Request",
       href: "/payment-request",

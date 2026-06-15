@@ -1,8 +1,7 @@
 import { UrlBackend } from "@/src/confic/urlExport";
 import HomeContent from "./HomeContent";
 
-// Enable revalidation
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 async function getCategories() {
   try {
@@ -48,44 +47,20 @@ async function getBanners() {
 
 async function getProducts() {
   try {
-    const allProducts = [];
-    let page = 1;
-    let limit = 100;
-    let totalFetched = 0;
-    let totalCount = 0;
+    const res = await fetch(`${UrlBackend}/products/get`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ page: 1, limit: 50 }),
+      next: { revalidate: 300 }
+    });
 
-    const seenIds = new Set();
+    if (!res.ok) return { products: [], totalCount: 0 };
 
-    do {
-      const res = await fetch(`${UrlBackend}/products/get`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ page, limit }),
-        next: { revalidate: 60 }
-      });
+    const json = await res.json();
+    const products = json.data || json.products || (Array.isArray(json) ? json : []);
+    const totalCount = json.totalCount || products.length;
 
-      if (!res.ok) break;
-
-      const json = await res.json();
-      const products = json.data || json.products || (Array.isArray(json) ? json : []);
-      if (products.length === 0) break;
-
-      products.forEach(p => {
-        const id = p._id || p.id;
-        if (id && !seenIds.has(id)) {
-          allProducts.push(p);
-          seenIds.add(id);
-        }
-      });
-
-      totalFetched += products.length;
-      totalCount = json.totalCount || totalFetched;
-      page++;
-
-      if (page > 30) break;
-    } while (totalFetched < totalCount);
-
-    return { products: allProducts, totalCount: allProducts.length };
+    return { products, totalCount };
 
   } catch (error) {
     console.error("Error fetching products:", error);
