@@ -1,37 +1,38 @@
 "use client";
+
 import Container from "@/src/compronent/shared/Container";
 import useTeamSystemData from "@/src/hook/useTeamSystemData";
 import { cn } from "@/src/utlis/utils";
 import {
   CheckCircle,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   ChevronUp,
-  Clock,
   Copy,
-  Gift,
-  Package,
-  RotateCcw,
+  Search,
   ShoppingBag,
-  Star,
   TrendingUp,
   Users,
+  Video,
   Wallet,
   XCircle,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-const formatBDT = (amount) =>
-  new Intl.NumberFormat("bn-BD", {
-    style: "currency",
-    currency: "BDT",
-    minimumFractionDigits: 0,
-  }).format(amount);
+const formatBDT = (amount) => {
+  if (amount == null) return "৳ 0";
+  return (
+    "৳ " +
+    new Intl.NumberFormat("bn-BD", {
+      minimumFractionDigits: 0,
+    }).format(amount)
+  );
+};
 
 const formatBDDateTime = (iso) => {
   if (!iso) return "—";
-
   return new Intl.DateTimeFormat("bn-BD", {
     year: "numeric",
     month: "short",
@@ -42,64 +43,7 @@ const formatBDDateTime = (iso) => {
   }).format(new Date(iso));
 };
 
-const STATUS_MAP = {
-  completed: {
-    label: "সম্পন্ন",
-    icon: CheckCircle,
-    cls: "bg-[oklch(70%_0.14_182.503)/15] text-[oklch(27%_0.046_192.524)] border border-[oklch(70%_0.14_182.503)/40]",
-  },
-  pending: {
-    label: "অপেক্ষমাণ",
-    icon: Clock,
-    cls: "bg-[oklch(85%_0.199_91.936)/15] text-[oklch(28%_0.066_53.813)] border border-[oklch(85%_0.199_91.936)/40]",
-  },
-  return: {
-    label: "রিটার্ন",
-    icon: RotateCcw,
-    cls: "bg-[oklch(50%_0.213_27.518)/12] text-[oklch(50%_0.213_27.518)] border border-[oklch(50%_0.213_27.518)/30]",
-  },
-  paid: {
-    label: "পেইড",
-    icon: CheckCircle,
-    cls: "bg-[oklch(69%_0.17_162.48)/15] text-[oklch(26%_0.051_172.552)] border border-[oklch(69%_0.17_162.48)/40]",
-  },
-  unpaid: {
-    label: "আনপেইড",
-    icon: XCircle,
-    cls: "bg-[oklch(50%_0.213_27.518)/12] text-[oklch(50%_0.213_27.518)] border border-[oklch(50%_0.213_27.518)/30]",
-  },
-  cod: {
-    label: "COD",
-    icon: Package,
-    cls: "bg-[#ffc900]/15 text-[#855a00] border border-[#ffc900]/40",
-  },
-};
-
-const getStatus = (key) =>
-  STATUS_MAP[key] || {
-    label: key,
-    icon: Package,
-    cls: "bg-gray-100 text-gray-600 border border-gray-200",
-  };
-
 // ─── Reusable Components ───────────────────────────────────────────────────────
-
-const Badge = ({ statusKey }) => {
-  const s = getStatus(statusKey);
-  const Icon = s.icon;
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold whitespace-nowrap",
-        s.cls,
-      )}
-    >
-      <Icon size={11} />
-      {s.label}
-    </span>
-  );
-};
-
 const StatCard = ({ icon: Icon, label, value, sub, accent }) => (
   <div
     className={cn(
@@ -153,51 +97,23 @@ const SectionCard = ({ title, children, className }) => (
   </div>
 );
 
-const TableWrapper = ({ children }) => (
-  <div className="overflow-x-auto w-full">
-    <table className="min-w-full text-xs sm:text-sm">{children}</table>
-  </div>
-);
-
-const Th = ({ children, className }) => (
-  <th
-    className={cn(
-      "px-3 sm:px-4 py-2.5 text-left text-[10px] sm:text-xs font-semibold uppercase tracking-wider",
-      "text-[oklch(20%_0.042_265.755)/60] bg-[#fffde1]/80 whitespace-nowrap",
-      className,
-    )}
-  >
-    {children}
-  </th>
-);
-
-const Td = ({ children, className }) => (
-  <td
-    className={cn(
-      "px-3 sm:px-4 py-2.5 text-[oklch(20%_0.042_265.755)] align-middle border-b border-[#cadcae]/30",
-      className,
-    )}
-  >
-    {children}
-  </td>
-);
-
 // ─── Sub-components ────────────────────────────────────────────────────────────
-
 const UserProfileCard = ({ user }) => {
   const [copied, setCopied] = useState(false);
+
   const copy = () => {
     navigator.clipboard.writeText(user.referralCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
   return (
     <SectionCard>
       <div className="p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
         {/* avatar */}
         <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[oklch(70%_0.14_182.503)] flex items-center justify-center flex-shrink-0 shadow">
           <span className="text-white text-xl sm:text-2xl font-bold">
-            {user.name?.[0]?.toUpperCase() || "U"}
+            {user.name[0]?.toUpperCase() || "U"}
           </span>
         </div>
         <div className="flex-1 min-w-0">
@@ -247,34 +163,42 @@ const StatsGrid = ({ data }) => {
     {
       icon: Users,
       label: "সরাসরি রেফারেল",
-      value: data.directReferralsCount,
-      sub: `মোট ডাউনলাইন: ${data.totalDownlineCount}`,
+      value: data.pagination?.totalItems || 0,
+      sub: "আপনার সরাসরি রেফারেল",
       accent: "bg-[oklch(70%_0.14_182.503)/15]",
     },
     {
       icon: ShoppingBag,
-      label: "মোট টিম অর্ডার",
-      value: data.totalTeamOrders,
-      sub: `গত ৭ দিন: ${data.last7DaysOrders} অর্ডার`,
+      label: "মোট অর্ডার",
+      value: data.last30DaysSummary?.totalOrder || 0,
+      sub: "সবার যৌথ অর্ডার",
+      accent: "bg-[#ffc900]/15",
+    },
+    {
+      icon: Video,
+      label: "মোট কোর্স",
+      value: data.last30DaysSummary?.totalCourse || 0,
+      sub: "সবার ক্রয়কৃত যৌথ কোর্স",
       accent: "bg-[#ffc900]/15",
     },
     {
       icon: TrendingUp,
-      label: "মোট রেভিনিউ",
-      value: formatBDT(data.totalRevenue),
-      sub: "মোট আয়",
+      label: "রেফারেল বোনাস",
+      value: formatBDT(data.last30DaysSummary?.totalReferralBonus?.total || 0),
+      sub: "গত ৩০ দিন",
       accent: "bg-[oklch(69%_0.17_162.48)/15]",
     },
     {
       icon: Wallet,
       label: "বর্তমান ব্যালেন্স",
-      value: formatBDT(data.currentUser.balance),
-      sub: `ডেলিভারি: ${data.currentUser.deliveredItemsCount} আইটেম`,
+      value: formatBDT(data.currentUser?.balance || 0),
+      sub: "আপনার",
       accent: "bg-[oklch(76%_0.188_70.08)/15]",
     },
   ];
+
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
       {stats.map((s) => (
         <StatCard key={s.label} {...s} />
       ))}
@@ -282,94 +206,16 @@ const StatsGrid = ({ data }) => {
   );
 };
 
-const OrderProductsRow = ({ products }) => (
-  <div className="flex flex-col gap-1.5">
-    {products.map((p) => (
-      <div key={p._id} className="flex items-center gap-2 flex-wrap">
-        <span className="text-[11px] sm:text-xs font-medium text-[oklch(20%_0.042_265.755)]">
-          {p.name}
-        </span>
-        <span className="text-[10px] sm:text-[11px] text-[oklch(20%_0.042_265.755)/50]">
-          ×{p.quantity}
-        </span>
-        <span className="text-[10px] sm:text-[11px] text-[oklch(27%_0.046_192.524)] font-semibold">
-          {formatBDT(p.totalPrice)}
-        </span>
-      </div>
-    ))}
-  </div>
-);
-
-const MemberOrdersTable = ({ orders }) => {
-  if (!orders?.length)
-    return (
-      <p className="text-center py-8 text-xs text-[oklch(20%_0.042_265.755)/50]">
-        কোনো অর্ডার নেই
-      </p>
-    );
-  return (
-    <TableWrapper>
-      <thead>
-        <tr>
-          <Th>অর্ডার তারিখ</Th>
-          <Th>পণ্য</Th>
-          <Th>অর্ডার স্ট্যাটাস</Th>
-          <Th>পেমেন্ট</Th>
-          <Th>ধরন</Th>
-          <Th className="text-right">মোট</Th>
-          <Th className="text-right">বোনাস</Th>
-        </tr>
-      </thead>
-      <tbody>
-        {orders.map((o, i) => (
-          <tr
-            key={o._id}
-            className={cn(
-              "transition-colors duration-150 hover:bg-[#fffde1]/60",
-              i % 2 === 0 ? "bg-white" : "bg-[#fffde1]/30",
-            )}
-          >
-            <Td>
-              <span className="text-[10px] sm:text-xs text-[oklch(20%_0.042_265.755)/70] whitespace-nowrap">
-                {formatBDDateTime(o.createdAt)}
-              </span>
-            </Td>
-            <Td>
-              <OrderProductsRow products={o.products} />
-            </Td>
-            <Td>
-              <Badge statusKey={o.order_status} />
-            </Td>
-            <Td>
-              <Badge statusKey={o.payment_status} />
-            </Td>
-            <Td>
-              <Badge statusKey={o.payment_type} />
-            </Td>
-            <Td className="text-right font-bold text-[oklch(27%_0.046_192.524)] whitespace-nowrap">
-              {formatBDT(o.totalAmt)}
-            </Td>
-            <Td className="text-right whitespace-nowrap">
-              {o.referralBonusGiven ? (
-                <span className="inline-flex items-center gap-1 text-[oklch(26%_0.051_172.552)] font-semibold text-[10px] sm:text-xs">
-                  <Gift size={11} />
-                  {formatBDT(o.referralBonusAmount)}
-                </span>
-              ) : (
-                <span className="text-[oklch(20%_0.042_265.755)/35] text-[10px] sm:text-xs">
-                  —
-                </span>
-              )}
-            </Td>
-          </tr>
-        ))}
-      </tbody>
-    </TableWrapper>
-  );
-};
-
 const MemberRow = ({ member }) => {
   const [open, setOpen] = useState(false);
+  const [emailCopied, setEmailCopied] = useState(false);
+
+  const copyEmail = () => {
+    navigator.clipboard.writeText(member.email);
+    setEmailCopied(true);
+    setTimeout(() => setEmailCopied(false), 1800);
+  };
+
   return (
     <div
       className={cn(
@@ -380,65 +226,58 @@ const MemberRow = ({ member }) => {
       )}
     >
       {/* member header row */}
-      <button
+      <div
         onClick={() => setOpen((p) => !p)}
         className="w-full flex items-center gap-3 sm:gap-4 p-4 sm:p-5 bg-white hover:bg-[#fffde1]/50 transition-colors duration-200 text-left"
       >
         {/* avatar */}
         <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[oklch(69%_0.17_162.48)/25] flex items-center justify-center flex-shrink-0">
           <span className="text-sm sm:text-base font-bold text-[oklch(26%_0.051_172.552)]">
-            {member.name?.[0]?.toUpperCase()}
+            {member.name?.[0]?.toUpperCase() || "?"}
           </span>
         </div>
+
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-bold text-sm sm:text-base text-[oklch(20%_0.042_265.755)] capitalize truncate">
               {member.name}
             </span>
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-[oklch(70%_0.14_182.503)/12] text-[oklch(27%_0.046_192.524)] border border-[oklch(70%_0.14_182.503)/30] font-medium">
-              {member.role}
-            </span>
           </div>
-          <p className="text-[11px] sm:text-xs text-[oklch(20%_0.042_265.755)/55] truncate mt-0.5">
-            {member.email}
-          </p>
+
+          <div className="flex items-center gap-2 mt-0.5">
+            <p className="text-[11px] sm:text-xs text-[oklch(20%_0.042_265.755)/55] truncate">
+              {member.email}
+            </p>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                copyEmail();
+              }}
+              className="p-1.5 hover:bg-white rounded-lg transition-colors"
+              title="ইমেইল কপি করুন"
+            >
+              {emailCopied ? (
+                <CheckCircle size={14} className="text-emerald-600" />
+              ) : (
+                <Copy
+                  size={14}
+                  className="text-[oklch(20%_0.042_265.755)/60]"
+                />
+              )}
+            </button>
+          </div>
         </div>
+
         {/* mini stats */}
-        <div className="hidden sm:flex items-center gap-4 flex-shrink-0">
-          <div className="text-center">
-            <p className="text-[10px] text-[oklch(20%_0.042_265.755)/50] font-medium">
-              অর্ডার
-            </p>
-            <p className="text-sm font-bold text-[oklch(20%_0.042_265.755)]">
-              {member.totalOrders}
-            </p>
-          </div>
-          <div className="text-center">
-            <p className="text-[10px] text-[oklch(20%_0.042_265.755)/50] font-medium">
-              রেভিনিউ
-            </p>
-            <p className="text-sm font-bold text-[oklch(27%_0.046_192.524)]">
-              {formatBDT(member.revenue)}
-            </p>
-          </div>
-          <div className="text-center">
-            <p className="text-[10px] text-[oklch(20%_0.042_265.755)/50] font-medium">
-              ব্যালেন্স
-            </p>
-            <p className="text-sm font-bold text-[#855a00]">
-              {formatBDT(member.balance)}
-            </p>
-          </div>
-        </div>
-        {/* mobile stats */}
-        <div className="flex sm:hidden flex-col items-end gap-0.5 flex-shrink-0">
+        <div className="flex flex-col sm:flex-row sm:gap-2 sm:items-center sm:justify-center text-right">
           <p className="text-xs font-bold text-[oklch(27%_0.046_192.524)]">
-            {formatBDT(member.revenue)}
+            {formatBDT(member.referralBonuses?.total || 0)}
           </p>
           <p className="text-[10px] text-[oklch(20%_0.042_265.755)/50]">
-            {member.totalOrders} অর্ডার
+            বোনাস
           </p>
         </div>
+
         <div className="ml-1 flex-shrink-0">
           {open ? (
             <ChevronUp
@@ -452,141 +291,159 @@ const MemberRow = ({ member }) => {
             />
           )}
         </div>
-      </button>
+      </div>
 
-      {/* expanded orders */}
+      {/* expanded details */}
       {open && (
         <div className="border-t border-[#cadcae]/40 animate-in slide-in-from-top-1 duration-200">
-          {/* member detail chips */}
-          <div className="px-4 sm:px-5 py-3 bg-[#fffde1]/50 flex flex-wrap gap-2 sm:gap-3">
+          <div className="px-4 sm:px-5 py-4 bg-[#fffde1]/50 flex flex-wrap gap-3">
             {[
-              { label: "স্ট্যাটাস", value: member.customerstatus },
-              { label: "রেফারেল কোড", value: member.referralCode, mono: true },
-              { label: "রেফারেল সংখ্যা", value: member.referralCount },
-              { label: "গত ৭ দিনের অর্ডার", value: member.last7DaysOrders },
+              { label: "যোগদান", value: formatBDDateTime(member.joinedAt) },
               {
-                label: "গত ৭ দিনের রেভিনিউ",
-                value: formatBDT(member.last7DaysRevenue),
+                label: "অর্ডার বোনাস",
+                value: formatBDT(member.referralBonuses?.fromOrders || 0),
               },
               {
-                label: "যোগ দিয়েছেন",
-                value: formatBDDateTime(member.createdAt),
+                label: "কোর্স বোনাস",
+                value: formatBDT(member.referralBonuses?.fromCourses || 0),
               },
-            ].map((chip) => (
+              {
+                label: "মোট অর্ডার",
+                value: `${member.totalOrder || 0}`,
+              },
+              {
+                label: "মোট কোর্স",
+                value: `${member.totalCourse || 0}`,
+              },
+            ].map((chip, idx) => (
               <div
-                key={chip.label}
-                className="flex flex-col gap-0.5 bg-white rounded-xl px-3 py-2 border border-[#cadcae]/50 shadow-sm"
+                key={idx}
+                className="flex flex-col gap-0.5 bg-white rounded-xl px-3.5 py-2.5 border border-[#cadcae]/50 shadow-sm min-w-[110px]"
               >
                 <span className="text-[9px] sm:text-[10px] text-[oklch(20%_0.042_265.755)/50] font-medium uppercase tracking-wide">
                   {chip.label}
                 </span>
-                <span
-                  className={cn(
-                    "text-[11px] sm:text-xs font-bold text-[oklch(20%_0.042_265.755)]",
-                    chip.mono && "font-mono",
-                  )}
-                >
+                <span className="text-[11px] sm:text-xs font-bold text-[oklch(20%_0.042_265.755)]">
                   {chip.value}
                 </span>
               </div>
             ))}
           </div>
-          <MemberOrdersTable orders={member.orders} />
         </div>
       )}
     </div>
   );
 };
 
-const MembersSection = ({ members }) => (
-  <SectionCard title={`টিম সদস্য (${members.length})`}>
-    <div className="p-4 sm:p-5 flex flex-col gap-3">
-      {members.length === 0 ? (
-        <div className="text-center py-12 flex flex-col items-center gap-3">
-          <div className="w-14 h-14 rounded-2xl bg-[#cadcae]/30 flex items-center justify-center">
-            <Users size={24} className="text-[oklch(20%_0.042_265.755)/40]" />
-          </div>
-          <p className="text-sm text-[oklch(20%_0.042_265.755)/50]">
-            এখনো কোনো সদস্য নেই
-          </p>
-        </div>
-      ) : (
-        members.map((m) => <MemberRow key={m._id} member={m} />)
-      )}
-    </div>
-  </SectionCard>
+const MembersSkeleton = () => (
+  <div className="space-y-3">
+    {[...Array(10)].map((_, i) => (
+      <div key={i} className="h-24 rounded-2xl bg-[#cadcae]/30 animate-pulse" />
+    ))}
+  </div>
 );
 
-const TeamSummaryTable = ({ members }) => {
-  const rows = members.map((m) => ({
-    name: m.name,
-    email: m.email,
-    orders: m.totalOrders,
-    last7: m.last7DaysOrders,
-    revenue: m.revenue,
-    balance: m.balance,
-    status: m.customerstatus,
-  }));
+const MembersSection = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [localSearch, setLocalSearch] = useState(searchTerm);
+  const [page, setPage] = useState(1);
+
+  const [isLoading, data] = useTeamSystemData({
+    page,
+    search: searchTerm,
+  });
+
+  const handlePageChange = (newPage) => {
+    if (newPage < 1 || newPage > (data?.pagination?.totalPages || 1)) return;
+
+    setPage(newPage);
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchTerm(localSearch);
+      setPage(1);
+    }, 300);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [localSearch]);
+
+  const pagination = data?.pagination;
+  const members = data?.members || [];
 
   return (
-    <SectionCard title="টিম সারসংক্ষেপ">
-      <TableWrapper>
-        <thead>
-          <tr>
-            <Th>নাম</Th>
-            <Th className="hidden sm:table-cell">ইমেইল</Th>
-            <Th>মোট অর্ডার</Th>
-            <Th className="hidden md:table-cell">গত ৭ দিন</Th>
-            <Th>রেভিনিউ</Th>
-            <Th className="hidden sm:table-cell">ব্যালেন্স</Th>
-            <Th className="hidden lg:table-cell">স্ট্যাটাস</Th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r, i) => (
-            <tr
-              key={i}
-              className={cn(
-                "transition-colors hover:bg-[#fffde1]/60",
-                i % 2 === 0 ? "bg-white" : "bg-[#fffde1]/30",
-              )}
-            >
-              <Td>
-                <span className="font-semibold capitalize text-[oklch(20%_0.042_265.755)]">
-                  {r.name}
-                </span>
-              </Td>
-              <Td className="hidden sm:table-cell text-[oklch(20%_0.042_265.755)/60]">
-                {r.email}
-              </Td>
-              <Td>
-                <span className="inline-flex items-center gap-1 font-bold">
-                  <Star size={10} className="text-[#ffc900]" />
-                  {r.orders}
-                </span>
-              </Td>
-              <Td className="hidden md:table-cell">{r.last7}</Td>
-              <Td className="font-bold text-[oklch(27%_0.046_192.524)] whitespace-nowrap">
-                {formatBDT(r.revenue)}
-              </Td>
-              <Td className="hidden sm:table-cell font-semibold text-[#855a00] whitespace-nowrap">
-                {formatBDT(r.balance)}
-              </Td>
-              <Td className="hidden lg:table-cell">
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-[oklch(70%_0.14_182.503)/12] text-[oklch(27%_0.046_192.524)] border border-[oklch(70%_0.14_182.503)/30] font-medium">
-                  {r.status}
-                </span>
-              </Td>
-            </tr>
-          ))}
-        </tbody>
-      </TableWrapper>
+    <SectionCard title={`টিম সদস্য (${pagination?.totalItems || 0})`}>
+      {/* Search */}
+      <div className="px-4 sm:px-6 pt-4 pb-3 border-b border-[#cadcae]/30">
+        <div className="relative">
+          <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[oklch(20%_0.042_265.755)/50]">
+            <Search size={18} />
+          </div>
+          <input
+            type="search"
+            value={localSearch}
+            onChange={(e) => setLocalSearch(e.target.value)}
+            placeholder="সদস্যের নাম বা ইমেইল দিয়ে খুঁজুন..."
+            className="w-full pl-11 pr-4 py-3 bg-white border border-[#cadcae]/60 rounded-2xl focus:outline-none focus:border-[oklch(70%_0.14_182.503)] text-sm placeholder:text-[oklch(20%_0.042_265.755)/50]"
+          />
+        </div>
+      </div>
+
+      {/* Members List */}
+      <div className="p-4 sm:p-5">
+        {isLoading ? (
+          <MembersSkeleton />
+        ) : members.length === 0 ? (
+          <div className="text-center py-16 flex flex-col items-center gap-3">
+            <div className="w-16 h-16 rounded-2xl bg-[#cadcae]/30 flex items-center justify-center">
+              <Users size={32} className="text-[oklch(20%_0.042_265.755)/40]" />
+            </div>
+            <p className="text-sm text-[oklch(20%_0.042_265.755)/60]">
+              কোনো সদস্য পাওয়া যায়নি
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {members.map((m) => (
+              <MemberRow key={m._id} member={m} />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Pagination */}
+      {pagination && pagination.totalPages > 1 && (
+        <div className="flex items-center justify-between border-t border-[#cadcae]/40 px-4 sm:px-6 py-4 bg-[#fffde1]/40">
+          <button
+            onClick={() => handlePageChange(pagination.currentPage - 1)}
+            disabled={!pagination.hasPrevPage}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white transition-colors text-sm font-medium border border-transparent hover:border-[#cadcae]/60"
+          >
+            <ChevronLeft size={16} /> আগের
+          </button>
+
+          <div className="text-sm text-[oklch(20%_0.042_265.755)/70]">
+            পৃষ্ঠা{" "}
+            <span className="font-semibold">{pagination.currentPage}</span> /{" "}
+            {pagination.totalPages}
+          </div>
+
+          <button
+            onClick={() => handlePageChange(pagination.currentPage + 1)}
+            disabled={!pagination.hasNextPage}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white transition-colors text-sm font-medium border border-transparent hover:border-[#cadcae]/60"
+          >
+            পরের <ChevronRight size={16} />
+          </button>
+        </div>
+      )}
     </SectionCard>
   );
 };
 
 // ─── Skeleton Loader ───────────────────────────────────────────────────────────
-
 const SkeletonPulse = ({ className }) => (
   <div className={cn("animate-pulse rounded-lg bg-[#cadcae]/40", className)} />
 );
@@ -595,40 +452,40 @@ const LoadingState = () => (
   <Container>
     <div className="py-6 sm:py-10 flex flex-col gap-5 sm:gap-6">
       <SkeletonPulse className="h-24 sm:h-28 rounded-2xl" />
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {[...Array(4)].map((_, i) => (
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+        {[...Array(5)].map((_, i) => (
           <SkeletonPulse key={i} className="h-28 sm:h-32 rounded-2xl" />
         ))}
       </div>
-      <SkeletonPulse className="h-40 rounded-2xl" />
       <SkeletonPulse className="h-64 rounded-2xl" />
     </div>
   </Container>
 );
 
-const ErrorState = ({ error }) => (
+const ErrorState = () => (
   <Container>
     <div className="py-20 flex flex-col items-center gap-4">
       <div className="w-14 h-14 rounded-2xl bg-[oklch(50%_0.213_27.518)/10] flex items-center justify-center">
         <XCircle size={28} className="text-[oklch(50%_0.213_27.518)]" />
       </div>
       <p className="text-sm text-[oklch(50%_0.213_27.518)] font-medium">
-        {error || "কোনো তথ্য পাওয়া যায়নি"}
+        {"তথ্য লোড হতে সমস্যা হয়েছে! দয়া করে পুনরায় চেষ্টা করুন!"}
       </p>
     </div>
   </Container>
 );
 
 // ─── Main Page ─────────────────────────────────────────────────────────────────
-
 const TeamSystemPage = () => {
   const [isLoading, data, error] = useTeamSystemData();
 
   if (isLoading) return <LoadingState />;
-  if (error) return <ErrorState error={error} />;
+  if (error) return <ErrorState />;
 
   return (
-    <section style={{ background: "var(--color-bg, #fffde1)", minHeight: "100vh" }}>
+    <section
+      style={{ background: "var(--color-bg, #fffde1)", minHeight: "100vh" }}
+    >
       <Container>
         <div className="py-6 sm:py-10 flex flex-col gap-5 sm:gap-6">
           {/* page title */}
@@ -645,13 +502,8 @@ const TeamSystemPage = () => {
           {/* stats grid */}
           <StatsGrid data={data} />
 
-          {/* summary table */}
-          {data.members?.length > 0 && (
-            <TeamSummaryTable members={data.members} />
-          )}
-
-          {/* members with accordion orders */}
-          <MembersSection members={data.members || []} />
+          {/* members with search + pagination */}
+          <MembersSection />
         </div>
       </Container>
     </section>
