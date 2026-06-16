@@ -1,8 +1,9 @@
 "use client";
+
 import dynamic from "next/dynamic";
 
-const DropshippingVideo = dynamic(
-  () => import("@/src/dropShipping/dropshippingVideo/DropshippingVideo"),
+const OrderList = dynamic(
+  () => import('@/src/dropShipping/orderList/orderList'),
   {
     ssr: false,
     loading: () => (
@@ -13,8 +14,6 @@ const DropshippingVideo = dynamic(
   }
 );
 
-const VideoPage = () => {
-  return <DropshippingVideo />;
-};
-
-export default VideoPage;
+export default function OrderListClient() {
+  return <OrderList />;
+}

@@ -2,12 +2,7 @@
 
 import Container from "@/src/compronent/shared/Container";
 import Section from "@/src/compronent/shared/Section";
-import { UrlBackend } from "@/src/confic/urlExport";
 import BackButton from "@/src/dropShipping/BackButton/BackButton";
-import { WebsiteinfoAllGet } from "@/src/hook/content/useWebsiteInfo";
-import { ProductAllGet } from "@/src/hook/useProduct";
-import { useGetUser } from "@/src/utlis/useGetuser";
-import axios from "axios";
 import {
   AlertCircle,
   ArrowLeft,
@@ -16,7 +11,6 @@ import {
   CheckCircle,
   ChevronRight,
   Clock,
-  CreditCard,
   Crown,
   Download,
   Film,
@@ -34,8 +28,9 @@ import {
   Youtube,
   Zap,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import { toast } from "react-hot-toast";
+import React from "react";
+import { useVideoAcademy } from "./useVideoAcademy";
+import PaymentForm from "./PaymentForm";
 
 // ─── Helper: YouTube ID Extractor ────────────────────────────────────────────
 const getYoutubeEmbedUrl = (url) => {
@@ -47,376 +42,48 @@ const getYoutubeEmbedUrl = (url) => {
   return videoId ? `https://www.youtube.com/embed/${videoId}` : url;
 };
 
-// ─── Payment Form Sub-component ───────────────────────────────────────────────
-const PaymentForm = ({
-  paymentData,
-  setPaymentData,
-  onSubmit,
-  submitting,
-  title = "Submit Payment",
-  price = 500,
-}) => (
-  <div className="bg-white border border-gray-100 rounded-[2.5rem] p-5 md:p-8 shadow-lg w-full">
-    <div className="flex items-center gap-4 mb-8">
-      <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center">
-        <CreditCard className="text-emerald-600" size={24} />
-      </div>
-      <div>
-        <h3 className="text-xl font-black text-gray-900 uppercase tracking-tight">
-          {title}
-        </h3>
-        <p className="text-xs text-gray-400 font-bold mt-0.5">
-          আপনার বিকাশ / নগদ লেনদেনের বিবরণ দিন
-        </p>
-      </div>
-    </div>
-    <div className="bg-emerald-50/50 p-4 rounded-3xl border border-emerald-100 mb-8">
-      <div className="flex items-center gap-2 mb-1.5">
-        <Info className="text-emerald-600 w-4 h-4" />
-        <span className="text-[10px] font-black text-emerald-800 uppercase tracking-widest">
-          পেমেন্ট নির্দেশিকা
-        </span>
-      </div>
-      <p className="text-xs text-emerald-700 font-medium leading-relaxed">
-        অনুগ্রহ করে আমাদের বিকাশ/নগদ নম্বরে{" "}
-        <span className="font-bold">(01626420774)</span>{" "}
-        <span className="font-black">&#2547;{price}</span> (সেন্ড মানি) পাঠান।
-        এরপর নিচে লেনদেনের বিবরণ দিন।
-      </p>
-    </div>
-    <form onSubmit={onSubmit} className="space-y-4">
-      <div>
-        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">
-          Payment Method
-        </label>
-        <select
-          className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3.5 text-sm font-bold outline-none focus:ring-2 focus:ring-emerald-500"
-          value={paymentData.paymentMethod}
-          onChange={(e) =>
-            setPaymentData({ ...paymentData, paymentMethod: e.target.value })
-          }
-        >
-          <option value="Bkash">Bkash</option>
-          <option value="Nagad">Nagad</option>
-        </select>
-      </div>
-      <div>
-        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">
-          Sender Number
-        </label>
-        <input
-          type="text"
-          required
-          placeholder="017XXXXXXXX"
-          className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3.5 text-sm font-bold outline-none focus:ring-2 focus:ring-emerald-500"
-          value={paymentData.senderNumber}
-          onChange={(e) =>
-            setPaymentData({ ...paymentData, senderNumber: e.target.value })
-          }
-        />
-      </div>
-      <div>
-        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">
-          Transaction ID
-        </label>
-        <input
-          type="text"
-          required
-          placeholder="TRX123456789"
-          className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3.5 text-sm font-bold outline-none focus:ring-2 focus:ring-emerald-500"
-          value={paymentData.transactionId}
-          onChange={(e) =>
-            setPaymentData({ ...paymentData, transactionId: e.target.value })
-          }
-        />
-      </div>
-      <button
-        type="submit"
-        disabled={submitting}
-        className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-emerald-200 hover:shadow-emerald-300 transition-all disabled:opacity-50 mt-2 flex items-center justify-center gap-2"
-      >
-        {submitting ? (
-          <>
-            <RefreshCw className="animate-spin" size={16} /> Submitting...
-          </>
-        ) : (
-          <>
-            <ShieldCheck size={16} /> {title}
-          </>
-        )}
-      </button>
-    </form>
-  </div>
-);
-
 // ─── Main Component ───────────────────────────────────────────────────────────
 const DropshippingVideo = () => {
-  const { user } = useGetUser();
-  const [activeTab, setActiveTab] = useState("academy");
-  const [accessRequests, setAccessRequests] = useState([]);
-  const [videos, setVideos] = useState([]);
-  const [courses, setCourses] = useState([]);
-  const [modules, setModules] = useState([]);
-  const [selectedCourseId, setSelectedCourseId] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [myRequests, setMyRequests] = useState([]);
-  const [products, setProducts] = useState([]);
-  const [loadingRequests, setLoadingRequests] = useState(false);
-  const [requestSubmitLoading, setRequestSubmitLoading] = useState(false);
-  const [productSearch, setProductSearch] = useState("");
-  const [showProductDropdown, setShowProductDropdown] = useState(false);
-  const [newRequestData, setNewRequestData] = useState({
-    productId: "",
-    productName: "",
-    productImage: "",
-    videoType: "facebook_ad",
-    notes: "",
-  });
-  const [premiumVideoPrice, setPremiumVideoPrice] = useState(500);
-  const [activeVideo, setActiveVideo] = useState(null);
-  const [expandedModules, setExpandedModules] = useState({});
-  const [paymentData, setPaymentData] = useState({
-    paymentMethod: "Bkash",
-    transactionId: "",
-    senderNumber: "",
-    amount: 500,
-  });
-
-  const activeCourse = useMemo(
-    () => courses.find((c) => c._id === selectedCourseId),
-    [courses, selectedCourseId],
-  );
-  const activeCourseModules = useMemo(
-    () => modules.filter((m) => m.courseId === selectedCourseId),
-    [modules, selectedCourseId],
-  );
-  const premiumStatus = useMemo(() => {
-    if (!selectedCourseId) return "none";
-    const courseReqs = accessRequests.filter(
-      (req) => req.courseId === selectedCourseId,
-    );
-    if (courseReqs.length === 0) return "none";
-    if (courseReqs.some((r) => r.status === "approved")) return "approved";
-    if (courseReqs.some((r) => r.status === "pending")) return "pending";
-    if (courseReqs.some((r) => r.status === "rejected")) return "rejected";
-    return courseReqs[0].status || "none";
-  }, [accessRequests, selectedCourseId]);
-  const isCoursePremium = activeCourse?.price > 0;
-  const isCourseLocked = isCoursePremium && premiumStatus !== "approved";
-  const isVideoLocked =
-    isCourseLocked &&
-    activeVideo &&
-    (activeVideo.videoType === "premium" ||
-      activeVideo.videoType === "standard" ||
-      !activeVideo.videoType);
-  const currentCoursePrice = useMemo(() => {
-    if (!activeCourse) return premiumVideoPrice;
-    return activeCourse.discountPrice > 0
-      ? activeCourse.discountPrice
-      : activeCourse.price;
-  }, [activeCourse, premiumVideoPrice]);
-
-  const demoVideo = useMemo(() => videos.find(v => v.videoType === "demo" && !v.moduleId), [videos]);
-  const freeVideos = useMemo(() => videos.filter(v => !v.moduleId), [videos]);
-
-  const handleCourseSelect = (courseId) => {
-    setSelectedCourseId(courseId);
-    const courseModules = modules.filter((m) => m.courseId === courseId);
-    if (courseModules.length > 0) {
-      setExpandedModules({ [courseModules[0]._id]: true });
-      const firstModVideos = videos.filter(
-        (v) =>
-          v.moduleId?._id === courseModules[0]._id ||
-          v.moduleId === courseModules[0]._id,
-      );
-      setActiveVideo(firstModVideos.length > 0 ? firstModVideos[0] : null);
-    } else {
-      setActiveVideo(null);
-    }
-  };
-
-  const toggleModule = (mod) =>
-    setExpandedModules((prev) => ({ ...prev, [mod]: !prev[mod] }));
-
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const [
-        accessResult,
-        videosResult,
-        coursesResult,
-        modulesResult,
-        websiteInfoResult,
-      ] = await Promise.allSettled([
-        axios.get(`${UrlBackend}/video-access/my-access`, {
-          withCredentials: true,
-        }),
-        axios.get(`${UrlBackend}/video-content/all`, { withCredentials: true }),
-        axios.get(`${UrlBackend}/video-course/all`, { withCredentials: true }),
-        axios.get(`${UrlBackend}/video-module/all`, { withCredentials: true }),
-        WebsiteinfoAllGet(),
-      ]);
-      if (
-        accessResult.status === "fulfilled" &&
-        accessResult.value.data.success
-      )
-        setAccessRequests(accessResult.value.data.data);
-      if (
-        videosResult.status === "fulfilled" &&
-        videosResult.value.data.success
-      ) {
-        const sorted = [...videosResult.value.data.data].sort((a, b) => {
-          if (a.createdAt && b.createdAt) return new Date(a.createdAt) - new Date(b.createdAt);
-          return (a._id || "").localeCompare(b._id || "");
-        });
-        setVideos(sorted);
-      }
-      if (
-        coursesResult.status === "fulfilled" &&
-        coursesResult.value.data.success
-      ) {
-        const sortedCourses = [...coursesResult.value.data.data].sort((a, b) => {
-          if (a.createdAt && b.createdAt) return new Date(a.createdAt) - new Date(b.createdAt);
-          return (a._id || "").localeCompare(b._id || "");
-        });
-        setCourses(sortedCourses);
-      }
-      if (
-        modulesResult.status === "fulfilled" &&
-        modulesResult.value.data.success
-      )
-        setModules([...modulesResult.value.data.data].sort((a, b) => {
-          if (a.createdAt && b.createdAt) return new Date(a.createdAt) - new Date(b.createdAt);
-          return (a._id || "").localeCompare(b._id || "");
-        }));
-      if (websiteInfoResult.status === "fulfilled") {
-        const info =
-          websiteInfoResult.value.websiteinfo?.[0] ||
-          websiteInfoResult.value.data?.[0];
-        if (info && info.premiumVideoPrice) {
-          setPremiumVideoPrice(info.premiumVideoPrice);
-          setPaymentData((prev) => ({
-            ...prev,
-            amount: info.premiumVideoPrice,
-          }));
-        }
-      }
-    } catch (error) {
-      console.error("Failed to fetch data", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchRequests = async () => {
-    setLoadingRequests(true);
-    try {
-      const res = await axios.get(`${UrlBackend}/video-request/my-requests`, {
-        withCredentials: true,
-      });
-      if (res.data.success) setMyRequests(res.data.data);
-    } catch (error) {
-      console.error("Failed to fetch video requests", error);
-    } finally {
-      setLoadingRequests(false);
-    }
-  };
-
-  const fetchProducts = async () => {
-    try {
-      const res = await ProductAllGet({ limit: 150 });
-      if (res.success) setProducts(res.data || res.products || []);
-    } catch (error) {
-      console.error("Failed to fetch products", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-    fetchRequests();
-    fetchProducts();
-  }, []);
-
-  const handleSubmitPayment = async (e) => {
-    e.preventDefault();
-    setSubmitting(true);
-    try {
-      const res = await axios.post(
-        `${UrlBackend}/video-access/create`,
-        {
-          ...paymentData,
-          amount: currentCoursePrice,
-          videoType: "premium_training",
-          courseId: selectedCourseId,
-        },
-        { withCredentials: true },
-      );
-      if (res.data.success) {
-        toast.success("Payment submitted! Waiting for admin approval.");
-        fetchData();
-      }
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to submit payment");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleSubmitCustomRequest = async (e) => {
-    e.preventDefault();
-    if (!newRequestData.productId) {
-      toast.error("Please select a product from the list");
-      return;
-    }
-    setRequestSubmitLoading(true);
-    try {
-      const res = await axios.post(
-        `${UrlBackend}/video-request/create`,
-        {
-          productId: newRequestData.productId,
-          videoType: newRequestData.videoType,
-          notes: newRequestData.notes,
-        },
-        { withCredentials: true },
-      );
-      if (res.data.success) {
-        toast.success("Ad creative request submitted!");
-        setNewRequestData({
-          productId: "",
-          productName: "",
-          productImage: "",
-          videoType: "facebook_ad",
-          notes: "",
-        });
-        setProductSearch("");
-        fetchRequests();
-      }
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to submit request");
-    } finally {
-      setRequestSubmitLoading(false);
-    }
-  };
-
-  const filteredProducts = useMemo(() => {
-    if (!productSearch) return products.slice(0, 10);
-    return products
-      .filter((p) =>
-        p.productName?.toLowerCase().includes(productSearch.toLowerCase()),
-      )
-      .slice(0, 10);
-  }, [products, productSearch]);
-
-  const customRequestTypeLabels = {
-    facebook_ad: "Facebook Ad Creative",
-    tiktok_video: "TikTok Ad Video",
-    youtube_short: "YouTube Short/Reel",
-    unboxing: "Unboxing / UGC Video",
-    other: "Custom / Special Video",
-  };
-
-  console.log({ demoVideo, loading });
+  const {
+    activeTab,
+    setActiveTab,
+    selectedCourseId,
+    setSelectedCourseId,
+    loading,
+    submitting,
+    myRequests,
+    loadingRequests,
+    requestSubmitLoading,
+    productSearch,
+    setProductSearch,
+    showProductDropdown,
+    setShowProductDropdown,
+    newRequestData,
+    setNewRequestData,
+    activeVideo,
+    setActiveVideo,
+    expandedModules,
+    paymentData,
+    setPaymentData,
+    activeCourseModules,
+    premiumStatus,
+    isCourseLocked,
+    currentCoursePrice,
+    demoVideo,
+    freeVideos,
+    filteredProducts,
+    customRequestTypeLabels,
+    videos,
+    courses,
+    modules,
+    accessRequests,
+    handleCourseSelect,
+    toggleModule,
+    handleSubmitPayment,
+    handleSubmitCustomRequest,
+    fetchData,
+    fetchRequests,
+  } = useVideoAcademy();
 
   return (
     <Section className="min-h-dvh bg-slate-50/30 py-8 overflow-x-hidden">

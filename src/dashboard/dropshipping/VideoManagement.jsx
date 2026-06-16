@@ -1,8 +1,6 @@
 "use client";
 
-import { UrlBackend } from "@/src/confic/urlExport";
 import { cn } from "@/src/utlis/utils";
-import axios from "axios";
 import {
   BookOpen,
   ChevronDown,
@@ -15,88 +13,13 @@ import {
   Plus,
   PlusCircle,
   RefreshCw,
-  Save,
   Trash2,
 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "react-hot-toast";
-
-function EmptyState({
-  icon: Icon = Folder,
-  title = "No Modules Created",
-  message = "Create your first module to start adding videos.",
-  buttonText = "Create Module",
-  onButtonClick,
-  className = "",
-}) {
-  return (
-    <div
-      className={cn(
-        "flex flex-col items-center justify-center py-14 md:py-16 px-6",
-        "bg-slate-800/20 border border-dashed border-slate-700/50 rounded-3xl",
-        className,
-      )}
-    >
-      <div className="mb-5 md:mb-6">
-        <Icon size={44} className="text-slate-500 md:size-12 transition-all" />
-      </div>
-
-      <h3 className="text-base md:text-lg font-black uppercase tracking-widest text-slate-400 text-center">
-        {title}
-      </h3>
-
-      <p className="text-xs md:text-sm text-slate-500 mt-2 text-center max-w-xs md:max-w-sm font-medium">
-        {message}
-      </p>
-
-      {onButtonClick && (
-        <button
-          onClick={onButtonClick}
-          className={cn(
-            "mt-7 md:mt-8 bg-purple-600 hover:bg-purple-700 active:bg-purple-800",
-            "px-5 md:px-7 py-3 rounded-2xl font-black uppercase text-[10px] md:text-xs",
-            "tracking-widest transition-all active:scale-95 shadow-lg shadow-purple-500/30",
-          )}
-        >
-          {buttonText}
-        </button>
-      )}
-    </div>
-  );
-}
-
-const getYoutubeEmbedUrl = (url) => {
-  if (!url) return "";
-  let videoId = "";
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-  const match = url.match(regExp);
-  if (match && match[2].length === 11) videoId = match[2];
-  return videoId ? `https://www.youtube.com/embed/${videoId}` : "";
-};
-
-const STANDALONE_VIDEO_TYPES = new Set(["standard", "demo"]);
-
-const isModuleFree = (moduleId, modules, courses) => {
-  if (!moduleId) return true;
-  const parentMod = modules.find((m) => String(m._id) === String(moduleId));
-  if (!parentMod) return true;
-  if ((parentMod.price ?? 0) > 0) return false;
-  const parentCourse = courses.find(
-    (c) => String(c._id) === String(parentMod.courseId),
-  );
-  return parentCourse ? parentCourse.price <= 0 : true;
-};
-
-const resolveVideoTypeForModule = (currentType, moduleId, modules, courses) => {
-  if (!moduleId) {
-    if (STANDALONE_VIDEO_TYPES.has(currentType)) return currentType;
-    if (currentType === "free") return "standard";
-    return "standard";
-  }
-  const freeModule = isModuleFree(moduleId, modules, courses);
-  if (freeModule) return "free";
-  return "premium";
-};
+import useVideoManagement from "./useVideoManagement";
+import EmptyState from "./EmptyState";
+import CourseForm from "./CourseForm";
+import ModuleForm from "./ModuleForm";
+import VideoForm from "./VideoForm";
 
 const SidebarSkeleton = () => (
   <div className="w-full md:w-70 lg:w-96 bg-slate-900 border-r border-slate-800 flex flex-col md:h-full">
@@ -138,318 +61,39 @@ const SidebarSkeleton = () => (
 );
 
 const VideoManagement = () => {
-  const [courses, setCourses] = useState([]);
-  const [modules, setModules] = useState([]);
-  const [videos, setVideos] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  // Sidebar state
-  const [expandedCourses, setExpandedCourses] = useState({});
-  const [expandedModules, setExpandedModules] = useState({});
-
-  // Workspace state
-  // selectedItem: { type: 'course'|'module'|'video'|'new_course'|'new_module'|'new_video', data: any, parentId?: string }
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [actionLoading, setActionLoading] = useState(false);
-
-  // Form States
-  const [courseType, setCourseType] = useState("free"); // "free" | "paid"
-  const [courseFormData, setCourseFormData] = useState({
-    title: "",
-    description: "",
-    price: 0,
-    discountPrice: 0,
-    referralBonus: 0,
-    isActive: true,
-  });
-  const [moduleFormData, setModuleFormData] = useState({
-    title: "",
-    description: "",
-    price: 0,
-    courseId: "",
-    isActive: true,
-  });
-  const [videoFormData, setVideoFormData] = useState({
-    title: "",
-    description: "",
-    url: "",
-    moduleId: "",
-    videoType: "standard",
-  });
-  const [previewUrl, setPreviewUrl] = useState("");
-  const [deleteConfirm, setDeleteConfirm] = useState({
-    show: false,
-    type: "",
-    id: "",
-  });
-
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const [coursesRes, modsRes, vidsRes] = await Promise.all([
-        axios.get(`${UrlBackend}/video-course/admin/all`, {
-          withCredentials: true,
-        }),
-        axios.get(`${UrlBackend}/video-module/admin/all`, {
-          withCredentials: true,
-        }),
-        axios.get(`${UrlBackend}/video-content/admin/all`, {
-          withCredentials: true,
-        }),
-      ]);
-      if (coursesRes.data.success) {
-        const sorted = [...coursesRes.data.data].sort((a, b) => {
-          if (a.createdAt && b.createdAt) return new Date(a.createdAt) - new Date(b.createdAt);
-          return (a._id || "").localeCompare(b._id || "");
-        });
-        setCourses(sorted);
-      }
-      if (modsRes.data.success) {
-        const sorted = [...modsRes.data.data].sort((a, b) => {
-          if (a.createdAt && b.createdAt) return new Date(a.createdAt) - new Date(b.createdAt);
-          return (a._id || "").localeCompare(b._id || "");
-        });
-        setModules(sorted);
-      }
-      if (vidsRes.data.success) {
-        const sorted = [...vidsRes.data.data].sort((a, b) => {
-          if (a.createdAt && b.createdAt) return new Date(a.createdAt) - new Date(b.createdAt);
-          return (a._id || "").localeCompare(b._id || "");
-        });
-        setVideos(sorted);
-      }
-    } catch (error) {
-      toast.error("Failed to load data.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    setPreviewUrl(getYoutubeEmbedUrl(videoFormData.url));
-  }, [videoFormData.url]);
-
-  // Tree Toggles
-  const toggleCourse = (id) =>
-    setExpandedCourses((prev) => ({ ...prev, [id]: !prev[id] }));
-  const toggleModule = (id) =>
-    setExpandedModules((prev) => ({ ...prev, [id]: !prev[id] }));
-
-  // Selection Handlers
-  const selectItem = (type, data, parentId = null) => {
-    setSelectedItem({ type, data, parentId });
-    if (type === "course") {
-      setCourseFormData({
-        title: data.title,
-        description: data.description,
-        price: data.price,
-        discountPrice: data.discountPrice || 0,
-        referralBonus: data.referralBonus || 0,
-        isActive: data.isActive,
-      });
-      setCourseType(data.price > 0 ? "paid" : "free");
-    } else if (type === "new_course") {
-      setCourseFormData({
-        title: "",
-        description: "",
-        price: 0,
-        discountPrice: 0,
-        referralBonus: 0,
-        isActive: true,
-      });
-      setCourseType("free");
-    } else if (type === "module") {
-      setModuleFormData({
-        title: data.title,
-        description: data.description,
-        price: data.price,
-        courseId: data.courseId,
-        isActive: data.isActive,
-      });
-    } else if (type === "new_module") {
-      setModuleFormData({
-        title: "",
-        description: "",
-        price: 0,
-        courseId: parentId || "",
-        isActive: true,
-      });
-    } else if (type === "video") {
-      const initialModId = data.moduleId || "";
-      const normalizedVideoType = resolveVideoTypeForModule(
-        data.videoType || "standard",
-        initialModId,
-        modules,
-        courses,
-      );
-      setVideoFormData({
-        title: data.title,
-        description: data.description,
-        url: data.url,
-        moduleId: initialModId,
-        videoType: normalizedVideoType,
-      });
-    } else if (type === "new_video") {
-      const initialModId = parentId || "";
-      const initialVideoType = resolveVideoTypeForModule(
-        "standard",
-        initialModId,
-        modules,
-        courses,
-      );
-      setVideoFormData({
-        title: "",
-        description: "",
-        url: "",
-        moduleId: initialModId,
-        videoType: initialVideoType,
-      });
-    }
-  };
-
-  // Submits
-  const handleCourseSubmit = async (e) => {
-    e.preventDefault();
-    setActionLoading(true);
-    try {
-      if (selectedItem.type === "course") {
-        await axios.put(
-          `${UrlBackend}/video-course/admin/${selectedItem.data._id}`,
-          courseFormData,
-          { withCredentials: true },
-        );
-        toast.success("Course updated");
-      } else {
-        await axios.post(
-          `${UrlBackend}/video-course/admin/create`,
-          courseFormData,
-          { withCredentials: true },
-        );
-        toast.success("Course created");
-      }
-      await fetchData();
-      setSelectedItem(null);
-    } catch (error) {
-      toast.error("Operation failed");
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const handleModuleSubmit = async (e) => {
-    e.preventDefault();
-    setActionLoading(true);
-    try {
-      if (selectedItem.type === "module") {
-        await axios.put(
-          `${UrlBackend}/video-module/admin/${selectedItem.data._id}`,
-          moduleFormData,
-          { withCredentials: true },
-        );
-        toast.success("Module updated");
-      } else {
-        await axios.post(
-          `${UrlBackend}/video-module/admin/create`,
-          moduleFormData,
-          { withCredentials: true },
-        );
-        toast.success("Module created");
-        setExpandedCourses((prev) => ({
-          ...prev,
-          [moduleFormData.courseId]: true,
-        }));
-      }
-      await fetchData();
-      setSelectedItem(null);
-    } catch (error) {
-      toast.error("Operation failed");
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const handleVideoSubmit = async (e) => {
-    e.preventDefault();
-    setActionLoading(true);
-    try {
-      const payload = { ...videoFormData };
-      if (!payload.moduleId) {
-        if (!STANDALONE_VIDEO_TYPES.has(payload.videoType)) {
-          toast.error("Standalone videos must be 'standard' or 'demo'.");
-          setActionLoading(false);
-          return;
-        }
-        delete payload.moduleId;
-      } else {
-        const freeModule = isModuleFree(payload.moduleId, modules, courses);
-        if (freeModule && payload.videoType !== "free") {
-          toast.error("Free course modules can only hold 'free' videos.");
-          setActionLoading(false);
-          return;
-        }
-        if (!freeModule && payload.videoType !== "premium") {
-          toast.error("Premium course modules can only hold 'premium' videos.");
-          setActionLoading(false);
-          return;
-        }
-      }
-      if (selectedItem.type === "video") {
-        await axios.patch(
-          `${UrlBackend}/video-content/update/${selectedItem.data._id}`,
-          payload,
-          { withCredentials: true },
-        );
-        toast.success("Video updated");
-      } else {
-        await axios.post(`${UrlBackend}/video-content/create`, payload, {
-          withCredentials: true,
-        });
-        toast.success("Video added");
-        if (payload.moduleId) {
-          setExpandedModules((prev) => ({ ...prev, [payload.moduleId]: true }));
-        }
-      }
-      await fetchData();
-      setSelectedItem(null);
-    } catch (error) {
-      const message = error?.response?.data?.message || "Operation failed";
-      toast.error(message);
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  // Deletes
-  const handleDeleteAction = async (type, id) => {
-    try {
-      if (type === "course")
-        await axios.delete(`${UrlBackend}/video-course/admin/${id}`, {
-          withCredentials: true,
-        });
-      else if (type === "module")
-        await axios.delete(`${UrlBackend}/video-module/admin/${id}`, {
-          withCredentials: true,
-        });
-      else if (type === "video")
-        await axios.delete(`${UrlBackend}/video-content/delete/${id}`, {
-          withCredentials: true,
-        });
-
-      toast.success(`${type} deleted`);
-      setSelectedItem(null);
-      fetchData();
-    } catch (error) {
-      toast.error("Delete failed");
-    }
-  };
+  const {
+    courses,
+    modules,
+    videos,
+    loading,
+    expandedCourses,
+    expandedModules,
+    toggleCourse,
+    toggleModule,
+    selectedItem,
+    selectItem,
+    actionLoading,
+    courseType,
+    setCourseType,
+    courseFormData,
+    setCourseFormData,
+    moduleFormData,
+    setModuleFormData,
+    videoFormData,
+    setVideoFormData,
+    previewUrl,
+    deleteConfirm,
+    setDeleteConfirm,
+    handleCourseSubmit,
+    handleModuleSubmit,
+    handleVideoSubmit,
+    handleDeleteAction,
+    fetchData,
+  } = useVideoManagement();
 
   return (
     <section className="md:h-[calc(100dvh-4rem)] bg-slate-950 flex flex-col md:flex-row text-slate-300 font-sans overflow-hidden">
-      {/* ── Left Sidebar (Tree View) ── */}
+      {/* Left Sidebar (Tree View) */}
       {loading ? (
         <SidebarSkeleton />
       ) : (
@@ -486,7 +130,6 @@ const VideoManagement = () => {
 
               return (
                 <div key={course._id} className="select-none">
-                  {/* Course Node */}
                   <div
                     className={`flex items-center group rounded-lg transition-colors ${isCourseSelected ? "bg-blue-500/10 border border-blue-500/30" : "hover:bg-slate-800 border border-transparent"}`}
                   >
@@ -527,7 +170,6 @@ const VideoManagement = () => {
                     </button>
                   </div>
 
-                  {/* Modules Nodes */}
                   {isCourseExpanded && (
                     <div className="ml-5 pl-3 border-l border-slate-800 space-y-1 mt-1">
                       {courseModules.map((mod) => {
@@ -543,7 +185,6 @@ const VideoManagement = () => {
 
                         return (
                           <div key={mod._id}>
-                            {/* Module Node */}
                             <div
                               className={`flex items-center group rounded-lg transition-colors ${isModSelected ? "bg-purple-500/10 border border-purple-500/30" : "hover:bg-slate-800 border border-transparent"}`}
                             >
@@ -586,7 +227,6 @@ const VideoManagement = () => {
                               </button>
                             </div>
 
-                            {/* Video Nodes */}
                             {isModExpanded && (
                               <div className="ml-4 pl-3 border-l border-slate-800/50 space-y-0.5 mt-0.5 mb-1">
                                 {moduleVideos.map((video) => {
@@ -709,7 +349,7 @@ const VideoManagement = () => {
         </div>
       )}
 
-      {/* ── Right Workspace ── */}
+      {/* Right Workspace */}
       <div className="flex-1 bg-slate-950 flex flex-col h-full overflow-y-auto custom-scrollbar relative">
         {!selectedItem ? (
           <div className="p-4 md:p-6 lg:p-8 flex-1 flex flex-col items-center justify-center opacity-70 pointer-events-none text-slate-300 gap-4">
@@ -725,7 +365,6 @@ const VideoManagement = () => {
           </div>
         ) : (
           <div className="p-8 max-w-4xl mx-auto w-full animate-in fade-in zoom-in-95 duration-200">
-            {/* Header & Delete Btn */}
             <div className="flex justify-between items-center mb-8 pb-4 border-b border-slate-800">
               <div>
                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1 block">
@@ -753,507 +392,40 @@ const VideoManagement = () => {
               )}
             </div>
 
-            {/* Forms */}
             {(selectedItem.type === "course" ||
               selectedItem.type === "new_course") && (
-              <form onSubmit={handleCourseSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {/* Free/Paid Selection Upfront */}
-                  <div className="sm:col-span-2">
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">
-                      Course Access Type
-                    </label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 gap-4">
-                      <div
-                        onClick={() => {
-                          setCourseType("free");
-                          setCourseFormData({
-                            ...courseFormData,
-                            price: 0,
-                            discountPrice: 0,
-                            referralBonus: 0,
-                          });
-                        }}
-                        className={`p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
-                          courseType === "free"
-                            ? "bg-blue-500/10 border-blue-500/80 ring-2 ring-blue-500/20"
-                            : "bg-slate-900 border-slate-800 hover:border-slate-700"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm font-bold text-slate-200">
-                            Free Course
-                          </span>
-                          <div
-                            className={`w-4 h-4 rounded-full border flex items-center justify-center ${courseType === "free" ? "border-blue-500 bg-blue-500" : "border-slate-700"}`}
-                          >
-                            {courseType === "free" && (
-                              <div className="w-1.5 h-1.5 rounded-full bg-slate-950" />
-                            )}
-                          </div>
-                        </div>
-                        <p className="text-[11px] text-slate-500 leading-normal">
-                          Free for all registered dropshipping users.
-                        </p>
-                      </div>
-
-                      <div
-                        onClick={() => {
-                          setCourseType("paid");
-                          // Set to a placeholder default price if it is currently 0
-                          if (courseFormData.price === 0) {
-                            setCourseFormData({
-                              ...courseFormData,
-                              price: 500,
-                              discountPrice: 0,
-                              referralBonus: 0,
-                            });
-                          }
-                        }}
-                        className={`p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
-                          courseType === "paid"
-                            ? "bg-blue-500/10 border-blue-500/80 ring-2 ring-blue-500/20"
-                            : "bg-slate-900 border-slate-800 hover:border-slate-700"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm font-bold text-slate-200">
-                            Paid / Premium Course
-                          </span>
-                          <div
-                            className={`w-4 h-4 rounded-full border flex items-center justify-center ${courseType === "paid" ? "border-blue-500 bg-blue-500" : "border-slate-700"}`}
-                          >
-                            {courseType === "paid" && (
-                              <div className="w-1.5 h-1.5 rounded-full bg-slate-950" />
-                            )}
-                          </div>
-                        </div>
-                        <p className="text-[11px] text-slate-500 leading-normal">
-                          Requires premium access plan payment to unlock.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="sm:col-span-2">
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
-                      Course Title
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                      value={courseFormData.title}
-                      onChange={(e) =>
-                        setCourseFormData({
-                          ...courseFormData,
-                          title: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="sm:col-span-2">
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
-                      Description
-                    </label>
-                    <textarea
-                      className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all h-32 resize-y"
-                      value={courseFormData.description}
-                      onChange={(e) =>
-                        setCourseFormData({
-                          ...courseFormData,
-                          description: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-
-                  {/* Conditional Price fields */}
-                  {courseType === "paid" ? (
-                    <>
-                      <div>
-                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
-                          Price (৳)
-                        </label>
-                        <div className="relative animate-in slide-in-from-top-2 duration-200">
-                          <span className="absolute left-4 top-3 text-slate-500">
-                            ৳
-                          </span>
-                          <input
-                            type="number"
-                            min="1"
-                            required
-                            className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-8 pr-4 py-3 text-sm text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                            value={courseFormData.price}
-                            onChange={(e) =>
-                              setCourseFormData({
-                                ...courseFormData,
-                                price: Number(e.target.value),
-                              })
-                            }
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
-                          Discount Price (৳)
-                        </label>
-                        <div className="relative animate-in slide-in-from-top-2 duration-200">
-                          <span className="absolute left-4 top-3 text-slate-500">
-                            ৳
-                          </span>
-                          <input
-                            type="number"
-                            min="0"
-                            required
-                            className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-8 pr-4 py-3 text-sm text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                            value={courseFormData.discountPrice}
-                            onChange={(e) =>
-                              setCourseFormData({
-                                ...courseFormData,
-                                discountPrice: Number(e.target.value),
-                              })
-                            }
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
-                          Referral Bonus (৳)
-                        </label>
-                        <div className="relative animate-in slide-in-from-top-2 duration-200">
-                          <span className="absolute left-4 top-3 text-slate-500">
-                            ৳
-                          </span>
-                          <input
-                            type="number"
-                            min="0"
-                            required
-                            className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-8 pr-4 py-3 text-sm text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                            value={courseFormData.referralBonus}
-                            onChange={(e) =>
-                              setCourseFormData({
-                                ...courseFormData,
-                                referralBonus: Number(e.target.value),
-                              })
-                            }
-                          />
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <div>
-                      <label className="block text-[10px] font-black text-slate-500/50 uppercase tracking-widest mb-2">
-                        Price (৳)
-                      </label>
-                      <div className="relative opacity-50 cursor-not-allowed">
-                        <span className="absolute left-4 top-3 text-slate-500">
-                          ৳
-                        </span>
-                        <input
-                          type="text"
-                          disabled
-                          className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-8 pr-4 py-3 text-sm text-slate-400 outline-none"
-                          value="Free (0 ৳)"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex items-center">
-                    <label className="flex items-center gap-3 cursor-pointer mt-4">
-                      <div className="relative">
-                        <input
-                          type="checkbox"
-                          className="sr-only peer"
-                          checked={courseFormData.isActive}
-                          onChange={(e) =>
-                            setCourseFormData({
-                              ...courseFormData,
-                              isActive: e.target.checked,
-                            })
-                          }
-                        />
-                        <div className="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
-                      </div>
-                      <span className="text-xs font-semibold text-slate-300 uppercase tracking-widest">
-                        Published
-                      </span>
-                    </label>
-                  </div>
-                </div>
-                <div className="pt-6 border-t border-slate-800 flex justify-end">
-                  <button
-                    type="submit"
-                    disabled={actionLoading}
-                    className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 md:px-6 md:py-3 rounded-xl font-semibold uppercase tracking-widest text-xs flex items-center gap-2 transition-all shadow-lg shadow-blue-500/20 disabled:opacity-50"
-                  >
-                    <Save size={16} />{" "}
-                    {actionLoading ? "Saving..." : "Save Course"}
-                  </button>
-                </div>
-              </form>
+              <CourseForm
+                courseType={courseType}
+                setCourseType={setCourseType}
+                courseFormData={courseFormData}
+                setCourseFormData={setCourseFormData}
+                onSubmit={handleCourseSubmit}
+                actionLoading={actionLoading}
+              />
             )}
 
             {(selectedItem.type === "module" ||
               selectedItem.type === "new_module") && (
-              <form onSubmit={handleModuleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div className="sm:col-span-1">
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
-                      Parent Course
-                    </label>
-                    <select
-                      required
-                      className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:ring-2 focus:ring-purple-500 outline-none transition-all"
-                      value={moduleFormData.courseId}
-                      onChange={(e) =>
-                        setModuleFormData({
-                          ...moduleFormData,
-                          courseId: e.target.value,
-                        })
-                      }
-                    >
-                      <option value="" disabled>
-                        Select a Course
-                      </option>
-                      {courses.map((c) => (
-                        <option key={c._id} value={c._id}>
-                          {c.title}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="sm:col-span-1">
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
-                      Module Title
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:ring-2 focus:ring-purple-500 outline-none transition-all"
-                      value={moduleFormData.title}
-                      onChange={(e) =>
-                        setModuleFormData({
-                          ...moduleFormData,
-                          title: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="sm:col-span-2">
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
-                      Description
-                    </label>
-                    <textarea
-                      className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:ring-2 focus:ring-purple-500 outline-none transition-all h-32 resize-y"
-                      value={moduleFormData.description}
-                      onChange={(e) =>
-                        setModuleFormData({
-                          ...moduleFormData,
-                          description: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="flex items-center md:col-span-2">
-                    <label className="flex items-center gap-3 cursor-pointer mt-2">
-                      <div className="relative">
-                        <input
-                          type="checkbox"
-                          className="sr-only peer"
-                          checked={moduleFormData.isActive}
-                          onChange={(e) =>
-                            setModuleFormData({
-                              ...moduleFormData,
-                              isActive: e.target.checked,
-                            })
-                          }
-                        />
-                        <div className="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-500"></div>
-                      </div>
-                      <span className="text-xs font-bold text-slate-300 uppercase tracking-widest">
-                        Active
-                      </span>
-                    </label>
-                  </div>
-                </div>
-                <div className="pt-6 border-t border-slate-800 flex justify-end">
-                  <button
-                    type="submit"
-                    disabled={actionLoading}
-                    className="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2.5 md:px-6 md:py-3 rounded-xl font-semibold uppercase tracking-widest text-xs flex items-center gap-2 transition-all shadow-lg shadow-purple-500/20 disabled:opacity-50"
-                  >
-                    <Save size={16} />{" "}
-                    {actionLoading ? "Saving..." : "Save Module"}
-                  </button>
-                </div>
-              </form>
+              <ModuleForm
+                moduleFormData={moduleFormData}
+                setModuleFormData={setModuleFormData}
+                courses={courses}
+                onSubmit={handleModuleSubmit}
+                actionLoading={actionLoading}
+              />
             )}
 
             {(selectedItem.type === "video" ||
               selectedItem.type === "new_video") && (
-              <form onSubmit={handleVideoSubmit} className="space-y-6">
-                {/* Live Preview Area */}
-                {previewUrl && (
-                  <div className="w-full rounded-2xl overflow-hidden bg-black aspect-video shadow-2xl border border-slate-800 relative group">
-                    <iframe
-                      src={previewUrl}
-                      className="absolute inset-0 w-full h-full border-0"
-                      allowFullScreen
-                    />
-                  </div>
-                )}
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div className="sm:col-span-1">
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
-                      Parent Module
-                    </label>
-                    <select
-                      className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
-                      value={videoFormData.moduleId || ""}
-                      onChange={(e) => {
-                        const modId = e.target.value;
-                        const nextVideoType = resolveVideoTypeForModule(
-                          videoFormData.videoType,
-                          modId,
-                          modules,
-                          courses,
-                        );
-                        setVideoFormData({
-                          ...videoFormData,
-                          moduleId: modId,
-                          videoType: nextVideoType,
-                        });
-                      }}
-                    >
-                      <option value="">
-                        None (Standalone Video - Standard or Demo)
-                      </option>
-                      {modules.map((m) => {
-                        const parentCourse = courses.find(
-                          (c) => String(c._id) === String(m.courseId),
-                        );
-                        return (
-                          <option key={m._id} value={String(m._id)}>
-                            {parentCourse ? `${parentCourse.title} > ` : ""}
-                            {m.title}
-                          </option>
-                        );
-                      })}
-                    </select>
-                  </div>
-                  <div className="sm:col-span-1">
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
-                      Video Title
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
-                      value={videoFormData.title}
-                      onChange={(e) =>
-                        setVideoFormData({
-                          ...videoFormData,
-                          title: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
-                      YouTube URL
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="https://youtu.be/..."
-                      className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
-                      value={videoFormData.url}
-                      onChange={(e) =>
-                        setVideoFormData({
-                          ...videoFormData,
-                          url: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
-                      Access Type
-                    </label>
-                    <select
-                      required
-                      className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
-                      value={videoFormData.videoType}
-                      onChange={(e) =>
-                        setVideoFormData({
-                          ...videoFormData,
-                          videoType: e.target.value,
-                        })
-                      }
-                    >
-                      {(() => {
-                        if (!videoFormData.moduleId) {
-                          return (
-                            <>
-                              <option value="standard">
-                                Standard (Public Marketing)
-                              </option>
-                              <option value="demo">
-                                Demo (Public Preview)
-                              </option>
-                            </>
-                          );
-                        }
-                        const freeModule = isModuleFree(
-                          videoFormData.moduleId,
-                          modules,
-                          courses,
-                        );
-                        if (freeModule) {
-                          return (
-                            <option value="free">
-                              Free (For Free Course Module)
-                            </option>
-                          );
-                        }
-                        return (
-                          <option value="premium">
-                            Premium (For Premium Course Module)
-                          </option>
-                        );
-                      })()}
-                    </select>
-                  </div>
-                  <div className="sm:col-span-2">
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
-                      Description
-                    </label>
-                    <textarea
-                      className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none transition-all h-24 resize-y"
-                      value={videoFormData.description}
-                      onChange={(e) =>
-                        setVideoFormData({
-                          ...videoFormData,
-                          description: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="pt-6 border-t border-slate-800 flex justify-end">
-                  <button
-                    type="submit"
-                    disabled={actionLoading}
-                    className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 md:px-6 md:py-3 rounded-xl font-semibold uppercase tracking-widest text-xs flex items-center gap-2 transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50"
-                  >
-                    <Save size={16} />{" "}
-                    {actionLoading ? "Saving..." : "Save Video"}
-                  </button>
-                </div>
-              </form>
+              <VideoForm
+                videoFormData={videoFormData}
+                setVideoFormData={setVideoFormData}
+                previewUrl={previewUrl}
+                modules={modules}
+                courses={courses}
+                onSubmit={handleVideoSubmit}
+                actionLoading={actionLoading}
+              />
             )}
           </div>
         )}
