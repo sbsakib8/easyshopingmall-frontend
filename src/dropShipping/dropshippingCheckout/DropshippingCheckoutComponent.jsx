@@ -424,7 +424,7 @@ const DropshippingCheckoutComponent = () => {
                   </div>
 
                   {paymentMethod === 'cod' ? (
-                    <div className="p-5 bg-emerald-50 border border-emerald-100 rounded-2xl animate-in fade-in slide-in-from-top-2">
+                    <div className="p-5 bg-emerald-50 border border-emerald-100 rounded-2xl">
                       <p className="text-sm font-bold text-emerald-800">
                         ক্যাশ অন ডেলিভারি (COD) সিলেক্ট করা হয়েছে।
                       </p>
@@ -442,7 +442,7 @@ const DropshippingCheckoutComponent = () => {
                           : 'border-slate-100 hover:border-emerald-200 bg-slate-50/50 hover:bg-white'
                           }`}
                       >
-                        <div className={`p-3 rounded-xl flex-shrink-0 transition-transform group-hover:scale-110 ${paymentType === 'full' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'bg-white text-slate-400 border border-slate-100'}`}>
+                        <div className={`p-3 rounded-xl flex-shrink-0 transition-transform ${paymentType === 'full' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'bg-white text-slate-400 border border-slate-100'}`}>
                           <CheckCircle2 className="w-5 h-5" />
                         </div>
                         <div>
@@ -464,7 +464,7 @@ const DropshippingCheckoutComponent = () => {
                           : 'border-slate-100 hover:border-emerald-200 bg-slate-50/50 hover:bg-white'
                           }`}
                       >
-                        <div className={`p-3 rounded-xl flex-shrink-0 transition-transform group-hover:scale-110 ${paymentType === 'delivery' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'bg-white text-slate-400 border border-slate-100'}`}>
+                        <div className={`p-3 rounded-xl flex-shrink-0 transition-transform ${paymentType === 'delivery' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'bg-white text-slate-400 border border-slate-100'}`}>
                           <Truck className="w-5 h-5" />
                         </div>
                         <div>
@@ -504,7 +504,7 @@ const DropshippingCheckoutComponent = () => {
                         : 'border-slate-200 hover:border-emerald-200 bg-white'
                         }`}
                     >
-                      <div className={`p-2.5 rounded-xl flex-shrink-0 transition-transform group-hover:scale-110 ${paymentMethod === 'balance' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'bg-slate-100 text-slate-400'}`}>
+                      <div className={`p-2.5 rounded-xl flex-shrink-0 transition-transform ${paymentMethod === 'balance' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'bg-slate-100 text-slate-400'}`}>
                         <Wallet className="w-5 h-5" />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -514,7 +514,7 @@ const DropshippingCheckoutComponent = () => {
                         </p>
                       </div>
                       {paymentMethod === 'balance' && (
-                        <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center animate-in zoom-in duration-300">
+                        <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
                           <CheckCircle2 className="w-3 h-3 text-white" />
                         </div>
                       )}
@@ -529,7 +529,7 @@ const DropshippingCheckoutComponent = () => {
                         : 'border-slate-200 hover:border-emerald-200 bg-white'
                         }`}
                     >
-                      <div className={`p-2.5 rounded-xl flex-shrink-0 transition-transform group-hover:scale-110 ${paymentMethod === 'manual' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'bg-slate-100 text-slate-400'}`}>
+                      <div className={`p-2.5 rounded-xl flex-shrink-0 transition-transform ${paymentMethod === 'manual' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'bg-slate-100 text-slate-400'}`}>
                         <Smartphone className="w-5 h-5" />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -537,7 +537,7 @@ const DropshippingCheckoutComponent = () => {
                         <p className="text-[10px] text-slate-500 font-semibold truncate">মোবাইল ব্যাংকিং</p>
                       </div>
                       {paymentMethod === 'manual' && (
-                        <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center animate-in zoom-in duration-300">
+                        <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
                           <CheckCircle2 className="w-3 h-3 text-white" />
                         </div>
                       )}
@@ -552,7 +552,7 @@ const DropshippingCheckoutComponent = () => {
                         : 'border-slate-200 hover:border-emerald-200 bg-white'
                         }`}
                     >
-                      <div className={`p-2.5 rounded-xl flex-shrink-0 transition-transform group-hover:scale-110 ${paymentMethod === 'cod' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'bg-slate-100 text-slate-400'}`}>
+                      <div className={`p-2.5 rounded-xl flex-shrink-0 transition-transform ${paymentMethod === 'cod' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'bg-slate-100 text-slate-400'}`}>
                         <Truck className="w-5 h-5" />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -560,7 +560,7 @@ const DropshippingCheckoutComponent = () => {
                         <p className="text-[10px] text-slate-500 font-semibold truncate">ডেলিভারির সময় পেমেন্ট</p>
                       </div>
                       {paymentMethod === 'cod' && (
-                        <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center animate-in zoom-in duration-300">
+                        <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
                           <CheckCircle2 className="w-3 h-3 text-white" />
                         </div>
                       )}
@@ -570,7 +570,7 @@ const DropshippingCheckoutComponent = () => {
 
                 {/* Manual payment details with animation-ready container */}
                 {paymentMethod === 'manual' && (
-                  <div className="space-y-6 pt-2 animate-in fade-in slide-in-from-top-4 duration-500">
+                  <div className="space-y-6 pt-2">
                     <div className="flex items-start gap-4 p-5 bg-amber-50 border border-amber-100 rounded-2xl">
                       <div className="p-2 bg-amber-100 rounded-lg shrink-0">
                         <AlertCircle className="w-5 h-5 text-amber-600" />
@@ -595,7 +595,7 @@ const DropshippingCheckoutComponent = () => {
                             : 'border-slate-100 hover:border-slate-300 bg-white hover:shadow-sm'
                             }`}
                         >
-                          <div className="w-12 h-12 mb-3 bg-white rounded-xl shadow-sm border border-slate-50 flex items-center justify-center overflow-hidden transition-transform group-hover:scale-105">
+                          <div className="w-12 h-12 mb-3 bg-white rounded-xl shadow-sm border border-slate-50 flex items-center justify-center overflow-hidden transition-transform">
                             <img src={method.logo} alt={method.name} className="w-8 h-8 object-contain opacity-80 group-hover:opacity-100" />
                           </div>
                           <span className={`font-black text-xs uppercase tracking-wider ${selectedManualMethod === method.id ? 'text-emerald-700' : 'text-slate-600'}`}>{method.name}</span>
@@ -611,7 +611,7 @@ const DropshippingCheckoutComponent = () => {
 
                     {/* Selected Method Details */}
                     {selectedManualMethod && (
-                      <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                      <div className="space-y-6">
                         {/* Number Display with Copy */}
                         <div className="flex flex-col sm:flex-row items-center gap-4 p-5 bg-slate-900 rounded-2xl text-white">
                           <div className="flex-1 w-full sm:w-auto text-center sm:text-left">
@@ -695,7 +695,7 @@ const DropshippingCheckoutComponent = () => {
                         <img
                           src={getImageUrl(item)}
                           alt={item.productId?.productName || item.name || 'Product'}
-                          className="w-16 h-16 object-cover rounded-xl flex-shrink-0 border border-slate-100 shadow-sm transition-transform group-hover:scale-105"
+                          className="w-16 h-16 object-cover rounded-xl flex-shrink-0 border border-slate-100 shadow-sm transition-transform"
                           onError={(e) => { e.target.onerror = null; e.target.src = "/img/product.jpg"; }}
                         />
                         <span className="absolute -top-2 -right-2 bg-emerald-600 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white shadow-sm">
@@ -803,7 +803,7 @@ const DropshippingCheckoutComponent = () => {
                     </div>
 
                     {(paymentType === 'delivery' || paymentMethod === 'cod') && (
-                      <div className="flex items-center justify-between p-3 bg-amber-50 rounded-xl border border-amber-100 animate-in zoom-in duration-300">
+                      <div className="flex items-center justify-between p-3 bg-amber-50 rounded-xl border border-amber-100">
                         <div className="flex items-center gap-2">
                           <AlertCircle className="w-3 h-3 text-amber-600" />
                           <span className="text-[10px] font-black text-amber-800 uppercase">ডেলিভারির সময় প্রদেয়</span>
@@ -820,7 +820,7 @@ const DropshippingCheckoutComponent = () => {
                 <button
                   onClick={handlePlaceOrder}
                   disabled={isProcessing}
-                  className="group relative w-full bg-gradient-to-br from-emerald-600 via-emerald-600 to-teal-600 text-white py-5 rounded-2xl font-black text-base shadow-xl shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 overflow-hidden"
+                  className="group relative w-full bg-gradient-to-br from-emerald-600 via-emerald-600 to-teal-600 text-white py-5 rounded-2xl font-black text-base shadow-xl shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all active:translate-y-0 disabled:opacity-50 overflow-hidden"
                 >
                   <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                   {isProcessing ? (
@@ -834,7 +834,7 @@ const DropshippingCheckoutComponent = () => {
                   ) : (
                     <span className="flex items-center justify-center gap-2">
                       এখনই অর্ডার করুন
-                      <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                      <ChevronRight className="w-5 h-5 transition-transform" />
                     </span>
                   )}
                 </button>

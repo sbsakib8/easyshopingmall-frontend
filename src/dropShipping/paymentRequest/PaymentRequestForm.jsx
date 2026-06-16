@@ -81,7 +81,7 @@ const PaymentRequestForm = () => {
   };
 
   return (
-    <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <section className="">
       <Container className="max-w-6xl p-3 md:p-6 space-y-4">
         <BackButton />
 
@@ -190,7 +190,7 @@ const PaymentRequestForm = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black py-4 rounded-2xl shadow-lg shadow-emerald-200 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-50 disabled:translate-y-0"
+                className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black py-4 rounded-2xl shadow-lg shadow-emerald-200 hover:shadow-xl active:translate-y-0 transition-all disabled:opacity-50 disabled:translate-y-0"
               >
                 {loading ? "Submitting..." : "Submit Withdrawal Request"}
               </button>

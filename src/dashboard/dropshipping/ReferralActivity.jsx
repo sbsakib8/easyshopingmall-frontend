@@ -266,7 +266,7 @@ export default function ReferralActivity() {
                 {paginatedData.map((data) => (
                   <div
                     key={data.customer._id}
-                    className="bg-gray-900/70 border border-gray-800 rounded-3xl p-6 hover:border-emerald-500/30 transition-all duration-300 group"
+                    className="bg-gray-900/70 border border-gray-800 rounded-3xl p-6 hover:border-emerald-500/30 transition-all group"
                   >
                     <div className="flex items-start justify-between">
                       {/* Customer Info */}

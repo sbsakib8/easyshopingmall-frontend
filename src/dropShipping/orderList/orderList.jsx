@@ -609,7 +609,7 @@ const OrderList = () => {
                     return (
                       <div
                         key={order._id}
-                        className="bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
+                        className="bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-sm group"
                       >
                         {/* Image Section with Overlays */}
                         <div className="relative">
@@ -620,7 +620,7 @@ const OrderList = () => {
                               width={300}
                               height={225}
                               loading="lazy"
-                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              className="w-full h-full object-cover"
                             />
                           </div>
 
@@ -642,7 +642,7 @@ const OrderList = () => {
                           {/* View Icon Button - Floating on Image */}
                           <Link
                             href={`/order-details/${order._id}`}
-                            className="absolute bottom-3 right-3 bg-white shadow-md hover:bg-emerald-600 hover:text-white p-2 sm:p-3 rounded-2xl transition-all duration-200 active:scale-90"
+                            className="absolute bottom-3 right-3 bg-white shadow-md hover:bg-emerald-600 hover:text-white p-2 sm:p-3 rounded-2xl transition-all duration-200"
                             onClick={(e) => e.stopPropagation()}
                           >
                             <Eye className="size-4 sm:size-5" />
@@ -788,7 +788,7 @@ const OrderList = () => {
                   onClick={() => setCurrentPage(num)}
                   className={`w-7 h-7 sm:w-9 sm:h-9 rounded-xl text-xs sm:text-sm font-medium md:font-bold transition-all border ${
                     currentPage === num
-                      ? "bg-emerald-600 text-white border-emerald-600 shadow-md scale-110"
+                      ? "bg-emerald-600 text-white border-emerald-600 shadow-md"
                       : "bg-white text-slate-400 border-slate-200 hover:border-emerald-400 hover:text-emerald-600"
                   }`}
                 >

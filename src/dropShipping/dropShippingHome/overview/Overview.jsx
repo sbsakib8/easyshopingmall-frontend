@@ -22,7 +22,7 @@ const overview = [
     icon: <Package className="w-8 h-8 sm:w-10 sm:h-10 text-blue-600/70 mb-3" />,
     href: "/all-products",
     class:
-      "bg-gradient-to-b from-white to-gray-50/50 border border-gray-100 shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-200 text-gray-800",
+      "bg-gradient-to-b from-white to-gray-50/50 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 text-gray-800",
   },
   {
     id: 2,
@@ -32,7 +32,7 @@ const overview = [
     ),
     href: "/new-products",
     class:
-      "bg-gradient-to-b from-white to-gray-50/50 border border-gray-100 shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-200 text-gray-800",
+      "bg-gradient-to-b from-white to-gray-50/50 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 text-gray-800",
   },
   {
     id: 3,
@@ -42,7 +42,7 @@ const overview = [
     ),
     href: "/boost-products",
     class:
-      "bg-gradient-to-b from-white to-gray-50/50 border border-gray-100 shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-200 text-gray-800",
+      "bg-gradient-to-b from-white to-gray-50/50 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 text-gray-800",
   },
   {
     id: 4,
@@ -50,7 +50,7 @@ const overview = [
     icon: <Users className="w-8 h-8 sm:w-10 sm:h-10 text-orange-600/70 mb-3" />,
     href: "/team-system",
     class:
-      "bg-gradient-to-b from-white to-gray-50/50 border border-gray-100 shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-200 text-gray-800",
+      "bg-gradient-to-b from-white to-gray-50/50 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 text-gray-800",
   },
   {
     id: 5,
@@ -60,7 +60,7 @@ const overview = [
     ),
     href: "/video",
     class:
-      "bg-gradient-to-b from-white to-gray-50/50 border border-gray-100 shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-200 text-gray-800",
+      "bg-gradient-to-b from-white to-gray-50/50 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 text-gray-800",
   },
   {
     id: 6,
@@ -70,7 +70,7 @@ const overview = [
     ),
     href: "/seller-dashboard",
     class:
-      "bg-gradient-to-b from-white to-gray-50/50 border border-gray-100 shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-200 text-gray-800",
+      "bg-gradient-to-b from-white to-gray-50/50 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 text-gray-800",
   },
   {
     id: 7,
@@ -80,7 +80,7 @@ const overview = [
     ),
     href: "/order-list",
     class:
-      "bg-gradient-to-b from-white to-gray-50/50 border border-gray-100 shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-200 text-gray-800",
+      "bg-gradient-to-b from-white to-gray-50/50 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 text-gray-800",
   },
   {
     id: 8,
@@ -90,7 +90,7 @@ const overview = [
     ),
     href: "/blog",
     class:
-      "bg-gradient-to-b from-white to-gray-50/50 border border-gray-100 shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-200 text-gray-800",
+      "bg-gradient-to-b from-white to-gray-50/50 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 text-gray-800",
   },
 ];
 

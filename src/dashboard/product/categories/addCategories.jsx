@@ -397,7 +397,7 @@ const AddCategoriesComponent = () => {
     <section className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 py-7 md:py-12 overflow-hidden">
       <Container>
         {/* Welcome Banner */}
-        <div className="mb-8 animate-slideDown">
+        <div className="mb-8">
           <div className="relative bg-gradient-to-r from-gray-900/80 via-blue-900/80 to-purple-900/80 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-gray-700/50 shadow-2xl shadow-blue-500/10 overflow-hidden">
             {/* Animated particles */}
             <div className="absolute inset-0">
@@ -523,7 +523,7 @@ const AddCategoriesComponent = () => {
 
         {/* Add/Edit Form */}
         {showAddForm && (
-          <div className="mb-8 bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20 transform animate-slideIn">
+          <div className="mb-8 bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20 transform">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-slate-300 flex items-center">
                 <Layers className="mr-3 text-green-400" />
@@ -1041,7 +1041,7 @@ const AddCategoriesComponent = () => {
                 className={cn(
                   "px-4 py-2 bg-gradient-to-r text-slate-300 rounded-xl",
                   "flex items-center justify-center space-x-2 transform shadow-lg",
-                  "hover:shadow-xl active:scale-95 transition-all duration-200 whitespace-nowrap",
+                  "hover:shadow-xl transition-all duration-200 whitespace-nowrap",
                   btn.gradient,
                   btn.hoverGradient,
                 )}
@@ -1164,34 +1164,6 @@ const AddCategoriesComponent = () => {
 
       {/* Custom Styles */}
       <style jsx>{`
-        @keyframes slideIn {
-          from {
-            opacity: 0;
-            transform: translateY(-30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-
-        .animate-slideIn {
-          animation: slideIn 0.5s;
-        }
-
-        .animate-fadeIn {
-          animation: fadeIn 0.3s;
-        }
-
         .line-clamp-2 {
           display: -webkit-box;
           -webkit-line-clamp: 2;
@@ -1216,30 +1188,6 @@ const AddCategoriesComponent = () => {
 
         ::-webkit-scrollbar-thumb:hover {
           background: linear-gradient(45deg, #7c3aed, #db2777);
-        }
-
-        /* Glow effects */
-        .glow-effect {
-          box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
-        }
-
-        .hover\\:glow-effect:hover {
-          box-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
-        }
-
-        /* Pulse animation for active elements */
-        @keyframes pulse-glow {
-          0%,
-          100% {
-            box-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
-          }
-          50% {
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.8);
-          }
-        }
-
-        .pulse-glow {
-          animation: pulse-glow 2s infinite;
         }
       `}</style>
     </section>

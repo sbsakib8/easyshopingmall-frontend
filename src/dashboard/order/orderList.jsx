@@ -1315,7 +1315,7 @@ const OrderManagement = () => {
                 setSearchTerm("");
                 setStatusFilter("all");
               }}
-              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-slate-300 rounded-2xl hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl"
+              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-slate-300 rounded-2xl hover:from-blue-700 hover:to-indigo-700 shadow-lg"
             >
               Clear Filters
             </button>
@@ -1325,8 +1325,8 @@ const OrderManagement = () => {
 
       {/* confirmation modal */}
       {confirmationModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-pink-500/30 max-w-md w-full p-6 animate-slideUp">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-pink-500/30 max-w-md w-full p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-3 bg-pink-500/20 rounded-full">
                 <Trash2 className="w-8 h-8 text-pink-500" />
@@ -1361,26 +1361,7 @@ const OrderManagement = () => {
         </div>
       )}
 
-      <style jsx>{`
-        @keyframes {
-          from {
-            opacity: 0;
-            transform: scale(0.9) translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-          }
-        }
 
-        . {
-          animation: 0.3s forwards;
-        }
-
-        .hover\\:shadow-3xl:hover {
-          box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.25);
-        }
-      `}</style>
     </section>
   );
 };

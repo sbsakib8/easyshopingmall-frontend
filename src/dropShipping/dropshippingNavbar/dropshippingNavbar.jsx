@@ -16,11 +16,13 @@ import {
   LogIn,
   Menu,
   Package,
+  Search,
   Settings,
   ShoppingCart,
   Sparkles,
   TrendingUp,
   User,
+  Users,
   Video,
   X,
 } from "lucide-react";
@@ -54,6 +56,11 @@ const DropShippingNavbar = () => {
       href: "/all-products",
       icon: <Package size={18} />,
     },
+    {
+      name: "Search Products",
+      href: "/search",
+      icon: <Search size={18} />,
+    },
     { name: "Profile", href: "/account", icon: <User size={18} /> },
     {
       name: "New Products",
@@ -80,7 +87,7 @@ const DropShippingNavbar = () => {
     },
 
     // {name:"Passive Income", href:"/passive-income", icon: <Coins size={18} />, subLink: [{name:"Box Leader", href:"/box-leader"}, {name:"Auditor", href:"/auditor"}, {name:"Member", href:"/member"}]},
-    // {name:"Referral Profile", href:"/referral-profile", icon: <Users size={18} />, subLink: [{name:"Referral Profit", href:"/referral-profit"}]},
+    {name:"Referral Profile", href:"/referral-profile", icon: <Users size={18} />},
     {
       name: "Payment Request",
       href: "/payment-request",
@@ -163,6 +170,25 @@ const DropShippingNavbar = () => {
             </div>
 
             <div className="flex items-center space-x-2 sm:space-x-4 lg:space-x-6">
+              {/* Search Button */}
+              <Link
+                href="/search"
+                id="navbar-search-btn"
+                className="flex items-center gap-1.5 text-gray-700 hover:text-emerald-600 group transition-colors"
+                title="Search Products"
+              >
+                <div className="relative p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-bg group-hover:bg-primary/10 shadow-sm transition-colors">
+                  <Search
+                    size={16}
+                      className="sm:w-5 sm:h-5 text-primary-content group-hover:text-primary transition-colors"
+                  />
+                </div>
+                <div className="hidden sm:block">
+                  <div className="text-xs text-primary-content group-hover:text-primary font-bold">
+                    Search
+                  </div>
+                </div>
+              </Link>
               {/* Balance Box */}
               <div
                 onClick={() => {
@@ -243,7 +269,7 @@ const DropShippingNavbar = () => {
                   <div className="relative p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-bg group-hover:bg-primary/10 shadow-sm transition-colors">
                     <item.icon
                       size={16}
-                      className="sm:w-5 sm:h-5 text-primary-content group-hover:text-primary group-hover:scale-110 transition-transform"
+                    className="sm:w-5 sm:h-5 text-primary-content group-hover:text-primary transition-colors"
                     />
                     {item.badge > 0 && (
                       <span

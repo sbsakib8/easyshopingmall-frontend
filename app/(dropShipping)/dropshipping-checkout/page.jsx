@@ -1,4 +1,4 @@
-import DropshippingCheckoutComponent from "@/src/dropShipping/dropshippingCheckout/DropshippingCheckoutComponent";
+import DropshippingCheckoutClient from "./DropshippingCheckoutClient";
 
 export const metadata = {
   title: "Dropshipping Checkout | EasyShoppingMall",
@@ -6,5 +6,5 @@ export const metadata = {
 };
 
 export default function DropshippingCheckoutPage() {
-  return <DropshippingCheckoutComponent />;
+  return <DropshippingCheckoutClient />;
 }

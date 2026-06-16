@@ -11,7 +11,6 @@ export const getProductDetailsApi = async (productId) => {
             console.warn(`Invalid Product ID provided: ${productId}`);
             return null;
         }
-        // Backend expects productId as a URL param: POST /products/get-product-details/:productId
         const res = await axios.post(`${UrlBackend}/products/get-product-details/${productId}`, null, {
             withCredentials: true,
         });

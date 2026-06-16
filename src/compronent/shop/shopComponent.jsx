@@ -533,8 +533,50 @@ const ShopPage = ({ initialData, queryParams }) => {
   // totalPages computed locally now
 
   // Server-side Pagination & Filtering
+  // Track previous filter values to only fetch when filters ACTUALLY change.
+  // This prevents the redundant client-side fetch on mount when server data is already hydrated.
+  const prevFiltersRef = React.useRef(null);
   useEffect(() => {
-    // Only fetch if handled by client
+    const currentFilters = {
+      page: currentPage,
+      limit: productsPerPage,
+      search: debouncedSearchTerm,
+      category: filterCategory,
+      subCategory: filterSubCategory,
+      brand: filterBrand,
+      gender: filterGender,
+      minPrice: priceRange[0],
+      maxPrice: priceRange[1],
+      sortBy: sortBy,
+    };
+
+    // On first render, record the filter snapshot and skip if server data is already loaded.
+    // This is safe across React StrictMode double-mount because prevFiltersRef persists
+    // and the check only blocks the very first effect invocation.
+    if (prevFiltersRef.current === null) {
+      prevFiltersRef.current = currentFilters;
+      if (initialData?.products?.length > 0) {
+        return; // Server data is already in Redux via hydrate
+      }
+    }
+
+    // Only fetch when at least one filter value actually changed
+    const prev = prevFiltersRef.current;
+    const changed =
+      prev.page !== currentFilters.page ||
+      prev.search !== currentFilters.search ||
+      prev.category !== currentFilters.category ||
+      prev.subCategory !== currentFilters.subCategory ||
+      prev.brand !== currentFilters.brand ||
+      prev.gender !== currentFilters.gender ||
+      prev.minPrice !== currentFilters.minPrice ||
+      prev.maxPrice !== currentFilters.maxPrice ||
+      prev.sortBy !== currentFilters.sortBy;
+
+    prevFiltersRef.current = currentFilters;
+
+    if (!changed) return;
+
     const params = {
       page: currentPage,
       limit: productsPerPage,
@@ -561,6 +603,7 @@ const ShopPage = ({ initialData, queryParams }) => {
     filterGender,
     priceRange,
     sortBy,
+    initialData,
   ]);
 
   const currentProducts = reduxProducts;

@@ -883,8 +883,8 @@ const ProductDashboard = () => {
 
       {/* View Modal */}
       {viewModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-purple-500/30 max-w-3xl w-full max-h-[90vh] overflow-y-auto animate-slideUp">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-purple-500/30 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-purple-600 p-6 flex justify-between items-center z-10">
               <h2 className="text-2xl font-bold text-slate-300 flex items-center gap-2">
                 <Eye className="w-6 h-6" />
@@ -1025,8 +1025,8 @@ const ProductDashboard = () => {
       clg
       {/* Edit Modal */}
       {editModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-emerald-500/30 max-w-3xl w-full max-h-[90vh] overflow-y-auto animate-slideUp">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-emerald-500/30 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-gradient-to-r from-emerald-600 to-teal-600 p-6 flex justify-between items-center z-10">
               <h2 className="text-2xl font-bold text-slate-300 flex items-center gap-2">
                 <Edit className="w-6 h-6" />
@@ -1304,8 +1304,8 @@ const ProductDashboard = () => {
       )}
       {/* Delete Confirmation Modal */}
       {deleteModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-pink-500/30 max-w-md w-full p-6 animate-slideUp">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-pink-500/30 max-w-md w-full p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-3 bg-pink-500/20 rounded-full">
                 <Trash2 className="w-8 h-8 text-pink-500" />
@@ -1338,101 +1338,6 @@ const ProductDashboard = () => {
         </div>
       )}
       <style jsx>{`
-        @keyframes slideUp {
-          from {
-            opacity: 0;
-            transform: translateY(40px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes slideDown {
-          from {
-            opacity: 0;
-            transform: translateY(-40px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes float {
-          0%,
-          100% {
-            transform: translateY(0px) rotate(0deg);
-          }
-          33% {
-            transform: translateY(-20px) rotate(2deg);
-          }
-          66% {
-            transform: translateY(10px) rotate(-1deg);
-          }
-        }
-
-        @keyframes bounce-slow {
-          0%,
-          100% {
-            transform: translateY(0px);
-          }
-          50% {
-            transform: translateY(-20px);
-          }
-        }
-
-        .animate-fadeIn {
-          animation: fadeIn 0.3s;
-        }
-
-        .animate-slideDown {
-          animation: slideDown 0.8s;
-        }
-
-        .animate-fadeInUp {
-          animation: fadeInUp 0.6s forwards;
-          opacity: 0;
-        }
-
-        .animate-slideUp {
-          animation: slideUp 0.6s forwards;
-          opacity: 0;
-        }
-
-        . {
-          animation: float 8s infinite;
-        }
-
-        .-slow {
-          animation: bounce-slow 4s infinite;
-        }
-
-        .hover\\:scale-102:hover {
-          transform: scale(1.02);
-        }
-
         ::-webkit-scrollbar {
           width: 8px;
         }
@@ -1452,70 +1357,8 @@ const ProductDashboard = () => {
           background: linear-gradient(to bottom, #2563eb, #7c3aed);
         }
 
-        @media (max-width: 640px) {
-          .grid {
-            gap: 1rem;
-          }
-
-          .p-6 {
-            padding: 1rem;
-          }
-
-          .p-8 {
-            padding: 1.5rem;
-          }
-
-          .text-3xl {
-            font-size: 1.5rem;
-          }
-
-          .text-2xl {
-            font-size: 1.25rem;
-          }
-
-          .animate-slideUp,
-          .animate-fadeInUp,
-          .animate-slideDown {
-            animation-duration: 0.4s;
-          }
-        }
-
-        @media (max-width: 768px) {
-          .animate-slideUp,
-          .animate-fadeInUp,
-          .animate-slideDown {
-            animation-duration: 0.5s;
-          }
-        }
-
         .backdrop-blur-xl {
           backdrop-filter: blur(20px);
-        }
-
-        @keyframes shimmer {
-          0% {
-            background-position: -200px 0;
-          }
-          100% {
-            background-position: calc(200px + 100%) 0;
-          }
-        }
-
-        .shimmer {
-          background: linear-gradient(
-            90deg,
-            transparent,
-            rgba(255, 255, 255, 0.1),
-            transparent
-          );
-          background-size: 200px 100%;
-          animation: shimmer 2s infinite;
-        }
-
-        .hover-glow:hover {
-          box-shadow:
-            0 20px 40px rgba(59, 130, 246, 0.15),
-            0 10px 20px rgba(139, 92, 246, 0.1);
         }
 
         @media (hover: none) and (pointer: coarse) {
@@ -1526,28 +1369,6 @@ const ProductDashboard = () => {
           .transform:active {
             transform: scale(0.95);
           }
-        }
-
-        .dark-glow {
-          box-shadow:
-            0 0 20px rgba(59, 130, 246, 0.1),
-            0 0 40px rgba(139, 92, 246, 0.05);
-        }
-
-        @keyframes pulse-glow {
-          0%,
-          100% {
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.1);
-          }
-          50% {
-            box-shadow:
-              0 0 30px rgba(59, 130, 246, 0.2),
-              0 0 40px rgba(139, 92, 246, 0.1);
-          }
-        }
-
-        .-glow {
-          animation: pulse-glow 2s infinite;
         }
       `}</style>
     </section>

@@ -173,7 +173,7 @@ export default function WebsiteInfoAdmin() {
  {/* Notification */}
  {notification.show && (
  <div className={`fixed top-4 right-4 z-50 ${notification.type ==='success'?'bg-green-500':'bg-red-500'
-} text-slate-300 px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 -in`}>
+ } text-slate-300 px-6 py-3 rounded-lg shadow-lg flex items-center gap-2`}>
  {notification.type ==='success'? <Check className="w-5 h-5"/> : <AlertCircle className="w-5 h-5"/>}
  {notification.message}
  </div>
@@ -676,23 +676,7 @@ export default function WebsiteInfoAdmin() {
  </div>
  )}
  </div>
- </div>
-
- <style jsx>{`
- @keyframes slide-in {
- from {
- transform: translateX(100%);
- opacity: 0;
-}
- to {
- transform: translateX(0);
- opacity: 1;
-}
-}
- .-in {
- animation: slide-in 0.3s ;
-}
- `}</style>
+  </div>
  </div>
  );
 }

@@ -128,7 +128,7 @@ const GeneralSettings = () => {
  <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 overflow-hidden">
  <div className="py-5 px-2 lg:px-9 mx-auto">
  {/* Welcome Banner */}
- <div className="mb-8 animate-slideDown">
+ <div className="mb-8">
  <div className="relative bg-gradient-to-r from-gray-900/80 via-blue-900/80 to-purple-900/80 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-gray-700/50 shadow-2xl shadow-blue-500/10 overflow-hidden">
  {/* Animated particles */}
  <div className="absolute inset-0">
@@ -166,7 +166,7 @@ const GeneralSettings = () => {
  key={tab.id}
  onClick={() => setActiveTab(tab.id)}
  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl ${activeTab === tab.id
- ?'bg-gradient-to-r from-purple-500 to-blue-500 text-slate-300 shadow-lg transform scale-105'
+ ?'bg-gradient-to-r from-purple-500 to-blue-500 text-slate-300 shadow-lg'
  :'text-slate-300 hover:bg-gray-50 hover:text-purple-600'
 }`}
  >
@@ -186,7 +186,7 @@ const GeneralSettings = () => {
  <div className="p-8">
  {/* Store Information Tab */}
  {activeTab ==='store'&& (
- <div className="space-y-6 animate-fadeIn">
+ <div className="space-y-6">
  <h2 className="text-2xl font-bold text-slate-300 mb-6">Store Information</h2>
 
  <div className="grid md:grid-cols-2 gap-6">
@@ -318,7 +318,7 @@ const GeneralSettings = () => {
 
  {/* Email Settings Tab */}
  {activeTab ==='email'&& (
- <div className="space-y-6 animate-fadeIn">
+ <div className="space-y-6">
  <h2 className="text-2xl font-bold text-slate-300 mb-6">Email Configuration</h2>
 
  <div className="grid md:grid-cols-2 gap-6">
@@ -389,7 +389,7 @@ const GeneralSettings = () => {
 
  {/* Security Tab */}
  {activeTab ==='security'&& (
- <div className="space-y-6 animate-fadeIn">
+ <div className="space-y-6">
  <h2 className="text-2xl font-bold text-slate-300 mb-6">Security Settings</h2>
 
  <div className="grid md:grid-cols-2 gap-6">
@@ -437,7 +437,7 @@ const GeneralSettings = () => {
 
  {/* Notifications Tab */}
  {activeTab ==='notifications'&& (
- <div className="space-y-6 animate-fadeIn">
+ <div className="space-y-6">
  <h2 className="text-2xl font-bold text-gray-50 mb-6">Notification Settings</h2>
 
  <div className="space-y-4">
@@ -469,7 +469,7 @@ const GeneralSettings = () => {
 
  {/* SEO Tab */}
  {activeTab ==='seo'&& (
- <div className="space-y-6 animate-fadeIn">
+ <div className="space-y-6">
  <h2 className="text-2xl font-bold text-slate-300 mb-6">SEO Settings</h2>
 
  <div>
@@ -530,7 +530,7 @@ const GeneralSettings = () => {
 
  {/* Payment Tab */}
  {activeTab ==='payment'&& (
- <div className="space-y-6 animate-fadeIn">
+ <div className="space-y-6">
  <h2 className="text-2xl font-bold text-slate-300 mb-6">Payment Methods</h2>
 
  <div className="space-y-4">
@@ -562,7 +562,7 @@ const GeneralSettings = () => {
 
  {/* Shipping Tab */}
  {activeTab ==='shipping'&& (
- <div className="space-y-6 animate-fadeIn">
+ <div className="space-y-6">
  <h2 className="text-2xl font-bold text-slate-300 mb-6">Shipping Settings</h2>
 
  <div className="grid md:grid-cols-2 gap-6">
@@ -606,7 +606,7 @@ const GeneralSettings = () => {
 
  {/* Display Tab */}
  {activeTab ==='display'&& (
- <div className="space-y-6 animate-fadeIn">
+ <div className="space-y-6">
  <h2 className="text-2xl font-bold text-slate-300 mb-6">Display Settings</h2>
 
  <div className="grid md:grid-cols-2 gap-6">
@@ -739,63 +739,29 @@ const GeneralSettings = () => {
  </div>
 
  <style jsx>{`
- @keyframes fadeIn {
- from {
- opacity: 0;
- transform: translateY(20px);
-}
- to {
- opacity: 1;
- transform: translateY(0);
-}
-}
-
- .animate-fadeIn {
- animation: fadeIn 0.5s ;
-}
-
  /* Custom scrollbar for better aesthetics */
  ::-webkit-scrollbar {
  width: 8px;
-}
+ }
 
  ::-webkit-scrollbar-track {
  background: #f1f1f1;
  border-radius: 4px;
-}
+ }
 
  ::-webkit-scrollbar-thumb {
  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
  border-radius: 4px;
-}
+ }
 
  ::-webkit-scrollbar-thumb:hover {
  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-}
-
- /* Smooth transitions for form elements */
- input, select, textarea {
- : all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
- input:focus, select:focus, textarea:focus {
- transform: translateY(-2px);
- box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-}
-
- /* Enhanced button hover effects */
- button {
- : all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
- button:hover {
- box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
+ }
 
  /* Toggle switch animations */
  .peer:checked + div {
  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
+ }
  `}</style>
  </div>
  );

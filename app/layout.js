@@ -19,8 +19,6 @@ const roboto = Roboto({
   display: "swap",
 });
 
-export const dynamic = 'force-dynamic';
-
 export const metadata = {
   title: {
     default: "EasyShoppingMallBD - Best Online Shopping in Bangladesh",
@@ -75,10 +73,8 @@ export const metadata = {
   },
 };
 
-import { getWebsiteInfoApi } from "@/src/utlis/websiteInfoApi";
-
-export default async function RootLayout({ children }) {
-  const websiteInfo = await getWebsiteInfoApi();
+export default function RootLayout({ children }) {
+  const websiteInfo = null;
 
   return (
     <html lang="en" data-scroll-behavior="smooth">
