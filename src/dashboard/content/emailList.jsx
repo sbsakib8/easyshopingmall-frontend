@@ -118,7 +118,7 @@ const ContactInboxDashboard = () => {
     <Section className="min-h-dvh bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-6 -in flex items-center justify-between">
+        <div className="mb-6 flex items-center justify-between">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-slate-300 mb-2">
               Contact Inbox
@@ -173,9 +173,6 @@ const ContactInboxDashboard = () => {
                         ? "bg-white/20 border-l-4 border-purple-400"
                         : ""
                     }`}
-                    style={{
-                      animation: `slideIn 0.3s ${index * 0.1}s both`,
-                    }}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
@@ -219,7 +216,7 @@ const ContactInboxDashboard = () => {
           {/* Message Detail */}
           <div className="lg:col-span-2 bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 overflow-hidden shadow-2xl">
             {selectedContact ? (
-              <div className="-in">
+              <div>
                 <div className="bg-gradient-to-r from-pink-600 to-purple-600 p-6">
                   <div className="flex items-start justify-between mb-4">
                     <h2 className="text-2xl font-bold text-slate-300">
@@ -313,7 +310,7 @@ const ContactInboxDashboard = () => {
               </div>
             ) : (
               <div className="flex items-center justify-center h-full p-8">
-                <div className="text-center -in">
+                <div className="text-center">
                   <Mail className="w-16 h-16 text-purple-400 mx-auto mb-4 opacity-50" />
                   <p className="text-purple-200 text-lg">
                     Select a message to view details
@@ -324,32 +321,6 @@ const ContactInboxDashboard = () => {
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes slideIn {
-          from {
-            opacity: 0;
-            transform: translateX(-20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-
-        .-in {
-          animation: fade-in 0.4s;
-        }
-      `}</style>
     </Section>
   );
 };

@@ -120,7 +120,7 @@ export default function AnalyticsCharts({
                 ))}
               </div>
 
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-[shimmer_2.5s_infinite]" />
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent" />
             </div>
           </div>
         ) : trendDataLength === 0 ? (

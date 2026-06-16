@@ -33,8 +33,8 @@ const TermsConditions = async () => {
         });
         const result = await res.json();
         siteInfo = result?.data?.[0] ?? null;
-    } catch (error) {
-        console.error("Error fetching website info:", error);
+    } catch {
+        // Backend may be unavailable during build — continue with null
     }
 
     const lastUpdated = "১১ এপ্রিল ২০২৬";

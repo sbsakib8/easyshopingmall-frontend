@@ -364,7 +364,7 @@ const VideoManagement = () => {
             </div>
           </div>
         ) : (
-          <div className="p-8 max-w-4xl mx-auto w-full animate-in fade-in zoom-in-95 duration-200">
+          <div className="p-8 max-w-4xl mx-auto w-full">
             <div className="flex justify-between items-center mb-8 pb-4 border-b border-slate-800">
               <div>
                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1 block">
@@ -432,8 +432,8 @@ const VideoManagement = () => {
       </div>
 
       {deleteConfirm.show && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-slate-900 border border-slate-800 rounded-[2rem] max-w-md w-full p-6 shadow-2xl animate-in zoom-in-95 duration-200 text-center space-y-5">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-[2rem] max-w-md w-full p-6 shadow-2xl text-center space-y-5">
             <div className="w-16 h-16 bg-red-500/10 border border-red-500/20 text-red-500 rounded-full flex items-center justify-center mx-auto">
               <Trash2 size={28} className="animate-pulse" />
             </div>

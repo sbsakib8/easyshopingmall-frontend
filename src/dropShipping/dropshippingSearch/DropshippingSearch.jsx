@@ -114,7 +114,7 @@ const ProductCard = ({ product, wishlist, dispatch, user, wishlistLoading }) => 
   return (
     <div
       onClick={() => router.push(`/productdetails/${product._id}`)}
-      className="group bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:bg-white/10 hover:border-emerald-500/40 hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-300 cursor-pointer flex flex-col h-full"
+      className="group bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:bg-white/10 hover:border-emerald-500/40 transition cursor-pointer flex flex-col h-full"
     >
       {/* Image */}
       <div className="relative aspect-square overflow-hidden w-full h-32 md:h-44">
@@ -127,7 +127,7 @@ const ProductCard = ({ product, wishlist, dispatch, user, wishlistLoading }) => 
           alt={product.productName}
           width={200}
           height={200}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          className="w-full h-full object-cover"
         />
 
         {/* Top actions */}
@@ -136,7 +136,7 @@ const ProductCard = ({ product, wishlist, dispatch, user, wishlistLoading }) => 
             onClick={(e) =>
               handleDownloadImage(e, product.images?.[0], product.productName)
             }
-            className="bg-black/60 hover:bg-black/80 backdrop-blur-sm shadow-md p-1.5 rounded-xl text-white transition-all active:scale-90"
+            className="bg-black/60 hover:bg-black/80 backdrop-blur-sm shadow-md p-1.5 rounded-xl text-white transition-all"
             title="Save Image"
           >
             <ArrowDownToLine className="w-3.5 h-3.5" />
@@ -147,7 +147,7 @@ const ProductCard = ({ product, wishlist, dispatch, user, wishlistLoading }) => 
               toggleWishlist();
             }}
             disabled={wishlistLoading}
-            className={`shadow-md p-1.5 rounded-xl transition-all active:scale-90 backdrop-blur-sm ${
+            className={`shadow-md p-1.5 rounded-xl transition-all backdrop-blur-sm ${
               isWishlisted
                 ? "bg-red-500/70 text-white"
                 : "bg-black/60 hover:bg-black/80 text-white"
@@ -416,7 +416,7 @@ const DropshippingSearchContent = () => {
                 setSearched(false);
                 setTimeout(() => inputRef.current?.focus(), 100);
               }}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                 mode === "text"
                   ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-500/20"
                   : "text-white/50 hover:text-white/80"
@@ -432,7 +432,7 @@ const DropshippingSearchContent = () => {
                 setResults([]);
                 setSearched(false);
               }}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                 mode === "image"
                   ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-500/20"
                   : "text-white/50 hover:text-white/80"
@@ -449,8 +449,8 @@ const DropshippingSearchContent = () => {
           <div className="max-w-2xl mx-auto">
             <div className="relative group">
               {/* Glow ring */}
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500/40 to-teal-500/40 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition-opacity duration-500" />
-              <div className="relative flex items-center bg-white/5 border border-white/15 group-focus-within:border-emerald-500/50 rounded-2xl transition-colors duration-300">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500/40 to-teal-500/40 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition-opacity" />
+              <div className="relative flex items-center bg-white/5 border border-white/15 group-focus-within:border-emerald-500/50 rounded-2xl transition-colors">
                 <Search className="absolute left-4 w-5 h-5 text-white/30 group-focus-within:text-emerald-400 transition-colors" />
                 <input
                   ref={inputRef}
@@ -497,14 +497,14 @@ const DropshippingSearchContent = () => {
                 onDragLeave={() => setIsDragOver(false)}
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
-                className={`relative flex flex-col items-center justify-center gap-4 border-2 border-dashed rounded-3xl p-10 cursor-pointer transition-all duration-300 ${
+                className={`relative flex flex-col items-center justify-center gap-4 border-2 border-dashed rounded-3xl p-10 cursor-pointer transition-all ${
                   isDragOver
                     ? "border-emerald-500 bg-emerald-500/10"
                     : "border-white/15 bg-white/3 hover:border-emerald-500/50 hover:bg-white/5"
                 }`}
               >
                 <div
-                  className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-300 ${
+                  className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all ${
                     isDragOver ? "bg-emerald-500/20" : "bg-white/5"
                   }`}
                 >

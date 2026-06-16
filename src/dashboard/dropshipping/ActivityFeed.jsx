@@ -78,7 +78,7 @@ export default function ActivityFeed({ loading, recentActivity }) {
             : recentActivity.slice(0, 12).map((event, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center gap-4 p-5 bg-gray-950/50 border border-gray-800/50 rounded-3xl hover:border-emerald-500/30 transition-all hover:-translate-y-1"
+                  className="flex items-center gap-4 p-5 bg-gray-950/50 border border-gray-800/50 rounded-3xl hover:border-emerald-500/30 transition-all"
                 >
                   <div
                     className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-lg ${

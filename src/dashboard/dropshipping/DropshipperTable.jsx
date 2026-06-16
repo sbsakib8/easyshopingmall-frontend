@@ -270,7 +270,7 @@ export default function DropshipperTable({
                         colSpan={6}
                         className="px-10 py-6 bg-gray-950/50 border-y border-indigo-500/10"
                       >
-                        <div className="space-y-4 animate-in slide-in-from-top-4 duration-500">
+                        <div className="space-y-4">
                           <div className="flex items-center gap-3">
                             <Award className="w-4 h-4 text-indigo-400" />
                             <h4 className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em]">

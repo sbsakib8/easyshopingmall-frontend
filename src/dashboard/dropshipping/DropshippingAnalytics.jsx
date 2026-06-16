@@ -38,7 +38,7 @@ export default function DropshippingAnalytics() {
   } = useDropshippingAnalytics();
 
   return (
-    <section className="min-h-screen bg-slate-950 py-10 md:py-16 animate-in fade-in duration-700">
+    <section className="min-h-screen bg-slate-950 py-10 md:py-16">
       <Container className="space-y-10 overflow-hidden">
         {/* Header Section */}
         <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-8">

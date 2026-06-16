@@ -49,7 +49,6 @@ const StatCard = ({ icon: Icon, label, value, sub, accent }) => (
     className={cn(
       "relative overflow-hidden rounded-2xl p-4 sm:p-5 flex flex-col gap-2",
       "bg-white border border-[#cadcae]/60 shadow-sm",
-      "transition-all duration-300 hover:shadow-md hover:-translate-y-0.5",
     )}
   >
     <div
@@ -219,7 +218,7 @@ const MemberRow = ({ member }) => {
   return (
     <div
       className={cn(
-        "rounded-2xl border overflow-hidden transition-all duration-300",
+        "rounded-2xl border overflow-hidden transition-all",
         open
           ? "border-[oklch(70%_0.14_182.503)/60] shadow-md"
           : "border-[#cadcae]/60 shadow-sm",
@@ -295,7 +294,7 @@ const MemberRow = ({ member }) => {
 
       {/* expanded details */}
       {open && (
-        <div className="border-t border-[#cadcae]/40 animate-in slide-in-from-top-1 duration-200">
+        <div className="border-t border-[#cadcae]/40">
           <div className="px-4 sm:px-5 py-4 bg-[#fffde1]/50 flex flex-wrap gap-3">
             {[
               { label: "যোগদান", value: formatBDDateTime(member.joinedAt) },

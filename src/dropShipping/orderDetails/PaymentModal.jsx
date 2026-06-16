@@ -140,7 +140,7 @@ const PaymentModal = ({ order, paymentType, onClose, onSuccess }) => {
 
           <button
             onClick={onClose}
-            className="text-white p-2 hover:bg-white/10 rounded-full transition-all active:scale-90"
+            className="text-white p-2 hover:bg-white/10 rounded-full transition-all"
           >
             <X className="w-6 h-6" />
           </button>
@@ -224,7 +224,7 @@ const PaymentModal = ({ order, paymentType, onClose, onSuccess }) => {
 
           {/* Manual Payment Details */}
           {paymentMethod === "manual" && (
-            <div className="space-y-6 pt-2 animate-in fade-in slide-in-from-bottom-3">
+            <div className="space-y-6 pt-2">
               <div className="grid grid-cols-4 gap-3">
                 {manualMethods.map((m) => (
                   <button

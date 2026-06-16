@@ -303,7 +303,7 @@ const PayoutManagement = () => {
 
       <div className="relative z-10 p-4 md:p-6 lg:p-8">
         {/* Welcome Banner */}
-        <div className="mb-8 animate-in slide-in-from-top-4 duration-700">
+        <div className="mb-8">
           <div className="relative bg-gradient-to-r from-gray-900/80 via-emerald-900/40 to-teal-900/40 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-gray-700/50 shadow-2xl shadow-emerald-500/10 overflow-hidden">
             <div className="relative z-10">
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white mb-2">
@@ -336,7 +336,7 @@ const PayoutManagement = () => {
                 <div className="flex justify-between items-start mb-4">
                   <div
                     className={cn(
-                      `p-3 bg-${stat.color}-500/10 rounded-xl text-${stat.color}-400 group-hover:scale-110 transition-transform`,
+                      `p-3 bg-${stat.color}-500/10 rounded-xl text-${stat.color}-400 transition-transform`,
                     )}
                   >
                     <Icon size={24} />
@@ -508,7 +508,7 @@ const PayoutManagement = () => {
                   <div className="flex gap-3">
                     <button
                       onClick={() => setApprovingId(req._id)}
-                      className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3.5 rounded-2xl text-xs font-black shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
+                      className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3.5 rounded-2xl text-xs font-black shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all flex items-center justify-center gap-2"
                     >
                       <Check size={18} /> Send Payout
                     </button>
@@ -538,7 +538,7 @@ const PayoutManagement = () => {
 
       {/* Approval Modal */}
       {approvingId && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
           <div className="max-w-md w-full bg-gray-900 border border-gray-800 rounded-[2.5rem] overflow-hidden shadow-2xl p-6 md:p-8 space-y-6">
             <div className="flex justify-between items-center border-b border-gray-800 pb-4">
               <div>
@@ -661,7 +661,7 @@ const PayoutManagement = () => {
               <button
                 type="submit"
                 disabled={actionLoading}
-                className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black py-4 rounded-2xl shadow-xl shadow-emerald-500/20 hover:shadow-emerald-500/40 hover:-translate-y-1 transition-all disabled:opacity-50"
+                className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black py-4 rounded-2xl shadow-xl shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all disabled:opacity-50"
               >
                 {actionLoading ? "Processing..." : "Confirm Payout Completion"}
               </button>
@@ -672,7 +672,7 @@ const PayoutManagement = () => {
 
       {/* View Image Modal */}
       {selectedImage && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/95 backdrop-blur-md animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/95 backdrop-blur-md">
           <div className="relative max-w-4xl w-full bg-gray-900 border border-gray-800 rounded-[3rem] overflow-hidden p-2 shadow-2xl">
             <button
               onClick={() => setSelectedImage(null)}

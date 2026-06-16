@@ -10,7 +10,7 @@ const AccessStats = ({ stats, loading }) => {
     >
       <div className="flex justify-center">
         <div
-          className={`p-4 bg-${stats.color}-500/10 text-${stats.color}-400 rounded-2xl group-hover:scale-110 transition-transform`}
+          className={`p-4 bg-${stats.color}-500/10 text-${stats.color}-400 rounded-2xl transition-transform`}
         >
           <stats.icon />
         </div>

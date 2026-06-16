@@ -311,7 +311,7 @@ export default function UserRoleManager() {
  {displayedUsers?.map((user) => (
  <div
  key={user?._id}
- className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl shadow-2xl p-6 border border-gray-700 hover:border-purple-500 transform hover:shadow-purple-500/20"
+ className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl shadow-2xl p-6 border border-gray-700 hover:border-purple-500 transform"
  >
  {/* User Header */}
  <div className="flex items-start justify-between mb-4">
@@ -431,7 +431,7 @@ export default function UserRoleManager() {
 
  {/* Edit Modal */}
  {showModal && editingUser && (
- <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 -in">
+ <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
  <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl shadow-2xl w-full max-w-2xl border border-gray-700 max-h-[90vh] overflow-y-auto">
  {/* Modal Header */}
  <div className="flex items-center justify-between p-6 border-b border-gray-700 sticky top-0 bg-gradient-to-br from-gray-800 to-gray-900 z-10">
@@ -652,45 +652,7 @@ export default function UserRoleManager() {
  </div>
  )}
 
- <style jsx>{`
- @keyframes slide-in {
- from {
- transform: translateX(100%);
- opacity: 0;
-}
- to {
- transform: translateX(0);
- opacity: 1;
-}
-}
- @keyframes fade-in {
- from {
- opacity: 0;
-}
- to {
- opacity: 1;
-}
-}
- @keyframes scale-in {
- from {
- transform: scale(0.9);
- opacity: 0;
-}
- to {
- transform: scale(1);
- opacity: 1;
-}
-}
- .-in {
- animation: slide-in 0.3s ;
-}
- .-in {
- animation: fade-in 0.3s ;
-}
- . {
- animation: scale-in 0.3s ;
-}
- `}</style>
+
  </div>
  );
 }

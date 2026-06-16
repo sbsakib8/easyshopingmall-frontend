@@ -135,7 +135,7 @@ const DropshippingVideo = () => {
         </div>
 
         {activeTab === "academy" && (
-          <div className="animate-in fade-in duration-300">
+          <div className="">
             {!selectedCourseId ? (
               <>
                 {/* Demo Video / Platform Trailer Section */}
@@ -249,7 +249,7 @@ const DropshippingVideo = () => {
                       <h3 className="text-lg font-black text-gray-900 uppercase tracking-tight flex items-center gap-2">
                         <Zap
                           size={16}
-                          className="text-emerald-600 animate-bounce"
+                          className="text-emerald-600"
                         />
                         Standalone Free Lessons
                       </h3>
@@ -299,7 +299,7 @@ const DropshippingVideo = () => {
                       freeVideos.map((video) => (
                         <div
                           key={video._id}
-                          className="bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-lg transition-all flex flex-col justify-between"
+                          className="bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm flex flex-col justify-between"
                         >
                           <div className="aspect-video bg-black relative">
                             <iframe
@@ -418,7 +418,7 @@ const DropshippingVideo = () => {
                       return (
                         <div
                           key={course._id}
-                          className="bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col justify-between"
+                          className="bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm group flex flex-col justify-between"
                         >
                           <div>
                             <div
@@ -426,7 +426,7 @@ const DropshippingVideo = () => {
                             >
                               <BookOpen
                                 size={48}
-                                className="opacity-80 group-hover:scale-110 transition-transform"
+                                className="opacity-80"
                               />
                               <span
                                 className={`absolute top-4 right-4 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${isPremium ? "bg-indigo-500/20 border border-indigo-400/30 text-indigo-200" : "bg-emerald-500/20 border border-emerald-400/30 text-emerald-200"}`}
@@ -504,7 +504,7 @@ const DropshippingVideo = () => {
                 </div>
               </>
             ) : (
-              <div className="space-y-6 animate-in fade-in duration-300">
+              <div className="space-y-6">
                 <button
                   onClick={() => setSelectedCourseId(null)}
                   className="flex items-center gap-2 text-xs font-black text-slate-400 hover:text-slate-700 uppercase tracking-widest transition-colors mb-4"
@@ -514,11 +514,11 @@ const DropshippingVideo = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                   {isCourseLocked ? (
                     <div className="lg:col-span-12 max-w-2xl mx-auto w-full">
-                      <div className="bg-white border border-gray-100 rounded-[2.5rem] shadow-sm overflow-hidden animate-in fade-in duration-300">
+                          <div className="bg-white border border-gray-100 rounded-[2.5rem] shadow-sm overflow-hidden">
                         <div className="relative aspect-video bg-slate-900 flex flex-col items-center justify-center p-6 md:p-8 text-center">
                           <Lock
                             size={48}
-                            className="text-purple-500/50 mb-4 animate-bounce"
+                            className="text-purple-500/50 mb-4"
                           />
                           <h3 className="text-2xl font-black text-white uppercase tracking-tight">
                             Premium Course Content
@@ -642,7 +642,7 @@ const DropshippingVideo = () => {
                             </p>
                           </div>
                         ) : (
-                          <div className="bg-white border border-gray-100 rounded-[2.5rem] shadow-sm overflow-hidden animate-in fade-in duration-300">
+                      <div className="bg-white border border-gray-100 rounded-[2.5rem] shadow-sm overflow-hidden">
                             <div className="relative aspect-video bg-black">
                               <iframe
                                 src={getYoutubeEmbedUrl(activeVideo.url)}
@@ -781,7 +781,7 @@ const DropshippingVideo = () => {
         )}
 
         {activeTab === "requests" && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in duration-300">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div className="lg:col-span-5 bg-white border border-gray-100 rounded-[2.5rem] p-6 lg:p-8 shadow-sm h-fit">
               <div className="flex items-center gap-3 mb-6">
                 <div className="p-3 bg-emerald-50 rounded-2xl text-emerald-600">
@@ -1105,14 +1105,14 @@ const DropshippingVideo = () => {
                       {req.status === "completed" && req.deliveredVideoUrl && (
                         <div className="mt-4 pt-4 border-t border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
                           <div className="flex items-center gap-2.5 text-xs font-bold text-emerald-700">
-                            <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-ping" />
+                            <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full" />
                             Ready for download
                           </div>
                           <a
                             href={req.deliveredVideoUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-1.5 transition-all shadow-md shadow-emerald-100 hover:scale-105"
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-1.5 transition-all shadow-md shadow-emerald-100"
                           >
                             <Download size={12} /> Download Video
                           </a>

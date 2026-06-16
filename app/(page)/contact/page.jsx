@@ -9,8 +9,7 @@ async function getWebsiteInfo() {
     });
     const data = await res.json();
     return data?.data?.[0] ?? null;
-  } catch (error) {
-    console.error("Failed to fetch website info", error);
+  } catch {
     return null;
   }
 }

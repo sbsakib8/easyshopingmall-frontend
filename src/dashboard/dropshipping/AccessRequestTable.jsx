@@ -81,7 +81,7 @@ const AccessRequestTable = ({
   triggerUpdateStatus,
 }) => {
   return (
-    <div className="animate-in fade-in duration-300">
+    <div>
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
         <div className="relative flex-grow">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5" />
@@ -212,7 +212,7 @@ const AccessRequestTable = ({
                   <button
                     onClick={() => triggerUpdateStatus(req._id, "approved")}
                     disabled={actionLoading}
-                    className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white py-2 px-3 rounded-2xl text-xs font-semibold shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                    className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white py-2 px-3 rounded-2xl text-xs font-semibold shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                   >
                     <Check size={16} /> Approve Access
                   </button>

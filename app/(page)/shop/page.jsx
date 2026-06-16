@@ -33,8 +33,7 @@ async function getCategories() {
     if (!res.ok) return [];
     const json = await res.json();
     return json.data || [];
-  } catch (error) {
-    console.error("Error fetching categories:", error);
+  } catch {
     return [];
   }
 }
@@ -42,13 +41,12 @@ async function getCategories() {
 async function getSubCategories() {
   try {
     const res = await fetch(`${UrlBackend}/subcategories`, {
-      next: { revalidate: 3600 } // Cache for 1 hour
+      next: { revalidate: 3600 }
     });
     if (!res.ok) return [];
     const json = await res.json();
     return json.data || [];
-  } catch (error) {
-    console.error("Error fetching subcategories:", error);
+  } catch {
     return [];
   }
 }
@@ -71,8 +69,7 @@ async function getProducts() {
 
     return { products, totalCount };
 
-  } catch (error) {
-    console.error("Error fetching products:", error);
+  } catch {
     return { products: [], totalCount: 0 };
   }
 }

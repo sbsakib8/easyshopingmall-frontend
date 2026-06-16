@@ -11,8 +11,7 @@ async function getCategories() {
     if (!res.ok) return [];
     const json = await res.json();
     return json.data || (Array.isArray(json) ? json : []);
-  } catch (error) {
-    console.error("Error fetching categories:", error);
+  } catch {
     return [];
   }
 }
@@ -25,8 +24,7 @@ async function getSubCategories() {
     if (!res.ok) return [];
     const json = await res.json();
     return json.data || (Array.isArray(json) ? json : []);
-  } catch (error) {
-    console.error("Error fetching subcategories:", error);
+  } catch {
     return [];
   }
 }
@@ -39,8 +37,7 @@ async function getBanners() {
     if (!res.ok) return [];
     const json = await res.json();
     return json.data || (Array.isArray(json) ? json : []);
-  } catch (error) {
-    console.error("Error fetching banners:", error);
+  } catch {
     return [];
   }
 }
@@ -62,8 +59,7 @@ async function getProducts() {
 
     return { products, totalCount };
 
-  } catch (error) {
-    console.error("Error fetching products:", error);
+  } catch {
     return { products: [], totalCount: 0 };
   }
 }

@@ -31,7 +31,7 @@ const CustomRequestsTab = ({
   actionLoading,
 }) => {
   return (
-    <div className="animate-in fade-in duration-300">
+    <div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
         {[
           {
@@ -306,7 +306,7 @@ const CustomRequestsTab = ({
                     className={cn(
                       "whitespace-nowrap py-2.5 px-2 flex-1 w-max rounded-2xl text-xs md:text-sm font-semibold transition-all flex items-center justify-center gap-2",
                       btn.variant === "primary" &&
-                        "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:-translate-y-0.5",
+                        "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50",
                       btn.variant === "secondary" &&
                         "bg-slate-900 hover:bg-slate-800 text-white border border-white/10",
                       btn.variant === "danger" &&

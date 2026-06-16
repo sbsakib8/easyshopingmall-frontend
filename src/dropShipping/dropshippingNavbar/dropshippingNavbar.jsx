@@ -180,7 +180,7 @@ const DropShippingNavbar = () => {
                 <div className="relative p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-bg group-hover:bg-primary/10 shadow-sm transition-colors">
                   <Search
                     size={16}
-                    className="sm:w-5 sm:h-5 text-primary-content group-hover:text-primary group-hover:scale-110 transition-transform"
+                      className="sm:w-5 sm:h-5 text-primary-content group-hover:text-primary transition-colors"
                   />
                 </div>
                 <div className="hidden sm:block">
@@ -269,7 +269,7 @@ const DropShippingNavbar = () => {
                   <div className="relative p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-bg group-hover:bg-primary/10 shadow-sm transition-colors">
                     <item.icon
                       size={16}
-                      className="sm:w-5 sm:h-5 text-primary-content group-hover:text-primary group-hover:scale-110 transition-transform"
+                    className="sm:w-5 sm:h-5 text-primary-content group-hover:text-primary transition-colors"
                     />
                     {item.badge > 0 && (
                       <span

@@ -231,7 +231,7 @@ const HomeSliderPage = () => {
  </header>
 
  <div className="container mx-auto px-4 py-8">
- <div className="mb-12 text-center -in-up">
+ <div className="mb-12 text-center">
  <h2 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent mb-4 text-balance">
  Home Slider Management
  </h2>
@@ -241,7 +241,7 @@ const HomeSliderPage = () => {
  </div>
 
  <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
- <div className="-in-left">
+  <div>
  <div className="bg-gradient-to-br from-gray-900/50 to-black/50 backdrop-blur-sm border border-gray-800/50 rounded-2xl p-6 shadow-2xl">
  <div className="flex items-center gap-3 mb-6">
  <svg className="w-6 h-6 text-blue-400"fill="none"stroke="currentColor"viewBox="0 0 24 24">
@@ -337,7 +337,7 @@ const HomeSliderPage = () => {
  </div>
  </div>
 
- <div className="-in-right">
+  <div>
  <div className="bg-gradient-to-br from-gray-900/50 to-black/50 backdrop-blur-sm border border-gray-800/50 rounded-2xl p-6 shadow-2xl">
  <div className="flex items-center gap-3 mb-6">
  <svg className="w-6 h-6 text-green-400"fill="none"stroke="currentColor"viewBox="0 0 24 24">
@@ -429,7 +429,7 @@ const HomeSliderPage = () => {
  <button
  onClick={handleAddSlider}
  disabled={!formData.title || !formData.images}
- className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:from-gray-700 disabled:to-gray-800 disabled:cursor-not-allowed text-slate-300 font-semibold rounded-xl hover:scale-[1.02] shadow-lg flex items-center justify-center gap-2"
+ className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:from-gray-700 disabled:to-gray-800 disabled:cursor-not-allowed text-slate-300 font-semibold rounded-xl shadow-lg flex items-center justify-center gap-2"
  >
  <svg className="w-5 h-5"fill="none"stroke="currentColor"viewBox="0 0 24 24">
  <path strokeLinecap="round"strokeLinejoin="round"strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
@@ -441,7 +441,7 @@ const HomeSliderPage = () => {
  </div>
  </div>
 
- <div className="mt-12 -in-up">
+ <div className="mt-12">
  <div className="bg-gradient-to-br from-gray-900/50 to-black/50 backdrop-blur-sm border border-gray-800/50 rounded-2xl p-6 shadow-2xl">
  <h3 className="text-2xl font-bold text-slate-300 mb-6">Manage Sliders</h3>
 
@@ -469,7 +469,7 @@ const HomeSliderPage = () => {
  ?.map((slider, index) => (
  <div
  key={slider?._id}
- className="flex flex-col md:flex-row items-start md:items-center gap-4 p-6 rounded-xl bg-gradient-to-r from-gray-800/30 to-gray-900/30 hover:from-gray-800/50 hover:to-gray-900/50 border border-gray-700/50 hover:scale-[1.01] hover:shadow-xl"
+ className="flex flex-col md:flex-row items-start md:items-center gap-4 p-6 rounded-xl bg-gradient-to-r from-gray-800/30 to-gray-900/30 hover:from-gray-800/50 hover:to-gray-900/50 border border-gray-700/50"
  style={{animationDelay: `${index * 100}ms`}}
  >
  <img
@@ -550,7 +550,7 @@ const HomeSliderPage = () => {
  </div>
 
  {editingSlider && (
- <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 -in">
+ <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
  <div className="bg-gradient-to-br from-gray-900 to-black border border-gray-700 rounded-2xl p-8 max-w-md w-full max-h-[90vh] overflow-y-auto shadow-2xl">
  <h3 className="text-2xl font-bold text-slate-300 mb-6">Edit Slider</h3>
  <div className="space-y-4">
@@ -647,78 +647,23 @@ const HomeSliderPage = () => {
  </div>
 
  <style>{`
- @keyframes fade-in-up {
- from {
- opacity: 0;
- transform: translateY(30px);
-}
- to {
- opacity: 1;
- transform: translateY(0);
-}
-}
+ ::-webkit-scrollbar {
+ width: 8px;
+ }
 
- @keyframes fade-in-left {
- from {
- opacity: 0;
- transform: translateX(-30px);
-}
- to {
- opacity: 1;
- transform: translateX(0);
-}
-}
+ ::-webkit-scrollbar-track {
+ background: rgba(255, 255, 255, 0.1);
+ border-radius: 10px;
+ }
 
- @keyframes fade-in-right {
- from {
- opacity: 0;
- transform: translateX(30px);
-}
- to {
- opacity: 1;
- transform: translateX(0);
-}
-}
+ ::-webkit-scrollbar-thumb {
+ background: linear-gradient(45deg, #8b5cf6, #ec4899);
+ border-radius: 10px;
+ }
 
- @keyframes fade-in {
- from {
- opacity: 0;
-}
- to {
- opacity: 1;
-}
-}
-
- @keyframes scale-in {
- from {
- opacity: 0;
- transform: scale(0.9);
-}
- to {
- opacity: 1;
- transform: scale(1);
-}
-}
-
- .-in-up {
- animation: fade-in-up 0.6s ;
-}
-
- .-in-left {
- animation: fade-in-left 0.6s ;
-}
-
- .-in-right {
- animation: fade-in-right 0.6s ;
-}
-
- .-in {
- animation: fade-in 0.3s ;
-}
-
- .scale-in {
- animation: scale-in 0.3s ;
-}
+ ::-webkit-scrollbar-thumb:hover {
+ background: linear-gradient(45deg, #7c3aed, #db2777);
+ }
  `}</style>
  </div>
  )

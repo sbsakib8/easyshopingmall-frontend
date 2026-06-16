@@ -91,7 +91,7 @@ export default function DateRangePicker({
       <div
         className={dateRange === "custom" ? "" : "hidden"}
       >
-        <div className="flex items-center justify-end gap-3 animate-in slide-in-from-right-4 duration-300">
+        <div className="flex items-center justify-end gap-3">
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
               label="Start Date"

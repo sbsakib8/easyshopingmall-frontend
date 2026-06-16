@@ -46,7 +46,7 @@ const MyStatsCards = ({ summary, data, dsLoading }) => {
       {kpis.map((kpi, idx) => (
         <div
           key={idx}
-          className={`${kpi.bg} p-6 rounded-[2.5rem] border ${kpi.border} relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300 shadow-sm ${kpi.isPrimary ? "ring-2 ring-teal-500/20 ring-offset-2" : ""}`}
+          className={`${kpi.bg} p-6 rounded-[2.5rem] border ${kpi.border} relative overflow-hidden group transition-transform shadow-sm ${kpi.isPrimary ? "ring-2 ring-teal-500/20 ring-offset-2" : ""}`}
         >
           <div className="flex flex-col gap-4 relative z-10">
             <div className="flex items-center justify-between">
@@ -73,7 +73,7 @@ const MyStatsCards = ({ summary, data, dsLoading }) => {
             </div>
           </div>
           <div
-            className={`absolute -right-4 -bottom-4 w-24 h-24 rounded-full opacity-10 ${kpi.color.replace("text", "bg")} blur-2xl group-hover:scale-150 transition-transform duration-500`}
+            className={`absolute -right-4 -bottom-4 w-24 h-24 rounded-full opacity-10 ${kpi.color.replace("text", "bg")} blur-2xl`}
           />
         </div>
       ))}

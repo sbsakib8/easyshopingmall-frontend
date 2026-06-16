@@ -125,7 +125,7 @@ export default function CourseForm({
               <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
                 Price (৳)
               </label>
-              <div className="relative animate-in slide-in-from-top-2 duration-200">
+              <div className="relative">
                 <span className="absolute left-4 top-3 text-slate-500">
                   ৳
                 </span>
@@ -148,7 +148,7 @@ export default function CourseForm({
               <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
                 Discount Price (৳)
               </label>
-              <div className="relative animate-in slide-in-from-top-2 duration-200">
+              <div className="relative">
                 <span className="absolute left-4 top-3 text-slate-500">
                   ৳
                 </span>
@@ -171,7 +171,7 @@ export default function CourseForm({
               <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
                 Referral Bonus (৳)
               </label>
-              <div className="relative animate-in slide-in-from-top-2 duration-200">
+              <div className="relative">
                 <span className="absolute left-4 top-3 text-slate-500">
                   ৳
                 </span>

@@ -52,7 +52,7 @@ const MyAnalytics = () => {
             <Link
               href="/"
               type="button"
-              className="px-5 py-3.5 bg-teal-600 text-white rounded-xl hover:bg-teal-700 transition duration-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 hover:-translate-y-0.5 active:translate-y-0.5 active:scale-95 active:shadow-lg"
+              className="px-5 py-3.5 bg-teal-600 text-white rounded-xl hover:bg-teal-700 transition duration-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 active:shadow-lg"
             >
               Back to Home
             </Link>
@@ -65,7 +65,7 @@ const MyAnalytics = () => {
   const { summary = {} } = dsAnalytics || {};
 
   return (
-    <Section className="min-h-dvh bg-slate-50/30 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <Section className="min-h-dvh bg-slate-50/30">
       <Container className="space-y-12">
         <BackButton />
 
@@ -107,7 +107,7 @@ const MyAnalytics = () => {
             </div>
 
             {timeRange === "custom" && (
-              <div className="flex items-center gap-2 animate-in zoom-in-95 duration-300">
+              <div className="flex items-center gap-2">
                 <input
                   type="date"
                   value={customDates.start}

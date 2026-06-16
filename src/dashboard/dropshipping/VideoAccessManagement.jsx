@@ -86,7 +86,7 @@ const VideoAccessManagement = () => {
 
         {/* TAB 1: PREMIUM COURSE ACCESS VERIFICATION */}
         {activeTab === "premium_access" && (
-          <div className="animate-in fade-in duration-300">
+          <div>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
               {[
                 {
@@ -158,8 +158,8 @@ const VideoAccessManagement = () => {
 
       {/* Custom Confirmation Modal */}
       {actionConfirm.show && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="relative w-full max-w-md overflow-hidden bg-slate-900/90 border border-slate-700/50 rounded-3xl p-6 md:p-8 shadow-2xl shadow-black/50 animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md">
+          <div className="relative w-full max-w-md overflow-hidden bg-slate-900/90 border border-slate-700/50 rounded-3xl p-6 md:p-8 shadow-2xl shadow-black/50">
             <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
             <button

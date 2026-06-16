@@ -9,10 +9,10 @@ export default function StatsCards({ kpiCards, loading }) {
       {kpiCards.map((card, idx) => (
         <div
           key={idx}
-          className="relative group overflow-hidden bg-gray-900/50 backdrop-blur-xl border border-gray-800 rounded-[2rem] p-4 md:p-6 transition-all hover:bg-gray-900/80 hover:scale-[1.02] hover:border-indigo-500/30"
+          className="relative group overflow-hidden bg-gray-900/50 backdrop-blur-xl border border-gray-800 rounded-[2rem] p-4 md:p-6 transition-all hover:bg-gray-900/80 hover:border-indigo-500/30"
         >
           <div
-            className={`absolute -right-4 -bottom-4 w-24 h-24 rounded-full opacity-10 ${card.bg.replace("/10", "")} blur-2xl group-hover:scale-150 transition-transform duration-700`}
+            className={`absolute -right-4 -bottom-4 w-24 h-24 rounded-full opacity-10 ${card.bg.replace("/10", "")} blur-2xl transition-transform`}
           />
           <div className="relative z-10 flex flex-col gap-4">
             <div
