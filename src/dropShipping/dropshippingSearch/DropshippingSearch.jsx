@@ -39,12 +39,14 @@ const handleDownloadImage = async (e, imageUrl, productName) => {
   e.stopPropagation();
   if (!imageUrl) return;
   try {
-    const response = await fetch(imageUrl);
+    const proxyUrl = `/api/download-image?url=${encodeURIComponent(imageUrl)}`;
+    const response = await fetch(proxyUrl);
     const blob = await response.blob();
+    const ext = imageUrl.split(".").pop()?.split("?")[0] || "jpg";
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `${productName || "product"}.jpg`;
+    link.download = `${productName || "product"}.${ext}`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
