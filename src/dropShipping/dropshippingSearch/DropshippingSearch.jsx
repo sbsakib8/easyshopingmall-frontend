@@ -1,6 +1,5 @@
 "use client";
 
-import { UrlBackend } from "@/src/confic/urlExport";
 import {
   addToWishlistApi,
   removeFromWishlistApi,
@@ -16,6 +15,7 @@ import {
   ShoppingCart,
   Sparkles,
   Star,
+  Tag,
   Type,
   Upload,
   X,
@@ -32,6 +32,12 @@ import {
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { dsCartAdd } from "@/src/redux/dropshippingCartSlice";
+import {
+  fetchDropshippingSearch,
+  setSearchQuery,
+  setMode,
+  clearResults,
+} from "@/src/redux/dropshippingSearchSlice";
 import Container from "@/src/compronent/shared/Container";
 
 // ─── Image download helper ────────────────────────────────────────────────────
@@ -284,11 +290,19 @@ const DropshippingSearchContent = () => {
   const user = useSelector((state) => state.user?.data);
   const { wishlist, loading: wishlistLoading } = useWishlist();
 
-  const [mode, setMode] = useState("text"); // "text" | "image"
-  const [query, setQuery] = useState(searchParams.get("q") || "");
-  const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [searched, setSearched] = useState(false);
+  // Redux state
+  const {
+    query,
+    mode,
+    results,
+    titleMatches,
+    skyMatches,
+    loading,
+    searched,
+    error,
+  } = useSelector((state) => state.dropshippingSearch);
+
+  // Local UI state
   const [detectedColors, setDetectedColors] = useState([]);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -309,47 +323,58 @@ const DropshippingSearchContent = () => {
   useEffect(() => {
     const q = searchParams.get("q");
     if (q) {
-      setQuery(q);
-      handleTextSearch(q);
+      dispatch(setSearchQuery(q));
+      dispatch(fetchDropshippingSearch({ query: q, mode: "text" }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ── Text search ────────────────────────────────────────────────────────────
+  // Show error toast
+  useEffect(() => {
+    if (error) toast.error("Search failed. Please try again.");
+  }, [error]);
+
+  // ── Search handlers ────────────────────────────────────────────────────────
   const handleTextSearch = useCallback(
-    async (searchQuery) => {
+    (searchQuery) => {
       const q = (searchQuery ?? query).trim();
       if (!q) return;
-      setLoading(true);
-      setSearched(true);
       setDetectedColors([]);
-      try {
-        const res = await fetch(`${UrlBackend}/products/search-product`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ skyTitle: q, page: 1, limit: 30 }),
-          credentials: "include",
-        });
-        const json = await res.json();
-        setResults(json.data || []);
-      } catch {
-        toast.error("Search failed. Please try again.");
-        setResults([]);
-      } finally {
-        setLoading(false);
-      }
+      dispatch(fetchDropshippingSearch({ query: q, mode: "text" }));
     },
-    [query]
+    [query, dispatch]
   );
+
+  const handleSkySearch = useCallback(
+    (searchQuery) => {
+      const q = (searchQuery ?? query).trim();
+      if (!q) return;
+      setDetectedColors([]);
+      dispatch(fetchDropshippingSearch({ query: q, mode: "sky" }));
+    },
+    [query, dispatch]
+  );
+
+  // ── Grouped results from Redux ────────────────────────────────────────────
+  const groupedResults = useCallback(() => {
+    const sections = [];
+    if (titleMatches.length > 0) {
+      sections.push({ label: "Search by title", products: titleMatches });
+    }
+    if (skyMatches.length > 0) {
+      sections.push({ label: "Related products", products: skyMatches });
+    }
+    return sections;
+  }, [titleMatches, skyMatches]);
 
   // ── Image search ───────────────────────────────────────────────────────────
   const handleImageSearch = useCallback(async () => {
     if (!imageFile) return;
     const nameWithoutExt = imageFile.name.replace(/\.[^/.]+$/, "");
     const cleanName = nameWithoutExt.replace(/[-_]/g, " ").trim();
-    setQuery(cleanName);
-    await handleTextSearch(cleanName);
-  }, [imageFile, handleTextSearch]);
+    dispatch(setSearchQuery(cleanName));
+    dispatch(fetchDropshippingSearch({ query: cleanName, mode: "text" }));
+  }, [imageFile, dispatch]);
 
   // ── Image file handling ────────────────────────────────────────────────────
   const handleFileChange = (file) => {
@@ -358,8 +383,7 @@ const DropshippingSearchContent = () => {
       return;
     }
     setImageFile(file);
-    setResults([]);
-    setSearched(false);
+    dispatch(clearResults());
     const reader = new FileReader();
     reader.onloadend = () => setImagePreview(reader.result);
     reader.readAsDataURL(file);
@@ -368,8 +392,7 @@ const DropshippingSearchContent = () => {
   const clearImage = () => {
     setImageFile(null);
     setImagePreview(null);
-    setResults([]);
-    setSearched(false);
+    dispatch(clearResults());
     setDetectedColors([]);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
@@ -382,7 +405,27 @@ const DropshippingSearchContent = () => {
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === "Enter") handleTextSearch();
+    if (e.key === "Enter") {
+      if (mode === "sky") handleSkySearch();
+      else handleTextSearch();
+    }
+  };
+
+  const handleModeChange = (newMode) => {
+    dispatch(setMode(newMode));
+    dispatch(clearResults());
+    if (newMode !== "image") {
+      setTimeout(() => inputRef.current?.focus(), 100);
+    }
+  };
+
+  const handleQueryChange = (value) => {
+    dispatch(setSearchQuery(value));
+  };
+
+  const handleClearQuery = () => {
+    dispatch(setSearchQuery(""));
+    dispatch(clearResults());
   };
 
   return (
@@ -414,12 +457,7 @@ const DropshippingSearchContent = () => {
           <div className="bg-white border border-slate-100 rounded-2xl p-1 flex gap-1 shadow-sm">
             <button
               id="mode-text"
-              onClick={() => {
-                setMode("text");
-                setResults([]);
-                setSearched(false);
-                setTimeout(() => inputRef.current?.focus(), 100);
-              }}
+              onClick={() => handleModeChange("text")}
               className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all ${
                 mode === "text"
                   ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-500/20"
@@ -427,15 +465,23 @@ const DropshippingSearchContent = () => {
               }`}
             >
               <Type className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              Sky Search
+              Search by title
+            </button>
+            <button
+              id="mode-sky"
+              onClick={() => handleModeChange("sky")}
+              className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all ${
+                mode === "sky"
+                  ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-500/20"
+                  : "text-slate-400 hover:text-slate-600"
+              }`}
+            >
+              <Tag className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              Search by sky
             </button>
             <button
               id="mode-image"
-              onClick={() => {
-                setMode("image");
-                setResults([]);
-                setSearched(false);
-              }}
+              onClick={() => handleModeChange("image")}
               className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all ${
                 mode === "image"
                   ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-500/20"
@@ -449,7 +495,7 @@ const DropshippingSearchContent = () => {
         </div>
 
         {/* ── TEXT SEARCH INPUT ── */}
-        {mode === "text" && (
+        {(mode === "text" || mode === "sky") && (
           <div className="max-w-2xl mx-auto px-2 sm:px-0">
             <div className="relative group">
               {/* Glow ring */}
@@ -461,14 +507,14 @@ const DropshippingSearchContent = () => {
                   id="sky-search-input"
                   type="text"
                   value={query}
-                  onChange={(e) => setQuery(e.target.value)}
+                  onChange={(e) => handleQueryChange(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder={placeholders[placeholderIdx]}
+                  placeholder={mode === "sky" ? "Search by sky title..." : placeholders[placeholderIdx]}
                   className="w-full bg-transparent text-slate-800 placeholder-slate-300 pl-10 sm:pl-12 pr-20 sm:pr-36 py-3 sm:py-4 text-sm sm:text-base outline-none rounded-2xl"
                 />
                 {query && (
                   <button
-                    onClick={() => { setQuery(""); setResults([]); setSearched(false); }}
+                    onClick={handleClearQuery}
                     className="absolute right-16 sm:right-24 text-slate-300 hover:text-slate-500 transition-colors"
                   >
                     <X className="w-4 h-4" />
@@ -476,7 +522,7 @@ const DropshippingSearchContent = () => {
                 )}
                 <button
                   id="sky-search-btn"
-                  onClick={() => handleTextSearch()}
+                  onClick={() => mode === "sky" ? handleSkySearch() : handleTextSearch()}
                   disabled={!query.trim() || loading}
                   className="absolute right-1.5 sm:right-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:opacity-50 text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition-all active:scale-95 flex items-center gap-1.5 sm:gap-2 shadow-md"
                 >
@@ -609,35 +655,35 @@ const DropshippingSearchContent = () => {
         ) : searched && results.length === 0 ? (
           <EmptyState mode={mode} />
         ) : results.length > 0 ? (
-          <div className="space-y-4 sm:space-y-5">
-            {/* Results header */}
-            <div className="flex items-center justify-between flex-wrap gap-2 sm:gap-3">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="w-1 h-5 sm:h-6 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-full" />
-                <h2 className="text-slate-800 font-black text-base sm:text-lg">
-                  {results.length} Products Found
-                </h2>
-              </div>
-              {mode === "image" && (
-                <span className="text-slate-400 text-[10px] sm:text-xs font-medium">
-                  Matched by image color analysis
-                </span>
-              )}
-            </div>
+          <div className="space-y-6 sm:space-y-8">
+            {groupedResults().map((section, sIdx) => (
+              <div key={sIdx} className="space-y-4 sm:space-y-5">
+                {/* Section header */}
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="w-1 h-5 sm:h-6 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-full" />
+                  <h2 className="text-slate-800 font-black text-base sm:text-lg">
+                    {section.label}
+                  </h2>
+                  <span className="text-slate-400 text-xs sm:text-sm font-medium">
+                    ({section.products.length})
+                  </span>
+                </div>
 
-            {/* Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 md:gap-5">
-              {results.map((product) => (
-                <ProductCard
-                  key={product._id}
-                  product={product}
-                  wishlist={wishlist}
-                  wishlistLoading={wishlistLoading}
-                  dispatch={dispatch}
-                  user={user}
-                />
-              ))}
-            </div>
+                {/* Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 md:gap-5">
+                  {section.products.map((product) => (
+                    <ProductCard
+                      key={product._id}
+                      product={product}
+                      wishlist={wishlist}
+                      wishlistLoading={wishlistLoading}
+                      dispatch={dispatch}
+                      user={user}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         ) : !searched ? (
           /* Initial idle state */
