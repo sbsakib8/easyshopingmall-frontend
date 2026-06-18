@@ -15,6 +15,7 @@ import { auth } from "@/firebase";
 import AuthRedirect from "@/src/utlis/authRedirect";
 import { useDispatch } from "react-redux";
 import Section from "@/src/compronent/shared/Section";
+import { sanitizeInput, sanitizeEmail, sanitizePhone } from "@/src/lib/sanitize";
 
 function Signup() {
   const [name, setName] = useState('');
@@ -40,11 +41,11 @@ function Signup() {
     setIsLoading(true);
 
     const user = {
-      name,
-      email,
-      mobile: number,
+      name: sanitizeInput(name),
+      email: sanitizeEmail(email),
+      mobile: sanitizePhone(number),
       password,
-      referralCode,
+      referralCode: sanitizeInput(referralCode),
     };
 
     try {
@@ -77,8 +78,8 @@ function Signup() {
       await googleSignIn({
         name: user.reloadUserInfo.displayName,
         email: user.reloadUserInfo.email,
-        mobile: number,
-        referralCode,
+        mobile: sanitizePhone(number),
+        referralCode: sanitizeInput(referralCode),
         image: user.reloadUserInfo.photoUrl
       }, router, dispatch);
     } catch (error) {

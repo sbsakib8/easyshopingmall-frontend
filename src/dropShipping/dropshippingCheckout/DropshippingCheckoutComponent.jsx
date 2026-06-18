@@ -18,8 +18,9 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
-import axios from 'axios';
-import { UrlBackend } from '@/src/confic/urlExport';
+import apiClient from '@/src/lib/axios';
+import { sanitizeObject, sanitizePhone, sanitizeInput } from '@/src/lib/sanitize';
+import { encryptPayload } from '@/src/lib/encryption';
 import LocationSelects from '@/src/compronent/LocationSelects';
 import { applyDropshippingCouponCode } from '@/src/hook/useCoupon';
 
@@ -214,13 +215,15 @@ const DropshippingCheckoutComponent = () => {
 
     setIsProcessing(true);
     try {
+      const sanitizedCustomer = sanitizeObject(customerInfo);
+
       const payload = {
         userId: user._id,
         products: items.map(item => {
           const sp = item.sellingPrice === "" ? 0 : (item.sellingPrice ?? item.price);
           return {
             productId: item.productId._id,
-            name: item.productId.productName,
+            name: sanitizeInput(item.productId.productName),
             image: item.productId.images || [],
             quantity: item.quantity,
             costPrice: item.price,
@@ -233,28 +236,27 @@ const DropshippingCheckoutComponent = () => {
           };
         }),
 
-
         delivery_address: {
-          address_line: customerInfo.address,
-          district: customerInfo.district,
-          division: customerInfo.division,
-          upazila_thana: customerInfo.area,
-          country: customerInfo.country,
-          mobile: customerInfo.phone,
-          customer_name: customerInfo.name
+          address_line: sanitizedCustomer.address,
+          district: sanitizedCustomer.district,
+          division: sanitizedCustomer.division,
+          upazila_thana: sanitizedCustomer.area,
+          country: sanitizedCustomer.country,
+          mobile: sanitizePhone(sanitizedCustomer.phone),
+          customer_name: sanitizedCustomer.name
         },
         payment_method: paymentMethod,
         payment_type: paymentMethod === 'cod' ? 'cod' : paymentType,
-        payment_details: paymentMethod === 'manual' ? {
+        payment_details: paymentMethod === 'manual' ? encryptPayload({
           provider: selectedManualMethod,
-          senderNumber: paymentDetails.senderNumber || "00000000000",
-          transactionId: paymentDetails.transactionId,
+          senderNumber: sanitizePhone(paymentDetails.senderNumber || "00000000000"),
+          transactionId: sanitizeInput(paymentDetails.transactionId),
           manual: {
             provider: selectedManualMethod,
-            transactionId: paymentDetails.transactionId,
-            senderNumber: paymentDetails.senderNumber || "00000000000"
+            transactionId: sanitizeInput(paymentDetails.transactionId),
+            senderNumber: sanitizePhone(paymentDetails.senderNumber || "00000000000")
           }
-        } : {},
+        }, ["senderNumber", "transactionId"]) : {},
         totalAmt: total,
         subTotalAmt: subtotal,
         deliveryCharge,
@@ -262,7 +264,7 @@ const DropshippingCheckoutComponent = () => {
         couponDiscount: couponDiscount || 0,
       };
 
-      const response = await axios.post(`${UrlBackend}/orders/manual`, payload, { withCredentials: true });
+      const response = await apiClient.post("/orders/manual", payload);
 
       if (response.data.success) {
         toast.success("আপনার ড্রপশিপিং অর্ডারটি সফলভাবে সম্পন্ন হয়েছে!");
