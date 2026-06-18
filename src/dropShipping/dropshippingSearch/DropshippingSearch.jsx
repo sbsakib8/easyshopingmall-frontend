@@ -25,7 +25,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
   Suspense,
@@ -55,7 +54,7 @@ const handleDownloadImage = async (e, imageUrl, productName) => {
   }
 };
 
-// ─── Product Card (reused pattern from subCategoryProducts) ──────────────────
+// ─── Product Card ─────────────────────────────────────────────────────────────
 const ProductCard = ({ product, wishlist, dispatch, user, wishlistLoading }) => {
   const router = useRouter();
   if (!product) return null;
@@ -114,10 +113,10 @@ const ProductCard = ({ product, wishlist, dispatch, user, wishlistLoading }) => 
   return (
     <div
       onClick={() => router.push(`/productdetails/${product._id}`)}
-      className="group bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:bg-white/10 hover:border-emerald-500/40 transition cursor-pointer flex flex-col h-full"
+      className="group bg-white rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-lg hover:border-emerald-400/40 transition-all cursor-pointer flex flex-col h-full"
     >
       {/* Image */}
-      <div className="relative aspect-square overflow-hidden w-full h-32 md:h-44">
+      <div className="relative aspect-square overflow-hidden w-full">
         <Image
           src={
             product.images?.[0] ||
@@ -127,19 +126,19 @@ const ProductCard = ({ product, wishlist, dispatch, user, wishlistLoading }) => 
           alt={product.productName}
           width={200}
           height={200}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
 
-        {/* Top actions */}
-        <div className="absolute top-2 right-2 md:flex flex-col gap-1.5 z-20 hidden">
+        {/* Top actions - visible on mobile */}
+        <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 flex flex-col gap-1 sm:gap-1.5 z-20">
           <button
             onClick={(e) =>
               handleDownloadImage(e, product.images?.[0], product.productName)
             }
-            className="bg-black/60 hover:bg-black/80 backdrop-blur-sm shadow-md p-1.5 rounded-xl text-white transition-all"
+            className="bg-white/90 hover:bg-white shadow-md p-1 sm:p-1.5 rounded-lg sm:rounded-xl text-gray-600 hover:text-emerald-600 transition-all backdrop-blur-sm"
             title="Save Image"
           >
-            <ArrowDownToLine className="w-3.5 h-3.5" />
+            <ArrowDownToLine className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
           </button>
           <button
             onClick={(e) => {
@@ -147,32 +146,32 @@ const ProductCard = ({ product, wishlist, dispatch, user, wishlistLoading }) => 
               toggleWishlist();
             }}
             disabled={wishlistLoading}
-            className={`shadow-md p-1.5 rounded-xl transition-all backdrop-blur-sm ${
+            className={`shadow-md p-1 sm:p-1.5 rounded-lg sm:rounded-xl transition-all backdrop-blur-sm ${
               isWishlisted
-                ? "bg-red-500/70 text-white"
-                : "bg-black/60 hover:bg-black/80 text-white"
+                ? "bg-red-500 text-white"
+                : "bg-white/90 hover:bg-white text-gray-600 hover:text-red-500"
             }`}
           >
-            <Heart className={`w-3.5 h-3.5 ${isWishlisted ? "fill-current" : ""}`} />
+            <Heart className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${isWishlisted ? "fill-current" : ""}`} />
           </button>
         </div>
 
         {/* Out of stock */}
         {product.productStock < 1 && (
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-20">
-            <span className="bg-red-600 text-white px-3 py-1 rounded-full text-[9px] md:text-xs font-semibold tracking-wider">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-20">
+            <span className="bg-red-600 text-white px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-[9px] md:text-xs font-semibold tracking-wider">
               OUT OF STOCK
             </span>
           </div>
         )}
 
-        {/* Color chips if available */}
+        {/* Color chips */}
         {product.color?.length > 0 && (
-          <div className="absolute bottom-2 left-2 flex gap-1">
-            {product.color.slice(0, 4).map((c, i) => (
+          <div className="absolute bottom-1.5 left-1.5 sm:bottom-2 sm:left-2 flex gap-0.5 sm:gap-1">
+            {product.color.slice(0, 3).map((c, i) => (
               <span
                 key={i}
-                className="text-[8px] px-1.5 py-0.5 rounded-full bg-black/50 text-white backdrop-blur-sm border border-white/20"
+                className="text-[7px] sm:text-[8px] px-1 sm:px-1.5 py-0.5 rounded-full bg-black/50 text-white backdrop-blur-sm border border-white/20"
               >
                 {c}
               </span>
@@ -182,17 +181,17 @@ const ProductCard = ({ product, wishlist, dispatch, user, wishlistLoading }) => 
       </div>
 
       {/* Content */}
-      <div className="flex-1 flex flex-col p-2 md:p-3.5">
-        <h3 className="font-semibold text-white/90 group-hover:text-emerald-300 transition-colors line-clamp-2 text-[10px] md:text-sm md:leading-tight mb-1">
+      <div className="flex-1 flex flex-col p-1.5 sm:p-2 md:p-3.5">
+        <h3 className="font-semibold text-gray-800 group-hover:text-emerald-600 transition-colors line-clamp-2 text-[9px] sm:text-[10px] md:text-sm md:leading-tight mb-0.5 sm:mb-1 leading-tight">
           {product.productName}
         </h3>
-        <p className="text-[10px] text-white/40 font-medium mb-2 uppercase hidden md:block">
+        <p className="text-[8px] sm:text-[10px] text-gray-400 font-medium mb-1 sm:mb-2 uppercase hidden md:block">
           {product.brand || "No Brand"}
         </p>
 
-        <div className="hidden md:flex items-center justify-between mb-3">
-          <div className="flex items-center gap-1">{renderStars(ratingValue)}</div>
-          <p className="text-sm font-bold text-emerald-400">
+        <div className="hidden sm:flex items-center justify-between mb-2 sm:mb-3">
+          <div className="flex items-center gap-0.5 sm:gap-1">{renderStars(ratingValue)}</div>
+          <p className="text-xs sm:text-sm font-bold text-emerald-600">
             ৳
             {(user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING"))
               ? (product.dropshippingPrice ?? product.price)
@@ -200,14 +199,24 @@ const ProductCard = ({ product, wishlist, dispatch, user, wishlistLoading }) => 
           </p>
         </div>
 
-        <div className="mt-auto">
+        {/* Mobile price */}
+        <div className="sm:hidden mt-auto">
+          <p className="text-[10px] font-bold text-emerald-600">
+            ৳
+            {(user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING"))
+              ? (product.dropshippingPrice ?? product.price)
+              : product.price}
+          </p>
+        </div>
+
+        <div className="mt-auto hidden sm:block">
           <button
             onClick={(e) => {
               e.stopPropagation();
               handleAddToCart();
             }}
             disabled={product.productStock < 1}
-            className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:from-gray-700 disabled:to-gray-600 text-white py-2 px-2 rounded-xl font-medium text-[9px] md:text-xs tracking-wider md:flex items-center justify-center gap-1.5 shadow-md active:scale-[0.97] transition-all hidden"
+            className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:from-gray-300 disabled:to-gray-200 text-white py-1.5 sm:py-2 px-2 rounded-xl font-medium text-[8px] sm:text-[9px] md:text-xs tracking-wider flex items-center justify-center gap-1 sm:gap-1.5 shadow-md active:scale-[0.97] transition-all"
           >
             <ShoppingCart className="size-3" />
             ADD TO CART
@@ -224,14 +233,14 @@ const SearchSkeleton = () => (
     {[...Array(12)].map((_, i) => (
       <div
         key={i}
-        className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden animate-pulse"
+        className="bg-white border border-slate-100 rounded-3xl overflow-hidden animate-pulse shadow-sm"
         style={{ animationDelay: `${i * 40}ms` }}
       >
-        <div className="h-32 md:h-44 bg-white/10" />
+        <div className="h-32 md:h-44 bg-slate-100" />
         <div className="p-3 space-y-2">
-          <div className="h-3 bg-white/10 rounded-full w-4/5" />
-          <div className="h-3 bg-white/10 rounded-full w-3/5" />
-          <div className="h-3 bg-white/10 rounded-full w-2/5" />
+          <div className="h-3 bg-slate-100 rounded-full w-4/5" />
+          <div className="h-3 bg-slate-100 rounded-full w-3/5" />
+          <div className="h-3 bg-slate-100 rounded-full w-2/5" />
         </div>
       </div>
     ))}
@@ -240,16 +249,16 @@ const SearchSkeleton = () => (
 
 // ─── Empty state ──────────────────────────────────────────────────────────────
 const EmptyState = ({ mode }) => (
-  <div className="flex flex-col items-center justify-center min-h-[40vh] text-center space-y-4 py-16">
-    <div className="w-20 h-20 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center mb-4">
+  <div className="flex flex-col items-center justify-center min-h-[30vh] sm:min-h-[40vh] text-center space-y-3 sm:space-y-4 py-10 sm:py-16 px-4">
+    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl bg-slate-50 border border-slate-100 flex items-center justify-center mb-2 sm:mb-4">
       {mode === "image" ? (
-        <Camera className="w-9 h-9 text-white/20" />
+        <Camera className="w-7 h-7 sm:w-9 sm:h-9 text-slate-300" />
       ) : (
-        <Search className="w-9 h-9 text-white/20" />
+        <Search className="w-7 h-7 sm:w-9 sm:h-9 text-slate-300" />
       )}
     </div>
-    <h3 className="text-xl font-black text-white/50">No Products Found</h3>
-    <p className="text-white/30 text-sm max-w-xs">
+    <h3 className="text-lg sm:text-xl font-black text-slate-800">No Products Found</h3>
+    <p className="text-slate-400 text-xs sm:text-sm font-medium max-w-xs">
       {mode === "image"
         ? "No products matched the colors in your image. Try a different photo."
         : "No products matched your search. Try different keywords."}
@@ -334,15 +343,9 @@ const DropshippingSearchContent = () => {
   // ── Image search ───────────────────────────────────────────────────────────
   const handleImageSearch = useCallback(async () => {
     if (!imageFile) return;
-    
-    // Extract name without extension and clean up hyphens/underscores
     const nameWithoutExt = imageFile.name.replace(/\.[^/.]+$/, "");
     const cleanName = nameWithoutExt.replace(/[-_]/g, " ").trim();
-    
-    // Update the query so they see what we searched for
     setQuery(cleanName);
-    
-    // Execute a standard text search using the extracted file name
     await handleTextSearch(cleanName);
   }, [imageFile, handleTextSearch]);
 
@@ -381,33 +384,32 @@ const DropshippingSearchContent = () => {
   };
 
   return (
-    <section className="relative min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-emerald-950 overflow-hidden">
-      {/* Ambient orbs */}
-      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-emerald-600/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-teal-600/10 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-emerald-500/5 rounded-full blur-[80px] pointer-events-none" />
+    <section className="relative min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 overflow-hidden">
+      {/* Decorative background elements - hidden on mobile to prevent overflow */}
+      <div className="absolute top-0 left-1/4 w-[300px] h-[300px] sm:w-[600px] sm:h-[600px] bg-emerald-100/40 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-0 right-1/4 w-[250px] h-[250px] sm:w-[500px] sm:h-[500px] bg-teal-100/40 rounded-full blur-[100px] pointer-events-none" />
 
-      <Container className="relative z-10 py-8 md:py-12 space-y-8 md:space-y-12">
+      <Container className="relative z-10 py-6 sm:py-8 md:py-12 space-y-6 sm:space-y-8 md:space-y-12 px-4 sm:px-6">
         {/* Header */}
-        <div className="text-center space-y-3 pt-4">
-          <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-1.5 text-emerald-400 text-xs font-semibold tracking-widest uppercase mb-2">
-            <Sparkles className="w-3.5 h-3.5" />
+        <div className="text-center space-y-2 sm:space-y-3 pt-2 sm:pt-4">
+          <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-emerald-50 text-emerald-600 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-widest border border-emerald-200/50 mb-2">
+            <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
             Dropshipping Finder
           </div>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white leading-tight">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 leading-tight">
             Find Your{" "}
-            <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
               Products
             </span>
           </h1>
-          <p className="text-white/40 text-sm md:text-base max-w-md mx-auto">
+          <p className="text-slate-400 text-xs sm:text-sm md:text-base font-medium max-w-md mx-auto px-2">
             Search by keyword or upload an image — discover products instantly
           </p>
         </div>
 
         {/* Mode Toggle */}
         <div className="flex justify-center">
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-1 flex gap-1">
+          <div className="bg-white border border-slate-100 rounded-2xl p-1 flex gap-1 shadow-sm">
             <button
               id="mode-text"
               onClick={() => {
@@ -416,13 +418,13 @@ const DropshippingSearchContent = () => {
                 setSearched(false);
                 setTimeout(() => inputRef.current?.focus(), 100);
               }}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+              className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all ${
                 mode === "text"
-                  ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-500/20"
-                  : "text-white/50 hover:text-white/80"
+                  ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-500/20"
+                  : "text-slate-400 hover:text-slate-600"
               }`}
             >
-              <Type className="w-4 h-4" />
+              <Type className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               Sky Search
             </button>
             <button
@@ -432,13 +434,13 @@ const DropshippingSearchContent = () => {
                 setResults([]);
                 setSearched(false);
               }}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+              className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all ${
                 mode === "image"
-                  ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-500/20"
-                  : "text-white/50 hover:text-white/80"
+                  ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-500/20"
+                  : "text-slate-400 hover:text-slate-600"
               }`}
             >
-              <Camera className="w-4 h-4" />
+              <Camera className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               Image Search
             </button>
           </div>
@@ -446,12 +448,12 @@ const DropshippingSearchContent = () => {
 
         {/* ── TEXT SEARCH INPUT ── */}
         {mode === "text" && (
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-2xl mx-auto px-2 sm:px-0">
             <div className="relative group">
               {/* Glow ring */}
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500/40 to-teal-500/40 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition-opacity" />
-              <div className="relative flex items-center bg-white/5 border border-white/15 group-focus-within:border-emerald-500/50 rounded-2xl transition-colors">
-                <Search className="absolute left-4 w-5 h-5 text-white/30 group-focus-within:text-emerald-400 transition-colors" />
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition-opacity" />
+              <div className="relative flex items-center bg-white border border-slate-200 group-focus-within:border-emerald-500/50 rounded-2xl shadow-sm transition-colors">
+                <Search className="absolute left-3 sm:left-4 w-4 h-4 sm:w-5 sm:h-5 text-slate-300 group-focus-within:text-emerald-500 transition-colors" />
                 <input
                   ref={inputRef}
                   id="sky-search-input"
@@ -460,12 +462,12 @@ const DropshippingSearchContent = () => {
                   onChange={(e) => setQuery(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder={placeholders[placeholderIdx]}
-                  className="w-full bg-transparent text-white placeholder-white/25 pl-12 pr-36 py-4 text-base outline-none rounded-2xl"
+                  className="w-full bg-transparent text-slate-800 placeholder-slate-300 pl-10 sm:pl-12 pr-20 sm:pr-36 py-3 sm:py-4 text-sm sm:text-base outline-none rounded-2xl"
                 />
                 {query && (
                   <button
                     onClick={() => { setQuery(""); setResults([]); setSearched(false); }}
-                    className="absolute right-24 text-white/30 hover:text-white/60 transition-colors"
+                    className="absolute right-16 sm:right-24 text-slate-300 hover:text-slate-500 transition-colors"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -474,13 +476,14 @@ const DropshippingSearchContent = () => {
                   id="sky-search-btn"
                   onClick={() => handleTextSearch()}
                   disabled={!query.trim() || loading}
-                  className="absolute right-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:opacity-50 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-all active:scale-95 flex items-center gap-2"
+                  className="absolute right-1.5 sm:right-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:opacity-50 text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition-all active:scale-95 flex items-center gap-1.5 sm:gap-2 shadow-md"
                 >
                   {loading ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
-                    "Search"
+                    <span className="hidden sm:inline">Search</span>
                   )}
+                  <Search className="w-4 h-4 sm:hidden" />
                 </button>
               </div>
             </div>
@@ -489,7 +492,7 @@ const DropshippingSearchContent = () => {
 
         {/* ── IMAGE SEARCH UPLOAD ── */}
         {mode === "image" && (
-          <div className="max-w-lg mx-auto space-y-4">
+          <div className="max-w-lg mx-auto space-y-4 px-2 sm:px-0">
             {!imagePreview ? (
               <div
                 id="image-drop-zone"
@@ -497,31 +500,31 @@ const DropshippingSearchContent = () => {
                 onDragLeave={() => setIsDragOver(false)}
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
-                className={`relative flex flex-col items-center justify-center gap-4 border-2 border-dashed rounded-3xl p-10 cursor-pointer transition-all ${
+                className={`relative flex flex-col items-center justify-center gap-3 sm:gap-4 border-2 border-dashed rounded-3xl p-6 sm:p-8 md:p-10 cursor-pointer transition-all ${
                   isDragOver
-                    ? "border-emerald-500 bg-emerald-500/10"
-                    : "border-white/15 bg-white/3 hover:border-emerald-500/50 hover:bg-white/5"
+                    ? "border-emerald-500 bg-emerald-50"
+                    : "border-slate-200 bg-white hover:border-emerald-400 hover:bg-emerald-50/30"
                 }`}
               >
                 <div
-                  className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all ${
-                    isDragOver ? "bg-emerald-500/20" : "bg-white/5"
+                  className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center transition-all ${
+                    isDragOver ? "bg-emerald-100" : "bg-slate-50"
                   }`}
                 >
                   <Upload
-                    className={`w-7 h-7 transition-colors ${
-                      isDragOver ? "text-emerald-400" : "text-white/30"
+                    className={`w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 transition-colors ${
+                      isDragOver ? "text-emerald-500" : "text-slate-300"
                     }`}
                   />
                 </div>
                 <div className="text-center">
-                  <p className="text-white/70 font-semibold mb-1">
+                  <p className="text-slate-700 font-semibold text-sm sm:text-base mb-1">
                     Drop an image here
                   </p>
-                  <p className="text-white/30 text-sm">
-                    or <span className="text-emerald-400 underline underline-offset-2">browse files</span>
+                  <p className="text-slate-400 text-xs sm:text-sm">
+                    or <span className="text-emerald-600 underline underline-offset-2">browse files</span>
                   </p>
-                  <p className="text-white/20 text-xs mt-2">
+                  <p className="text-slate-300 text-[10px] sm:text-xs mt-1.5 sm:mt-2">
                     JPG, PNG, WEBP supported
                   </p>
                 </div>
@@ -535,8 +538,8 @@ const DropshippingSearchContent = () => {
                 />
               </div>
             ) : (
-              <div className="relative rounded-3xl overflow-hidden border border-white/10 bg-white/5">
-                <div className="relative h-52 md:h-64 w-full">
+              <div className="relative rounded-3xl overflow-hidden border border-slate-100 bg-white shadow-sm">
+                <div className="relative h-40 sm:h-52 md:h-64 w-full">
                   <Image
                     src={imagePreview}
                     alt="Search image preview"
@@ -545,20 +548,20 @@ const DropshippingSearchContent = () => {
                   />
                   <button
                     onClick={clearImage}
-                    className="absolute top-3 right-3 bg-black/60 hover:bg-black/80 text-white p-1.5 rounded-full backdrop-blur-sm transition-all"
+                    className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-white/90 hover:bg-white text-gray-600 p-1.5 rounded-full backdrop-blur-sm shadow-md transition-all"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
-                <div className="p-4 flex items-center justify-between">
-                  <div className="flex flex-col">
-                    <div className="flex items-center gap-2 text-white/50 text-sm">
-                      <ImageIcon className="w-4 h-4" />
-                      <span className="truncate max-w-[200px]">{imageFile?.name}</span>
+                <div className="p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
+                  <div className="flex flex-col min-w-0">
+                    <div className="flex items-center gap-2 text-slate-500 text-xs sm:text-sm">
+                      <ImageIcon className="w-4 h-4 shrink-0" />
+                      <span className="truncate max-w-[150px] sm:max-w-[200px]">{imageFile?.name}</span>
                     </div>
                     {query && (
-                      <span className="text-emerald-400 text-xs font-medium mt-1">
-                        Will search for: "{query}"
+                      <span className="text-emerald-600 text-[10px] sm:text-xs font-medium mt-1 pl-6">
+                        Will search for: &quot;{query}&quot;
                       </span>
                     )}
                   </div>
@@ -566,7 +569,7 @@ const DropshippingSearchContent = () => {
                     id="image-search-btn"
                     onClick={handleImageSearch}
                     disabled={loading}
-                    className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:opacity-50 text-white px-6 py-2.5 rounded-xl font-semibold text-sm transition-all active:scale-95 flex items-center gap-2"
+                    className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:opacity-50 text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition-all active:scale-95 flex items-center gap-1.5 sm:gap-2 shadow-md w-full sm:w-auto justify-center"
                   >
                     {loading ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -585,12 +588,12 @@ const DropshippingSearchContent = () => {
 
         {/* ── Detected Colors badge ── */}
         {detectedColors.length > 0 && (
-          <div className="flex items-center justify-center gap-2 flex-wrap">
-            <span className="text-white/30 text-xs uppercase tracking-widest">Detected colors:</span>
+          <div className="flex items-center justify-center gap-1.5 sm:gap-2 flex-wrap px-2">
+            <span className="text-slate-400 text-[10px] sm:text-xs font-medium uppercase tracking-widest">Detected colors:</span>
             {detectedColors.map((c) => (
               <span
                 key={c}
-                className="px-3 py-1 rounded-full bg-white/10 border border-white/15 text-white/70 text-xs font-semibold capitalize"
+                className="px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] sm:text-xs font-semibold capitalize"
               >
                 {c}
               </span>
@@ -604,24 +607,24 @@ const DropshippingSearchContent = () => {
         ) : searched && results.length === 0 ? (
           <EmptyState mode={mode} />
         ) : results.length > 0 ? (
-          <div className="space-y-5">
+          <div className="space-y-4 sm:space-y-5">
             {/* Results header */}
-            <div className="flex items-center justify-between flex-wrap gap-3">
-              <div className="flex items-center gap-3">
-                <div className="w-1 h-6 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-full" />
-                <h2 className="text-white/80 font-bold text-lg">
+            <div className="flex items-center justify-between flex-wrap gap-2 sm:gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-1 h-5 sm:h-6 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-full" />
+                <h2 className="text-slate-800 font-black text-base sm:text-lg">
                   {results.length} Products Found
                 </h2>
               </div>
               {mode === "image" && (
-                <span className="text-white/30 text-xs">
+                <span className="text-slate-400 text-[10px] sm:text-xs font-medium">
                   Matched by image color analysis
                 </span>
               )}
             </div>
 
             {/* Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 md:gap-5">
               {results.map((product) => (
                 <ProductCard
                   key={product._id}
@@ -636,15 +639,15 @@ const DropshippingSearchContent = () => {
           </div>
         ) : !searched ? (
           /* Initial idle state */
-          <div className="flex flex-col items-center justify-center min-h-[30vh] text-center space-y-3 py-8">
-            <div className="w-16 h-16 rounded-3xl bg-white/3 border border-white/8 flex items-center justify-center">
+          <div className="flex flex-col items-center justify-center min-h-[25vh] sm:min-h-[30vh] text-center space-y-3 py-6 sm:py-8">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-3xl bg-slate-50 border border-slate-100 flex items-center justify-center">
               {mode === "image" ? (
-                <Camera className="w-7 h-7 text-white/15" />
+                <Camera className="w-6 h-6 sm:w-7 sm:h-7 text-slate-300" />
               ) : (
-                <Search className="w-7 h-7 text-white/15" />
+                <Search className="w-6 h-6 sm:w-7 sm:h-7 text-slate-300" />
               )}
             </div>
-            <p className="text-white/20 text-sm">
+            <p className="text-slate-400 text-xs sm:text-sm font-medium px-4">
               {mode === "text"
                 ? "Type a product name or keyword above"
                 : "Upload a product image to find similar items"}
@@ -659,8 +662,8 @@ const DropshippingSearchContent = () => {
 const DropshippingSearch = () => (
   <Suspense
     fallback={
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
-        <Loader2 className="w-10 h-10 text-emerald-500 animate-spin" />
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
+        <Loader2 className="w-8 h-8 sm:w-10 sm:h-10 text-emerald-600 animate-spin" />
       </div>
     }
   >

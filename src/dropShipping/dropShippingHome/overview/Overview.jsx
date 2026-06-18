@@ -1,5 +1,4 @@
 import {
-  ClockAlertIcon,
   Package,
   Sparkles,
   Rocket,
@@ -8,6 +7,7 @@ import {
   LayoutDashboard,
   ClipboardList,
   Newspaper,
+  Search,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -18,6 +18,16 @@ import Section from "@/src/compronent/shared/Section";
 const overview = [
   {
     id: 1,
+    text: "Search Products",
+    icon: (
+      <Search className="w-8 h-8 sm:w-10 sm:h-10 text-teal-600/70 mb-3" />
+    ),
+    href: "/search",
+    class:
+      "bg-gradient-to-b from-white to-gray-50/50 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 text-gray-800",
+  },
+  {
+    id: 2,
     text: "All Products",
     icon: <Package className="w-8 h-8 sm:w-10 sm:h-10 text-blue-600/70 mb-3" />,
     href: "/all-products",
@@ -25,7 +35,7 @@ const overview = [
       "bg-gradient-to-b from-white to-gray-50/50 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 text-gray-800",
   },
   {
-    id: 2,
+    id: 3,
     text: "New Products",
     icon: (
       <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 text-emerald-600/70 mb-3" />
@@ -35,7 +45,7 @@ const overview = [
       "bg-gradient-to-b from-white to-gray-50/50 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 text-gray-800",
   },
   {
-    id: 3,
+    id: 4,
     text: "Boost Products",
     icon: (
       <Rocket className="w-8 h-8 sm:w-10 sm:h-10 text-purple-600/70 mb-3" />
@@ -45,7 +55,7 @@ const overview = [
       "bg-gradient-to-b from-white to-gray-50/50 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 text-gray-800",
   },
   {
-    id: 4,
+    id: 5,
     text: "Team System",
     icon: <Users className="w-8 h-8 sm:w-10 sm:h-10 text-orange-600/70 mb-3" />,
     href: "/team-system",
@@ -53,7 +63,7 @@ const overview = [
       "bg-gradient-to-b from-white to-gray-50/50 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 text-gray-800",
   },
   {
-    id: 5,
+    id: 6,
     text: "Video",
     icon: (
       <PlaySquare className="w-8 h-8 sm:w-10 sm:h-10 text-rose-600/70 mb-3" />
@@ -63,7 +73,7 @@ const overview = [
       "bg-gradient-to-b from-white to-gray-50/50 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 text-gray-800",
   },
   {
-    id: 6,
+    id: 7,
     text: "Seller Dashboard",
     icon: (
       <LayoutDashboard className="w-8 h-8 sm:w-10 sm:h-10 text-indigo-600/70 mb-3" />
@@ -73,7 +83,7 @@ const overview = [
       "bg-gradient-to-b from-white to-gray-50/50 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 text-gray-800",
   },
   {
-    id: 7,
+    id: 8,
     text: "Order List",
     icon: (
       <ClipboardList className="w-8 h-8 sm:w-10 sm:h-10 text-cyan-600/70 mb-3" />
@@ -83,7 +93,7 @@ const overview = [
       "bg-gradient-to-b from-white to-gray-50/50 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 text-gray-800",
   },
   {
-    id: 8,
+    id: 9,
     text: "Blog",
     icon: (
       <Newspaper className="w-8 h-8 sm:w-10 sm:h-10 text-fuchsia-600/70 mb-3" />
