@@ -100,6 +100,15 @@ const InvoiceSkeleton = () => {
                 <div className="h-4 w-16 bg-slate-200 rounded" />
               </div>
             </div>
+            {/* Coupon Discount */}
+            <div className="flex px-3.5 py-2.5 md:px-5.5 md:py-4.5 items-center">
+              <div className="w-32 md:w-40">
+                <div className="h-3 w-28 bg-slate-200 rounded" />
+              </div>
+              <div className="flex-1">
+                <div className="h-4 w-20 bg-slate-200 rounded" />
+              </div>
+            </div>
             {/* Total Amount */}
             <div className="flex px-3.5 py-2.5 md:px-5.5 md:py-4.5 items-center">
               <div className="w-32 md:w-40">
@@ -614,6 +623,20 @@ const OrderDetails = ({ id }) => {
                           ৳{order.deliveryCharge?.toLocaleString()}
                         </td>
                       </tr>
+
+                      {order.couponDiscount > 0 && (
+                        <tr className="hover:bg-slate-50 transition-colors">
+                          <td className="px-3.5 py-2.5 md:px-5.5 md:py-4.5 w-32 md:w-40 font-bold text-xs uppercase tracking-widest text-slate-400">
+                            Coupon Discount
+                          </td>
+                          <td className="px-3.5 py-2.5 md:px-5.5 md:py-4.5 text-xs sm:text-base font-medium text-emerald-600">
+                            -৳{order.couponDiscount.toLocaleString()}
+                            {order.appliedCoupon && (
+                              <span className="ml-2 text-xs text-slate-400">({order.appliedCoupon})</span>
+                            )}
+                          </td>
+                        </tr>
+                      )}
 
                       <tr className="hover:bg-slate-50 transition-colors">
                         <td className="px-3.5 py-2.5 md:px-5.5 md:py-4.5 w-32 md:w-40 font-bold text-xs uppercase tracking-widest text-slate-400">

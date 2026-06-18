@@ -1,11 +1,16 @@
 
-import axios from "axios";
-import { UrlBackend } from "../confic/urlExport";
+import apiClient from "../lib/axios";
+import { sanitizeObject, sanitizeEmail } from "../lib/sanitize";
+import { encryptPayload } from "../lib/encryption";
+import { secureStorage } from "../lib/secureStorage";
 import { userget, clearUser } from "../redux/userSlice";
+
 // signup
 export const UseAuth = async (formData, route) => {
   try {
-    const response = await axios.post(`${UrlBackend}/users/signup`, formData, { withCredentials: true });
+    const sanitized = sanitizeObject(formData);
+    const payload = encryptPayload(sanitized, ["password"]);
+    const response = await apiClient.post("/users/signup", payload);
 
     if (response.data.success) {
       route.push("/signin");
@@ -21,17 +26,14 @@ export const UseAuth = async (formData, route) => {
 // signin
 export const UserSignin = async (formData, route, dispatch) => {
   try {
-    const response = await axios.post(`${UrlBackend}/users/signin`, formData, {
-      withCredentials: true,
-    });
+    const sanitized = { ...formData, email: sanitizeEmail(formData.email) };
+    const payload = encryptPayload(sanitized, ["password"]);
+    const response = await apiClient.post("/users/signin", payload);
 
     if (response.data.success) {
-      // Backend returns { success, message, user: { ... } }
       const userData = response.data.user;
       dispatch(userget(userData));
-      if (typeof window !== "undefined") {
-        localStorage.setItem("user", JSON.stringify(userData));
-      }
+      secureStorage.setItem("user", userData);
       route.push("/");
     }
 
@@ -45,16 +47,9 @@ export const UserSignin = async (formData, route, dispatch) => {
 // logout
 export const Logout = async (route, dispatch) => {
   try {
-    const response = await axios.get(`${UrlBackend}/users/signout`, {
-      withCredentials: true,
-    });
+    const response = await apiClient.get("/users/signout");
     if (response.data.success) {
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("user");
-      }
-      // Always clear the redux user (and any user-scoped slices that listen
-      // for this action, e.g. the dropshipping cart) so the next session
-      // does not leak data from the previous account on the same browser.
+      secureStorage.removeItem("user");
       if (dispatch) {
         dispatch(clearUser());
       }
@@ -67,12 +62,11 @@ export const Logout = async (route, dispatch) => {
   }
 }
 
-// ... (sendOtp, verifyOtp, changePassword unchanged)
-
 // send OTP for password reset
 export const sendOtp = async (formData) => {
   try {
-    const response = await axios.post(`${UrlBackend}/users/send-otp`, formData, { withCredentials: true });
+    const sanitized = sanitizeObject(formData);
+    const response = await apiClient.post("/users/send-otp", sanitized);
     return response.data;
   } catch (error) {
     console.error("Reset Password error:", error.response?.data || error.message);
@@ -83,7 +77,8 @@ export const sendOtp = async (formData) => {
 // verify OTP
 export const verifyOtp = async (formData) => {
   try {
-    const response = await axios.post(`${UrlBackend}/users/verify-otp`, formData, { withCredentials: true });
+    const sanitized = sanitizeObject(formData);
+    const response = await apiClient.post("/users/verify-otp", sanitized);
     return response.data;
   } catch (error) {
     console.error("Verify OTP error:", error.response?.data || error.message);
@@ -94,7 +89,9 @@ export const verifyOtp = async (formData) => {
 // change/reset password
 export const changePassword = async (formData) => {
   try {
-    const response = await axios.post(`${UrlBackend}/users/reset-password`, formData, { withCredentials: true });
+    const sanitized = sanitizeObject(formData);
+    const payload = encryptPayload(sanitized, ["password", "newpassword"]);
+    const response = await apiClient.post("/users/reset-password", payload);
     return response.data;
   } catch (error) {
     console.error("Change Password error:", error.response?.data || error.message);
@@ -105,17 +102,13 @@ export const changePassword = async (formData) => {
 // google sign in
 export const googleSignIn = async (formData, route, dispatch) => {
   try {
-    const response = await axios.post(`${UrlBackend}/users/google-auth`, formData, {
-      withCredentials: true,
-    });
+    const sanitized = sanitizeObject(formData);
+    const response = await apiClient.post("/users/google-auth", sanitized);
     if (response.data.success) {
-      // Backend returns flat object: { success, message, id, name, email, ... }
       const { success, message, id, ...rest } = response.data;
       const userData = { ...rest, _id: id, id };
       dispatch(userget(userData));
-      if (typeof window !== "undefined") {
-        localStorage.setItem("user", JSON.stringify(userData));
-      }
+      secureStorage.setItem("user", userData);
       route.push("/");
     }
     return response.data;
@@ -129,12 +122,9 @@ export const googleSignIn = async (formData, route, dispatch) => {
 // usergetprofile
 export const getUserProfile = async () => {
   try {
-    const response = await axios.get(`${UrlBackend}/users/userprofile`, {
-      withCredentials: true,
-    });
+    const response = await apiClient.get("/users/userprofile");
     return response.data;
   } catch (error) {
-    // console.error("Get User Profile error:", error.response?.data || error.message);
     throw error;
   }
 }
@@ -142,9 +132,7 @@ export const getUserProfile = async () => {
 // get all users
 export const getAllUser = async () => {
   try {
-    const response = await axios.get(`${UrlBackend}/users/getallusers`, {
-      withCredentials: true,
-    });
+    const response = await apiClient.get("/users/getallusers");
     return response.data;
   }
   catch (error) {
@@ -156,9 +144,8 @@ export const getAllUser = async () => {
 // update profile
 export const updateUserProfile = async (id, formData) => {
   try {
-    const response = await axios.put(`${UrlBackend}/users/userupdate/${id}`, formData, {
-      withCredentials: true,
-    });
+    const sanitized = sanitizeObject(formData);
+    const response = await apiClient.put(`/users/userupdate/${id}`, sanitized);
     return response.data;
   } catch (error) {
     console.error("Update User Profile error:", error.response?.data || error.message);
@@ -169,9 +156,7 @@ export const updateUserProfile = async (id, formData) => {
 // get addresses
 export const getAddress = async () => {
   try {
-    const response = await axios.get(`${UrlBackend}/address/get`, {
-      withCredentials: true,
-    });
+    const response = await apiClient.get("/address/get");
     return response.data;
   } catch (error) {
     console.error("Get Address error:", error.response?.data || error.message);
@@ -182,10 +167,8 @@ export const getAddress = async () => {
 // create address
 export const createAddress = async (addressData) => {
   try {
-    const response = await axios.post(`${UrlBackend}/address/create`, addressData, {
-      withCredentials: true,
-      headers: { "Content-Type": "application/json" },
-    });
+    const sanitized = sanitizeObject(addressData);
+    const response = await apiClient.post("/address/create", sanitized);
     return response.data;
   } catch (error) {
     console.error("Create Address error:", error.response?.data || error.message);
@@ -196,10 +179,8 @@ export const createAddress = async (addressData) => {
 // update address
 export const updateAddress = async (addressData) => {
   try {
-    const response = await axios.put(`${UrlBackend}/address/update`, addressData, {
-      withCredentials: true,
-      headers: { "Content-Type": "application/json" },
-    });
+    const sanitized = sanitizeObject(addressData);
+    const response = await apiClient.put("/address/update", sanitized);
     return response.data;
   } catch (error) {
     console.error("Update Address error:", error.response?.data || error.message);
@@ -210,10 +191,8 @@ export const updateAddress = async (addressData) => {
 // delete address (soft delete)
 export const deleteAddress = async (addressId) => {
   try {
-    const response = await axios.delete(`${UrlBackend}/address/disable`, {
+    const response = await apiClient.delete("/address/disable", {
       data: { _id: addressId },
-      withCredentials: true,
-      headers: { "Content-Type": "application/json" },
     });
     return response.data;
   } catch (error) {
@@ -226,9 +205,7 @@ export const deleteAddress = async (addressId) => {
 // delete user
 export const deleteUser = async (id) => {
   try {
-    const response = await axios.delete(`${UrlBackend}/users/userdelete/${id}`, {
-      withCredentials: true,
-    });
+    const response = await apiClient.delete(`/users/userdelete/${id}`);
     return response.data;
   }
   catch (error) {
@@ -242,13 +219,12 @@ export const uploadUserImage = async (id, file, type = 'profile') => {
   try {
     const formData = new FormData();
     formData.append("image", file);
-    
-    const url = type === 'shopLogo' 
-      ? `${UrlBackend}/users/user-image/${id}?type=shopLogo` 
-      : `${UrlBackend}/users/user-image/${id}`;
 
-    const response = await axios.put(url, formData, {
-      withCredentials: true,
+    const url = type === 'shopLogo'
+      ? `/users/user-image/${id}?type=shopLogo`
+      : `/users/user-image/${id}`;
+
+    const response = await apiClient.put(url, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

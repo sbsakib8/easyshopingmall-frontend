@@ -590,7 +590,7 @@ const OrderList = () => {
                           (p.quantity || 1),
                       0,
                     );
-                    const totalProfit = totalSell - totalCost;
+                    const totalProfit = totalSell - totalCost + (Number(order.couponDiscount) || 0);
                     const isDS = order.products?.some(
                       (p) => p.sellingPrice > 0 && p.sellingPrice !== p.price,
                     );
