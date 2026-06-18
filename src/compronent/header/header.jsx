@@ -2,38 +2,66 @@
 
 import logo from "@/app/icon.png";
 import BottomNav from "@/src/compronent/header/BottomNav";
+import Skeleton from "@/src/compronent/loading/Skeleton";
 import Container from "@/src/compronent/shared/Container";
 import { getCartApi } from "@/src/hook/useCart";
 import { getWishlistApi } from "@/src/hook/useWishlist";
+import { setSearchTerm } from "@/src/redux/shopSlice";
 import { useCategoryWithSubcategories } from "@/src/utlis/useCategoryWithSubcategories";
+import { useSearchProduct } from "@/src/utlis/useSearchProduct";
 import useWebsiteInfo from "@/src/utlis/useWebsiteInfo";
 import { cn } from "@/src/utlis/utils";
 import {
   BarChart3,
+  Camera,
+  ChevronDown,
   Heart,
   LogIn,
+  Menu,
+  Search,
   ShoppingCart,
+  Star,
   User,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 const Header = ({ initialData }) => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
+  const [hoveredCategoryId, setHoveredCategoryId] = useState(null);
   const [mounted, setMounted] = useState(false);
   
   useEffect(() => {
     setMounted(true);
   }, []);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [showLiveResults, setShowLiveResults] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const dispatch = useDispatch();
   const { data: wishlistItems } = useSelector((state) => state.wishlist);
   const { items: cartItems } = useSelector((state) => state.cart);
   const wishlistCount = wishlistItems?.length || 0;
+  const cartCount = (cartItems || []).reduce(
+    (sum, item) => sum + (item.quantity || 1),
+    0,
+  );
   const [isScrolled, setIsScrolled] = useState(false);
+  const [imageSearch, setImageSearch] = useState(false);
+  const pathname = usePathname();
+  const dropdownRef = useRef(null);
+  const imageSearchRef = useRef(null);
+
+  useEffect(() => {
+    setHoveredCategoryId(null);
+    setIsCategoriesOpen(false);
+  }, [pathname]);
 
   // user data fatch
   const data = useSelector((state) => state.user.data);
@@ -72,6 +100,8 @@ const Header = ({ initialData }) => {
   const {
     categories,
     subcategories,
+    loading: categoriesLoading,
+    getSubcategoriesForCategory,
   } = useCategoryWithSubcategories();
 
   const menuCategories = (categories || []).map((cat) => ({
@@ -119,6 +149,108 @@ const Header = ({ initialData }) => {
 
     return () => clearInterval(timer);
   }, [siteInfo?.countdownTargetDate]);
+
+  const toggleCategories = () => {
+    setIsCategoriesOpen(!isCategoriesOpen);
+  };
+
+  const { searchTerm: reduxSearchTerm } = useSelector(
+    (state) => state.shop || {},
+  );
+
+  // Sync internal searchQuery with reduxSearchTerm if on shop page
+  useEffect(() => {
+    if (pathname === "/shop") {
+      setSearchQuery(reduxSearchTerm || "");
+    }
+  }, [reduxSearchTerm, pathname]);
+
+  // Debounce input to avoid excessive work
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedSearch(searchQuery.trim());
+    }, 300);
+    return () => clearTimeout(t);
+  }, [searchQuery]);
+
+  // Auto-search as user types (using debounced value)
+  // Auto-search as user types (using debounced value)
+  useEffect(() => {
+    if (debouncedSearch) {
+      if (pathname !== "/shop") {
+        router.push(`/shop?search=${encodeURIComponent(debouncedSearch)}`);
+      }
+      dispatch(setSearchTerm(debouncedSearch));
+    } else if (
+      debouncedSearch === "" &&
+      searchQuery === "" &&
+      pathname === "/shop"
+    ) {
+      dispatch(setSearchTerm(""));
+      router.push("/shop");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch]);
+  // Show live results when user types at least 2 chars
+  useEffect(() => {
+    // allow single-character suggestions (helpful for quick lookups)
+    if (debouncedSearch && debouncedSearch.length >= 1)
+      setShowLiveResults(true);
+    else setShowLiveResults(false);
+  }, [debouncedSearch]);
+
+  // Close dropdown and image search when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsCategoriesOpen(false);
+        setHoveredCategoryId(null);
+      }
+
+      if (
+        imageSearchRef.current &&
+        !imageSearchRef.current.contains(event.target)
+      ) {
+        setImageSearch(!imageSearch);
+      }
+    };
+
+    // Add event listener when dropdown is open
+    if (isCategoriesOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    // Add event listener when image search is open
+    if (imageSearch) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    // Cleanup
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isCategoriesOpen, imageSearch]);
+
+  // Use the dedicated search hook for live suggestions (400ms internal debounce)
+  const { data: searchResults, loading: searchLoading } = useSearchProduct({
+    search: searchQuery,
+    limit: 6,
+  });
+
+  const liveResults = useMemo(() => {
+    const list = searchResults?.data || searchResults?.products || [];
+    if (!Array.isArray(list)) return [];
+
+    return list.map((p) => ({
+      id: p._id || p.id || String(p.id || ""),
+      name: p.name || p.productName || p.title || "Untitled",
+      price: Number(p.price ?? p.sell_price ?? 0) || 0,
+      originalPrice: Number(p.originalPrice ?? p.oldPrice ?? 0) || 0,
+      image: p.image || p.images?.[0] || "/img/product.jpg",
+      rating: Number(p.rating ?? p.ratings) || 4,
+      reviews: Number(p.reviews ?? p.reviewCount ?? 0) || 0,
+    }));
+  }, [searchResults]);
 
   return (
     <>
@@ -185,6 +317,200 @@ const Header = ({ initialData }) => {
                       MALL
                     </span>
                   </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Enhanced Search Bar  */}
+            <div className="hidden lg:flex flex-1 max-w-xl justify-center mx-8">
+              <div className="flex w-full shadow-lg rounded-2xl z-50  border border-gray-200/60 bg-bg backdrop-blur-sm">
+                {/* Categories Button */}
+                <div className="relative group/main" ref={dropdownRef}>
+                  <button
+                    onClick={toggleCategories}
+                    className="flex items-center space-x-2 bg-bg px-4 lg:px-6 py-3 lg:py-4 hover:from-emerald-50 hover:to-teal-50 hover:text-secondary transition-all duration-300 group rounded-2xl"
+                  >
+                    <Menu
+                      size={16}
+                      className="group-hover:rotate-90 transition-transform duration-300"
+                    />
+                    <span className="font-semibold text-sm lg:text-base">
+                      Categories
+                    </span>
+                    <ChevronDown
+                      size={14}
+                      className={`transition-transform duration-300 ${
+                        isCategoriesOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+
+                  {/* Categories Dropdown Container */}
+                  {isCategoriesOpen && (
+                    <div className="absolute top-full left-0 mt-2 w-80 bg-white border border-gray-200 rounded-2xl shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-300">
+                      {/* Header */}
+                      <div className="bg-secondary/80 p-4 rounded-t-2xl">
+                        <h3 className="text-secondary-content font-bold text-lg flex items-center space-x-2">
+                          <Star className="w-5 h-5 animate-pulse" />
+                          <span>Shop by Category</span>
+                        </h3>
+                      </div>
+
+                      {/* Main Categories List */}
+                      <div className="py-2 relative">
+                        {categoriesLoading ? (
+                          <div className="py-2 space-y-1">
+                            {[...Array(6)].map((_, i) => (
+                              <div
+                                key={i}
+                                className="flex items-center space-x-3 px-6 py-4"
+                              >
+                                <Skeleton
+                                  variant="circle"
+                                  className="w-6 h-6"
+                                />
+                                <Skeleton className="h-5 w-32" />
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          menuCategories.map((category) => {
+                            const activeSub = category.subcategories.find(
+                              (sub) =>
+                                pathname === "/shop" &&
+                                searchParams.get("category") ===
+                                  category.name &&
+                                searchParams.get("subcategory") === sub.name,
+                            );
+                            const isActiveCategory =
+                              hoveredCategoryId === category.id ||
+                              activeSub ||
+                              (pathname === "/shop" &&
+                                searchParams.get("category") === category.name);
+
+                            return (
+                              <div
+                                key={category.id}
+                                className="static"
+                                onMouseEnter={() =>
+                                  setHoveredCategoryId(category.id)
+                                }
+                                onMouseLeave={() => setHoveredCategoryId(null)}
+                              >
+                                <button
+                                  onClick={() => {
+                                    router.push(
+                                      `/shop?category=${encodeURIComponent(category.slug || category.name)}`,
+                                    );
+                                    setIsCategoriesOpen(false);
+                                  }}
+                                  className={`flex items-center space-x-3 w-full px-6 py-4 transition-all duration-300 ${
+                                    isActiveCategory
+                                      ? "bg-secondary/10 text-secondary"
+                                      : "hover:bg-secondary/10 text-secondary-content"
+                                  }`}
+                                >
+                                  <span className="text-xl">
+                                    {category.icon}
+                                  </span>
+                                  <span className="font-semibold">
+                                    {category.name}
+                                  </span>
+                                  <ChevronDown
+                                    size={14}
+                                    className="ml-auto -rotate-90 text-gray-400"
+                                  />
+                                </button>
+
+                                <div
+                                  className={`absolute left-full top-0 ml-[2px] bg-white w-64 rounded-2xl shadow-2xl transition-all duration-300 ease-out z-[60]
+                  ${
+                    isActiveCategory
+                      ? "opacity-100 visible translate-x-0"
+                      : "opacity-0 invisible -translate-x-4"
+                  }`}
+                                >
+                                  <div className="bg-secondary/80 p-4 rounded-t-2xl">
+                                    <h4 className="font-bold text-secondary-content">
+                                      {category.name}
+                                    </h4>
+                                  </div>
+
+                                  <div className="py-2">
+                                    {category.subcategories.map((sub) => (
+                                      <Link
+                                        onClick={() =>
+                                          setIsCategoriesOpen(false)
+                                        }
+                                        key={sub.name}
+                                        href={`/shop?category=${encodeURIComponent(category.slug || category.name)}&subcategory=${encodeURIComponent(sub.slug || sub.name)}`}
+                                        className="block px-6 py-3 text-secondary-content hover:text-secondary hover:bg-secondary/10 transition-colors duration-200 font-medium"
+                                      >
+                                        {sub.name}
+                                      </Link>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Search Input */}
+                <div className="flex-1 relative flex items-center bg-bg rounded-2xl">
+                  <Search
+                    className="absolute left-4 lg:left-6 text-gray-400"
+                    size={18}
+                  />
+                  <input
+                    type="search"
+                    placeholder="Search for products"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-12 lg:pl-14 pr-4 lg:pr-6 py-3 lg:py-4 bg-transparent focus:outline-none text-gray-700 placeholder-gray-500 font-medium"
+                  />
+                  <button
+                    onClick={() => {
+                      // router.push(`/shop`);
+                      setImageSearch(!imageSearch);
+                    }}
+                    className="w-12 cursor-pointer"
+                  >
+                    <Camera />
+                  </button>
+                  {/* image search dropdown */}
+                  {imageSearch ? (
+                    <div
+                      ref={imageSearchRef}
+                      className="hidden sm:flex flex-col  justify-center items-center min-w-66 min-h-36 absolute top-15 left-12 bg-amber-50 rounded-2xl shadow-2xl shadow-black-100 z-50"
+                    >
+                      {/*
+                    <p className="my-4 text-green-600 font-semibold">
+                        Search Product with Image
+                      </p>
+                      <div className="max-w-2/3 min-h-30 border-3 border-dotted border-green-300 bg-green-100 flex flex-col gap-2 justify-center items-center">
+                        <p className="text-red-400">(JPG and PNG file only)</p>
+                        <input
+                          className="max-w-2/3 max-h-60 cursor-pointer bg-gray-200 py-1 rounded-2xl px-2"
+                          type="file"
+                          accept="image/*"
+                        />
+                      </div>
+
+                    */}
+
+                      <div>
+                        <p>This feature is coming soon!</p>
+                        <p>Thank you for your patience.</p>
+                      </div>
+                    </div>
+                  ) : (
+                    ""
+                  )}
                 </div>
               </div>
             </div>
@@ -310,7 +636,60 @@ const Header = ({ initialData }) => {
               })}
             </div>
           </div>
+
+          {/* Mobile/Tablet Search Bar - Responsive */}
+          <div className="lg:hidden">
+            <div className="shadow-lg rounded-xl sm:rounded-2xl overflow-hidden bg-white/90 backdrop-blur-sm border border-gray-200/60">
+              <div className="flex-1 relative flex items-center">
+                <Search
+                  className="absolute left-3 sm:left-4 text-gray-400"
+                  size={16}
+                />
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2 sm:py-3 bg-transparent focus:outline-none text-gray-700 placeholder-gray-500 font-medium text-sm sm:text-base"
+                />
+                <button
+                  onClick={() => {
+                    router.push("/shop");
+                    setImageSearch(!imageSearch);
+                  }}
+                  className="w-12 cursor-pointer"
+                >
+                  <Camera />
+                </button>
+              </div>
+            </div>
+          </div>
         </Container>
+
+        {/* image search dropdown */}
+        {imageSearch && (
+          <div className="flex flex-col lg:hidden justify-center items-center absolute inset-0  bg-white  shadow-2xl shadow-black-100 z-999 sm:w-80 mx-auto min-h-52 mt-25 rounded-sm">
+            <button
+              onClick={() => {
+                setImageSearch(!imageSearch);
+              }}
+              className="absolute top-2 right-5 text-2xl"
+            >
+              X
+            </button>
+            <p className="my-4 text-green-600 font-semibold">
+              Search Product with Image
+            </p>
+            <div className="max-w-2/3 min-h-30 border-3 border-dotted border-green-300 bg-green-100 flex flex-col justify-center items-center gap-2">
+              <p className="text-secondary">(JPG and PNG file only)</p>
+              <input
+                className="max-w-2/3 max-h-60 cursor-pointer bg-gray-200 py-1 rounded-2xl px-2"
+                type="file"
+                accept="image/*"
+              />
+            </div>
+          </div>
+        )}
 
         {/* Enhanced Navigation Menu - Responsive */}
         <Container className="hidden md:block pt-0!">
