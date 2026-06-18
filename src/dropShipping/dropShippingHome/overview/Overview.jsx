@@ -18,16 +18,6 @@ import Section from "@/src/compronent/shared/Section";
 const overview = [
   {
     id: 1,
-    text: "Search Products",
-    icon: (
-      <Search className="w-8 h-8 sm:w-10 sm:h-10 text-teal-600/70 mb-3" />
-    ),
-    href: "/search",
-    class:
-      "bg-gradient-to-b from-white to-gray-50/50 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 text-gray-800",
-  },
-  {
-    id: 2,
     text: "All Products",
     icon: <Package className="w-8 h-8 sm:w-10 sm:h-10 text-blue-600/70 mb-3" />,
     href: "/all-products",
@@ -99,6 +89,16 @@ const overview = [
       <Newspaper className="w-8 h-8 sm:w-10 sm:h-10 text-fuchsia-600/70 mb-3" />
     ),
     href: "/blog",
+    class:
+      "bg-gradient-to-b from-white to-gray-50/50 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 text-gray-800",
+  },
+  {
+    id: 10,
+    text: "Search Products",
+    icon: (
+      <Search className="w-8 h-8 sm:w-10 sm:h-10 text-teal-600/70 mb-3" />
+    ),
+    href: "/search",
     class:
       "bg-gradient-to-b from-white to-gray-50/50 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 text-gray-800",
   },
