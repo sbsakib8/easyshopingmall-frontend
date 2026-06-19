@@ -16,6 +16,7 @@ import {
   LogIn,
   Menu,
   Package,
+  Search,
   Settings,
   ShoppingCart,
   Sparkles,
@@ -50,6 +51,11 @@ const DropShippingNavbar = () => {
   // Navigation items
   const navItems = [
     { name: "Home", href: "/", icon: <Home size={18} /> },
+    {
+      name: "Search Products",
+      href: "/search",
+      icon: <Search size={18} />,
+    },
     {
       name: "All Products",
       href: "/all-products",

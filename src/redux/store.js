@@ -1,6 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import cartReducer from './cartSlice';
 import dropshippingCartReducer from './dropshippingCartSlice';
+import dropshippingSearchReducer from "./dropshippingSearchSlice";
 import categoryReducer from "./categorySlice";
 import orderSlice from './orderSlice';
 import productReducer from "./productSlice";
@@ -19,6 +20,7 @@ export const store = configureStore({
     wishlist: wishlistReducer,
     cart: cartReducer,
     dropshippingCart: dropshippingCartReducer,
+    dropshippingSearch: dropshippingSearchReducer,
     order: orderSlice,
     search: searchReducer,
     shop: shopReducer,
