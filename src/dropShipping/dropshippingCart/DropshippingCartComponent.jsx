@@ -222,7 +222,7 @@ const DropshippingCartComponent = () => {
 
                 <button
                   onClick={handleCheckout}
-                  className="w-full bg-gradient-to-br from-emerald-600 to-teal-700 text-white py-5 rounded-2xl font-black text-lg flex items-center justify-center gap-3 hover:opacity-90 transition-all shadow-xl hover:shadow-emerald-500/20 transform hover:-translate-y-1"
+                  className="w-full bg-gradient-to-br from-emerald-600 to-teal-700 text-white py-5 rounded-2xl font-black text-lg flex items-center justify-center gap-3 hover:opacity-90 transition-all shadow-xl hover:shadow-emerald-500/20"
                 >
                   <CreditCard className="w-6 h-6" />
                   Proceed to Checkout

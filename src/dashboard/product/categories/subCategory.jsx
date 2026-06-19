@@ -447,7 +447,7 @@ const AddSubcategoriesComponent = () => {
     <section className="min-h-dvh bg-gradient-to-br from-gray-900 via-black to-gray-900 py-7 md:py-12 overflow-hidden">
       <Container>
         {/* Welcome Banner */}
-        <div className="mb-8 animate-slideDown">
+        <div className="mb-8">
           <div className="relative bg-gradient-to-r from-gray-900/80 via-indigo-900/80 to-purple-900/80 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-gray-700/50 shadow-2xl shadow-indigo-500/10 overflow-hidden">
             <div className="absolute inset-0">
               <div className="absolute top-4 right-4 w-2 h-2 bg-indigo-400 rounded-full"></div>
@@ -598,7 +598,7 @@ const AddSubcategoriesComponent = () => {
 
         {/* Add/Edit Form */}
         {showAddForm && (
-          <div className="mb-8 bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20 transform animate-slideIn">
+          <div className="mb-8 bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20 transform">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-slate-300 flex items-center">
                 <Layers className="mr-3 text-green-400" />
@@ -1112,7 +1112,7 @@ const AddSubcategoriesComponent = () => {
                 className={cn(
                   "px-4 py-2 bg-gradient-to-r text-slate-300 rounded-xl",
                   "flex items-center justify-center space-x-2 transform shadow-lg",
-                  "hover:shadow-xl active:scale-95 transition-all duration-200",
+                  "hover:shadow-xl transition-all duration-200",
                   btn.gradient,
                   btn.hoverGradient,
                   btn.label === "Deactivate All" && "text-nowrap",
@@ -1270,47 +1270,6 @@ const AddSubcategoriesComponent = () => {
       </Container>
 
       <style jsx>{`
-        @keyframes slideIn {
-          from {
-            opacity: 0;
-            transform: translateY(-30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes slideInUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes slideDown {
-          from {
-            opacity: 0;
-            transform: translateY(-20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        .animate-slideIn {
-          animation: slideIn 0.5s;
-        }
-
-        .animate-slideDown {
-          animation: slideDown 0.6s;
-        }
-
         ::-webkit-scrollbar {
           width: 8px;
           height: 8px;

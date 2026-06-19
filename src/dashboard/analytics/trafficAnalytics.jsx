@@ -135,7 +135,7 @@ const TrafficAnalyticsDashboard = () => {
  <div className="relative z-10 p-4 md:p-6 lg:p-8">
  <div className="py-5 px-2 lg:px-9 space-y-6">
  {/* Header */}
- <div className="-in-up">
+  <div>
  <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 mb-6 shadow-2xl hover:bg-white/10">
  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
  <div>

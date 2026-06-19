@@ -8,8 +8,7 @@ export const getWebsiteInfoApi = async () => {
         });
         const result = await res.json();
         return result?.data?.[0] ?? null;
-    } catch (err) {
-        console.error("Error fetching website info:", err);
+    } catch {
         return null;
     }
 };

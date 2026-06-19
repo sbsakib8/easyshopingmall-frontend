@@ -609,7 +609,7 @@ const SalesReportDashboard = () => {
                 </div>
 
                 {/* Subtle shimmer effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-[shimmer_2s_infinite]" />
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
               </div>
             </>
           ) : (

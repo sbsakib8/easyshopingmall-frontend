@@ -117,7 +117,7 @@ const CustomerAnalyticsDashboard = () => {
  trend ="up",
 }) => (
  <div
- className={`group relative p-6 bg-gradient-to-br from-white/10 via-white/5 to-transparent backdrop-blur-sm border border-white/20 rounded-2xl hover:border-white/40 hover:shadow-2xl hover:shadow-blue-500/20 -in-up overflow-hidden`}
+ className={`group relative p-6 bg-gradient-to-br from-white/10 via-white/5 to-transparent backdrop-blur-sm border border-white/20 rounded-2xl hover:border-white/40 hover:shadow-2xl hover:shadow-blue-500/20  overflow-hidden`}
  style={{animationDelay: `${delay}ms`}}
  >
  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/5 to-pink-500/10 opacity-0 group-hover:opacity-100"/>
@@ -180,7 +180,7 @@ const CustomerAnalyticsDashboard = () => {
  count,
  delay = 0,
 }) => (
- <div className="space-y-3 -in-left group"style={{animationDelay: `${delay}ms`}}>
+ <div className="space-y-3  group"style={{animationDelay: `${delay}ms`}}>
  <div className="flex justify-between items-center">
  <span className="text-sm font-semibold text-slate-300">{label}</span>
  <span className="text-sm text-gray-300 font-medium">{percentage}%</span>
@@ -250,13 +250,13 @@ const CustomerAnalyticsDashboard = () => {
  <header className="sticky top-0 bg-gradient-to-r from-slate-900/80 via-purple-900/80 to-slate-900/80 backdrop-blur-xl border-b border-white/10">
  <div className="container mx-auto px-6 py-6">
  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
- <div className="-in">
+  <div>
  <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
  Customer Analytics Dashboard
  </h1>
  <p className="text-gray-300 mt-2 text-lg">Understand your customer behavior and demographics</p>
  </div>
- <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 -in">
+ <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
  <select
  value={selectedPeriod}
  onChange={(e) => setSelectedPeriod(e.target.value)}
@@ -299,7 +299,7 @@ const CustomerAnalyticsDashboard = () => {
  <>
  {/* Key Metrics */}
  <section className="mb-16">
- <h2 className="text-3xl font-bold text-slate-300 mb-8 -in">Key Customer Metrics</h2>
+ <h2 className="text-3xl font-bold text-slate-300 mb-8">Key Customer Metrics</h2>
  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
  <StatCard
  title="Total Customers"
@@ -352,8 +352,8 @@ const CustomerAnalyticsDashboard = () => {
  {/* ================= LINE CHART ================= */}
  <div
  className="lg:col-span-2 p-6 bg-gradient-to-br from-white/10 via-white/5 to-transparent
- backdrop-blur-sm border border-white/20 rounded-3xl -in-up
- shadow-2xl shadow-blue-500/10"
+  backdrop-blur-sm border border-white/20 rounded-3xl
+  shadow-2xl shadow-blue-500/10"
  style={{animationDelay:"700ms"}}
  >
  <h3 className="text-xl font-bold text-slate-300 mb-4">
@@ -420,8 +420,8 @@ const CustomerAnalyticsDashboard = () => {
  {/* ================= PIE CHART ================= */}
  <div
  className="p-6 bg-gradient-to-br from-white/10 via-white/5 to-transparent
- backdrop-blur-sm border border-white/20 rounded-3xl -in-up
- shadow-2xl shadow-pink-500/10 flex flex-col items-center justify-center"
+  backdrop-blur-sm border border-white/20 rounded-3xl
+  shadow-2xl shadow-pink-500/10 flex flex-col items-center justify-center"
  style={{animationDelay:"900ms"}}
  >
  <h3 className="text-lg font-bold text-slate-300 mb-4">
@@ -475,7 +475,7 @@ const CustomerAnalyticsDashboard = () => {
  {/* Top Customers */}
  <section>
  <div
- className="p-8 bg-gradient-to-br from-white/10 via-white/5 to-transparent backdrop-blur-sm border border-white/20 rounded-3xl -in-up shadow-2xl shadow-purple-500/10"
+ className="p-8 bg-gradient-to-br from-white/10 via-white/5 to-transparent backdrop-blur-sm border border-white/20 rounded-3xl  shadow-2xl shadow-purple-500/10"
  style={{animationDelay:"800ms"}}
  >
  <h3 className="text-2xl font-bold text-slate-300 mb-8">Top Customers</h3>
@@ -519,7 +519,7 @@ const CustomerAnalyticsDashboard = () => {
  {activeTab ==="demographics"&& (
  <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
  {/* Age Demographics */}
- <div className="p-8 bg-gradient-to-br from-white/10 via-white/5 to-transparent backdrop-blur-sm border border-white/20 rounded-3xl -in-left shadow-2xl shadow-blue-500/10">
+ <div className="p-8 bg-gradient-to-br from-white/10 via-white/5 to-transparent backdrop-blur-sm border border-white/20 rounded-3xl  shadow-2xl shadow-blue-500/10">
  <h3 className="text-2xl font-bold text-slate-300 mb-8">Age Demographics</h3>
  <div className="space-y-6">
  {mockCustomerData.demographics.ageGroups.map((group, index) => (
@@ -535,7 +535,7 @@ const CustomerAnalyticsDashboard = () => {
  </div>
 
  {/* Location Demographics */}
- <div className="p-8 bg-gradient-to-br from-white/10 via-white/5 to-transparent backdrop-blur-sm border border-white/20 rounded-3xl -in-right shadow-2xl shadow-purple-500/10">
+ <div className="p-8 bg-gradient-to-br from-white/10 via-white/5 to-transparent backdrop-blur-sm border border-white/20 rounded-3xl  shadow-2xl shadow-purple-500/10">
  <h3 className="text-2xl font-bold text-slate-300 mb-8">Geographic Distribution</h3>
  <div className="space-y-6">
  {mockCustomerData.demographics.locations.map((location, index) => (

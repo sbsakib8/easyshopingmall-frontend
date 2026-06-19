@@ -16,8 +16,9 @@ export default function HomeContent({ initialData }) {
   const [loading, setLoading] = useState(!initialData);
 
   useEffect(() => {
-    // If we have initialData skip client-side fetch as it was exhaustively pre-fetched on server
-    if (initialData) {
+    // If server-fetched data has real content, use it; otherwise fetch client-side
+    const hasContent = initialData?.products?.length > 0 || initialData?.categories?.length > 0;
+    if (hasContent) {
       setData(initialData);
       setLoading(false);
       return;

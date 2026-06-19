@@ -258,7 +258,7 @@ const InventoryDashboard = () => {
  <div className="py-5 px-2 lg:px-10">
  <div className="w-[99%] mx-auto">
  {/* Welcome Banner */}
- <div className="mb-8 animate-slideDown">
+ <div className="mb-8">
  <div className="relative bg-gradient-to-r from-gray-900/80 via-blue-900/80 to-purple-900/80 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-gray-700/50 shadow-2xl shadow-blue-500/10 overflow-hidden">
  {/* Animated particles */}
  <div className="absolute inset-0">
@@ -402,11 +402,11 @@ const InventoryDashboard = () => {
  </div>
 
  <div className="flex flex-col lg:flex-row gap-3 w-full lg:w-auto">
- <button className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500 text-slate-300 rounded-2xl hover:from-emerald-600 hover:via-green-600 hover:to-teal-600 hover:shadow-xl hover:shadow-emerald-500/25 flex-1 lg:flex-none justify-center font-semibold">
+ <button className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500 text-slate-300 rounded-2xl hover:from-emerald-600 hover:via-green-600 hover:to-teal-600 flex-1 lg:flex-none justify-center font-semibold">
  <Upload className="w-5 h-5"/>
  <span>📤 Import</span>
  </button>
- <button className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-500 via-cyan-500 to-indigo-500 text-slate-300 rounded-2xl hover:from-blue-600 hover:via-cyan-600 hover:to-indigo-600 hover:shadow-xl hover:shadow-blue-500/25 flex-1 lg:flex-none justify-center font-semibold">
+ <button className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-500 via-cyan-500 to-indigo-500 text-slate-300 rounded-2xl hover:from-blue-600 hover:via-cyan-600 hover:to-indigo-600 flex-1 lg:flex-none justify-center font-semibold">
  <Download className="w-5 h-5"/>
  <span>📥 Export</span>
  </button>
@@ -415,7 +415,7 @@ const InventoryDashboard = () => {
  setEditingProduct(null);
  setShowModal(true);
 }}
- className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 text-slate-300 rounded-2xl hover:from-purple-600 hover:via-pink-600 hover:to-rose-600 hover:shadow-xl hover:shadow-purple-500/25 flex-1 lg:flex-none justify-center font-semibold"
+ className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 text-slate-300 rounded-2xl hover:from-purple-600 hover:via-pink-600 hover:to-rose-600 flex-1 lg:flex-none justify-center font-semibold"
  >
  <Plus className="w-5 h-5"/>
  <span>✨ Add Product</span>
@@ -458,10 +458,7 @@ const InventoryDashboard = () => {
  return (
  <div
  key={product?._id}
- className="group relative bg-white/15 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:bg-white/20 hover:shadow-2xl hover:shadow-cyan-500/20"
- style={{
- animation: `fadeInUp 0.6s ${index * 0.1}s both`
-}}
+ className="group relative bg-white/15 backdrop-blur-xl border border-white/20 rounded-2xl p-6 hover:bg-white/20"
  >
  {/* Trending Badge */}
  {product.trending ==='up'&& (
@@ -570,9 +567,6 @@ const InventoryDashboard = () => {
  <tr
  key={product?._id}
  className="border-b border-white/10 hover:bg-white/10 group"
- style={{
- animation: `fadeInUp 0.5s ${index * 0.1}s both`
-}}
  >
  <td className="px-6 py-4">
  <div className="flex items-center space-x-4">
@@ -667,10 +661,7 @@ const InventoryDashboard = () => {
  .map((product, index) => (
  <div
  key={product?._id}
- className="flex items-center gap-4 p-4 bg-white/10 border border-white/20 rounded-2xl hover:bg-white/15 hover:scale-[1.02]"
- style={{
- animation: `fadeInUp 0.5s ${index * 0.1}s both`
-}}
+ className="flex items-center gap-4 p-4 bg-white/10 border border-white/20 rounded-2xl hover:bg-white/15"
  >
  <div className="text-3xl">
  {product?.images ? <img src={product.images[0]} alt={product.productName} className="w-12 h-12 object-cover rounded-xl"/> :""}
@@ -701,8 +692,8 @@ const InventoryDashboard = () => {
 
  {/* Edit Modal */}
  {editModal && (
- <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
- <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-emerald-500/30 max-w-3xl w-full max-h-[90vh] overflow-y-auto animate-slideUp">
+ <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+ <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-emerald-500/30 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
  <div className="sticky top-0 bg-gradient-to-r from-emerald-600 to-teal-600 p-6 flex justify-between items-center z-10">
  <h2 className="text-2xl font-bold text-slate-300 flex items-center gap-2">
  <Edit className="w-6 h-6"/>
@@ -836,8 +827,8 @@ const InventoryDashboard = () => {
  {/* View Modal */}
 
  {viewModal && (
- <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
- <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-purple-500/30 max-w-3xl w-full max-h-[90vh] overflow-y-auto animate-slideUp">
+ <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+ <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-purple-500/30 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
  <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-purple-600 p-6 flex justify-between items-center z-10">
  <h2 className="text-2xl font-bold text-slate-300 flex items-center gap-2">
  <Eye className="w-6 h-6"/>
@@ -943,8 +934,8 @@ const InventoryDashboard = () => {
 
  {/* Delete Confirmation Modal */}
  {deleteModal && (
- <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
- <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-pink-500/30 max-w-md w-full p-6 animate-slideUp">
+ <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+ <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-pink-500/30 max-w-md w-full p-6">
  <div className="flex items-center gap-3 mb-4">
  <div className="p-3 bg-pink-500/20 rounded-full">
  <Trash2 className="w-8 h-8 text-pink-500"/>
@@ -986,7 +977,7 @@ const InventoryDashboard = () => {
 
  setShowModal(true);
 }}
- className="px-8 py-4 bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 text-slate-300 rounded-2xl hover:from-purple-600 hover:via-pink-600 hover:to-rose-600 hover:shadow-xl font-bold text-lg"
+ className="px-8 py-4 bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 text-slate-300 rounded-2xl hover:from-purple-600 hover:via-pink-600 hover:to-rose-600 font-bold text-lg"
  >
  ✨ Add First Product
  </button>
@@ -996,174 +987,63 @@ const InventoryDashboard = () => {
  </div>
 
  <style jsx>{`
- @keyframes fadeInUp {
- from {
- opacity: 0;
- transform: translateY(30px) scale(0.9);
-}
- to {
- opacity: 1;
- transform: translateY(0) scale(1);
-}
-}
-
- @keyframes fadeIn {
- from {
- opacity: 0;
-}
- to {
- opacity: 1;
-}
-}
-
- @keyframes slideDown {
- from {
- opacity: 0;
- transform: translateY(-20px);
-}
- to {
- opacity: 1;
- transform: translateY(0);
-}
-}
-
- @keyframes float {
- 0%, 100% {
- transform: translateY(0px);
-}
- 50% {
- transform: translateY(-10px);
-}
-}
-
- @keyframes glow {
- 0%, 100% {
- box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
-}
- 50% {
- box-shadow: 0 0 40px rgba(139, 92, 246, 0.6);
-}
-}
-
- .animate-fadeIn {
- animation: fadeIn 0.5s ;
-}
-
- .animate-slideDown {
- animation: slideDown 0.6s ;
-}
-
- . {
- animation: float 3s infinite;
-}
-
- . {
- animation: glow 2s infinite;
-}
-
  .gradient-card {
  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
  backdrop-filter: blur(20px);
  border: 1px solid rgba(255,255,255,0.2);
-}
+ }
 
  .glass-effect {
  background: rgba(255, 255, 255, 0.1);
  backdrop-filter: blur(20px);
  border: 1px solid rgba(255, 255, 255, 0.2);
-}
+ }
 
  /* Custom scrollbar */
  ::-webkit-scrollbar {
  width: 8px;
-}
+ }
 
  ::-webkit-scrollbar-track {
  background: rgba(255, 255, 255, 0.1);
  border-radius: 10px;
-}
+ }
 
  ::-webkit-scrollbar-thumb {
  background: linear-gradient(to bottom, #8b5cf6, #ec4899);
  border-radius: 10px;
-}
+ }
 
  ::-webkit-scrollbar-thumb:hover {
  background: linear-gradient(to bottom, #7c3aed, #db2777);
-}
-
- /* Hover effects */
- .hover-lift:hover {
- transform: translateY(-4px) scale(1.02);
- box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-}
-
- .hover-glow:hover {
- box-shadow: 0 0 30px rgba(139, 92, 246, 0.4);
-}
+ }
 
  /* Responsive grid */
  @media (max-width: 768px) {
  .mobile-stack {
  display: block !important;
-}
+ }
 
  .mobile-stack > * {
  width: 100% !important;
  margin-bottom: 1rem;
-}
-}
+ }
+ }
 
  /* Progress bar animation */
  .progress-bar {
  : width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
+ }
 
  /* Card hover animations */
  .card-hover {
  : all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
+ }
 
  .card-hover:hover {
  transform: translateY(-8px) scale(1.03);
  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-}
-
- /* Button pulse effect */
- .btn-pulse {
- animation: pulse 2s infinite;
-}
-
- @keyframes pulse {
- 0% {
- box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.7);
-}
- 70% {
- box-shadow: 0 0 0 10px rgba(139, 92, 246, 0);
-}
- 100% {
- box-shadow: 0 0 0 0 rgba(139, 92, 246, 0);
-}
-}
-
- /* Text animations */
- .text-shimmer {
- background: linear-gradient(90deg, #ffffff 0%, #a78bfa 50%, #ffffff 100%);
- background-size: 200% 100%;
- -webkit-background-clip: text;
- background-clip: text;
- -webkit-text-fill-color: transparent;
- animation: shimmer 3s infinite;
-}
-
- @keyframes shimmer {
- 0% {
- background-position: -200% 0;
-}
- 100% {
- background-position: 200% 0;
-}
-}
+ }
  `}</style>
  </div>
  );

@@ -234,7 +234,7 @@ const CompletedOrdersPage = () => {
       {/* main section */}
       <Container className="relative">
         {/* Welcome Banner */}
-        <div className="mb-8 animate-slideDown">
+        <div className="mb-8">
           <div className="relative bg-gradient-to-r from-gray-900/80 via-blue-900/80 to-purple-900/80 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-gray-700/50 shadow-2xl shadow-blue-500/10 overflow-hidden">
             {/* Animated particles */}
             <div className="absolute inset-0">
@@ -272,7 +272,7 @@ const CompletedOrdersPage = () => {
                 key={card.id}
                 className={cn(
                   "relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900",
-                  "border border-gray-700 p-6 text-slate-300 shadow-xl hover:shadow-2xl",
+                  "border border-gray-700 p-6 text-slate-300 shadow-xl",
                 )}
               >
                 {card.accent}
@@ -363,7 +363,7 @@ const CompletedOrdersPage = () => {
                 filteredOrders?.slice(0, 5).map((order) => (
                   <div
                     key={order?._id}
-                    className="bg-gray-800/30 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-6 hover:bg-gray-800/50 hover:shadow-2xl hover:shadow-green-500/10 relative"
+                    className="bg-gray-800/30 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-6 hover:bg-gray-800/50 relative"
                   >
                     {/* Order Header */}
                     <div className="flex justify-between items-start mb-4">
@@ -898,8 +898,8 @@ const CompletedOrdersPage = () => {
 
       {/* confirmation modal */}
       {confirmationModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-pink-500/30 max-w-md w-full p-6 animate-slideUp">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-pink-500/30 max-w-md w-full p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-3 bg-slate-700/50 rounded-full">
                 {status === "completed" ? (
@@ -962,19 +962,7 @@ const CompletedOrdersPage = () => {
         </div>
       )}
 
-      <style jsx>{`
-        @keyframes spin-slow {
-          from {
-            transform: translate(-50%, -50%) rotate(0deg);
-          }
-          to {
-            transform: translate(-50%, -50%) rotate(360deg);
-          }
-        }
-        . {
-          animation: spin-slow 20s linear infinite;
-        }
-      `}</style>
+
     </section>
   );
 };

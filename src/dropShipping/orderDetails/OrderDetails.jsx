@@ -100,6 +100,15 @@ const InvoiceSkeleton = () => {
                 <div className="h-4 w-16 bg-slate-200 rounded" />
               </div>
             </div>
+            {/* Coupon Discount */}
+            <div className="flex px-3.5 py-2.5 md:px-5.5 md:py-4.5 items-center">
+              <div className="w-32 md:w-40">
+                <div className="h-3 w-28 bg-slate-200 rounded" />
+              </div>
+              <div className="flex-1">
+                <div className="h-4 w-20 bg-slate-200 rounded" />
+              </div>
+            </div>
             {/* Total Amount */}
             <div className="flex px-3.5 py-2.5 md:px-5.5 md:py-4.5 items-center">
               <div className="w-32 md:w-40">
@@ -409,18 +418,18 @@ const OrderDetails = ({ id }) => {
                     }
                     disabled={hasPaidDelivery}
                     className={cn(
-                      "w-full font-semibold py-3 px-4 rounded-3xl text-base transition-all duration-300 flex items-center justify-center gap-3 group",
+                      "w-full font-semibold py-3 px-4 rounded-3xl text-base transition-all flex items-center justify-center gap-3 group",
                       hasPaidDelivery ||
                         hasPaidFull ||
                         order.payment_type === "full"
                         ? "bg-slate-100 text-slate-400 border-2 border-slate-200 cursor-not-allowed"
-                        : "bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:-translate-y-1 active:scale-[0.985]",
+                        : "bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white shadow-lg shadow-emerald-500/30 active:scale-[0.985]",
                     )}
                   >
-                    <Truck className="w-6 h-6 group-hover:rotate-12 transition-transform hidden sm:inline-block" />
+                    <Truck className="w-6 h-6 hidden sm:inline-block" />
                     <p>ডেলিভারি চার্জ পেমেন্ট করুন</p>
                     {!hasPaidDelivery && (
-                      <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform hidden sm:inline-block" />
+                      <ArrowRight className="w-6 h-6 hidden sm:inline-block" />
                     )}
                   </button>
                 </div>
@@ -441,13 +450,13 @@ const OrderDetails = ({ id }) => {
                     onClick={() => handleOpenPayment("full")}
                     disabled={hasPaidFull}
                     className={cn(
-                      "group border-2 py-3 px-4 rounded-3xl font-semibold transition-all duration-300 flex flex-1 w-full items-center justify-center gap-3 text-base",
+                      "group border-2 py-3 px-4 rounded-3xl font-semibold transition-all flex flex-1 w-full items-center justify-center gap-3 text-base",
                       hasPaidFull
                         ? "bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed"
-                        : "bg-white hover:bg-emerald-50 border-slate-200 hover:border-emerald-200 text-emerald-800 hover:-translate-y-1 active:scale-[0.98]",
+                        : "bg-white hover:bg-emerald-50 border-slate-200 hover:border-emerald-200 text-emerald-800 active:scale-[0.98]",
                     )}
                   >
-                    <CreditCard className="w-5 h-5 hidden sm:inline-block transition-transform group-hover:scale-110" />
+                    <CreditCard className="w-5 h-5 hidden sm:inline-block" />
                     <span>ফুল পেমেন্ট করুন</span>
                   </button>
 
@@ -458,13 +467,13 @@ const OrderDetails = ({ id }) => {
                     }
                     disabled={hasPaidDelivery}
                     className={cn(
-                      "group border-2 py-3 px-4 rounded-3xl font-semibold transition-all duration-300 flex flex-1 w-full items-center justify-center gap-3 text-base",
+                      "group border-2 py-3 px-4 rounded-3xl font-semibold transition-all flex flex-1 w-full items-center justify-center gap-3 text-base",
                       hasPaidDelivery
                         ? "bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed"
-                        : "bg-white hover:bg-emerald-50 border-slate-200 hover:border-emerald-200 text-emerald-800 hover:-translate-y-1 active:scale-[0.98]",
+                        : "bg-white hover:bg-emerald-50 border-slate-200 hover:border-emerald-200 text-emerald-800 active:scale-[0.98]",
                     )}
                   >
-                    <Truck className="w-5 h-5 hidden sm:inline-block transition-transform group-hover:scale-110" />
+                    <Truck className="w-5 h-5 hidden sm:inline-block" />
                     <span>আংশিক পেমেন্ট করুন</span>
                   </button>
                 </div>
@@ -523,7 +532,7 @@ const OrderDetails = ({ id }) => {
                 {/* Brand Logo */}
                 <div className="flex justify-center mb-4">
                   {displayBrandLogo ? (
-                    <div className="size-16 rounded-3xl overflow-hidden shadow-2xl border-4 border-white hover:scale-105 transition-transform duration-500">
+                    <div className="size-16 rounded-3xl overflow-hidden shadow-2xl border-4 border-white">
                       <Image
                         src={displayBrandLogo}
                         alt={displayBrandName}
@@ -533,7 +542,7 @@ const OrderDetails = ({ id }) => {
                       />
                     </div>
                   ) : (
-                    <div className="size-16 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-3xl flex items-center justify-center shadow-2xl hover:rotate-6 transition-transform duration-500">
+                    <div className="size-16 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-3xl flex items-center justify-center shadow-2xl">
                       <span className="text-white text-3xl font-bold tracking-tighter">
                         E
                       </span>
@@ -614,6 +623,20 @@ const OrderDetails = ({ id }) => {
                           ৳{order.deliveryCharge?.toLocaleString()}
                         </td>
                       </tr>
+
+                      {order.couponDiscount > 0 && (
+                        <tr className="hover:bg-slate-50 transition-colors">
+                          <td className="px-3.5 py-2.5 md:px-5.5 md:py-4.5 w-32 md:w-40 font-bold text-xs uppercase tracking-widest text-slate-400">
+                            Coupon Discount
+                          </td>
+                          <td className="px-3.5 py-2.5 md:px-5.5 md:py-4.5 text-xs sm:text-base font-medium text-emerald-600">
+                            -৳{order.couponDiscount.toLocaleString()}
+                            {order.appliedCoupon && (
+                              <span className="ml-2 text-xs text-slate-400">({order.appliedCoupon})</span>
+                            )}
+                          </td>
+                        </tr>
+                      )}
 
                       <tr className="hover:bg-slate-50 transition-colors">
                         <td className="px-3.5 py-2.5 md:px-5.5 md:py-4.5 w-32 md:w-40 font-bold text-xs uppercase tracking-widest text-slate-400">
@@ -751,7 +774,7 @@ const OrderDetails = ({ id }) => {
                             className="hover:bg-white transition-colors group"
                           >
                             <td className="px-8 py-6">
-                              <div className="w-20 h-24 rounded-2xl overflow-hidden border border-slate-200 shadow-sm group-hover:scale-105 transition-transform">
+                              <div className="w-20 h-24 rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
                                 <Image
                                   src={img}
                                   alt={product.name}
@@ -828,7 +851,7 @@ const OrderDetails = ({ id }) => {
                     return (
                       <div
                         key={product._id}
-                        className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-md transition-all duration-300 active:scale-[0.985]"
+                        className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden active:scale-[0.985]"
                       >
                         {/* Image Top */}
                         <div className="relative h-20 w-full bg-slate-100">

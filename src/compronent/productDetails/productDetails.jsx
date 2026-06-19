@@ -217,12 +217,13 @@ const ProductDetails = ({ initialProduct }) => {
   const handleDownloadImage = async (imageUrl, index) => {
     try {
       setDownloadingImage(index);
-      const response = await fetch(imageUrl);
+      const proxyUrl = `/api/download-image?url=${encodeURIComponent(imageUrl)}`;
+      const response = await fetch(proxyUrl);
       const blob = await response.blob();
+      const ext = imageUrl.split('.').pop()?.split('?')[0] || 'jpg';
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      const ext = imageUrl.split('.').pop()?.split('?')[0] || 'jpg';
       link.download = `${product?.name || 'product'}_image_${index + 1}.${ext}`;
       document.body.appendChild(link);
       link.click();

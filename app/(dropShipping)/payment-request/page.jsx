@@ -1,4 +1,4 @@
-import PaymentRequestForm from "@/src/dropShipping/paymentRequest/PaymentRequestForm";
+import PaymentRequestClient from "./PaymentRequestClient";
 
 export const metadata = {
     title: "Payment Request | Dropshipping Dashboard",
@@ -6,9 +6,5 @@ export const metadata = {
 };
 
 export default function PaymentRequestPage() {
-    return (
-        <div className="pt-2 min-h-screen bg-slate-50/50">
-            <PaymentRequestForm />
-        </div>
-    );
+    return <PaymentRequestClient />;
 }

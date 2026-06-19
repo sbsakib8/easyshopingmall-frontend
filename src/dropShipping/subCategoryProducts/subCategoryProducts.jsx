@@ -41,12 +41,14 @@ const handleDownloadImage = async (e, imageUrl, productName) => {
   if (!imageUrl) return;
 
   try {
-    const response = await fetch(imageUrl);
+    const proxyUrl = `/api/download-image?url=${encodeURIComponent(imageUrl)}`;
+    const response = await fetch(proxyUrl);
     const blob = await response.blob();
+    const ext = imageUrl.split(".").pop()?.split("?")[0] || "jpg";
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `${productName || "product"}.jpg`;
+    link.download = `${productName || "product"}.${ext}`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -131,7 +133,7 @@ const ProductCard = React.memo(
     return (
       <div
         onClick={() => router.push(`/productdetails/${product._id}`)}
-        className={`group bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col h-full animate-fade-up`}
+        className={`group bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-xl transition-all cursor-pointer flex flex-col h-full`}
       >
         {/* Image Section */}
         <div
@@ -142,7 +144,7 @@ const ProductCard = React.memo(
             alt={product.productName}
             width={200}
             height={170}
-            className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-105`}
+            className={`w-full h-full object-cover transition-transform`}
           />
 
           {/* Badges */}
@@ -366,13 +368,13 @@ const SubCategoryProductsContent = ({ id }) => {
       {/* Animated Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-white to-teal-50">
         {/* Animated Gradient Layers */}
-        <div className="absolute inset-0 bg-[radial-gradient(at_30%_20%,rgba(16,185,129,0.15)_0%,transparent_50%)] animate-pulse-slow"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(at_70%_60%,rgba(45,212,191,0.15)_0%,transparent_50%)] animate-pulse-slower"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(at_30%_20%,rgba(16,185,129,0.15)_0%,transparent_50%)]"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(at_70%_60%,rgba(45,212,191,0.15)_0%,transparent_50%)]"></div>
 
         {/* Subtle Moving Orbs */}
-        <div className="absolute top-10 left-10 w-72 h-72 bg-emerald-200 rounded-full mix-blend-soft-light filter blur-3xl opacity-30 animate-float"></div>
-        <div className="absolute bottom-20 right-20 w-96 h-96 bg-teal-200 rounded-full mix-blend-soft-light filter blur-3xl opacity-30 animate-float-delay"></div>
-        <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-cyan-200 rounded-full mix-blend-soft-light filter blur-3xl opacity-20 animate-float-slow"></div>
+        <div className="absolute top-10 left-10 w-72 h-72 bg-emerald-200 rounded-full mix-blend-soft-light filter blur-3xl opacity-30"></div>
+        <div className="absolute bottom-20 right-20 w-96 h-96 bg-teal-200 rounded-full mix-blend-soft-light filter blur-3xl opacity-30"></div>
+        <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-cyan-200 rounded-full mix-blend-soft-light filter blur-3xl opacity-20"></div>
       </div>
 
       <Container className="relative z-10 space-y-6 md:space-y-10">
@@ -381,7 +383,7 @@ const SubCategoryProductsContent = ({ id }) => {
         ) : (
           <>
             <div className="flex items-center justify-center">
-              <h2 className="text-center font-black text-xl sm:text-2xl md:text-3xl lg:text-4xl text-emerald-800 uppercase tracking-wider sm:tracking-widest break-words animate-fade-up">
+              <h2 className="text-center font-black text-xl sm:text-2xl md:text-3xl lg:text-4xl text-emerald-800 uppercase tracking-wider sm:tracking-widest break-words">
                 {productsLoading ? (
                   <Skeleton className="h-10! w-40! sm:h-14! md:h-16! lg:h-20!" />
                 ) : (

@@ -71,7 +71,7 @@ export default function DropshippingSettings() {
       <div className="max-w-4xl mx-auto">
         {/* Notification */}
         {notification.show && (
-          <div className={`fixed top-6 right-6 z-50 ${notification.type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-slideIn backdrop-blur-sm`}>
+          <div className={`fixed top-6 right-6 z-50 ${notification.type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 backdrop-blur-sm`}>
             {notification.type === 'success' ? <Check className="w-6 h-6" /> : <AlertCircle className="w-6 h-6" />}
             <span className="font-medium">{notification.message}</span>
           </div>
@@ -171,7 +171,7 @@ export default function DropshippingSettings() {
                 <button
                   onClick={handleSave}
                   disabled={loading}
-                  className="px-10 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-500/20 disabled:opacity-50 flex items-center gap-3 transition-all transform hover:-translate-y-1"
+                  className="px-10 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-500/20 disabled:opacity-50 flex items-center gap-3 transition-all"
                 >
                   {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                   {loading ? "Saving..." : "Save Configuration"}
@@ -181,16 +181,6 @@ export default function DropshippingSettings() {
           )}
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes slideIn {
-          from { transform: translateX(100%); opacity: 0; }
-          to { transform: translateX(0); opacity: 1; }
-        }
-        .animate-slideIn {
-          animation: slideIn 0.3s ease-out forwards;
-        }
-      `}</style>
     </section>
   );
 }

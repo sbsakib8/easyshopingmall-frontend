@@ -1,4 +1,4 @@
-import ShopSettings from "@/src/dropShipping/shopSettings/ShopSettings";
+import ShopSettingsClient from "./ShopSettingsClient";
 
 export const metadata = {
   title: "Shop Settings | EasyShoppingMall",
@@ -6,5 +6,5 @@ export const metadata = {
 };
 
 export default function Page() {
-  return <ShopSettings />;
+  return <ShopSettingsClient />;
 }

@@ -16,11 +16,13 @@ import {
   LogIn,
   Menu,
   Package,
+  Search,
   Settings,
   ShoppingCart,
   Sparkles,
   TrendingUp,
   User,
+  Users,
   Video,
   X,
 } from "lucide-react";
@@ -49,6 +51,11 @@ const DropShippingNavbar = () => {
   // Navigation items
   const navItems = [
     { name: "Home", href: "/", icon: <Home size={18} /> },
+    {
+      name: "Search Products",
+      href: "/search",
+      icon: <Search size={18} />,
+    },
     {
       name: "All Products",
       href: "/all-products",
@@ -80,7 +87,7 @@ const DropShippingNavbar = () => {
     },
 
     // {name:"Passive Income", href:"/passive-income", icon: <Coins size={18} />, subLink: [{name:"Box Leader", href:"/box-leader"}, {name:"Auditor", href:"/auditor"}, {name:"Member", href:"/member"}]},
-    // {name:"Referral Profile", href:"/referral-profile", icon: <Users size={18} />, subLink: [{name:"Referral Profit", href:"/referral-profit"}]},
+    {name:"Referral Profile", href:"/referral-profile", icon: <Users size={18} />},
     {
       name: "Payment Request",
       href: "/payment-request",
@@ -243,7 +250,7 @@ const DropShippingNavbar = () => {
                   <div className="relative p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-bg group-hover:bg-primary/10 shadow-sm transition-colors">
                     <item.icon
                       size={16}
-                      className="sm:w-5 sm:h-5 text-primary-content group-hover:text-primary group-hover:scale-110 transition-transform"
+                    className="sm:w-5 sm:h-5 text-primary-content group-hover:text-primary transition-colors"
                     />
                     {item.badge > 0 && (
                       <span

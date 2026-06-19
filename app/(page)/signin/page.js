@@ -16,6 +16,7 @@ import { auth } from "@/firebase";
 import AuthRedirect from "@/src/utlis/authRedirect";
 import { useDispatch } from "react-redux";
 import Section from "@/src/compronent/shared/Section";
+import { sanitizeEmail, sanitizeInput } from "@/src/lib/sanitize";
 
 const Signin = () => {
   const [email, setEmail] = useState("");
@@ -30,7 +31,7 @@ const Signin = () => {
     e.preventDefault();
 
     if (!email || !password) return toast.error("Please fill all the fields");
-    const user = { email, password };
+    const user = { email: sanitizeEmail(email), password };
 
     try {
       const res = await UserSignin(user, router, dispatch);
@@ -56,8 +57,8 @@ const Signin = () => {
     try {
       await googleSignIn(
         {
-          name: user.reloadUserInfo.displayName,
-          email: user.reloadUserInfo.email,
+          name: sanitizeInput(user.reloadUserInfo.displayName),
+          email: sanitizeEmail(user.reloadUserInfo.email),
           image: user.reloadUserInfo.photoUrl,
         },
         router,

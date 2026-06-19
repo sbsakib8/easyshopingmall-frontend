@@ -1,9 +1,11 @@
-import DropshippingAnalytics from "@/src/dashboard/dropshipping/DropshippingAnalytics";
+"use client";
 
-export const metadata = {
-  title: "Dropshipping Analytics | EasyShoppingMall Dashboard",
-  description: "Comprehensive dropshipping business analytics — revenue, profit, referrals, and order pipeline.",
-};
+import dynamic from "next/dynamic";
+
+const DropshippingAnalytics = dynamic(
+  () => import("@/src/dashboard/dropshipping/DropshippingAnalytics"),
+  { ssr: false, loading: () => <div className="flex items-center justify-center h-96"><p>Loading analytics...</p></div> }
+);
 
 export default function Page() {
   return <DropshippingAnalytics />;

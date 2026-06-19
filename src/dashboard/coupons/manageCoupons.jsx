@@ -252,7 +252,7 @@ const ManageCoupons = () => {
     <section className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 py-10 md:py-16">
       <Container>
         {/* Header section */}
-        <div className="relative bg-gradient-to-r from-gray-900/80 via-indigo-900/80 to-purple-900/80 backdrop-blur-xl rounded-3xl p-4 md:p-6 border border-gray-700/50 shadow-2xl flex flex-col md:flex-row md:items-center justify-between overflow-hidden mb-8 animate-slideDown">
+        <div className="relative bg-gradient-to-r from-gray-900/80 via-indigo-900/80 to-purple-900/80 backdrop-blur-xl rounded-3xl p-4 md:p-6 border border-gray-700/50 shadow-2xl flex flex-col md:flex-row md:items-center justify-between overflow-hidden mb-8">
           {/* Animated Particles */}
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute top-4 left-1/4 w-3 h-3 bg-indigo-500/30 rounded-full"></div>
@@ -282,7 +282,7 @@ const ManageCoupons = () => {
 
         {/* Form Section */}
         {showForm && (
-          <div className="mb-8 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-8 shadow-2xl animate-slideIn">
+          <div className="mb-8 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-8 shadow-2xl">
             <h2 className="text-xl font-bold text-white mb-6 flex items-center">
               <Ticket className="mr-3 text-indigo-400" />
               {editingId ? "Edit Coupon" : "Create New Coupon"}
@@ -817,7 +817,7 @@ const ManageCoupons = () => {
           />
 
           {/* Modal Card */}
-          <div className="relative z-10 w-full max-w-md bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 border border-white/10 rounded-3xl shadow-2xl p-8 animate-modalPop">
+          <div className="relative z-10 w-full max-w-md bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 border border-white/10 rounded-3xl shadow-2xl p-8">
             {/* Close Button */}
             <button
               onClick={() =>
@@ -877,47 +877,6 @@ const ManageCoupons = () => {
         </div>
       )}
 
-      <style jsx>{`
-        @keyframes slideDown {
-          from {
-            opacity: 0;
-            transform: translateY(-20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        @keyframes slideIn {
-          from {
-            opacity: 0;
-            transform: translateX(-20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-        .animate-slideDown {
-          animation: slideDown 0.5s forwards;
-        }
-        .animate-slideIn {
-          animation: slideIn 0.5s forwards;
-        }
-        @keyframes modalPop {
-          from {
-            opacity: 0;
-            transform: scale(0.92) translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-          }
-        }
-        .animate-modalPop {
-          animation: modalPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        }
-      `}</style>
     </section>
   );
 };

@@ -1,10 +1,9 @@
-export const dynamic = 'force-dynamic';
-import OrderDetails from "@/src/dropShipping/orderDetails/OrderDetails";
+import OrderDetailsClient from "./OrderDetailsClient";
 
 const OrderDetailsPage = async (props) => {
   const params = await props.params;
   const { id } = params;
-  return <OrderDetails id={id} />;
+  return <OrderDetailsClient id={id} />;
 };
 
 export default OrderDetailsPage;

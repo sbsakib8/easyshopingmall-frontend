@@ -15,6 +15,8 @@ import ReactPlayer from 'react-player'
 
 import { userget } from "@/src/redux/userSlice";
 import { cartSuccess } from "@/src/redux/cartSlice";
+import { sanitizeObject, sanitizePhone, sanitizeInput } from "@/src/lib/sanitize";
+import { encryptPayload } from "@/src/lib/encryption";
 
 // Robust image extractor — handles images[] array, image string, or nested productId object
 const getImageUrl = (item) => {
@@ -435,20 +437,32 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
         };
       });
 
+      const sanitizedCustomerInfo = sanitizeObject({
+        name, phone: customerInfo.phone, email: customerInfo.email, address
+      });
+
       const payload = {
         userId: user._id,
         products: productsPayload,
-        delivery_address,
+        delivery_address: {
+          address_line: sanitizedCustomerInfo.address,
+          district,
+          division,
+          upazila_thana: area,
+          pincode: pincode || 0,
+          country: "Bangladesh",
+          mobile: Number(sanitizedCustomerInfo.phone),
+        },
         deliveryCharge,
         subTotalAmt: subtotal,
         totalAmt: total,
         payment_method: "manual",
         payment_type: payDeliveryOnly ? "delivery" : "full",
-        payment_details: {
+        payment_details: encryptPayload({
           provider: selectedManualMethod,
-          senderNumber,
-          transactionId,
-        },
+          senderNumber: sanitizePhone(senderNumber),
+          transactionId: sanitizeInput(transactionId),
+        }, ["senderNumber", "transactionId"]),
         appliedCoupon: appliedCoupon?.code || null,
         couponDiscount: couponDiscount || 0,
       };

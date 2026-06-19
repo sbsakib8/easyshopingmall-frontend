@@ -36,12 +36,12 @@ export const SubCategoryCardSectionLoading = () => {
     <section className="relative py-12 md:py-16 lg:py-20 overflow-hidden">
       {/* Animated Background - Keep as it is */}
       <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-white to-teal-50">
-        <div className="absolute inset-0 bg-[radial-gradient(at_30%_20%,rgba(16,185,129,0.15)_0%,transparent_50%)] animate-pulse-slow"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(at_70%_60%,rgba(45,212,191,0.15)_0%,transparent_50%)] animate-pulse-slower"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(at_30%_20%,rgba(16,185,129,0.15)_0%,transparent_50%)]"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(at_70%_60%,rgba(45,212,191,0.15)_0%,transparent_50%)]"></div>
 
-        <div className="absolute top-10 left-10 w-72 h-72 bg-emerald-200 rounded-full mix-blend-soft-light filter blur-3xl opacity-30 animate-float"></div>
-        <div className="absolute bottom-20 right-20 w-96 h-96 bg-teal-200 rounded-full mix-blend-soft-light filter blur-3xl opacity-30 animate-float-delay"></div>
-        <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-cyan-200 rounded-full mix-blend-soft-light filter blur-3xl opacity-20 animate-float-slow"></div>
+        <div className="absolute top-10 left-10 w-72 h-72 bg-emerald-200 rounded-full mix-blend-soft-light filter blur-3xl opacity-30"></div>
+        <div className="absolute bottom-20 right-20 w-96 h-96 bg-teal-200 rounded-full mix-blend-soft-light filter blur-3xl opacity-30"></div>
+        <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-cyan-200 rounded-full mix-blend-soft-light filter blur-3xl opacity-20"></div>
       </div>
 
       <Container className="relative z-10 space-y-16 md:space-y-20 py-0">
@@ -71,8 +71,8 @@ const SubCategoryCard = ({ image, name, path, idx = 0 }) => {
   return (
     <div
       className="group flex-shrink-0 flex flex-col bg-white rounded-3xl shadow-md hover:shadow-2xl 
-                         transition-all duration-500 overflow-hidden relative cursor-pointer
-                         hover:-translate-y-3 active:scale-[0.97] animate-fade-up"
+                         transition-all overflow-hidden relative cursor-pointer
+                         active:scale-[0.97]"
       style={{ animationDelay: `${idx * 50}ms` }}
       onClick={() => push(path)}
     >
@@ -84,14 +84,14 @@ const SubCategoryCard = ({ image, name, path, idx = 0 }) => {
           width={200}
           height={170}
           loading="lazy"
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          className="w-full h-full object-cover transition-transform"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
       </div>
 
       {/* Content */}
       <div className="p-4 sm:p-5 text-center flex-grow flex flex-col">
-        <h3 className="text-base sm:text-lg font-bold text-gray-800 line-clamp-2 group-hover:text-emerald-700 transition-colors duration-300">
+        <h3 className="text-base sm:text-lg font-bold text-gray-800 line-clamp-2 group-hover:text-emerald-700 transition-colors">
           {name}
         </h3>
 
@@ -105,7 +105,7 @@ const SubCategoryCard = ({ image, name, path, idx = 0 }) => {
             className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 
                                hover:from-emerald-700 hover:to-teal-700
                                text-white py-2.5 rounded-2xl text-sm font-semibold
-                               transition-all duration-300 active:scale-95 shadow-md cursor-pointer"
+                               transition-all active:scale-95 shadow-md cursor-pointer"
           >
             Explore Now
           </button>
@@ -113,7 +113,7 @@ const SubCategoryCard = ({ image, name, path, idx = 0 }) => {
       </div>
 
       {/* Shine Effect */}
-      <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-10  bg-gradient-to-r from-transparent via-white to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+      <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-10  bg-gradient-to-r from-transparent via-white to-transparent -skew-x-12 -translate-x-full transition-transform" />
     </div>
   );
 };
@@ -182,12 +182,12 @@ const SubCategoryCardSection = ({ pageType }) => {
         <section className="relative py-12 md:py-16 lg:py-20 overflow-hidden">
           {/* Animated Background - Keep as it is */}
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-white to-teal-50">
-            <div className="absolute inset-0 bg-[radial-gradient(at_30%_20%,rgba(16,185,129,0.15)_0%,transparent_50%)] animate-pulse-slow"></div>
-            <div className="absolute inset-0 bg-[radial-gradient(at_70%_60%,rgba(45,212,191,0.15)_0%,transparent_50%)] animate-pulse-slower"></div>
+            <div className="absolute inset-0 bg-[radial-gradient(at_30%_20%,rgba(16,185,129,0.15)_0%,transparent_50%)]"></div>
+            <div className="absolute inset-0 bg-[radial-gradient(at_70%_60%,rgba(45,212,191,0.15)_0%,transparent_50%)]"></div>
 
-            <div className="absolute top-10 left-10 w-72 h-72 bg-emerald-200 rounded-full mix-blend-soft-light filter blur-3xl opacity-30 animate-float"></div>
-            <div className="absolute bottom-20 right-20 w-96 h-96 bg-teal-200 rounded-full mix-blend-soft-light filter blur-3xl opacity-30 animate-float-delay"></div>
-            <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-cyan-200 rounded-full mix-blend-soft-light filter blur-3xl opacity-20 animate-float-slow"></div>
+            <div className="absolute top-10 left-10 w-72 h-72 bg-emerald-200 rounded-full mix-blend-soft-light filter blur-3xl opacity-30"></div>
+            <div className="absolute bottom-20 right-20 w-96 h-96 bg-teal-200 rounded-full mix-blend-soft-light filter blur-3xl opacity-30"></div>
+            <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-cyan-200 rounded-full mix-blend-soft-light filter blur-3xl opacity-20"></div>
           </div>
 
           <Container className="relative z-10 space-y-16 md:space-y-20 py-0">
@@ -196,7 +196,7 @@ const SubCategoryCardSection = ({ pageType }) => {
 
               {finalGroups.map((group, index) => (
                 <div key={index}>
-                  <h1 className="text-center font-black px-4 py-4 text-xl sm:text-2xl md:text-3xl lg:text-4xl mb-6 sm:mb-8 text-emerald-800 uppercase tracking-wider sm:tracking-widest break-words animate-fade-up">
+                  <h1 className="text-center font-black px-4 py-4 text-xl sm:text-2xl md:text-3xl lg:text-4xl mb-6 sm:mb-8 text-emerald-800 uppercase tracking-wider sm:tracking-widest break-words">
                     {group.title}
                   </h1>
 

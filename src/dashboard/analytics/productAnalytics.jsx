@@ -89,7 +89,7 @@ const ProductAnalytics = () => {
  );
 
  const ProductRow = ({product, index}) => (
- <div className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg border border-gray-700 hover:border-purple-500 transform hover:shadow-lg group -in-up"style={{animationDelay: `${index * 100}ms`}}>
+ <div className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg border border-gray-700 hover:border-purple-500 transform hover:shadow-lg group" style={{animationDelay: `${index * 100}ms`}}>
  <div className="flex items-center space-x-4">
  <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-700 rounded-lg flex items-center justify-center text-slate-300 font-bold group-hover:from-purple-400 group-hover:to-purple-600">
  {index + 1}
@@ -133,7 +133,7 @@ const ProductAnalytics = () => {
  <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900/30 to-slate-900 p-4 md:p-6 overflow-hidden">
  <div className="py-5 px-2 lg:px-9">
  {/* Header */}
- <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 -in">
+ <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
  <div>
  <h1 className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
  Product Analytics
@@ -199,7 +199,7 @@ const ProductAnalytics = () => {
  {/* Charts Section */}
  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
  {/* Sales Trend Chart */}
- <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-xl border border-gray-700 hover:border-purple-500 transform hover:shadow-2xl -in-left overflow-scroll">
+ <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-xl border border-gray-700 hover:border-purple-500 transform hover:shadow-2xl overflow-scroll">
  <div className="flex items-center justify-between mb-6">
  <h3 className="text-xl font-bold text-slate-300">Sales Trend</h3>
  <div className="flex space-x-2">
@@ -239,7 +239,7 @@ const ProductAnalytics = () => {
  </div>
 
  {/* Category Distribution */}
- <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-xl border border-gray-700 hover:border-purple-500 transform hover:shadow-2xl -in-right overflow-scroll">
+ <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-xl border border-gray-700 hover:border-purple-500 transform hover:shadow-2xl  overflow-scroll">
  <h3 className="text-xl font-bold text-slate-300 mb-6">Category Distribution</h3>
  <ResponsiveContainer width="100%"height={300}>
  <PieChart>
@@ -280,7 +280,7 @@ const ProductAnalytics = () => {
  {/* Top Products and Conversion Rate */}
  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
  {/* Top Products */}
- <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-xl border border-gray-700 hover:border-purple-500 -in">
+ <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-xl border border-gray-700 hover:border-purple-500">
  <div className="flex items-center justify-between mb-6">
  <h3 className="text-xl font-bold text-slate-300">Top Products</h3>
  <button className="bg-gradient-to-r from-purple-500 to-purple-700 text-slate-300 px-4 py-2 rounded-lg hover:from-purple-400 hover:to-purple-600 transform">
@@ -295,7 +295,7 @@ const ProductAnalytics = () => {
  </div>
 
  {/* Conversion Rate Chart */}
- <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-xl border border-gray-700 hover:border-purple-500 -in">
+ <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-xl border border-gray-700 hover:border-purple-500">
  <h3 className="text-xl font-bold text-slate-300 mb-6">Conversion Rate</h3>
  <ResponsiveContainer className="overflow-scroll"width="100%"height={300}>
  <LineChart data={conversionData}>
@@ -326,7 +326,7 @@ const ProductAnalytics = () => {
  {/* Weekly Performance and Real-time Metrics */}
  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
  {/* Weekly Performance */}
- <div className="lg:col-span-2 bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-xl border border-gray-700 hover:border-purple-500 -in-up">
+ <div className="lg:col-span-2 bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-xl border border-gray-700 hover:border-purple-500">
  <h3 className="text-xl font-bold text-slate-300 mb-6">Weekly Performance</h3>
  <ResponsiveContainer className="overflow-scroll"width="100%"height={300}>
  <BarChart data={salesData}>
@@ -347,7 +347,7 @@ const ProductAnalytics = () => {
  </div>
 
  {/* Real-time Metrics */}
- <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-xl border border-gray-700 hover:border-purple-500 -in-up">
+ <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-xl border border-gray-700 hover:border-purple-500">
  <h3 className="text-xl font-bold text-slate-300 mb-6">Live Metrics</h3>
  <div className="space-y-6">
  <div className="text-center">
@@ -368,7 +368,7 @@ const ProductAnalytics = () => {
  </div>
 
  {/* Product Performance Table */}
- <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-xl border border-gray-700 hover:border-purple-500 -in">
+ <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-xl border border-gray-700 hover:border-purple-500">
  <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
  <h3 className="text-xl font-bold text-slate-300 mb-4 md:mb-0">Product Performance</h3>
  <div className="flex space-x-2">
@@ -394,7 +394,7 @@ const ProductAnalytics = () => {
  </thead>
  <tbody>
  {topProducts.map((product, index) => (
- <tr key={product.name} className="border-b border-gray-700 hover:bg-gray-800 -in-up"style={{animationDelay: `${index * 100}ms`}}>
+ <tr key={product.name} className="border-b border-gray-700 hover:bg-gray-800"style={{animationDelay: `${index * 100}ms`}}>
  <td className="py-4 text-slate-300 font-medium">{product.name}</td>
  <td className="py-4 text-gray-300">{product.sales}</td>
  <td className="py-4 text-slate-300">${product.revenue.toLocaleString()}</td>
@@ -418,7 +418,7 @@ const ProductAnalytics = () => {
 
  {/* Advanced Analytics Cards */}
  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
- <div className="bg-gradient-to-br from-purple-800 to-purple-900 p-6 rounded-xl border border-purple-600 hover:border-purple-400 transform -in">
+ <div className="bg-gradient-to-br from-purple-800 to-purple-900 p-6 rounded-xl border border-purple-600 hover:border-purple-400 transform">
  <h4 className="text-lg font-bold text-slate-300 mb-4">Customer Insights</h4>
  <div className="space-y-3">
  <div className="flex justify-between text-sm">
@@ -435,7 +435,7 @@ const ProductAnalytics = () => {
  </div>
  </div>
 
- <div className="bg-gradient-to-br from-blue-800 to-blue-900 p-6 rounded-xl border border-blue-600 hover:border-blue-400 transform -in"style={{animationDelay:'0.2s'}}>
+ <div className="bg-gradient-to-br from-blue-800 to-blue-900 p-6 rounded-xl border border-blue-600 hover:border-blue-400 transform"style={{animationDelay:'0.2s'}}>
  <h4 className="text-lg font-bold text-slate-300 mb-4">Inventory Status</h4>
  <div className="space-y-3">
  <div className="flex justify-between text-sm">
@@ -453,7 +453,7 @@ const ProductAnalytics = () => {
  </div>
  </div>
 
- <div className="bg-gradient-to-br from-green-800 to-green-900 p-6 rounded-xl border border-green-600 hover:border-green-400 transform -in"style={{animationDelay:'0.4s'}}>
+ <div className="bg-gradient-to-br from-green-800 to-green-900 p-6 rounded-xl border border-green-600 hover:border-green-400" style={{animationDelay:'0.4s'}}>
  <h4 className="text-lg font-bold text-slate-300 mb-4">Performance Score</h4>
  <div className="text-center">
  <div className="text-4xl font-bold text-green-400 mb-2">8.7</div>
@@ -465,107 +465,13 @@ const ProductAnalytics = () => {
  </svg>
  ))}
  </div>
- </div>
- </div>
- </div>
- </div>
+  </div>
+  </div>
 
- {/* Custom CSS for animations */}
- <style jsx>{`
- @keyframes fade-in {
- from {opacity: 0; transform: translateY(20px);}
- to {opacity: 1; transform: translateY(0);}
-}
-
- @keyframes fade-in-up {
- from {opacity: 0; transform: translateY(30px);}
- to {opacity: 1; transform: translateY(0);}
-}
-
- @keyframes slide-in-left {
- from {opacity: 0; transform: translateX(-50px);}
- to {opacity: 1; transform: translateX(0);}
-}
-
- @keyframes slide-in-right {
- from {opacity: 0; transform: translateX(50px);}
- to {opacity: 1; transform: translateX(0);}
-}
-
- @keyframes slide-in-up {
- from {opacity: 0; transform: translateY(50px);}
- to {opacity: 1; transform: translateY(0);}
-}
-
- .-in {
- animation: fade-in 0.8s ;
-}
-
- .-in-up {
- animation: fade-in-up 0.6s ;
- animation-fill-mode: both;
-}
-
- .-in-left {
- animation: slide-in-left 0.8s ;
-}
-
- .-in-right {
- animation: slide-in-right 0.8s ;
-}
-
- .-in-up {
- animation: slide-in-up 0.8s ;
-}
-
- .hover\:scale-102:hover {
- transform: scale(1.02);
-}
-
- /* Responsive improvements */
- @media (max-width: 768px) {
- .grid {
- gap: 1rem;
-}
-
- .p-6 {
- padding: 1rem;
-}
-
- .text-3xl {
- font-size: 1.5rem;
-}
-
- .text-4xl {
- font-size: 2rem;
-}
-}
-
- /* Smooth scrolling for better mobile experience */
- html {
- scroll-behavior: smooth;
-}
-
- /* Custom scrollbar */
- ::-webkit-scrollbar {
- width: 8px;
-}
-
- ::-webkit-scrollbar-track {
- background: #1F2937;
-}
-
- ::-webkit-scrollbar-thumb {
- background: #8B5CF6;
- border-radius: 4px;
-}
-
- ::-webkit-scrollbar-thumb:hover {
- background: #A78BFA;
-}
- `}</style>
- </div>
- )
+   </div>
+   </div>
+   </div>
+  )
 }
 
 export default ProductAnalytics;

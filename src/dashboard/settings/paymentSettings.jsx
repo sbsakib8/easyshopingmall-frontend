@@ -130,7 +130,7 @@ const PaymentSettings = () => {
  </div>
 
  {config.enabled && (
- <div className="space-y-4 animate-fadeIn">
+ <div className="space-y-4">
  {Object.entries(config).map(([key, value]) => {
  if (key ==='enabled'|| key ==='currencies') return null;
 
@@ -196,7 +196,7 @@ const PaymentSettings = () => {
  <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 overflow-hidden">
  <div className="lg:px-9">
  {/* Header */}
- <div className="mb-8 animate-slideDown">
+ <div className="mb-8">
  <div className="relative bg-gradient-to-r from-gray-900/80 via-blue-900/80 to-purple-900/80 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-gray-700/50 shadow-2xl shadow-blue-500/10 overflow-hidden">
  {/* Animated particles */}
  <div className="absolute inset-0">
@@ -242,7 +242,7 @@ const PaymentSettings = () => {
  </div>
 
  {/* Content */}
- <div className="animate-fadeIn">
+ <div>
  {activeTab ==='gateways'&& (
  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
  <PaymentGatewayCard
@@ -463,22 +463,7 @@ const PaymentSettings = () => {
  </div>
  </div>
 
- <style jsx>{`
- @keyframes fadeIn {
- from {
- opacity: 0;
- transform: translateY(20px);
-}
- to {
- opacity: 1;
- transform: translateY(0);
-}
-}
 
- .animate-fadeIn {
- animation: fadeIn 0.5s ;
-}
- `}</style>
  </div>
  );
 };

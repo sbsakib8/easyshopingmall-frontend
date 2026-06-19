@@ -18,8 +18,9 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
-import axios from 'axios';
-import { UrlBackend } from '@/src/confic/urlExport';
+import apiClient from '@/src/lib/axios';
+import { sanitizeObject, sanitizePhone, sanitizeInput } from '@/src/lib/sanitize';
+import { encryptPayload } from '@/src/lib/encryption';
 import LocationSelects from '@/src/compronent/LocationSelects';
 import { applyDropshippingCouponCode } from '@/src/hook/useCoupon';
 
@@ -214,13 +215,15 @@ const DropshippingCheckoutComponent = () => {
 
     setIsProcessing(true);
     try {
+      const sanitizedCustomer = sanitizeObject(customerInfo);
+
       const payload = {
         userId: user._id,
         products: items.map(item => {
           const sp = item.sellingPrice === "" ? 0 : (item.sellingPrice ?? item.price);
           return {
             productId: item.productId._id,
-            name: item.productId.productName,
+            name: sanitizeInput(item.productId.productName),
             image: item.productId.images || [],
             quantity: item.quantity,
             costPrice: item.price,
@@ -233,28 +236,27 @@ const DropshippingCheckoutComponent = () => {
           };
         }),
 
-
         delivery_address: {
-          address_line: customerInfo.address,
-          district: customerInfo.district,
-          division: customerInfo.division,
-          upazila_thana: customerInfo.area,
-          country: customerInfo.country,
-          mobile: customerInfo.phone,
-          customer_name: customerInfo.name
+          address_line: sanitizedCustomer.address,
+          district: sanitizedCustomer.district,
+          division: sanitizedCustomer.division,
+          upazila_thana: sanitizedCustomer.area,
+          country: sanitizedCustomer.country,
+          mobile: sanitizePhone(sanitizedCustomer.phone),
+          customer_name: sanitizedCustomer.name
         },
         payment_method: paymentMethod,
         payment_type: paymentMethod === 'cod' ? 'cod' : paymentType,
-        payment_details: paymentMethod === 'manual' ? {
+        payment_details: paymentMethod === 'manual' ? encryptPayload({
           provider: selectedManualMethod,
-          senderNumber: paymentDetails.senderNumber || "00000000000",
-          transactionId: paymentDetails.transactionId,
+          senderNumber: sanitizePhone(paymentDetails.senderNumber || "00000000000"),
+          transactionId: sanitizeInput(paymentDetails.transactionId),
           manual: {
             provider: selectedManualMethod,
-            transactionId: paymentDetails.transactionId,
-            senderNumber: paymentDetails.senderNumber || "00000000000"
+            transactionId: sanitizeInput(paymentDetails.transactionId),
+            senderNumber: sanitizePhone(paymentDetails.senderNumber || "00000000000")
           }
-        } : {},
+        }, ["senderNumber", "transactionId"]) : {},
         totalAmt: total,
         subTotalAmt: subtotal,
         deliveryCharge,
@@ -262,7 +264,7 @@ const DropshippingCheckoutComponent = () => {
         couponDiscount: couponDiscount || 0,
       };
 
-      const response = await axios.post(`${UrlBackend}/orders/manual`, payload, { withCredentials: true });
+      const response = await apiClient.post("/orders/manual", payload);
 
       if (response.data.success) {
         toast.success("আপনার ড্রপশিপিং অর্ডারটি সফলভাবে সম্পন্ন হয়েছে!");
@@ -424,7 +426,7 @@ const DropshippingCheckoutComponent = () => {
                   </div>
 
                   {paymentMethod === 'cod' ? (
-                    <div className="p-5 bg-emerald-50 border border-emerald-100 rounded-2xl animate-in fade-in slide-in-from-top-2">
+                    <div className="p-5 bg-emerald-50 border border-emerald-100 rounded-2xl">
                       <p className="text-sm font-bold text-emerald-800">
                         ক্যাশ অন ডেলিভারি (COD) সিলেক্ট করা হয়েছে।
                       </p>
@@ -442,7 +444,7 @@ const DropshippingCheckoutComponent = () => {
                           : 'border-slate-100 hover:border-emerald-200 bg-slate-50/50 hover:bg-white'
                           }`}
                       >
-                        <div className={`p-3 rounded-xl flex-shrink-0 transition-transform group-hover:scale-110 ${paymentType === 'full' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'bg-white text-slate-400 border border-slate-100'}`}>
+                        <div className={`p-3 rounded-xl flex-shrink-0 transition-transform ${paymentType === 'full' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'bg-white text-slate-400 border border-slate-100'}`}>
                           <CheckCircle2 className="w-5 h-5" />
                         </div>
                         <div>
@@ -464,7 +466,7 @@ const DropshippingCheckoutComponent = () => {
                           : 'border-slate-100 hover:border-emerald-200 bg-slate-50/50 hover:bg-white'
                           }`}
                       >
-                        <div className={`p-3 rounded-xl flex-shrink-0 transition-transform group-hover:scale-110 ${paymentType === 'delivery' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'bg-white text-slate-400 border border-slate-100'}`}>
+                        <div className={`p-3 rounded-xl flex-shrink-0 transition-transform ${paymentType === 'delivery' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'bg-white text-slate-400 border border-slate-100'}`}>
                           <Truck className="w-5 h-5" />
                         </div>
                         <div>
@@ -504,7 +506,7 @@ const DropshippingCheckoutComponent = () => {
                         : 'border-slate-200 hover:border-emerald-200 bg-white'
                         }`}
                     >
-                      <div className={`p-2.5 rounded-xl flex-shrink-0 transition-transform group-hover:scale-110 ${paymentMethod === 'balance' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'bg-slate-100 text-slate-400'}`}>
+                      <div className={`p-2.5 rounded-xl flex-shrink-0 transition-transform ${paymentMethod === 'balance' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'bg-slate-100 text-slate-400'}`}>
                         <Wallet className="w-5 h-5" />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -514,7 +516,7 @@ const DropshippingCheckoutComponent = () => {
                         </p>
                       </div>
                       {paymentMethod === 'balance' && (
-                        <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center animate-in zoom-in duration-300">
+                        <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
                           <CheckCircle2 className="w-3 h-3 text-white" />
                         </div>
                       )}
@@ -529,7 +531,7 @@ const DropshippingCheckoutComponent = () => {
                         : 'border-slate-200 hover:border-emerald-200 bg-white'
                         }`}
                     >
-                      <div className={`p-2.5 rounded-xl flex-shrink-0 transition-transform group-hover:scale-110 ${paymentMethod === 'manual' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'bg-slate-100 text-slate-400'}`}>
+                      <div className={`p-2.5 rounded-xl flex-shrink-0 transition-transform ${paymentMethod === 'manual' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'bg-slate-100 text-slate-400'}`}>
                         <Smartphone className="w-5 h-5" />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -537,7 +539,7 @@ const DropshippingCheckoutComponent = () => {
                         <p className="text-[10px] text-slate-500 font-semibold truncate">মোবাইল ব্যাংকিং</p>
                       </div>
                       {paymentMethod === 'manual' && (
-                        <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center animate-in zoom-in duration-300">
+                        <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
                           <CheckCircle2 className="w-3 h-3 text-white" />
                         </div>
                       )}
@@ -552,7 +554,7 @@ const DropshippingCheckoutComponent = () => {
                         : 'border-slate-200 hover:border-emerald-200 bg-white'
                         }`}
                     >
-                      <div className={`p-2.5 rounded-xl flex-shrink-0 transition-transform group-hover:scale-110 ${paymentMethod === 'cod' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'bg-slate-100 text-slate-400'}`}>
+                      <div className={`p-2.5 rounded-xl flex-shrink-0 transition-transform ${paymentMethod === 'cod' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'bg-slate-100 text-slate-400'}`}>
                         <Truck className="w-5 h-5" />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -560,7 +562,7 @@ const DropshippingCheckoutComponent = () => {
                         <p className="text-[10px] text-slate-500 font-semibold truncate">ডেলিভারির সময় পেমেন্ট</p>
                       </div>
                       {paymentMethod === 'cod' && (
-                        <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center animate-in zoom-in duration-300">
+                        <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
                           <CheckCircle2 className="w-3 h-3 text-white" />
                         </div>
                       )}
@@ -570,7 +572,7 @@ const DropshippingCheckoutComponent = () => {
 
                 {/* Manual payment details with animation-ready container */}
                 {paymentMethod === 'manual' && (
-                  <div className="space-y-6 pt-2 animate-in fade-in slide-in-from-top-4 duration-500">
+                  <div className="space-y-6 pt-2">
                     <div className="flex items-start gap-4 p-5 bg-amber-50 border border-amber-100 rounded-2xl">
                       <div className="p-2 bg-amber-100 rounded-lg shrink-0">
                         <AlertCircle className="w-5 h-5 text-amber-600" />
@@ -595,7 +597,7 @@ const DropshippingCheckoutComponent = () => {
                             : 'border-slate-100 hover:border-slate-300 bg-white hover:shadow-sm'
                             }`}
                         >
-                          <div className="w-12 h-12 mb-3 bg-white rounded-xl shadow-sm border border-slate-50 flex items-center justify-center overflow-hidden transition-transform group-hover:scale-105">
+                          <div className="w-12 h-12 mb-3 bg-white rounded-xl shadow-sm border border-slate-50 flex items-center justify-center overflow-hidden transition-transform">
                             <img src={method.logo} alt={method.name} className="w-8 h-8 object-contain opacity-80 group-hover:opacity-100" />
                           </div>
                           <span className={`font-black text-xs uppercase tracking-wider ${selectedManualMethod === method.id ? 'text-emerald-700' : 'text-slate-600'}`}>{method.name}</span>
@@ -611,7 +613,7 @@ const DropshippingCheckoutComponent = () => {
 
                     {/* Selected Method Details */}
                     {selectedManualMethod && (
-                      <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                      <div className="space-y-6">
                         {/* Number Display with Copy */}
                         <div className="flex flex-col sm:flex-row items-center gap-4 p-5 bg-slate-900 rounded-2xl text-white">
                           <div className="flex-1 w-full sm:w-auto text-center sm:text-left">
@@ -695,7 +697,7 @@ const DropshippingCheckoutComponent = () => {
                         <img
                           src={getImageUrl(item)}
                           alt={item.productId?.productName || item.name || 'Product'}
-                          className="w-16 h-16 object-cover rounded-xl flex-shrink-0 border border-slate-100 shadow-sm transition-transform group-hover:scale-105"
+                          className="w-16 h-16 object-cover rounded-xl flex-shrink-0 border border-slate-100 shadow-sm transition-transform"
                           onError={(e) => { e.target.onerror = null; e.target.src = "/img/product.jpg"; }}
                         />
                         <span className="absolute -top-2 -right-2 bg-emerald-600 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white shadow-sm">
@@ -803,7 +805,7 @@ const DropshippingCheckoutComponent = () => {
                     </div>
 
                     {(paymentType === 'delivery' || paymentMethod === 'cod') && (
-                      <div className="flex items-center justify-between p-3 bg-amber-50 rounded-xl border border-amber-100 animate-in zoom-in duration-300">
+                      <div className="flex items-center justify-between p-3 bg-amber-50 rounded-xl border border-amber-100">
                         <div className="flex items-center gap-2">
                           <AlertCircle className="w-3 h-3 text-amber-600" />
                           <span className="text-[10px] font-black text-amber-800 uppercase">ডেলিভারির সময় প্রদেয়</span>
@@ -820,7 +822,7 @@ const DropshippingCheckoutComponent = () => {
                 <button
                   onClick={handlePlaceOrder}
                   disabled={isProcessing}
-                  className="group relative w-full bg-gradient-to-br from-emerald-600 via-emerald-600 to-teal-600 text-white py-5 rounded-2xl font-black text-base shadow-xl shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 overflow-hidden"
+                  className="group relative w-full bg-gradient-to-br from-emerald-600 via-emerald-600 to-teal-600 text-white py-5 rounded-2xl font-black text-base shadow-xl shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all active:translate-y-0 disabled:opacity-50 overflow-hidden"
                 >
                   <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                   {isProcessing ? (
@@ -834,7 +836,7 @@ const DropshippingCheckoutComponent = () => {
                   ) : (
                     <span className="flex items-center justify-center gap-2">
                       এখনই অর্ডার করুন
-                      <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                      <ChevronRight className="w-5 h-5 transition-transform" />
                     </span>
                   )}
                 </button>

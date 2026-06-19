@@ -233,7 +233,7 @@ const ReviewsPage = () => {
 
  <div className="mx-auto px-4 py-8 space-y-8">
  {/* Statistics Cards */}
- <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 -in">
+ <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
  <div className="bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-lg p-6 hover:shadow-lg hover:shadow-yellow-500/20">
  <div className="text-sm font-medium text-gray-400 mb-2">Total Reviews</div>
  <div className="text-3xl font-bold text-slate-300">{totalReviews}</div>
@@ -315,7 +315,7 @@ const ReviewsPage = () => {
  </div>
 
  {/* Reviews List */}
- <div className="space-y-4 -in">
+ <div className="space-y-4">
  {filteredReviews.length === 0 ? (
  <p className="text-gray-400 text-center mt-6">No reviews found</p>
  ) : (
@@ -461,7 +461,7 @@ const ReviewsPage = () => {
 
  {/* Empty State */}
  {filteredReviews.length === 0 && (
- <div className="bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-lg p-12 text-center -in">
+ <div className="bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-lg p-12 text-center">
  <div className="text-6xl mb-4">📝</div>
  <h3 className="text-xl font-semibold text-slate-300 mb-2">No Reviews Found</h3>
  <p className="text-gray-400">Try adjusting your search or filter criteria.</p>

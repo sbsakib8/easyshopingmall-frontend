@@ -34,11 +34,11 @@ const StatCard = ({
   loading,
 }) => (
   <div
-    className={cn(
-      "bg-gradient-to-r backdrop-blur-sm rounded-2xl p-6 hover:transform hover:scale-105 transition-transform duration-200",
-      gradient,
-      border,
-    )}
+      className={cn(
+        "bg-gradient-to-r backdrop-blur-sm rounded-2xl p-6 transition-all",
+        gradient,
+        border,
+      )}
   >
     <div className="flex items-center justify-between">
       <div>
@@ -506,8 +506,8 @@ const BlogsAdminDashboard = () => {
 
         {/* Modal */}
         {showModal && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
-            <div className="bg-gradient-to-br from-gray-800 via-gray-900 to-black border border-gray-700/50 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto transform animate-slideUp">
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-gradient-to-br from-gray-800 via-gray-900 to-black border border-gray-700/50 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto transform">
               <div className="p-6 border-b border-gray-700/50">
                 <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
                   {editingBlog ? "Edit Blog" : "Add New Blog"}
@@ -655,34 +655,6 @@ const BlogsAdminDashboard = () => {
       </div>
 
       <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-
-        @keyframes slideUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        .animate-fadeIn {
-          animation: fadeIn 0.3s;
-        }
-
-        .animate-slideUp {
-          animation: slideUp 0.3s;
-        }
-
         .line-clamp-2 {
           display: -webkit-box;
           -webkit-line-clamp: 2;

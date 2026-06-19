@@ -1,9 +1,7 @@
-export const dynamic = 'force-dynamic';
-import OrderList from'@/src/dropShipping/orderList/orderList'
+import OrderListClient from "./OrderListClient";
 
+const OrderListPage = () => {
+  return <OrderListClient />;
+};
 
-const orderList = () => {
- return <OrderList/>
-}
-
-export default orderList
+export default OrderListPage;
