@@ -15,8 +15,10 @@ import {
  Smartphone,
  Wallet
 } from'lucide-react';
+import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
 
 const PaymentSettings = () => {
+ const { canModify } = useDashboardPermission();
  const [activeTab, setActiveTab] = useState('gateways');
  const [showApiKey, setShowApiKey] = useState({});
  const [settings, setSettings] = useState({
@@ -452,6 +454,7 @@ const PaymentSettings = () => {
  </div>
 
  {/* Save Button */}
+ {canModify("settings") && (
  <div className="fixed bottom-6 right-6">
  <button
  onClick={saveSettings}
@@ -461,6 +464,7 @@ const PaymentSettings = () => {
  <span>Save Settings</span>
  </button>
  </div>
+ )}
  </div>
 
 

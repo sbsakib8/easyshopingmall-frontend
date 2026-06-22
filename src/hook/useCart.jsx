@@ -1,5 +1,4 @@
-import axios from "axios";
-import { UrlBackend } from "../confic/urlExport";
+import apiClient from "../lib/axios";
 import {
     cartAdd,
     cartClear,
@@ -15,7 +14,7 @@ export const getCartApi = async (userId, dispatch) => {
     try {
         dispatch(cartLoading());
 
-        const res = await axios.get(`${UrlBackend}/cart/${userId}`, {
+        const res = await apiClient.get(`/cart/${userId}`, {
             withCredentials: true,
         });
 
@@ -28,7 +27,7 @@ export const getCartApi = async (userId, dispatch) => {
 // ------------------------ ADD ------------------------
 export const addToCartApi = async (productData, dispatch) => {
     try {
-        const res = await axios.post(`${UrlBackend}/cart/add`, productData, {
+        const res = await apiClient.post(`/cart/add`, productData, {
             withCredentials: true,
             headers: { "Content-Type": "application/json" },
         });
@@ -42,7 +41,7 @@ export const addToCartApi = async (productData, dispatch) => {
 export const updateCartItemApi = async (updateData, dispatch) => {
     try {
         // backend update only
-        const res = await axios.put(`${UrlBackend}/cart/update`, updateData, {
+        const res = await apiClient.put(`/cart/update`, updateData, {
             withCredentials: true,
             headers: { "Content-Type": "application/json" },
         });
@@ -58,7 +57,7 @@ export const updateCartItemApi = async (updateData, dispatch) => {
 // ------------------------ REMOVE ------------------------
 export const removeCartItemApi = async (userId, productId, dispatch) => {
     try {
-        await axios.delete(`${UrlBackend}/cart/remove/${userId}/${productId}`, {
+        await apiClient.delete(`/cart/remove/${userId}/${productId}`, {
             withCredentials: true,
         });
 
@@ -73,7 +72,7 @@ export const removeCartItemApi = async (userId, productId, dispatch) => {
 // ------------------------ CLEAR ------------------------
 export const clearCartApi = async (userId, dispatch) => {
     try {
-        await axios.delete(`${UrlBackend}/cart/clear/${userId}`, {
+        await apiClient.delete(`/cart/clear/${userId}`, {
             withCredentials: true,
         });
         dispatch(cartClear());

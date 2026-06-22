@@ -1,10 +1,9 @@
-import axios from "axios";
-import { UrlBackend } from "../confic/urlExport";
+import apiClient from "../lib/axios";
 
 // RightBanner add
 export const RightBannerCreate = async (formData, ) => {
   try {
-    const response = await axios.post(`${UrlBackend}/RightBanner/create`, formData, {
+    const response = await apiClient.post(`/RightBanner/create`, formData, {
       withCredentials: true,
       headers: {
         "Content-Type": "multipart/form-data",
@@ -20,7 +19,7 @@ export const RightBannerCreate = async (formData, ) => {
 // RightBanner ALL GET
 export const RightBannerAllGet = async () => {
   try {
-    const response = await axios.get(`${UrlBackend}/RightBanner/get`,  {
+    const response = await apiClient.get(`/RightBanner/get`,  {
       withCredentials: true,
     });
     return response.data; 
@@ -34,8 +33,8 @@ export const RightBannerAllGet = async () => {
 // uplosd RightBanner
 export const RightBannerUploade = async (formData, id) => {
   try {
-    const response = await axios.put(
-      `${UrlBackend}/RightBanner/${id}`, 
+    const response = await apiClient.put(
+      `/RightBanner/${id}`, 
       formData, 
       {
         withCredentials: true, 
@@ -51,8 +50,8 @@ export const RightBannerUploade = async (formData, id) => {
 // delete RightBanner
 export const RightBannerDelete = async (categoryId) => {
   try {
-    const response = await axios.delete(
-      `${UrlBackend}/RightBanner/${categoryId}`, 
+    const response = await apiClient.delete(
+      `/RightBanner/${categoryId}`, 
       {
         withCredentials: true, 
       }

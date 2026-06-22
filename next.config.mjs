@@ -53,6 +53,7 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
+  turbopack: {},
   images: {
     remotePatterns: [
       {
@@ -60,6 +61,14 @@ const nextConfig = {
         hostname: "res.cloudinary.com",
       },
     ],
+  },
+  webpack: (config) => {
+    config.module.rules.push({
+      test: /\.mjs$/,
+      include: /node_modules\/react-icons/,
+      type: "javascript/auto",
+    });
+    return config;
   },
   async headers() {
     return [
@@ -69,7 +78,13 @@ const nextConfig = {
       },
     ];
   },
-  experimental: {
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${backendUrl}/:path*`,
+      },
+    ];
   },
 };
 

@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
 
 const MailItemSkeleton = () => (
   <div className="p-4 animate-pulse">
@@ -37,6 +38,7 @@ const MailItemSkeleton = () => (
 );
 
 const ContactInboxDashboard = () => {
+  const { canModify } = useDashboardPermission();
   const { email, loading, error, refetch } = useGetEmail();
   const [selectedContact, setSelectedContact] = useState(null);
   const [deleting, setDeleting] = useState(null);
@@ -193,18 +195,20 @@ const ContactInboxDashboard = () => {
                         <span className="text-purple-300 text-xs whitespace-nowrap">
                           {getTimeAgo(contact.createdAt)}
                         </span>
-                        <button
-                          onClick={(e) => handleDelete(contact._id, e)}
-                          disabled={deleting === contact._id}
-                          className="text-red-400 hover:text-red-300 disabled:opacity-50"
-                          title="Delete message"
-                        >
-                          {deleting === contact._id ? (
-                            <div className="w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full animate-spin"></div>
-                          ) : (
-                            <Trash2 className="w-4 h-4" />
-                          )}
-                        </button>
+                        {canModify("content") && (
+                          <button
+                            onClick={(e) => handleDelete(contact._id, e)}
+                            disabled={deleting === contact._id}
+                            className="text-red-400 hover:text-red-300 disabled:opacity-50"
+                            title="Delete message"
+                          >
+                            {deleting === contact._id ? (
+                              <div className="w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full animate-spin"></div>
+                            ) : (
+                              <Trash2 className="w-4 h-4" />
+                            )}
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -222,23 +226,25 @@ const ContactInboxDashboard = () => {
                     <h2 className="text-2xl font-bold text-slate-300">
                       {selectedContact.subject}
                     </h2>
-                    <button
-                      onClick={(e) => handleDelete(selectedContact._id, e)}
-                      disabled={deleting === selectedContact._id}
-                      className="text-red-300 hover:text-red-200 disabled:opacity-50 flex items-center gap-2"
-                    >
-                      {deleting === selectedContact._id ? (
-                        <>
-                          <div className="w-5 h-5 border-2 border-red-300 border-t-transparent rounded-full animate-spin"></div>
-                          Deleting...
-                        </>
-                      ) : (
-                        <>
-                          <Trash2 className="w-5 h-5" />
-                          Delete
-                        </>
-                      )}
-                    </button>
+                    {canModify("content") && (
+                      <button
+                        onClick={(e) => handleDelete(selectedContact._id, e)}
+                        disabled={deleting === selectedContact._id}
+                        className="text-red-300 hover:text-red-200 disabled:opacity-50 flex items-center gap-2"
+                      >
+                        {deleting === selectedContact._id ? (
+                          <>
+                            <div className="w-5 h-5 border-2 border-red-300 border-t-transparent rounded-full animate-spin"></div>
+                            Deleting...
+                          </>
+                        ) : (
+                          <>
+                            <Trash2 className="w-5 h-5" />
+                            Delete
+                          </>
+                        )}
+                      </button>
+                    )}
                   </div>
                   <div className="flex items-center gap-2 text-purple-100 text-sm">
                     <Clock className="w-4 h-4" />

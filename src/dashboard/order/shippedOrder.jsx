@@ -18,6 +18,7 @@ import {
   Truck,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
 
 const statusColors = {
   pending:
@@ -106,6 +107,7 @@ const SkeletonOrderCard = () => {
 };
 
 const ShippedOrdersPage = () => {
+  const { canModify } = useDashboardPermission();
   const [orders, setOrders] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -468,6 +470,8 @@ const ShippedOrdersPage = () => {
                     >
                       Details
                     </button>
+                    {canModify("orders") && (
+                    <>
                     <button
                       onClick={() => {
                         setStatus("cancelled");
@@ -489,6 +493,8 @@ const ShippedOrdersPage = () => {
                       >
                         Delivered
                       </button>
+                    )}
+                    </>
                     )}
                   </div>
                 </div>
@@ -866,6 +872,7 @@ const ShippedOrdersPage = () => {
             </div>
 
             {/* Modal Actions */}
+            {canModify("orders") && (
             <div className="flex items-center justify-end flex-wrap gap-3 mt-6 pt-6 border-t border-gray-700">
               {[
                 ...(selectedOrder.order_status === "shipped"
@@ -919,12 +926,13 @@ const ShippedOrdersPage = () => {
                 </button>
               ))}
             </div>
+            )}
           </div>
         </div>
       )}
 
       {/* confirmation modal */}
-      {confirmationModal && (
+      {confirmationModal && canModify("orders") && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-pink-500/30 max-w-md w-full p-6">
             <div className="flex items-center gap-3 mb-4">

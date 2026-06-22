@@ -1,10 +1,15 @@
+"use client";
+
 import AddSubcategoriesComponent from "@/src/dashboard/product/categories/subCategory";
+import DashboardGuard from "@/src/utlis/DashboardGuard";
 
 const categorieslist = () => {
   return (
-    <div>
-      <AddSubcategoriesComponent />
-    </div>
+    <DashboardGuard section="products">
+      <div>
+        <AddSubcategoriesComponent />
+      </div>
+    </DashboardGuard>
   );
 };
 

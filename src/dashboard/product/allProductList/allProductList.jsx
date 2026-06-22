@@ -26,6 +26,7 @@ import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { useSelector, useDispatch } from "react-redux";
 import { setAdminProductSearchTerm, setAdminProductCategory } from "@/src/redux/searchSlice";
+import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
 import * as XLSX from "xlsx";
 
 import CustomLoader from "@/src/compronent/loading/CustomLoader";
@@ -57,6 +58,7 @@ import {
 } from "@mui/material";
 
 const ProductDashboard = () => {
+  const { canModify } = useDashboardPermission();
   const dispatch = useDispatch();
   const searchTerm = useSelector((state) => state.search.adminProductSearchTerm);
   const selectedCategory = useSelector((state) => state.search.adminProductCategory);
@@ -460,6 +462,7 @@ const ProductDashboard = () => {
               </div>
 
               <div className="flex flex-wrap gap-3">
+                {canModify("products") && (
                 <button
                   onClick={addProdcut}
                   className="flex items-center cursor-pointer space-x-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-slate-300 rounded-xl shadow-lg hover:shadow-green-500/25 font-medium"
@@ -467,6 +470,7 @@ const ProductDashboard = () => {
                   <Plus className="w-4 h-4" />
                   <span>Add Product</span>
                 </button>
+                )}
                 <button
                   onClick={handleExport}
                   className="flex items-center space-x-2 px-4 py-3 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-600/50 text-gray-300 hover:text-slate-300 rounded-xl"
@@ -866,15 +870,19 @@ const ProductDashboard = () => {
                 <MenuItem onClick={() => handleAction("view")}>
                   <EyeIcon sx={{ mr: 1.5 }} /> View Details
                 </MenuItem>
+                {canModify("products") && (
                 <MenuItem onClick={() => handleAction("edit")}>
                   <EditIcon sx={{ mr: 1.5 }} /> Edit Product
                 </MenuItem>
+                )}
+                {canModify("products") && (
                 <MenuItem
                   onClick={() => handleAction("delete")}
                   sx={{ color: "#f87171" }}
                 >
                   <DeleteIcon sx={{ mr: 1.5 }} /> Delete
                 </MenuItem>
+                )}
               </Menu>
             </Paper>
           )
@@ -1024,7 +1032,7 @@ const ProductDashboard = () => {
       )}
       clg
       {/* Edit Modal */}
-      {editModal && (
+      {editModal && canModify("products") && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-emerald-500/30 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-gradient-to-r from-emerald-600 to-teal-600 p-6 flex justify-between items-center z-10">
@@ -1303,7 +1311,7 @@ const ProductDashboard = () => {
         </div>
       )}
       {/* Delete Confirmation Modal */}
-      {deleteModal && (
+      {deleteModal && canModify("products") && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-pink-500/30 max-w-md w-full p-6">
             <div className="flex items-center gap-3 mb-4">

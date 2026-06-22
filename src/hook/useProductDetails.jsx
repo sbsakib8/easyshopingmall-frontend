@@ -1,5 +1,4 @@
-import axios from "axios";
-import { UrlBackend } from "../confic/urlExport";
+import apiClient from "../lib/axios";
 
 // Helper to validate MongoDB ObjectId
 const isValidObjectId = (id) => /^[0-9a-fA-F]{24}$/.test(id);
@@ -11,7 +10,7 @@ export const getProductDetailsApi = async (productId) => {
             console.warn(`Invalid Product ID provided: ${productId}`);
             return null;
         }
-        const res = await axios.post(`${UrlBackend}/products/get-product-details/${productId}`, null, {
+        const res = await apiClient.post(`/products/get-product-details/${productId}`, null, {
             withCredentials: true,
         });
         return res.data?.data || null;

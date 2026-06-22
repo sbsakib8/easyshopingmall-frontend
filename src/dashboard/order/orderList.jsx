@@ -3,9 +3,10 @@
 import Container from "@/src/compronent/shared/Container";
 import DashboardLoader from "@/src/helper/loading/DashboardLoader";
 import { useGetAllOrders } from "@/src/utlis/useGetAllOrders";
-import { OrderUpdate } from "@/src/utlis/useOrder";
+import { OrderUpdate, SendOrderMessage, UpdateOrderKeyPoints } from "@/src/utlis/useOrder";
 import { isDSOrder } from "@/src/utlis/orderHelpers";
 import { cn } from "@/src/utlis/utils";
+import DropshippingStatusUpdateModal from "./DropshippingStatusUpdateModal";
 import {
   BarChart3,
   Calendar,
@@ -31,9 +32,11 @@ import {
   Trash2,
   Truck,
   User,
+  X,
   XCircle,
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
 
 const statusColors = {
   pending:
@@ -147,6 +150,7 @@ const SkeletonOrderCard = () => {
 };
 
 const OrderManagement = () => {
+  const { canModify } = useDashboardPermission();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -159,6 +163,12 @@ const OrderManagement = () => {
   const [selectedOrders, setSelectedOrders] = useState(new Set());
   const [confirmationModal, setConfirmationModal] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [dsStatusModal, setDsStatusModal] = useState(false);
+  const [dsStatusOrder, setDsStatusOrder] = useState(null);
+  const [orderMessage, setOrderMessage] = useState("");
+  const [sendingMessage, setSendingMessage] = useState(false);
+  const [newKeyPoint, setNewKeyPoint] = useState("");
+  const [updatingKeyPoints, setUpdatingKeyPoints] = useState(false);
 
   const { allOrders, loading: ordersLoading, refetch } = useGetAllOrders();
 
@@ -300,6 +310,57 @@ const OrderManagement = () => {
     setSelectedOrder(order);
     setShowModal(true);
   };
+
+  const handleDsStatusUpdate = (order) => {
+    setDsStatusOrder(order);
+    setDsStatusModal(true);
+  };
+
+  const handleSendMessage = async () => {
+    if (!orderMessage.trim() || !selectedOrder?._id) return;
+    setSendingMessage(true);
+    try {
+      const res = await SendOrderMessage(selectedOrder._id, orderMessage.trim());
+      if (res.success) {
+        setSelectedOrder(res.data);
+        setOrderMessage("");
+      }
+    } catch (error) {
+      console.error("Failed to send message:", error);
+    } finally {
+      setSendingMessage(false);
+    }
+  };
+
+  const addOrderKeyPoint = () => {
+    if (!newKeyPoint.trim() || !selectedOrder?._id) return;
+    const current = selectedOrder.keyPoints || [];
+    if (current.includes(newKeyPoint.trim())) return;
+    const updated = [...current, newKeyPoint.trim()];
+    saveOrderKeyPoints(updated);
+  };
+
+  const removeOrderKeyPoint = (point) => {
+    const current = selectedOrder?.keyPoints || [];
+    const updated = current.filter((p) => p !== point);
+    saveOrderKeyPoints(updated);
+  };
+
+  const saveOrderKeyPoints = async (keyPoints) => {
+    setUpdatingKeyPoints(true);
+    try {
+      const res = await UpdateOrderKeyPoints(selectedOrder._id, keyPoints);
+      if (res.success) {
+        setSelectedOrder(res.data);
+        setNewKeyPoint("");
+      }
+    } catch (error) {
+      console.error("Failed to update key points:", error);
+    } finally {
+      setUpdatingKeyPoints(false);
+    }
+  };
+
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(selectedOrder?.orderId);
@@ -558,6 +619,19 @@ const OrderManagement = () => {
                             >
                               <Eye className="h-4 w-4" />
                             </button>
+                            {isDSOrder(order) && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDsStatusUpdate(order);
+                                }}
+                                className="p-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-slate-300 shadow-lg"
+                                title="Update Dropshipping Status"
+                              >
+                                <Truck className="h-4 w-4" />
+                              </button>
+                            )}
+                            {canModify("orders") && (
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -568,6 +642,7 @@ const OrderManagement = () => {
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>
+                            )}
                           </div>
                         </div>
 
@@ -1252,6 +1327,7 @@ const OrderManagement = () => {
                     </div>
 
                     {/* Action Buttons */}
+                    {canModify("orders") && (
                     <div className="bg-gradient-to-br from-gray-700/50 to-gray-800/50 rounded-2xl p-6 border border-gray-600">
                       <h3 className="text-lg font-bold text-slate-300 mb-4">
                         Quick Actions
@@ -1289,8 +1365,148 @@ const OrderManagement = () => {
                         >
                           Cancel Order
                         </button>
+                        {isDSOrder(selectedOrder) && (
+                          <button
+                            onClick={() => {
+                              setShowModal(false);
+                              handleDsStatusUpdate(selectedOrder);
+                            }}
+                            className="px-4 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-slate-300 rounded-xl text-sm font-medium col-span-2"
+                          >
+                            Update Dropshipping Status (with tracking)
+                          </button>
+                        )}
                       </div>
+
+                      {/* Status History */}
+                      {selectedOrder?.dropshippingStatusHistory?.length > 0 && (
+                        <div className="mt-6 pt-4 border-t border-gray-600">
+                          <h4 className="text-sm font-bold text-gray-400 mb-3 uppercase tracking-wider">
+                            Status History
+                          </h4>
+                          <div className="space-y-3 max-h-48 overflow-y-auto">
+                            {[...selectedOrder.dropshippingStatusHistory].reverse().map((entry, idx) => (
+                              <div
+                                key={idx}
+                                className="bg-gray-800/50 rounded-xl p-3 border border-gray-700"
+                              >
+                                <div className="flex items-center justify-between mb-1">
+                                  {entry.type === "message" ? (
+                                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-gradient-to-r from-cyan-500 to-blue-500 text-slate-300 shadow-lg shadow-cyan-500/25">
+                                      MESSAGE
+                                    </span>
+                                  ) : (
+                                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${statusColors[entry.status] || "bg-gray-600 text-gray-300"}`}>
+                                      {entry.status?.toUpperCase()}
+                                    </span>
+                                  )}
+                                  <span className="text-[10px] text-gray-500">
+                                    {entry.statusUpdatedAt ? new Date(entry.statusUpdatedAt).toLocaleString() : "N/A"}
+                                  </span>
+                                </div>
+                                {entry.message && (
+                                  <p className="text-xs text-cyan-300 mt-1 bg-cyan-900/20 rounded-lg p-2 border border-cyan-800/30">
+                                    {entry.message}
+                                  </p>
+                                )}
+                                {entry.statusNote && (
+                                  <p className="text-xs text-gray-400 mt-1">
+                                    {entry.statusNote}
+                                  </p>
+                                )}
+                                {entry.trackingNumber && (
+                                  <p className="text-xs text-blue-400 mt-1">
+                                    Tracking: {entry.trackingNumber}
+                                  </p>
+                                )}
+                                {entry.estimatedDelivery && (
+                                  <p className="text-xs text-amber-400 mt-1">
+                                    Est. Delivery: {entry.estimatedDelivery}
+                                  </p>
+                                )}
+                                {entry.shippedBy && (
+                                  <p className="text-xs text-cyan-400 mt-1">
+                                    Shipped by: {entry.shippedBy}
+                                  </p>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Send Message to Dropshipper */}
+                      {isDSOrder(selectedOrder) && (
+                        <div className="mt-4 pt-4 border-t border-gray-600">
+                          <h4 className="text-sm font-bold text-gray-400 mb-3 uppercase tracking-wider">
+                            Send Message to Dropshipper
+                          </h4>
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              value={orderMessage}
+                              onChange={(e) => setOrderMessage(e.target.value)}
+                              onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+                              placeholder="Type a message..."
+                              className="flex-1 px-4 py-2.5 bg-gray-800 border border-gray-600 rounded-xl text-sm text-slate-300 placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+                            />
+                            <button
+                              onClick={handleSendMessage}
+                              disabled={!orderMessage.trim() || sendingMessage}
+                              className="px-4 py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 text-slate-300 rounded-xl text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {sendingMessage ? "Sending..." : "Send"}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Key Highlights for Dropshipper */}
+                      {isDSOrder(selectedOrder) && (
+                        <div className="mt-4 pt-4 border-t border-gray-600">
+                          <h4 className="text-sm font-bold text-gray-400 mb-3 uppercase tracking-wider">
+                            Key Highlights
+                          </h4>
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              value={newKeyPoint}
+                              onChange={(e) => setNewKeyPoint(e.target.value)}
+                              onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addOrderKeyPoint())}
+                              placeholder="Add a highlight and press Enter"
+                              className="flex-1 px-4 py-2.5 bg-gray-800 border border-gray-600 rounded-xl text-sm text-slate-300 placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                            />
+                            <button
+                              onClick={addOrderKeyPoint}
+                              disabled={!newKeyPoint.trim() || updatingKeyPoints}
+                              className="px-4 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-slate-300 rounded-xl text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              +
+                            </button>
+                          </div>
+                          {selectedOrder?.keyPoints?.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mt-3">
+                              {selectedOrder.keyPoints.map((point, i) => (
+                                <span
+                                  key={i}
+                                  className="bg-purple-500/20 border border-purple-500/30 text-purple-300 px-3 py-1 rounded-full text-xs flex items-center gap-1.5"
+                                >
+                                  {point}
+                                  <button
+                                    onClick={() => removeOrderKeyPoint(point)}
+                                    disabled={updatingKeyPoints}
+                                    className="ml-0.5 hover:bg-white/20 rounded-full p-0.5 transition-colors"
+                                  >
+                                    <X size={10} />
+                                  </button>
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1324,7 +1540,7 @@ const OrderManagement = () => {
       </Container>
 
       {/* confirmation modal */}
-      {confirmationModal && (
+      {confirmationModal && canModify("orders") && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-pink-500/30 max-w-md w-full p-6">
             <div className="flex items-center gap-3 mb-4">
@@ -1361,6 +1577,18 @@ const OrderManagement = () => {
         </div>
       )}
 
+      {/* Dropshipping Status Update Modal */}
+      <DropshippingStatusUpdateModal
+        order={dsStatusOrder}
+        isOpen={dsStatusModal}
+        onClose={() => {
+          setDsStatusModal(false);
+          setDsStatusOrder(null);
+        }}
+        onSuccess={() => {
+          refetch();
+        }}
+      />
 
     </section>
   );

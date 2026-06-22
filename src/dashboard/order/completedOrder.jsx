@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Activity, useMemo, useState } from "react";
 import toast from "react-hot-toast";
+import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
 
 const statusColors = {
   pending:
@@ -108,6 +109,7 @@ const OrderCardSkeleton = () => {
 };
 
 const CompletedOrdersPage = () => {
+  const { canModify } = useDashboardPermission();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -596,6 +598,7 @@ const CompletedOrdersPage = () => {
                   </div>
 
                   {/* Admin Quick Actions */}
+                  {canModify("orders") && (
                   <div className="pt-6 border-t border-gray-700">
                     <h3 className="text-lg font-semibold text-slate-300 mb-4">
                       Quick Actions
@@ -649,6 +652,7 @@ const CompletedOrdersPage = () => {
                         )}
                     </div>
                   </div>
+                  )}
 
                   {/* Customer Info */}
                   <div>

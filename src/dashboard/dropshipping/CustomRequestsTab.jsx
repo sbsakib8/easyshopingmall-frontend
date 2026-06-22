@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { statusColors, customRequestTypeLabels } from "./useVideoAccessManagement";
 import AccessStats from "./AccessStats";
+import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
 
 const CustomRequestsTab = ({
   customStats,
@@ -30,6 +31,7 @@ const CustomRequestsTab = ({
   triggerUpdateCustomRequest,
   actionLoading,
 }) => {
+  const { canModify } = useDashboardPermission();
   return (
     <div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
@@ -259,10 +261,11 @@ const CustomRequestsTab = ({
                             ),
                           variant: "primary",
                           disabled: actionLoading,
+                          hidden: !canModify("dropshipping"),
                         },
                       ]
                     : [
-                        ...(req.status === "pending"
+                        ...(req.status === "pending" && canModify("dropshipping")
                           ? [
                               {
                                 label: "Approve / Process",
@@ -276,29 +279,33 @@ const CustomRequestsTab = ({
                               },
                             ]
                           : []),
-                        {
-                          label: "Reject Order",
-                          onClick: () =>
-                            triggerUpdateCustomRequest(
-                              req._id,
-                              "rejected",
-                            ),
-                          variant: "danger",
-                          disabled: actionLoading,
-                        },
-                        {
-                          label: "Deliver Custom Ad Video",
-                          icon: Check,
-                          onClick: () =>
-                            triggerUpdateCustomRequest(
-                              req._id,
-                              "completed",
-                            ),
-                          variant: "primary",
-                          disabled: actionLoading,
-                        },
+                        ...(canModify("dropshipping")
+                          ? [{
+                              label: "Reject Order",
+                              onClick: () =>
+                                triggerUpdateCustomRequest(
+                                  req._id,
+                                  "rejected",
+                                ),
+                              variant: "danger",
+                              disabled: actionLoading,
+                            }]
+                          : []),
+                        ...(canModify("dropshipping")
+                          ? [{
+                              label: "Deliver Custom Ad Video",
+                              icon: Check,
+                              onClick: () =>
+                                triggerUpdateCustomRequest(
+                                  req._id,
+                                  "completed",
+                                ),
+                              variant: "primary",
+                              disabled: actionLoading,
+                            }]
+                          : []),
                       ]),
-                ].map((btn, index) => (
+                ].filter(btn => !btn.hidden).map((btn, index) => (
                   <button
                     key={index}
                     onClick={btn.onClick}

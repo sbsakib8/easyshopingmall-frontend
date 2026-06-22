@@ -10,9 +10,8 @@ import {
 } from "lucide-react";
 
 import toast from "react-hot-toast";
-import axios from "axios";
+import apiClient from "@/src/lib/axios";
 import React, { useState } from "react";
-import { UrlBackend } from "@/src/confic/urlExport";
 import { useSelector } from "react-redux";
 
 const manualMethods = [
@@ -92,10 +91,9 @@ const PaymentModal = ({ order, paymentType, onClose, onSuccess }) => {
             : undefined,
       };
 
-      const response = await axios.post(
-        `${UrlBackend}/orders/${order._id}/pay-due`,
+      const response = await apiClient.post(
+        `/orders/${order._id}/pay-due`,
         payload,
-        { withCredentials: true },
       );
 
       if (response.data.success) {

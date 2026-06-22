@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import DashboardGuard from "@/src/utlis/DashboardGuard";
 
 const SalesReportDashboard = dynamic(
   () => import("@/src/dashboard/analytics/salesReport"),
@@ -9,9 +10,11 @@ const SalesReportDashboard = dynamic(
 
 const page=()=> {
  return (
+ <DashboardGuard section="analytics">
  <div>
  <SalesReportDashboard/>
  </div>
+ </DashboardGuard>
  )
 }
 

@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
 
 const StatCard = ({
   title,
@@ -114,6 +115,7 @@ const BlogCardSkeleton = () => (
 );
 
 const BlogsAdminDashboard = () => {
+  const { canModify } = useDashboardPermission();
   const { blogs: apiBlogs, loading, error, refetch } = useGetBlogs();
   const [blogs, setBlogs] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -484,18 +486,22 @@ const BlogsAdminDashboard = () => {
                     </div>
 
                     <div className="flex gap-2">
-                      <button
-                        onClick={() => handleEdit(blog)}
-                        className="p-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg transform"
-                      >
-                        <Edit2 size={16} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(blog._id || blog.id)}
-                        className="p-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transform"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                      {canModify("content") && (
+                        <button
+                          onClick={() => handleEdit(blog)}
+                          className="p-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg transform"
+                        >
+                          <Edit2 size={16} />
+                        </button>
+                      )}
+                      {canModify("content") && (
+                        <button
+                          onClick={() => handleDelete(blog._id || blog.id)}
+                          className="p-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transform"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -624,22 +630,24 @@ const BlogsAdminDashboard = () => {
                 </div>
 
                 <div className="flex gap-4 pt-4">
-                  <button
-                    onClick={handleSubmit}
-                    disabled={submitting}
-                    className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-slate-300 py-3 px-6 rounded-xl font-semibold transform disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
-                  >
-                    {submitting ? (
-                      <>
-                        <Loader2 className="animate-spin" size={20} />
-                        {editingBlog ? "Updating..." : "Creating..."}
-                      </>
-                    ) : editingBlog ? (
-                      "Update Blog"
-                    ) : (
-                      "Create Blog"
-                    )}
-                  </button>
+                  {canModify("content") && (
+                    <button
+                      onClick={handleSubmit}
+                      disabled={submitting}
+                      className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-slate-300 py-3 px-6 rounded-xl font-semibold transform disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
+                    >
+                      {submitting ? (
+                        <>
+                          <Loader2 className="animate-spin" size={20} />
+                          {editingBlog ? "Updating..." : "Creating..."}
+                        </>
+                      ) : editingBlog ? (
+                        "Update Blog"
+                      ) : (
+                        "Create Blog"
+                      )}
+                    </button>
+                  )}
                   <button
                     onClick={resetForm}
                     disabled={submitting}

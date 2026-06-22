@@ -22,6 +22,7 @@ import {
   ViewTransition,
 } from "react";
 import {cn} from "@/src/utlis/utils";
+import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
 
 const statusColors = {
   pending:
@@ -112,6 +113,7 @@ const SkeletonOrderCard = () => (
 );
 
 const PendingOrdersPage = () => {
+  const { canModify } = useDashboardPermission();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -447,6 +449,8 @@ const PendingOrdersPage = () => {
                       >
                         Details
                       </button>
+                      {canModify("orders") && (
+                      <>
                       <button
                         onClick={() => {
                           setStatus("shipped");
@@ -467,6 +471,8 @@ const PendingOrdersPage = () => {
                       >
                         Reject
                       </button>
+                      </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -912,6 +918,7 @@ const PendingOrdersPage = () => {
                 </div>
 
                 {/* Modal Actions */}
+                {canModify("orders") && (
                 <div className="flex gap-3">
                   <button
                     onClick={() => {
@@ -934,6 +941,7 @@ const PendingOrdersPage = () => {
                     Reject Order
                   </button>
                 </div>
+                )}
               </div>
             </div>
           </ViewTransition>
@@ -941,7 +949,7 @@ const PendingOrdersPage = () => {
       </Container>
 
       {/* confirmation modal */}
-      {confirmationModal && (
+      {confirmationModal && canModify("orders") && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-pink-500/30 max-w-md w-full p-6">
             <div className="flex items-center gap-3 mb-4">

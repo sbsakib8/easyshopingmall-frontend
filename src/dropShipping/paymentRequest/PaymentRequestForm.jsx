@@ -1,9 +1,8 @@
 "use client";
 import Container from "@/src/compronent/shared/Container";
-import { UrlBackend } from "@/src/confic/urlExport";
+import apiClient from "@/src/lib/axios";
 import BackButton from "@/src/dropShipping/BackButton/BackButton";
 import { useGetUser } from "@/src/utlis/useGetuser";
-import axios from "axios";
 import {
   CheckCircle,
   Clock,
@@ -25,9 +24,7 @@ const PaymentRequestForm = () => {
 
   const fetchMyRequests = async () => {
     try {
-      const res = await axios.get(`${UrlBackend}/payment-request/my-requests`, {
-        withCredentials: true,
-      });
+      const res = await apiClient.get(`/payment-request/my-requests`);
       if (res.data.success) {
         setRequests(res.data.data);
       }
@@ -55,17 +52,11 @@ const PaymentRequestForm = () => {
 
     setLoading(true);
     try {
-      const res = await axios.post(
-        `${UrlBackend}/payment-request/create`,
-        {
-          amount: amount,
-          paymentMethod: data.paymentMethod,
-          number: data.number,
-        },
-        {
-          withCredentials: true,
-        },
-      );
+      const res = await apiClient.post(`/payment-request/create`, {
+        amount: amount,
+        paymentMethod: data.paymentMethod,
+        number: data.number,
+      });
 
       if (res.data.success) {
         toast.success("Withdrawal request submitted successfully!");

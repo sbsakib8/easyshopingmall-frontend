@@ -1,8 +1,7 @@
 "use client";
 
-import { UrlBackend } from "@/src/confic/urlExport";
 import { cn } from "@/src/utlis/utils";
-import axios from "axios";
+import apiClient from "@/src/lib/axios";
 import {
   AlertCircle,
   Check,
@@ -20,6 +19,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
+import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
 
 const statusColors = {
   pending:
@@ -130,6 +130,7 @@ const WithdrawalRequestsSkeletonGrid = ({ count = 6 }) => {
 };
 
 const PayoutManagement = () => {
+  const { canModify } = useDashboardPermission();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -148,9 +149,7 @@ const PayoutManagement = () => {
   const fetchAllRequests = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${UrlBackend}/payment-request/all`, {
-        withCredentials: true,
-      });
+      const res = await apiClient.get(`/payment-request/all`);
       if (res.data.success) {
         setRequests(res.data.data);
       }
@@ -218,11 +217,10 @@ const PayoutManagement = () => {
       formData.append("screenshot", adminScreenshot);
       formData.append("adminNote", adminNote);
 
-      const res = await axios.patch(
-        `${UrlBackend}/payment-request/approve/${approvingId}`,
+      const res = await apiClient.patch(
+        `/payment-request/approve/${approvingId}`,
         formData,
         {
-          withCredentials: true,
           headers: { "Content-Type": "multipart/form-data" },
         },
       );
@@ -253,10 +251,9 @@ const PayoutManagement = () => {
       return;
 
     try {
-      const res = await axios.patch(
-        `${UrlBackend}/payment-request/reject/${requestId}`,
+      const res = await apiClient.patch(
+        `/payment-request/reject/${requestId}`,
         { adminNote },
-        { withCredentials: true },
       );
       if (res.data.success) {
         toast.success("Request rejected and balance refunded");
@@ -506,6 +503,8 @@ const PayoutManagement = () => {
 
                 {req.status === "pending" && (
                   <div className="flex gap-3">
+                    {canModify("dropshipping") && (
+                    <>
                     <button
                       onClick={() => setApprovingId(req._id)}
                       className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3.5 rounded-2xl text-xs font-black shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all flex items-center justify-center gap-2"
@@ -519,6 +518,8 @@ const PayoutManagement = () => {
                     >
                       <X size={18} />
                     </button>
+                    </>
+                    )}
                   </div>
                 )}
 
@@ -658,6 +659,7 @@ const PayoutManagement = () => {
                 </div>
               </div>
 
+              {canModify("dropshipping") && (
               <button
                 type="submit"
                 disabled={actionLoading}
@@ -665,6 +667,7 @@ const PayoutManagement = () => {
               >
                 {actionLoading ? "Processing..." : "Confirm Payout Completion"}
               </button>
+              )}
             </form>
           </div>
         </div>

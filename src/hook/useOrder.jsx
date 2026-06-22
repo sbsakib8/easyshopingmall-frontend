@@ -1,10 +1,9 @@
-import axios from "axios";
-import { UrlBackend } from "../confic/urlExport";
+import apiClient from "../lib/axios";
 
 // ✅ Create manual payment order
 export const createManualPaymentOrder = async (formData) => {
     try {
-        const response = await axios.post(`${UrlBackend}/orders/manual`, formData, {
+        const response = await apiClient.post(`/orders/manual`, formData, {
             withCredentials: true,
             headers: { "Content-Type": "application/json" },
         });
@@ -18,7 +17,7 @@ export const createManualPaymentOrder = async (formData) => {
 // ✅ Create SSL payment order
 export const createSslPaymentOrder = async (formData) => {
     try {
-        const response = await axios.post(`${UrlBackend}/orders/create`, formData, {
+        const response = await apiClient.post(`/orders/create`, formData, {
             withCredentials: true,
             headers: { "Content-Type": "application/json" },
         });
@@ -31,8 +30,8 @@ export const createSslPaymentOrder = async (formData) => {
 
 export const submitManualPayment = async (data) => {
     try {
-        const response = await axios.post(
-            `${UrlBackend}/orders/manual-payment`,
+        const response = await apiClient.post(
+            `/orders/manual-payment`,
             data,
             {
                 withCredentials: true,
@@ -54,7 +53,7 @@ export const submitManualPayment = async (data) => {
 // ✅ Initialize SSLCommerz payment session
 export const initPaymentSession = async (payload) => {
     try {
-        const response = await axios.post(`${UrlBackend}/payment/initiate`, payload, {
+        const response = await apiClient.post(`/payment/initiate`, payload, {
             withCredentials: true,
             headers: { "Content-Type": "application/json" },
         });
@@ -67,7 +66,7 @@ export const initPaymentSession = async (payload) => {
 
 // export const OrderAllGet = async (formData,) => {
 //     try {
-//         const response = await axios.post(`${UrlBackend}/orders/get`, formData, {
+//         const response = await apiClient.post(`/orders/get`, formData, {
 //             withCredentials: true,
 //             headers: {
 //                 "Content-Type": "application/json", // crucial!
@@ -83,8 +82,8 @@ export const initPaymentSession = async (payload) => {
 // update
 // export const OrderUpdate = async (formData) => {
 //     try {
-//         const response = await axios.put(
-//             `${UrlBackend}/orders/`,
+//         const response = await apiClient.put(
+//             `/orders/`,
 //             formData,
 //             {
 //                 withCredentials: true,

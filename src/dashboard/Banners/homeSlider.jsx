@@ -4,8 +4,10 @@ import {HomeBannerCreate, HomeBannerDelete, HomeBannerUploade} from"@/src/hook/u
 import {useGetHomeBanner} from"@/src/utlis/useHomeBanner"
 import {useState, useRef, useEffect} from"react"
 import toast from"react-hot-toast"
+import { useDashboardPermission } from "@/src/utlis/useDashboardPermission"
 
 const HomeSliderPage = () => {
+ const { canModify } = useDashboardPermission();
 
  const {homebanner, loading, error, refetch} = useGetHomeBanner();
  const [sliders, setSliders] = useState([]);
@@ -426,6 +428,7 @@ const HomeSliderPage = () => {
  </div>
  </div>
 
+ {canModify("banner") && (
  <button
  onClick={handleAddSlider}
  disabled={!formData.title || !formData.images}
@@ -434,8 +437,9 @@ const HomeSliderPage = () => {
  <svg className="w-5 h-5"fill="none"stroke="currentColor"viewBox="0 0 24 24">
  <path strokeLinecap="round"strokeLinejoin="round"strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
  </svg>
- Add Slider
+  Add Slider
  </button>
+ )}
  </div>
  </div>
  </div>
@@ -528,6 +532,7 @@ const HomeSliderPage = () => {
  </svg>
  </button>
 
+ {canModify("banner") && (
  <button
  onClick={() => handleDeleteSlider(slider?._id)}
  className="px-4 py-2 bg-red-600/20 text-red-400 border border-red-600/30 hover:bg-red-600/30 rounded-lg text-sm font-medium"
@@ -541,6 +546,7 @@ const HomeSliderPage = () => {
  />
  </svg>
  </button>
+ )}
  </div>
  </div>
  ))}
@@ -627,17 +633,19 @@ const HomeSliderPage = () => {
  </div>
  </div>
  <div className="flex gap-3 pt-4">
+ {canModify("banner") && (
  <button
  onClick={handleUpdateSlider}
  className="flex-1 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-slate-300 font-semibold rounded-xl"
  >
- Update Slider
+  Update Slider
  </button>
+ )}
  <button
  onClick={() => setEditingSlider(null)}
  className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-slate-300 font-semibold rounded-xl"
  >
- Cancel
+  Cancel
  </button>
  </div>
  </div>

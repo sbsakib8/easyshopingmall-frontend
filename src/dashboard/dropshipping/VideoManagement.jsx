@@ -20,6 +20,7 @@ import EmptyState from "./EmptyState";
 import CourseForm from "./CourseForm";
 import ModuleForm from "./ModuleForm";
 import VideoForm from "./VideoForm";
+import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
 
 const SidebarSkeleton = () => (
   <div className="w-full md:w-70 lg:w-96 bg-slate-900 border-r border-slate-800 flex flex-col md:h-full">
@@ -61,6 +62,7 @@ const SidebarSkeleton = () => (
 );
 
 const VideoManagement = () => {
+  const { canModify } = useDashboardPermission();
   const {
     courses,
     modules,
@@ -109,12 +111,14 @@ const VideoManagement = () => {
               >
                 <RefreshCw size={14} />
               </button>
+              {canModify("dropshipping") && (
               <button
                 onClick={() => selectItem("new_course")}
                 className="p-1.5 text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-500/20 rounded-md transition-colors"
               >
                 <Plus size={14} />
               </button>
+              )}
             </div>
           </div>
 
@@ -159,15 +163,17 @@ const VideoManagement = () => {
                         {course.title}
                       </span>
                     </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        selectItem("new_module", null, course._id);
-                      }}
-                      className="opacity-0 group-hover:opacity-100 p-2 text-slate-500 hover:text-blue-400 transition-opacity"
-                    >
-                      <PlusCircle size={14} />
-                    </button>
+                      {canModify("dropshipping") && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          selectItem("new_module", null, course._id);
+                        }}
+                        className="opacity-0 group-hover:opacity-100 p-2 text-slate-500 hover:text-blue-400 transition-opacity"
+                      >
+                        <PlusCircle size={14} />
+                      </button>
+                      )}
                   </div>
 
                   {isCourseExpanded && (
@@ -216,6 +222,7 @@ const VideoManagement = () => {
                                   {mod.title}
                                 </span>
                               </div>
+                              {canModify("dropshipping") && (
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -225,6 +232,7 @@ const VideoManagement = () => {
                               >
                                 <PlusCircle size={12} />
                               </button>
+                              )}
                             </div>
 
                             {isModExpanded && (
@@ -376,7 +384,7 @@ const VideoManagement = () => {
                     : `Create New ${selectedItem.type.split("_")[1]}`}
                 </h1>
               </div>
-              {selectedItem.data && (
+              {selectedItem.data && canModify("dropshipping") && (
                 <button
                   onClick={() =>
                     setDeleteConfirm({

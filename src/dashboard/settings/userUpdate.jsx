@@ -3,7 +3,9 @@ import React, {useState, useEffect} from'react';
 import {Search, Shield, Trash2, Edit, X, Save, User, Mail, Phone, Calendar, Check, AlertCircle, UserCog, RefreshCw, Image as ImageIcon, Key, Clock} from'lucide-react';
 import {useGetallUsers} from'@/src/utlis/useGetAllUser';
 import {deleteUser, updateUserProfile} from'@/src/hook/useAuth';
+import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
 export default function UserRoleManager() {
+ const { canModify } = useDashboardPermission();
  // Get all users
  const {allusers, loading: fetchLoading, error, refetch} = useGetallUsers();
 
@@ -399,19 +401,23 @@ export default function UserRoleManager() {
 
  {/* Actions */}
  <div className="flex gap-2">
+ {canModify("settings") && (
  <button
  onClick={() => handleEditUser(user)}
  className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 text-slate-300 py-2 px-4 rounded-lg hover:from-blue-600 hover:to-cyan-600 flex items-center justify-center gap-2 font-medium text-sm"
  >
  <Edit className="w-4 h-4"/>
- Edit
+  Edit
  </button>
+ )}
+ {canModify("settings") && (
  <button
  onClick={() => handleDeleteUser(user?._id)}
  className="bg-gradient-to-r from-red-500 to-pink-500 text-slate-300 py-2 px-4 rounded-lg hover:from-red-600 hover:to-pink-600 flex items-center justify-center"
  >
  <Trash2 className="w-4 h-4"/>
  </button>
+ )}
  </div>
  </div>
  ))}

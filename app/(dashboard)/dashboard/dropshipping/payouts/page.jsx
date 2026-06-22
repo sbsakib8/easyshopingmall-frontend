@@ -1,14 +1,14 @@
-import PayoutManagement from "@/src/dashboard/dropshipping/PayoutManagement";
+"use client";
 
-export const metadata = {
-    title: "Payment Requests | Admin Dashboard",
-    description: "Review and approve manual payment requests from dropshippers.",
-};
+import PayoutManagement from "@/src/dashboard/dropshipping/PayoutManagement";
+import DashboardGuard from "@/src/utlis/DashboardGuard";
 
 export default function PayoutsAdminPage() {
     return (
-        <div className="p-6 md:p-8">
-            <PayoutManagement />
-        </div>
+        <DashboardGuard section="dropshipping">
+            <div className="p-6 md:p-8">
+                <PayoutManagement />
+            </div>
+        </DashboardGuard>
     );
 }

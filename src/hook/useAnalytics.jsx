@@ -1,5 +1,4 @@
-import axios from "axios";
-import { UrlBackend } from "../confic/urlExport";
+import apiClient from "../lib/axios";
 
 export function getAnalyticsDateRange(period) {
   const endDate = new Date();
@@ -33,7 +32,7 @@ async function fetchAnalytics(path, startDate, endDate) {
   if (startDate) params.startDate = startDate;
   if (endDate) params.endDate = endDate;
 
-  const response = await axios.get(`${UrlBackend}/analytics/${path}`, {
+  const response = await apiClient.get(`/analytics/${path}`, {
     params,
     withCredentials: true,
   });

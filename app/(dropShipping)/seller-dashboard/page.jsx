@@ -126,6 +126,7 @@ function SellerDashboard() {
     <Section className="min-h-dvh bg-gradient-to-b from-slate-50 to-white">
       <Container>
         <BackButton className="mb-4 -mt-2" />
+
         {/* Header & Balance Card */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <div className="lg:col-span-2">
