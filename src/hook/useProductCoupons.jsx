@@ -1,5 +1,4 @@
-import axios from "axios";
-import { UrlBackend } from "../confic/urlExport";
+import apiClient from "../lib/axios";
 
 /**
  * Fetch active coupons applicable to a given product.
@@ -9,7 +8,7 @@ import { UrlBackend } from "../confic/urlExport";
 export const getProductCouponsApi = async (productId) => {
     try {
         if (!productId) return [];
-        const res = await axios.get(`${UrlBackend}/coupon/product/${productId}`, {
+        const res = await apiClient.get(`/coupon/product/${productId}`, {
             withCredentials: true,
         });
         return res.data?.data || [];

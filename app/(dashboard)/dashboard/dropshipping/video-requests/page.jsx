@@ -1,14 +1,12 @@
-import VideoAccessManagement from "@/src/dashboard/dropshipping/VideoAccessManagement";
+"use client";
 
-export const metadata = {
-  title: "Video Access Requests | Admin Dashboard",
-  description: "Manage and approve video access payments for dropshippers.",
-};
+import VideoAccessManagement from "@/src/dashboard/dropshipping/VideoAccessManagement";
+import DashboardGuard from "@/src/utlis/DashboardGuard";
 
 export default function VideoRequestsAdminPage() {
   return (
-    <>
+    <DashboardGuard section="dropshipping">
       <VideoAccessManagement />
-    </>
+    </DashboardGuard>
   );
 }

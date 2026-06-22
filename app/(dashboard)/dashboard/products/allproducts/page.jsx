@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import DashboardGuard from "@/src/utlis/DashboardGuard";
 
 const ProductDashboard = dynamic(
   () => import("@/src/dashboard/product/allProductList/allProductList"),
@@ -9,9 +10,9 @@ const ProductDashboard = dynamic(
 
 const PoductList=()=> {
  return (
- <>
+ <DashboardGuard section="products">
  <ProductDashboard/>
- </>
+ </DashboardGuard>
  )
 }
 

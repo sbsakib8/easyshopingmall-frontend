@@ -1,10 +1,9 @@
-import axios from "axios";
-import { UrlBackend } from "../confic/urlExport";
+import apiClient from "../lib/axios";
 
 // LeftBanner add
 export const LeftBannerCreate = async (formData, ) => {
   try {
-    const response = await axios.post(`${UrlBackend}/LeftBanner/create`, formData, {
+    const response = await apiClient.post(`/LeftBanner/create`, formData, {
       withCredentials: true,
       headers: {
         "Content-Type": "multipart/form-data",
@@ -20,7 +19,7 @@ export const LeftBannerCreate = async (formData, ) => {
 // LeftBanner ALL GET
 export const LeftBannerAllGet = async () => {
   try {
-    const response = await axios.get(`${UrlBackend}/LeftBanner/get`,  {
+    const response = await apiClient.get(`/LeftBanner/get`,  {
       withCredentials: true,
     });
     return response.data; 
@@ -34,8 +33,8 @@ export const LeftBannerAllGet = async () => {
 // uplosd LeftBanner
 export const LeftBannerUploade = async (formData, id) => {
   try {
-    const response = await axios.put(
-      `${UrlBackend}/LeftBanner/${id}`, 
+    const response = await apiClient.put(
+      `/LeftBanner/${id}`, 
       formData, 
       {
         withCredentials: true, 
@@ -51,8 +50,8 @@ export const LeftBannerUploade = async (formData, id) => {
 // delete LeftBanner
 export const LeftBannerDelete = async (categoryId) => {
   try {
-    const response = await axios.delete(
-      `${UrlBackend}/LeftBanner/${categoryId}`, 
+    const response = await apiClient.delete(
+      `/LeftBanner/${categoryId}`, 
       {
         withCredentials: true, 
       }

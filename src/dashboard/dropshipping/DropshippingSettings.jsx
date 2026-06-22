@@ -10,8 +10,10 @@ import {
   Info
 } from "lucide-react";
 import { ReferralGet, ReferralUpdate } from "@/src/hook/referral/useReferral";
+import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
 
 export default function DropshippingSettings() {
+  const { canModify } = useDashboardPermission();
   const [loading, setLoading] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
   const [referralPercentage, setReferralPercentage] = useState(0);
@@ -168,6 +170,7 @@ export default function DropshippingSettings() {
                 >
                   Discard Changes
                 </button>
+                {canModify("dropshipping") && (
                 <button
                   onClick={handleSave}
                   disabled={loading}
@@ -176,6 +179,7 @@ export default function DropshippingSettings() {
                   {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                   {loading ? "Saving..." : "Save Configuration"}
                 </button>
+                )}
               </div>
             </div>
           )}

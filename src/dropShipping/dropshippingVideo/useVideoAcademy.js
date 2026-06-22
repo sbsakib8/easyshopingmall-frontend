@@ -1,10 +1,9 @@
 "use client";
 
-import { UrlBackend } from "@/src/confic/urlExport";
 import { WebsiteinfoAllGet } from "@/src/hook/content/useWebsiteInfo";
 import { ProductAllGet } from "@/src/hook/useProduct";
 import { useGetUser } from "@/src/utlis/useGetuser";
-import axios from "axios";
+import apiClient from "@/src/lib/axios";
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { toast } from "react-hot-toast";
 
@@ -119,12 +118,10 @@ export const useVideoAcademy = () => {
         modulesResult,
         websiteInfoResult,
       ] = await Promise.allSettled([
-        axios.get(`${UrlBackend}/video-access/my-access`, {
-          withCredentials: true,
-        }),
-        axios.get(`${UrlBackend}/video-content/all`, { withCredentials: true }),
-        axios.get(`${UrlBackend}/video-course/all`, { withCredentials: true }),
-        axios.get(`${UrlBackend}/video-module/all`, { withCredentials: true }),
+        apiClient.get(`/video-access/my-access`),
+        apiClient.get(`/video-content/all`),
+        apiClient.get(`/video-course/all`),
+        apiClient.get(`/video-module/all`),
         WebsiteinfoAllGet(),
       ]);
       if (
@@ -189,9 +186,7 @@ export const useVideoAcademy = () => {
   const fetchRequests = useCallback(async () => {
     setLoadingRequests(true);
     try {
-      const res = await axios.get(`${UrlBackend}/video-request/my-requests`, {
-        withCredentials: true,
-      });
+      const res = await apiClient.get(`/video-request/my-requests`);
       if (res.data.success) setMyRequests(res.data.data);
     } catch (error) {
       console.error("Failed to fetch video requests", error);
@@ -245,16 +240,12 @@ export const useVideoAcademy = () => {
       e.preventDefault();
       setSubmitting(true);
       try {
-        const res = await axios.post(
-          `${UrlBackend}/video-access/create`,
-          {
-            ...paymentData,
-            amount: currentCoursePrice,
-            videoType: "premium_training",
-            courseId: selectedCourseId,
-          },
-          { withCredentials: true },
-        );
+        const res = await apiClient.post(`/video-access/create`, {
+          ...paymentData,
+          amount: currentCoursePrice,
+          videoType: "premium_training",
+          courseId: selectedCourseId,
+        });
         if (res.data.success) {
           toast.success("Payment submitted! Waiting for admin approval.");
           fetchData();
@@ -279,15 +270,11 @@ export const useVideoAcademy = () => {
       }
       setRequestSubmitLoading(true);
       try {
-        const res = await axios.post(
-          `${UrlBackend}/video-request/create`,
-          {
-            productId: newRequestData.productId,
-            videoType: newRequestData.videoType,
-            notes: newRequestData.notes,
-          },
-          { withCredentials: true },
-        );
+        const res = await apiClient.post(`/video-request/create`, {
+          productId: newRequestData.productId,
+          videoType: newRequestData.videoType,
+          notes: newRequestData.notes,
+        });
         if (res.data.success) {
           toast.success("Ad creative request submitted!");
           setNewRequestData({

@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import DashboardGuard from "@/src/utlis/DashboardGuard";
 
 const DropshippingAnalytics = dynamic(
   () => import("@/src/dashboard/dropshipping/DropshippingAnalytics"),
@@ -8,5 +9,9 @@ const DropshippingAnalytics = dynamic(
 );
 
 export default function Page() {
-  return <DropshippingAnalytics />;
+  return (
+    <DashboardGuard section="dropshipping">
+      <DropshippingAnalytics />
+    </DashboardGuard>
+  );
 }

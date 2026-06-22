@@ -1,11 +1,13 @@
 "use client";
-import React, {useState, useEffect} from'react';
-import {Trash2, Plus, Save, X, RefreshCw, Edit, Check, AlertCircle} from'lucide-react';
-import {WebsiteinfoCreate, WebsiteinfoDelete, WebsiteinfoUploade} from'@/src/hook/content/useWebsiteInfo';
-import {useGetwebsiteinfo} from'@/src/utlis/content/useWebsiteinfo';
+import React, {useState, useEffect}from'react';
+import {Trash2, Plus, Save, X, RefreshCw, Edit, Check, AlertCircle}from'lucide-react';
+import {WebsiteinfoCreate, WebsiteinfoDelete, WebsiteinfoUploade}from'@/src/hook/content/useWebsiteInfo';
+import {useGetwebsiteinfo}from'@/src/utlis/content/useWebsiteinfo';
+import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
 
 
 export default function WebsiteInfoAdmin() {
+ const { canModify } = useDashboardPermission();
  const {websiteinfo, loading: dataLoading, error: dataError, refetch} = useGetwebsiteinfo();
  const [loading, setLoading] = useState(false);
  const [editingId, setEditingId] = useState(null);
@@ -534,6 +536,7 @@ export default function WebsiteInfoAdmin() {
 
  {/* Form Actions */}
  <div className="flex gap-3 pt-4">
+ {canModify("content") && (
  <button
  type="submit"
  disabled={loading}
@@ -542,13 +545,14 @@ export default function WebsiteInfoAdmin() {
  <Save className="w-4 h-4"/>
  {loading ?'Saving...': editingId ?'Update':'Create'}
  </button>
+ )}
 
  <button
  type="button"
  onClick={resetForm}
  className="px-6 py-3 border border-gray-300 text-gray-300 rounded-lg hover:bg-gray-50"
  >
- Cancel
+  Cancel
  </button>
  </div>
  </div>
@@ -609,8 +613,9 @@ export default function WebsiteInfoAdmin() {
  className="flex items-center justify-center gap-2 bg-blue-600 px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 flex-1 md:flex-initial"
  >
  <Edit className="w-4 h-4"/>
- Edit
+  Edit
  </button>
+ {canModify("content") && (
  <button
  onClick={() => handleDelete(info._id)}
  disabled={loading}
@@ -618,6 +623,7 @@ export default function WebsiteInfoAdmin() {
  >
  <Trash2 className="w-4 h-4"/>
  </button>
+ )}
  </div>
  </div>
 

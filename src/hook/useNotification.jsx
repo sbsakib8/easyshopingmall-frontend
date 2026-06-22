@@ -1,11 +1,10 @@
-import axios from "axios";
-import { UrlBackend } from "../confic/urlExport";
+import apiClient from "../lib/axios";
 
 // sockeet io product update
 export const CreateNotification = async (formData) => {
   try {
-    const response = await axios.post(
-      `${UrlBackend}/notification`,
+    const response = await apiClient.post(
+      `/notification`,
       formData,
       {
         withCredentials: true,
@@ -24,7 +23,7 @@ export const CreateNotification = async (formData) => {
 // all notification get 
 export const NotificationAllGet = async () => {
   try {
-    const response = await axios.get(`${UrlBackend}/notification`,{
+    const response = await apiClient.get(`/notification`,{
       withCredentials: true,
     });
     return response.data; 
@@ -38,7 +37,7 @@ export const NotificationAllGet = async () => {
 //  mark single read
 export const NotificationSingleRead = async (id) => {
   try {
-    const response = await axios.put(`${UrlBackend}/notification/${id}/read`, {}, {
+    const response = await apiClient.put(`/notification/${id}/read`, {}, {
       withCredentials: true,
     });
     return response.data; 
@@ -51,7 +50,7 @@ export const NotificationSingleRead = async (id) => {
 // mark-all-read
 export const NotificationAllRead = async () => {
   try {
-    const response = await axios.put(`${UrlBackend}/notification/mark-all-read`, {}, {
+    const response = await apiClient.put(`/notification/mark-all-read`, {}, {
       withCredentials: true,
     });
     return response.data; 
@@ -64,7 +63,7 @@ export const NotificationAllRead = async () => {
 // delete
 export const NotificationDelete = async (id) => {
   try {
-    const response = await axios.delete(`${UrlBackend}/notification/${id}`,{
+    const response = await apiClient.delete(`/notification/${id}`,{
       withCredentials: true,
     });
     return response.data; 

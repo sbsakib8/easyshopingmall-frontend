@@ -65,7 +65,11 @@ const Header = ({ initialData }) => {
 
   // user data fatch
   const data = useSelector((state) => state.user.data);
+  const DASHBOARD_ROLES = ["ADMIN", "MANAGER", "CPO"];
   const isAdmin = data?.role === "ADMIN" || data?.roles?.includes("ADMIN");
+  const hasDashboardAccess =
+    DASHBOARD_ROLES.includes(data?.role) ||
+    data?.roles?.some((r) => DASHBOARD_ROLES.includes(r));
 
   // Navigation items
   const navItems = [
@@ -112,7 +116,7 @@ const Header = ({ initialData }) => {
     ),
   }));
 
-  if (isAdmin) {
+  if (hasDashboardAccess) {
     navItems.push({ name: "Dashboard", href: "/dashboard" });
   }
 
@@ -576,7 +580,7 @@ const Header = ({ initialData }) => {
                 },
               ].map((item) => {
                 const isLoggedIn = mounted ? !!data : false;
-                const isAdminUser = mounted ? isAdmin : false;
+                const isAdminUser = mounted ? hasDashboardAccess : false;
                 const shouldShow =
                   (item.key === "account" && isLoggedIn) ||
                   (item.key === "signin" && !isLoggedIn) ||

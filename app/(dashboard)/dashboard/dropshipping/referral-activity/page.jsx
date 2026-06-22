@@ -1,10 +1,12 @@
-import ReferralActivity from "@/src/dashboard/dropshipping/ReferralActivity";
+"use client";
 
-export const metadata = {
-  title: "Referral Activity | EasyShoppingMall Dashboard",
-  description: "Monitor dropshipping referral network bonuses and activity.",
-};
+import ReferralActivity from "@/src/dashboard/dropshipping/ReferralActivity";
+import DashboardGuard from "@/src/utlis/DashboardGuard";
 
 export default function Page() {
-  return <ReferralActivity />;
+  return (
+    <DashboardGuard section="dropshipping">
+      <ReferralActivity />
+    </DashboardGuard>
+  );
 }

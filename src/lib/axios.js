@@ -1,7 +1,6 @@
 import axios from "axios";
 import { UrlBackend } from "../confic/urlExport";
 import { getCsrfHeaders } from "./csrf";
-import { secureStorage } from "./secureStorage";
 
 const apiClient = axios.create({
   baseURL: UrlBackend,
@@ -38,10 +37,13 @@ apiClient.interceptors.response.use(
     if (error.response) {
       const { status } = error.response;
 
-      if (status === 401 || status === 403) {
+      // 401 = not logged in → redirect to signin
+      if (status === 401) {
         if (typeof window !== "undefined") {
-          secureStorage.removeItem("user");
-          if (window.location.pathname !== "/signin" && window.location.pathname !== "/signup") {
+          if (
+            window.location.pathname !== "/signin" &&
+            window.location.pathname !== "/signup"
+          ) {
             window.location.href = "/signin";
           }
         }

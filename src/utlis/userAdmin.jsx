@@ -3,6 +3,8 @@ import { useSelector } from "react-redux";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
 
+const DASHBOARD_ROLES = ["ADMIN", "MANAGER", "CPO"];
+
 const AuthAdminRole = ({ children }) => {
   const { data } = useSelector((state) => state.user);
   const router = useRouter();
@@ -14,7 +16,13 @@ const AuthAdminRole = ({ children }) => {
       return;
     }
 
-    if (pathname.startsWith("/dashboard") && (data.role !== "ADMIN" && !data.roles?.includes("ADMIN"))) {
+    const userRole = data.role || "";
+    const userRoles = data.roles || [];
+    const hasDashboardAccess =
+      DASHBOARD_ROLES.includes(userRole) ||
+      userRoles.some((r) => DASHBOARD_ROLES.includes(r));
+
+    if (pathname.startsWith("/dashboard") && !hasDashboardAccess) {
       router.push("/");
     }
   }, [data, pathname, router]);

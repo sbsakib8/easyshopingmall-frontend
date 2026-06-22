@@ -30,8 +30,10 @@ import {
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
+import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
 
 const AddCategoriesComponent = () => {
+  const { canModify } = useDashboardPermission();
   const [formData, setFormData] = useState({
     name: "",
     slug: "",
@@ -511,6 +513,7 @@ const AddCategoriesComponent = () => {
             </div>
 
             {/* Add Category Button */}
+            {canModify("products") && (
             <button
               onClick={() => setShowAddForm(!showAddForm)}
               className="px-6 py-3 bg-secondary/80 text-secondary-content rounded-xl hover:bg-secondary flex items-center space-x-2 transform shadow-lg whitespace-nowrap"
@@ -518,6 +521,7 @@ const AddCategoriesComponent = () => {
               <Plus size={20} />
               <span>Add Category</span>
             </button>
+            )}
           </div>
         </div>
 
@@ -728,7 +732,7 @@ const AddCategoriesComponent = () => {
               <button
                 type="button"
                 onClick={handleSubmit}
-                disabled={!formData.name.trim()}
+                disabled={!formData.name.trim() || !canModify("products")}
                 className="px-8 py-3  bg-secondary/80 text-secondary-content rounded-xl hover:bg-secondary flex items-center justify-center space-x-2 transform shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 <Save size={20} />
@@ -748,6 +752,8 @@ const AddCategoriesComponent = () => {
 
             {filteredCategories.length > 0 && (
               <div className="flex flex-wrap justify-evenly gap-2">
+                {canModify("products") && (
+                <>
                 <button
                   onClick={bulkActivate}
                   className="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 text-sm"
@@ -760,6 +766,8 @@ const AddCategoriesComponent = () => {
                 >
                   Deactivate All
                 </button>
+                </>
+                )}
                 <button
                   onClick={exportData}
                   className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 text-sm flex items-center space-x-1"
@@ -840,6 +848,8 @@ const AddCategoriesComponent = () => {
                   </div>
 
                   <div className="absolute bottom-2 flex space-x-2">
+                    {canModify("products") && (
+                    <>
                     <button
                       onClick={() => startEdit(category)}
                       className="flex-1 px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 flex items-center justify-center space-x-2 transform"
@@ -853,6 +863,8 @@ const AddCategoriesComponent = () => {
                     >
                       <Trash2 size={16} />
                     </button>
+                    </>
+                    )}
                   </div>
                 </div>
               ))}
@@ -938,6 +950,8 @@ const AddCategoriesComponent = () => {
                         )}
                       </button>
 
+                      {canModify("products") && (
+                      <>
                       <button
                         onClick={() => startEdit(category)}
                         className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg"
@@ -951,6 +965,8 @@ const AddCategoriesComponent = () => {
                       >
                         <Trash2 size={16} />
                       </button>
+                      </>
+                      )}
                     </div>
                   </div>
 
@@ -1034,7 +1050,7 @@ const AddCategoriesComponent = () => {
           </h2>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {bulkActionButtons.map((btn, index) => (
+            {bulkActionButtons.filter(btn => canModify("products") || btn.label === "Export Data").map((btn, index) => (
               <button
                 key={index}
                 onClick={btn.onClick}

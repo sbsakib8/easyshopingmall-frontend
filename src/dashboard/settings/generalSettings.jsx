@@ -14,8 +14,10 @@ import {
  Eye,
  EyeOff
 } from'lucide-react';
+import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
 
 const GeneralSettings = () => {
+ const { canModify } = useDashboardPermission();
  const [settings, setSettings] = useState({
  // Store Information
  storeName:'My E-commerce Store',
@@ -698,11 +700,12 @@ const GeneralSettings = () => {
  showOutOfStock: true,
  enableWishlist: true,
  enableReviews: true
-})}
+ })}
  className="px-6 py-3 text-gray-600 bg-gray-200 hover:bg-gray-300 rounded-lg font-medium transform"
  >
  Reset to Default
  </button>
+ {canModify("settings") && (
  <button
  onClick={handleSave}
  disabled={isSaving}
@@ -720,6 +723,7 @@ const GeneralSettings = () => {
  </>
  )}
  </button>
+ )}
  </div>
  </div>
  </div>

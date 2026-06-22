@@ -1,10 +1,9 @@
-import axios from "axios";
-import { UrlBackend } from "../confic/urlExport";
+import apiClient from "../lib/axios";
 
 // Update product quantity in cart
 export const updateProductQuantityApi = async (updateData, dispatch) => {
     try {
-        const res = await axios.put(`${UrlBackend}/cart/update`, updateData, {
+        const res = await apiClient.put(`/cart/update`, updateData, {
             withCredentials: true,
             headers: { "Content-Type": "application/json" },
         });

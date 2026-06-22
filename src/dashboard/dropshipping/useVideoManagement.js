@@ -1,7 +1,6 @@
 "use client";
 
-import { UrlBackend } from "@/src/confic/urlExport";
-import axios from "axios";
+import apiClient from "@/src/lib/axios";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import {
@@ -57,15 +56,9 @@ export default function useVideoManagement() {
     setLoading(true);
     try {
       const [coursesRes, modsRes, vidsRes] = await Promise.all([
-        axios.get(`${UrlBackend}/video-course/admin/all`, {
-          withCredentials: true,
-        }),
-        axios.get(`${UrlBackend}/video-module/admin/all`, {
-          withCredentials: true,
-        }),
-        axios.get(`${UrlBackend}/video-content/admin/all`, {
-          withCredentials: true,
-        }),
+        apiClient.get(`/video-course/admin/all`),
+        apiClient.get(`/video-module/admin/all`),
+        apiClient.get(`/video-content/admin/all`),
       ]);
       if (coursesRes.data.success) {
         const sorted = [...coursesRes.data.data].sort((a, b) => {
@@ -184,17 +177,15 @@ export default function useVideoManagement() {
     setActionLoading(true);
     try {
       if (selectedItem.type === "course") {
-        await axios.put(
-          `${UrlBackend}/video-course/admin/${selectedItem.data._id}`,
+        await apiClient.put(
+          `/video-course/admin/${selectedItem.data._id}`,
           courseFormData,
-          { withCredentials: true },
         );
         toast.success("Course updated");
       } else {
-        await axios.post(
-          `${UrlBackend}/video-course/admin/create`,
+        await apiClient.post(
+          `/video-course/admin/create`,
           courseFormData,
-          { withCredentials: true },
         );
         toast.success("Course created");
       }
@@ -212,17 +203,15 @@ export default function useVideoManagement() {
     setActionLoading(true);
     try {
       if (selectedItem.type === "module") {
-        await axios.put(
-          `${UrlBackend}/video-module/admin/${selectedItem.data._id}`,
+        await apiClient.put(
+          `/video-module/admin/${selectedItem.data._id}`,
           moduleFormData,
-          { withCredentials: true },
         );
         toast.success("Module updated");
       } else {
-        await axios.post(
-          `${UrlBackend}/video-module/admin/create`,
+        await apiClient.post(
+          `/video-module/admin/create`,
           moduleFormData,
-          { withCredentials: true },
         );
         toast.success("Module created");
         setExpandedCourses((prev) => ({
@@ -265,16 +254,13 @@ export default function useVideoManagement() {
         }
       }
       if (selectedItem.type === "video") {
-        await axios.patch(
-          `${UrlBackend}/video-content/update/${selectedItem.data._id}`,
+        await apiClient.patch(
+          `/video-content/update/${selectedItem.data._id}`,
           payload,
-          { withCredentials: true },
         );
         toast.success("Video updated");
       } else {
-        await axios.post(`${UrlBackend}/video-content/create`, payload, {
-          withCredentials: true,
-        });
+        await apiClient.post(`/video-content/create`, payload);
         toast.success("Video added");
         if (payload.moduleId) {
           setExpandedModules((prev) => ({ ...prev, [payload.moduleId]: true }));
@@ -293,17 +279,11 @@ export default function useVideoManagement() {
   const handleDeleteAction = async (type, id) => {
     try {
       if (type === "course")
-        await axios.delete(`${UrlBackend}/video-course/admin/${id}`, {
-          withCredentials: true,
-        });
+        await apiClient.delete(`/video-course/admin/${id}`);
       else if (type === "module")
-        await axios.delete(`${UrlBackend}/video-module/admin/${id}`, {
-          withCredentials: true,
-        });
+        await apiClient.delete(`/video-module/admin/${id}`);
       else if (type === "video")
-        await axios.delete(`${UrlBackend}/video-content/delete/${id}`, {
-          withCredentials: true,
-        });
+        await apiClient.delete(`/video-content/delete/${id}`);
 
       toast.success(`${type} deleted`);
       setSelectedItem(null);

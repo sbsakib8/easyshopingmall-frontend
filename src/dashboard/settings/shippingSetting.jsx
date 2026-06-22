@@ -2,7 +2,10 @@
 import React, {useState} from'react';
 import {Truck, Package, MapPin, Clock, DollarSign, Plus, Trash2, Edit3, Save, X, Globe, Settings} from'lucide-react';
 
+import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
+
 const ShippingSettings = () => {
+ const { canModify } = useDashboardPermission();
  const [activeTab, setActiveTab] = useState('methods');
 
  const [shippingZones, setShippingZones] = useState([
@@ -233,6 +236,7 @@ const ShippingSettings = () => {
  <option key={zone.id} value={zone.id}>{zone.name}</option>
  ))}
  </select>
+ {canModify("settings") && (
  <button
  onClick={addShippingMethod}
  className="bg-gradient-to-r from-green-500 to-emerald-600 text-accent-content px-6 py-3 rounded-lg hover:from-green-600 hover:to-emerald-700 transform flex items-center justify-center space-x-2"
@@ -240,6 +244,7 @@ const ShippingSettings = () => {
  <Plus size={18} />
  <span>Add Method</span>
  </button>
+ )}
  </div>
  </Card>
 
@@ -260,6 +265,8 @@ const ShippingSettings = () => {
  </div>
  </div>
  <div className="flex space-x-2">
+ {canModify("settings") && (
+ <>
  <button
  onClick={() => toggleMethodStatus(method.id)}
  className={`p-2 rounded-lg ${method.isActive ?'bg-red-500 hover:bg-red-600':'bg-green-500 hover:bg-green-600'
@@ -273,6 +280,8 @@ const ShippingSettings = () => {
  >
  <Trash2 size={16} className="text-accent-content"/>
  </button>
+ </>
+ )}
  </div>
  </div>
 
@@ -329,6 +338,7 @@ const ShippingSettings = () => {
  onChange={(e) => setNewZone({...newZone, regions: e.target.value})}
  className="bg-gray-700 text-accent-content rounded-lg px-4 py-3 border border-gray-600 focus:border-blue-500 focus:outline-none"
  />
+ {canModify("settings") && (
  <button
  onClick={addShippingZone}
  className="bg-gradient-to-r from-green-500 to-emerald-600 text-accent-content px-6 py-3 rounded-lg hover:from-green-600 hover:to-emerald-700 transform flex items-center justify-center space-x-2"
@@ -336,6 +346,7 @@ const ShippingSettings = () => {
  <Plus size={18} />
  <span>Add Zone</span>
  </button>
+ )}
  </div>
  </Card>
 
@@ -356,6 +367,8 @@ const ShippingSettings = () => {
  </div>
  </div>
  <div className="flex space-x-2">
+ {canModify("settings") && (
+ <>
  <button
  onClick={() => toggleZoneStatus(zone.id)}
  className={`p-2 rounded-lg ${zone.isActive ?'bg-red-500 hover:bg-red-600':'bg-green-500 hover:bg-green-600'
@@ -369,6 +382,8 @@ const ShippingSettings = () => {
  >
  <Trash2 size={16} className="text-accent-content"/>
  </button>
+ </>
+ )}
  </div>
  </div>
 

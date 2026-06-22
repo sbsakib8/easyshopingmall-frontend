@@ -1,10 +1,12 @@
 "use client"
 
 import {useState, useEffect} from"react"
+import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
 
 
 
 const CustomerGroups = () => {
+ const { canModify } = useDashboardPermission();
  const [groups, setGroups] = useState([])
  const [selectedGroup, setSelectedGroup] = useState(null)
  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
@@ -207,12 +209,14 @@ const CustomerGroups = () => {
  </select>
 
  {/* Create Button */}
+ {canModify("customers") && (
  <button
  onClick={() => setIsCreateModalOpen(true)}
  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-slate-300 px-6 py-3 rounded-xl font-semibold transform hover:shadow-lg hover:shadow-blue-500/25"
  >
  + Create Group
  </button>
+ )}
  </div>
 
  {/* Stats Cards */}
@@ -295,6 +299,7 @@ const CustomerGroups = () => {
  </h3>
  </div>
  <div className="flex space-x-2 opacity-0 group-hover:opacity-100">
+ {canModify("customers") && (
  <button
  onClick={() => openEditModal(group)}
  className="p-2 bg-blue-600/20 hover:bg-blue-600/40 rounded-lg"
@@ -308,6 +313,8 @@ const CustomerGroups = () => {
  />
  </svg>
  </button>
+ )}
+ {canModify("customers") && (
  <button
  onClick={() => handleDeleteGroup(group.id)}
  className="p-2 bg-red-600/20 hover:bg-red-600/40 rounded-lg"
@@ -321,6 +328,7 @@ const CustomerGroups = () => {
  />
  </svg>
  </button>
+ )}
  </div>
  </div>
 

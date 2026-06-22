@@ -1,10 +1,9 @@
-import axios from "axios";
-import { UrlBackend } from "../confic/urlExport";
+import apiClient from "../lib/axios";
 
 // Apply coupon code (regular cart)
 export const applyCouponCode = async (data) => {
     try {
-        const response = await axios.post(`${UrlBackend}/coupon/apply`, data, {
+        const response = await apiClient.post(`/coupon/apply`, data, {
             withCredentials: true,
             headers: { "Content-Type": "application/json" },
         });
@@ -18,7 +17,7 @@ export const applyCouponCode = async (data) => {
 // Apply coupon code for Dropshipping (cartItems sent in body, not read from DB cart)
 export const applyDropshippingCouponCode = async (data) => {
     try {
-        const response = await axios.post(`${UrlBackend}/coupon/apply-ds`, data, {
+        const response = await apiClient.post(`/coupon/apply-ds`, data, {
             withCredentials: true,
             headers: { "Content-Type": "application/json" },
         });
@@ -32,7 +31,7 @@ export const applyDropshippingCouponCode = async (data) => {
 // Create coupon code (admin)
 export const createCouponCode = async (data) => {
     try {
-        const response = await axios.post(`${UrlBackend}/coupon/create`, data, {
+        const response = await apiClient.post(`/coupon/create`, data, {
             withCredentials: true,
             headers: { "Content-Type": "application/json" },
         });
@@ -46,7 +45,7 @@ export const createCouponCode = async (data) => {
 // Get all coupons (admin)
 export const getAllCoupons = async () => {
     try {
-        const response = await axios.get(`${UrlBackend}/coupon/`, {
+        const response = await apiClient.get(`/coupon/`, {
             withCredentials: true,
         });
         return response.data;
@@ -59,7 +58,7 @@ export const getAllCoupons = async () => {
 // Delete coupon (admin)
 export const deleteCoupon = async (id) => {
     try {
-        const response = await axios.delete(`${UrlBackend}/coupon/delete/${id}`, {
+        const response = await apiClient.delete(`/coupon/delete/${id}`, {
             withCredentials: true,
         });
         return response.data;
@@ -72,7 +71,7 @@ export const deleteCoupon = async (id) => {
 // Update coupon (admin)
 export const updateCouponCode = async (id, data) => {
     try {
-        const response = await axios.put(`${UrlBackend}/coupon/update/${id}`, data, {
+        const response = await apiClient.put(`/coupon/update/${id}`, data, {
             withCredentials: true,
             headers: { "Content-Type": "application/json" },
         });

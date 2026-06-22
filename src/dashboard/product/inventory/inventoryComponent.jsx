@@ -8,8 +8,10 @@ import {useEffect, useMemo, useState} from'react';
 import toast from'react-hot-toast';
 import {useSelector} from'react-redux';
 import AnalyticsDashboard from'./analytics';
+import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
 
 const InventoryDashboard = () => {
+ const { canModify } = useDashboardPermission();
 
 
  // product get data
@@ -520,25 +522,33 @@ const InventoryDashboard = () => {
  </div>
 
  <div className="flex space-x-2 pt-2">
- <button
- onClick={() => handleEdit(product)}
- className="flex-1 flex items-center justify-center space-x-1 py-2 bg-blue-500/20 text-blue-300 rounded-xl hover:bg-blue-500/30 font-medium cursor-pointer"
- >
- <Edit className="w-4 h-4"/>
- <span className="hidden sm:inline">Edit</span>
- </button>
- <button onClick={() => handleView(product)} className="flex-1 flex items-center justify-center space-x-1 py-2 bg-emerald-500/20 text-emerald-300 rounded-xl hover:bg-emerald-500/30 font-medium cursor-pointer">
- <Eye className="w-4 h-4"/>
- <span className="hidden sm:inline">View</span>
- </button>
- <button
- onClick={() => handleDelete(product?._id)}
- className="flex-1 flex items-center justify-center space-x-1 py-2 bg-red-500/20 text-red-300 rounded-xl hover:bg-red-500/30 font-medium cursor-pointer"
- >
- <Trash2 className="w-4 h-4"/>
- <span className="hidden sm:inline">Delete</span>
- </button>
- </div>
+  {canModify("products") && (
+  <>
+  <button
+  onClick={() => handleEdit(product)}
+  className="flex-1 flex items-center justify-center space-x-1 py-2 bg-blue-500/20 text-blue-300 rounded-xl hover:bg-blue-500/30 font-medium cursor-pointer"
+  >
+  <Edit className="w-4 h-4"/>
+  <span className="hidden sm:inline">Edit</span>
+  </button>
+  </>
+  )}
+  <button onClick={() => handleView(product)} className="flex-1 flex items-center justify-center space-x-1 py-2 bg-emerald-500/20 text-emerald-300 rounded-xl hover:bg-emerald-500/30 font-medium cursor-pointer">
+  <Eye className="w-4 h-4"/>
+  <span className="hidden sm:inline">View</span>
+  </button>
+  {canModify("products") && (
+  <>
+  <button
+  onClick={() => handleDelete(product?._id)}
+  className="flex-1 flex items-center justify-center space-x-1 py-2 bg-red-500/20 text-red-300 rounded-xl hover:bg-red-500/30 font-medium cursor-pointer"
+  >
+  <Trash2 className="w-4 h-4"/>
+  <span className="hidden sm:inline">Delete</span>
+  </button>
+  </>
+  )}
+  </div>
  </div>
  </div>
  );
@@ -610,23 +620,31 @@ const InventoryDashboard = () => {
  </span>
  </td>
  <td className="px-6 py-4">
- <div className="flex space-x-2">
- <button
- onClick={() => handleEdit(product)}
- className="p-2 text-blue-300 hover:bg-blue-500/20 rounded-xl"
- >
- <Edit className="w-4 h-4"/>
- </button>
- <button onClick={() => handleView(product)} className="p-2 text-emerald-300 hover:bg-emerald-500/20 rounded-xl">
- <Eye className="w-4 h-4"/>
- </button>
- <button
- onClick={() => handleDelete(product?._id)}
- className="p-2 text-red-300 hover:bg-red-500/20 rounded-xl"
- >
- <Trash2 className="w-4 h-4"/>
- </button>
- </div>
+  <div className="flex space-x-2">
+  {canModify("products") && (
+  <>
+  <button
+  onClick={() => handleEdit(product)}
+  className="p-2 text-blue-300 hover:bg-blue-500/20 rounded-xl"
+  >
+  <Edit className="w-4 h-4"/>
+  </button>
+  </>
+  )}
+  <button onClick={() => handleView(product)} className="p-2 text-emerald-300 hover:bg-emerald-500/20 rounded-xl">
+  <Eye className="w-4 h-4"/>
+  </button>
+  {canModify("products") && (
+  <>
+  <button
+  onClick={() => handleDelete(product?._id)}
+  className="p-2 text-red-300 hover:bg-red-500/20 rounded-xl"
+  >
+  <Trash2 className="w-4 h-4"/>
+  </button>
+  </>
+  )}
+  </div>
  </td>
  </tr>
  );
@@ -691,7 +709,7 @@ const InventoryDashboard = () => {
  )}
 
  {/* Edit Modal */}
- {editModal && (
+ {editModal && canModify("products") && (
  <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
  <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-emerald-500/30 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
  <div className="sticky top-0 bg-gradient-to-r from-emerald-600 to-teal-600 p-6 flex justify-between items-center z-10">
@@ -933,7 +951,7 @@ const InventoryDashboard = () => {
  )}
 
  {/* Delete Confirmation Modal */}
- {deleteModal && (
+ {deleteModal && canModify("products") && (
  <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
  <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-pink-500/30 max-w-md w-full p-6">
  <div className="flex items-center gap-3 mb-4">

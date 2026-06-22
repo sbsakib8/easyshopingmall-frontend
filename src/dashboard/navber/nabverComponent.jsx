@@ -17,6 +17,7 @@ import {
   ImagePlus,
   Menu,
   MessageSquare,
+  Bell,
   Package,
   Plus,
   Search,
@@ -74,6 +75,7 @@ const DashboardNebver = ({ children }) => {
       label: "Products",
       icon: Package,
       path: "/dashboard/products/allproducts",
+      roles: ["ADMIN", "MANAGER", "CPO"],
       submenu: [
         {
           path: "products/allproducts",
@@ -112,6 +114,7 @@ const DashboardNebver = ({ children }) => {
       label: "Orders",
       icon: ShoppingCart,
       path: "/dashboard/order/allorders",
+      roles: ["ADMIN", "MANAGER", "CPO"],
       submenu: [
         {
           path: "/order/allorders",
@@ -144,6 +147,7 @@ const DashboardNebver = ({ children }) => {
       label: "Customers",
       icon: Users,
       path: "/dashboard/customers/all-customers",
+      roles: ["ADMIN", "MANAGER"],
       submenu: [
         {
           path: "/customers/all-customers",
@@ -151,7 +155,6 @@ const DashboardNebver = ({ children }) => {
           label: "All Customers",
           icon: Users,
         },
-        //  {path:"/customers/customer-groups", id: 20, label:"Customer Groups", icon: Users},
         {
           path: "/customers/reviews",
           id: 22,
@@ -165,6 +168,7 @@ const DashboardNebver = ({ children }) => {
       label: "Analytics",
       icon: TrendingUp,
       path: "/dashboard/analytics/sales-report",
+      roles: ["ADMIN"],
       submenu: [
         {
           path: "/analytics/sales-report",
@@ -172,24 +176,6 @@ const DashboardNebver = ({ children }) => {
           label: "Sales Report",
           icon: BarChart3,
         },
-        // {
-        //   path: "/analytics/product-analytics",
-        //   id: 24,
-        //   label: "Product Analytics",
-        //   icon: Package,
-        // },
-        // {
-        //   path: "/analytics/customer-analytics",
-        //   id: 25,
-        //   label: "Customer Analytics",
-        //   icon: Users,
-        // },
-        // {
-        //   path: "/analytics/traffic-analytics",
-        //   id: 26,
-        //   label: "Traffic Analytics",
-        //   icon: Globe,
-        // },
       ],
     },
     {
@@ -197,6 +183,7 @@ const DashboardNebver = ({ children }) => {
       label: "Dropshipping",
       icon: Package,
       path: "/dashboard/dropshipping/referral-activity",
+      roles: ["ADMIN", "MANAGER"],
       submenu: [
         {
           path: "dropshipping/analytics",
@@ -228,14 +215,18 @@ const DashboardNebver = ({ children }) => {
           id: 104,
           label: "Manage Videos",
           icon: Video,
-          roles: ["ADMIN"],
         },
         {
           path: "dropshipping/video-requests",
           id: 105,
           label: "Video Requests",
           icon: Shield,
-          roles: ["ADMIN"],
+        },
+        {
+          path: "dropshipping/notices",
+          id: 106,
+          label: "Manage Notices",
+          icon: Bell,
         },
       ],
     },
@@ -244,6 +235,7 @@ const DashboardNebver = ({ children }) => {
       label: "Banners",
       icon: AppWindow,
       path: "/dashboard/banner/home-slider",
+      roles: ["ADMIN", "MANAGER"],
       submenu: [
         {
           path: "/banner/home-slider",
@@ -276,6 +268,7 @@ const DashboardNebver = ({ children }) => {
       label: "Content",
       icon: FileText,
       path: "/dashboard/content/blogs",
+      roles: ["ADMIN", "MANAGER"],
       submenu: [
         { path: "/content/blogs", id: 31, label: "Blogs", icon: FileText },
         {
@@ -292,6 +285,7 @@ const DashboardNebver = ({ children }) => {
       label: "Settings",
       icon: Settings,
       path: "/dashboard/settings/generalsettings",
+      roles: ["ADMIN"],
       submenu: [
         {
           path: "/settings/userupdate",
@@ -305,24 +299,6 @@ const DashboardNebver = ({ children }) => {
           label: "General Settings",
           icon: Settings,
         },
-        // {
-        //   path: "/settings/paymentsettings",
-        //   id: 34,
-        //   label: "Payment Settings",
-        //   icon: DollarSign,
-        // },
-        // {
-        //   path: "/settings/shippingsettings",
-        //   id: 35,
-        //   label: "Shipping Settings",
-        //   icon: Truck,
-        // },
-        // {
-        //   path: "/settings/securitysettings",
-        //   id: 36,
-        //   label: "Security",
-        //   icon: Shield,
-        // },
       ],
     },
     {
@@ -330,6 +306,7 @@ const DashboardNebver = ({ children }) => {
       label: "Coupons",
       icon: Tag,
       path: "/dashboard/coupons/manage",
+      roles: ["ADMIN", "CPO"],
     },
   ];
 

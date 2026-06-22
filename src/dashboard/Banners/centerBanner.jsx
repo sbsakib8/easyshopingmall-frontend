@@ -5,8 +5,10 @@ import {useGetCenterBanner} from"@/src/utlis/banner/useCenterBanner"
 import {Trash2} from"lucide-react"
 import {useState, useRef, useEffect} from"react"
 import toast from"react-hot-toast"
+import { useDashboardPermission } from "@/src/utlis/useDashboardPermission"
 
 const CenterBanner = () => {
+ const { canModify } = useDashboardPermission();
 
  const {ads, loading, error} = useGetCenterBanner();
  const [banners, setBanners] = useState([]);
@@ -367,18 +369,22 @@ const CenterBanner = () => {
  <p className="text-sm text-gray-400 mb-6 font-medium">Created: {banner.createdAt}</p>
 
  <div className="flex gap-3">
+ {canModify("banner") && (
+ <>
  <button
  onClick={() => openModal(banner)}
  className="flex-1 bg-gradient-to-r from-blue-500/20 to-purple-500/20 hover:from-blue-500/40 hover:to-purple-500/40 text-blue-300 border border-blue-500/30 px-4 py-3 rounded-xl font-semibold hover:shadow-lg hover:shadow-blue-500/25 transform"
  >
- ✏️ Edit
+  ✏️ Edit
  </button>
  <button
  onClick={() => handleDelete(banner._id)}
  className="flex-1 bg-gradient-to-r from-red-500/20 to-pink-500/20 hover:from-red-500/40 hover:to-pink-500/40 text-red-300 border border-red-500/30 px-4 py-3 rounded-xl font-semibold hover:shadow-lg hover:shadow-red-500/25 transform"
  >
- 🗑️ Delete
+  🗑️ Delete
  </button>
+ </>
+ )}
  </div>
  </div>
  </div>
@@ -519,14 +525,16 @@ const CenterBanner = () => {
  onClick={closeModal}
  className="flex-1 px-8 py-4 bg-gradient-to-r from-gray-600/50 to-gray-700/50 border border-gray-600/50 text-gray-200 rounded-xl font-semibold hover:from-gray-500/60 hover:to-gray-600/60 transform"
  >
- Cancel
+  Cancel
  </button>
+ {canModify("banner") && (
  <button
  type="submit"
  className="flex-1 px-8 py-4 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 text-slate-300 rounded-xl font-semibold hover:from-purple-600 hover:via-pink-600 hover:to-blue-600 transform hover:shadow-2xl hover:shadow-purple-500/25"
  >
- {editingBanner ?"💾 Update Banner":"✨ Create Banner"}
+  {editingBanner ?"💾 Update Banner":"✨ Create Banner"}
  </button>
+ )}
  </div>
  </form>
  </div>

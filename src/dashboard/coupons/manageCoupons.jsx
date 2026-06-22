@@ -32,9 +32,11 @@ import { ProductAllGet } from "@/src/hook/useProduct";
 import { useDispatch } from "react-redux";
 import toast from "react-hot-toast";
 import Container from "@/src/compronent/shared/Container";
+import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
 import { cn } from "@/src/utlis/utils";
 
 const ManageCoupons = () => {
+ const { canModify } = useDashboardPermission();
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
   const [coupons, setCoupons] = useState([]);
@@ -548,6 +550,7 @@ const ManageCoupons = () => {
                 >
                   Cancel
                 </button>
+                {canModify("coupons") && (
                 <button
                   type="submit"
                   disabled={loading}
@@ -556,6 +559,7 @@ const ManageCoupons = () => {
                   <Save size={20} />
                   <span>{editingId ? "Update Coupon" : "Create Coupon"}</span>
                 </button>
+                )}
               </div>
             </form>
           </div>
@@ -785,6 +789,7 @@ const ManageCoupons = () => {
                         <Edit3 size={14} />
                         <span className="text-xs font-bold">Edit</span>
                       </button>
+                      {canModify("coupons") && (
                       <button
                         onClick={() => handleDelete(coupon._id, coupon.code)}
                         className="flex-1 flex items-center justify-center space-x-2 py-2 bg-red-500/20 hover:bg-red-500/40 text-red-400 rounded-xl border border-red-500/30"
@@ -792,6 +797,7 @@ const ManageCoupons = () => {
                         <Trash2 size={14} />
                         <span className="text-xs font-bold">Delete</span>
                       </button>
+                      )}
                     </div>
 
                     {/* Decorative dashed border for"Ticket"look */}

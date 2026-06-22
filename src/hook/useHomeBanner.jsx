@@ -1,10 +1,9 @@
-import axios from "axios";
-import { UrlBackend } from "../confic/urlExport";
+import apiClient from "../lib/axios";
 
 // HomeBanner add
 export const HomeBannerCreate = async (formData, ) => {
   try {
-    const response = await axios.post(`${UrlBackend}/homeBannerRoutes/create`, formData, {
+    const response = await apiClient.post(`/homeBannerRoutes/create`, formData, {
       withCredentials: true,
       headers: {
         "Content-Type": "multipart/form-data",
@@ -20,7 +19,7 @@ export const HomeBannerCreate = async (formData, ) => {
 // HomeBanner ALL GET
 export const HomeBannerAllGet = async () => {
   try {
-    const response = await axios.get(`${UrlBackend}/homeBannerRoutes/get`,  {
+    const response = await apiClient.get(`/homeBannerRoutes/get`,  {
       withCredentials: true,
     });
     return response.data; 
@@ -37,8 +36,8 @@ export const HomeBannerAllGet = async () => {
 // uplosd HomeBanner
 export const HomeBannerUploade = async (formData, id) => {
   try {
-    const response = await axios.put(
-      `${UrlBackend}/homeBannerRoutes/${id}`, 
+    const response = await apiClient.put(
+      `/homeBannerRoutes/${id}`, 
       formData, 
       {
         withCredentials: true, 
@@ -54,8 +53,8 @@ export const HomeBannerUploade = async (formData, id) => {
 // delete HomeBanner
 export const HomeBannerDelete = async (categoryId) => {
   try {
-    const response = await axios.delete(
-      `${UrlBackend}/homeBannerRoutes/${categoryId}`, 
+    const response = await apiClient.delete(
+      `/homeBannerRoutes/${categoryId}`, 
       {
         withCredentials: true, 
       }
