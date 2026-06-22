@@ -33,20 +33,22 @@ export default function FacebookPixel() {
             t.src=v;s=b.getElementsByTagName(e)[0];
             s.parentNode.insertBefore(t,s)}(window, document,'script',
             'https://connect.facebook.net/en_US/fbevents.js');
-            fbq('init', '789838507428691');
+            fbq('init', '3855885611220443');
             fbq('track', 'PageView');
           `,
         }}
       />
+
       <noscript>
         <img
           height="1"
           width="1"
           style={{ display: 'none' }}
-          src="https://www.facebook.com/tr?id=789838507428691&ev=PageView&noscript=1"
+          src="https://www.facebook.com/tr?id=3855885611220443&ev=PageView&noscript=1"
           alt="facebook-pixel"
         />
       </noscript>
+
       <Suspense fallback={null}>
         <PixelTracker />
       </Suspense>
