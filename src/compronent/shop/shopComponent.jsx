@@ -41,12 +41,10 @@ import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import {
   ArrowUp,
-  CheckCircle,
   Edit,
   Filter,
   Grid,
   Heart,
-  Info,
   List,
   RotateCcw,
   Search,
@@ -54,7 +52,6 @@ import {
   SlidersHorizontal,
   Sparkles,
   Star,
-  Tag,
   Trash2,
   X,
 } from "lucide-react";
@@ -65,6 +62,8 @@ import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import Container from "../shared/Container";
 import Section from "../shared/Section";
+import DeleteProductModal from "./DeleteProductModal";
+import EditProductModal from "./EditProductModal";
 
 // Helper function to determine if product is new or old
 const isProductNew = (createdDate) => {
@@ -96,8 +95,13 @@ const ProductCard = React.memo(
     const productName = product.productName || product.name;
     const productImage =
       product.image || product.images?.[0] || "/img/product.jpg";
-    const isDropshipping = user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING");
-    const productPrice = isDropshipping ? (Number(product.dropshippingPrice ?? product.price ?? product.sell_price) || 0) : (Number(product.price ?? product.sell_price) || 0);
+    const isDropshipping =
+      user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING");
+    const productPrice = isDropshipping
+      ? Number(
+          product.dropshippingPrice ?? product.price ?? product.sell_price,
+        ) || 0
+      : Number(product.price ?? product.sell_price) || 0;
     const productRank = Number(product.productRank ?? product.retailSale) || 0;
     const inStock = (product.productStock ?? product.stock ?? 1) > 0;
     const isNew = isProductNew(
@@ -508,7 +512,10 @@ const ShopPage = ({ initialData, queryParams }) => {
 
   // Redirect dropshipping users away from shop
   useEffect(() => {
-    if (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) {
+    if (
+      user?.role === "DROPSHIPPING" ||
+      user?.roles?.includes("DROPSHIPPING")
+    ) {
       router.push("/forbidden");
     }
   }, [user, router]);
@@ -704,9 +711,10 @@ const ShopPage = ({ initialData, queryParams }) => {
         return;
       }
       try {
-        const exists = (wishlist || []).some(
-          (i) => i.id === productId || i._id === productId,
-        ) || (favorite || []).includes(productId);
+        const exists =
+          (wishlist || []).some(
+            (i) => i.id === productId || i._id === productId,
+          ) || (favorite || []).includes(productId);
         if (exists) {
           await removeFromWishlistApi(productId, dispatch);
           toast.success("Removed from wishlist");
@@ -1465,427 +1473,27 @@ const ShopPage = ({ initialData, queryParams }) => {
         </div>
       </Container>
 
-      {/* Edit Modal */}
-      {editModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-emerald-500/30 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-gradient-to-r from-emerald-600 to-teal-600 p-6 flex justify-between items-center z-10">
-              <h2 className="text-2xl font-bold text-accent-content flex items-center gap-2">
-                <Edit className="w-6 h-6" />
-                Edit Product
-              </h2>
-              <button
-                onClick={() => setEditModal(null)}
-                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-              >
-                <X className="w-6 h-6 text-accent-content cursor-pointer" />
-              </button>
-            </div>
-
-            <div className="p-6 bg-white/90 text-black">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
-                <div>
-                  <label className="block  text-sm font-semibold mb-2">
-                    Product Name
-                  </label>
-                  <input
-                    type="text"
-                    defaultValue={editModal?.name}
-                    onChange={(e) =>
-                      updateEditField("productName", e.target.value)
-                    }
-                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg  focus:outline-none focus:border-emerald-500 transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-black text-sm font-semibold mb-2">
-                    SKU
-                  </label>
-                  <input
-                    type="text"
-                    defaultValue={editModal?.sku}
-                    onChange={(e) => updateEditField("sku", e.target.value)}
-                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-black text-sm font-semibold mb-2">
-                    Brand
-                  </label>
-                  <input
-                    type="text"
-                    defaultValue={editModal?.brand}
-                    onChange={(e) => updateEditField("brand", e.target.value)}
-                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-black text-sm font-semibold mb-2">
-                    Price
-                  </label>
-                  <input
-                    type="number"
-                    defaultValue={editModal?.price}
-                    onChange={(e) =>
-                      updateEditField("price", Number(e.target.value))
-                    }
-                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-black text-sm font-semibold mb-2">
-                    Dropshipping Price
-                  </label>
-                  <input
-                    type="number"
-                    defaultValue={editModal?.dropshippingPrice ?? ""}
-                    onChange={(e) =>
-                      updateEditField(
-                        "dropshippingPrice",
-                        e.target.value === "" ? null : Number(e.target.value),
-                      )
-                    }
-                    placeholder="Leave empty to use Price"
-                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-black text-sm font-semibold mb-2">
-                    Discount (%)
-                  </label>
-                  <input
-                    type="number"
-                    defaultValue={editModal?.discount}
-                    onChange={(e) =>
-                      updateEditField("discount", Number(e.target.value))
-                    }
-                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-black text-sm font-semibold mb-2">
-                    Stock
-                  </label>
-                  <input
-                    type="number"
-                    defaultValue={editModal?.stock}
-                    onChange={(e) =>
-                      updateEditField("productStock", Number(e.target.value))
-                    }
-                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-black text-sm font-semibold mb-2">
-                    Rating
-                  </label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    min="0"
-                    max="5"
-                    defaultValue={editModal?.rating}
-                    onChange={(e) =>
-                      updateEditField("ratings", Number(e.target.value))
-                    }
-                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-black text-sm font-semibold mb-2">
-                    Product Size
-                  </label>
-                  <input
-                    type="text"
-                    defaultValue={editModal?.size?.join(", ") || ""}
-                    onChange={(e) =>
-                      updateEditField(
-                        "productSize",
-                        e.target.value.split(",").map((s) => s.trim()),
-                      )
-                    }
-                    placeholder="M, L, XL"
-                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-black text-sm font-semibold mb-2">
-                    Product Color
-                  </label>
-                  <input
-                    type="text"
-                    defaultValue={editModal?.color?.join(", ") || ""}
-                    onChange={(e) =>
-                      updateEditField(
-                        "color",
-                        e.target.value.split(",").map((c) => c.trim()),
-                      )
-                    }
-                    placeholder="Black, Brown, Red"
-                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-black text-sm font-semibold mb-2">
-                    Retail Price(৳)
-                  </label>
-                  <input
-                    type="number"
-                    defaultValue={editModal?.retailSale || ""}
-                    onChange={(e) =>
-                      updateEditField("productRank", Number(e.target.value))
-                    }
-                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="block text-black text-sm font-semibold mb-2">
-                    Product Status
-                  </label>
-                  <select
-                    defaultValue={
-                      editModal?.productStatus?.length > 0
-                        ? editModal?.productStatus[0]
-                        : "none"
-                    }
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      updateEditField(
-                        "productStatus",
-                        val === "none" ? [] : [val],
-                      );
-                    }}
-                    className="appearance-none border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-secondary bg-white"
-                  >
-                    <option
-                      disabled
-                      selected
-                      defaultValue={
-                        editModal.productStatus?.length > 0
-                          ? editModal?.productStatus[0]
-                          : "none"
-                      }
-                    >
-                      {editModal?.productStatus?.length > 0
-                        ? editModal?.productStatus[0]
-                        : "none"}
-                    </option>
-                    <option defaultValue="none">none</option>
-                    <option defaultValue="hot">hot</option>
-                    <option defaultValue="cold">cold</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-black text-sm font-semibold mb-2">
-                    Product Tags
-                  </label>
-                  <input
-                    type="text"
-                    defaultValue={editModal?.tags?.join(", ") || ""}
-                    onChange={(e) =>
-                      updateEditField(
-                        "tags",
-                        e.target.value
-                          .split(",")
-                          .map((t) => t.trim())
-                          .filter(Boolean),
-                      )
-                    }
-                    placeholder="New, Sale, Trending"
-                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                  />
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-black text-sm font-semibold mb-2">
-                    Video Link
-                  </label>
-                  <input
-                    defaultValue={editModal?.video_link}
-                    onChange={(e) =>
-                      updateEditField("video_link", e.target.value)
-                    }
-                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors resize-none"
-                  ></input>
-                </div>
-
-                <div className="md:col-span-2">
-                  <div className="flex items-center p-4 bg-slate-500/10 border border-slate-200 rounded-xl mt-1">
-                    <input
-                      type="checkbox"
-                      checked={editModal?.isBoost || false}
-                      onChange={(e) =>
-                        updateEditField("isBoost", e.target.checked)
-                      }
-                      className="w-5 h-5 text-emerald-600 bg-transparent border-slate-300 rounded focus:ring-emerald-500"
-                    />
-                    <label className="ml-3 text-black font-semibold">
-                      Boost Product
-                    </label>
-                  </div>
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-black text-sm font-semibold mb-2">
-                    Description
-                  </label>
-                  <textarea
-                    defaultValue={editModal?.description}
-                    onChange={(e) =>
-                      updateEditField("description", e.target.value)
-                    }
-                    rows="3"
-                    className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors resize-none"
-                  ></textarea>
-                </div>
-
-                {/* Coupon Section */}
-                <div className="md:col-span-2 border-t border-slate-200 pt-6 mt-6">
-                  <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Tag className="w-5 h-5 text-emerald-500" />
-                      Coupon Information
-                    </div>
-                    {productCoupon?._id ? (
-                      <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full flex items-center gap-1">
-                        <CheckCircle className="w-3 h-3" /> Product Coupon
-                      </span>
-                    ) : (
-                      <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full flex items-center gap-1">
-                        <Info className="w-3 h-3" /> No Direct Coupon
-                      </span>
-                    )}
-                    {subCategoryCoupon && (
-                      <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full flex items-center gap-1">
-                        <Tag className="w-3 h-3" /> Subcat Coupon (
-                        {subCategoryCoupon.code}) Active
-                      </span>
-                    )}
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                    <div>
-                      <label className="block text-black text-sm font-semibold mb-2">
-                        Coupon Code
-                      </label>
-                      <input
-                        type="text"
-                        defaultValue={productCoupon?.code || ""}
-                        placeholder="PROMO2024"
-                        onChange={(e) =>
-                          updateCouponField("code", e.target.value)
-                        }
-                        className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-black text-sm font-semibold mb-2">
-                        Discount Type
-                      </label>
-                      <select
-                        defaultValue={
-                          productCoupon?.discountType || "percentage"
-                        }
-                        onChange={(e) =>
-                          updateCouponField("discountType", e.target.value)
-                        }
-                        className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                      >
-                        <option value="percentage">Percentage (%)</option>
-                        <option value="flat">Fixed Amount (৳)</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-black text-sm font-semibold mb-2">
-                        Discount Amount
-                      </label>
-                      <input
-                        type="number"
-                        defaultValue={productCoupon?.discountAmount || 0}
-                        onChange={(e) =>
-                          updateCouponField(
-                            "discountAmount",
-                            Number(e.target.value),
-                          )
-                        }
-                        className="w-full px-4 py-3 bg-slate-500/20 border border-slate-600 rounded-lg text-black focus:outline-none focus:border-emerald-500 transition-colors"
-                      />
-                    </div>
-                    <div>
-                      <button
-                        onClick={handleApplyCoupon}
-                        disabled={couponLoad}
-                        className="w-full px-4 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-semibold rounded-lg transition-colors"
-                      >
-                        {couponLoad ? "Applying..." : "Apply Coupon"}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex gap-3 mt-6">
-                <button
-                  onClick={saveEdit}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-accent-content font-semibold rounded-lg transition-all transform hover:scale-105"
-                >
-                  {load ? "Saving..." : "Save Changes"}
-                </button>
-                <button
-                  onClick={() => setEditModal(null)}
-                  className="flex-1 px-6 py-3 bg-white text-black font-semibold rounded-lg transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Edit Product Modal */}
+      <EditProductModal
+        open={!!editModal}
+        onClose={() => setEditModal(null)}
+        product={editModal || {}}
+        updateEditField={updateEditField}
+        updateCouponField={updateCouponField}
+        handleApplyCoupon={handleApplyCoupon}
+        saveEdit={saveEdit}
+        load={load}
+        couponLoad={couponLoad}
+        productCoupon={productCoupon}
+        subCategoryCoupon={subCategoryCoupon}
+      />
 
       {/* Delete Confirmation Modal */}
-      {deleteModal && (
-        <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
-          <div className="bg-error/15 rounded-md max-w-md w-full p-6 animate-slideUp">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-3 bg-error/10 rounded-full">
-                <Trash2 className="w-8 h-8 text-error" />
-              </div>
-              <h2 className="text-2xl font-bold text-error">Delete Product</h2>
-            </div>
-
-            <p className=" mb-6">
-              Are you sure you want to delete this product? This action cannot
-              be undone.
-            </p>
-
-            <div className="flex gap-3">
-              <button
-                onClick={confirmDelete}
-                className="flex-1 px-4 py-2 bg-error/80 hover:bg-error text-error-content font-semibold rounded-md transition-all transform hover:scale-105 cursor-pointer"
-              >
-                Delete
-              </button>
-              <button
-                onClick={() => setDeleteModal(null)}
-                className="flex-1 px-4 py-2 bg-slate-200 hover:bg-slate-300 font-semibold rounded-md transition-colors cursor-pointer"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <DeleteProductModal
+        open={!!deleteModal}
+        onClose={() => setDeleteModal(null)}
+        onConfirm={confirmDelete}
+      />
     </Section>
   );
 };
