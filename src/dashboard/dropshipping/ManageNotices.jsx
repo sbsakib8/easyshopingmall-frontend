@@ -17,6 +17,7 @@ import {
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
+import { Backdrop, Modal } from "@mui/material";
 
 const emptyForm = {
   title: "",
@@ -171,17 +172,18 @@ const ManageNotices = () => {
                 </span>
               </h1>
               <p className="text-gray-300 text-sm sm:text-base">
-                Control notices shown to dropshipping users in their dashboard overview
+                Control notices shown to dropshipping users in their dashboard
+                overview
               </p>
             </div>
             {canModify("dropshipping") && (
-            <button
-              onClick={openCreateForm}
-              className="mt-4 sm:mt-0 flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-xl font-medium shadow-lg transition-all"
-            >
-              <Plus className="w-4 h-4" />
-              Add Notice
-            </button>
+              <button
+                onClick={openCreateForm}
+                className="mt-4 sm:mt-0 flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-xl font-medium shadow-lg transition-all"
+              >
+                <Plus className="w-4 h-4" />
+                Add Notice
+              </button>
             )}
           </div>
         </div>
@@ -268,7 +270,10 @@ const ManageNotices = () => {
                               target="_blank"
                               rel="noopener noreferrer"
                               className="inline-flex items-center gap-1 mt-2 px-3 py-1 rounded-lg text-xs font-bold text-white hover:opacity-80"
-                              style={{ backgroundColor: notice.button.color || "#1976d2" }}
+                              style={{
+                                backgroundColor:
+                                  notice.button.color || "#1976d2",
+                              }}
                             >
                               {notice.button.text}
                               <ExternalLink className="w-3 h-3" />
@@ -280,37 +285,39 @@ const ManageNotices = () => {
                       {/* Actions */}
                       <div className="flex items-center gap-2 shrink-0">
                         {canModify("dropshipping") && (
-                        <>
-                        <button
-                          onClick={() => handleToggle(notice._id)}
-                          className={`p-2 rounded-xl transition-colors ${
-                            notice.isActive
-                              ? "bg-green-500/20 text-green-400 hover:bg-green-500/30"
-                              : "bg-gray-600/20 text-gray-400 hover:bg-gray-600/30"
-                          }`}
-                          title={notice.isActive ? "Deactivate" : "Activate"}
-                        >
-                          {notice.isActive ? (
-                            <ToggleRight className="w-5 h-5" />
-                          ) : (
-                            <ToggleLeft className="w-5 h-5" />
-                          )}
-                        </button>
-                        <button
-                          onClick={() => handleEdit(notice)}
-                          className="p-2 rounded-xl bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-colors"
-                          title="Edit"
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => setDeleteConfirm(notice._id)}
-                          className="p-2 rounded-xl bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors"
-                          title="Delete"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                        </>
+                          <>
+                            <button
+                              onClick={() => handleToggle(notice._id)}
+                              className={`p-2 rounded-xl transition-colors ${
+                                notice.isActive
+                                  ? "bg-green-500/20 text-green-400 hover:bg-green-500/30"
+                                  : "bg-gray-600/20 text-gray-400 hover:bg-gray-600/30"
+                              }`}
+                              title={
+                                notice.isActive ? "Deactivate" : "Activate"
+                              }
+                            >
+                              {notice.isActive ? (
+                                <ToggleRight className="w-5 h-5" />
+                              ) : (
+                                <ToggleLeft className="w-5 h-5" />
+                              )}
+                            </button>
+                            <button
+                              onClick={() => handleEdit(notice)}
+                              className="p-2 rounded-xl bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-colors"
+                              title="Edit"
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => setDeleteConfirm(notice._id)}
+                              className="p-2 rounded-xl bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors"
+                              title="Delete"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </>
                         )}
                       </div>
                     </div>
@@ -322,9 +329,27 @@ const ManageNotices = () => {
         </div>
 
         {/* Create/Edit Form Modal */}
-        {showForm && (
-          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden">
+          <Modal
+            open={showForm}
+            onClose={() => {
+              setShowForm(false);
+              setEditingId(null);
+              setForm(emptyForm);
+            }}
+            closeAfterTransition
+            slots={{ backdrop: Backdrop }}
+            slotProps={{
+              backdrop: {
+                timeout: 500,
+                sx: {
+                  backgroundColor: "rgba(0, 0, 0, 0.4)",
+                  backdropFilter: "blur(4px)",
+                },
+              },
+            }}
+            className="flex items-center justify-center p-4"
+          >
+            <div className="relative bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden">
               {/* Modal Header */}
               <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-5 text-white">
                 <div className="flex items-center justify-between">
@@ -350,7 +375,10 @@ const ManageNotices = () => {
               </div>
 
               {/* Form */}
-              <form onSubmit={handleSubmit} className="p-6 overflow-y-auto max-h-[calc(90vh-80px)] space-y-5">
+              <form
+                onSubmit={handleSubmit}
+                className="p-6 overflow-y-auto max-h-[calc(90vh-80px)] space-y-5"
+              >
                 {/* Title */}
                 <div>
                   <label className="block text-sm font-bold text-gray-300 mb-2">
@@ -549,62 +577,74 @@ const ManageNotices = () => {
                     Cancel
                   </button>
                   {canModify("dropshipping") && (
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-xl font-medium flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
-                  >
-                    {submitting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Saving...
-                      </>
-                    ) : editingId ? (
-                      "Update Notice"
-                    ) : (
-                      "Create Notice"
-                    )}
-                  </button>
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-xl font-medium flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+                    >
+                      {submitting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Saving...
+                        </>
+                      ) : editingId ? (
+                        "Update Notice"
+                      ) : (
+                        "Create Notice"
+                      )}
+                    </button>
                   )}
                 </div>
               </form>
             </div>
-          </div>
-        )}
+          </Modal>
 
         {/* Delete Confirmation Modal */}
-        {deleteConfirm && (
-          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-red-500/30 max-w-md w-full p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 bg-red-500/20 rounded-full">
-                  <Trash2 className="w-6 h-6 text-red-500" />
-                </div>
-                <h2 className="text-xl font-bold text-slate-300">
-                  Delete Notice
-                </h2>
+        <Modal
+          open={deleteConfirm}
+          onClose={() => setDeleteConfirm(null)}
+          closeAfterTransition
+          slots={{ backdrop: Backdrop }}
+          slotProps={{
+            backdrop: {
+              timeout: 500,
+              sx: {
+                backgroundColor: "rgba(0, 0, 0, 0.4)",
+                backdropFilter: "blur(4px)",
+              },
+            },
+          }}
+          className="flex items-center justify-center p-4"
+        >
+          <div className="relative bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-red-500/30 max-w-md w-full p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-3 bg-red-500/20 rounded-full">
+                <Trash2 className="w-6 h-6 text-red-500" />
               </div>
-              <p className="text-gray-300 mb-6">
-                Are you sure you want to delete this notice? This action cannot
-                be undone.
-              </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => handleDelete(deleteConfirm)}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-semibold rounded-lg"
-                >
-                  Delete
-                </button>
-                <button
-                  onClick={() => setDeleteConfirm(null)}
-                  className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg"
-                >
-                  Cancel
-                </button>
-              </div>
+              <h2 className="text-xl font-bold text-slate-300">
+                Delete Notice
+              </h2>
+            </div>
+            <p className="text-gray-300 mb-6">
+              Are you sure you want to delete this notice? This action cannot be
+              undone.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => handleDelete(deleteConfirm)}
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-semibold rounded-lg"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => setDeleteConfirm(null)}
+                className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg"
+              >
+                Cancel
+              </button>
             </div>
           </div>
-        )}
+        </Modal>
       </div>
     </section>
   );
