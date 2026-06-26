@@ -1,4 +1,5 @@
 "use client";
+
 import { getAddress, Logout, updateUserProfile } from "@/src/hook/useAuth";
 import { clearUser, userget } from "@/src/redux/userSlice";
 import AuthUserNothave from "@/src/utlis/AuthUserNothave";
@@ -1649,12 +1650,11 @@ const AccountPage = () => {
           </div>
         )}
 
-        {selectedOrder && (
-          <OrderDetailsModal
-            order={selectedOrder}
-            onClose={() => setSelectedOrder(null)}
-          />
-        )}
+        <OrderDetailsModal
+        order={selectedOrder}
+        onClose={() => setSelectedOrder(null)}
+        open={selectedOrder !== null}
+        />
       </Section>
     </AuthUserNothave>
   );

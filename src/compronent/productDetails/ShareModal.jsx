@@ -52,84 +52,82 @@ const ShareModal = ({ isOpen, onClose, product }) => {
           timeout: 500,
           sx: {
             backgroundColor: "rgba(0, 0, 0, 0.7)",
-            backdropFilter: "blur(4px)", // MUI handling backdrop blur
+            backdropFilter: "blur(4px)",
           },
         },
       }}
       className="flex items-center justify-center p-4"
     >
       <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            transition={{ duration: 0.3 }}
-            className="relative bg-bg text-neutral w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden outline-none"
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
-              <h2 className="text-lg font-semibold">Share in a post</h2>
-              <button
-                onClick={onClose}
-                className="p-1 hover:bg-white/10 rounded-full transition-colors cursor-pointer"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.9, y: 20 }}
+          transition={{ duration: 0.3 }}
+          className="relative bg-bg text-neutral w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden outline-none"
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
+            <h2 className="text-lg font-semibold">Share in a post</h2>
+            <button
+              onClick={onClose}
+              className="p-1 hover:bg-white/10 rounded-full transition-colors cursor-pointer"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
 
-            <div className="p-6 space-y-2">
-              {/* URL Input */}
-              <div className="relative">
-                <div className="flex items-center gap-2 p-3 bg-black/40 border border-white/10 rounded-xl">
-                  <input
-                    type="text"
-                    readOnly
-                    value={productUrl}
-                    className="bg-transparent flex-1 text-sm outline-none text-gray-300 overflow-hidden text-ellipsis"
-                  />
-                  <button
-                    onClick={handleCopy}
-                    className="bg-secondary hover:bg-secondary/80 text-black px-4 py-1.5 rounded-full text-sm font-bold transition-colors flex items-center gap-2 whitespace-nowrap"
-                  >
-                    {isCopied ? <Check className="w-4 h-4" /> : null}
-                    {isCopied ? "Copied" : "Copy"}
-                  </button>
-                </div>
-              </div>
-
-              {/* Social Icons */}
-              <div className="mt-6">
-                <h3 className="text-md font-medium px-1 text-neutral/80">
-                  Share
-                </h3>
-                <div className="flex justify-between items-center overflow-x-auto pb-4 custom-scrollbar w-2/3 mx-auto">
-                  <ShareIcon
-                    icon={
-                      <MessageCircle className="w-6 h-6 fill-green-500 text-green-500" />
-                    }
-                    label="WhatsApp"
-                    onClick={shareOnWhatsApp}
-                  />
-                  <ShareIcon
-                    icon={
-                      <FaFacebook className="w-6 h-6 fill-[#1877F2] text-[#1877F2]" />
-                    }
-                    label="Facebook"
-                    onClick={shareOnFacebook}
-                  />
-                  <ShareIcon
-                    icon={
-                      <FaSquareXTwitter className="w-6 h-6 fill-neutral text-neutral" />
-                    }
-                    label="X"
-                    onClick={shareOnTwitter}
-                  />
-                </div>
+          <div className="p-6 space-y-2">
+            {/* URL Input */}
+            <div className="relative">
+              <div className="flex items-center gap-2 p-3 bg-black/40 border border-white/10 rounded-xl">
+                <input
+                  type="text"
+                  readOnly
+                  value={productUrl}
+                  className="bg-transparent flex-1 text-sm outline-none text-gray-300 overflow-hidden text-ellipsis"
+                />
+                <button
+                  onClick={handleCopy}
+                  className="bg-secondary hover:bg-secondary/80 text-black px-4 py-1.5 rounded-full text-sm font-bold transition-colors flex items-center gap-2 whitespace-nowrap"
+                >
+                  {isCopied ? <Check className="w-4 h-4" /> : null}
+                  {isCopied ? "Copied" : "Copy"}
+                </button>
               </div>
             </div>
-          </motion.div>
-        )}
+
+            {/* Social Icons */}
+            <div className="mt-6">
+              <h3 className="text-md font-medium px-1 text-neutral/80">
+                Share
+              </h3>
+              <div className="flex justify-between items-center overflow-x-auto pb-4 custom-scrollbar w-2/3 mx-auto">
+                <ShareIcon
+                  icon={
+                    <MessageCircle className="w-6 h-6 fill-green-500 text-green-500" />
+                  }
+                  label="WhatsApp"
+                  onClick={shareOnWhatsApp}
+                />
+                <ShareIcon
+                  icon={
+                    <FaFacebook className="w-6 h-6 fill-[#1877F2] text-[#1877F2]" />
+                  }
+                  label="Facebook"
+                  onClick={shareOnFacebook}
+                />
+                <ShareIcon
+                  icon={
+                    <FaSquareXTwitter className="w-6 h-6 fill-neutral text-neutral" />
+                  }
+                  label="X"
+                  onClick={shareOnTwitter}
+                />
+              </div>
+            </div>
+          </div>
+        </motion.div>
       </AnimatePresence>
     </Modal>
   );
