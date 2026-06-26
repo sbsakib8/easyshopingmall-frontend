@@ -17,6 +17,7 @@ import AccessStats from "./AccessStats";
 import AccessRequestTable from "./AccessRequestTable";
 import CustomRequestsTab from "./CustomRequestsTab";
 import { tabs } from "./useVideoAccessManagement";
+import { Backdrop, Modal } from "@mui/material";
 
 const VideoAccessManagement = () => {
   const {
@@ -157,8 +158,22 @@ const VideoAccessManagement = () => {
       </Container>
 
       {/* Custom Confirmation Modal */}
-      {actionConfirm.show && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md">
+        <Modal
+          open={actionConfirm.show}
+          onClose={() => setActionConfirm((prev) => ({ ...prev, show: false }))}
+          closeAfterTransition
+          slots={{ backdrop: Backdrop }}
+          slotProps={{
+            backdrop: {
+              timeout: 500,
+              sx: {
+                backgroundColor: "rgba(0, 0, 0, 0.4)",
+                backdropFilter: "blur(4px)",
+              },
+            },
+          }}
+          className="flex items-center justify-center p-4"
+        >
           <div className="relative w-full max-w-md overflow-hidden bg-slate-900/90 border border-slate-700/50 rounded-3xl p-6 md:p-8 shadow-2xl shadow-black/50">
             <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -228,8 +243,7 @@ const VideoAccessManagement = () => {
               </button>
             </div>
           </div>
-        </div>
-      )}
+        </Modal>
     </section>
   );
 };

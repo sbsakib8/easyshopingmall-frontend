@@ -1,21 +1,57 @@
 "use client";
 
+import {
+  DropshippingOrderUpdate,
+  UpdateOrderKeyPoints,
+} from "@/src/utlis/useOrder";
+import { Backdrop, Modal } from "@mui/material";
+import {
+  Calendar,
+  FileText,
+  Loader2,
+  Package,
+  Sparkles,
+  Truck,
+  User,
+  X,
+} from "lucide-react";
 import { useState } from "react";
-import { DropshippingOrderUpdate, UpdateOrderKeyPoints } from "@/src/utlis/useOrder";
-import { Loader2, X, Package, Truck, Calendar, User, FileText, Sparkles } from "lucide-react";
 import toast from "react-hot-toast";
 
 const statusOptions = [
-  { value: "pending", label: "Pending", color: "from-yellow-400 to-orange-400" },
-  { value: "processing", label: "Processing", color: "from-blue-500 to-cyan-500" },
+  {
+    value: "pending",
+    label: "Pending",
+    color: "from-yellow-400 to-orange-400",
+  },
+  {
+    value: "processing",
+    label: "Processing",
+    color: "from-blue-500 to-cyan-500",
+  },
   { value: "shipped", label: "Shipped", color: "from-purple-500 to-pink-500" },
-  { value: "delivered", label: "Delivered", color: "from-green-500 to-emerald-500" },
-  { value: "completed", label: "Completed", color: "from-green-500 to-emerald-500" },
+  {
+    value: "delivered",
+    label: "Delivered",
+    color: "from-green-500 to-emerald-500",
+  },
+  {
+    value: "completed",
+    label: "Completed",
+    color: "from-green-500 to-emerald-500",
+  },
   { value: "cancelled", label: "Cancelled", color: "from-red-500 to-rose-500" },
   { value: "return", label: "Return", color: "from-orange-500 to-amber-500" },
 ];
 
-const DropshippingStatusUpdateModal = ({ order, isOpen, onClose, onSuccess }) => {
+const DropshippingStatusUpdateModal = ({
+  order,
+  isOpen,
+  onClose,
+  onSuccess,
+}) => {
+  if (!order) return null;
+
   const [status, setStatus] = useState(order?.order_status || "pending");
   const [note, setNote] = useState("");
   const [trackingNumber, setTrackingNumber] = useState("");
@@ -25,8 +61,6 @@ const DropshippingStatusUpdateModal = ({ order, isOpen, onClose, onSuccess }) =>
   const [keyPoints, setKeyPoints] = useState(order?.keyPoints || []);
   const [newKeyPoint, setNewKeyPoint] = useState("");
   const [updatingKeyPoints, setUpdatingKeyPoints] = useState(false);
-
-  if (!isOpen || !order) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -88,8 +122,23 @@ const DropshippingStatusUpdateModal = ({ order, isOpen, onClose, onSuccess }) =>
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden">
+    <Modal
+      open={isOpen}
+      onClose={onClose}
+      closeAfterTransition
+      slots={{ backdrop: Backdrop }}
+      slotProps={{
+        backdrop: {
+          timeout: 500,
+          sx: {
+            backgroundColor: "rgba(0, 0, 0, 0.4)",
+            backdropFilter: "blur(4px)",
+          },
+        },
+      }}
+      className="flex items-center justify-center p-4"
+    >
+      <div className="relative bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-5 text-white">
           <div className="flex items-center justify-between">
@@ -112,7 +161,10 @@ const DropshippingStatusUpdateModal = ({ order, isOpen, onClose, onSuccess }) =>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+        <form
+          onSubmit={handleSubmit}
+          className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]"
+        >
           <div className="space-y-5">
             {/* Status Select */}
             <div>
@@ -203,7 +255,9 @@ const DropshippingStatusUpdateModal = ({ order, isOpen, onClose, onSuccess }) =>
                   type="text"
                   value={newKeyPoint}
                   onChange={(e) => setNewKeyPoint(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addKeyPoint())}
+                  onKeyDown={(e) =>
+                    e.key === "Enter" && (e.preventDefault(), addKeyPoint())
+                  }
                   placeholder="Add a highlight and press Enter"
                   className="flex-1 px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 />
@@ -265,7 +319,7 @@ const DropshippingStatusUpdateModal = ({ order, isOpen, onClose, onSuccess }) =>
           </div>
         </form>
       </div>
-    </div>
+    </Modal>
   );
 };
 

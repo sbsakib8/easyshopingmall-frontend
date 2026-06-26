@@ -1,12 +1,16 @@
 "use client";
 
 import Container from "@/src/compronent/shared/Container";
-import DashboardLoader from "@/src/helper/loading/DashboardLoader";
-import { useGetAllOrders } from "@/src/utlis/useGetAllOrders";
-import { OrderUpdate, SendOrderMessage, UpdateOrderKeyPoints } from "@/src/utlis/useOrder";
 import { isDSOrder } from "@/src/utlis/orderHelpers";
+import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
+import { useGetAllOrders } from "@/src/utlis/useGetAllOrders";
+import {
+  OrderUpdate,
+  SendOrderMessage,
+  UpdateOrderKeyPoints,
+} from "@/src/utlis/useOrder";
 import { cn } from "@/src/utlis/utils";
-import DropshippingStatusUpdateModal from "./DropshippingStatusUpdateModal";
+import { Backdrop, Modal } from "@mui/material";
 import {
   BarChart3,
   Calendar,
@@ -36,7 +40,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { useMemo, useState } from "react";
-import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
+import DropshippingStatusUpdateModal from "./DropshippingStatusUpdateModal";
 
 const statusColors = {
   pending:
@@ -320,7 +324,10 @@ const OrderManagement = () => {
     if (!orderMessage.trim() || !selectedOrder?._id) return;
     setSendingMessage(true);
     try {
-      const res = await SendOrderMessage(selectedOrder._id, orderMessage.trim());
+      const res = await SendOrderMessage(
+        selectedOrder._id,
+        orderMessage.trim(),
+      );
       if (res.success) {
         setSelectedOrder(res.data);
         setOrderMessage("");
@@ -632,16 +639,16 @@ const OrderManagement = () => {
                               </button>
                             )}
                             {canModify("orders") && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setConfirmationModal(true);
-                                setSelectedOrder(order);
-                              }}
-                              className="p-2 rounded-xl bg-red-600 hover:bg-red-700 text-slate-300 shadow-lg"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setConfirmationModal(true);
+                                  setSelectedOrder(order);
+                                }}
+                                className="p-2 rounded-xl bg-red-600 hover:bg-red-700 text-slate-300 shadow-lg"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
                             )}
                           </div>
                         </div>
@@ -736,10 +743,11 @@ const OrderManagement = () => {
                         <button
                           key={page}
                           onClick={() => setCurrentPage(page)}
-                          className={`w-10 h-10 rounded-xl ${currentPage === page
+                          className={`w-10 h-10 rounded-xl ${
+                            currentPage === page
                               ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-slate-300 shadow-lg"
                               : "bg-gradient-to-r from-gray-700 to-gray-800 border border-gray-600 text-slate-300 hover:border-gray-500"
-                            }`}
+                          }`}
                         >
                           {page}
                         </button>
@@ -762,630 +770,749 @@ const OrderManagement = () => {
           </div>
         </div>
 
-        {showModal && selectedOrder && (
-          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-40 p-4 min-h-screen">
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
-              <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 text-slate-300">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-2xl font-bold">Order Details</h2>
-                    <p className="text-blue-200">
-                      {selectedOrder?.orderId}{" "}
-                      <button
-                        onClick={handleCopy}
-                        className="p-1.5 rounded-md bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 cursor-pointer"
-                        title="Copy Order ID"
-                      >
-                        {copied ? <Check size={16} /> : <Copy size={16} />}
-                      </button>
-                    </p>
-                    <p className="text-blue-200">
-                      <span className="font-bold">Order Date:</span>{" "}
-                      {new Date(selectedOrder?.updatedAt).toLocaleDateString()}
-                    </p>
-                  </div>
+        {/* Empty State */}
+        {filteredOrders?.length === 0 && (
+          <div className="text-center py-12">
+            <div className="w-24 h-24 bg-gradient-to-br from-gray-700 to-gray-800 rounded-full flex items-center justify-center mx-auto mb-6 border border-gray-600">
+              <Package className="h-12 w-12 text-gray-400" />
+            </div>
+            <h3 className="text-2xl font-bold text-slate-300 mb-2">
+              No Orders Found
+            </h3>
+            <p className="text-gray-400 mb-6">
+              Try adjusting your search or filter criteria
+            </p>
+            <button
+              onClick={() => {
+                setSearchTerm("");
+                setStatusFilter("all");
+              }}
+              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-slate-300 rounded-2xl hover:from-blue-700 hover:to-indigo-700 shadow-lg"
+            >
+              Clear Filters
+            </button>
+          </div>
+        )}
+      </Container>
+
+      <Modal
+        open={showModal && selectedOrder}
+        onClose={() => setShowModal(false)}
+        closeAfterTransition
+        slots={{ backdrop: Backdrop }}
+        slotProps={{
+          backdrop: {
+            timeout: 500,
+            sx: {
+              backgroundColor: "rgba(0, 0, 0, 0.4)",
+              backdropFilter: "blur(4px)",
+            },
+          },
+        }}
+        className="flex items-center justify-center p-4"
+      >
+        <div className="relative bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 text-slate-300">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold">Order Details</h2>
+                <p className="text-blue-200">
+                  {selectedOrder?.orderId}{" "}
                   <button
-                    onClick={() => setShowModal(false)}
-                    className="p-2 rounded-xl bg-white/20 hover:bg-white/30 cursor-pointer hover:text-red-600"
+                    onClick={handleCopy}
+                    className="p-1.5 rounded-md bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 cursor-pointer"
+                    title="Copy Order ID"
                   >
-                    <XCircle className="h-6 w-6" />
+                    {copied ? <Check size={16} /> : <Copy size={16} />}
                   </button>
-                </div>
+                </p>
+                <p className="text-blue-200">
+                  <span className="font-bold">Order Date:</span>{" "}
+                  {new Date(selectedOrder?.updatedAt).toLocaleDateString()}
+                </p>
               </div>
+              <button
+                onClick={() => setShowModal(false)}
+                className="p-2 rounded-xl bg-white/20 hover:bg-white/30 cursor-pointer hover:text-red-600"
+              >
+                <XCircle className="h-6 w-6" />
+              </button>
+            </div>
+          </div>
 
-              <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {/* Customer Information */}
-                  <div className="space-y-4">
-                    <div className="bg-gradient-to-br from-gray-700/50 to-gray-800/50 rounded-2xl p-6 border border-gray-600">
-                      <h3 className="text-lg font-bold text-slate-300 mb-4 flex items-center gap-2">
-                        <User className="h-5 w-5 text-blue-400" />
-                        Customer Information
+          <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Customer Information */}
+              <div className="space-y-4">
+                <div className="bg-gradient-to-br from-gray-700/50 to-gray-800/50 rounded-2xl p-6 border border-gray-600">
+                  <h3 className="text-lg font-bold text-slate-300 mb-4 flex items-center gap-2">
+                    <User className="h-5 w-5 text-blue-400" />
+                    Customer Information
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <User className="h-4 w-4 text-gray-400" />
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-slate-300">
+                          {selectedOrder?.userId?.name}
+                        </span>
+                        {isDSOrder(selectedOrder) && (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/20 text-primary border border-primary/30 uppercase tracking-widest">
+                            Dropshipping
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Mail className="h-4 w-4 text-gray-400" />
+                      <span className="text-gray-300">
+                        {selectedOrder?.userId?.email}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Phone className="h-4 w-4 text-gray-400" />
+                      <span className="text-gray-300">
+                        {selectedOrder?.address?.mobile || "018XXXXXXXX"}
+                      </span>
+                    </div>
+                    <div className="flex flex-col items-start gap-3">
+                      {/* <MapPin className="h-4 w-4 text-gray-400 mt-1"/> */}
+                      <h3 className="font-bold text-slate-300">
+                        Address Line:{" "}
+                        <span className="text-gray-300 font-normal">
+                          {selectedOrder?.address?.address_line || "None"}
+                        </span>
                       </h3>
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-3">
-                          <User className="h-4 w-4 text-gray-400" />
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium text-slate-300">
-                              {selectedOrder?.userId?.name}
-                            </span>
-                            {isDSOrder(selectedOrder) && (
-                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/20 text-primary border border-primary/30 uppercase tracking-widest">
-                                Dropshipping
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <Mail className="h-4 w-4 text-gray-400" />
-                          <span className="text-gray-300">
-                            {selectedOrder?.userId?.email}
+                      {selectedOrder?.address?.district && (
+                        <h3 className="font-bold text-slate-300">
+                          District:{" "}
+                          <span className="text-gray-300 font-normal">
+                            {selectedOrder?.address?.district || "None"}
                           </span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <Phone className="h-4 w-4 text-gray-400" />
-                          <span className="text-gray-300">
-                            {selectedOrder?.address?.mobile || "018XXXXXXXX"}
+                        </h3>
+                      )}
+                      <h3 className="font-bold text-slate-300">
+                        District:{" "}
+                        <span className="text-gray-300 font-normal">
+                          {selectedOrder?.address?.district || "None"}
+                        </span>
+                      </h3>
+                      {selectedOrder?.address?.division && (
+                        <h3 className="font-bold text-slate-300">
+                          Division:{" "}
+                          <span className="text-gray-300 font-normal">
+                            {selectedOrder?.address?.division || "None"}
                           </span>
-                        </div>
-                        <div className="flex flex-col items-start gap-3">
-                          {/* <MapPin className="h-4 w-4 text-gray-400 mt-1"/> */}
-                          <h3 className="font-bold text-slate-300">
-                            Address Line:{" "}
-                            <span className="text-gray-300 font-normal">
-                              {selectedOrder?.address?.address_line || "None"}
-                            </span>
-                          </h3>
-                          {selectedOrder?.address?.district && (
-                            <h3 className="font-bold text-slate-300">
-                              District:{" "}
-                              <span className="text-gray-300 font-normal">
-                                {selectedOrder?.address?.district || "None"}
-                              </span>
-                            </h3>
-                          )}
-                          <h3 className="font-bold text-slate-300">
-                            District:{" "}
-                            <span className="text-gray-300 font-normal">
-                              {selectedOrder?.address?.district || "None"}
-                            </span>
-                          </h3>
-                          {selectedOrder?.address?.division && (
-                            <h3 className="font-bold text-slate-300">
-                              Division:{" "}
-                              <span className="text-gray-300 font-normal">
-                                {selectedOrder?.address?.division || "None"}
-                              </span>
-                            </h3>
-                          )}
+                        </h3>
+                      )}
 
-                          {selectedOrder?.address?.pincode && (
-                            <h3 className="font-bold text-slate-300">
-                              Pincode:{" "}
-                              <span className="text-gray-300 font-normal">
-                                {selectedOrder?.address?.pincode || "None"}
-                              </span>
-                            </h3>
-                          )}
+                      {selectedOrder?.address?.pincode && (
+                        <h3 className="font-bold text-slate-300">
+                          Pincode:{" "}
+                          <span className="text-gray-300 font-normal">
+                            {selectedOrder?.address?.pincode || "None"}
+                          </span>
+                        </h3>
+                      )}
 
-                          <h3 className="font-bold text-slate-300">
-                            Upazila Thana:{" "}
-                            <span className="text-gray-300 font-normal">
-                              {selectedOrder?.address?.upazila_thana || "None"}
-                            </span>
-                          </h3>
-                        </div>
+                      <h3 className="font-bold text-slate-300">
+                        Upazila Thana:{" "}
+                        <span className="text-gray-300 font-normal">
+                          {selectedOrder?.address?.upazila_thana || "None"}
+                        </span>
+                      </h3>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Order Summary */}
+                <div className="bg-gradient-to-br from-gray-700/50 to-gray-800/50 rounded-2xl p-6 border border-gray-600">
+                  <h3 className="text-lg font-bold text-slate-300 mb-4 flex items-center gap-2">
+                    <BarChart3 className="h-5 w-5 text-purple-400" />
+                    Order Summary
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Order Date:</span>
+                      <span className="font-medium text-slate-300">
+                        {new Date(
+                          selectedOrder?.updatedAt,
+                        ).toLocaleDateString()}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Total Items:</span>
+                      <span className="font-medium text-slate-300">
+                        {selectedOrder?.products.length}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-400">Order Status:</span>
+                      <div className="flex items-center gap-2">
+                        {(() => {
+                          const StatusIcon =
+                            statusIcons[selectedOrder?.order_status];
+                          return StatusIcon ? (
+                            <StatusIcon className="h-4 w-4 text-slate-300" />
+                          ) : null;
+                        })()}
+                        <span
+                          className={`px-4 py-2 rounded-xl text-sm font-semibold ${statusColors[selectedOrder?.order_status]}`}
+                        >
+                          {selectedOrder?.order_status.charAt(0).toUpperCase() +
+                            selectedOrder?.order_status?.slice(1)}
+                        </span>
                       </div>
                     </div>
 
-                    {/* Order Summary */}
-                    <div className="bg-gradient-to-br from-gray-700/50 to-gray-800/50 rounded-2xl p-6 border border-gray-600">
-                      <h3 className="text-lg font-bold text-slate-300 mb-4 flex items-center gap-2">
-                        <BarChart3 className="h-5 w-5 text-purple-400" />
-                        Order Summary
-                      </h3>
-                      <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Sub Total:</span>
+                      <span className="font-medium text-slate-300">
+                        {(() => {
+                          const isDS2 = isDSOrder(selectedOrder);
+                          const hasCorrectedPrices2 =
+                            !isDS2 &&
+                            (selectedOrder?.products || []).some((item) => {
+                              const retailPrice =
+                                Number(item?.productId?.price) || 0;
+                              const storedPrice = Number(item?.price) || 0;
+                              return (
+                                retailPrice > 0 && retailPrice !== storedPrice
+                              );
+                            });
+                          const sub2 = hasCorrectedPrices2
+                            ? (selectedOrder?.products || []).reduce(
+                                (sum, item) => {
+                                  const retailPrice =
+                                    Number(item?.productId?.price) ||
+                                    Number(item?.price) ||
+                                    0;
+                                  return (
+                                    sum +
+                                    retailPrice * (Number(item?.quantity) || 1)
+                                  );
+                                },
+                                0,
+                              )
+                            : Number(selectedOrder?.subTotalAmt) || 0;
+                          return `৳${sub2}`;
+                        })()}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Delivery Charge:</span>
+                      <span className="font-medium text-slate-300">
+                        ৳{selectedOrder?.deliveryCharge || "None"}
+                      </span>
+                    </div>
+
+                    {selectedOrder?.couponDiscount > 0 && (
+                      <div className="flex justify-between text-emerald-400">
+                        <span>
+                          Coupon Discount ({selectedOrder?.appliedCoupon}):
+                        </span>
+                        <span className="font-medium">
+                          - ৳{selectedOrder?.couponDiscount}
+                        </span>
+                      </div>
+                    )}
+
+                    {(() => {
+                      const isDS2 = isDSOrder(selectedOrder);
+                      const hasCorrectedPrices2 =
+                        !isDS2 &&
+                        (selectedOrder?.products || []).some((item) => {
+                          const retailPrice =
+                            Number(item?.productId?.price) || 0;
+                          const storedPrice = Number(item?.price) || 0;
+                          return retailPrice > 0 && retailPrice !== storedPrice;
+                        });
+                      const sub2 = hasCorrectedPrices2
+                        ? (selectedOrder?.products || []).reduce(
+                            (sum, item) => {
+                              const retailPrice =
+                                Number(item?.productId?.price) ||
+                                Number(item?.price) ||
+                                0;
+                              return (
+                                sum +
+                                retailPrice * (Number(item?.quantity) || 1)
+                              );
+                            },
+                            0,
+                          )
+                        : Number(selectedOrder?.subTotalAmt) || 0;
+                      const delivery2 =
+                        Number(selectedOrder?.deliveryCharge) || 0;
+                      const coupon2 =
+                        Number(selectedOrder?.couponDiscount) || 0;
+                      const calculatedTotal2 = sub2 + delivery2 - coupon2;
+                      const storedTotal2 = Number(selectedOrder?.totalAmt) || 0;
+                      const displayTotal2 =
+                        calculatedTotal2 > 0 ? calculatedTotal2 : storedTotal2;
+                      return (
                         <div className="flex justify-between">
-                          <span className="text-gray-400">Order Date:</span>
+                          <span className="text-gray-400">Total:</span>
+                          <span className="font-medium text-slate-300">
+                            ৳{displayTotal2}
+                          </span>
+                        </div>
+                      );
+                    })()}
+
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Payment Method:</span>
+                      <span className="font-medium text-slate-300">
+                        {selectedOrder?.payment_method || "None"}
+                      </span>
+                    </div>
+                    {/* payment manual */}
+                    {selectedOrder?.payment_method === "manual" && (
+                      <>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Provider Name:</span>
+                          <span className="font-medium text-slate-300">
+                            {selectedOrder?.payment_details?.manual?.provider ||
+                              "None"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Transaction Id:</span>
+                          <span className="font-medium text-slate-300">
+                            {
+                              selectedOrder?.payment_details?.manual
+                                ?.transactionId
+                            }
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Paid For :</span>
+                          {selectedOrder?.payment_details?.manual?.paidFor && (
+                            <span className="font-medium text-slate-300">
+                              {selectedOrder?.payment_details?.manual
+                                ?.paidFor || "None"}{" "}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">
+                            Provider Number:
+                          </span>
+                          <span className="font-medium text-slate-300">
+                            {selectedOrder?.payment_details?.manual
+                              ?.senderNumber || "None"}
+                          </span>
+                        </div>
+                      </>
+                    )}
+
+                    {/* payment ssl */}
+                    {selectedOrder?.payment_method === "sslcommerz" && (
+                      <>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Transaction Id:</span>
+                          <span className="ml-2 text-xs text-slate-300">
+                            {selectedOrder?.payment_details?.tran_id || "None"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">
+                            Transaction Date:
+                          </span>
                           <span className="font-medium text-slate-300">
                             {new Date(
-                              selectedOrder?.updatedAt,
+                              selectedOrder?.payment_details?.tran_date ||
+                                "None",
                             ).toLocaleDateString()}
                           </span>
                         </div>
-
                         <div className="flex justify-between">
-                          <span className="text-gray-400">Total Items:</span>
+                          <span className="text-gray-400">Card Issuer:</span>
                           <span className="font-medium text-slate-300">
-                            {selectedOrder?.products.length}
+                            {selectedOrder?.payment_details?.card_issuer ||
+                              "None"}
                           </span>
                         </div>
+                      </>
+                    )}
 
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-400">Order Status:</span>
-                          <div className="flex items-center gap-2">
-                            {(() => {
-                              const StatusIcon =
-                                statusIcons[selectedOrder?.order_status];
-                              return StatusIcon ? (
-                                <StatusIcon className="h-4 w-4 text-slate-300" />
-                              ) : null;
-                            })()}
-                            <span
-                              className={`px-4 py-2 rounded-xl text-sm font-semibold ${statusColors[selectedOrder?.order_status]}`}
-                            >
-                              {selectedOrder?.order_status
-                                .charAt(0)
-                                .toUpperCase() +
-                                selectedOrder?.order_status?.slice(1)}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Sub Total:</span>
-                          <span className="font-medium text-slate-300">
-                            {(() => {
-                              const isDS2 = isDSOrder(selectedOrder);
-                              const hasCorrectedPrices2 = !isDS2 && (selectedOrder?.products || []).some((item) => {
-                                const retailPrice = Number(item?.productId?.price) || 0;
-                                const storedPrice = Number(item?.price) || 0;
-                                return retailPrice > 0 && retailPrice !== storedPrice;
-                              });
-                              const sub2 = hasCorrectedPrices2
-                                ? (selectedOrder?.products || []).reduce((sum, item) => {
-                                  const retailPrice = Number(item?.productId?.price) || Number(item?.price) || 0;
-                                  return sum + retailPrice * (Number(item?.quantity) || 1);
-                                }, 0)
-                                : Number(selectedOrder?.subTotalAmt) || 0;
-                              return `৳${sub2}`;
-                            })()}
-                          </span>
-                        </div>
-
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">
-                            Delivery Charge:
-                          </span>
-                          <span className="font-medium text-slate-300">
-                            ৳{selectedOrder?.deliveryCharge || "None"}
-                          </span>
-                        </div>
-
-                        {selectedOrder?.couponDiscount > 0 && (
-                          <div className="flex justify-between text-emerald-400">
-                            <span>
-                              Coupon Discount ({selectedOrder?.appliedCoupon}):
-                            </span>
-                            <span className="font-medium">
-                              - ৳{selectedOrder?.couponDiscount}
-                            </span>
-                          </div>
-                        )}
-
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Amount Due:</span>
+                      <span className="font-medium text-slate-300">
                         {(() => {
                           const isDS2 = isDSOrder(selectedOrder);
-                          const hasCorrectedPrices2 = !isDS2 && (selectedOrder?.products || []).some((item) => {
-                            const retailPrice = Number(item?.productId?.price) || 0;
-                            const storedPrice = Number(item?.price) || 0;
-                            return retailPrice > 0 && retailPrice !== storedPrice;
-                          });
+                          const hasCorrectedPrices2 =
+                            !isDS2 &&
+                            (selectedOrder?.products || []).some((item) => {
+                              const retailPrice =
+                                Number(item?.productId?.price) || 0;
+                              const storedPrice = Number(item?.price) || 0;
+                              return (
+                                retailPrice > 0 && retailPrice !== storedPrice
+                              );
+                            });
                           const sub2 = hasCorrectedPrices2
-                            ? (selectedOrder?.products || []).reduce((sum, item) => {
-                              const retailPrice = Number(item?.productId?.price) || Number(item?.price) || 0;
-                              return sum + retailPrice * (Number(item?.quantity) || 1);
-                            }, 0)
+                            ? (selectedOrder?.products || []).reduce(
+                                (sum, item) => {
+                                  const retailPrice =
+                                    Number(item?.productId?.price) ||
+                                    Number(item?.price) ||
+                                    0;
+                                  return (
+                                    sum +
+                                    retailPrice * (Number(item?.quantity) || 1)
+                                  );
+                                },
+                                0,
+                              )
                             : Number(selectedOrder?.subTotalAmt) || 0;
-                          const delivery2 = Number(selectedOrder?.deliveryCharge) || 0;
-                          const coupon2 = Number(selectedOrder?.couponDiscount) || 0;
+                          const delivery2 =
+                            Number(selectedOrder?.deliveryCharge) || 0;
+                          const coupon2 =
+                            Number(selectedOrder?.couponDiscount) || 0;
                           const calculatedTotal2 = sub2 + delivery2 - coupon2;
-                          const storedTotal2 = Number(selectedOrder?.totalAmt) || 0;
-                          const displayTotal2 = calculatedTotal2 > 0 ? calculatedTotal2 : storedTotal2;
-                          return (
-                            <div className="flex justify-between">
-                              <span className="text-gray-400">Total:</span>
-                              <span className="font-medium text-slate-300">
-                                ৳{displayTotal2}
-                              </span>
-                            </div>
+                          const storedTotal2 =
+                            Number(selectedOrder?.totalAmt) || 0;
+                          const displayTotal2 =
+                            calculatedTotal2 > 0
+                              ? calculatedTotal2
+                              : storedTotal2;
+                          const amountDue = Math.max(
+                            0,
+                            displayTotal2 -
+                              (Number(selectedOrder?.amount_paid) || 0),
                           );
+                          return `৳${amountDue}`;
                         })()}
-
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Payment Method:</span>
-                          <span className="font-medium text-slate-300">
-                            {selectedOrder?.payment_method || "None"}
-                          </span>
-                        </div>
-                        {/* payment manual */}
-                        {selectedOrder?.payment_method === "manual" && (
-                          <>
-                            <div className="flex justify-between">
-                              <span className="text-gray-400">
-                                Provider Name:
-                              </span>
-                              <span className="font-medium text-slate-300">
-                                {selectedOrder?.payment_details?.manual
-                                  ?.provider || "None"}
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-400">
-                                Transaction Id:
-                              </span>
-                              <span className="font-medium text-slate-300">
-                                {
-                                  selectedOrder?.payment_details?.manual
-                                    ?.transactionId
-                                }
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-400">Paid For :</span>
-                              {selectedOrder?.payment_details?.manual
-                                ?.paidFor && (
-                                  <span className="font-medium text-slate-300">
-                                    {selectedOrder?.payment_details?.manual
-                                      ?.paidFor || "None"}{" "}
-                                  </span>
-                                )}
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-400">
-                                Provider Number:
-                              </span>
-                              <span className="font-medium text-slate-300">
-                                {selectedOrder?.payment_details?.manual
-                                  ?.senderNumber || "None"}
-                              </span>
-                            </div>
-                          </>
-                        )}
-
-                        {/* payment ssl */}
-                        {selectedOrder?.payment_method === "sslcommerz" && (
-                          <>
-                            <div className="flex justify-between">
-                              <span className="text-gray-400">
-                                Transaction Id:
-                              </span>
-                              <span className="ml-2 text-xs text-slate-300">
-                                {selectedOrder?.payment_details?.tran_id ||
-                                  "None"}
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-400">
-                                Transaction Date:
-                              </span>
-                              <span className="font-medium text-slate-300">
-                                {new Date(
-                                  selectedOrder?.payment_details?.tran_date ||
-                                  "None",
-                                ).toLocaleDateString()}
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-400">
-                                Card Issuer:
-                              </span>
-                              <span className="font-medium text-slate-300">
-                                {selectedOrder?.payment_details?.card_issuer ||
-                                  "None"}
-                              </span>
-                            </div>
-                          </>
-                        )}
-
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Amount Due:</span>
-                          <span className="font-medium text-slate-300">
-                            {(() => {
-                              const isDS2 = isDSOrder(selectedOrder);
-                              const hasCorrectedPrices2 = !isDS2 && (selectedOrder?.products || []).some((item) => {
-                                const retailPrice = Number(item?.productId?.price) || 0;
-                                const storedPrice = Number(item?.price) || 0;
-                                return retailPrice > 0 && retailPrice !== storedPrice;
-                              });
-                              const sub2 = hasCorrectedPrices2
-                                ? (selectedOrder?.products || []).reduce((sum, item) => {
-                                  const retailPrice = Number(item?.productId?.price) || Number(item?.price) || 0;
-                                  return sum + retailPrice * (Number(item?.quantity) || 1);
-                                }, 0)
-                                : Number(selectedOrder?.subTotalAmt) || 0;
-                              const delivery2 = Number(selectedOrder?.deliveryCharge) || 0;
-                              const coupon2 = Number(selectedOrder?.couponDiscount) || 0;
-                              const calculatedTotal2 = sub2 + delivery2 - coupon2;
-                              const storedTotal2 = Number(selectedOrder?.totalAmt) || 0;
-                              const displayTotal2 = calculatedTotal2 > 0 ? calculatedTotal2 : storedTotal2;
-                              const amountDue = Math.max(0, displayTotal2 - (Number(selectedOrder?.amount_paid) || 0));
-                              return `৳${amountDue}`;
-                            })()}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Amount Paid:</span>
-                          <span className="font-medium text-slate-300">
-                            ৳{selectedOrder?.amount_paid}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Payment Type:</span>
-                          <span className="font-medium text-slate-300 capitalize">
-                            {selectedOrder?.payment_type || "—"}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Payment Status:</span>
-                          <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${selectedOrder?.payment_status === "paid" ? "bg-green-500/20 text-green-400" :
-                              selectedOrder?.payment_status === "submitted" ? "bg-yellow-500/20 text-yellow-400" :
-                                "bg-gray-500/20 text-gray-400"
-                            }`}>
-                            {selectedOrder?.payment_status || "—"}
-                          </span>
-                        </div>
-
-                        {selectedOrder?.rating && (
-                          <div className="flex justify-between items-center">
-                            <span className="text-gray-400">Rating:</span>
-                            <div className="flex items-center gap-1">
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={`h-4 w-4 ${i < selectedOrder?.rating ? "text-yellow-400 fill-current" : "text-gray-600"}`}
-                                />
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
+                      </span>
                     </div>
-                  </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Amount Paid:</span>
+                      <span className="font-medium text-slate-300">
+                        ৳{selectedOrder?.amount_paid}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Payment Type:</span>
+                      <span className="font-medium text-slate-300 capitalize">
+                        {selectedOrder?.payment_type || "—"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Payment Status:</span>
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                          selectedOrder?.payment_status === "paid"
+                            ? "bg-green-500/20 text-green-400"
+                            : selectedOrder?.payment_status === "submitted"
+                              ? "bg-yellow-500/20 text-yellow-400"
+                              : "bg-gray-500/20 text-gray-400"
+                        }`}
+                      >
+                        {selectedOrder?.payment_status || "—"}
+                      </span>
+                    </div>
 
-                  {/* Order Items */}
-                  <div className="space-y-4">
-                    <div className="bg-gradient-to-br from-gray-700/50 to-gray-800/50 rounded-2xl p-3 border border-gray-600">
-                      <h3 className="text-lg font-bold text-slate-300 mb-4 flex items-center gap-2">
-                        <ShoppingCart className="h-5 w-5 text-green-400" />
-                        Order Items
-                      </h3>
-                      <div className="space-y-3">
-                        {(() => {
-                          const isDS = isDSOrder(selectedOrder);
-                          const correctedItems = (selectedOrder?.products || []).map((item) => {
-                            if (isDS) return { ...item, _ep: item.sellingPrice || item.price || 0, _et: item.totalPrice || (item.sellingPrice || item.price || 0) * (Number(item?.quantity) || 1) };
-                            const retailPrice = Number(item?.productId?.price) || 0;
-                            const storedPrice = Number(item?.price) || 0;
-                            const ep = (retailPrice > 0 && retailPrice !== storedPrice) ? retailPrice : storedPrice;
-                            return { ...item, _ep: ep };
-                          });
-                          return correctedItems.map((item, index) => (
-                            <div
-                              key={index}
-                              className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 rounded-xl p-2 shadow-sm border border-gray-700"
-                            >
-                              <div className="flex justify-between items-center">
-                                <div className="flex">
-                                  <img
-                                    className="w-15 h-15 object-cover object-top rounded-sm mr-1"
-                                    src={
-                                      (Array.isArray(item?.image)
-                                        ? item.image[0]
-                                        : typeof item?.image === "string"
-                                          ? item.image
-                                          : null) ||
-                                      (Array.isArray(item?.images)
-                                        ? item.images[0]
-                                        : typeof item?.images === "string"
-                                          ? item.images
-                                          : null) ||
-                                      (Array.isArray(item?.productId?.images)
-                                        ? item.productId.images[0]
-                                        : typeof item?.productId?.images ===
-                                          "string"
-                                          ? item.productId.images
-                                          : null) ||
-                                      (Array.isArray(item?.productId?.image)
-                                        ? item.productId.image[0]
-                                        : typeof item?.productId?.image ===
-                                          "string"
-                                          ? item.productId.image
-                                          : null) ||
-                                      "/img/product.jpg"
-                                    }
-                                    alt={item?.name || "Product"}
-                                  />
-                                  <div>
-                                    <h4 className="text-xs text-slate-300">
-                                      {item?.name}
-                                    </h4>
-                                    <p className="text-xs text-gray-400">
-                                      Quantity: {item?.quantity}
+                    {selectedOrder?.rating && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-400">Rating:</span>
+                        <div className="flex items-center gap-1">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`h-4 w-4 ${i < selectedOrder?.rating ? "text-yellow-400 fill-current" : "text-gray-600"}`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Order Items */}
+              <div className="space-y-4">
+                <div className="bg-gradient-to-br from-gray-700/50 to-gray-800/50 rounded-2xl p-3 border border-gray-600">
+                  <h3 className="text-lg font-bold text-slate-300 mb-4 flex items-center gap-2">
+                    <ShoppingCart className="h-5 w-5 text-green-400" />
+                    Order Items
+                  </h3>
+                  <div className="space-y-3">
+                    {(() => {
+                      const isDS = isDSOrder(selectedOrder);
+                      const correctedItems = (
+                        selectedOrder?.products || []
+                      ).map((item) => {
+                        if (isDS)
+                          return {
+                            ...item,
+                            _ep: item.sellingPrice || item.price || 0,
+                            _et:
+                              item.totalPrice ||
+                              (item.sellingPrice || item.price || 0) *
+                                (Number(item?.quantity) || 1),
+                          };
+                        const retailPrice = Number(item?.productId?.price) || 0;
+                        const storedPrice = Number(item?.price) || 0;
+                        const ep =
+                          retailPrice > 0 && retailPrice !== storedPrice
+                            ? retailPrice
+                            : storedPrice;
+                        return { ...item, _ep: ep };
+                      });
+                      return correctedItems.map((item, index) => (
+                        <div
+                          key={index}
+                          className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 rounded-xl p-2 shadow-sm border border-gray-700"
+                        >
+                          <div className="flex justify-between items-center">
+                            <div className="flex">
+                              <img
+                                className="w-15 h-15 object-cover object-top rounded-sm mr-1"
+                                src={
+                                  (Array.isArray(item?.image)
+                                    ? item.image[0]
+                                    : typeof item?.image === "string"
+                                      ? item.image
+                                      : null) ||
+                                  (Array.isArray(item?.images)
+                                    ? item.images[0]
+                                    : typeof item?.images === "string"
+                                      ? item.images
+                                      : null) ||
+                                  (Array.isArray(item?.productId?.images)
+                                    ? item.productId.images[0]
+                                    : typeof item?.productId?.images ===
+                                        "string"
+                                      ? item.productId.images
+                                      : null) ||
+                                  (Array.isArray(item?.productId?.image)
+                                    ? item.productId.image[0]
+                                    : typeof item?.productId?.image === "string"
+                                      ? item.productId.image
+                                      : null) ||
+                                  "/img/product.jpg"
+                                }
+                                alt={item?.name || "Product"}
+                              />
+                              <div>
+                                <h4 className="text-xs text-slate-300">
+                                  {item?.name}
+                                </h4>
+                                <p className="text-xs text-gray-400">
+                                  Quantity: {item?.quantity}
+                                </p>
+                                <p className="text-gray-400 text-xs">
+                                  Color: {item?.color || "none"}
+                                </p>
+                                <p className="text-gray-400 text-xs">
+                                  Size: {item?.size || "none"}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-lg font-bold text-green-400">
+                                ৳{item._ep.toFixed(2)}
+                              </p>
+                              <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tighter">
+                                Unit Price
+                              </p>
+                              {isDS &&
+                                item?.sellingPrice > 0 &&
+                                item?.sellingPrice !== item?.price && (
+                                  <div className="mt-1 pt-1 border-t border-gray-700/50">
+                                    <p className="text-[10px] text-blue-400 font-bold">
+                                      Dropshipping Cost: ৳
+                                      {item?.price.toFixed(2)}
                                     </p>
-                                    <p className="text-gray-400 text-xs">
-                                      Color: {item?.color || "none"}
+                                    <p className="text-[10px] text-emerald-400 font-bold">
+                                      Profit: ৳
+                                      {(
+                                        (Number(item?.sellingPrice || 0) -
+                                          Number(item?.price || 0)) *
+                                        Number(item?.quantity || 1)
+                                      ).toFixed(2)}
                                     </p>
-                                    <p className="text-gray-400 text-xs">
-                                      Size: {item?.size || "none"}
+                                    <p className="text-[9px] text-gray-400 mt-1">
+                                      ({item?.quantity || 1} × ৳
+                                      {(
+                                        Number(item?.sellingPrice || 0) -
+                                        Number(item?.price || 0)
+                                      ).toFixed(2)}{" "}
+                                      per unit)
                                     </p>
                                   </div>
-                                </div>
-                                <div className="text-right">
-                                  <p className="text-lg font-bold text-green-400">
-                                    ৳{item._ep.toFixed(2)}
-                                  </p>
-                                  <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tighter">
-                                    Unit Price
-                                  </p>
-                                  {isDS && item?.sellingPrice > 0 &&
-                                    item?.sellingPrice !== item?.price && (
-                                      <div className="mt-1 pt-1 border-t border-gray-700/50">
-                                        <p className="text-[10px] text-blue-400 font-bold">
-                                          Dropshipping Cost: ৳{item?.price.toFixed(2)}
-                                        </p>
-                                        <p className="text-[10px] text-emerald-400 font-bold">
-                                          Profit: ৳
-                                          {(
-                                            (Number(item?.sellingPrice || 0) -
-                                              Number(item?.price || 0)) *
-                                            Number(item?.quantity || 1)
-                                          ).toFixed(2)}
-                                        </p>
-                                        <p className="text-[9px] text-gray-400 mt-1">
-                                          ({item?.quantity || 1} × ৳
-                                          {(
-                                            Number(item?.sellingPrice || 0) -
-                                            Number(item?.price || 0)
-                                          ).toFixed(2)}{" "}
-                                          per unit)
-                                        </p>
-                                      </div>
-                                    )}
-                                </div>
-                              </div>
+                                )}
                             </div>
-                          ));
-                        })()}
-                      </div>
+                          </div>
+                        </div>
+                      ));
+                    })()}
+                  </div>
 
-                      <div className="mt-6 pt-4 border-t-2 border-gray-600">
-                        {(selectedOrder?.userId?.role === "DROPSHIPPING" ||
-                          (Array.isArray(selectedOrder?.userId?.roles) &&
-                            selectedOrder?.userId?.roles.includes(
-                              "DROPSHIPPING",
-                            ))) && (
-                            <div className="flex flex-col gap-2 mb-6 p-4 bg-gradient-to-r from-blue-900/40 to-cyan-900/40 rounded-xl border border-blue-500/30 shadow-inner">
-                              <div className="flex justify-between items-center">
-                                <span className="text-blue-400 font-bold uppercase tracking-wider text-xs">
-                                  Dropshipping Profit Breakdown
-                                </span>
-                                <span className="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full font-black uppercase">
-                                  Verified
-                                </span>
-                              </div>
-                              <div className="flex justify-between items-center">
-                                <span className="text-gray-400 text-sm">
-                                  Total Profit:
-                                  {Number(selectedOrder?.couponDiscount) > 0 && (
-                                    <span className="ml-2 text-[10px] text-emerald-400 font-bold uppercase tracking-tighter">
-                                      (incl. coupon compensation)
-                                    </span>
-                                  )}
-                                </span>
-                                <span className="text-2xl font-black text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0.4)]">
-                                  ৳
-                                  {(
-                                    selectedOrder?.products.reduce((sum, p) => {
-                                      const cost =
-                                        Number(p.costPrice || p.price) || 0;
-                                      const selling = Number(p.sellingPrice) || 0;
-                                      return (
-                                        sum +
-                                        (selling > cost
-                                          ? (selling - cost) * (p.quantity || 1)
-                                          : 0)
-                                      );
-                                    }, 0) +
-                                    (Number(selectedOrder?.couponDiscount) || 0)
-                                  ).toLocaleString(undefined, {
-                                    minimumFractionDigits: 2,
-                                  })}
-                                </span>
-                              </div>
-                            </div>
-                          )}
+                  <div className="mt-6 pt-4 border-t-2 border-gray-600">
+                    {(selectedOrder?.userId?.role === "DROPSHIPPING" ||
+                      (Array.isArray(selectedOrder?.userId?.roles) &&
+                        selectedOrder?.userId?.roles.includes(
+                          "DROPSHIPPING",
+                        ))) && (
+                      <div className="flex flex-col gap-2 mb-6 p-4 bg-gradient-to-r from-blue-900/40 to-cyan-900/40 rounded-xl border border-blue-500/30 shadow-inner">
                         <div className="flex justify-between items-center">
-                          <span className="text-xl font-bold text-slate-300">
-                            Total Amount:
+                          <span className="text-blue-400 font-bold uppercase tracking-wider text-xs">
+                            Dropshipping Profit Breakdown
                           </span>
-                          {(() => {
-                            const isDS2 = isDSOrder(selectedOrder);
-                            const hasCorrectedPrices2 = !isDS2 && (selectedOrder?.products || []).some((item) => {
-                              const retailPrice = Number(item?.productId?.price) || 0;
-                              const storedPrice = Number(item?.price) || 0;
-                              return retailPrice > 0 && retailPrice !== storedPrice;
-                            });
-                            const sub2 = hasCorrectedPrices2
-                              ? (selectedOrder?.products || []).reduce((sum, item) => {
-                                const retailPrice = Number(item?.productId?.price) || Number(item?.price) || 0;
-                                return sum + retailPrice * (Number(item?.quantity) || 1);
-                              }, 0)
-                              : Number(selectedOrder?.subTotalAmt) || 0;
-                            const delivery2 = Number(selectedOrder?.deliveryCharge) || 0;
-                            const coupon2 = Number(selectedOrder?.couponDiscount) || 0;
-                            const calculatedTotal2 = sub2 + delivery2 - coupon2;
-                            const storedTotal2 = Number(selectedOrder?.totalAmt) || 0;
-                            const displayTotal2 = calculatedTotal2 > 0 ? calculatedTotal2 : storedTotal2;
-                            return (
-                              <span className="text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
-                                ৳{displayTotal2.toFixed(2)}
+                          <span className="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full font-black uppercase">
+                            Verified
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-400 text-sm">
+                            Total Profit:
+                            {Number(selectedOrder?.couponDiscount) > 0 && (
+                              <span className="ml-2 text-[10px] text-emerald-400 font-bold uppercase tracking-tighter">
+                                (incl. coupon compensation)
                               </span>
-                            );
-                          })()}
+                            )}
+                          </span>
+                          <span className="text-2xl font-black text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0.4)]">
+                            ৳
+                            {(
+                              selectedOrder?.products.reduce((sum, p) => {
+                                const cost =
+                                  Number(p.costPrice || p.price) || 0;
+                                const selling = Number(p.sellingPrice) || 0;
+                                return (
+                                  sum +
+                                  (selling > cost
+                                    ? (selling - cost) * (p.quantity || 1)
+                                    : 0)
+                                );
+                              }, 0) +
+                              (Number(selectedOrder?.couponDiscount) || 0)
+                            ).toLocaleString(undefined, {
+                              minimumFractionDigits: 2,
+                            })}
+                          </span>
                         </div>
                       </div>
+                    )}
+                    <div className="flex justify-between items-center">
+                      <span className="text-xl font-bold text-slate-300">
+                        Total Amount:
+                      </span>
+                      {(() => {
+                        const isDS2 = isDSOrder(selectedOrder);
+                        const hasCorrectedPrices2 =
+                          !isDS2 &&
+                          (selectedOrder?.products || []).some((item) => {
+                            const retailPrice =
+                              Number(item?.productId?.price) || 0;
+                            const storedPrice = Number(item?.price) || 0;
+                            return (
+                              retailPrice > 0 && retailPrice !== storedPrice
+                            );
+                          });
+                        const sub2 = hasCorrectedPrices2
+                          ? (selectedOrder?.products || []).reduce(
+                              (sum, item) => {
+                                const retailPrice =
+                                  Number(item?.productId?.price) ||
+                                  Number(item?.price) ||
+                                  0;
+                                return (
+                                  sum +
+                                  retailPrice * (Number(item?.quantity) || 1)
+                                );
+                              },
+                              0,
+                            )
+                          : Number(selectedOrder?.subTotalAmt) || 0;
+                        const delivery2 =
+                          Number(selectedOrder?.deliveryCharge) || 0;
+                        const coupon2 =
+                          Number(selectedOrder?.couponDiscount) || 0;
+                        const calculatedTotal2 = sub2 + delivery2 - coupon2;
+                        const storedTotal2 =
+                          Number(selectedOrder?.totalAmt) || 0;
+                        const displayTotal2 =
+                          calculatedTotal2 > 0
+                            ? calculatedTotal2
+                            : storedTotal2;
+                        return (
+                          <span className="text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
+                            ৳{displayTotal2.toFixed(2)}
+                          </span>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                {canModify("orders") && (
+                  <div className="bg-gradient-to-br from-gray-700/50 to-gray-800/50 rounded-2xl p-6 border border-gray-600">
+                    <h3 className="text-lg font-bold text-slate-300 mb-4">
+                      Quick Actions
+                    </h3>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        onClick={() =>
+                          handleStatusChange(selectedOrder?._id, "processing")
+                        }
+                        className="px-4 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-slate-300 rounded-xl text-sm font-medium"
+                      >
+                        Mark Processing
+                      </button>
+                      <button
+                        onClick={() =>
+                          handleStatusChange(selectedOrder?._id, "shipped")
+                        }
+                        className="px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-slate-300 rounded-xl text-sm font-medium"
+                      >
+                        Mark Shipped
+                      </button>
+                      <button
+                        onClick={() =>
+                          handleStatusChange(selectedOrder?._id, "completed")
+                        }
+                        className="px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-slate-300 rounded-xl text-sm font-medium"
+                      >
+                        Mark Completed
+                      </button>
+                      <button
+                        onClick={() =>
+                          handleStatusChange(selectedOrder?._id, "cancelled")
+                        }
+                        className="px-4 py-3 bg-gradient-to-r from-red-600 to-rose-600 text-slate-300 rounded-xl text-sm font-medium"
+                      >
+                        Cancel Order
+                      </button>
+                      {isDSOrder(selectedOrder) && (
+                        <button
+                          onClick={() => {
+                            setShowModal(false);
+                            handleDsStatusUpdate(selectedOrder);
+                          }}
+                          className="px-4 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-slate-300 rounded-xl text-sm font-medium col-span-2"
+                        >
+                          Update Dropshipping Status (with tracking)
+                        </button>
+                      )}
                     </div>
 
-                    {/* Action Buttons */}
-                    {canModify("orders") && (
-                    <div className="bg-gradient-to-br from-gray-700/50 to-gray-800/50 rounded-2xl p-6 border border-gray-600">
-                      <h3 className="text-lg font-bold text-slate-300 mb-4">
-                        Quick Actions
-                      </h3>
-                      <div className="grid grid-cols-2 gap-3">
-                        <button
-                          onClick={() =>
-                            handleStatusChange(selectedOrder?._id, "processing")
-                          }
-                          className="px-4 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-slate-300 rounded-xl text-sm font-medium"
-                        >
-                          Mark Processing
-                        </button>
-                        <button
-                          onClick={() =>
-                            handleStatusChange(selectedOrder?._id, "shipped")
-                          }
-                          className="px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-slate-300 rounded-xl text-sm font-medium"
-                        >
-                          Mark Shipped
-                        </button>
-                        <button
-                          onClick={() =>
-                            handleStatusChange(selectedOrder?._id, "completed")
-                          }
-                          className="px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-slate-300 rounded-xl text-sm font-medium"
-                        >
-                          Mark Completed
-                        </button>
-                        <button
-                          onClick={() =>
-                            handleStatusChange(selectedOrder?._id, "cancelled")
-                          }
-                          className="px-4 py-3 bg-gradient-to-r from-red-600 to-rose-600 text-slate-300 rounded-xl text-sm font-medium"
-                        >
-                          Cancel Order
-                        </button>
-                        {isDSOrder(selectedOrder) && (
-                          <button
-                            onClick={() => {
-                              setShowModal(false);
-                              handleDsStatusUpdate(selectedOrder);
-                            }}
-                            className="px-4 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-slate-300 rounded-xl text-sm font-medium col-span-2"
-                          >
-                            Update Dropshipping Status (with tracking)
-                          </button>
-                        )}
-                      </div>
-
-                      {/* Status History */}
-                      {selectedOrder?.dropshippingStatusHistory?.length > 0 && (
-                        <div className="mt-6 pt-4 border-t border-gray-600">
-                          <h4 className="text-sm font-bold text-gray-400 mb-3 uppercase tracking-wider">
-                            Status History
-                          </h4>
-                          <div className="space-y-3 max-h-48 overflow-y-auto">
-                            {[...selectedOrder.dropshippingStatusHistory].reverse().map((entry, idx) => (
+                    {/* Status History */}
+                    {selectedOrder?.dropshippingStatusHistory?.length > 0 && (
+                      <div className="mt-6 pt-4 border-t border-gray-600">
+                        <h4 className="text-sm font-bold text-gray-400 mb-3 uppercase tracking-wider">
+                          Status History
+                        </h4>
+                        <div className="space-y-3 max-h-48 overflow-y-auto">
+                          {[...selectedOrder.dropshippingStatusHistory]
+                            .reverse()
+                            .map((entry, idx) => (
                               <div
                                 key={idx}
                                 className="bg-gray-800/50 rounded-xl p-3 border border-gray-700"
@@ -1396,12 +1523,18 @@ const OrderManagement = () => {
                                       MESSAGE
                                     </span>
                                   ) : (
-                                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${statusColors[entry.status] || "bg-gray-600 text-gray-300"}`}>
+                                    <span
+                                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${statusColors[entry.status] || "bg-gray-600 text-gray-300"}`}
+                                    >
                                       {entry.status?.toUpperCase()}
                                     </span>
                                   )}
                                   <span className="text-[10px] text-gray-500">
-                                    {entry.statusUpdatedAt ? new Date(entry.statusUpdatedAt).toLocaleString() : "N/A"}
+                                    {entry.statusUpdatedAt
+                                      ? new Date(
+                                          entry.statusUpdatedAt,
+                                        ).toLocaleString()
+                                      : "N/A"}
                                   </span>
                                 </div>
                                 {entry.message && (
@@ -1431,151 +1564,141 @@ const OrderManagement = () => {
                                 )}
                               </div>
                             ))}
-                          </div>
                         </div>
-                      )}
+                      </div>
+                    )}
 
-                      {/* Send Message to Dropshipper */}
-                      {isDSOrder(selectedOrder) && (
-                        <div className="mt-4 pt-4 border-t border-gray-600">
-                          <h4 className="text-sm font-bold text-gray-400 mb-3 uppercase tracking-wider">
-                            Send Message to Dropshipper
-                          </h4>
-                          <div className="flex gap-2">
-                            <input
-                              type="text"
-                              value={orderMessage}
-                              onChange={(e) => setOrderMessage(e.target.value)}
-                              onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
-                              placeholder="Type a message..."
-                              className="flex-1 px-4 py-2.5 bg-gray-800 border border-gray-600 rounded-xl text-sm text-slate-300 placeholder-gray-500 focus:outline-none focus:border-cyan-500"
-                            />
-                            <button
-                              onClick={handleSendMessage}
-                              disabled={!orderMessage.trim() || sendingMessage}
-                              className="px-4 py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 text-slate-300 rounded-xl text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              {sendingMessage ? "Sending..." : "Send"}
-                            </button>
-                          </div>
+                    {/* Send Message to Dropshipper */}
+                    {isDSOrder(selectedOrder) && (
+                      <div className="mt-4 pt-4 border-t border-gray-600">
+                        <h4 className="text-sm font-bold text-gray-400 mb-3 uppercase tracking-wider">
+                          Send Message to Dropshipper
+                        </h4>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={orderMessage}
+                            onChange={(e) => setOrderMessage(e.target.value)}
+                            onKeyDown={(e) =>
+                              e.key === "Enter" && handleSendMessage()
+                            }
+                            placeholder="Type a message..."
+                            className="flex-1 px-4 py-2.5 bg-gray-800 border border-gray-600 rounded-xl text-sm text-slate-300 placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+                          />
+                          <button
+                            onClick={handleSendMessage}
+                            disabled={!orderMessage.trim() || sendingMessage}
+                            className="px-4 py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 text-slate-300 rounded-xl text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {sendingMessage ? "Sending..." : "Send"}
+                          </button>
                         </div>
-                      )}
+                      </div>
+                    )}
 
-                      {/* Key Highlights for Dropshipper */}
-                      {isDSOrder(selectedOrder) && (
-                        <div className="mt-4 pt-4 border-t border-gray-600">
-                          <h4 className="text-sm font-bold text-gray-400 mb-3 uppercase tracking-wider">
-                            Key Highlights
-                          </h4>
-                          <div className="flex gap-2">
-                            <input
-                              type="text"
-                              value={newKeyPoint}
-                              onChange={(e) => setNewKeyPoint(e.target.value)}
-                              onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addOrderKeyPoint())}
-                              placeholder="Add a highlight and press Enter"
-                              className="flex-1 px-4 py-2.5 bg-gray-800 border border-gray-600 rounded-xl text-sm text-slate-300 placeholder-gray-500 focus:outline-none focus:border-purple-500"
-                            />
-                            <button
-                              onClick={addOrderKeyPoint}
-                              disabled={!newKeyPoint.trim() || updatingKeyPoints}
-                              className="px-4 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-slate-300 rounded-xl text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              +
-                            </button>
-                          </div>
-                          {selectedOrder?.keyPoints?.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mt-3">
-                              {selectedOrder.keyPoints.map((point, i) => (
-                                <span
-                                  key={i}
-                                  className="bg-purple-500/20 border border-purple-500/30 text-purple-300 px-3 py-1 rounded-full text-xs flex items-center gap-1.5"
+                    {/* Key Highlights for Dropshipper */}
+                    {isDSOrder(selectedOrder) && (
+                      <div className="mt-4 pt-4 border-t border-gray-600">
+                        <h4 className="text-sm font-bold text-gray-400 mb-3 uppercase tracking-wider">
+                          Key Highlights
+                        </h4>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={newKeyPoint}
+                            onChange={(e) => setNewKeyPoint(e.target.value)}
+                            onKeyDown={(e) =>
+                              e.key === "Enter" &&
+                              (e.preventDefault(), addOrderKeyPoint())
+                            }
+                            placeholder="Add a highlight and press Enter"
+                            className="flex-1 px-4 py-2.5 bg-gray-800 border border-gray-600 rounded-xl text-sm text-slate-300 placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                          />
+                          <button
+                            onClick={addOrderKeyPoint}
+                            disabled={!newKeyPoint.trim() || updatingKeyPoints}
+                            className="px-4 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-slate-300 rounded-xl text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            +
+                          </button>
+                        </div>
+                        {selectedOrder?.keyPoints?.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mt-3">
+                            {selectedOrder.keyPoints.map((point, i) => (
+                              <span
+                                key={i}
+                                className="bg-purple-500/20 border border-purple-500/30 text-purple-300 px-3 py-1 rounded-full text-xs flex items-center gap-1.5"
+                              >
+                                {point}
+                                <button
+                                  onClick={() => removeOrderKeyPoint(point)}
+                                  disabled={updatingKeyPoints}
+                                  className="ml-0.5 hover:bg-white/20 rounded-full p-0.5 transition-colors"
                                 >
-                                  {point}
-                                  <button
-                                    onClick={() => removeOrderKeyPoint(point)}
-                                    disabled={updatingKeyPoints}
-                                    className="ml-0.5 hover:bg-white/20 rounded-full p-0.5 transition-colors"
-                                  >
-                                    <X size={10} />
-                                  </button>
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
+                                  <X size={10} />
+                                </button>
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     )}
                   </div>
-                </div>
+                )}
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* Empty State */}
-        {filteredOrders?.length === 0 && (
-          <div className="text-center py-12">
-            <div className="w-24 h-24 bg-gradient-to-br from-gray-700 to-gray-800 rounded-full flex items-center justify-center mx-auto mb-6 border border-gray-600">
-              <Package className="h-12 w-12 text-gray-400" />
-            </div>
-            <h3 className="text-2xl font-bold text-slate-300 mb-2">
-              No Orders Found
-            </h3>
-            <p className="text-gray-400 mb-6">
-              Try adjusting your search or filter criteria
-            </p>
-            <button
-              onClick={() => {
-                setSearchTerm("");
-                setStatusFilter("all");
-              }}
-              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-slate-300 rounded-2xl hover:from-blue-700 hover:to-indigo-700 shadow-lg"
-            >
-              Clear Filters
-            </button>
-          </div>
-        )}
-      </Container>
-
-      {/* confirmation modal */}
-      {confirmationModal && canModify("orders") && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-pink-500/30 max-w-md w-full p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-3 bg-pink-500/20 rounded-full">
-                <Trash2 className="w-8 h-8 text-pink-500" />
-              </div>
-              <h2 className="text-2xl font-bold text-slate-300">
-                Delete Product
-              </h2>
-            </div>
-
-            <p className="text-gray-300 mb-6">
-              Are you sure you want to delete this product? This action cannot
-              be undone.
-            </p>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() =>
-                  handleDeleteOrder(selectedOrder?._id, "cancelled")
-                }
-                className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-slate-300 font-semibold rounded-lg transform"
-              >
-                Delete
-              </button>
-              <button
-                onClick={() => setConfirmationModal(false)}
-                className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-slate-300 font-semibold rounded-lg"
-              >
-                Cancel
-              </button>
             </div>
           </div>
         </div>
-      )}
+      </Modal>
+
+      {/* confirmation modal */}
+      <Modal
+        open={confirmationModal && canModify("orders")}
+        onClose={() => setConfirmationModal(false)}
+        closeAfterTransition
+        slots={{ backdrop: Backdrop }}
+        slotProps={{
+          backdrop: {
+            timeout: 500,
+            sx: {
+              backgroundColor: "rgba(0, 0, 0, 0.4)",
+              backdropFilter: "blur(4px)",
+            },
+          },
+        }}
+        className="flex items-center justify-center p-4"
+      >
+        <div className="relative bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-pink-500/30 max-w-md w-full p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-3 bg-pink-500/20 rounded-full">
+              <Trash2 className="w-8 h-8 text-pink-500" />
+            </div>
+            <h2 className="text-2xl font-bold text-slate-300">
+              Delete Product
+            </h2>
+          </div>
+
+          <p className="text-gray-300 mb-6">
+            Are you sure you want to delete this product? This action cannot be
+            undone.
+          </p>
+
+          <div className="flex gap-3">
+            <button
+              onClick={() => handleDeleteOrder(selectedOrder?._id, "cancelled")}
+              className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-slate-300 font-semibold rounded-lg transform"
+            >
+              Delete
+            </button>
+            <button
+              onClick={() => setConfirmationModal(false)}
+              className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-slate-300 font-semibold rounded-lg"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       {/* Dropshipping Status Update Modal */}
       <DropshippingStatusUpdateModal
@@ -1589,7 +1712,6 @@ const OrderManagement = () => {
           refetch();
         }}
       />
-
     </section>
   );
 };

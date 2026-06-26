@@ -1,7 +1,9 @@
 "use client";
 
-import { cn } from "@/src/utlis/utils";
 import apiClient from "@/src/lib/axios";
+import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
+import { cn } from "@/src/utlis/utils";
+import { Backdrop, Modal } from "@mui/material";
 import {
   AlertCircle,
   Check,
@@ -19,7 +21,6 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
-import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
 
 const statusColors = {
   pending:
@@ -504,21 +505,21 @@ const PayoutManagement = () => {
                 {req.status === "pending" && (
                   <div className="flex gap-3">
                     {canModify("dropshipping") && (
-                    <>
-                    <button
-                      onClick={() => setApprovingId(req._id)}
-                      className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3.5 rounded-2xl text-xs font-black shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all flex items-center justify-center gap-2"
-                    >
-                      <Check size={18} /> Send Payout
-                    </button>
-                    <button
-                      onClick={() => handleReject(req._id)}
-                      className="w-12 bg-gray-900/50 text-red-500 hover:bg-red-500/10 py-3.5 rounded-2xl flex items-center justify-center transition-all border border-white/5 group-hover:border-red-500/30"
-                      title="Reject & Refund"
-                    >
-                      <X size={18} />
-                    </button>
-                    </>
+                      <>
+                        <button
+                          onClick={() => setApprovingId(req._id)}
+                          className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3.5 rounded-2xl text-xs font-black shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all flex items-center justify-center gap-2"
+                        >
+                          <Check size={18} /> Send Payout
+                        </button>
+                        <button
+                          onClick={() => handleReject(req._id)}
+                          className="w-12 bg-gray-900/50 text-red-500 hover:bg-red-500/10 py-3.5 rounded-2xl flex items-center justify-center transition-all border border-white/5 group-hover:border-red-500/30"
+                          title="Reject & Refund"
+                        >
+                          <X size={18} />
+                        </button>
+                      </>
                     )}
                   </div>
                 )}
@@ -538,128 +539,139 @@ const PayoutManagement = () => {
       </div>
 
       {/* Approval Modal */}
-      {approvingId && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="max-w-md w-full bg-gray-900 border border-gray-800 rounded-[2.5rem] overflow-hidden shadow-2xl p-6 md:p-8 space-y-6">
-            <div className="flex justify-between items-center border-b border-gray-800 pb-4">
-              <div>
-                <h3 className="text-xl font-black text-white tracking-tight">
-                  Complete Payout
-                </h3>
-                <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
-                  Enter transaction details
-                </p>
-              </div>
-              <button
-                onClick={() => setApprovingId(null)}
-                className="p-2 hover:bg-gray-800 rounded-full transition-colors text-gray-400"
-              >
-                <X size={20} />
-              </button>
+      <Modal
+        open={approvingId !== null}
+        onClose={() => setApprovingId(null)}
+        closeAfterTransition
+        slots={{ backdrop: Backdrop }}
+        slotProps={{
+          backdrop: {
+            timeout: 500,
+            sx: {
+              backgroundColor: "rgba(0, 0, 0, 0.4)",
+              backdropFilter: "blur(4px)",
+            },
+          },
+        }}
+        className="flex items-center justify-center p-4"
+      >
+        <div className="relative max-w-md w-full bg-gray-900 border border-gray-800 rounded-[2.5rem] overflow-hidden shadow-2xl p-6 md:p-8 space-y-6">
+          <div className="flex justify-between items-center border-b border-gray-800 pb-4">
+            <div>
+              <h3 className="text-xl font-black text-white tracking-tight">
+                Complete Payout
+              </h3>
+              <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
+                Enter transaction details
+              </p>
             </div>
+            <button
+              onClick={() => setApprovingId(null)}
+              className="p-2 hover:bg-gray-800 rounded-full transition-colors text-gray-400"
+            >
+              <X size={20} />
+            </button>
+          </div>
 
-            {/* Recipient Details Summary */}
-            {requests.find((r) => r._id === approvingId) && (
-              <div className="bg-emerald-500/5 rounded-3xl p-5 space-y-3 border border-emerald-500/10 shadow-inner">
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
-                    Send Amount
-                  </span>
-                  <span className="text-2xl font-black text-emerald-400">
-                    ৳
-                    {requests
-                      .find((r) => r._id === approvingId)
-                      .amount.toLocaleString()}
-                  </span>
-                </div>
-                <div className="h-px bg-gray-800/50 w-full"></div>
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
-                    Method & No.
-                  </span>
-                  <div className="text-right">
-                    <p className="text-sm font-black text-gray-200">
-                      {
-                        requests.find((r) => r._id === approvingId)
-                          .paymentMethod
-                      }
-                    </p>
-                    <p className="text-xs font-bold text-emerald-400 select-all cursor-pointer">
-                      {requests.find((r) => r._id === approvingId).number}
-                    </p>
-                  </div>
+          {/* Recipient Details Summary */}
+          {requests.find((r) => r._id === approvingId) && (
+            <div className="bg-emerald-500/5 rounded-3xl p-5 space-y-3 border border-emerald-500/10 shadow-inner">
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
+                  Send Amount
+                </span>
+                <span className="text-2xl font-black text-emerald-400">
+                  ৳
+                  {requests
+                    .find((r) => r._id === approvingId)
+                    .amount.toLocaleString()}
+                </span>
+              </div>
+              <div className="h-px bg-gray-800/50 w-full"></div>
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
+                  Method & No.
+                </span>
+                <div className="text-right">
+                  <p className="text-sm font-black text-gray-200">
+                    {requests.find((r) => r._id === approvingId).paymentMethod}
+                  </p>
+                  <p className="text-xs font-bold text-emerald-400 select-all cursor-pointer">
+                    {requests.find((r) => r._id === approvingId).number}
+                  </p>
                 </div>
               </div>
-            )}
+            </div>
+          )}
 
-            <form onSubmit={handleApprove} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2 ml-1">
-                    Your Sender No.
-                  </label>
-                  <div className="relative">
-                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-500" />
-                    <input
-                      type="text"
-                      value={adminSenderNumber}
-                      onChange={(e) => setAdminSenderNumber(e.target.value)}
-                      placeholder="e.g. 017..."
-                      className="w-full bg-gray-800/50 border border-gray-700/50 rounded-2xl pl-10 pr-4 py-4 text-xs focus:ring-2 focus:ring-emerald-500 outline-none transition-all font-bold text-white placeholder-gray-600"
-                      required
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2 ml-1">
-                    Transaction ID
-                  </label>
-                  <div className="relative">
-                    <Hash className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-500" />
-                    <input
-                      type="text"
-                      value={adminTransactionId}
-                      onChange={(e) => setAdminTransactionId(e.target.value)}
-                      placeholder="TxID..."
-                      className="w-full bg-gray-800/50 border border-gray-700/50 rounded-2xl pl-10 pr-4 py-4 text-xs focus:ring-2 focus:ring-emerald-500 outline-none transition-all font-bold text-white placeholder-gray-600"
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-
+          <form onSubmit={handleApprove} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2 ml-1">
-                  Proof of Payment
+                  Your Sender No.
                 </label>
-                <div className="relative group">
+                <div className="relative">
+                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-500" />
                   <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    type="text"
+                    value={adminSenderNumber}
+                    onChange={(e) => setAdminSenderNumber(e.target.value)}
+                    placeholder="e.g. 017..."
+                    className="w-full bg-gray-800/50 border border-gray-700/50 rounded-2xl pl-10 pr-4 py-4 text-xs focus:ring-2 focus:ring-emerald-500 outline-none transition-all font-bold text-white placeholder-gray-600"
                     required
                   />
-                  <div className="w-full h-32 border-2 border-dashed border-gray-700 rounded-3xl flex flex-col items-center justify-center gap-2 group-hover:border-emerald-500/50 group-hover:bg-emerald-500/5 transition-all overflow-hidden">
-                    {screenshotPreview ? (
-                      <img
-                        src={screenshotPreview}
-                        alt="Preview"
-                        className="h-full w-full object-cover p-2 rounded-3xl"
-                      />
-                    ) : (
-                      <>
-                        <Upload className="w-8 h-8 text-gray-600 group-hover:text-emerald-500" />
-                        <p className="text-[10px] font-black text-gray-500">
-                          Drop receipt or click
-                        </p>
-                      </>
-                    )}
-                  </div>
                 </div>
               </div>
+              <div>
+                <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2 ml-1">
+                  Transaction ID
+                </label>
+                <div className="relative">
+                  <Hash className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-500" />
+                  <input
+                    type="text"
+                    value={adminTransactionId}
+                    onChange={(e) => setAdminTransactionId(e.target.value)}
+                    placeholder="TxID..."
+                    className="w-full bg-gray-800/50 border border-gray-700/50 rounded-2xl pl-10 pr-4 py-4 text-xs focus:ring-2 focus:ring-emerald-500 outline-none transition-all font-bold text-white placeholder-gray-600"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
 
-              {canModify("dropshipping") && (
+            <div>
+              <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2 ml-1">
+                Proof of Payment
+              </label>
+              <div className="relative group">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                  required
+                />
+                <div className="w-full h-32 border-2 border-dashed border-gray-700 rounded-3xl flex flex-col items-center justify-center gap-2 group-hover:border-emerald-500/50 group-hover:bg-emerald-500/5 transition-all overflow-hidden">
+                  {screenshotPreview ? (
+                    <img
+                      src={screenshotPreview}
+                      alt="Preview"
+                      className="h-full w-full object-cover p-2 rounded-3xl"
+                    />
+                  ) : (
+                    <>
+                      <Upload className="w-8 h-8 text-gray-600 group-hover:text-emerald-500" />
+                      <p className="text-[10px] font-black text-gray-500">
+                        Drop receipt or click
+                      </p>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {canModify("dropshipping") && (
               <button
                 type="submit"
                 disabled={actionLoading}
@@ -667,48 +679,60 @@ const PayoutManagement = () => {
               >
                 {actionLoading ? "Processing..." : "Confirm Payout Completion"}
               </button>
-              )}
-            </form>
-          </div>
+            )}
+          </form>
         </div>
-      )}
+      </Modal>
 
       {/* View Image Modal */}
-      {selectedImage && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/95 backdrop-blur-md">
-          <div className="relative max-w-4xl w-full bg-gray-900 border border-gray-800 rounded-[3rem] overflow-hidden p-2 shadow-2xl">
-            <button
-              onClick={() => setSelectedImage(null)}
-              className="absolute top-6 right-6 z-10 p-3 bg-black/50 text-white rounded-full hover:bg-red-500 transition-colors"
-            >
-              <X size={24} />
-            </button>
-            <img
-              src={selectedImage}
-              alt="Receipt"
-              className="w-full h-auto max-h-[80vh] object-contain rounded-[2.5rem]"
-            />
-            <div className="p-6 flex justify-between items-center bg-gray-900">
-              <div>
-                <p className="text-xs font-black text-gray-100 uppercase tracking-widest">
-                  Official Receipt
-                </p>
-                <p className="text-[10px] font-bold text-gray-500">
-                  Verified by EasyShoppingMall Admin
-                </p>
-              </div>
-              <a
-                href={selectedImage}
-                target="_blank"
-                rel="noreferrer"
-                className="bg-emerald-500/10 text-emerald-400 px-6 py-3 rounded-xl text-xs font-black hover:bg-emerald-500 hover:text-white transition-all flex items-center gap-2"
-              >
-                Open Original <ExternalLink className="w-4 h-4" />
-              </a>
+      <Modal
+        open={selectedImage !== null}
+        onClose={() => setSelectedImage(null)}
+        closeAfterTransition
+        slots={{ backdrop: Backdrop }}
+        slotProps={{
+          backdrop: {
+            timeout: 500,
+            sx: {
+              backgroundColor: "rgba(0, 0, 0, 0.4)",
+              backdropFilter: "blur(4px)",
+            },
+          },
+        }}
+        className="flex items-center justify-center p-4"
+      >
+        <div className="relative max-w-4xl w-full bg-gray-900 border border-gray-800 rounded-[3rem] overflow-hidden p-2 shadow-2xl">
+          <button
+            onClick={() => setSelectedImage(null)}
+            className="absolute top-6 right-6 z-10 p-3 bg-black/50 text-white rounded-full hover:bg-red-500 transition-colors"
+          >
+            <X size={24} />
+          </button>
+          <img
+            src={selectedImage}
+            alt="Receipt"
+            className="w-full h-auto max-h-[80vh] object-contain rounded-[2.5rem]"
+          />
+          <div className="p-6 flex justify-between items-center bg-gray-900">
+            <div>
+              <p className="text-xs font-black text-gray-100 uppercase tracking-widest">
+                Official Receipt
+              </p>
+              <p className="text-[10px] font-bold text-gray-500">
+                Verified by EasyShoppingMall Admin
+              </p>
             </div>
+            <a
+              href={selectedImage}
+              target="_blank"
+              rel="noreferrer"
+              className="bg-emerald-500/10 text-emerald-400 px-6 py-3 rounded-xl text-xs font-black hover:bg-emerald-500 hover:text-white transition-all flex items-center gap-2"
+            >
+              Open Original <ExternalLink className="w-4 h-4" />
+            </a>
           </div>
         </div>
-      )}
+      </Modal>
     </section>
   );
 };
