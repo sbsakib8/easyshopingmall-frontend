@@ -1,4 +1,5 @@
 "use client"
+
 import socket from'@/src/confic/socket';
 import {CreateNotification} from'@/src/hook/useNotification';
 import {ProductDelete, ProductUpdate} from'@/src/hook/useProduct';
@@ -9,6 +10,9 @@ import toast from'react-hot-toast';
 import {useSelector} from'react-redux';
 import AnalyticsDashboard from'./analytics';
 import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
+import ProductDeleteModal from '../modals/ProductDeleteModal';
+import ProductDetailsModal from '../modals/ProductDetailsModal';
+import ProductEditModal from '../modals/ProductEditModal';
 
 const InventoryDashboard = () => {
  const { canModify } = useDashboardPermission();
@@ -708,280 +712,34 @@ const InventoryDashboard = () => {
  </div>
  )}
 
- {/* Edit Modal */}
- {editModal && canModify("products") && (
- <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
- <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-emerald-500/30 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
- <div className="sticky top-0 bg-gradient-to-r from-emerald-600 to-teal-600 p-6 flex justify-between items-center z-10">
- <h2 className="text-2xl font-bold text-slate-300 flex items-center gap-2">
- <Edit className="w-6 h-6"/>
- Edit Product
- </h2>
- <button
- onClick={() => setEditModal(null)}
- className="p-2 hover:bg-white/10 rounded-lg"
- >
- <X className="w-6 h-6 text-slate-300"/>
- </button>
- </div>
+         {/* Edit Modal */}
 
- <div className="p-6">
- <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- <div>
- <label className="block text-gray-300 text-sm font-semibold mb-2">Product Name</label>
- <input
- type="text"
- value={editModal?.productName}
- onChange={(e) => updateEditField('productName', e.target.value)}
- className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-300 focus:outline-none focus:border-emerald-500"
- />
- </div>
+         <ProductEditModal
+                 open={editModal !== null && canModify("products")}
+                 onClose={() => setEditModal(null)}
+                 product={editModal}
+                 updateEditField={updateEditField}
+                 load={load}
+                 saveEdit={saveEdit}
+               />
 
- <div>
- <label className="block text-gray-300 text-sm font-semibold mb-2">SKU</label>
- <input
- type="text"
- value={editModal?.sku}
- onChange={(e) => updateEditField('sku', e.target.value)}
- className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-300 focus:outline-none focus:border-emerald-500"
- />
- </div>
+ 
 
- <div>
- <label className="block text-gray-300 text-sm font-semibold mb-2">Brand</label>
- <input
- type="text"
- value={editModal?.brand}
- onChange={(e) => updateEditField('brand', e.target.value)}
- className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-300 focus:outline-none focus:border-emerald-500"
- />
- </div>
+         {/* View Modal */}
+          <ProductDetailsModal
+                 open={viewModal !== null}
+                 onClose={() => setViewModal(null)}
+                 product={viewModal}
+               />
 
- <div>
- <label className="block text-gray-300 text-sm font-semibold mb-2">Price</label>
- <input
- type="number"
- value={editModal?.price}
- onChange={(e) => updateEditField('price', Number(e.target.value))}
- className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-300 focus:outline-none focus:border-emerald-500"
- />
- </div>
 
- <div>
- <label className="block text-gray-300 text-sm font-semibold mb-2">Discount (%)</label>
- <input
- type="number"
- value={editModal?.discount}
- onChange={(e) => updateEditField('discount', Number(e.target.value))}
- className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-300 focus:outline-none focus:border-emerald-500"
- />
- </div>
-
- <div>
- <label className="block text-gray-300 text-sm font-semibold mb-2">Stock</label>
- <input
- type="number"
- value={editModal?.productStock}
- onChange={(e) => updateEditField('productStock', Number(e.target.value))}
- className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-300 focus:outline-none focus:border-emerald-500"
- />
- </div>
-
- <div>
- <label className="block text-gray-300 text-sm font-semibold mb-2">Rating</label>
- <input
- type="number"
- step="0.1"
- min="0"
- max="5"
- value={editModal?.ratings}
- onChange={(e) => updateEditField('ratings', Number(e.target.value))}
- className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-300 focus:outline-none focus:border-emerald-500"
- />
- </div>
-
- <div className="md:col-span-2">
- <label className="block text-gray-300 text-sm font-semibold mb-2">Description</label>
- <textarea
- value={editModal?.description}
- onChange={(e) => updateEditField('description', e.target.value)}
- rows="3"
- className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-300 focus:outline-none focus:border-emerald-500 resize-none"
- ></textarea>
- </div>
-
- <div className="md:col-span-2">
- <div className="flex items-center p-4 bg-white/5 border border-slate-600 rounded-xl mt-1">
- <input
- type="checkbox"
- checked={editModal?.isBoost || false}
- onChange={(e) => updateEditField('isBoost', e.target.checked)}
- className="w-5 h-5 text-emerald-600 bg-transparent border-slate-500 rounded focus:ring-emerald-500"
- />
- <label className="ml-3 text-gray-300 font-semibold">Boost Product</label>
- </div>
- </div>
- </div>
-
- <div className="flex gap-3 mt-6">
- <button
- onClick={saveEdit}
- className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-slate-300 font-semibold rounded-lg transform"
- >
- {load ?"Saving...":"Save Changes"}
- </button>
- <button
- onClick={() => setEditModal(null)}
- className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-slate-300 font-semibold rounded-lg"
- >
- Cancel
- </button>
- </div>
- </div>
- </div>
- </div>
- )}
-
- {/* View Modal */}
-
- {viewModal && (
- <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
- <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-purple-500/30 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
- <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-purple-600 p-6 flex justify-between items-center z-10">
- <h2 className="text-2xl font-bold text-slate-300 flex items-center gap-2">
- <Eye className="w-6 h-6"/>
- Product Details
- </h2>
- <button
- onClick={() => setViewModal(null)}
- className="p-2 hover:bg-white/10 rounded-lg"
- >
- <X className="w-6 h-6 text-slate-300"/>
- </button>
- </div>
-
- <div className="p-6">
- <div className="flex flex-col md:flex-row gap-6 mb-6">
- <img
- src={viewModal?.images[0]}
- alt={viewModal?.productName}
- className="w-full md:w-64 h-64 rounded-xl object-cover border-2 border-purple-500/30"
- />
- <div className="flex-1">
- <h3 className="text-3xl font-bold text-slate-300 mb-2">{viewModal?.productName}</h3>
- <div className="flex gap-2 mb-4">
- {renderStars(viewModal?.ratings)}
- <span className="text-slate-300 font-semibold">({viewModal?.ratings}.0)</span>
- </div>
- <p className="text-gray-300 mb-4">{viewModal?.description}</p>
- <div className="flex gap-2 flex-wrap">
- <span className="px-4 py-2 rounded-lg bg-blue-500/20 text-blue-300 border border-blue-500/30">
- {viewModal?.category[0]?.name}
- </span>
- <span className="px-4 py-2 rounded-lg bg-purple-500/20 text-purple-300 border border-purple-500/30">
- {viewModal?.subCategory[0]?.name}
- </span>
- </div>
- </div>
- </div>
-
- <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- <div className="bg-slate-700/30 rounded-xl p-4 border border-slate-600/50">
- <div className="flex items-center gap-2 mb-2">
- <Package className="w-5 h-5 text-cyan-400"/>
- <span className="text-gray-400 text-sm">SKU</span>
- </div>
- <p className="text-slate-300 font-semibold">{viewModal?.sku}</p>
- </div>
-
- <div className="bg-slate-700/30 rounded-xl p-4 border border-slate-600/50">
- <div className="flex items-center gap-2 mb-2">
- <DollarSign className="w-5 h-5 text-emerald-400"/>
- <span className="text-gray-400 text-sm">Price</span>
- </div>
- <p className="text-slate-300 font-semibold text-2xl">৳{viewModal?.price}</p>
- </div>
-
- <div className="bg-slate-700/30 rounded-xl p-4 border border-slate-600/50">
- <div className="flex items-center gap-2 mb-2">
- <Tag className="w-5 h-5 text-purple-400"/>
- <span className="text-gray-400 text-sm">Discount</span>
- </div>
- <p className="text-emerald-400 font-semibold text-2xl">{viewModal?.discount}%</p>
- </div>
-
- <div className="bg-slate-700/30 rounded-xl p-4 border border-slate-600/50">
- <div className="flex items-center gap-2 mb-2">
- <Package className="w-5 h-5 text-orange-400"/>
- <span className="text-gray-400 text-sm">Stock</span>
- </div>
- <p className="text-slate-300 font-semibold text-2xl">{viewModal?.productStock}</p>
- <p className="text-gray-400 text-sm">{getStatusText(viewModal?.productStock)}</p>
- </div>
-
- <div className="bg-slate-700/30 rounded-xl p-4 border border-slate-600/50">
- <span className="text-gray-400 text-sm">Brand</span>
- <p className="text-slate-300 font-semibold mt-2">{viewModal?.brand}</p>
- </div>
-
- <div className="bg-slate-700/30 rounded-xl p-4 border border-slate-600/50">
- <span className="text-gray-400 text-sm">Product ID</span>
- <p className="text-emerald-400 font-mono text-sm mt-2">#{viewModal?._id}</p>
- </div>
- </div>
-
- {viewModal?.images?.length > 1 && (
- <div className="mt-6">
- <h4 className="text-slate-300 font-semibold mb-3">All Images</h4>
- <div className="grid grid-cols-3 gap-3">
- {viewModal?.images.map((img, idx) => (
- <img
- key={idx}
- src={img}
- alt={`Product ${idx + 1}`}
- className="w-full h-32 rounded-lg object-cover border border-slate-600/50"
- />
- ))}
- </div>
- </div>
- )}
- </div>
- </div>
- </div>
- )}
 
  {/* Delete Confirmation Modal */}
- {deleteModal && canModify("products") && (
- <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
- <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-pink-500/30 max-w-md w-full p-6">
- <div className="flex items-center gap-3 mb-4">
- <div className="p-3 bg-pink-500/20 rounded-full">
- <Trash2 className="w-8 h-8 text-pink-500"/>
- </div>
- <h2 className="text-2xl font-bold text-slate-300">Delete Product</h2>
- </div>
-
- <p className="text-gray-300 mb-6">
- Are you sure you want to delete this product? This action cannot be undone.
- </p>
-
- <div className="flex gap-3">
- <button
- onClick={confirmDelete}
- className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-slate-300 font-semibold rounded-lg transform"
- >
- Delete
- </button>
- <button
- onClick={() => setDeleteModal(null)}
- className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-slate-300 font-semibold rounded-lg"
- >
- Cancel
- </button>
- </div>
- </div>
- </div>
- )}
+         <ProductDeleteModal
+        open={deleteModal !== null && canModify("products")}
+        onClose={() => setDeleteModal(null)}
+        confirmDelete={confirmDelete}
+      />
 
  {/* Empty State */}
  {filteredProducts.length === 0 && selectedTab ==='products'&& (

@@ -1,10 +1,12 @@
 "use client";
 
 import Container from "@/src/compronent/shared/Container";
+import { isDSOrder } from "@/src/utlis/orderHelpers";
+import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
 import { useGetAllOrders } from "@/src/utlis/useGetAllOrders";
 import { OrderUpdate } from "@/src/utlis/useOrder";
-import { isDSOrder } from "@/src/utlis/orderHelpers";
 import { cn } from "@/src/utlis/utils";
+import { Backdrop, Modal } from "@mui/material";
 import {
   CheckCircle,
   ChevronLeft,
@@ -18,7 +20,6 @@ import {
   Truck,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
 
 const statusColors = {
   pending:
@@ -471,30 +472,30 @@ const ShippedOrdersPage = () => {
                       Details
                     </button>
                     {canModify("orders") && (
-                    <>
-                    <button
-                      onClick={() => {
-                        setStatus("cancelled");
-                        setSelectedOrder(order);
-                        setConfirmationModal(true);
-                      }}
-                      className="flex-1 px-3 py-2 bg-red-600/20 border border-red-500/30 text-red-300 rounded-lg hover:bg-purple-600/30 text-sm font-medium cursor-pointer"
-                    >
-                      Cancel
-                    </button>
-                    {order.order_status === "shipped" && (
-                      <button
-                        onClick={() => {
-                          setStatus("completed");
-                          setSelectedOrder(order);
-                          setConfirmationModal(true);
-                        }}
-                        className="flex-1 px-3 py-2 bg-green-600/20 border border-green-500/30 text-green-300 rounded-lg hover:bg-green-600/30 text-sm font-medium cursor-pointer"
-                      >
-                        Delivered
-                      </button>
-                    )}
-                    </>
+                      <>
+                        <button
+                          onClick={() => {
+                            setStatus("cancelled");
+                            setSelectedOrder(order);
+                            setConfirmationModal(true);
+                          }}
+                          className="flex-1 px-3 py-2 bg-red-600/20 border border-red-500/30 text-red-300 rounded-lg hover:bg-purple-600/30 text-sm font-medium cursor-pointer"
+                        >
+                          Cancel
+                        </button>
+                        {order.order_status === "shipped" && (
+                          <button
+                            onClick={() => {
+                              setStatus("completed");
+                              setSelectedOrder(order);
+                              setConfirmationModal(true);
+                            }}
+                            className="flex-1 px-3 py-2 bg-green-600/20 border border-green-500/30 text-green-300 rounded-lg hover:bg-green-600/30 text-sm font-medium cursor-pointer"
+                          >
+                            Delivered
+                          </button>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
@@ -548,158 +549,194 @@ const ShippedOrdersPage = () => {
         )}
       </Container>
 
-      {showModal && selectedOrder && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-gray-900/95 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            {/* Modal Header */}
-            <div className="flex justify-end items-center sticky -top-2 right-0">
-              <button
-                onClick={() => setShowModal(false)}
-                className="text-gray-400 hover:text-red-400 cursor-pointer bg-red-500/40 rounded-2xl p-1"
+      {/* Order Details Modal */}
+      <Modal
+        open={showModal && selectedOrder !== null}
+        onClose={() => setShowModal(false)}
+        closeAfterTransition
+        slots={{ backdrop: Backdrop }}
+        slotProps={{
+          backdrop: {
+            timeout: 500,
+            sx: {
+              backgroundColor: "rgba(0, 0, 0, 0.4)",
+              backdropFilter: "blur(4px)",
+            },
+          },
+        }}
+        className="flex items-center justify-center p-4"
+      >
+        <div className="relative bg-gray-900/95 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          {/* Modal Header */}
+          <div className="flex justify-end items-center sticky -top-2 right-0">
+            <button
+              onClick={() => setShowModal(false)}
+              className="text-gray-400 hover:text-red-400 cursor-pointer bg-red-500/40 rounded-2xl p-1"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
-            <h2 className="text-2xl font-bold text-slate-300 mb-6">
-              Shipping Order Details
-            </h2>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+          <h2 className="text-2xl font-bold text-slate-300 mb-6">
+            Shipping Order Details
+          </h2>
 
-            <div className="grid lg:grid-cols-2 gap-6">
-              {/* Left Column */}
-              <div className="space-y-6">
-                {/* Order Info */}
-                <div className="grid md:grid-cols-1 gap-6 mb-6">
-                  <div>
-                    <h3 className="text-lg font-semibold text-slate-300 mb-3">
-                      Order Information
-                    </h3>
-                    <div className="space-y-2">
-                      <p className="text-gray-300">
-                        <span className="text-gray-500">Order ID:</span>{" "}
-                        {selectedOrder?.orderId}
-                      </p>
-                      <p className="text-gray-300">
-                        <span className="text-gray-500">Date:</span>{" "}
-                        {formatDate(selectedOrder?.updatedAt)}
-                      </p>
-                      <div className="text-gray-300 flex gap-3">
-                        <span className="text-gray-500">Order Status:</span>
-                        {""}
-                        <p
-                          className={`px-3 py-1 text-sm ${statusColors[selectedOrder?.order_status]} rounded-full text-yellow-300 font-medium`}
-                        >
-                          {selectedOrder?.order_status}
-                        </p>
-                      </div>
-                      <p className="text-gray-300">
-                        <span className="text-gray-500">Payment:</span>{" "}
-                        {selectedOrder?.payment_method}
-                      </p>
-                      <p className="text-gray-300">
-                        <span className="text-gray-500">Provider Name:</span>{" "}
-                        {selectedOrder?.payment_details?.manual?.provider || "—"}
-                      </p>
-                      {selectedOrder?.payment_method === "manual" && (
-                        <>
-                          <p className="text-gray-300">
-                            <span className="text-gray-500">Transaction ID:</span>{" "}
-                            <span className="font-mono font-bold text-blue-400">
-                              {selectedOrder?.payment_details?.manual?.transactionId || "—"}
-                            </span>
-                          </p>
-                          <p className="text-gray-300">
-                            <span className="text-gray-500">Sender Number:</span>{" "}
-                            {selectedOrder?.payment_details?.manual?.senderNumber || "—"}
-                          </p>
-                        </>
-                      )}
-                      <p className="text-gray-300">
-                        <span className="text-gray-500">Payment Type:</span>{" "}
-                        <span className="capitalize">{selectedOrder?.payment_type || "—"}</span>
-                      </p>
-                      <p className="text-gray-300">
-                        <span className="text-gray-500">Payment Status:</span>{" "}
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-                          selectedOrder?.payment_status === "paid" ? "bg-green-500/20 text-green-400" :
-                          selectedOrder?.payment_status === "submitted" ? "bg-yellow-500/20 text-yellow-400" :
-                          "bg-gray-500/20 text-gray-400"
-                        }`}>
-                          {selectedOrder?.payment_status || "—"}
-                        </span>
-                      </p>
-                      <p className="text-gray-300">
-                        <span className="text-gray-500">Amount Paid:</span>{" "}
-                        <span className="text-green-400 font-bold">
-                          ৳{selectedOrder?.amount_paid || 0}
-                        </span>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Customer Info */}
+          <div className="grid lg:grid-cols-2 gap-6">
+            {/* Left Column */}
+            <div className="space-y-6">
+              {/* Order Info */}
+              <div className="grid md:grid-cols-1 gap-6 mb-6">
                 <div>
                   <h3 className="text-lg font-semibold text-slate-300 mb-3">
-                    Customer Information
+                    Order Information
                   </h3>
                   <div className="space-y-2">
                     <p className="text-gray-300">
-                      <span className="text-gray-500">Name:</span>{" "}
-                      {selectedOrder?.userId?.name}
+                      <span className="text-gray-500">Order ID:</span>{" "}
+                      {selectedOrder?.orderId}
                     </p>
                     <p className="text-gray-300">
-                      <span className="text-gray-500">Email:</span>{" "}
-                      {selectedOrder?.userId?.email}
+                      <span className="text-gray-500">Date:</span>{" "}
+                      {formatDate(selectedOrder?.updatedAt)}
+                    </p>
+                    <div className="text-gray-300 flex gap-3">
+                      <span className="text-gray-500">Order Status:</span>
+                      {""}
+                      <p
+                        className={`px-3 py-1 text-sm ${statusColors[selectedOrder?.order_status]} rounded-full text-yellow-300 font-medium`}
+                      >
+                        {selectedOrder?.order_status}
+                      </p>
+                    </div>
+                    <p className="text-gray-300">
+                      <span className="text-gray-500">Payment:</span>{" "}
+                      {selectedOrder?.payment_method}
                     </p>
                     <p className="text-gray-300">
-                      <span className="text-gray-500">Phone:</span>{" "}
-                      {selectedOrder?.address?.mobile}
+                      <span className="text-gray-500">Provider Name:</span>{" "}
+                      {selectedOrder?.payment_details?.manual?.provider || "—"}
+                    </p>
+                    {selectedOrder?.payment_method === "manual" && (
+                      <>
+                        <p className="text-gray-300">
+                          <span className="text-gray-500">Transaction ID:</span>{" "}
+                          <span className="font-mono font-bold text-blue-400">
+                            {selectedOrder?.payment_details?.manual
+                              ?.transactionId || "—"}
+                          </span>
+                        </p>
+                        <p className="text-gray-300">
+                          <span className="text-gray-500">Sender Number:</span>{" "}
+                          {selectedOrder?.payment_details?.manual
+                            ?.senderNumber || "—"}
+                        </p>
+                      </>
+                    )}
+                    <p className="text-gray-300">
+                      <span className="text-gray-500">Payment Type:</span>{" "}
+                      <span className="capitalize">
+                        {selectedOrder?.payment_type || "—"}
+                      </span>
+                    </p>
+                    <p className="text-gray-300">
+                      <span className="text-gray-500">Payment Status:</span>{" "}
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                          selectedOrder?.payment_status === "paid"
+                            ? "bg-green-500/20 text-green-400"
+                            : selectedOrder?.payment_status === "submitted"
+                              ? "bg-yellow-500/20 text-yellow-400"
+                              : "bg-gray-500/20 text-gray-400"
+                        }`}
+                      >
+                        {selectedOrder?.payment_status || "—"}
+                      </span>
+                    </p>
+                    <p className="text-gray-300">
+                      <span className="text-gray-500">Amount Paid:</span>{" "}
+                      <span className="text-green-400 font-bold">
+                        ৳{selectedOrder?.amount_paid || 0}
+                      </span>
                     </p>
                   </div>
                 </div>
+              </div>
 
-                {/* Shipping Address */}
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-slate-300 mb-3">
-                    Shipping Address
-                  </h3>
-                  <p className="text-gray-300 bg-gray-800/50 p-3 rounded-lg">
-                    {selectedOrder?.address?.upazila_thana},{" "}
-                    {selectedOrder?.address?.district}
+              {/* Customer Info */}
+              <div>
+                <h3 className="text-lg font-semibold text-slate-300 mb-3">
+                  Customer Information
+                </h3>
+                <div className="space-y-2">
+                  <p className="text-gray-300">
+                    <span className="text-gray-500">Name:</span>{" "}
+                    {selectedOrder?.userId?.name}
+                  </p>
+                  <p className="text-gray-300">
+                    <span className="text-gray-500">Email:</span>{" "}
+                    {selectedOrder?.userId?.email}
+                  </p>
+                  <p className="text-gray-300">
+                    <span className="text-gray-500">Phone:</span>{" "}
+                    {selectedOrder?.address?.mobile}
                   </p>
                 </div>
               </div>
 
-              {/* Right Column */}
-              <div className="space-y-6">
-                {/* Order Items */}
-                <div>
-                  <h3 className="text-lg font-semibold text-slate-300 mb-3">
-                    Order Items
-                  </h3>
-                  <div className="space-y-3">
-                    {(() => {
-                      const isDS = isDSOrder(selectedOrder);
-                      const correctedItems = (selectedOrder?.products || []).map((item) => {
-                        if (isDS) return { ...item, _ep: item.sellingPrice || item.price || 0, _et: item.totalPrice || (item.sellingPrice || item.price || 0) * (Number(item?.quantity) || 1) };
+              {/* Shipping Address */}
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-slate-300 mb-3">
+                  Shipping Address
+                </h3>
+                <p className="text-gray-300 bg-gray-800/50 p-3 rounded-lg">
+                  {selectedOrder?.address?.upazila_thana},{" "}
+                  {selectedOrder?.address?.district}
+                </p>
+              </div>
+            </div>
+
+            {/* Right Column */}
+            <div className="space-y-6">
+              {/* Order Items */}
+              <div>
+                <h3 className="text-lg font-semibold text-slate-300 mb-3">
+                  Order Items
+                </h3>
+                <div className="space-y-3">
+                  {(() => {
+                    const isDS = isDSOrder(selectedOrder);
+                    const correctedItems = (selectedOrder?.products || []).map(
+                      (item) => {
+                        if (isDS)
+                          return {
+                            ...item,
+                            _ep: item.sellingPrice || item.price || 0,
+                            _et:
+                              item.totalPrice ||
+                              (item.sellingPrice || item.price || 0) *
+                                (Number(item?.quantity) || 1),
+                          };
                         const retailPrice = Number(item?.productId?.price) || 0;
                         const storedPrice = Number(item?.price) || 0;
-                        const ep = (retailPrice > 0 && retailPrice !== storedPrice) ? retailPrice : storedPrice;
+                        const ep =
+                          retailPrice > 0 && retailPrice !== storedPrice
+                            ? retailPrice
+                            : storedPrice;
                         return { ...item, _ep: ep };
-                      });
-                      return correctedItems.map((item, index) => (
+                      },
+                    );
+                    return correctedItems.map((item, index) => (
                       <div
                         key={index}
                         className="flex justify-between items-center bg-gray-800/50 p-3 rounded-lg"
@@ -754,7 +791,8 @@ const ShippedOrdersPage = () => {
                           <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tighter">
                             Unit Price
                           </p>
-                          {isDS && item?.sellingPrice > 0 &&
+                          {isDS &&
+                            item?.sellingPrice > 0 &&
                             item?.sellingPrice !== item?.price && (
                               <div className="mt-1 pt-1 border-t border-gray-700/50">
                                 <p className="text-[10px] text-blue-400 font-bold">
@@ -780,102 +818,111 @@ const ShippedOrdersPage = () => {
                             )}
                         </div>
                       </div>
-                      ));
-                    })()}
-                  </div>
-                  <div className="flex justify-between items-center m-2">
-                    <span className="text-slate-300 font-semibold">
-                      Delivery Charge:
+                    ));
+                  })()}
+                </div>
+                <div className="flex justify-between items-center m-2">
+                  <span className="text-slate-300 font-semibold">
+                    Delivery Charge:
+                  </span>
+                  <span className="text-green-400 font-bold text-lg">
+                    ৳{selectedOrder?.deliveryCharge}
+                  </span>
+                </div>
+                <div className="mt-4 pt-4 border-t border-gray-700">
+                  {isDSOrder(selectedOrder) && (
+                    <div className="flex flex-col gap-2 mb-4 p-4 bg-gradient-to-r from-blue-900/40 to-cyan-900/40 rounded-xl border border-blue-500/30 shadow-inner">
+                      <div className="flex justify-between items-center">
+                        <span className="text-blue-400 font-bold uppercase tracking-wider text-xs">
+                          Dropshipping Profit
+                        </span>
+                        <span className="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full font-black uppercase">
+                          Verified
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-400 text-sm">
+                          Total Earnings:
+                          {Number(selectedOrder?.couponDiscount) > 0 && (
+                            <span className="ml-2 text-[10px] text-emerald-400 font-bold uppercase tracking-tighter">
+                              (incl. coupon compensation)
+                            </span>
+                          )}
+                        </span>
+                        <span className="text-2xl font-black text-blue-400">
+                          ৳
+                          {(
+                            selectedOrder?.products.reduce((sum, p) => {
+                              const cost = Number(p.costPrice || p.price) || 0;
+                              const selling = Number(p.sellingPrice) || 0;
+                              return (
+                                sum +
+                                (selling > cost
+                                  ? (selling - cost) * (p.quantity || 1)
+                                  : 0)
+                              );
+                            }, 0) + (Number(selectedOrder?.couponDiscount) || 0)
+                          ).toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                          })}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center">
+                    <span className="text-xl font-bold text-slate-300">
+                      Total:
                     </span>
-                    <span className="text-green-400 font-bold text-lg">
-                      ৳{selectedOrder?.deliveryCharge}
-                    </span>
-                  </div>
-                  <div className="mt-4 pt-4 border-t border-gray-700">
-                    {isDSOrder(selectedOrder) && (
-                        <div className="flex flex-col gap-2 mb-4 p-4 bg-gradient-to-r from-blue-900/40 to-cyan-900/40 rounded-xl border border-blue-500/30 shadow-inner">
-                          <div className="flex justify-between items-center">
-                            <span className="text-blue-400 font-bold uppercase tracking-wider text-xs">
-                              Dropshipping Profit
-                            </span>
-                            <span className="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full font-black uppercase">
-                              Verified
-                            </span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-gray-400 text-sm">
-                              Total Earnings:
-                              {Number(selectedOrder?.couponDiscount) > 0 && (
-                                <span className="ml-2 text-[10px] text-emerald-400 font-bold uppercase tracking-tighter">
-                                  (incl. coupon compensation)
-                                </span>
-                              )}
-                            </span>
-                            <span className="text-2xl font-black text-blue-400">
-                              ৳
-                              {(selectedOrder?.products.reduce(
-                                (sum, p) => {
-                                  const cost =
-                                    Number(p.costPrice || p.price) || 0;
-                                  const selling = Number(p.sellingPrice) || 0;
-                                  return (
-                                    sum +
-                                    (selling > cost
-                                      ? (selling - cost) * (p.quantity || 1)
-                                      : 0)
-                                  );
-                                },
-                                0,
-                              ) +
-                                (Number(selectedOrder?.couponDiscount) || 0)).toLocaleString(
-                                  undefined,
-                                  {
-                                    minimumFractionDigits: 2,
-                                  },
-                                )}
-                            </span>
-                          </div>
-                        </div>
-                      )}
-                    <div className="flex justify-between items-center">
-                      <span className="text-xl font-bold text-slate-300">
-                        Total:
-                      </span>
-                      {(() => {
-                        const isDS2 = isDSOrder(selectedOrder);
-                        const hasCorrectedPrices2 = !isDS2 && (selectedOrder?.products || []).some((item) => {
-                          const retailPrice = Number(item?.productId?.price) || 0;
+                    {(() => {
+                      const isDS2 = isDSOrder(selectedOrder);
+                      const hasCorrectedPrices2 =
+                        !isDS2 &&
+                        (selectedOrder?.products || []).some((item) => {
+                          const retailPrice =
+                            Number(item?.productId?.price) || 0;
                           const storedPrice = Number(item?.price) || 0;
                           return retailPrice > 0 && retailPrice !== storedPrice;
                         });
-                        const sub2 = hasCorrectedPrices2
-                          ? (selectedOrder?.products || []).reduce((sum, item) => {
-                              const retailPrice = Number(item?.productId?.price) || Number(item?.price) || 0;
-                              return sum + retailPrice * (Number(item?.quantity) || 1);
-                            }, 0)
-                          : Number(selectedOrder?.subTotalAmt) || 0;
-                        const delivery2 = Number(selectedOrder?.deliveryCharge) || 0;
-                        const coupon2 = Number(selectedOrder?.couponDiscount) || 0;
-                        const calculatedTotal2 = sub2 + delivery2 - coupon2;
-                        const storedTotal2 = Number(selectedOrder?.totalAmt) || 0;
-                        const displayTotal2 = calculatedTotal2 > 0 ? calculatedTotal2 : storedTotal2;
-                        return (
-                          <span className="text-2xl font-bold text-green-400">
-                            ৳{displayTotal2}
-                          </span>
-                        );
-                      })()}
-                    </div>
+                      const sub2 = hasCorrectedPrices2
+                        ? (selectedOrder?.products || []).reduce(
+                            (sum, item) => {
+                              const retailPrice =
+                                Number(item?.productId?.price) ||
+                                Number(item?.price) ||
+                                0;
+                              return (
+                                sum +
+                                retailPrice * (Number(item?.quantity) || 1)
+                              );
+                            },
+                            0,
+                          )
+                        : Number(selectedOrder?.subTotalAmt) || 0;
+                      const delivery2 =
+                        Number(selectedOrder?.deliveryCharge) || 0;
+                      const coupon2 =
+                        Number(selectedOrder?.couponDiscount) || 0;
+                      const calculatedTotal2 = sub2 + delivery2 - coupon2;
+                      const storedTotal2 = Number(selectedOrder?.totalAmt) || 0;
+                      const displayTotal2 =
+                        calculatedTotal2 > 0 ? calculatedTotal2 : storedTotal2;
+                      return (
+                        <span className="text-2xl font-bold text-green-400">
+                          ৳{displayTotal2}
+                        </span>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Modal Actions */}
-            {canModify("orders") && (
+          {/* Modal Actions */}
+          {canModify("orders") && (
             <div className="flex items-center justify-end flex-wrap gap-3 mt-6 pt-6 border-t border-gray-700">
               {[
-                ...(selectedOrder.order_status === "shipped"
+                ...(selectedOrder?.order_status === "shipped"
                   ? [
                       {
                         label: "Mark as Delivered",
@@ -895,8 +942,8 @@ const ShippedOrdersPage = () => {
                     setConfirmationModal(true);
                   },
                 },
-                ...(selectedOrder.order_status !== "return" &&
-                selectedOrder.order_status !== "cancelled"
+                ...(selectedOrder?.order_status !== "return" &&
+                selectedOrder?.order_status !== "cancelled"
                   ? [
                       {
                         label: "Mark as Returned (Customer Rejected)",
@@ -926,82 +973,96 @@ const ShippedOrdersPage = () => {
                 </button>
               ))}
             </div>
-            )}
-          </div>
+          )}
         </div>
-      )}
+      </Modal>
 
       {/* confirmation modal */}
-      {confirmationModal && canModify("orders") && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-pink-500/30 max-w-md w-full p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-3 bg-pink-500/20 rounded-full">
-                {status === "completed" ? (
-                  <CircleCheckBig className="w-8 h-8 text-green-500" />
-                ) : status === "return" ? (
-                  <RefreshCw className="w-8 h-8 text-orange-500" />
-                ) : (
-                  <Trash2 className="w-8 h-8 text-pink-500" />
-                )}
-              </div>
-              <h2 className="text-2xl font-bold text-slate-300">
-                {" "}
-                {status === "cancelled"
-                  ? "Cancelled"
-                  : status === "return"
-                    ? "Returned"
-                    : "Delivered"}{" "}
-                Product
-              </h2>
-            </div>
-
-            <p className="text-gray-300 mb-6">
-              Are you sure you want to update this order to{" "}
-              <span className="font-bold capitalize">{status}</span>?
-              {status === "return" && (
-                <>
-                  {" "}
-                  For <strong>COD</strong> dropshipping orders this will deduct
-                  the delivery charge (৳{selectedOrder?.deliveryCharge || 0})
-                  from the dropshipper's balance.
-                </>
+      <Modal
+        open={confirmationModal && canModify("orders")}
+        onClose={() => {
+          setStatus("");
+          setSelectedOrder(null);
+          setConfirmationModal(false);
+        }}
+        closeAfterTransition
+        slots={{ backdrop: Backdrop }}
+        slotProps={{
+          backdrop: {
+            timeout: 500,
+            sx: {
+              backgroundColor: "rgba(0, 0, 0, 0.4)",
+              backdropFilter: "blur(4px)",
+            },
+          },
+        }}
+        className="flex items-center justify-center p-4"
+      >
+        <div className="relative bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-pink-500/30 max-w-md w-full p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-3 bg-pink-500/20 rounded-full">
+              {status === "completed" ? (
+                <CircleCheckBig className="w-8 h-8 text-green-500" />
+              ) : status === "return" ? (
+                <RefreshCw className="w-8 h-8 text-orange-500" />
+              ) : (
+                <Trash2 className="w-8 h-8 text-pink-500" />
               )}
-            </p>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => handleStatusChange()}
-                className={`flex-1 px-6 py-3 ${
-                  status === "completed"
-                    ? "bg-gradient-to-r from-green-500 to-green-500 hover:from-green-600 hover:to-green-600"
-                    : status === "return"
-                      ? "bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600"
-                      : "bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600"
-                } text-slate-300 font-semibold rounded-lg transform cursor-pointer`}
-              >
-                {status === "cancelled"
-                  ? "Confirmed"
-                  : status === "return"
-                    ? "Mark as Returned"
-                    : "Delivered"}
-              </button>
-              <button
-                onClick={() => {
-                  setStatus("");
-                  setSelectedOrder(null);
-                  setConfirmationModal(false);
-                }}
-                className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-slate-300 font-semibold rounded-lg cursor-pointer"
-              >
-                Cancel
-              </button>
             </div>
+            <h2 className="text-2xl font-bold text-slate-300">
+              {" "}
+              {status === "cancelled"
+                ? "Cancelled"
+                : status === "return"
+                  ? "Returned"
+                  : "Delivered"}{" "}
+              Product
+            </h2>
+          </div>
+
+          <p className="text-gray-300 mb-6">
+            Are you sure you want to update this order to{" "}
+            <span className="font-bold capitalize">{status}</span>?
+            {status === "return" && (
+              <>
+                {" "}
+                For <strong>COD</strong> dropshipping orders this will deduct
+                the delivery charge (৳{selectedOrder?.deliveryCharge || 0}) from
+                the dropshipper's balance.
+              </>
+            )}
+          </p>
+
+          <div className="flex gap-3">
+            <button
+              onClick={() => handleStatusChange()}
+              className={`flex-1 px-6 py-3 ${
+                status === "completed"
+                  ? "bg-gradient-to-r from-green-500 to-green-500 hover:from-green-600 hover:to-green-600"
+                  : status === "return"
+                    ? "bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600"
+                    : "bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600"
+              } text-slate-300 font-semibold rounded-lg transform cursor-pointer`}
+            >
+              {status === "cancelled"
+                ? "Confirmed"
+                : status === "return"
+                  ? "Mark as Returned"
+                  : "Delivered"}
+            </button>
+            <button
+              onClick={() => {
+                setStatus("");
+                setSelectedOrder(null);
+                setConfirmationModal(false);
+              }}
+              className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-slate-300 font-semibold rounded-lg cursor-pointer"
+            >
+              Cancel
+            </button>
           </div>
         </div>
-      )}
-
-
+      </Modal>
     </section>
   );
 };
