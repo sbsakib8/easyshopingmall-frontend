@@ -22,6 +22,7 @@ import {
   Loader2,
   LoaderIcon,
   Mail,
+  MapPin,
   Package,
   Phone,
   RefreshCw,
@@ -795,7 +796,7 @@ const OrderManagement = () => {
 
               <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {/* Customer Information */}
+                  {/* Customer Information (Delivery Client) */}
                   <div className="space-y-4">
                     <div className="bg-gradient-to-br from-gray-700/50 to-gray-800/50 rounded-2xl p-6 border border-gray-600">
                       <h3 className="text-lg font-bold text-slate-300 mb-4 flex items-center gap-2">
@@ -803,33 +804,21 @@ const OrderManagement = () => {
                         Customer Information
                       </h3>
                       <div className="space-y-3">
-                        <div className="flex items-center gap-3">
-                          <User className="h-4 w-4 text-gray-400" />
-                          <div className="flex items-center gap-2">
+                        {selectedOrder?.address?.customer_name && (
+                          <div className="flex items-center gap-3">
+                            <User className="h-4 w-4 text-gray-400" />
                             <span className="font-medium text-slate-300">
-                              {selectedOrder?.userId?.name}
+                              {selectedOrder?.address?.customer_name}
                             </span>
-                            {isDSOrder(selectedOrder) && (
-                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/20 text-primary border border-primary/30 uppercase tracking-widest">
-                                Dropshipping
-                              </span>
-                            )}
                           </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <Mail className="h-4 w-4 text-gray-400" />
-                          <span className="text-gray-300">
-                            {selectedOrder?.userId?.email}
-                          </span>
-                        </div>
+                        )}
                         <div className="flex items-center gap-3">
                           <Phone className="h-4 w-4 text-gray-400" />
                           <span className="text-gray-300">
-                            {selectedOrder?.address?.mobile || "018XXXXXXXX"}
+                            {selectedOrder?.address?.mobile || "N/A"}
                           </span>
                         </div>
                         <div className="flex flex-col items-start gap-3">
-                          {/* <MapPin className="h-4 w-4 text-gray-400 mt-1"/> */}
                           <h3 className="font-bold text-slate-300">
                             Address Line:{" "}
                             <span className="text-gray-300 font-normal">
@@ -844,12 +833,6 @@ const OrderManagement = () => {
                               </span>
                             </h3>
                           )}
-                          <h3 className="font-bold text-slate-300">
-                            District:{" "}
-                            <span className="text-gray-300 font-normal">
-                              {selectedOrder?.address?.district || "None"}
-                            </span>
-                          </h3>
                           {selectedOrder?.address?.division && (
                             <h3 className="font-bold text-slate-300">
                               Division:{" "}
@@ -858,7 +841,14 @@ const OrderManagement = () => {
                               </span>
                             </h3>
                           )}
-
+                          {selectedOrder?.address?.upazila_thana && (
+                            <h3 className="font-bold text-slate-300">
+                              Upazila Thana:{" "}
+                              <span className="text-gray-300 font-normal">
+                                {selectedOrder?.address?.upazila_thana || "None"}
+                              </span>
+                            </h3>
+                          )}
                           {selectedOrder?.address?.pincode && (
                             <h3 className="font-bold text-slate-300">
                               Pincode:{" "}
@@ -867,16 +857,62 @@ const OrderManagement = () => {
                               </span>
                             </h3>
                           )}
-
-                          <h3 className="font-bold text-slate-300">
-                            Upazila Thana:{" "}
-                            <span className="text-gray-300 font-normal">
-                              {selectedOrder?.address?.upazila_thana || "None"}
-                            </span>
-                          </h3>
                         </div>
                       </div>
                     </div>
+
+                    {/* Dropshipper Information */}
+                    {isDSOrder(selectedOrder) && (
+                      <div className="bg-gradient-to-br from-gray-700/50 to-gray-800/50 rounded-2xl p-6 border border-gray-600">
+                        <h3 className="text-lg font-bold text-slate-300 mb-4 flex items-center gap-2">
+                          <User className="h-5 w-5 text-green-400" />
+                          Dropshipper Information
+                        </h3>
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-3">
+                            <User className="h-4 w-4 text-gray-400" />
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-slate-300">
+                                {selectedOrder?.userId?.name}
+                              </span>
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/20 text-primary border border-primary/30 uppercase tracking-widest">
+                                Dropshipping
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <Mail className="h-4 w-4 text-gray-400" />
+                            <span className="text-gray-300">
+                              {selectedOrder?.userId?.email}
+                            </span>
+                          </div>
+                          {selectedOrder?.userId?.shopName && (
+                            <div className="flex items-center gap-3">
+                              <Package className="h-4 w-4 text-gray-400" />
+                              <span className="text-gray-300">
+                                {selectedOrder?.userId?.shopName}
+                              </span>
+                            </div>
+                          )}
+                          {selectedOrder?.userId?.shopAddress && (
+                            <div className="flex items-center gap-3">
+                              <MapPin className="h-4 w-4 text-gray-400" />
+                              <span className="text-gray-300">
+                                {selectedOrder?.userId?.shopAddress}
+                              </span>
+                            </div>
+                          )}
+                          {selectedOrder?.userId?.mobile && (
+                            <div className="flex items-center gap-3">
+                              <Phone className="h-4 w-4 text-gray-400" />
+                              <span className="text-gray-300">
+                                {selectedOrder?.userId?.mobile}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
 
                     {/* Order Summary */}
                     <div className="bg-gradient-to-br from-gray-700/50 to-gray-800/50 rounded-2xl p-6 border border-gray-600">
