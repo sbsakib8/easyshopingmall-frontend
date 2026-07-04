@@ -1,5 +1,9 @@
-import { useMemo } from "react";
+"use client";
+
 import { isDSOrder } from "@/src/utlis/orderHelpers";
+import { Backdrop, Modal } from "@mui/material";
+import { AnimatePresence, motion } from "framer-motion";
+import { useMemo } from "react";
 
 function getStatusColor(status) {
   if (!status) return "bg-gray-100 text-gray-800";
@@ -24,7 +28,7 @@ function getStatusColor(status) {
   }
 }
 
-function OrderDetailsModal({ order, onClose }) {
+function OrderDetailsModal({ order, onClose, open }) {
   if (!order) return null;
 
   const isDS = isDSOrder(order);
@@ -42,7 +46,14 @@ function OrderDetailsModal({ order, onClose }) {
   const mobile = address.mobile || "";
   const country = address.country || "";
 
-  const fullAddress = [addressLine, upazila, district, division, pincode, country]
+  const fullAddress = [
+    addressLine,
+    upazila,
+    district,
+    division,
+    pincode,
+    country,
+  ]
     .filter(Boolean)
     .join(", ");
 
@@ -58,10 +69,18 @@ function OrderDetailsModal({ order, onClose }) {
       const resolvedProduct = item.productId || {};
 
       if (isDS) {
-        return { ...item, _effectivePrice: item.sellingPrice || item.price || 0, _effectiveTotal: item.totalPrice || (item.sellingPrice || item.price || 0) * (Number(item.quantity) || 1) };
+        return {
+          ...item,
+          _effectivePrice: item.sellingPrice || item.price || 0,
+          _effectiveTotal:
+            item.totalPrice ||
+            (item.sellingPrice || item.price || 0) *
+              (Number(item.quantity) || 1),
+        };
       }
 
-      const retailPrice = Number(resolvedProduct.price) || Number(item.price) || 0;
+      const retailPrice =
+        Number(resolvedProduct.price) || Number(item.price) || 0;
       const storedPrice = Number(item.price) || 0;
 
       if (retailPrice !== storedPrice && retailPrice > 0) {
@@ -72,340 +91,526 @@ function OrderDetailsModal({ order, onClose }) {
         };
       }
 
-      return { ...item, _effectivePrice: item.price || 0, _effectiveTotal: item.totalPrice || 0 };
+      return {
+        ...item,
+        _effectivePrice: item.price || 0,
+        _effectiveTotal: item.totalPrice || 0,
+      };
     });
   }, [orderProducts, isDS]);
 
   const recalculatedSubtotal = useMemo(() => {
-    return correctedProducts.reduce((sum, item) => sum + (item._effectiveTotal || 0), 0);
+    return correctedProducts.reduce(
+      (sum, item) => sum + (item._effectiveTotal || 0),
+      0,
+    );
   }, [correctedProducts]);
 
-  const hasCorrectedPrices = !isDS && correctedProducts.some((item) => {
-    const resolvedProduct = item.productId || {};
-    const retailPrice = Number(resolvedProduct.price) || 0;
-    const storedPrice = Number(item.price) || 0;
-    return retailPrice > 0 && retailPrice !== storedPrice;
-  });
+  const hasCorrectedPrices =
+    !isDS &&
+    correctedProducts.some((item) => {
+      const resolvedProduct = item.productId || {};
+      const retailPrice = Number(resolvedProduct.price) || 0;
+      const storedPrice = Number(item.price) || 0;
+      return retailPrice > 0 && retailPrice !== storedPrice;
+    });
 
-  const displaySubtotal = hasCorrectedPrices ? recalculatedSubtotal : (order.subTotalAmt || order.subtotal || 0);
+  const displaySubtotal = hasCorrectedPrices
+    ? recalculatedSubtotal
+    : order.subTotalAmt || order.subtotal || 0;
   const displayTotal = hasCorrectedPrices
-    ? displaySubtotal + (Number(order.deliveryCharge) || 0) - (Number(order.couponDiscount) || 0)
-    : (order.totalAmt || 0);
+    ? displaySubtotal +
+      (Number(order.deliveryCharge) || 0) -
+      (Number(order.couponDiscount) || 0)
+    : order.totalAmt || 0;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-3">
-      <div className="bg-white w-full max-w-4xl rounded-2xl shadow-xl max-h-[90vh] overflow-y-auto">
-
-        {/* Header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4
-                        bg-gradient-to-r from-emerald-500 to-teal-500 rounded-t-2xl">
-          <h2 className="text-accent-content text-lg font-semibold">Order Details</h2>
-          <button
-            onClick={onClose}
-            className="text-accent-content text-xl hover:rotate-90 transition"
+    <Modal
+      open={open}
+      onClose={onClose}
+      closeAfterTransition
+      slots={{ backdrop: Backdrop }}
+      slotProps={{
+        backdrop: {
+          timeout: 500,
+          sx: {
+            backgroundColor: "rgba(0, 0, 0, 0.4)",
+            backdropFilter: "blur(4px)",
+          },
+        },
+      }}
+      className="flex items-center justify-center p-4"
+    >
+      <AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: 20 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          className="bg-white w-full max-w-4xl rounded-2xl shadow-xl max-h-[90vh] overflow-y-auto outline-none relative"
+        >
+          {/* Header */}
+          <div
+            className="sticky top-0 z-10 flex items-center justify-between px-6 py-4
+                        bg-gradient-to-r from-emerald-500 to-teal-500 rounded-t-2xl"
           >
-            ✕
-          </button>
-        </div>
+            <h2 className="text-accent-content text-lg font-semibold">
+              Order Details
+            </h2>
+            <button
+              onClick={onClose}
+              className="text-accent-content text-xl hover:rotate-90 transition"
+            >
+              ✕
+            </button>
+          </div>
 
-        <div className="p-6 space-y-6">
+          <div className="p-6 space-y-6">
+            {/* Order ID & User Info */}
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="bg-purple-50 border rounded-xl p-4">
+                <p className="text-xs text-gray-500 mb-1">Order ID</p>
+                <p className="font-semibold text-purple-700 break-all text-sm">
+                  {order._id || "N/A"}
+                </p>
+              </div>
 
-          {/* Order ID & User Info */}
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="bg-purple-50 border rounded-xl p-4">
-              <p className="text-xs text-gray-500 mb-1">Order ID</p>
-              <p className="font-semibold text-purple-700 break-all text-sm">
-                {order._id || "N/A"}
-              </p>
+              <div className="bg-blue-50 border rounded-xl p-4">
+                <p className="text-xs text-gray-500 mb-2">
+                  Customer Information
+                </p>
+                <div className="flex items-center gap-3">
+                  {customerImage ? (
+                    <img
+                      src={customerImage}
+                      alt={customerName}
+                      className="w-10 h-10 rounded-full object-cover border-2 border-blue-200"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center border-2 border-blue-300">
+                      <span className="text-blue-700 font-bold text-sm">
+                        {customerName.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-blue-700 text-sm truncate">
+                      {customerName}
+                    </p>
+                    <p className="text-xs text-gray-600 truncate">
+                      {customerEmail}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div className="bg-blue-50 border rounded-xl p-4">
-              <p className="text-xs text-gray-500 mb-2">Customer Information</p>
-              <div className="flex items-center gap-3">
-                {customerImage ? (
-                  <img
-                    src={customerImage}
-                    alt={customerName}
-                    className="w-10 h-10 rounded-full object-cover border-2 border-blue-200"
-                  />
+            {/* Dropshipping Rewards (Conditional) */}
+            {(order.profitAmount > 0 || order.referralBonusAmount > 0) &&
+              isDS &&
+              (() => {
+                const liveProfit =
+                  orderProducts.reduce((sum, p) => {
+                    const cost = Number(p.costPrice || p.price) || 0;
+                    const selling = Number(p.sellingPrice) || cost;
+                    return (
+                      sum +
+                      (selling > cost
+                        ? (selling - cost) * (p.quantity || 1)
+                        : 0)
+                    );
+                  }, 0) + (Number(order.couponDiscount) || 0);
+                const displayProfit =
+                  liveProfit > 0 ? liveProfit : order.profitAmount || 0;
+                return (
+                  <div className="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-2xl p-6 text-white shadow-lg border border-emerald-400/30 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-black text-lg flex items-center gap-2">
+                        <div className="p-2 bg-white/20 rounded-xl">
+                          <span className="text-xl">💰</span>
+                        </div>
+                        Dropshipping Rewards
+                      </h3>
+                      <span className="px-3 py-1 bg-white/20 rounded-full text-[10px] font-black uppercase tracking-widest">
+                        Verified Earning
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {displayProfit > 0 && (
+                        <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-sm border border-white/10 group hover:bg-white/20 transition-all">
+                          <p className="text-emerald-100 text-[10px] font-black uppercase tracking-wider mb-1 opacity-80">
+                            Order Sales Profit
+                          </p>
+                          <p className="text-3xl font-black tracking-tighter">
+                            ৳{displayProfit.toLocaleString()}
+                          </p>
+                        </div>
+                      )}
+                      {order.referralBonusAmount > 0 && (
+                        <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-sm border border-white/10 group hover:bg-white/20 transition-all">
+                          <p className="text-emerald-100 text-[10px] font-black uppercase tracking-wider mb-1 opacity-80">
+                            {order.referralPercentage ||
+                              (order.subTotalAmt > 0
+                                ? Math.round(
+                                    (order.referralBonusAmount /
+                                      order.subTotalAmt) *
+                                      100,
+                                  )
+                                : 0)}
+                            % Referral Bonus
+                          </p>
+                          <p className="text-3xl font-black tracking-tighter">
+                            ৳{order.referralBonusAmount.toLocaleString()}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                    <p className="mt-4 text-[10px] text-emerald-100 font-bold italic opacity-60 flex items-center gap-1">
+                      <span>✨</span> Rewards are automatically credited to your
+                      balance once the order status is 'Delivered' or
+                      'Completed'.
+                    </p>
+                  </div>
+                );
+              })()}
+
+            {/* Status & Date */}
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="bg-blue-50 border rounded-xl p-4">
+                <p className="text-xs text-gray-500 mb-2">Order Status</p>
+                <span
+                  className={`inline-block px-3 py-1 text-xs rounded-full font-semibold capitalize ${getStatusColor(order.order_status)}`}
+                >
+                  {order.order_status || "N/A"}
+                </span>
+              </div>
+
+              <div className="bg-green-50 border rounded-xl p-4">
+                <p className="text-xs text-gray-500 mb-2">Payment Status</p>
+                <span
+                  className={`inline-block px-3 py-1 text-xs rounded-full font-bold capitalize ${getStatusColor(order.payment_status)}`}
+                >
+                  {order.payment_status === "paid"
+                    ? "পরিশোধিত (Paid)"
+                    : order.payment_status === "submitted"
+                      ? "পেমেন্ট জমা হয়েছে (Submitted)"
+                      : "অপরিশোধিত (Unpaid)"}
+                </span>
+              </div>
+
+              <div className="bg-orange-50 border rounded-xl p-4">
+                <p className="text-xs text-gray-500 mb-1">Order Date</p>
+                <p className="font-semibold text-orange-700 text-sm">
+                  {order.createdAt
+                    ? new Date(order.createdAt).toLocaleString("en-US", {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                      })
+                    : "N/A"}
+                </p>
+              </div>
+            </div>
+
+            {/* Payment Information */}
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 border rounded-xl p-5">
+              <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <span className="w-1 h-5 bg-teal-500 rounded"></span>
+                Payment Information
+              </h3>
+              <div className="grid md:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-gray-500 text-xs mb-1">Payment Method</p>
+                  <p className="font-medium text-gray-800 capitalize">
+                    {order.payment_method || "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-gray-500 text-xs mb-1">Payment Type</p>
+                  <p className="font-medium text-gray-800 capitalize">
+                    {order.payment_type || "N/A"}
+                  </p>
+                </div>
+
+                {manualPayment && (
+                  <>
+                    <div>
+                      <p className="text-gray-500 text-xs mb-1">Provider</p>
+                      <p className="font-medium text-gray-800 uppercase">
+                        {manualPayment.provider || "N/A"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 text-xs mb-1">
+                        Sender Number
+                      </p>
+                      <p className="font-medium text-gray-800">
+                        {manualPayment.senderNumber || "N/A"}
+                      </p>
+                    </div>
+                    <div className="md:col-span-2">
+                      <p className="text-gray-500 text-xs mb-1">
+                        Transaction ID
+                      </p>
+                      <p className="font-medium text-gray-800 break-all">
+                        {manualPayment.transactionId || "N/A"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 text-xs mb-1">Paid For</p>
+                      <p className="font-medium text-gray-800 capitalize">
+                        {manualPayment.paidFor || "N/A"}
+                      </p>
+                    </div>
+                  </>
+                )}
+
+                {order.paymentId && (
+                  <div className="md:col-span-2">
+                    <p className="text-gray-500 text-xs mb-1">Payment ID</p>
+                    <p className="font-medium text-gray-800 break-all">
+                      {order.paymentId}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Products List */}
+            <div>
+              <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <span className="w-1 h-5 bg-emerald-500 rounded"></span>
+                Ordered Products
+              </h3>
+              <div className="space-y-3">
+                {correctedProducts.length > 0 ? (
+                  correctedProducts.map((item, idx) => {
+                    const resolvedProduct = item.productId || {};
+                    const name =
+                      item.name || resolvedProduct.productName || "N/A";
+                    const imgData =
+                      (item.image?.length > 0 ? item.image : null) ||
+                      (item.images?.length > 0 ? item.images : null) ||
+                      (resolvedProduct.images?.length > 0
+                        ? resolvedProduct.images
+                        : null) ||
+                      (resolvedProduct.image?.length > 0
+                        ? resolvedProduct.image
+                        : null);
+                    const productImage =
+                      (Array.isArray(imgData)
+                        ? imgData[0]
+                        : typeof imgData === "string"
+                          ? imgData
+                          : null) || "/banner/img/placeholder.png";
+
+                    return (
+                      <div
+                        key={idx}
+                        className="flex items-center gap-4 border rounded-xl p-4 bg-white hover:shadow-md transition-shadow"
+                      >
+                        <img
+                          src={productImage}
+                          alt={name}
+                          className="w-20 h-20 rounded-lg object-cover flex-shrink-0 border"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-gray-900 mb-1">
+                            {name}
+                          </p>
+                          <div className="flex flex-wrap gap-3 text-xs text-gray-600">
+                            <span>
+                              Qty:{" "}
+                              <span className="font-medium text-gray-900">
+                                {item.quantity || 0}
+                              </span>
+                            </span>
+                            {isDS &&
+                            item.sellingPrice &&
+                            item.sellingPrice !== item.price ? (
+                              <>
+                                <span>
+                                  DS Cost:{" "}
+                                  <span className="font-medium text-blue-700">
+                                    ৳{item.price || 0}
+                                  </span>
+                                </span>
+                                <span>
+                                  Selling:{" "}
+                                  <span className="font-medium text-emerald-700">
+                                    ৳{item.sellingPrice}
+                                  </span>
+                                </span>
+                              </>
+                            ) : (
+                              <span>
+                                Price:{" "}
+                                <span className="font-medium text-gray-900">
+                                  ৳{item._effectivePrice || 0}
+                                </span>
+                              </span>
+                            )}
+                            {item.size && (
+                              <span>
+                                Size:{" "}
+                                <span className="font-medium text-gray-900">
+                                  {item.size}
+                                </span>
+                              </span>
+                            )}
+                            {item.color && (
+                              <span>
+                                Color:{" "}
+                                <span className="font-medium text-gray-900">
+                                  {item.color}
+                                </span>
+                              </span>
+                            )}
+                            {item.weight && (
+                              <span>
+                                Weight:{" "}
+                                <span className="font-medium text-gray-900">
+                                  {item.weight}
+                                </span>
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <p className="font-bold text-emerald-600 text-lg flex-shrink-0">
+                          ৳{item._effectiveTotal || 0}
+                        </p>
+                      </div>
+                    );
+                  })
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center border-2 border-blue-300">
-                    <span className="text-blue-700 font-bold text-sm">
-                      {customerName.charAt(0).toUpperCase()}
+                  <p className="text-gray-500 text-sm text-center py-4">
+                    No products found
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Delivery Address */}
+            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-5">
+              <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <span className="w-1 h-5 bg-emerald-500 rounded"></span>
+                Delivery Information
+              </h3>
+              <div className="space-y-3 text-sm">
+                <div>
+                  <p className="text-gray-500 text-xs mb-1">Full Address</p>
+                  <p className="text-gray-800 font-medium">
+                    {fullAddress || "N/A"}
+                  </p>
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-3">
+                  {division && (
+                    <div>
+                      <p className="text-gray-500 text-xs mb-1">Division</p>
+                      <p className="text-gray-800 font-medium">{division}</p>
+                    </div>
+                  )}
+                  {district && (
+                    <div>
+                      <p className="text-gray-500 text-xs mb-1">District</p>
+                      <p className="text-gray-800 font-medium">{district}</p>
+                    </div>
+                  )}
+                  {upazila && (
+                    <div>
+                      <p className="text-gray-500 text-xs mb-1">
+                        Upazila/Thana
+                      </p>
+                      <p className="text-gray-800 font-medium">{upazila}</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-4 pt-2 border-t border-emerald-200">
+                  <div>
+                    <p className="text-gray-500 text-xs mb-1">Contact Number</p>
+                    <p className="text-gray-800 font-medium">
+                      {mobile || "N/A"}
+                    </p>
+                  </div>
+                  {pincode && (
+                    <div>
+                      <p className="text-gray-500 text-xs mb-1">Pincode</p>
+                      <p className="text-gray-800 font-medium">{pincode}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Price Summary */}
+            <div className="bg-gradient-to-br from-cyan-50 to-blue-50 border border-cyan-200 rounded-xl p-5">
+              <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <span className="w-1 h-5 bg-cyan-500 rounded"></span>
+                Payment Summary
+              </h3>
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Subtotal</span>
+                  <span className="font-semibold text-gray-800">
+                    ৳{displaySubtotal.toLocaleString()}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Delivery Charge</span>
+                  <span className="font-semibold text-gray-800">
+                    ৳{order.deliveryCharge || 0}
+                  </span>
+                </div>
+                {order.couponDiscount > 0 && (
+                  <div className="flex justify-between items-center text-emerald-600 font-medium">
+                    <span>
+                      Coupon Applied{" "}
+                      {order.appliedCoupon ? `(${order.appliedCoupon})` : ""}
+                    </span>
+                    <span className="font-semibold">
+                      -৳{order.couponDiscount}
                     </span>
                   </div>
                 )}
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-blue-700 text-sm truncate">{customerName}</p>
-                  <p className="text-xs text-gray-600 truncate">{customerEmail}</p>
+
+                <div className="border-t border-cyan-200 pt-3 mt-3">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-green-600 font-medium">
+                      Amount Paid
+                    </span>
+                    <span className="font-bold text-green-600">
+                      ৳{order.amount_paid || 0}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-red-600 font-medium">Amount Due</span>
+                    <span className="font-bold text-red-600">
+                      ৳
+                      {Math.max(
+                        0,
+                        displayTotal - (order.amount_paid || 0),
+                      ).toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-lg p-4 mt-4 border-2 border-teal-200">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-800 font-bold text-base">
+                      Total Amount
+                    </span>
+                    <span className="text-teal-600 font-bold text-xl">
+                      ৳{displayTotal.toLocaleString()}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-
-          {/* Dropshipping Rewards (Conditional) */}
-          {(order.profitAmount > 0 || order.referralBonusAmount > 0) && isDS && (() => {
-    const liveProfit = orderProducts.reduce((sum, p) => {
-      const cost = Number(p.costPrice || p.price) || 0;
-      const selling = Number(p.sellingPrice) || cost;
-      return sum + (selling > cost ? (selling - cost) * (p.quantity || 1) : 0);
-    }, 0) + (Number(order.couponDiscount) || 0);
-    const displayProfit = liveProfit > 0 ? liveProfit : (order.profitAmount || 0);
-    return (
-      <div className="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-2xl p-6 text-white shadow-lg border border-emerald-400/30 animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-black text-lg flex items-center gap-2">
-            <div className="p-2 bg-white/20 rounded-xl">
-              <span className="text-xl">💰</span>
-            </div>
-            Dropshipping Rewards
-          </h3>
-          <span className="px-3 py-1 bg-white/20 rounded-full text-[10px] font-black uppercase tracking-widest">
-            Verified Earning
-          </span>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {displayProfit > 0 && (
-            <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-sm border border-white/10 group hover:bg-white/20 transition-all">
-              <p className="text-emerald-100 text-[10px] font-black uppercase tracking-wider mb-1 opacity-80">Order Sales Profit</p>
-              <p className="text-3xl font-black tracking-tighter">৳{displayProfit.toLocaleString()}</p>
-            </div>
-          )}
-          {order.referralBonusAmount > 0 && (
-            <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-sm border border-white/10 group hover:bg-white/20 transition-all">
-              <p className="text-emerald-100 text-[10px] font-black uppercase tracking-wider mb-1 opacity-80">
-                {order.referralPercentage || (order.subTotalAmt > 0 ? Math.round((order.referralBonusAmount / order.subTotalAmt) * 100) : 0)}% Referral Bonus
-              </p>
-              <p className="text-3xl font-black tracking-tighter">৳{order.referralBonusAmount.toLocaleString()}</p>
-            </div>
-          )}
-        </div>
-        <p className="mt-4 text-[10px] text-emerald-100 font-bold italic opacity-60 flex items-center gap-1">
-          <span>✨</span> Rewards are automatically credited to your balance once the order status is 'Delivered' or 'Completed'.
-        </p>
-      </div>
-    );
-  })()}
-
-          {/* Status & Date */}
-          <div className="grid md:grid-cols-3 gap-4">
-            <div className="bg-blue-50 border rounded-xl p-4">
-              <p className="text-xs text-gray-500 mb-2">Order Status</p>
-              <span className={`inline-block px-3 py-1 text-xs rounded-full font-semibold capitalize ${getStatusColor(order.order_status)}`}>
-                {order.order_status || "N/A"}
-              </span>
-            </div>
-
-            <div className="bg-green-50 border rounded-xl p-4">
-              <p className="text-xs text-gray-500 mb-2">Payment Status</p>
-              <span className={`inline-block px-3 py-1 text-xs rounded-full font-bold capitalize ${getStatusColor(order.payment_status)}`}>
-                {order.payment_status === "paid" ? "পরিশোধিত (Paid)" : order.payment_status === "submitted" ? "পেমেন্ট জমা হয়েছে (Submitted)" : "অপরিশোধিত (Unpaid)"}
-              </span>
-            </div>
-
-            <div className="bg-orange-50 border rounded-xl p-4">
-              <p className="text-xs text-gray-500 mb-1">Order Date</p>
-              <p className="font-semibold text-orange-700 text-sm">
-                {order.createdAt ? new Date(order.createdAt).toLocaleString('en-US', {
-                  dateStyle: 'medium',
-                  timeStyle: 'short'
-                }) : "N/A"}
-              </p>
-            </div>
-          </div>
-
-          {/* Payment Information */}
-          <div className="bg-gradient-to-br from-gray-50 to-gray-100 border rounded-xl p-5">
-            <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <span className="w-1 h-5 bg-teal-500 rounded"></span>
-              Payment Information
-            </h3>
-            <div className="grid md:grid-cols-2 gap-4 text-sm">
-              <div>
-                <p className="text-gray-500 text-xs mb-1">Payment Method</p>
-                <p className="font-medium text-gray-800 capitalize">{order.payment_method || "N/A"}</p>
-              </div>
-              <div>
-                <p className="text-gray-500 text-xs mb-1">Payment Type</p>
-                <p className="font-medium text-gray-800 capitalize">{order.payment_type || "N/A"}</p>
-              </div>
-
-              {manualPayment && (
-                <>
-                  <div>
-                    <p className="text-gray-500 text-xs mb-1">Provider</p>
-                    <p className="font-medium text-gray-800 uppercase">{manualPayment.provider || "N/A"}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500 text-xs mb-1">Sender Number</p>
-                    <p className="font-medium text-gray-800">{manualPayment.senderNumber || "N/A"}</p>
-                  </div>
-                  <div className="md:col-span-2">
-                    <p className="text-gray-500 text-xs mb-1">Transaction ID</p>
-                    <p className="font-medium text-gray-800 break-all">{manualPayment.transactionId || "N/A"}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500 text-xs mb-1">Paid For</p>
-                    <p className="font-medium text-gray-800 capitalize">{manualPayment.paidFor || "N/A"}</p>
-                  </div>
-                </>
-              )}
-
-              {order.paymentId && (
-                <div className="md:col-span-2">
-                  <p className="text-gray-500 text-xs mb-1">Payment ID</p>
-                  <p className="font-medium text-gray-800 break-all">{order.paymentId}</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Products List */}
-          <div>
-            <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <span className="w-1 h-5 bg-emerald-500 rounded"></span>
-              Ordered Products
-            </h3>
-            <div className="space-y-3">
-              {correctedProducts.length > 0 ? (
-                correctedProducts.map((item, idx) => {
-                  const resolvedProduct = item.productId || {};
-                  const name = item.name || resolvedProduct.productName || "N/A";
-                  const imgData = (item.image?.length > 0 ? item.image : null) || (item.images?.length > 0 ? item.images : null) || (resolvedProduct.images?.length > 0 ? resolvedProduct.images : null) || (resolvedProduct.image?.length > 0 ? resolvedProduct.image : null);
-                  const productImage = (Array.isArray(imgData) ? imgData[0] : (typeof imgData === 'string' ? imgData : null)) || "/banner/img/placeholder.png";
-
-                  return (
-                    <div
-                      key={idx}
-                      className="flex items-center gap-4 border rounded-xl p-4 bg-white hover:shadow-md transition-shadow"
-                    >
-                      <img
-                        src={productImage}
-                        alt={name}
-                        className="w-20 h-20 rounded-lg object-cover flex-shrink-0 border"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-gray-900 mb-1">{name}</p>
-                        <div className="flex flex-wrap gap-3 text-xs text-gray-600">
-                          <span>Qty: <span className="font-medium text-gray-900">{item.quantity || 0}</span></span>
-                          {isDS && item.sellingPrice && item.sellingPrice !== item.price ? (
-                             <>
-                               <span>DS Cost: <span className="font-medium text-blue-700">৳{item.price || 0}</span></span>
-                               <span>Selling: <span className="font-medium text-emerald-700">৳{item.sellingPrice}</span></span>
-                             </>
-                           ) : (
-                             <span>Price: <span className="font-medium text-gray-900">৳{item._effectivePrice || 0}</span></span>
-                           )}
-                          {item.size && <span>Size: <span className="font-medium text-gray-900">{item.size}</span></span>}
-                          {item.color && <span>Color: <span className="font-medium text-gray-900">{item.color}</span></span>}
-                          {item.weight && <span>Weight: <span className="font-medium text-gray-900">{item.weight}</span></span>}
-                        </div>
-                      </div>
-                      <p className="font-bold text-emerald-600 text-lg flex-shrink-0">
-                        ৳{item._effectiveTotal || 0}
-                      </p>
-                    </div>
-                  );
-                })
-              ) : (
-                <p className="text-gray-500 text-sm text-center py-4">No products found</p>
-              )}
-            </div>
-          </div>
-
-          {/* Delivery Address */}
-          <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-5">
-            <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <span className="w-1 h-5 bg-emerald-500 rounded"></span>
-              Delivery Information
-            </h3>
-            <div className="space-y-3 text-sm">
-              <div>
-                <p className="text-gray-500 text-xs mb-1">Full Address</p>
-                <p className="text-gray-800 font-medium">{fullAddress || "N/A"}</p>
-              </div>
-
-              <div className="grid md:grid-cols-3 gap-3">
-                {division && (
-                  <div>
-                    <p className="text-gray-500 text-xs mb-1">Division</p>
-                    <p className="text-gray-800 font-medium">{division}</p>
-                  </div>
-                )}
-                {district && (
-                  <div>
-                    <p className="text-gray-500 text-xs mb-1">District</p>
-                    <p className="text-gray-800 font-medium">{district}</p>
-                  </div>
-                )}
-                {upazila && (
-                  <div>
-                    <p className="text-gray-500 text-xs mb-1">Upazila/Thana</p>
-                    <p className="text-gray-800 font-medium">{upazila}</p>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex items-center gap-4 pt-2 border-t border-emerald-200">
-                <div>
-                  <p className="text-gray-500 text-xs mb-1">Contact Number</p>
-                  <p className="text-gray-800 font-medium">{mobile || "N/A"}</p>
-                </div>
-                {pincode && (
-                  <div>
-                    <p className="text-gray-500 text-xs mb-1">Pincode</p>
-                    <p className="text-gray-800 font-medium">{pincode}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Price Summary */}
-          <div className="bg-gradient-to-br from-cyan-50 to-blue-50 border border-cyan-200 rounded-xl p-5">
-            <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <span className="w-1 h-5 bg-cyan-500 rounded"></span>
-              Payment Summary
-            </h3>
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Subtotal</span>
-                <span className="font-semibold text-gray-800">৳{displaySubtotal.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Delivery Charge</span>
-                <span className="font-semibold text-gray-800">৳{order.deliveryCharge || 0}</span>
-              </div>
-              {order.couponDiscount > 0 && (
-                <div className="flex justify-between items-center text-emerald-600 font-medium">
-                  <span>Coupon Applied {order.appliedCoupon ? `(${order.appliedCoupon})` : ""}</span>
-                  <span className="font-semibold">-৳{order.couponDiscount}</span>
-                </div>
-              )}
-
-              <div className="border-t border-cyan-200 pt-3 mt-3">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-green-600 font-medium">Amount Paid</span>
-                  <span className="font-bold text-green-600">৳{order.amount_paid || 0}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-red-600 font-medium">Amount Due</span>
-                  <span className="font-bold text-red-600">৳{Math.max(0, displayTotal - (order.amount_paid || 0)).toLocaleString()}</span>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-lg p-4 mt-4 border-2 border-teal-200">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-800 font-bold text-base">Total Amount</span>
-                  <span className="text-teal-600 font-bold text-xl">৳{displayTotal.toLocaleString()}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
+        </motion.div>
+      </AnimatePresence>
+    </Modal>
   );
 }
 
