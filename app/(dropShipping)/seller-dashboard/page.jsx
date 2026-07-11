@@ -5,8 +5,18 @@ import Section from "@/src/compronent/shared/Section";
 import BackButton from "@/src/dropShipping/BackButton/BackButton";
 import { useGetUser } from "@/src/utlis/useGetuser";
 import { useMyOrders } from "@/src/utlis/useMyOrders";
-import { TrendingUp, Wallet } from "lucide-react";
-import React, { useMemo } from "react";
+import { getMyDropshippingAnalytics } from "@/src/hook/useDropshippingAnalytics";
+import DashboardRevenueChart from "@/src/dashboard/dropshipping/DashboardRevenueChart";
+import MonthlyProfitSummary from "@/src/dashboard/dropshipping/MonthlyProfitSummary";
+import OrderPipeline from "@/src/dashboard/dropshipping/OrderPipeline";
+import {
+  TrendingUp,
+  Wallet,
+  Package,
+  ShoppingBag,
+  ArrowRight,
+} from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   FiBox,
   FiCheckCircle,
@@ -15,20 +25,79 @@ import {
   FiSettings,
 } from "react-icons/fi";
 
+const STATUS_COLORS = {
+  pending: "bg-amber-100 text-amber-700",
+  processing: "bg-blue-100 text-blue-700",
+  shipped: "bg-indigo-100 text-indigo-700",
+  delivered: "bg-emerald-100 text-emerald-700",
+  completed: "bg-emerald-100 text-emerald-700",
+  cancelled: "bg-red-100 text-red-700",
+  return: "bg-red-100 text-red-700",
+};
+
 function SellerDashboard() {
   const { orders = [], loading: ordersLoading } = useMyOrders();
   const { user, loading: userLoading } = useGetUser();
+  const [analytics, setAnalytics] = useState(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      setAnalyticsLoading(true);
+      try {
+        const res = await getMyDropshippingAnalytics();
+        if (res.success) {
+          setAnalytics(res.data);
+        }
+      } catch (err) {
+        console.error("Analytics fetch error:", err);
+      } finally {
+        setAnalyticsLoading(false);
+      }
+    };
+    fetchAnalytics();
+  }, []);
+
+  // Compute top selling products from orders
+  const topProducts = useMemo(() => {
+    const productMap = {};
+    orders.forEach((order) => {
+      order.products?.forEach((p) => {
+        const key = p.productId?._id || p.productId || p.name;
+        if (!productMap[key]) {
+          productMap[key] = {
+            name: p.name || p.productId?.productName || "Product",
+            quantity: 0,
+            revenue: 0,
+          };
+        }
+        productMap[key].quantity += p.quantity || 1;
+        productMap[key].revenue +=
+          (Number(p.sellingPrice) || Number(p.price) || 0) * (p.quantity || 1);
+      });
+    });
+    return Object.values(productMap)
+      .sort((a, b) => b.quantity - a.quantity)
+      .slice(0, 5);
+  }, [orders]);
+
+  // Recent orders (last 5)
+  const recentOrders = useMemo(
+    () =>
+      [...orders]
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 5),
+    [orders],
+  );
 
   const stats = useMemo(() => {
     const calculateStats = (filteredOrders) => {
       const orderCount = filteredOrders.length;
 
       const profit = filteredOrders.reduce((sum, order) => {
-        // If the order already has profitAmount (delivered), use it
         if (order.profitGiven && order.profitAmount) {
           return sum + order.profitAmount;
         }
-        // Otherwise calculate potential profit
         const potentialProfit =
           order.products?.reduce((pSum, p) => {
             const cost = Number(p.price) || 0;
@@ -169,9 +238,24 @@ function SellerDashboard() {
                 </p>
               </div>
             </div>
-            {/* Decorative circles */}
             <div className="absolute -right-4 -bottom-4 w-32 h-32 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
           </div>
+        </div>
+
+        {/* Monthly Profit Summary + Revenue Chart + Order Pipeline */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-8">
+          <MonthlyProfitSummary
+            transactions={analytics?.transactions || []}
+            loading={analyticsLoading}
+          />
+          <DashboardRevenueChart
+            transactions={analytics?.transactions || []}
+            loading={analyticsLoading}
+          />
+          <OrderPipeline
+            orderPipeline={analytics?.orderPipeline || {}}
+            loading={analyticsLoading}
+          />
         </div>
 
         {/* Quick Stats Grid */}
@@ -212,94 +296,151 @@ function SellerDashboard() {
           ))}
         </div>
 
-        {/* Detailed Performance List */}
-        <div className="flex flex-col gap-4 mb-8">
-          {stats.map((view) => (
-            <div
-              key={view.id}
-              className="rounded-2xl p-4 md:p-6 flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6 bg-white shadow-sm border border-gray-100 hover:shadow-md hover:border-gray-200 transition-all duration-300 group relative overflow-hidden"
-            >
-              {/* Left Icon */}
-              <div
-                className={`w-14 h-14 md:w-16 md:h-16 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105 ${
-                  view.color === "emerald"
-                    ? "bg-emerald-100 text-emerald-600"
-                    : view.color === "amber"
-                      ? "bg-amber-100 text-amber-600"
-                      : view.color === "blue"
-                        ? "bg-blue-100 text-blue-600"
-                        : "bg-red-100 text-red-600"
-                }`}
+        {/* Recent Orders & Top Products */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-8">
+          {/* Recent Orders */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow overflow-hidden">
+            <div className="flex items-center justify-between p-5 md:p-6 pb-0">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-50 text-blue-600 rounded-xl">
+                  <Package className="w-4 h-4" />
+                </div>
+                <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight">
+                  Recent Orders
+                </h3>
+              </div>
+              <a
+                href="/order-list"
+                className="text-[10px] font-black text-emerald-600 uppercase tracking-wider hover:text-emerald-700 flex items-center gap-1"
               >
-                {React.cloneElement(view.icon, {
-                  className: "text-xl md:text-2xl",
-                })}
-              </div>
-
-              {/* Content */}
-              <div className="flex-grow flex flex-col gap-3 w-full">
-                <div className="flex items-center justify-between flex-wrap gap-2">
-                  <h3 className="text-lg md:text-xl font-black text-gray-900 tracking-tight">
-                    {view.title}
-                  </h3>
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50/80 rounded-full border border-emerald-100/50">
-                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                    <span className="text-[9px] font-black text-emerald-700 uppercase tracking-wider">
-                      Live
-                    </span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-2 md:gap-3">
-                  <div className="bg-gradient-to-br from-gray-50 to-gray-50/50 p-3 md:p-4 rounded-xl border border-gray-200">
-                    <p className="text-[9px] md:text-[10px] font-black text-gray-500 uppercase tracking-wider mb-1.5">
-                      Orders
-                    </p>
-                    {ordersLoading ? (
-                      <span className="animate-pulse">Loading...</span>
-                    ) : (
-                      <p className="text-lg md:text-xl font-black text-gray-900">
-                        {view.order}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="bg-gradient-to-br from-emerald-50 to-emerald-50/50 p-3 md:p-4 rounded-xl border border-emerald-100">
-                    <p className="text-[9px] md:text-[10px] font-black text-emerald-700 uppercase tracking-wider mb-1.5">
-                      Profit
-                    </p>
-                    {ordersLoading ? (
-                      <span className="animate-pulse">Loading...</span>
-                    ) : (
-                      <p className="text-lg md:text-xl font-black text-emerald-700">
-                        ৳{view.profit.toLocaleString()}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="bg-gradient-to-br from-teal-50 to-teal-50/50 p-3 md:p-4 rounded-xl border border-teal-100">
-                    <p className="text-[9px] md:text-[10px] font-black text-teal-700 uppercase tracking-wider mb-1.5">
-                      Volume
-                    </p>
-                    {ordersLoading ? (
-                      <span className="animate-pulse">Loading...</span>
-                    ) : (
-                      <p className="text-lg md:text-xl font-black text-teal-700">
-                        ৳{view.sellPrice.toLocaleString()}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Visual accent line */}
-              <div className="absolute right-0 top-0 h-full w-0.5 opacity-0 group-hover:opacity-100 transition-opacity bg-emerald-500" />
+                View All <ArrowRight className="w-3 h-3" />
+              </a>
             </div>
-          ))}
+            <div className="p-5 md:p-6 pt-3">
+              {ordersLoading ? (
+                <div className="space-y-3 animate-pulse">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <div key={i} className="flex items-center gap-3">
+                      <div className="h-3 w-20 bg-gray-100 rounded" />
+                      <div className="flex-1 h-3 bg-gray-100 rounded" />
+                      <div className="h-3 w-12 bg-gray-100 rounded" />
+                    </div>
+                  ))}
+                </div>
+              ) : recentOrders.length === 0 ? (
+                <p className="text-center text-gray-400 text-sm py-8 font-semibold">
+                  No orders yet
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {recentOrders.map((order) => (
+                    <div
+                      key={order._id}
+                      className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-gray-900 truncate">
+                          {order.orderId ||
+                            order._id?.slice(-8)?.toUpperCase()}
+                        </p>
+                        <p className="text-[10px] text-gray-400 font-semibold">
+                          {order.products?.length || 0} item
+                          {(order.products?.length || 0) !== 1 ? "s" : ""} ·{" "}
+                          {new Date(order.createdAt).toLocaleDateString(
+                            "en-US",
+                            { month: "short", day: "numeric" },
+                          )}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs font-black text-gray-900">
+                          ৳{Number(order.totalAmt || 0).toLocaleString()}
+                        </p>
+                        <span
+                          className={`inline-block text-[9px] font-black uppercase px-2 py-0.5 rounded-full mt-0.5 ${STATUS_COLORS[order.order_status] || "bg-gray-100 text-gray-600"}`}
+                        >
+                          {order.order_status}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Top Selling Products */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow overflow-hidden">
+            <div className="flex items-center justify-between p-5 md:p-6 pb-0">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-amber-50 text-amber-600 rounded-xl">
+                  <ShoppingBag className="w-4 h-4" />
+                </div>
+                <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight">
+                  Top Products
+                </h3>
+              </div>
+            </div>
+            <div className="p-5 md:p-6 pt-3">
+              {ordersLoading ? (
+                <div className="space-y-3 animate-pulse">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <div key={i} className="flex items-center gap-3">
+                      <div className="h-8 w-8 bg-gray-100 rounded-lg" />
+                      <div className="flex-1 h-3 bg-gray-100 rounded" />
+                      <div className="h-3 w-10 bg-gray-100 rounded" />
+                    </div>
+                  ))}
+                </div>
+              ) : topProducts.length === 0 ? (
+                <p className="text-center text-gray-400 text-sm py-8 font-semibold">
+                  No products sold yet
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {topProducts.map((product, idx) => {
+                    const maxQty = topProducts[0]?.quantity || 1;
+                    const barWidth = (product.quantity / maxQty) * 100;
+                    return (
+                      <div
+                        key={idx}
+                        className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="w-8 h-8 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-lg flex items-center justify-center shrink-0">
+                          <span className="text-[10px] font-black text-emerald-700">
+                            #{idx + 1}
+                          </span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-gray-900 truncate">
+                            {product.name}
+                          </p>
+                          <div className="mt-1.5 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full transition-all duration-700"
+                              style={{ width: `${barWidth}%` }}
+                            />
+                          </div>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="text-xs font-black text-gray-900">
+                            {product.quantity}
+                          </p>
+                          <p className="text-[10px] text-gray-400 font-semibold">
+                            sold
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Action Bar */}
-        <div className="flex flex-col sm:flex-row justify-center gap-3 md:gap-4 pt-6">
+        <div className="flex flex-col sm:flex-row justify-center gap-3 md:gap-4 pt-6 pb-4">
           <a
             href="/my-analytics"
             className="flex items-center justify-center gap-2 bg-white border-2 border-gray-200 text-gray-900 px-6 md:px-8 py-3 md:py-4 rounded-xl font-bold uppercase tracking-wide text-xs md:text-sm hover:bg-gradient-to-r hover:from-emerald-500 hover:to-teal-600 hover:text-white hover:border-emerald-500 transition-all duration-300 shadow-sm hover:shadow-md group"
