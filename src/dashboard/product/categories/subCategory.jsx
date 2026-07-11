@@ -795,7 +795,7 @@ const AddSubcategoriesComponent = () => {
                         placeholder="SEO meta title"
                       />
                       <p className="text-xs text-gray-400">
-                        {formData.metaTitle.length}/60 characters
+                        {formData.metaTitle?.length}/60 characters
                       </p>
                     </div>
                     <div className="space-y-2">
@@ -811,7 +811,7 @@ const AddSubcategoriesComponent = () => {
                         placeholder="SEO meta description"
                       />
                       <p className="text-xs text-gray-400">
-                        {formData.metaDescription.length}/160 characters
+                        {formData.metaDescription?.length}/160 characters
                       </p>
                     </div>
                   </div>

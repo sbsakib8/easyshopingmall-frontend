@@ -29,5 +29,5 @@ export const useGetCenterBanner = () => {
     fetchAds();
   }, [fetchAds]);
 
-  return { ads, loading, error };
+  return { ads, loading, error, refetch: fetchAds };
 };

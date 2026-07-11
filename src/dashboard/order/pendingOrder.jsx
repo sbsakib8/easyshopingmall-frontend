@@ -667,20 +667,62 @@ const PendingOrdersPage = () => {
                       Customer Information
                     </h3>
                     <div className="space-y-2">
-                      <p className="text-gray-300">
-                        <span className="text-gray-500">Name:</span>{" "}
-                        {selectedOrder?.userId?.name}
-                      </p>
-                      <p className="text-gray-300">
-                        <span className="text-gray-500">Email:</span>{" "}
-                        {selectedOrder?.userId?.email}
-                      </p>
+                      {selectedOrder?.address?.customer_name && (
+                        <p className="text-gray-300">
+                          <span className="text-gray-500">Name:</span>{" "}
+                          {selectedOrder?.address?.customer_name}
+                        </p>
+                      )}
                       <p className="text-gray-300">
                         <span className="text-gray-500">Phone:</span>{" "}
                         {selectedOrder?.address?.mobile}
                       </p>
+                      <p className="text-gray-300">
+                        <span className="text-gray-500">Address:</span>{" "}
+                        {selectedOrder?.address?.address_line}
+                      </p>
                     </div>
                   </div>
+
+                  {/* Dropshipper Information */}
+                  {isDSOrder(selectedOrder) && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-slate-300 mb-3">
+                        Dropshipper Information
+                      </h3>
+                      <div className="space-y-2">
+                        <p className="text-gray-300">
+                          <span className="text-gray-500">Name:</span>{" "}
+                          {selectedOrder?.userId?.name}
+                          <span className="ml-2 px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/20 text-primary border border-primary/30 uppercase tracking-widest">
+                            Dropshipping
+                          </span>
+                        </p>
+                        <p className="text-gray-300">
+                          <span className="text-gray-500">Email:</span>{" "}
+                          {selectedOrder?.userId?.email}
+                        </p>
+                        {selectedOrder?.userId?.shopName && (
+                          <p className="text-gray-300">
+                            <span className="text-gray-500">Shop:</span>{" "}
+                            {selectedOrder?.userId?.shopName}
+                          </p>
+                        )}
+                        {selectedOrder?.userId?.shopAddress && (
+                          <p className="text-gray-300">
+                            <span className="text-gray-500">Shop Address:</span>{" "}
+                            {selectedOrder?.userId?.shopAddress}
+                          </p>
+                        )}
+                        {selectedOrder?.userId?.mobile && (
+                          <p className="text-gray-300">
+                            <span className="text-gray-500">Phone:</span>{" "}
+                            {selectedOrder?.userId?.mobile}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Shipping Address */}

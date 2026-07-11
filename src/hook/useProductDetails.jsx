@@ -10,7 +10,7 @@ export const getProductDetailsApi = async (productId) => {
             console.warn(`Invalid Product ID provided: ${productId}`);
             return null;
         }
-        const res = await apiClient.post(`/products/get-product-details/${productId}`, null, {
+        const res = await apiClient.get(`/products/get-product-details/${productId}`, {
             withCredentials: true,
         });
         return res.data?.data || null;
