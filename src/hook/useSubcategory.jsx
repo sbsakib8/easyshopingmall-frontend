@@ -1,10 +1,9 @@
-import axios from "axios";
-import { UrlBackend } from "../confic/urlExport";
+import apiClient from "../lib/axios";
 import { subcategoryGet } from "../redux/subcategorySlice";
 // subcatagory add
 export const SubCategoryCreate = async (formData,) => {
   try {
-    const response = await axios.post(`${UrlBackend}/subcategories/create`, formData, {
+    const response = await apiClient.post(`/subcategories/create`, formData, {
       withCredentials: true,
       headers: { "Content-Type": "multipart/form-data" },
     });
@@ -24,9 +23,9 @@ export const SubCategoryCreate = async (formData,) => {
 export const SubCategoryAllGet = async (dispatch, filterType) => {
   try {
     const url = filterType 
-      ? `${UrlBackend}/subcategories?filterType=${filterType}` 
-      : `${UrlBackend}/subcategories`;
-    const response = await axios.get(url, {
+      ? `/subcategories?filterType=${filterType}` 
+      : `/subcategories`;
+    const response = await apiClient.get(url, {
       withCredentials: true,
       headers: {
         "Content-Type": "multipart/form-data",
@@ -45,8 +44,8 @@ export const SubCategoryAllGet = async (dispatch, filterType) => {
 // get one subcategoti
 export const SubCategoryGetOne = async (formData, subcategoryId) => {
   try {
-    const response = await axios.get(
-      `${UrlBackend}/subcategories/${subcategoryId}`,
+    const response = await apiClient.get(
+      `/subcategories/${subcategoryId}`,
       formData,
       {
         withCredentials: true,
@@ -62,8 +61,8 @@ export const SubCategoryGetOne = async (formData, subcategoryId) => {
 // uplosd subcategoti
 export const SubCategoryUploade = async (formData, subcategoryId) => {
   try {
-    const response = await axios.put(
-      `${UrlBackend}/subcategories/${subcategoryId}`,
+    const response = await apiClient.put(
+      `/subcategories/${subcategoryId}`,
       formData,
       {
         withCredentials: true,
@@ -79,8 +78,8 @@ export const SubCategoryUploade = async (formData, subcategoryId) => {
 // delete 
 export const SubCategoryDelete = async (subcategoryId) => {
   try {
-    const response = await axios.delete(
-      `${UrlBackend}/subcategories/${subcategoryId}`,
+    const response = await apiClient.delete(
+      `/subcategories/${subcategoryId}`,
       {
         withCredentials: true,
       }

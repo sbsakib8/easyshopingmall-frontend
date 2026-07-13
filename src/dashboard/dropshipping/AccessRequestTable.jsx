@@ -9,6 +9,7 @@ import {
   X,
 } from "lucide-react";
 import { statusColors } from "./useVideoAccessManagement";
+import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
 
 const CoursePurchaseRequestSkeleton = () => {
   return (
@@ -80,6 +81,7 @@ const AccessRequestTable = ({
   actionLoading,
   triggerUpdateStatus,
 }) => {
+  const { canModify } = useDashboardPermission();
   return (
     <div>
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
@@ -207,7 +209,7 @@ const AccessRequestTable = ({
                 {new Date(req.createdAt).toLocaleString()}
               </div>
 
-              {req.status === "pending" && (
+              {req.status === "pending" && canModify("dropshipping") && (
                 <div className="flex items-center justify-end gap-3 mt-auto">
                   <button
                     onClick={() => triggerUpdateStatus(req._id, "approved")}

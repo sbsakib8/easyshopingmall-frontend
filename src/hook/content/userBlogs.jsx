@@ -1,10 +1,9 @@
-import axios from "axios";
-import { UrlBackend } from "../../confic/urlExport";
+import apiClient from "../../lib/axios";
 
 // blog add
 export const BlogCreate = async (formData, ) => {
   try {
-    const response = await axios.post(`${UrlBackend}/blog/create`, formData, {
+    const response = await apiClient.post(`/blog/create`, formData, {
       withCredentials: true,
       headers: {
         "Content-Type": "multipart/form-data",
@@ -20,7 +19,7 @@ export const BlogCreate = async (formData, ) => {
 // blog ALL GET
 export const BlogAllGet = async () => {
   try {
-    const response = await axios.get(`${UrlBackend}/blog/get`,  {
+    const response = await apiClient.get(`/blog/get`,  {
       withCredentials: true,
     });
     return response.data; 
@@ -37,8 +36,8 @@ export const BlogAllGet = async () => {
 // uplosd blog
 export const blogUploade = async (formData, id) => {
   try {
-    const response = await axios.put(
-      `${UrlBackend}/blog/${id}`, 
+    const response = await apiClient.put(
+      `/blog/${id}`, 
       formData, 
       {
         withCredentials: true, 
@@ -54,8 +53,8 @@ export const blogUploade = async (formData, id) => {
 // delete blog
 export const blogDelete = async (categoryId) => {
   try {
-    const response = await axios.delete(
-      `${UrlBackend}/blog/${categoryId}`, 
+    const response = await apiClient.delete(
+      `/blog/${categoryId}`, 
       {
         withCredentials: true, 
       }

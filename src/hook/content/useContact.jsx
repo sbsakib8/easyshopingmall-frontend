@@ -1,11 +1,10 @@
-import axios from "axios";
-import { UrlBackend } from "../../confic/urlExport";
+import apiClient from "../../lib/axios";
 
 
 // Contact add 
 export const ContactCreate = async (formData) => {
   try {
-    const response = await axios.post(`${UrlBackend}/contact/create`,formData, {
+    const response = await apiClient.post(`/contact/create`,formData, {
       withCredentials: true,
       headers: {
         "Content-Type": "application/json"
@@ -21,7 +20,7 @@ export const ContactCreate = async (formData) => {
 // Contact get all
 export const ContactGet = async ( ) => {
   try {
-    const response = await axios.get(`${UrlBackend}/contact/get`,{
+    const response = await apiClient.get(`/contact/get`,{
       withCredentials: true,
       
     });
@@ -35,7 +34,7 @@ export const ContactGet = async ( ) => {
 // Contacy delete
 export const ContactDelete = async (id) => {
   try {
-    const response = await axios.delete(`${UrlBackend}/contact/${id}`,{
+    const response = await apiClient.delete(`/contact/${id}`,{
       withCredentials: true,
       
     });

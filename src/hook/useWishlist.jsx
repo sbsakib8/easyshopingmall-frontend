@@ -1,6 +1,5 @@
 // src/hook/useWishlist.js
-import axios from "axios";
-import { UrlBackend } from "../confic/urlExport";
+import apiClient from "../lib/axios";
 import {
     wishlistAdd,
     wishlistClear,
@@ -14,7 +13,7 @@ export const getWishlistApi = async (dispatch) => {
     try {
         dispatch(wishlistLoading());
 
-        const res = await axios.get(`${UrlBackend}/wishlist`, { withCredentials: true });
+        const res = await apiClient.get(`/wishlist`, { withCredentials: true });
 
 
         const formatted = res.data.data.map((item) => {
@@ -53,8 +52,8 @@ export const getWishlistApi = async (dispatch) => {
 export const addToWishlistApi = async (productId, dispatch) => {
     try {
         dispatch(wishlistLoading());
-        const response = await axios.post(
-            `${UrlBackend}/wishlist/add`,
+        const response = await apiClient.post(
+            `/wishlist/add`,
             { productId },
             { withCredentials: true }
         );
@@ -70,7 +69,7 @@ export const removeFromWishlistApi = async (productId, dispatch) => {
     try {
         dispatch(wishlistLoading());
 
-        await axios.delete(`${UrlBackend}/wishlist/remove/${productId}`, {
+        await apiClient.delete(`/wishlist/remove/${productId}`, {
             withCredentials: true,
         });
 
@@ -87,7 +86,7 @@ export const removeFromWishlistApi = async (productId, dispatch) => {
 // ✅ Clear wishlist
 export const clearWishlistApi = async (dispatch) => {
     try {
-        await axios.delete(`${UrlBackend}/wishlist/clear`, { withCredentials: true });
+        await apiClient.delete(`/wishlist/clear`, { withCredentials: true });
         dispatch(wishlistClear());
     } catch (error) {
         console.error("Clear wishlist error:", error.response?.data || error.message);

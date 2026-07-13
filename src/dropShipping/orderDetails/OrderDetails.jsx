@@ -4,14 +4,16 @@ import PaymentModal from "@/src/dropShipping/orderDetails/PaymentModal";
 import { useOrderDetails } from "@/src/utlis/useOrderDetails";
 import { Modal } from "@mui/material";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   AlertCircle,
   ArrowRight,
   CreditCard,
   Loader2,
+  MessageSquare,
   RefreshCw,
+  Sparkles,
   Truck,
   Wallet,
 } from "lucide-react";
@@ -22,6 +24,7 @@ import { cn } from "@/src/utlis/utils";
 import Image from "next/image";
 import { useSelector } from "react-redux";
 import BackButton from "../BackButton/BackButton";
+import socket from "@/src/confic/socket";
 
 const InvoiceSkeleton = () => {
   return (
@@ -277,6 +280,18 @@ const OrderDetails = ({ id }) => {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [selectedPaymentType, setSelectedPaymentType] = useState("delivery"); // 'delivery' or 'full'
   const user = useSelector((state) => state.user.data);
+
+  // Subscribe to user room for real-time admin messages
+  useEffect(() => {
+    if (user?._id) {
+      socket.emit("subscribe:user", user._id);
+      const handleMessage = () => refetch();
+      socket.on("order:message", handleMessage);
+      return () => {
+        socket.off("order:message", handleMessage);
+      };
+    }
+  }, [user?._id, refetch]);
 
   const handleOpenPayment = (type) => {
     setSelectedPaymentType(type);
@@ -919,6 +934,30 @@ const OrderDetails = ({ id }) => {
                 </div>
               </div>
 
+              {/* Admin Key Points / Highlights */}
+              {order?.keyPoints?.length > 0 && (
+                <div className="mx-6 md:mx-10 mb-4 bg-blue-50 border border-blue-100 rounded-3xl p-4 sm:p-5">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="p-2 bg-blue-100 rounded-xl">
+                      <Sparkles className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <h3 className="text-sm font-bold text-blue-800 uppercase tracking-wider">
+                      Key Highlights
+                    </h3>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {order.keyPoints.map((point, i) => (
+                      <span
+                        key={i}
+                        className="bg-blue-100 border border-blue-200 text-blue-700 text-[11px] px-2.5 py-1 rounded-full font-medium"
+                      >
+                        {point}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Footer Message */}
               <div className="mx-6 md:mx-10 mb-10 bg-emerald-50 border border-emerald-100 rounded-3xl p-3 sm:p-5 text-center">
                 <p className="text-emerald-800 font-medium leading-relaxed text-xs sm:text-sm md:text-base lg:text-lg">
@@ -929,6 +968,69 @@ const OrderDetails = ({ id }) => {
                   , thank you for your order! 🎉 We are processing it now.
                 </p>
               </div>
+
+              {/* Status History / Admin Messages */}
+              {order?.dropshippingStatusHistory?.length > 0 && (
+                <div className="mx-6 md:mx-10 mb-6 bg-white border border-slate-200 rounded-3xl p-5 sm:p-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="p-2 bg-slate-100 rounded-xl">
+                      <MessageSquare className="w-4 h-4 text-slate-600" />
+                    </div>
+                    <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wider">
+                      Order Updates & Messages
+                    </h3>
+                  </div>
+                  <div className="space-y-3 max-h-64 overflow-y-auto">
+                    {[...order.dropshippingStatusHistory].reverse().map((entry, idx) => (
+                      <div
+                        key={idx}
+                        className={`rounded-xl p-3 border ${
+                          entry.type === "message"
+                            ? "bg-cyan-50 border-cyan-200"
+                            : "bg-slate-50 border-slate-200"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          {entry.type === "message" ? (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500 text-white">
+                              MESSAGE FROM ADMIN
+                            </span>
+                          ) : (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-600 text-white">
+                              STATUS: {entry.status?.toUpperCase()}
+                            </span>
+                          )}
+                          <span className="text-[10px] text-slate-400">
+                            {entry.statusUpdatedAt
+                              ? new Date(entry.statusUpdatedAt).toLocaleString()
+                              : "N/A"}
+                          </span>
+                        </div>
+                        {entry.message && (
+                          <p className="text-sm text-cyan-800 mt-1.5 font-medium">
+                            {entry.message}
+                          </p>
+                        )}
+                        {entry.statusNote && (
+                          <p className="text-xs text-slate-600 mt-1">
+                            Note: {entry.statusNote}
+                          </p>
+                        )}
+                        {entry.trackingNumber && (
+                          <p className="text-xs text-blue-600 mt-1 font-medium">
+                            Tracking: {entry.trackingNumber}
+                          </p>
+                        )}
+                        {entry.estimatedDelivery && (
+                          <p className="text-xs text-amber-600 mt-1 font-medium">
+                            Est. Delivery: {entry.estimatedDelivery}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Shop Info */}
               {(user?.shopAddress || user?.shopWebsite) && (

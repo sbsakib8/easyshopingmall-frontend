@@ -7,7 +7,9 @@ import {
   blogUploade,
 } from "@/src/hook/content/userBlogs";
 import { useGetBlogs } from "@/src/utlis/content/useBlogs";
+import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
 import { cn } from "@/src/utlis/utils";
+import { Backdrop, Modal } from "@mui/material";
 import {
   Calendar,
   Edit2,
@@ -34,11 +36,11 @@ const StatCard = ({
   loading,
 }) => (
   <div
-      className={cn(
-        "bg-gradient-to-r backdrop-blur-sm rounded-2xl p-6 transition-all",
-        gradient,
-        border,
-      )}
+    className={cn(
+      "bg-gradient-to-r backdrop-blur-sm rounded-2xl p-6 transition-all",
+      gradient,
+      border,
+    )}
   >
     <div className="flex items-center justify-between">
       <div>
@@ -114,6 +116,7 @@ const BlogCardSkeleton = () => (
 );
 
 const BlogsAdminDashboard = () => {
+  const { canModify } = useDashboardPermission();
   const { blogs: apiBlogs, loading, error, refetch } = useGetBlogs();
   const [blogs, setBlogs] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -274,20 +277,6 @@ const BlogsAdminDashboard = () => {
     }
     return "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=400&h=200&fit=crop";
   };
-
-  // if (loading && blogs.length === 0) {
-  //   return (
-  //     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-slate-300 flex items-center justify-center">
-  //       <div className="text-center">
-  //         <Loader2
-  //           className="animate-spin mx-auto mb-4 text-blue-400"
-  //           size={48}
-  //         />
-  //         <p className="text-gray-400">Loading blogs...</p>
-  //       </div>
-  //     </div>
-  //   );
-  // }
 
   if (error) {
     return (
@@ -484,18 +473,22 @@ const BlogsAdminDashboard = () => {
                     </div>
 
                     <div className="flex gap-2">
-                      <button
-                        onClick={() => handleEdit(blog)}
-                        className="p-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg transform"
-                      >
-                        <Edit2 size={16} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(blog._id || blog.id)}
-                        className="p-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transform"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                      {canModify("content") && (
+                        <button
+                          onClick={() => handleEdit(blog)}
+                          className="p-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg transform"
+                        >
+                          <Edit2 size={16} />
+                        </button>
+                      )}
+                      {canModify("content") && (
+                        <button
+                          onClick={() => handleDelete(blog._id || blog.id)}
+                          className="p-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transform"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -503,156 +496,171 @@ const BlogsAdminDashboard = () => {
             ))
           )}
         </div>
+      </div>
+      
+      {/* Modal */}
+      <Modal
+        open={showModal}
+        onClose={resetForm}
+        closeAfterTransition
+        slots={{ backdrop: Backdrop }}
+        slotProps={{
+          backdrop: {
+            timeout: 500,
+            sx: {
+              backgroundColor: "rgba(0, 0, 0, 0.4)",
+              backdropFilter: "blur(4px)",
+            },
+          },
+        }}
+        className="flex items-center justify-center p-4"
+      >
+        <div className="relative bg-gradient-to-br from-gray-800 via-gray-900 to-black border border-gray-700/50 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto transform">
+          <div className="p-6 border-b border-gray-700/50">
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+              {editingBlog ? "Edit Blog" : "Add New Blog"}
+            </h2>
+          </div>
 
-        {/* Modal */}
-        {showModal && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-gradient-to-br from-gray-800 via-gray-900 to-black border border-gray-700/50 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto transform">
-              <div className="p-6 border-b border-gray-700/50">
-                <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-                  {editingBlog ? "Edit Blog" : "Add New Blog"}
-                </h2>
+          <div className="p-6 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-300 mb-2">
+                  Title *
+                </label>
+                <input
+                  type="text"
+                  value={formData.title}
+                  onChange={(e) =>
+                    setFormData({ ...formData, title: e.target.value })
+                  }
+                  className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-slate-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                  placeholder="Enter blog title"
+                />
               </div>
-
-              <div className="p-6 space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">
-                      Title *
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.title}
-                      onChange={(e) =>
-                        setFormData({ ...formData, title: e.target.value })
-                      }
-                      className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-slate-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
-                      placeholder="Enter blog title"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">
-                      Author *
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.author}
-                      onChange={(e) =>
-                        setFormData({ ...formData, author: e.target.value })
-                      }
-                      className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-slate-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
-                      placeholder="Author name"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">
-                      Category *
-                    </label>
-                    <select
-                      value={formData.category}
-                      onChange={(e) =>
-                        setFormData({ ...formData, category: e.target.value })
-                      }
-                      className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
-                    >
-                      <option value="">Select Category</option>
-                      {allCategorydata?.data?.map((category) => (
-                        <option key={category._id} value={category?.name}>
-                          {category?.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">
-                      Status
-                    </label>
-                    <select
-                      value={formData.status}
-                      onChange={(e) =>
-                        setFormData({ ...formData, status: e.target.value })
-                      }
-                      className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
-                    >
-                      <option value="Draft">Draft</option>
-                      <option value="Published">Published</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">
-                    Image
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="w-full cursor-pointer bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-500/20 file:text-blue-400 hover:file:bg-blue-500/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">
-                    Excerpt *
-                  </label>
-                  <textarea
-                    value={formData.excerpt}
-                    onChange={(e) =>
-                      setFormData({ ...formData, excerpt: e.target.value })
-                    }
-                    className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-slate-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 h-24 resize-none"
-                    placeholder="Brief description of the blog post"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">
-                    Content *
-                  </label>
-                  <textarea
-                    value={formData.content}
-                    onChange={(e) =>
-                      setFormData({ ...formData, content: e.target.value })
-                    }
-                    className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-slate-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 h-32 resize-none"
-                    placeholder="Write your blog content here..."
-                  />
-                </div>
-
-                <div className="flex gap-4 pt-4">
-                  <button
-                    onClick={handleSubmit}
-                    disabled={submitting}
-                    className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-slate-300 py-3 px-6 rounded-xl font-semibold transform disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
-                  >
-                    {submitting ? (
-                      <>
-                        <Loader2 className="animate-spin" size={20} />
-                        {editingBlog ? "Updating..." : "Creating..."}
-                      </>
-                    ) : editingBlog ? (
-                      "Update Blog"
-                    ) : (
-                      "Create Blog"
-                    )}
-                  </button>
-                  <button
-                    onClick={resetForm}
-                    disabled={submitting}
-                    className="px-6 py-3 bg-gray-700/50 hover:bg-gray-600/50 text-gray-300 rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Cancel
-                  </button>
-                </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-300 mb-2">
+                  Author *
+                </label>
+                <input
+                  type="text"
+                  value={formData.author}
+                  onChange={(e) =>
+                    setFormData({ ...formData, author: e.target.value })
+                  }
+                  className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-slate-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                  placeholder="Author name"
+                />
               </div>
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-300 mb-2">
+                  Category *
+                </label>
+                <select
+                  value={formData.category}
+                  onChange={(e) =>
+                    setFormData({ ...formData, category: e.target.value })
+                  }
+                  className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                >
+                  <option value="">Select Category</option>
+                  {allCategorydata?.data?.map((category) => (
+                    <option key={category._id} value={category?.name}>
+                      {category?.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-300 mb-2">
+                  Status
+                </label>
+                <select
+                  value={formData.status}
+                  onChange={(e) =>
+                    setFormData({ ...formData, status: e.target.value })
+                  }
+                  className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+                >
+                  <option value="Draft">Draft</option>
+                  <option value="Published">Published</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-300 mb-2">
+                Image
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="w-full cursor-pointer bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-500/20 file:text-blue-400 hover:file:bg-blue-500/30 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-300 mb-2">
+                Excerpt *
+              </label>
+              <textarea
+                value={formData.excerpt}
+                onChange={(e) =>
+                  setFormData({ ...formData, excerpt: e.target.value })
+                }
+                className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-slate-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 h-24 resize-none"
+                placeholder="Brief description of the blog post"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-300 mb-2">
+                Content *
+              </label>
+              <textarea
+                value={formData.content}
+                onChange={(e) =>
+                  setFormData({ ...formData, content: e.target.value })
+                }
+                className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-slate-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 h-32 resize-none"
+                placeholder="Write your blog content here..."
+              />
+            </div>
+
+            <div className="flex gap-4 pt-4">
+              {canModify("content") && (
+                <button
+                  onClick={handleSubmit}
+                  disabled={submitting}
+                  className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-slate-300 py-3 px-6 rounded-xl font-semibold transform disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
+                >
+                  {submitting ? (
+                    <>
+                      <Loader2 className="animate-spin" size={20} />
+                      {editingBlog ? "Updating..." : "Creating..."}
+                    </>
+                  ) : editingBlog ? (
+                    "Update Blog"
+                  ) : (
+                    "Create Blog"
+                  )}
+                </button>
+              )}
+              <button
+                onClick={resetForm}
+                disabled={submitting}
+                className="px-6 py-3 bg-gray-700/50 hover:bg-gray-600/50 text-gray-300 rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      </Modal>
 
       <style jsx>{`
         .line-clamp-2 {

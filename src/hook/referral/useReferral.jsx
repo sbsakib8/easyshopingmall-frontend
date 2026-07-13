@@ -1,10 +1,9 @@
-import axios from "axios";
-import { UrlBackend } from "../../confic/urlExport";
+import apiClient from "../../lib/axios";
 
 // Get Referral Settings
 export const ReferralGet = async () => {
   try {
-    const response = await axios.get(`${UrlBackend}/referral/get`, {
+    const response = await apiClient.get(`/referral/get`, {
       withCredentials: true,
     });
     return response.data;
@@ -17,7 +16,7 @@ export const ReferralGet = async () => {
 // Update Referral Settings
 export const ReferralUpdate = async (formData) => {
   try {
-    const response = await axios.put(`${UrlBackend}/referral/update`, formData, {
+    const response = await apiClient.put(`/referral/update`, formData, {
       withCredentials: true,
     });
     return response.data;

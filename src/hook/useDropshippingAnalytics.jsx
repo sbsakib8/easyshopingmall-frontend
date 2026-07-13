@@ -1,5 +1,4 @@
-import axios from "axios";
-import { UrlBackend } from "../confic/urlExport";
+import apiClient from "../lib/axios";
 
 // Get dropshipping analytics
 export const getDropshippingAnalytics = async (startDate, endDate) => {
@@ -8,8 +7,8 @@ export const getDropshippingAnalytics = async (startDate, endDate) => {
     if (startDate) params.startDate = startDate;
     if (endDate) params.endDate = endDate;
 
-    const response = await axios.get(
-      `${UrlBackend}/analytics/dropshipping/summary`,
+    const response = await apiClient.get(
+      `/analytics/dropshipping/summary`,
       {
         params,
         withCredentials: true,
@@ -32,8 +31,8 @@ export const getMyDropshippingAnalytics = async (startDate, endDate) => {
     if (startDate) params.startDate = startDate;
     if (endDate) params.endDate = endDate;
 
-    const response = await axios.get(
-      `${UrlBackend}/analytics/dropshipping/my-summary`,
+    const response = await apiClient.get(
+      `/analytics/dropshipping/my-summary`,
       {
         params,
         withCredentials: true,

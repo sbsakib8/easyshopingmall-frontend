@@ -1,5 +1,4 @@
-import { UrlBackend } from "@/src/confic/urlExport";
-import axios from "axios";
+import apiClient from "@/src/lib/axios";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 
@@ -65,9 +64,7 @@ const useVideoAccessManagement = () => {
   const fetchAllRequests = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${UrlBackend}/video-access/all`, {
-        withCredentials: true,
-      });
+      const res = await apiClient.get(`/video-access/all`);
       if (res.data.success) {
         setRequests(res.data.data);
       }
@@ -82,9 +79,7 @@ const useVideoAccessManagement = () => {
   const fetchAllCustomRequests = async () => {
     setLoadingCustom(true);
     try {
-      const res = await axios.get(`${UrlBackend}/video-request/all`, {
-        withCredentials: true,
-      });
+      const res = await apiClient.get(`/video-request/all`);
       if (res.data.success) {
         setCustomRequests(res.data.data);
         const delivered = {};
@@ -187,10 +182,9 @@ const useVideoAccessManagement = () => {
     setActionConfirm((prev) => ({ ...prev, show: false }));
     setActionLoading(true);
     try {
-      const res = await axios.patch(
-        `${UrlBackend}/video-access/update/${requestId}`,
+      const res = await apiClient.patch(
+        `/video-access/update/${requestId}`,
         { status, adminNote: note || adminNote },
-        { withCredentials: true },
       );
 
       if (res.data.success) {
@@ -236,14 +230,13 @@ const useVideoAccessManagement = () => {
     setActionConfirm((prev) => ({ ...prev, show: false }));
     setActionLoading(true);
     try {
-      const res = await axios.patch(
-        `${UrlBackend}/video-request/update/${requestId}`,
+      const res = await apiClient.patch(
+        `/video-request/update/${requestId}`,
         {
           status,
           adminNote: note,
           deliveredVideoUrl: deliveredUrl,
         },
-        { withCredentials: true },
       );
 
       if (res.data.success) {

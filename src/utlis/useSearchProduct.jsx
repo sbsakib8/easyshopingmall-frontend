@@ -1,8 +1,7 @@
 "use client";
 
-import axios from "axios";
+import apiClient from "@/src/lib/axios";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { UrlBackend } from "../confic/urlExport";
 
 export const useSearchProduct = ({ search = "", page = 1, limit = 100 } = {}) => {
     const [data, setData] = useState(null);
@@ -27,11 +26,10 @@ export const useSearchProduct = ({ search = "", page = 1, limit = 100 } = {}) =>
             }
             controllerRef.current = new AbortController();
 
-            const res = await axios.post(
-                `${UrlBackend}/products/search-product`,
+            const res = await apiClient.post(
+                `/products/search-product`,
                 { search, page, limit },
                 {
-                    withCredentials: true,
                     signal: controllerRef.current.signal,
                     headers: { "Content-Type": "application/json" },
                 }
@@ -39,7 +37,7 @@ export const useSearchProduct = ({ search = "", page = 1, limit = 100 } = {}) =>
 
             setData(res.data);
         } catch (err) {
-            if (axios.isCancel(err)) return; // Ignore cancelled requests
+            if (err?.code === "ERR_CANCELED") return; // Ignore cancelled requests
             setError(err);
         } finally {
             setLoading(false);

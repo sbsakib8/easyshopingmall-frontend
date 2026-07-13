@@ -33,6 +33,7 @@ import { setDetailsError, clearDetailsError } from "../../redux/shopSlice";
 import CustomLoader from '@/src/compronent/loading/CustomLoader';
 import DetailSkeleton from '@/src/compronent/loading/DetailSkeleton';
 import ShareModal from './ShareModal';
+import BackButton from '@/src/dropShipping/BackButton/BackButton';
 
 const normalizeProductDetail = (data) => {
   if (!data) return null;
@@ -514,6 +515,10 @@ const ProductDetails = ({ initialProduct }) => {
   return (
     <div className="min-h-screen lg:pt-6 lg:py-10 bg-bg">
       <div className="container mx-auto px-4 py-8">
+        {/* Back Button */}
+        <div className="mb-4">
+          <BackButton />
+        </div>
         {/* Breadcrumb with Category & SubCategory */}
         <div className="flex items-center space-x-2 text-sm text-gray-600 mb-2 mt-4 flex-wrap">
           <button onClick={() => router.push("/")} className="hover:text-blue-600 hover:underline">
@@ -535,11 +540,17 @@ const ProductDetails = ({ initialProduct }) => {
           )}
           {product?.subCategory && (
             <>
-              <span className="hover:text-blue-600 cursor-pointer hover:underline">
+              <button
+                onClick={() => {
+                  const subId = product.subCategory?._id || product.subCategory?.[0]?._id;
+                  if (subId) router.push(`/sub-category/${subId}?pageType=all-products`);
+                }}
+                className="hover:text-blue-600 cursor-pointer hover:underline"
+              >
                 {typeof product.subCategory === "string"
                   ? product.subCategory
-                  : product.subCategory?.name || "Subcategory"}
-              </span>
+                  : product.subCategory?.[0]?.name || product.subCategory?.name || "Subcategory"}
+              </button>
               <ChevronRight className="w-4 h-4" />
             </>
           )}

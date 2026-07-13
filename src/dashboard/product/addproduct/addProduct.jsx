@@ -18,8 +18,10 @@ import {
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
+import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
 
 const AddProductComponent = () => {
+  const { canModify } = useDashboardPermission();
   const [formData, setFormData] = useState({
     productName: "",
     description: "",
@@ -337,7 +339,8 @@ const AddProductComponent = () => {
                   name="productName"
                   value={formData.productName}
                   onChange={handleInputChange}
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-1"
+                  disabled={!canModify("products")}
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-1 disabled:opacity-50 disabled:cursor-not-allowed"
                   placeholder="Enter product name"
                   required
                 />
@@ -350,7 +353,8 @@ const AddProductComponent = () => {
                   name="brand"
                   value={formData.brand}
                   onChange={handleInputChange}
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-1"
+                  disabled={!canModify("products")}
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-1 disabled:opacity-50 disabled:cursor-not-allowed"
                   placeholder="Enter brand name"
                 />
               </div>
@@ -362,7 +366,8 @@ const AddProductComponent = () => {
                   value={formData.description}
                   onChange={handleInputChange}
                   rows="4"
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none mt-1"
+                  disabled={!canModify("products")}
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none mt-1 disabled:opacity-50 disabled:cursor-not-allowed"
                   placeholder="Enter detailed product description"
                   required
                 />
@@ -385,7 +390,8 @@ const AddProductComponent = () => {
                   name="category"
                   value={formData.category[0] || ""}
                   onChange={handleInputChange}
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-200 focus:outline-none focus:ring-2 focus:ring-green-500 mt-1"
+                  disabled={!canModify("products")}
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-200 focus:outline-none focus:ring-2 focus:ring-green-500 mt-1 disabled:opacity-50 disabled:cursor-not-allowed"
                   required
                 >
                   <option value="" className="bg-slate-800">
@@ -417,7 +423,7 @@ const AddProductComponent = () => {
                   name="subCategory"
                   value={formData.subCategory[0] || ""}
                   onChange={handleInputChange}
-                  disabled={!formData.category.length}
+                  disabled={!formData.category.length || !canModify("products")}
                   className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 mt-1"
                 >
                   <option value="" className="bg-slate-800">
@@ -451,7 +457,8 @@ const AddProductComponent = () => {
                     name="featured"
                     checked={formData.featured}
                     onChange={handleInputChange}
-                    className="w-5 h-5 text-green-600 bg-transparent border-white/30 rounded focus:ring-green-500"
+                    disabled={!canModify("products")}
+                    className="w-5 h-5 text-green-600 bg-transparent border-white/30 rounded focus:ring-green-500 disabled:opacity-50"
                   />
                   <label className="ml-3 text-slate-300 text-nowrap">
                     Mark as Featured
@@ -467,7 +474,8 @@ const AddProductComponent = () => {
                     name="isBoost"
                     checked={formData.isBoost}
                     onChange={handleInputChange}
-                    className="w-5 h-5 text-emerald-600 bg-transparent border-white/30 rounded focus:ring-emerald-500"
+                    disabled={!canModify("products")}
+                    className="w-5 h-5 text-emerald-600 bg-transparent border-white/30 rounded focus:ring-emerald-500 disabled:opacity-50"
                   />
                   <label className="ml-3 text-slate-300">Mark as Boost</label>
                 </div>
@@ -757,7 +765,8 @@ const AddProductComponent = () => {
                   value={formData.price}
                   onChange={handleInputChange}
                   step="0.01"
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent mt-1"
+                  disabled={!canModify("products")}
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent mt-1 disabled:opacity-50 disabled:cursor-not-allowed"
                   placeholder="0.00"
                   required
                 />
@@ -777,7 +786,8 @@ const AddProductComponent = () => {
                   onChange={handleInputChange}
                   step="0.01"
                   min="0"
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent mt-1"
+                  disabled={!canModify("products")}
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent mt-1 disabled:opacity-50 disabled:cursor-not-allowed"
                   placeholder="Leave empty to use regular price"
                 />
                 <p className="text-[10px] text-gray-400 leading-relaxed">
@@ -792,7 +802,8 @@ const AddProductComponent = () => {
                   name="productStock"
                   value={formData.productStock}
                   onChange={handleInputChange}
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent mt-1"
+                  disabled={!canModify("products")}
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent mt-1 disabled:opacity-50 disabled:cursor-not-allowed"
                   placeholder="Available quantity"
                   required
                 />
@@ -807,7 +818,8 @@ const AddProductComponent = () => {
                   onChange={handleInputChange}
                   min="0"
                   max="100"
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent mt-1"
+                  disabled={!canModify("products")}
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent mt-1 disabled:opacity-50 disabled:cursor-not-allowed"
                   placeholder="0"
                 />
               </div>
@@ -820,7 +832,8 @@ const AddProductComponent = () => {
                   value={formData.productRank}
                   onChange={handleInputChange}
                   min="1"
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent mt-1"
+                  disabled={!canModify("products")}
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-slate-300 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent mt-1 disabled:opacity-50 disabled:cursor-not-allowed"
                   placeholder="Product ranking"
                 />
               </div>
@@ -939,6 +952,7 @@ const AddProductComponent = () => {
               <span>Preview Product</span>
             </button>
 
+            {canModify("products") && (
             <button
               type="submit"
               disabled={isLoading}
@@ -980,6 +994,7 @@ const AddProductComponent = () => {
                 </>
               )}
             </button>
+            )}
           </div>
         </form>
 

@@ -34,6 +34,7 @@ import Container from "@/src/compronent/shared/Container";
 import Image from "next/image";
 import { Skeleton } from "@mui/material";
 import SubCategoryProductsLoading from "@/app/(dropShipping)/sub-category/[id]/loading";
+import BackButton from "@/src/dropShipping/BackButton/BackButton";
 
 // Helper for image download
 const handleDownloadImage = async (e, imageUrl, productName) => {
@@ -382,6 +383,10 @@ const SubCategoryProductsContent = ({ id }) => {
           <EmptyProducts />
         ) : (
           <>
+            <div className="flex items-center justify-start">
+              <BackButton />
+            </div>
+
             <div className="flex items-center justify-center">
               <h2 className="text-center font-black text-xl sm:text-2xl md:text-3xl lg:text-4xl text-emerald-800 uppercase tracking-wider sm:tracking-widest break-words">
                 {productsLoading ? (

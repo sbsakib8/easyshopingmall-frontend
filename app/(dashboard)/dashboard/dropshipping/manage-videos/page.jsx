@@ -1,14 +1,12 @@
-import VideoManagement from "@/src/dashboard/dropshipping/VideoManagement";
+"use client";
 
-export const metadata = {
-  title: "Manage Training Videos | Admin Dashboard",
-  description: "Add and configure training videos for dropshippers.",
-};
+import VideoManagement from "@/src/dashboard/dropshipping/VideoManagement";
+import DashboardGuard from "@/src/utlis/DashboardGuard";
 
 export default function ManageVideosAdminPage() {
   return (
-    <>
+    <DashboardGuard section="dropshipping">
       <VideoManagement />
-    </>
+    </DashboardGuard>
   );
 }

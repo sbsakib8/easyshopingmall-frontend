@@ -7,8 +7,9 @@ import {
  deleteReview,
  getPendingReviews,
 } from"@/src/hook/useReview";
-import {useEffect, useState} from"react";
+import {useEffect, useState}from"react";
 import toast from"react-hot-toast";
+import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
 
 const ReviewsPage = () => {
  const [reviews, setReviews] = useState([]);
@@ -23,6 +24,7 @@ const ReviewsPage = () => {
  const [showRatingDropdown, setShowRatingDropdown] = useState(false);
  const [showSortDropdown, setShowSortDropdown] = useState(false);
  const [showActionDropdown, setShowActionDropdown] = useState(null);
+ const { canModify } = useDashboardPermission();
  const [clientSide, setClientSide] = useState(false);
  const [totalReviews, setTotalReviews] = useState(0);
  const [approvedReviews, setApprovedReviews] = useState(0);
@@ -406,17 +408,19 @@ const ReviewsPage = () => {
  isOpen={showActionDropdown === review._id}
  onClose={() => setShowActionDropdown(null)}
  trigger={
+ canModify("customers") ? (
  <button
  onClick={() =>
  setShowActionDropdown(
  showActionDropdown === review._id ? null : review._id
  )
-}
+ }
  className="bg-slate-700 border border-slate-600 rounded-md px-3 py-1.5 text-sm text-slate-300 hover:bg-slate-600"
  >
  Actions
  </button>
-}
+ ) : null
+ }
  >
  {review.status !=="approved"&& (
  <button
@@ -548,6 +552,7 @@ const ReviewsPage = () => {
  </div>
 
  {/* Action Buttons */}
+ {canModify("customers") && (
  <div className="flex flex-wrap gap-2 pt-4">
  <button
  onClick={() => handleStatusChange(selectedReview._id,"approved")}
@@ -574,6 +579,7 @@ const ReviewsPage = () => {
  Delete
  </button>
  </div>
+ )}
  </div>
  </div>
  )}

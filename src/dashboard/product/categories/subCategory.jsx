@@ -31,8 +31,10 @@ import {
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
+import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
 
 const AddSubcategoriesComponent = () => {
+  const { canModify } = useDashboardPermission();
   const [formData, setFormData] = useState({
     name: "",
     slug: "",
@@ -586,6 +588,7 @@ const AddSubcategoriesComponent = () => {
             </div>
 
             {/* Add Subcategory Button */}
+            {canModify("products") && (
             <button
               onClick={() => setShowAddForm(!showAddForm)}
               className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-slate-300 rounded-xl hover:from-green-600 hover:to-emerald-600 flex items-center space-x-2 transform shadow-lg"
@@ -593,6 +596,7 @@ const AddSubcategoriesComponent = () => {
               <Plus size={20} />
               <span>Add Subcategory</span>
             </button>
+            )}
           </div>
         </div>
 
@@ -791,7 +795,7 @@ const AddSubcategoriesComponent = () => {
                         placeholder="SEO meta title"
                       />
                       <p className="text-xs text-gray-400">
-                        {formData.metaTitle.length}/60 characters
+                        {formData.metaTitle?.length}/60 characters
                       </p>
                     </div>
                     <div className="space-y-2">
@@ -807,7 +811,7 @@ const AddSubcategoriesComponent = () => {
                         placeholder="SEO meta description"
                       />
                       <p className="text-xs text-gray-400">
-                        {formData.metaDescription.length}/160 characters
+                        {formData.metaDescription?.length}/160 characters
                       </p>
                     </div>
                   </div>
@@ -829,7 +833,7 @@ const AddSubcategoriesComponent = () => {
               <button
                 type="button"
                 onClick={handleSubmit}
-                disabled={!formData.name.trim() || !formData.category}
+                disabled={!formData.name.trim() || !formData.category || !canModify("products")}
                 className="px-8 py-3 bg-secondary/80 hover:bg-secondary text-secondary-content rounded-xl flex items-center justify-center space-x-2 transform shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 <Save size={20} />
@@ -851,6 +855,8 @@ const AddSubcategoriesComponent = () => {
 
             {filteredSubcategories.length > 0 && (
               <div className="flex flex-wrap gap-2">
+                {canModify("products") && (
+                <>
                 <button
                   onClick={bulkActivate}
                   className="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 text-sm"
@@ -863,6 +869,8 @@ const AddSubcategoriesComponent = () => {
                 >
                   Deactivate All
                 </button>
+                </>
+                )}
                 <button
                   onClick={exportData}
                   className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 text-sm flex items-center space-x-1"
@@ -947,6 +955,8 @@ const AddSubcategoriesComponent = () => {
                     </div>
 
                     <div className="absolute bottom-2 justify-between flex space-x-2">
+                      {canModify("products") && (
+                      <>
                       <button
                         onClick={() => startEdit(subcategory)}
                         className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 flex items-center justify-center transform"
@@ -960,6 +970,8 @@ const AddSubcategoriesComponent = () => {
                       >
                         <Trash2 size={16} />
                       </button>
+                      </>
+                      )}
                     </div>
                   </div>
                 );
@@ -1045,6 +1057,8 @@ const AddSubcategoriesComponent = () => {
                           )}
                         </button>
 
+                        {canModify("products") && (
+                        <>
                         <button
                           onClick={() => startEdit(subcategory)}
                           className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg"
@@ -1058,6 +1072,8 @@ const AddSubcategoriesComponent = () => {
                         >
                           <Trash2 size={16} />
                         </button>
+                        </>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -1105,7 +1121,7 @@ const AddSubcategoriesComponent = () => {
           </h2>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {bulkActionButtons.map((btn, index) => (
+            {bulkActionButtons.filter(btn => canModify("products") || btn.label === "Export Data").map((btn, index) => (
               <button
                 key={index}
                 onClick={btn.onClick}

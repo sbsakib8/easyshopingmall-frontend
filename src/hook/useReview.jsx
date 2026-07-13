@@ -1,11 +1,10 @@
-import axios from "axios";
-import { UrlBackend } from "../confic/urlExport";
+import apiClient from "../lib/axios";
 
 // 1️⃣ Submit a new review (status: pending)
 export const submitReview = async (productId, reviewData) => {
   try {
     
-    const response = await axios.post(`${UrlBackend}/review/${productId}`, reviewData, {
+    const response = await apiClient.post(`/review/${productId}`, reviewData, {
       withCredentials: true,
       headers: { 
         "Content-Type": "application/json"
@@ -27,7 +26,7 @@ export const submitReview = async (productId, reviewData) => {
 // 6️⃣ Get all reviews (admin - approved + pending + rejected)
 export const getAllReviews = async () => {
   try {
-    const response = await axios.get(`${UrlBackend}/review/admin/all`, {
+    const response = await apiClient.get(`/review/admin/all`, {
       withCredentials: true,
     });
     return response.data.reviews || [];
@@ -41,7 +40,7 @@ export const getAllReviews = async () => {
 // 2️⃣ Get all approved reviews for a product
 export const getApprovedReviews = async (productId) => {
   try {
-    const response = await axios.get(`${UrlBackend}/review/${productId}`);
+    const response = await apiClient.get(`/review/${productId}`);
     return response.data.reviews || [];
   } catch (error) {
     console.error("Get Approved Reviews Error:", error.response?.data || error.message);
@@ -52,7 +51,7 @@ export const getApprovedReviews = async (productId) => {
 // 3️⃣ Get pending reviews (admin)
 export const getPendingReviews = async () => {
   try {
-    const response = await axios.get(`${UrlBackend}/review/admin`, {
+    const response = await apiClient.get(`/review/admin`, {
       withCredentials: true,
     });
     return response.data.reviews || [];
@@ -65,8 +64,8 @@ export const getPendingReviews = async () => {
 // 4️⃣ Approve review (admin)
 export const approveReview = async (reviewId) => {
   try {
-    const response = await axios.patch(
-      `${UrlBackend}/review/admin/${reviewId}/approve`,
+    const response = await apiClient.patch(
+      `/review/admin/${reviewId}/approve`,
       {},
       { withCredentials: true }
     );
@@ -81,8 +80,8 @@ export const approveReview = async (reviewId) => {
 // 5️⃣ Reject review (admin)
 export const rejectReview = async (reviewId) => {
   try {
-    const response = await axios.patch(
-      `${UrlBackend}/review/admin/${reviewId}/reject`,
+    const response = await apiClient.patch(
+      `/review/admin/${reviewId}/reject`,
       {},
       { withCredentials: true }
     );
@@ -97,8 +96,8 @@ export const rejectReview = async (reviewId) => {
 // 7️⃣ Delete review (user – own review / admin)
 export const deleteReview = async (reviewId) => {
   try {
-    const response = await axios.delete(
-      `${UrlBackend}/review/${reviewId}`,
+    const response = await apiClient.delete(
+      `/review/${reviewId}`,
       {
         withCredentials: true,
       }

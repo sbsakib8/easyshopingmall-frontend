@@ -1,10 +1,9 @@
-import axios from "axios";
-import { UrlBackend } from "../confic/urlExport";
+import apiClient from "../lib/axios";
 
 // CenterBanner add
 export const CenterBannerCreate = async (formData, ) => {
   try {
-    const response = await axios.post(`${UrlBackend}/CenterBanner/create`, formData, {
+    const response = await apiClient.post(`/CenterBanner/create`, formData, {
       withCredentials: true,
       headers: {
         "Content-Type": "multipart/form-data",
@@ -20,7 +19,7 @@ export const CenterBannerCreate = async (formData, ) => {
 // CenterBanner ALL GET
 export const CenterBannerAllGet = async () => {
   try {
-    const response = await axios.get(`${UrlBackend}/CenterBanner/get`,  {
+    const response = await apiClient.get(`/CenterBanner/get`,  {
       withCredentials: true,
     });
     return response.data; 
@@ -34,8 +33,8 @@ export const CenterBannerAllGet = async () => {
 // uplosd CenterBanner
 export const CenterBannerUploade = async (formData, id) => {
   try {
-    const response = await axios.put(
-      `${UrlBackend}/CenterBanner/${id}`, 
+    const response = await apiClient.put(
+      `/CenterBanner/${id}`, 
       formData, 
       {
         withCredentials: true, 
@@ -51,8 +50,8 @@ export const CenterBannerUploade = async (formData, id) => {
 // delete CenterBanner
 export const CenterBannerDelete = async (categoryId) => {
   try {
-    const response = await axios.delete(
-      `${UrlBackend}/CenterBanner/${categoryId}`, 
+    const response = await apiClient.delete(
+      `/CenterBanner/${categoryId}`, 
       {
         withCredentials: true, 
       }

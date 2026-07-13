@@ -14,6 +14,7 @@ import Link from "next/link";
 import { useSelector } from "react-redux";
 import Container from "@/src/compronent/shared/Container";
 import Section from "@/src/compronent/shared/Section";
+import NoticeBanner from "./NoticeBanner";
 
 const overview = [
   {
@@ -110,6 +111,9 @@ function Overview() {
   return (
     <Section>
       <Container className="relative z-10">
+        {/* Notice Banner - Admin-controlled notices */}
+        <NoticeBanner />
+
         {/* Header */}
         <div className="text-center mb-10">
           <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-gray-900 tracking-tight mb-3">

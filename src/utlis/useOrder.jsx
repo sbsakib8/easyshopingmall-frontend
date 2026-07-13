@@ -1,5 +1,4 @@
-import axios from "axios";
-import { UrlBackend } from "../confic/urlExport";
+import apiClient from "@/src/lib/axios";
 
 /**
  * 🛒 Create a new order
@@ -7,8 +6,7 @@ import { UrlBackend } from "../confic/urlExport";
  */
 export const OrderCreate = async (formData) => {
     try {
-        const response = await axios.post(`${UrlBackend}/orders/create`, formData, {
-            withCredentials: true,
+        const response = await apiClient.post(`/orders/create`, formData, {
             headers: { "Content-Type": "application/json" },
         });
         return response.data;
@@ -24,9 +22,7 @@ export const OrderCreate = async (formData) => {
  */
 export const OrderAllAdminGet = async () => {
   try {
-    const response = await axios.get(`${UrlBackend}/orders/admin/all`, {
-      withCredentials: true,
-    });
+    const response = await apiClient.get(`/orders/admin/all`);
     return response.data;
   } catch (error) {
     console.error("Admin order fetch error:", error.response?.data || error.message);
@@ -41,9 +37,7 @@ export const OrderAllAdminGet = async () => {
  */
 export const OrderAllGet = async () => {
     try {
-        const response = await axios.get(`${UrlBackend}/orders/my-orders`, {
-            withCredentials: true,
-        });
+        const response = await apiClient.get(`/orders/my-orders`);
         return response.data;
     } catch (error) {
         console.error("Order fetch error:", error.response?.data || error.message);
@@ -57,9 +51,7 @@ export const OrderAllGet = async () => {
  */
 export const OrderGetDetails = async (orderId) => {
     try {
-        const response = await axios.get(`${UrlBackend}/orders/${orderId}`, {
-            withCredentials: true,
-        });
+        const response = await apiClient.get(`/orders/${orderId}`);
         return response.data;
     } catch (error) {
         console.error("Order details fetch error:", error.response?.data || error.message);
@@ -73,9 +65,7 @@ export const OrderGetDetails = async (orderId) => {
  */
 export const OrderAllGetAdmin = async () => {
     try {
-        const response = await axios.get(`${UrlBackend}/orders/admin/all`, {
-            withCredentials: true,
-        });
+        const response = await apiClient.get(`/orders/admin/all`);
         return response.data;
     } catch (error) {
         console.error("Order fetch error:", error.response?.data || error.message);
@@ -89,11 +79,10 @@ export const OrderAllGetAdmin = async () => {
  */
 export const OrderUpdate = async (orderId, status) => {
     try {
-        const response = await axios.put(
-            `${UrlBackend}/orders/${orderId}/status`,
+        const response = await apiClient.put(
+            `/orders/${orderId}/status`,
             { status },
             {
-                withCredentials: true,
                 headers: { "Content-Type": "application/json" },
             }
         );
@@ -105,17 +94,89 @@ export const OrderUpdate = async (orderId, status) => {
 };
 
 /**
+ * ⚙️ Update dropshipping order status with additional details (Admin only)
+ * Endpoint: PUT /orders/dropshipping/:id/status
+ */
+export const DropshippingOrderUpdate = async (orderId, statusData) => {
+    try {
+        const response = await apiClient.put(
+            `/orders/dropshipping/${orderId}/status`,
+            statusData,
+            {
+                headers: { "Content-Type": "application/json" },
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error("Dropshipping order update error:", error.response?.data || error.message);
+        throw error;
+    }
+};
+
+/**
+ * 📦 Get dropshipping order details with status history (Admin only)
+ * Endpoint: GET /orders/dropshipping/:id
+ */
+export const GetDropshippingOrderDetails = async (orderId) => {
+    try {
+        const response = await apiClient.get(`/orders/dropshipping/${orderId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Dropshipping order details error:", error.response?.data || error.message);
+        throw error;
+    }
+};
+
+/**
+ * 📨 Send admin message to dropshipper on specific order
+ * Endpoint: POST /orders/dropshipping/:id/message
+ */
+export const SendOrderMessage = async (orderId, message) => {
+    try {
+        const response = await apiClient.post(
+            `/orders/dropshipping/${orderId}/message`,
+            { message },
+            {
+                headers: { "Content-Type": "application/json" },
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error("Send order message error:", error.response?.data || error.message);
+        throw error;
+    }
+};
+
+/**
  * 🗑️ (Optional) Delete an order (if your backend supports it)
  * Endpoint: DELETE /orders/:id
  */
 export const OrderDelete = async (orderId) => {
     try {
-        const response = await axios.delete(`${UrlBackend}/orders/${orderId}`, {
-            withCredentials: true,
-        });
+        const response = await apiClient.delete(`/orders/${orderId}`);
         return response.data;
     } catch (error) {
         console.error("Order delete error:", error.response?.data || error.message);
+        throw error;
+    }
+};
+
+/**
+ * ✏️ Update order key points (Admin only)
+ * Endpoint: PUT /orders/dropshipping/:id/keypoints
+ */
+export const UpdateOrderKeyPoints = async (orderId, keyPoints) => {
+    try {
+        const response = await apiClient.put(
+            `/orders/dropshipping/${orderId}/keypoints`,
+            { keyPoints },
+            {
+                headers: { "Content-Type": "application/json" },
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error("Update order key points error:", error.response?.data || error.message);
         throw error;
     }
 };

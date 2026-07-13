@@ -22,6 +22,7 @@ import {
   ViewTransition,
 } from "react";
 import {cn} from "@/src/utlis/utils";
+import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
 
 const statusColors = {
   pending:
@@ -112,6 +113,7 @@ const SkeletonOrderCard = () => (
 );
 
 const PendingOrdersPage = () => {
+  const { canModify } = useDashboardPermission();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -447,6 +449,8 @@ const PendingOrdersPage = () => {
                       >
                         Details
                       </button>
+                      {canModify("orders") && (
+                      <>
                       <button
                         onClick={() => {
                           setStatus("shipped");
@@ -467,6 +471,8 @@ const PendingOrdersPage = () => {
                       >
                         Reject
                       </button>
+                      </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -661,20 +667,62 @@ const PendingOrdersPage = () => {
                       Customer Information
                     </h3>
                     <div className="space-y-2">
-                      <p className="text-gray-300">
-                        <span className="text-gray-500">Name:</span>{" "}
-                        {selectedOrder?.userId?.name}
-                      </p>
-                      <p className="text-gray-300">
-                        <span className="text-gray-500">Email:</span>{" "}
-                        {selectedOrder?.userId?.email}
-                      </p>
+                      {selectedOrder?.address?.customer_name && (
+                        <p className="text-gray-300">
+                          <span className="text-gray-500">Name:</span>{" "}
+                          {selectedOrder?.address?.customer_name}
+                        </p>
+                      )}
                       <p className="text-gray-300">
                         <span className="text-gray-500">Phone:</span>{" "}
                         {selectedOrder?.address?.mobile}
                       </p>
+                      <p className="text-gray-300">
+                        <span className="text-gray-500">Address:</span>{" "}
+                        {selectedOrder?.address?.address_line}
+                      </p>
                     </div>
                   </div>
+
+                  {/* Dropshipper Information */}
+                  {isDSOrder(selectedOrder) && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-slate-300 mb-3">
+                        Dropshipper Information
+                      </h3>
+                      <div className="space-y-2">
+                        <p className="text-gray-300">
+                          <span className="text-gray-500">Name:</span>{" "}
+                          {selectedOrder?.userId?.name}
+                          <span className="ml-2 px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/20 text-primary border border-primary/30 uppercase tracking-widest">
+                            Dropshipping
+                          </span>
+                        </p>
+                        <p className="text-gray-300">
+                          <span className="text-gray-500">Email:</span>{" "}
+                          {selectedOrder?.userId?.email}
+                        </p>
+                        {selectedOrder?.userId?.shopName && (
+                          <p className="text-gray-300">
+                            <span className="text-gray-500">Shop:</span>{" "}
+                            {selectedOrder?.userId?.shopName}
+                          </p>
+                        )}
+                        {selectedOrder?.userId?.shopAddress && (
+                          <p className="text-gray-300">
+                            <span className="text-gray-500">Shop Address:</span>{" "}
+                            {selectedOrder?.userId?.shopAddress}
+                          </p>
+                        )}
+                        {selectedOrder?.userId?.mobile && (
+                          <p className="text-gray-300">
+                            <span className="text-gray-500">Phone:</span>{" "}
+                            {selectedOrder?.userId?.mobile}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Shipping Address */}
@@ -912,6 +960,7 @@ const PendingOrdersPage = () => {
                 </div>
 
                 {/* Modal Actions */}
+                {canModify("orders") && (
                 <div className="flex gap-3">
                   <button
                     onClick={() => {
@@ -934,6 +983,7 @@ const PendingOrdersPage = () => {
                     Reject Order
                   </button>
                 </div>
+                )}
               </div>
             </div>
           </ViewTransition>
@@ -941,7 +991,7 @@ const PendingOrdersPage = () => {
       </Container>
 
       {/* confirmation modal */}
-      {confirmationModal && (
+      {confirmationModal && canModify("orders") && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-pink-500/30 max-w-md w-full p-6">
             <div className="flex items-center gap-3 mb-4">

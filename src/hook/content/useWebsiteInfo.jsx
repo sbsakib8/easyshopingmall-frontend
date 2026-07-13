@@ -1,10 +1,9 @@
-import axios from "axios";
-import { UrlBackend } from "../../confic/urlExport";
+import apiClient from "../../lib/axios";
 
 // websiteinfo add
 export const WebsiteinfoCreate = async (formData, ) => {
   try {
-    const response = await axios.post(`${UrlBackend}/websiteinfo/create`, formData, {
+    const response = await apiClient.post(`/websiteinfo/create`, formData, {
       withCredentials: true,
     });
     return response.data; 
@@ -17,7 +16,7 @@ export const WebsiteinfoCreate = async (formData, ) => {
 // websiteinfo ALL GET
 export const WebsiteinfoAllGet = async () => {
   try {
-    const response = await axios.get(`${UrlBackend}/websiteinfo/get`,  {
+    const response = await apiClient.get(`/websiteinfo/get`,  {
       withCredentials: true,
     });
     return response.data; 
@@ -31,8 +30,8 @@ export const WebsiteinfoAllGet = async () => {
 // uplosd websiteinfo
 export const WebsiteinfoUploade = async (formData, id) => {
   try {
-    const response = await axios.put(
-      `${UrlBackend}/websiteinfo/${id}`, 
+    const response = await apiClient.put(
+      `/websiteinfo/${id}`, 
       formData, 
       {
         withCredentials: true, 
@@ -48,8 +47,8 @@ export const WebsiteinfoUploade = async (formData, id) => {
 // delete websiteinfo
 export const WebsiteinfoDelete = async (id) => {
   try {
-    const response = await axios.delete(
-      `${UrlBackend}/websiteinfo/${id}`, 
+    const response = await apiClient.delete(
+      `/websiteinfo/${id}`, 
       {
         withCredentials: true, 
       }

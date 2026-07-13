@@ -1,12 +1,11 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import apiClient from "@/src/lib/axios";
 import { toast } from "react-hot-toast";
 import {
     PlayCircle, CheckCircle2, ChevronRight, ChevronDown, Lock, Unlock, Play,
     BookOpen, Layers, MonitorPlay, Sparkles
 } from "lucide-react";
-import { UrlBackend } from "@/src/confic/urlExport";
 import DashboardLoader from "@/src/helper/loading/DashboardLoader";
 
 const getYoutubeEmbedUrl = (url) => {
@@ -34,9 +33,9 @@ const LearningHub = () => {
         const fetchData = async () => {
             try {
                 const [coursesRes, modsRes, vidsRes] = await Promise.all([
-                    axios.get(`${UrlBackend}/video-course/all`, { withCredentials: true }), // Using public/user route
-                    axios.get(`${UrlBackend}/video-module/all`, { withCredentials: true }),
-                    axios.get(`${UrlBackend}/video-content/all?scope=course`, { withCredentials: true }) // Assuming public/user route exists
+                    apiClient.get(`/video-course/all`),
+                    apiClient.get(`/video-module/all`),
+                    apiClient.get(`/video-content/all?scope=course`),
                 ]);
                 
                 const fetchedCourses = coursesRes.data.success ? coursesRes.data.data : [];

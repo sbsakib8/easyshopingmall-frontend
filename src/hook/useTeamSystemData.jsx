@@ -1,6 +1,5 @@
-import axios from "axios";
+import apiClient from "../lib/axios";
 import { useEffect, useState } from "react";
-import { UrlBackend } from "../confic/urlExport";
 
 const useTeamSystemData = ({ search = "", limit = 10, page = 1 } = {}) => {
   const [error, setError] = useState(null);
@@ -13,8 +12,8 @@ const useTeamSystemData = ({ search = "", limit = 10, page = 1 } = {}) => {
       setError(null);
 
       try {
-        const url = `${UrlBackend}/team-system?search=${search}&limit=${limit}&page=${page}`;
-        const { data } = await axios.get(url, {
+        const url = `/team-system?search=${search}&limit=${limit}&page=${page}`;
+        const { data } = await apiClient.get(url, {
           withCredentials: true,
         });
 

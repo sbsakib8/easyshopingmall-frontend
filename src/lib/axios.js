@@ -1,7 +1,6 @@
 import axios from "axios";
 import { UrlBackend } from "../confic/urlExport";
 import { getCsrfHeaders } from "./csrf";
-import { secureStorage } from "./secureStorage";
 
 const apiClient = axios.create({
   baseURL: UrlBackend,
@@ -38,13 +37,8 @@ apiClient.interceptors.response.use(
     if (error.response) {
       const { status } = error.response;
 
-      if (status === 401 || status === 403) {
-        if (typeof window !== "undefined") {
-          secureStorage.removeItem("user");
-          if (window.location.pathname !== "/signin" && window.location.pathname !== "/signup") {
-            window.location.href = "/signin";
-          }
-        }
+      if (status === 401) {
+        // Don't redirect here - components handle auth state via useGetUser
       }
     }
     return Promise.reject(error);

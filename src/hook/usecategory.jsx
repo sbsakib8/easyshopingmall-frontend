@@ -1,11 +1,10 @@
-import axios from "axios";
-import { UrlBackend } from "../confic/urlExport";
+import apiClient from "../lib/axios";
 import { categoryGet } from "../redux/categorySlice";
 
 // catagory add
 export const CategoryCreate = async (formData,) => {
   try {
-    const response = await axios.post(`${UrlBackend}/categories/create`, formData, {
+    const response = await apiClient.post(`/categories/create`, formData, {
       withCredentials: true,
       headers: {
         "Content-Type": "multipart/form-data",
@@ -21,7 +20,7 @@ export const CategoryCreate = async (formData,) => {
 // catagory ALL GET
 export const CategoryAllGet = async (dispatch) => {
   try {
-    const response = await axios.get(`${UrlBackend}/categories`, {
+    const response = await apiClient.get(`/categories`, {
       withCredentials: true,
     });
     if (dispatch) {
@@ -41,8 +40,8 @@ export const CategoryAllGet = async (dispatch) => {
 // uplosd categoti
 export const CategoryUploade = async (formData, categoryId) => {
   try {
-    const response = await axios.put(
-      `${UrlBackend}/categories/${categoryId}`,
+    const response = await apiClient.put(
+      `/categories/${categoryId}`,
       formData,
       {
         withCredentials: true,
@@ -58,8 +57,8 @@ export const CategoryUploade = async (formData, categoryId) => {
 // delete category
 export const CategoryDelete = async (categoryId) => {
   try {
-    const response = await axios.delete(
-      `${UrlBackend}/categories/${categoryId}`,
+    const response = await apiClient.delete(
+      `/categories/${categoryId}`,
       {
         withCredentials: true,
       }
