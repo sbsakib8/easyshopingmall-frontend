@@ -37,16 +37,8 @@ apiClient.interceptors.response.use(
     if (error.response) {
       const { status } = error.response;
 
-      // 401 = not logged in → redirect to signin
       if (status === 401) {
-        if (typeof window !== "undefined") {
-          if (
-            window.location.pathname !== "/signin" &&
-            window.location.pathname !== "/signup"
-          ) {
-            window.location.href = "/signin";
-          }
-        }
+        // Don't redirect here - components handle auth state via useGetUser
       }
     }
     return Promise.reject(error);
