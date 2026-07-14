@@ -704,8 +704,8 @@ const OrderManagement = () => {
                             </div>
                             <div className="flex items-center gap-2">
                               <Package className="h-4 w-4" />
-                              {order?.products.length} item
-                              {order?.products.length > 1 ? "s" : ""}
+                              {order?.products?.length} item
+                              {order?.products?.length > 1 ? "s" : ""}
                             </div>
                           </div>
                         </div>
@@ -933,7 +933,7 @@ const OrderManagement = () => {
                         <div className="flex justify-between">
                           <span className="text-gray-400">Total Items:</span>
                           <span className="font-medium text-slate-300">
-                            {selectedOrder?.products.length}
+                            {selectedOrder?.products?.length}
                           </span>
                         </div>
 

@@ -665,7 +665,7 @@ const DropshippingSearchContent = () => {
                     {section.label}
                   </h2>
                   <span className="text-slate-400 text-xs sm:text-sm font-medium">
-                    ({section.products.length})
+                    ({section?.products?.length ?? 0})
                   </span>
                 </div>
 

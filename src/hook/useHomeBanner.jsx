@@ -17,9 +17,12 @@ export const HomeBannerCreate = async (formData, ) => {
 };
 
 // HomeBanner ALL GET
-export const HomeBannerAllGet = async () => {
+export const HomeBannerAllGet = async (sliderFor) => {
   try {
-    const response = await apiClient.get(`/homeBannerRoutes/get`,  {
+    const url = sliderFor 
+      ? `/homeBannerRoutes/get?sliderFor=${sliderFor}` 
+      : `/homeBannerRoutes/get`;
+    const response = await apiClient.get(url, {
       withCredentials: true,
     });
     return response.data; 

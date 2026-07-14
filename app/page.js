@@ -1,12 +1,12 @@
 import { UrlBackend } from "@/src/confic/urlExport";
 import HomeContent from "./HomeContent";
 
-export const revalidate = 300;
+export const revalidate = 60;
 
 async function getCategories() {
   try {
     const res = await fetch(`${UrlBackend}/categories`, {
-      next: { revalidate: 3600 }
+      next: { revalidate: 60 }
     });
     if (!res.ok) return [];
     const json = await res.json();
@@ -19,7 +19,7 @@ async function getCategories() {
 async function getSubCategories() {
   try {
     const res = await fetch(`${UrlBackend}/subcategories`, {
-      next: { revalidate: 3600 }
+      next: { revalidate: 60 }
     });
     if (!res.ok) return [];
     const json = await res.json();
@@ -32,7 +32,7 @@ async function getSubCategories() {
 async function getBanners() {
   try {
     const res = await fetch(`${UrlBackend}/homeBannerRoutes/get`, {
-      next: { revalidate: 3600 }
+      next: { revalidate: 60 }
     });
     if (!res.ok) return [];
     const json = await res.json();

@@ -6,14 +6,19 @@ import DropshippingNavbar from "@/src/dropShipping/dropshippingNavbar/dropshippi
 import BlockedUserRoute from "@/src/utlis/BlockedUserRoute";
 import { useGetUser } from "@/src/utlis/useGetuser";
 import { usePathname } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { useDispatch } from "react-redux";
+import { hydrateCoupon } from "@/src/redux/cartSlice";
 
 
 export default function LayoutWrapper({ children, initialWebsiteInfo }) {
   const pathname = usePathname();
   const hideLayout = pathname.startsWith("/dashboard");
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(hydrateCoupon());
+  }, [dispatch]);
 
   const { user, loading } = useGetUser();
   const role = user?.role;

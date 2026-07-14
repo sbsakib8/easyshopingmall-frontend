@@ -28,7 +28,7 @@ export const metadata = {
 async function getCategories() {
   try {
     const res = await fetch(`${UrlBackend}/categories`, {
-      next: { revalidate: 3600 } // Cache for 1 hour
+      next: { revalidate: 60 }
     });
     if (!res.ok) return [];
     const json = await res.json();
