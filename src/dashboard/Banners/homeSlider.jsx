@@ -14,7 +14,8 @@ import toast from "react-hot-toast";
 const HomeSliderPage = () => {
   const { canModify } = useDashboardPermission();
 
-  const { homebanner, loading, error, refetch } = useGetHomeBanner();
+  const [sliderFilter, setSliderFilter] = useState("USER");
+  const { homebanner, loading, error, refetch } = useGetHomeBanner(sliderFilter);
   const [sliders, setSliders] = useState([]);
 
   useEffect(() => {
@@ -35,7 +36,7 @@ const HomeSliderPage = () => {
     Description: "",
     images: "",
     linkUrl: "",
-    sliderFor: "USER",
+    sliderFor: sliderFilter,
   });
 
   const fileInputRef = useRef(null);
@@ -78,7 +79,7 @@ const HomeSliderPage = () => {
         Description: "",
         images: "",
         linkUrl: "",
-        sliderFor: "USER",
+        sliderFor: sliderFilter,
       });
 
       setIsAddDialogOpen(false);
@@ -132,7 +133,7 @@ const HomeSliderPage = () => {
         Description: "",
         images: "",
         linkUrl: "",
-        sliderFor: "USER",
+        sliderFor: sliderFilter,
       });
 
       if (typeof refetch === "function") refetch();
@@ -492,7 +493,7 @@ const HomeSliderPage = () => {
                       className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-slate-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
-                  <div>
+                   <div>
                     <label className="block text-gray-300 text-sm font-medium mb-2">
                       Slider For
                     </label>
@@ -506,6 +507,9 @@ const HomeSliderPage = () => {
                       <option value="USER">🛒 Retail Users</option>
                       <option value="DROPSHIPPING">📦 Dropshippers</option>
                     </select>
+                    <p className="text-gray-500 text-xs mt-1">
+                      Creating for: <span className={formData.sliderFor === "DROPSHIPPING" ? "text-purple-400" : "text-blue-400"}>{formData.sliderFor === "DROPSHIPPING" ? "Dropshippers" : "Retail Users"}</span>
+                    </p>
                   </div>
                 </div>
 
@@ -541,6 +545,36 @@ const HomeSliderPage = () => {
             <h3 className="text-2xl font-bold text-slate-300 mb-6">
               Manage Sliders
             </h3>
+
+            {/* Tab Toggle: USER vs DROPSHIPPING */}
+            <div className="flex gap-2 mb-6">
+              <button
+                onClick={() => {
+                  setSliderFilter("USER");
+                  setFormData((prev) => ({ ...prev, sliderFor: "USER" }));
+                }}
+                className={`px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 ${
+                  sliderFilter === "USER"
+                    ? "bg-blue-600 text-white shadow-lg shadow-blue-500/25"
+                    : "bg-gray-800/50 text-gray-400 hover:bg-gray-700/50 hover:text-gray-300"
+                }`}
+              >
+                🛒 Retail Users
+              </button>
+              <button
+                onClick={() => {
+                  setSliderFilter("DROPSHIPPING");
+                  setFormData((prev) => ({ ...prev, sliderFor: "DROPSHIPPING" }));
+                }}
+                className={`px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 ${
+                  sliderFilter === "DROPSHIPPING"
+                    ? "bg-purple-600 text-white shadow-lg shadow-purple-500/25"
+                    : "bg-gray-800/50 text-gray-400 hover:bg-gray-700/50 hover:text-gray-300"
+                }`}
+              >
+                📦 Dropshippers
+              </button>
+            </div>
 
             {sliders?.length === 0 ? (
               <div className="text-center py-12">

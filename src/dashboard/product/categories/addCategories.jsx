@@ -64,7 +64,7 @@ const AddCategoriesComponent = () => {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    CategoryAllGet(dispatch);
+    CategoryAllGet(dispatch, "all");
   }, []);
 
   useEffect(() => {

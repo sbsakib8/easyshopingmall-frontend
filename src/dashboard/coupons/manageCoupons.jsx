@@ -89,8 +89,8 @@ const ManageCoupons = () => {
     try {
       const [couponRes, catRes, subRes] = await Promise.all([
         getAllCoupons(),
-        CategoryAllGet(dispatch),
-        SubCategoryAllGet(dispatch),
+        CategoryAllGet(dispatch, "all"),
+        SubCategoryAllGet(dispatch, null, "all"),
       ]);
 
       if (couponRes.success) setCoupons(couponRes.data);

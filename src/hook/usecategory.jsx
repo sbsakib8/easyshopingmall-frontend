@@ -18,9 +18,10 @@ export const CategoryCreate = async (formData,) => {
 };
 
 // catagory ALL GET
-export const CategoryAllGet = async (dispatch) => {
+export const CategoryAllGet = async (dispatch, status) => {
   try {
-    const response = await apiClient.get(`/categories`, {
+    const url = status ? `/categories?status=${status}` : `/categories`;
+    const response = await apiClient.get(url, {
       withCredentials: true,
     });
     if (dispatch) {

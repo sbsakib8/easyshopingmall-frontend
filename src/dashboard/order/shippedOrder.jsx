@@ -424,7 +424,7 @@ const ShippedOrdersPage = () => {
                 {/* Order Items */}
                 <div className="mb-4">
                   <h5 className="text-slate-300 font-medium mb-2">
-                    Items ({order?.products.length})
+                    Items ({order?.products?.length ?? 0})
                   </h5>
                   <div className="space-y-1">
                     {order?.products.slice(0, 2).map((item, index) => (
@@ -435,9 +435,9 @@ const ShippedOrdersPage = () => {
                         <span className="text-gray-400">৳{item?.price}</span>
                       </div>
                     ))}
-                    {order?.products.length > 2 && (
+                    {order?.products?.length > 2 && (
                       <p className="text-gray-500 text-xs">
-                        +{order?.products.length - 2} more items
+                        +{order?.products?.length - 2} more items
                       </p>
                     )}
                   </div>

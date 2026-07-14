@@ -720,7 +720,7 @@ const Header = ({ initialData }) => {
       </header>
 
       <BottomNav
-        cartCount={cartItems.length || 0}
+        cartCount={cartItems?.length || 0}
         menuCategories={menuCategories}
       />
     </>

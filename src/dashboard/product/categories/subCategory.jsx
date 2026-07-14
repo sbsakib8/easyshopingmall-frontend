@@ -7,6 +7,7 @@ import {
   SubCategoryDelete,
   SubCategoryUploade,
 } from "@/src/hook/useSubcategory";
+import { CategoryAllGet } from "@/src/hook/usecategory";
 import { cn } from "@/src/utlis/utils";
 import {
   BarChart3,
@@ -79,7 +80,8 @@ const AddSubcategoriesComponent = () => {
   }, [allCategorydata]);
 
   useEffect(() => {
-    SubCategoryAllGet(dispatch);
+    SubCategoryAllGet(dispatch, null, "all");
+    CategoryAllGet(dispatch, "all");
   }, []);
 
   // Load categories
