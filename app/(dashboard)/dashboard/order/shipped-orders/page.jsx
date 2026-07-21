@@ -1,16 +1,14 @@
 "use client";
 
-import ShippedOrdersPage from"@/src/dashboard/order/shippedOrder"
+import OrderManagementPage from "@/src/dashboard/order/OrderManagementPage";
 import DashboardGuard from "@/src/utlis/DashboardGuard";
 
-const shippedorder=()=> {
- return (
- <DashboardGuard section="orders">
- <div>
- <ShippedOrdersPage/>
- </div>
- </DashboardGuard>
- )
-}
+const ShippedOrders = () => {
+  return (
+    <DashboardGuard section="orders">
+      <OrderManagementPage />
+    </DashboardGuard>
+  );
+};
 
-export default shippedorder
+export default ShippedOrders;

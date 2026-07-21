@@ -1,14 +1,14 @@
 "use client";
 
-import CompletedOrdesPager from "@/src/dashboard/order/completedOrder";
+import OrderManagementPage from "@/src/dashboard/order/OrderManagementPage";
 import DashboardGuard from "@/src/utlis/DashboardGuard";
 
-const CompletedOrders = () => {
+const AllOrders = () => {
   return (
     <DashboardGuard section="orders">
-      <CompletedOrdesPager />
+      <OrderManagementPage />
     </DashboardGuard>
   );
 };
 
-export default CompletedOrders;
+export default AllOrders;
