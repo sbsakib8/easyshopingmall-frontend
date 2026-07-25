@@ -9,6 +9,7 @@ import {
   Calendar,
   Check,
   Clock,
+  Download,
   Edit,
   Mail,
   Phone,
@@ -22,6 +23,7 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import * as XLSX from "xlsx";
 export default function UserRoleManager() {
   const { canModify } = useDashboardPermission();
   // Get all users
@@ -233,6 +235,15 @@ export default function UserRoleManager() {
     }
   };
 
+  const handleExport = () => {
+    const exportData = hasSearched ? displayedUsers : users;
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    ws["!cols"] = [{ wch: 10 }, { wch: 10 }, { wch: 40 }, { wch: 40 }];
+    XLSX.utils.book_append_sheet(wb, ws, "MyUsers");
+    XLSX.writeFile(wb, "usersData.xlsx");
+  };
+
   const getRoleColor = (role) => {
     const roleObj = roles.find((r) => r.value === role);
     return roleObj ? roleObj.color : "bg-gray-500";
@@ -375,13 +386,22 @@ export default function UserRoleManager() {
                 </>
               )}
             </p>
-            <button
-              onClick={refetch}
-              className="flex items-center gap-2 text-purple-400 hover:text-purple-300 text-sm"
-            >
-              <RefreshCw className="w-4 h-4" />
-              Refresh
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleExport}
+                className="flex items-center space-x-2 px-4 py-2 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-600/50 text-gray-300 hover:text-slate-300 rounded-xl text-sm"
+              >
+                <Download className="w-4 h-4" />
+                <span className="hidden sm:inline">Export</span>
+              </button>
+              <button
+                onClick={refetch}
+                className="flex items-center gap-2 text-purple-400 hover:text-purple-300 text-sm"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Refresh
+              </button>
+            </div>
           </div>
         </div>
 

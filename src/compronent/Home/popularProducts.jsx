@@ -499,19 +499,15 @@ const PopularProducts = ({ initialData }) => {
                   </div>
 
                   {/* Add to Cart */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                    }}
-                    className={`w-full py-1.5 px-2 bg-primary/80 hover:bg-primary rounded font-medium text-xs cursor-pointer mt-auto`}
+                  <AddtoCartBtn
+                    productId={product.id}
+                    className="w-full py-1.5 px-2 bg-primary/80 hover:bg-primary rounded font-medium text-xs cursor-pointer mt-auto"
                   >
-                    <AddtoCartBtn productId={product.id}>
-                      <span className="flex items-center justify-center gap-1">
-                        <ShoppingCart className="w-3 h-3" />
-                        Add to Cart
-                      </span>
-                    </AddtoCartBtn>
-                  </button>
+                    <span className="flex items-center justify-center gap-1">
+                      <ShoppingCart className="w-3 h-3" />
+                      Add to Cart
+                    </span>
+                  </AddtoCartBtn>
                 </div>
               </div>
             </div>

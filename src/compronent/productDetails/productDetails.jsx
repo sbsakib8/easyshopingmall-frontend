@@ -27,7 +27,8 @@ import {
   Star,
   Truck,
   Zap,
-  TriangleAlert // Added for error UI
+  TriangleAlert,
+  Loader2
 } from "lucide-react";
 import { setDetailsError, clearDetailsError } from "../../redux/shopSlice";
 import CustomLoader from '@/src/compronent/loading/CustomLoader';
@@ -118,6 +119,7 @@ const ProductDetails = ({ initialProduct }) => {
   const [reviewRating, setReviewRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
   const [reviewList, setReviewList] = useState([]);
+  const [cartLoading, setCartLoading] = useState(false);
 
   // Optimize: Fetch only products in the same category for related products
   const productParams = useMemo(() => {
@@ -395,7 +397,8 @@ const ProductDetails = ({ initialProduct }) => {
   };
 
   const handleAddToCart = async () => {
-    if (quantity > product.stock) return toast.error("অতিরিক্ত পরিমাণ যোগ করা হয়েছে")
+    if (cartLoading) return;
+    if (quantity > product.stock) return toast.error("অতিরিক্ত পরিমাণ যোগ করা হয়েছে")
 
     if (!user?._id) {
       toast.error("Please sign in to add items to cart");
@@ -412,6 +415,7 @@ const ProductDetails = ({ initialProduct }) => {
       return;
     }
 
+    setCartLoading(true);
     try {
       if (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) {
         // Dropshipping Cart (Local)
@@ -453,6 +457,8 @@ const ProductDetails = ({ initialProduct }) => {
     } catch (err) {
       console.error("Add to cart error:", err);
       toast.error("Failed to add to cart");
+    } finally {
+      setCartLoading(false);
     }
 
   };
@@ -878,16 +884,20 @@ const ProductDetails = ({ initialProduct }) => {
             <div className="space-y-4">
               <button
                 onClick={handleAddToCart}
-                disabled={product?.stock === 0}
-                className={`w-full py-4 rounded-xl font-semibold text-lg flex items-center justify-center space-x-2 transition-all duration-300 ${product?.stock === 0
+                disabled={product?.stock === 0 || cartLoading}
+                className={`w-full py-4 rounded-xl font-semibold text-lg flex items-center justify-center space-x-2 transition-all duration-300 ${product?.stock === 0 || cartLoading
                   ? "bg-gray-400 text-gray-200 cursor-not-allowed"
                   : (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING"))
                     ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:shadow-lg hover:shadow-emerald-500/20 transform hover:-translate-y-0.5 cursor-pointer"
                     : "bg-btn-color text-accent-content hover:shadow-lg hover:scale-102 cursor-pointer"
                   }`}
               >
-                <ShoppingCart className="w-5 h-5 " />
-                <span>{product?.stock === 0 ? "Out of Stock" : "Add to Cart"}</span>
+                {cartLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <ShoppingCart className="w-5 h-5 " />
+                )}
+                <span>{cartLoading ? "Adding..." : product?.stock === 0 ? "Out of Stock" : "Add to Cart"}</span>
               </button>
               <div className="grid grid-cols-2 gap-4">
                 <button

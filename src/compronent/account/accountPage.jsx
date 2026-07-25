@@ -17,6 +17,7 @@ import {
   MapPin,
   Package,
   Phone,
+  RefreshCw,
   Save,
   Settings,
   Share2,
@@ -448,7 +449,11 @@ const AccountPage = () => {
   const dispatch = useDispatch();
   const router = useRouter();
 
+  const [logoutLoading, setLogoutLoading] = useState(false);
+
   const handleLogout = async () => {
+    if (logoutLoading) return;
+    setLogoutLoading(true);
     try {
       const res = await Logout(router);
       if (res.success) {
@@ -459,6 +464,8 @@ const AccountPage = () => {
       }
     } catch (error) {
       toast.error("Logout failed:", error);
+    } finally {
+      setLogoutLoading(false);
     }
   };
 
@@ -530,10 +537,15 @@ const AccountPage = () => {
                 </nav>
                 <button
                   onClick={handleLogout}
-                  className="flex items-center justify-center gap-2 mt-6 w-full bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-accent-content py-3 px-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                  disabled={logoutLoading}
+                  className="flex items-center justify-center gap-2 mt-6 w-full bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-accent-content py-3 px-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100"
                 >
-                  <LogOut className="w-5 h-5" />
-                  <span className="font-medium">Logout</span>
+                  {logoutLoading ? (
+                    <RefreshCw className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <LogOut className="w-5 h-5" />
+                  )}
+                  <span className="font-medium">{logoutLoading ? "Logging out..." : "Logout"}</span>
                 </button>
               </div>
             </div>

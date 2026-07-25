@@ -264,53 +264,40 @@ const ProductCard = React.memo(
             </div>
 
             {user?.role !== "ADMIN" ? (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  // addToCart(product)
-                }}
-                disabled={!inStock}
-                className={`w-full py-1.5 px-2 rounded font-medium text-xs ${
-                  inStock
-                    ? "bg-primary/80 hover:bg-primary text-primary-content"
-                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                }`}
-              >
-                {inStock ? (
-                  <AddtoCartBtn productId={productId}>
-                    <span className="flex items-center justify-center gap-1">
-                      <ShoppingCart size={16} /> Add to Cart
-                    </span>
-                  </AddtoCartBtn>
-                ) : (
-                  "Out of Stock"
-                )}
-              </button>
+              inStock ? (
+                <AddtoCartBtn
+                  productId={productId}
+                  className="w-full py-1.5 px-2 rounded font-medium text-xs bg-primary/80 hover:bg-primary text-primary-content"
+                >
+                  <span className="flex items-center justify-center gap-1">
+                    <ShoppingCart size={16} /> Add to Cart
+                  </span>
+                </AddtoCartBtn>
+              ) : (
+                <button
+                  disabled
+                  className="w-full py-1.5 px-2 rounded font-medium text-xs bg-gray-300 text-gray-500 cursor-not-allowed"
+                >
+                  Out of Stock
+                </button>
+              )
             ) : (
               <div className="flex justify-around gap-2">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    // addToCart(product)
-                  }}
-                  disabled={!inStock}
-                  className={`py-1.5 px-2 rounded font-medium text-xs ${
-                    inStock
-                      ? "bg-primary/80 hover:bg-primary text-primary-content"
-                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  }`}
-                >
-                  {inStock ? (
-                    <span className="flex items-center justify-center gap-1">
-                      <AddtoCartBtn productId={productId}>
-                        {" "}
-                        <ShoppingCart size={16} />
-                      </AddtoCartBtn>
-                    </span>
-                  ) : (
-                    "Out of Stock"
-                  )}
-                </button>
+                {inStock ? (
+                  <AddtoCartBtn
+                    productId={productId}
+                    className="py-1.5 px-2 rounded font-medium text-xs bg-primary/80 hover:bg-primary text-primary-content"
+                  >
+                    <ShoppingCart size={16} />
+                  </AddtoCartBtn>
+                ) : (
+                  <button
+                    disabled
+                    className="py-1.5 px-2 rounded font-medium text-xs bg-gray-300 text-gray-500 cursor-not-allowed"
+                  >
+                    Out of Stock
+                  </button>
+                )}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -774,7 +761,7 @@ const ShopPage = ({ initialData, queryParams }) => {
     .filter((sub) => {
       if (filterCategory === "all") return true;
       const parentCategory = apiCategories.find(
-        (cat) => cat.id === (sub.categoryId?._id || sub.categoryId),
+        (cat) => String(cat.id) === String(sub.categoryId?._id || sub.categoryId),
       );
       return (
         parentCategory?.slug === filterCategory ||
@@ -1252,7 +1239,7 @@ const ShopPage = ({ initialData, queryParams }) => {
               {/* Subcategories */}
               {subCategories.length > 1 && (
                 <div
-                  className={`bg-white p-6 rounded-lg shadow-md border border-gray-200 ${showSubCategory & !showCategory ? "block" : "hidden"} lg:block`}
+                  className={`bg-white p-6 rounded-lg shadow-md border border-gray-200 ${showSubCategory && !showCategory ? "block" : "hidden"} lg:block`}
                 >
                   <h3 className="font-bold text-lg mb-4 text-gray-800 flex justify-between ">
                     Subcategories
