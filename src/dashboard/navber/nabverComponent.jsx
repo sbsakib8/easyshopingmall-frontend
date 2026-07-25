@@ -202,6 +202,13 @@ const DashboardNebver = ({ children }) => {
           label: "Manage Notices",
           icon: Bell,
         },
+        {
+          path: "dropshipping/balance-history",
+          id: 107,
+          label: "Balance History",
+          icon: DollarSign,
+          roles: ["ADMIN"],
+        },
       ],
     },
     {

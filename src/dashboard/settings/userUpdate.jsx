@@ -9,6 +9,7 @@ import {
   Calendar,
   Check,
   Clock,
+  DollarSign,
   Download,
   Edit,
   Mail,
@@ -24,6 +25,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
+import BalanceAdjustModal from "@/src/dashboard/dropshipping/BalanceAdjustModal";
 export default function UserRoleManager() {
   const { canModify } = useDashboardPermission();
   // Get all users
@@ -41,6 +43,7 @@ export default function UserRoleManager() {
   });
   const [updateLoading, setUpdateLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [balanceModalUser, setBalanceModalUser] = useState(null);
 
   useEffect(() => {
     if (allusers && allusers.length > 0) {
@@ -484,6 +487,20 @@ export default function UserRoleManager() {
                   <User className="w-4 h-4 text-purple-400" />
                   <span className="truncate">ID: {user?._id}</span>
                 </div>
+                {(user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) && (
+                  <div className="flex items-center justify-between bg-gray-900 rounded-lg px-3 py-2 border border-gray-700">
+                    <div className="flex items-center gap-2 text-gray-300 text-sm">
+                      <DollarSign className="w-4 h-4 text-amber-400" />
+                      <span>Balance: <strong className="text-amber-400">৳{(user?.balance || 0).toLocaleString()}</strong></span>
+                    </div>
+                    <button
+                      onClick={() => setBalanceModalUser(user)}
+                      className="text-xs bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 px-2 py-1 rounded-lg border border-amber-500/30 transition-colors"
+                    >
+                      Adjust
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Role Selector */}
@@ -860,6 +877,23 @@ export default function UserRoleManager() {
           </div>
         </Modal>
       )}
+
+      {/* Balance Adjust Modal */}
+      <BalanceAdjustModal
+        open={!!balanceModalUser}
+        onClose={() => setBalanceModalUser(null)}
+        user={balanceModalUser}
+        onSuccess={(data) => {
+          setUsers((prev) =>
+            prev.map((u) =>
+              u._id === balanceModalUser?._id
+                ? { ...u, balance: data.newBalance }
+                : u
+            )
+          );
+          setBalanceModalUser(null);
+        }}
+      />
     </div>
   );
 }
