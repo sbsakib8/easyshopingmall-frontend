@@ -76,6 +76,18 @@ export default function UserRoleManager() {
       color: "bg-indigo-600",
       icon: "🏆",
     },
+    {
+      value: "MANAGER",
+      label: "Manager",
+      color: "bg-orange-500",
+      icon: "📋",
+    },
+    {
+      value: "CPO",
+      label: "CPO",
+      color: "bg-teal-500",
+      icon: "📊",
+    },
     { value: "ADMIN", label: "Admin", color: "bg-red-500", icon: "👑" },
   ];
 
