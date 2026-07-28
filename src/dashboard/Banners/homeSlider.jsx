@@ -4,6 +4,7 @@ import {
   HomeBannerCreate,
   HomeBannerDelete,
   HomeBannerUploade,
+  HomeBannerToggleActive,
 } from "@/src/hook/useHomeBanner";
 import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
 import { useGetHomeBanner } from "@/src/utlis/useHomeBanner";
@@ -171,6 +172,7 @@ const HomeSliderPage = () => {
   // update slider active status
 
   const toggleSliderStatus = async (id) => {
+    const previousSliders = [...sliders];
     setSliders((prev) =>
       prev.map((slider) =>
         slider._id === id ? { ...slider, active: !slider.active } : slider,
@@ -178,19 +180,12 @@ const HomeSliderPage = () => {
     );
 
     try {
-      const targetBanner = sliders.find((slider) => slider._id === id);
-      if (!targetBanner) return;
-
-      const updatedActive = !targetBanner.active;
-
-      const formData = new FormData();
-      formData.append("active", updatedActive);
-
-      await HomeBannerUploade(formData, id);
-
+      await HomeBannerToggleActive(id);
       refetch();
+      toast.success("Slider status updated!");
     } catch (error) {
-      toast.error("❌ Toggle slider status error:", error);
+      setSliders(previousSliders);
+      toast.error("Failed to toggle slider status");
     }
   };
 

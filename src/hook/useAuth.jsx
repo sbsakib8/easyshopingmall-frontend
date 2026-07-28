@@ -141,6 +141,48 @@ export const getAllUser = async () => {
   }
 }
 
+// get customers (users with orders)
+export const getCustomers = async (params = {}) => {
+  try {
+    const queryParams = new URLSearchParams();
+    if (params.page) queryParams.append("page", params.page);
+    if (params.limit) queryParams.append("limit", params.limit);
+    if (params.search) queryParams.append("search", params.search);
+    if (params.status) queryParams.append("status", params.status);
+
+    const queryString = queryParams.toString();
+    const url = `/users/customers${queryString ? `?${queryString}` : ""}`;
+
+    const response = await apiClient.get(url);
+    return response.data;
+  } catch (error) {
+    console.error("Get Customers error:", error.response?.data || error.message);
+    throw error;
+  }
+}
+
+// deduct courier cost from dropshipper balance
+export const deductCourierCost = async (data) => {
+  try {
+    const response = await apiClient.post("/balance-transaction/courier-deduct", data);
+    return response.data;
+  } catch (error) {
+    console.error("Deduct Courier Cost error:", error.response?.data || error.message);
+    throw error;
+  }
+}
+
+// get courier deduction history
+export const getCourierDeductions = async (params = {}) => {
+  try {
+    const response = await apiClient.get("/balance-transaction/all", { params });
+    return response.data;
+  } catch (error) {
+    console.error("Get Courier Deductions error:", error.response?.data || error.message);
+    throw error;
+  }
+}
+
 // update profile
 export const updateUserProfile = async (id, formData) => {
   try {

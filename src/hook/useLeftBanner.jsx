@@ -47,6 +47,21 @@ export const LeftBannerUploade = async (formData, id) => {
   }
 };
 
+// toggle LeftBanner status
+export const LeftBannerToggleActive = async (id) => {
+  try {
+    const response = await apiClient.patch(
+      `/LeftBanner/${id}/toggle-active`,
+      {},
+      { withCredentials: true }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("LeftBanner toggle error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
 // delete LeftBanner
 export const LeftBannerDelete = async (categoryId) => {
   try {

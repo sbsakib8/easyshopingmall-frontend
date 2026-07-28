@@ -75,6 +75,21 @@ export const SubCategoryUploade = async (formData, subcategoryId) => {
   }
 };
 
+// toggle subcategory active status
+export const SubCategoryToggleActive = async (subcategoryId) => {
+  try {
+    const response = await apiClient.patch(
+      `/subcategories/${subcategoryId}/toggle-active`,
+      {},
+      { withCredentials: true }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("SubCategory toggle error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
 // delete 
 export const SubCategoryDelete = async (subcategoryId) => {
   try {

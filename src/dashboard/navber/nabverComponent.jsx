@@ -115,6 +115,20 @@ const DashboardNebver = ({ children }) => {
       icon: ShoppingCart,
       path: "/dashboard/order/allorders",
       roles: ["ADMIN", "MANAGER", "CPO"],
+      submenu: [
+        {
+          path: "/order/allorders",
+          id: 301,
+          label: "All Orders",
+          icon: ShoppingCart,
+        },
+        {
+          path: "/courier/courier-cost",
+          id: 302,
+          label: "Courier Cost",
+          icon: Truck,
+        },
+      ],
     },
     {
       id: 4,

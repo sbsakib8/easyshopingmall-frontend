@@ -6,6 +6,7 @@ import {
   SubCategoryCreate,
   SubCategoryDelete,
   SubCategoryUploade,
+  SubCategoryToggleActive,
 } from "@/src/hook/useSubcategory";
 import { CategoryAllGet } from "@/src/hook/usecategory";
 import { cn } from "@/src/utlis/utils";
@@ -265,13 +266,10 @@ const AddSubcategoriesComponent = () => {
         ),
       );
 
-      const response = await SubCategoryUploade(
-        { isActive: updatedStatus },
-        subcategory._id,
-      );
+      const response = await SubCategoryToggleActive(subcategory._id);
 
       if (response.success) {
-        toast.success(`Subcategory"${subcategory.name}"status updated`);
+        toast.success(`Subcategory "${subcategory.name}" status updated`);
       }
     } catch (error) {
       console.error("Failed to update status:", error);

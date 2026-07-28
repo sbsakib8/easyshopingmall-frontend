@@ -44,18 +44,18 @@ async function getBanners() {
 
 async function getProducts() {
   try {
-    const res = await fetch(`${UrlBackend}/products/get`, {
+    const res = await fetch(`${UrlBackend}/homepage/popular-products`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ page: 1, limit: 50 }),
+      body: JSON.stringify({ page: 1, limit: 80 }),
       next: { revalidate: 300 }
     });
 
     if (!res.ok) return { products: [], totalCount: 0 };
 
     const json = await res.json();
-    const products = json.data || json.products || (Array.isArray(json) ? json : []);
-    const totalCount = json.totalCount || products.length;
+    const products = json.data?.products || json.data || [];
+    const totalCount = json.data?.totalCount || products.length;
 
     return { products, totalCount };
 

@@ -53,6 +53,21 @@ export const HomeBannerUploade = async (formData, id) => {
   }
 };
 
+// toggle HomeBanner active status
+export const HomeBannerToggleActive = async (id) => {
+  try {
+    const response = await apiClient.patch(
+      `/homeBannerRoutes/${id}/toggle-active`,
+      {},
+      { withCredentials: true }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("HomeBanner toggle error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
 // delete HomeBanner
 export const HomeBannerDelete = async (categoryId) => {
   try {
