@@ -33,6 +33,7 @@ import {
   syncFromUrl,
   toggleFilters,
 } from "@/src/redux/shopSlice";
+import { fuzzyFilterAndSort } from "@/src/utlis/fuzzySearch";
 import { useCategoryWithSubcategories } from "@/src/utlis/useCategoryWithSubcategories";
 import { useWishlist } from "@/src/utlis/useWishList";
 import MenuItem from "@mui/material/MenuItem";
@@ -410,6 +411,7 @@ const ShopPage = ({ initialData, queryParams }) => {
     );
   }, [
     dispatch,
+    urlSearch,
     urlCategory,
     urlSubCategory,
     urlBrand,
@@ -419,7 +421,7 @@ const ShopPage = ({ initialData, queryParams }) => {
     urlRating,
     urlSortBy,
     urlPage,
-  ]); // Only run on mount to sync initial URL -> Redux
+  ]); // Sync URL -> Redux on mount and when URL params change
 
   // Update URL when Filters Change (Redux -> URL)
   useEffect(() => {
@@ -600,8 +602,11 @@ const ShopPage = ({ initialData, queryParams }) => {
     initialData,
   ]);
 
-  const currentProducts = reduxProducts;
-  const totalCountComputed = reduxTotalCount;
+  const currentProducts = useMemo(() => {
+    return fuzzyFilterAndSort(reduxProducts, debouncedSearchTerm);
+  }, [reduxProducts, debouncedSearchTerm]);
+
+  const totalCountComputed = currentProducts.length;
   const totalPages = Math.ceil(totalCountComputed / productsPerPage);
 
   // Debounce search term
@@ -1304,7 +1309,18 @@ const ShopPage = ({ initialData, queryParams }) => {
                   {productsError.message || "Check your internet or try again."}
                 </p>
                 <button
-                  onClick={() => dispatch(fetchShopProducts({ limit: 10000 }))}
+                  onClick={() => dispatch(fetchShopProducts({
+                    page: currentPage,
+                    limit: productsPerPage,
+                    search: debouncedSearchTerm,
+                    categoryId: filterCategory === "all" ? undefined : filterCategory,
+                    subCategoryId: filterSubCategory === "all" ? undefined : filterSubCategory,
+                    brand: filterBrand === "all" ? undefined : filterBrand,
+                    gender: filterGender === "all" ? undefined : filterGender,
+                    minPrice: priceRange[0],
+                    maxPrice: priceRange[1],
+                    sortBy: sortBy,
+                  }))}
                   className="bg-red-500 hover:bg-red-600 text-accent-content px-6 py-2 rounded-lg transition-colors font-medium shadow-md"
                 >
                   Retry Loading

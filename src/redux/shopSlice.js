@@ -144,6 +144,7 @@ const shopSlice = createSlice({
             })
             .addCase(fetchShopProducts.fulfilled, (state, action) => {
                 state.loading = false;
+                state.error = null;
                 state.products = action.payload.products;
                 state.totalCount = action.payload.totalCount;
             })
