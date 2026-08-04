@@ -707,7 +707,7 @@ const AddCategoriesComponent = () => {
                         placeholder="SEO meta description"
                       />
                       <p className="text-xs text-gray-400">
-                        {formData.metaDescription.length}/160 characters
+                        {formData?.metaDescription?.length ?? 0}/160 characters
                       </p>
                     </div>
                   </div>
