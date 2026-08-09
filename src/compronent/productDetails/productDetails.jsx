@@ -1,6 +1,7 @@
 "use client"
 import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
@@ -11,6 +12,7 @@ import { getApprovedReviews, submitReview, deleteReview } from "@/src/hook/useRe
 import { decreaseProductQuantity, increaseProductQuantity } from "@/src/hook/useUpdateProduct";
 import { addToWishlistApi, removeFromWishlistApi } from "@/src/hook/useWishlist";
 import { useGetProduct } from "@/src/utlis/userProduct";
+import apiClient from "@/src/lib/axios";
 import { dsCartAdd } from "@/src/redux/dropshippingCartSlice";
 import ReactPlayer from 'react-player'
 import {
@@ -111,6 +113,7 @@ const ProductDetails = ({ initialProduct }) => {
   const [couponsLoading, setCouponsLoading] = useState(false);
   const [downloadingImage, setDownloadingImage] = useState(null);
   const [downloadingAll, setDownloadingAll] = useState(false);
+  const [hasCourseAccess, setHasCourseAccess] = useState(false);
 
   const isDropshipping = user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING");
 
@@ -215,6 +218,22 @@ const ProductDetails = ({ initialProduct }) => {
     };
     fetchCoupons();
   }, [params?.id, isDropshipping]);
+
+  // Fetch course access for dropshipping users to determine coupon visibility
+  useEffect(() => {
+    if (!isDropshipping) return;
+    const fetchCourseAccess = async () => {
+      try {
+        const res = await apiClient.get("/video-access/my-access");
+        const accessRequests = res.data?.accessRequests || res.data || [];
+        const hasApproved = accessRequests.some(req => req.status === "approved");
+        setHasCourseAccess(hasApproved);
+      } catch (err) {
+        console.error("Course access fetch error:", err);
+      }
+    };
+    fetchCourseAccess();
+  }, [isDropshipping]);
 
   // Download a single image
   const handleDownloadImage = async (imageUrl, index) => {
@@ -974,7 +993,7 @@ const ProductDetails = ({ initialProduct }) => {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`py-4 ${(user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) && tab === "reviews" ? "hidden" : ''} ${(user?.role !== "DROPSHIPPING" && !user?.roles?.includes("DROPSHIPPING")) && tab === "coupon information" ? "hidden" : ''} px-1 border-b-2 font-medium text-sm capitalize transition-all duration-300 ${activeTab === tab
+                  className={`py-4 ${(user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) && tab === "reviews" ? "hidden" : ''} ${(!isDropshipping && tab === "coupon information") ? "hidden" : ''} px-1 border-b-2 font-medium text-sm capitalize transition-all duration-300 ${activeTab === tab
                     ? "border-blue-500 text-blue-600"
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                     }`}
@@ -1144,7 +1163,7 @@ const ProductDetails = ({ initialProduct }) => {
               </div>
             )}
             { }
-            {activeTab === "coupon information" && isDropshipping && (
+            {activeTab === "coupon information" && isDropshipping && hasCourseAccess && (
               <div className="py-6 px-2">
                 {/* Section Header */}
                 <div className="flex items-center gap-3 mb-6">
@@ -1311,6 +1330,19 @@ const ProductDetails = ({ initialProduct }) => {
                     <p className="text-gray-400 text-xs mt-1">Check back later for special dropshipping offers.</p>
                   </div>
                 )}
+              </div>
+            )}
+
+            {activeTab === "coupon information" && isDropshipping && !hasCourseAccess && (
+              <div className="py-12 text-center">
+                <div className="w-16 h-16 mx-auto bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mb-4 shadow-inner">
+                  <span className="text-3xl">🎟️</span>
+                </div>
+                <h4 className="text-gray-700 font-bold text-lg mb-2">Course Purchase Required</h4>
+                <p className="text-gray-500 text-sm mb-4">You need to purchase a course to access exclusive coupon codes.</p>
+                <Link href="/video" className="inline-block bg-primary text-accent-content px-6 py-2 rounded-md hover:bg-[#609283] transition duration-200">
+                  Browse Courses
+                </Link>
               </div>
             )}
 

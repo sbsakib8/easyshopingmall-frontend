@@ -1,0 +1,182 @@
+'use client'
+import { FcGoogle } from "react-icons/fc";
+import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import { FaRegEye } from "react-icons/fa";
+import { FaEyeSlash } from "react-icons/fa";
+import { FiLoader } from "react-icons/fi";
+import { useState, useEffect, Suspense } from 'react';
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { googleSignIn, UseAuth } from "@/src/hook/useAuth";
+import toast from "react-hot-toast";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { auth } from "@/firebase";
+import AuthRedirect from "@/src/utlis/authRedirect";
+import { useDispatch } from "react-redux";
+import Section from "@/src/compronent/shared/Section";
+import { sanitizeInput, sanitizeEmail, sanitizePhone } from "@/src/lib/sanitize";
+
+function DropshippingSignup() {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [number, setNumber] = useState('');
+  const [password, setpassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [referralCode, setReferralCode] = useState('');
+  const [showpassword, setShowPassword] = useState(false);
+  const [role, setRole] = useState('DROPSHIPPING');
+  const router = useRouter()
+  const searchParams = useSearchParams();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const ref = searchParams.get('ref');
+    if (ref) {
+      setReferralCode(ref);
+    }
+  }, [searchParams]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    const user = {
+      name: sanitizeInput(name),
+      email: sanitizeEmail(email),
+      mobile: sanitizePhone(number),
+      password,
+      referralCode: sanitizeInput(referralCode),
+      role,
+    };
+
+    try {
+      const res = await UseAuth(user, router);
+      if (res.success) {
+        toast.success("Registration successful! Please sign in.");
+      } else {
+        toast.error(res.message);
+      }
+    } catch (error) {
+      console.error("Registration failed:", error.response?.data || error.message);
+      toast.error(error.response?.data?.message || "Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    if (!number) {
+      return toast.error("Please enter your number")
+    }
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+    try {
+      await googleSignIn({
+        name: user.reloadUserInfo.displayName,
+        email: user.reloadUserInfo.email,
+        mobile: sanitizePhone(number),
+        referralCode: sanitizeInput(referralCode),
+        image: user.reloadUserInfo.photoUrl,
+        role,
+      }, router, dispatch);
+    } catch (error) {
+      console.error("Google sign-in failed:", error.response?.data || error.message);
+      toast.error(error.response?.data?.message || "Google sign-in failed");
+    }
+  }
+
+  return (
+    <AuthRedirect>
+      <Section className='flex justify-center items-center h-auto bg-gray-100'>
+        <div className='bg-white p-8 rounded-lg shadow-md w-[95%] md:w-[500px] lg:w-[600px] '>
+          <h1 className='text-2xl font-medium mb-4'>Dropshipping Sign Up</h1>
+          <form onSubmit={handleSubmit} className='space-y-4 mt-16'>
+            <div className=' '>
+              <Box
+                component="form"
+                className=' w-full! space-y-4!'
+                noValidate
+                autoComplete="off"
+              >
+                <div className='h-[60px]'>
+                  <FormControl fullWidth>
+                    <InputLabel id="role-label">Register As</InputLabel>
+                    <Select
+                      labelId="role-label"
+                      id="role"
+                      value={role}
+                      label="Register As"
+                      onChange={(e) => setRole(e.target.value)}
+                      disabled={isLoading}
+                    >
+                      <MenuItem value="USER">User</MenuItem>
+                      <MenuItem value="DROPSHIPPING">Dropshipping</MenuItem>
+                    </Select>
+                  </FormControl>
+                </div>
+                <div className=' h-[60px] '>
+                  <TextField disabled={isLoading} type='text' className=' w-full!' value={name} onChange={(e) => setName(e.target.value)} id="FullName" label="FullName" variant="outlined" required />
+                </div>
+                <div className=' h-[60px] '>
+                  <TextField disabled={isLoading} type='email' className=' w-full!' value={email} onChange={(e) => setEmail(e.target.value)} id="email" label="Email" variant="outlined" required />
+                </div>
+                <div className=' h-[60px] '>
+                  <TextField disabled={isLoading} type='text' className=' w-full!' value={number} onChange={(e) => setNumber(e.target.value)} id="number" label="Number" variant="outlined" required />
+                </div>
+                <div className=' h-[60px] relative'>
+                  <TextField disabled={isLoading} type={showpassword ? 'text' : 'password'} className=' w-full!' value={password} onChange={(e) => setpassword(e.target.value)} id="password" label="Password" variant="outlined" required />
+                  <button type='button' disabled={isLoading} onClick={() => setShowPassword(!showpassword)} className='absolute right-3 top-[50%] transform -translate-y-1/2 cursor-pointer text-gray-500'>
+                    {showpassword ? <FaRegEye className='text-xl' /> : <FaEyeSlash className='text-xl' />}
+                  </button>
+                </div>
+                <div className=' h-[60px] '>
+                  <TextField disabled={isLoading} type='text' className=' w-full!' value={referralCode} onChange={(e) => setReferralCode(e.target.value)} id="referralCode" label="Referral Code (Optional)" variant="outlined" />
+                </div>
+
+
+              </Box>
+
+
+            </div>
+            <button disabled={isLoading} type='submit' className='w-full bg-primary text-accent-content py-2 rounded-md hover:bg-[#609283] cursor-pointer transition duration-200 disabled:opacity-70 disabled:bg-gray-300'>
+              {isLoading ?
+
+              <span className="w-full flex justify-center items-center gap-2">
+
+
+             <FiLoader className="animate-spin" />
+               Signing up
+              </span>
+
+              : "Sign Up"}
+            </button>
+
+            <span className='flex justify-center items-center'>Or</span>
+
+
+            <div onClick={handleGoogleSignIn} type='button' className='w-full flex justify-center items-center  text-black border border-primary py-3 rounded-md hover:bg-gray-200 cursor-pointer transition-all duration-300 delay-200'>
+              <FcGoogle className='text-2xl mr-2' />
+              <button>Sign Up with Google</button>
+
+            </div>
+            <p className='text-center text-sm text-gray-600'>Already have an account? <Link href='/signin' className='text-blue-600 hover:underline'>SignIn</Link></p>
+          </form>
+        </div>
+      </Section>
+    </AuthRedirect>
+  )
+}
+
+export default function DropshippingSignupPage() {
+  return (
+    <Suspense fallback={<div className="h-screen bg-gray-100 flex items-center justify-center">Loading...</div>}>
+      <DropshippingSignup />
+    </Suspense>
+  )
+}
