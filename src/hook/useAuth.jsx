@@ -34,7 +34,8 @@ export const UserSignin = async (formData, route, dispatch) => {
       const userData = response.data.user;
       dispatch(userget(userData));
       secureStorage.setItem("user", userData);
-      route.push("/");
+      const isDropshipper = userData?.role === "DROPSHIPPING" || userData?.roles?.includes("DROPSHIPPING");
+      route.push(isDropshipper ? "/seller-dashboard" : "/");
     }
 
     return response.data;
@@ -109,7 +110,8 @@ export const googleSignIn = async (formData, route, dispatch) => {
       const userData = { ...rest, _id: id, id };
       dispatch(userget(userData));
       secureStorage.setItem("user", userData);
-      route.push("/");
+      const isDropshipper = userData?.role === "DROPSHIPPING" || userData?.roles?.includes("DROPSHIPPING");
+      route.push(isDropshipper ? "/seller-dashboard" : "/");
     }
     return response.data;
 
