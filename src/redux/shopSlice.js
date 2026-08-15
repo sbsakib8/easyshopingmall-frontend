@@ -5,7 +5,7 @@ export const fetchShopProducts = createAsyncThunk(
     async (params, { rejectWithValue }) => {
         try {
             // Traditional single-page fetch for better performance
-            const limit = params.limit || 50;
+            const limit = params.limit || 100;
             const page = params.page || 1;
             
             const res = await ProductAllGet({ ...params, page, limit });

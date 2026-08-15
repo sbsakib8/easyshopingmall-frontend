@@ -606,7 +606,7 @@ const ShopPage = ({ initialData, queryParams }) => {
     return fuzzyFilterAndSort(reduxProducts, debouncedSearchTerm);
   }, [reduxProducts, debouncedSearchTerm]);
 
-  const totalCountComputed = currentProducts.length;
+  const totalCountComputed = reduxTotalCount || currentProducts.length;
   const totalPages = Math.ceil(totalCountComputed / productsPerPage);
 
   // Debounce search term

@@ -4,6 +4,7 @@ import Header from "@/src/compronent/header/header";
 import Footer from "@/src/compronent/Home/Footer";
 import DropshippingNavbar from "@/src/dropShipping/dropshippingNavbar/dropshippingNavbar";
 import BlockedUserRoute from "@/src/utlis/BlockedUserRoute";
+import FloatingCartCard from "@/src/compronent/shared/FloatingCartCard";
 import { useGetUser } from "@/src/utlis/useGetuser";
 import { usePathname } from "next/navigation";
 import { Suspense, useEffect } from "react";
@@ -34,6 +35,7 @@ export default function LayoutWrapper({ children, initialWebsiteInfo }) {
       {children}
       </main>
       {!hideLayout && <Footer initialData={initialWebsiteInfo} />}
+      <FloatingCartCard />
     </BlockedUserRoute>
   );
 }

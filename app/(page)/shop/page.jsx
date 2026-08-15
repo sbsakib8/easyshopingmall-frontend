@@ -53,7 +53,7 @@ async function getSubCategories() {
 
 async function getProducts(searchParams = {}) {
   try {
-    const limit = 50;
+    const limit = 100;
     const body = { page: 1, limit };
     if (searchParams.search) body.search = searchParams.search;
     if (searchParams.category) body.categoryId = searchParams.category;

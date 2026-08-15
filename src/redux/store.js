@@ -10,6 +10,7 @@ import subcategoryRoute from "./subcategorySlice";
 import userReducer from "./userSlice";
 import wishlistReducer from "./wishlistSlice";
 import shopReducer from "./shopSlice";
+import floatingCartReducer from "./floatingCartSlice";
 
 export const store = configureStore({
   reducer: {
@@ -24,5 +25,6 @@ export const store = configureStore({
     order: orderSlice,
     search: searchReducer,
     shop: shopReducer,
+    floatingCart: floatingCartReducer,
   },
 });

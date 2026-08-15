@@ -5,10 +5,11 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { dsCartAdd } from "@/src/redux/dropshippingCartSlice";
+import { showFloatingCart } from "@/src/redux/floatingCartSlice";
 import { cn } from "@/src/utlis/utils";
 import { Loader2 } from "lucide-react";
 
-const AddtoCartBtn = ({ className, children, productId }) => {
+const AddtoCartBtn = ({ className, children, productId, product }) => {
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.data);
@@ -20,9 +21,9 @@ const AddtoCartBtn = ({ className, children, productId }) => {
     setIsLoading(true);
 
     try {
-      const product = await getProductDetailsApi(productId);
+      const productData = product || await getProductDetailsApi(productId);
 
-      if (!product) {
+      if (!productData) {
         toast.error("প্রোডাক্টের তথ্য পাওয়া যায়নি");
         return;
       }
@@ -33,32 +34,41 @@ const AddtoCartBtn = ({ className, children, productId }) => {
       }
 
       if (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) {
-        const dsCost = product.dropshippingPrice ?? product.price ?? product.sell_price ?? 0;
+        const dsCost = productData.dropshippingPrice ?? productData.price ?? productData.sell_price ?? 0;
         dispatch(dsCartAdd({
           productId: {
-            _id: product._id || product.id,
-            productName: product.productName,
-            images: product.images || [],
+            _id: productData._id || productData.id,
+            productName: productData.productName,
+            images: productData.images || [],
           },
           quantity: 1,
           price: dsCost,
           sellingPrice: dsCost,
         }));
 
-        toast.success(`${product.productName} sourcing কার্টে যোগ করা হয়েছে`);
+        toast.success(`${productData.productName} sourcing কার্টে যোগ করা হয়েছে`);
       } else {
         await addToCartApi(
           {
             userId: user._id,
-            productId: product._id || product.id,
+            productId: productData._id || productData.id || productId,
             quantity: 1,
-            price: product.price || product.sell_price || 0,
+            price: productData.price || productData.sell_price || 0,
           },
           dispatch,
         );
 
-        toast.success(`${product.productName} সফলভাবে কার্টে যোগ করা হয়েছে`);
-        await getCartApi(user._id, dispatch);
+        toast.success(`${productData.productName || "প্রোডাক্ট"} সফলভাবে কার্টে যোগ করা হয়েছে`);
+        getCartApi(user._id, dispatch);
+
+        dispatch(showFloatingCart({
+          name: productData.productName || productData.name || "Product",
+          image: productData.images?.[0] || productData.image || null,
+          price: productData.price || productData.sell_price || 0,
+          quantity: 1,
+          color: productData.color?.[0] || null,
+          size: productData.productSize?.[0] || null,
+        }));
       }
     } catch (err) {
       console.error("Add to cart error:", err);

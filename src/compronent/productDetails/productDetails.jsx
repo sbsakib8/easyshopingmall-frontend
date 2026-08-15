@@ -14,6 +14,7 @@ import { addToWishlistApi, removeFromWishlistApi } from "@/src/hook/useWishlist"
 import { useGetProduct } from "@/src/utlis/userProduct";
 import apiClient from "@/src/lib/axios";
 import { dsCartAdd } from "@/src/redux/dropshippingCartSlice";
+import { showFloatingCart } from "@/src/redux/floatingCartSlice";
 import ReactPlayer from 'react-player'
 import {
   ChevronRight,
@@ -472,6 +473,16 @@ const ProductDetails = ({ initialProduct }) => {
 
         toast.success(`${product.name} added to cart`);
         await getCartApi(user._id, dispatch);
+
+        // Show floating cart card
+        dispatch(showFloatingCart({
+          name: product.name,
+          image: product.images?.[0] || product.image,
+          price: product.price,
+          quantity: quantity,
+          color: selectedColor,
+          size: selectedSize,
+        }));
       }
     } catch (err) {
       console.error("Add to cart error:", err);
