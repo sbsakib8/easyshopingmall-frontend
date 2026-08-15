@@ -5,7 +5,6 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { dsCartAdd } from "@/src/redux/dropshippingCartSlice";
-import { showFloatingCart } from "@/src/redux/floatingCartSlice";
 import { cn } from "@/src/utlis/utils";
 import { Loader2 } from "lucide-react";
 
@@ -60,15 +59,6 @@ const AddtoCartBtn = ({ className, children, productId, product }) => {
 
         toast.success(`${productData.productName || "প্রোডাক্ট"} সফলভাবে কার্টে যোগ করা হয়েছে`);
         getCartApi(user._id, dispatch);
-
-        dispatch(showFloatingCart({
-          name: productData.productName || productData.name || "Product",
-          image: productData.images?.[0] || productData.image || null,
-          price: productData.price || productData.sell_price || 0,
-          quantity: 1,
-          color: productData.color?.[0] || null,
-          size: productData.productSize?.[0] || null,
-        }));
       }
     } catch (err) {
       console.error("Add to cart error:", err);

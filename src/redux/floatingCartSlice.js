@@ -3,20 +3,20 @@ import { createSlice } from "@reduxjs/toolkit";
 const floatingCartSlice = createSlice({
   name: "floatingCart",
   initialState: {
-    item: null,
-    show: false,
+    isOpen: false,
   },
   reducers: {
-    showFloatingCart: (state, action) => {
-      state.item = action.payload;
-      state.show = true;
+    toggleFloatingCart: (state) => {
+      state.isOpen = !state.isOpen;
     },
-    hideFloatingCart: (state) => {
-      state.show = false;
-      state.item = null;
+    openFloatingCart: (state) => {
+      state.isOpen = true;
+    },
+    closeFloatingCart: (state) => {
+      state.isOpen = false;
     },
   },
 });
 
-export const { showFloatingCart, hideFloatingCart } = floatingCartSlice.actions;
+export const { toggleFloatingCart, openFloatingCart, closeFloatingCart } = floatingCartSlice.actions;
 export default floatingCartSlice.reducer;

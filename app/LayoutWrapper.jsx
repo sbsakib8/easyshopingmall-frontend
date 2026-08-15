@@ -15,6 +15,13 @@ import { hydrateCoupon } from "@/src/redux/cartSlice";
 export default function LayoutWrapper({ children, initialWebsiteInfo }) {
   const pathname = usePathname();
   const hideLayout = pathname.startsWith("/dashboard");
+  const isDropshippingApp = [
+    "/all-products", "/boost-products", "/new-products", "/seller-dashboard",
+    "/order-list", "/my-analytics", "/passive-income", "/payment-request",
+    "/referral-profile", "/team-system", "/video", "/shop-settings",
+    "/search", "/dropshipping-addtocart", "/dropshipping-checkout",
+  ].some((p) => pathname.startsWith(p)) || pathname.startsWith("/order-details") || pathname.startsWith("/sub-category");
+  const showFloatingCart = !hideLayout && !isDropshippingApp;
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -32,10 +39,10 @@ export default function LayoutWrapper({ children, initialWebsiteInfo }) {
         {(role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) && <DropshippingNavbar />}
       </Suspense>
       <main>
-      {children}
+        {children}
       </main>
       {!hideLayout && <Footer initialData={initialWebsiteInfo} />}
-      <FloatingCartCard />
+      {showFloatingCart && <FloatingCartCard />}
     </BlockedUserRoute>
   );
 }
