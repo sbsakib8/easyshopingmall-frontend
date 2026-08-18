@@ -17,9 +17,12 @@ export const HomeBannerCreate = async (formData, ) => {
 };
 
 // HomeBanner ALL GET
-export const HomeBannerAllGet = async () => {
+export const HomeBannerAllGet = async (sliderFor) => {
   try {
-    const response = await apiClient.get(`/homeBannerRoutes/get`,  {
+    const url = sliderFor 
+      ? `/homeBannerRoutes/get?sliderFor=${sliderFor}` 
+      : `/homeBannerRoutes/get`;
+    const response = await apiClient.get(url, {
       withCredentials: true,
     });
     return response.data; 
@@ -46,6 +49,21 @@ export const HomeBannerUploade = async (formData, id) => {
     return response.data;
   } catch (error) {
     console.error("HomeBanner update error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+// toggle HomeBanner active status
+export const HomeBannerToggleActive = async (id) => {
+  try {
+    const response = await apiClient.patch(
+      `/homeBannerRoutes/${id}/toggle-active`,
+      {},
+      { withCredentials: true }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("HomeBanner toggle error:", error.response?.data || error.message);
     throw error;
   }
 };

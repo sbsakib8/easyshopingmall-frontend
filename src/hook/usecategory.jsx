@@ -18,9 +18,10 @@ export const CategoryCreate = async (formData,) => {
 };
 
 // catagory ALL GET
-export const CategoryAllGet = async (dispatch) => {
+export const CategoryAllGet = async (dispatch, status) => {
   try {
-    const response = await apiClient.get(`/categories`, {
+    const url = status ? `/categories?status=${status}` : `/categories`;
+    const response = await apiClient.get(url, {
       withCredentials: true,
     });
     if (dispatch) {
@@ -50,6 +51,21 @@ export const CategoryUploade = async (formData, categoryId) => {
     return response.data;
   } catch (error) {
     console.error("Category update error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+// toggle category active status
+export const CategoryToggleActive = async (categoryId) => {
+  try {
+    const response = await apiClient.patch(
+      `/categories/${categoryId}/toggle-active`,
+      {},
+      { withCredentials: true }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Category toggle error:", error.response?.data || error.message);
     throw error;
   }
 };

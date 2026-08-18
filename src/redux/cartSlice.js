@@ -1,37 +1,28 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-// Helper to get initial state from localStorage safely
-const getStoredCoupon = () => {
-    if (typeof window === "undefined") return null;
-    try {
-        const stored = localStorage.getItem("appliedCoupon");
-        return stored ? JSON.parse(stored) : null;
-    } catch (e) {
-        return null;
-    }
-};
-
-const getStoredDiscount = () => {
-    if (typeof window === "undefined") return 0;
-    try {
-        const stored = localStorage.getItem("couponDiscount");
-        return stored ? Number(stored) : 0;
-    } catch (e) {
-        return 0;
-    }
-};
-
 const cartSlice = createSlice({
     name: "cart",
     initialState: {
         items: [],
-        appliedCoupon: getStoredCoupon(),
-        couponDiscount: getStoredDiscount(),
+        appliedCoupon: null,
+        couponDiscount: 0,
         loading: false,
         error: null,
     },
 
     reducers: {
+        hydrateCoupon: (state) => {
+            if (typeof window === "undefined") return;
+            try {
+                const stored = localStorage.getItem("appliedCoupon");
+                const discount = localStorage.getItem("couponDiscount");
+                state.appliedCoupon = stored ? JSON.parse(stored) : null;
+                state.couponDiscount = discount ? Number(discount) : 0;
+            } catch (e) {
+                state.appliedCoupon = null;
+                state.couponDiscount = 0;
+            }
+        },
         setCoupon: (state, action) => {
             state.appliedCoupon = action.payload.coupon;
             state.couponDiscount = action.payload.discountAmount;
@@ -131,6 +122,7 @@ export const {
     removeItemLocal,
     setCoupon,
     clearCoupon,
+    hydrateCoupon,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;

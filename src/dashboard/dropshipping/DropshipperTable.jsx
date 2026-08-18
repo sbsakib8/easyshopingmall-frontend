@@ -5,9 +5,12 @@ import {
   Award,
   ChevronLeft,
   ChevronRight,
+  DollarSign,
   Search,
   Users,
 } from "lucide-react";
+import { useState } from "react";
+import BalanceAdjustModal from "./BalanceAdjustModal";
 import React from "react";
 
 function EmptyState({
@@ -47,6 +50,8 @@ export default function DropshipperTable({
   expandedDropshipper,
   setExpandedDropshipper,
 }) {
+  const [balanceModalDS, setBalanceModalDS] = useState(null);
+
   return (
     <div className="bg-gray-900/40 border border-gray-800 rounded-[2.5rem] overflow-hidden shadow-2xl">
       <div className="p-8 border-b border-gray-800 flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-gray-900/20">
@@ -253,9 +258,21 @@ export default function DropshipperTable({
                       </div>
                     </td>
                     <td className="px-4 py-6 text-right">
-                      <span className="text-sm font-black text-amber-400">
-                        ৳{ds.balance.toLocaleString()}
-                      </span>
+                      <div className="flex items-center justify-end gap-2">
+                        <span className="text-sm font-black text-amber-400">
+                          ৳{ds.balance.toLocaleString()}
+                        </span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setBalanceModalDS(ds);
+                          }}
+                          className="p-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 transition-colors"
+                          title="Adjust Balance"
+                        >
+                          <DollarSign className="w-3.5 h-3.5 text-amber-400" />
+                        </button>
+                      </div>
                     </td>
                     <td className="px-8 py-6 text-center">
                       <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-gray-950 border border-gray-800 text-[10px] font-black text-indigo-400 group-hover:border-indigo-500/50 transition-colors">
@@ -361,6 +378,14 @@ export default function DropshipperTable({
           </div>
         </div>
       )}
+
+      {/* Balance Adjust Modal */}
+      <BalanceAdjustModal
+        open={!!balanceModalDS}
+        onClose={() => setBalanceModalDS(null)}
+        user={balanceModalDS}
+        onSuccess={() => setBalanceModalDS(null)}
+      />
     </div>
   );
 }

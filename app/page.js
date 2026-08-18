@@ -1,12 +1,12 @@
 import { UrlBackend } from "@/src/confic/urlExport";
 import HomeContent from "./HomeContent";
 
-export const revalidate = 300;
+export const revalidate = 60;
 
 async function getCategories() {
   try {
     const res = await fetch(`${UrlBackend}/categories`, {
-      next: { revalidate: 3600 }
+      next: { revalidate: 60 }
     });
     if (!res.ok) return [];
     const json = await res.json();
@@ -19,7 +19,7 @@ async function getCategories() {
 async function getSubCategories() {
   try {
     const res = await fetch(`${UrlBackend}/subcategories`, {
-      next: { revalidate: 3600 }
+      next: { revalidate: 60 }
     });
     if (!res.ok) return [];
     const json = await res.json();
@@ -32,7 +32,7 @@ async function getSubCategories() {
 async function getBanners() {
   try {
     const res = await fetch(`${UrlBackend}/homeBannerRoutes/get`, {
-      next: { revalidate: 3600 }
+      next: { revalidate: 60 }
     });
     if (!res.ok) return [];
     const json = await res.json();
@@ -44,18 +44,18 @@ async function getBanners() {
 
 async function getProducts() {
   try {
-    const res = await fetch(`${UrlBackend}/products/get`, {
+    const res = await fetch(`${UrlBackend}/homepage/popular-products`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ page: 1, limit: 50 }),
+      body: JSON.stringify({ page: 1, limit: 80 }),
       next: { revalidate: 300 }
     });
 
     if (!res.ok) return { products: [], totalCount: 0 };
 
     const json = await res.json();
-    const products = json.data || json.products || (Array.isArray(json) ? json : []);
-    const totalCount = json.totalCount || products.length;
+    const products = json.data?.products || json.data || [];
+    const totalCount = json.data?.totalCount || products.length;
 
     return { products, totalCount };
 

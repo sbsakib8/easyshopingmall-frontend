@@ -1,8 +1,36 @@
 import { BookOpen, Box, Calendar, DollarSign, ShieldCheck, ShoppingBag, Target, Users, Wallet } from "lucide-react";
 
 export const metadata = {
-    title: "Dropshipping - EasyShoppingMallBD",
-    description: "Discover dropshipping opportunities and passive income with EasyShoppingMallBD.",
+    title: "Dropshipping Opportunity - Earn Online | EasyShoppingMallBD",
+    description: "Start your dropshipping business with EasyShoppingMallBD. Earn through product selling, referral commissions, and passive income. No inventory needed — we handle delivery.",
+    keywords: [
+        "dropshipping bangladesh",
+        "online business bangladesh",
+        "passive income bangladesh",
+        "referral commission",
+        "easy shopping mall dropshipping",
+        "earn money online bangladesh",
+        "dropshipping business",
+        "ecommerce dropshipping",
+        "product selling online",
+        "team building income",
+    ],
+    openGraph: {
+        title: "Dropshipping Opportunity - Earn Online | EasyShoppingMallBD",
+        description: "Start your dropshipping business with EasyShoppingMallBD. Earn through product selling, referral commissions, and passive income.",
+        url: "https://easyshoppingmallbd.com/dropshipping",
+        siteName: "EasyShoppingMallBD",
+        type: "website",
+        locale: "bn_BD",
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "Dropshipping Opportunity - Earn Online | EasyShoppingMallBD",
+        description: "Start your dropshipping business with EasyShoppingMallBD. Earn through product selling, referral commissions, and passive income.",
+    },
+    alternates: {
+        canonical: "/dropshipping",
+    },
 };
 
 const DropshippingPage = () => {

@@ -20,11 +20,11 @@ export const SubCategoryCreate = async (formData,) => {
 };
 
 // subcatagory ALL GET
-export const SubCategoryAllGet = async (dispatch, filterType) => {
+export const SubCategoryAllGet = async (dispatch, filterType, status) => {
   try {
     const url = filterType 
-      ? `/subcategories?filterType=${filterType}` 
-      : `/subcategories`;
+      ? `/subcategories?filterType=${filterType}&status=${status || "all"}` 
+      : `/subcategories?status=${status || "all"}`;
     const response = await apiClient.get(url, {
       withCredentials: true,
       headers: {
@@ -71,6 +71,21 @@ export const SubCategoryUploade = async (formData, subcategoryId) => {
     return response.data;
   } catch (error) {
     console.error("Category update error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+// toggle subcategory active status
+export const SubCategoryToggleActive = async (subcategoryId) => {
+  try {
+    const response = await apiClient.patch(
+      `/subcategories/${subcategoryId}/toggle-active`,
+      {},
+      { withCredentials: true }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("SubCategory toggle error:", error.response?.data || error.message);
     throw error;
   }
 };

@@ -9,6 +9,8 @@ import {
   Calendar,
   Check,
   Clock,
+  DollarSign,
+  Download,
   Edit,
   Mail,
   Phone,
@@ -22,6 +24,8 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import * as XLSX from "xlsx";
+import BalanceAdjustModal from "@/src/dashboard/dropshipping/BalanceAdjustModal";
 export default function UserRoleManager() {
   const { canModify } = useDashboardPermission();
   // Get all users
@@ -39,6 +43,7 @@ export default function UserRoleManager() {
   });
   const [updateLoading, setUpdateLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [balanceModalUser, setBalanceModalUser] = useState(null);
 
   useEffect(() => {
     if (allusers && allusers.length > 0) {
@@ -73,6 +78,18 @@ export default function UserRoleManager() {
       label: "Box Leader",
       color: "bg-indigo-600",
       icon: "🏆",
+    },
+    {
+      value: "MANAGER",
+      label: "Manager",
+      color: "bg-orange-500",
+      icon: "📋",
+    },
+    {
+      value: "CPO",
+      label: "CPO",
+      color: "bg-teal-500",
+      icon: "📊",
     },
     { value: "ADMIN", label: "Admin", color: "bg-red-500", icon: "👑" },
   ];
@@ -233,6 +250,15 @@ export default function UserRoleManager() {
     }
   };
 
+  const handleExport = () => {
+    const exportData = hasSearched ? displayedUsers : users;
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    ws["!cols"] = [{ wch: 10 }, { wch: 10 }, { wch: 40 }, { wch: 40 }];
+    XLSX.utils.book_append_sheet(wb, ws, "MyUsers");
+    XLSX.writeFile(wb, "usersData.xlsx");
+  };
+
   const getRoleColor = (role) => {
     const roleObj = roles.find((r) => r.value === role);
     return roleObj ? roleObj.color : "bg-gray-500";
@@ -375,13 +401,22 @@ export default function UserRoleManager() {
                 </>
               )}
             </p>
-            <button
-              onClick={refetch}
-              className="flex items-center gap-2 text-purple-400 hover:text-purple-300 text-sm"
-            >
-              <RefreshCw className="w-4 h-4" />
-              Refresh
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleExport}
+                className="flex items-center space-x-2 px-4 py-2 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-600/50 text-gray-300 hover:text-slate-300 rounded-xl text-sm"
+              >
+                <Download className="w-4 h-4" />
+                <span className="hidden sm:inline">Export</span>
+              </button>
+              <button
+                onClick={refetch}
+                className="flex items-center gap-2 text-purple-400 hover:text-purple-300 text-sm"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Refresh
+              </button>
+            </div>
           </div>
         </div>
 
@@ -452,6 +487,20 @@ export default function UserRoleManager() {
                   <User className="w-4 h-4 text-purple-400" />
                   <span className="truncate">ID: {user?._id}</span>
                 </div>
+                {(user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) && (
+                  <div className="flex items-center justify-between bg-gray-900 rounded-lg px-3 py-2 border border-gray-700">
+                    <div className="flex items-center gap-2 text-gray-300 text-sm">
+                      <DollarSign className="w-4 h-4 text-amber-400" />
+                      <span>Balance: <strong className="text-amber-400">৳{(user?.balance || 0).toLocaleString()}</strong></span>
+                    </div>
+                    <button
+                      onClick={() => setBalanceModalUser(user)}
+                      className="text-xs bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 px-2 py-1 rounded-lg border border-amber-500/30 transition-colors"
+                    >
+                      Adjust
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Role Selector */}
@@ -828,6 +877,23 @@ export default function UserRoleManager() {
           </div>
         </Modal>
       )}
+
+      {/* Balance Adjust Modal */}
+      <BalanceAdjustModal
+        open={!!balanceModalUser}
+        onClose={() => setBalanceModalUser(null)}
+        user={balanceModalUser}
+        onSuccess={(data) => {
+          setUsers((prev) =>
+            prev.map((u) =>
+              u._id === balanceModalUser?._id
+                ? { ...u, balance: data.newBalance }
+                : u
+            )
+          );
+          setBalanceModalUser(null);
+        }}
+      />
     </div>
   );
 }

@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import { HomeBannerAllGet } from "../hook/useHomeBanner";
 
 // ✅ Custom hook
-export const useGetHomeBanner = () => {
+export const useGetHomeBanner = (sliderFor) => {
   const [homebanner, setHomeBanner] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -11,7 +11,7 @@ export const useGetHomeBanner = () => {
   const fetchHomebanner = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await HomeBannerAllGet();
+      const data = await HomeBannerAllGet(sliderFor);
       setHomeBanner(data.data);
       setError(null);
     } catch (err) {
@@ -19,7 +19,7 @@ export const useGetHomeBanner = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [sliderFor]);
 
   useEffect(() => {
     fetchHomebanner();
