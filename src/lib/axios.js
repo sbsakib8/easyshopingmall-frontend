@@ -11,6 +11,7 @@ const apiClient = axios.create({
   timeout: 30000,
 });
 
+
 apiClient.interceptors.request.use(
   (config) => {
     if (typeof window !== "undefined") {
