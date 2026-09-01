@@ -1,6 +1,6 @@
 "use client";
 
-import { getAllUser } from "@/src/hook/useAuth";
+import { getCustomers } from "@/src/hook/useAuth";
 import {
   ChevronLeft,
   ChevronRight,
@@ -11,64 +11,86 @@ import {
   Search,
   ShoppingBag,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import CustomerDetailsModal from "./CustomerDetailsModal";
 
 const AllCustomersPage = () => {
   const [customers, setCustomers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [sortBy, setSortBy] = useState("name");
-  const [sortOrder, setSortOrder] = useState("asc");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [selectedCustomers, setSelectedCustomers] = useState([]);
-  const [showFilters, setShowFilters] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [showCustomerModal, setShowCustomerModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [deleteModal, setDeleteModal] = useState(null);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalCount: 0,
+    limit: 10,
+  });
 
-  // Filter and sort customers
-  const filteredAndSortedCustomers = useMemo(() => {
-    const filtered = customers.filter((customer) => {
-      const matchesSearch =
-        customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer.phone.includes(searchTerm);
-      const matchesStatus =
-        statusFilter === "all" || customer.status === statusFilter;
-      return matchesSearch && matchesStatus;
-    });
+  const fetchCustomers = async (page = 1, search = "", status = "") => {
+    try {
+      setIsLoading(true);
+      const params = {
+        page,
+        limit: itemsPerPage,
+        search,
+        status: status === "all" ? "" : status,
+      };
 
-    filtered.sort((a, b) => {
-      let aValue = a[sortBy];
-      let bValue = b[sortBy];
+      const response = await getCustomers(params);
+      const customersData = response?.customers || [];
 
-      if (typeof aValue === "string") aValue = aValue.toLowerCase();
-      if (typeof bValue === "string") bValue = bValue.toLowerCase();
+      const formattedCustomers = customersData.map((user) => ({
+        id: user._id,
+        name: user.name || "No Name",
+        email: user.email || "No Email",
+        phone: user.mobile || "N/A",
+        address: user.address_details?.[0] || "No address",
+        joinDate: user.createdAt || null,
+        totalOrders: user.orderStats?.orderCount || 0,
+        totalSpent: user.orderStats?.totalSpent || 0,
+        lastOrder: user.orderStats?.lastOrderDate || null,
+        status: user.status === "Active" ? "active" : "inactive",
+        avatar: user.image || "/placeholder.svg",
+        rating: 5,
+      }));
 
-      if (sortOrder === "asc") {
-        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
-      } else {
-        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
-      }
-    });
+      setCustomers(formattedCustomers);
+      setPagination(response?.pagination || {
+        currentPage: 1,
+        totalPages: 1,
+        totalCount: 0,
+        limit: itemsPerPage,
+      });
+    } catch (err) {
+      console.error("Fetch customer error", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    return filtered;
-  }, [customers, searchTerm, statusFilter, sortBy, sortOrder]);
+  useEffect(() => {
+    fetchCustomers(currentPage, searchTerm, statusFilter);
+  }, [currentPage, statusFilter]);
 
-  // Pagination
-  const totalPages = Math.ceil(
-    filteredAndSortedCustomers.length / itemsPerPage,
-  );
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedCustomers = filteredAndSortedCustomers.slice(
-    startIndex,
-    startIndex + itemsPerPage,
-  );
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    setCurrentPage(1);
+    fetchCustomers(1, value, statusFilter);
+  };
 
-  // Handle customer selection
+  const handleStatusFilter = (e) => {
+    const value = e.target.value;
+    setStatusFilter(value);
+    setCurrentPage(1);
+    fetchCustomers(1, searchTerm, value);
+  };
+
   const handleSelectCustomer = (customerId) => {
     setSelectedCustomers((prev) =>
       prev.includes(customerId)
@@ -77,80 +99,21 @@ const AllCustomersPage = () => {
     );
   };
 
-  useEffect(() => {
-    const fetchCustomers = async () => {
-      try {
-        setIsLoading(true);
-
-        const usersResponse = await getAllUser();
-        const users = usersResponse?.users || [];
-
-        const customersWithOrders = users.filter(
-          (user) =>
-            Array.isArray(user.orderHistory) && user.orderHistory.length > 0,
-        );
-
-        const formattedCustomers = customersWithOrders.map((user) => {
-          const orders = Array.isArray(user.orderHistory)
-            ? user.orderHistory
-            : [];
-
-          const totalOrders = orders.length;
-
-          const lastOrderDate = user.updatedAt || null;
-
-          return {
-            id: user._id,
-            name: user.name || "No Name",
-            email: user.email || "No Email",
-            phone: user.mobile || "N/A",
-            address: user.address_details?.[0] || "No address",
-            joinDate: user.createdAt || null,
-            totalOrders,
-            lastOrder: lastOrderDate,
-            status: user.status === "Active" ? "active" : "inactive",
-            avatar: user.image || "/placeholder.svg",
-            rating: 5,
-          };
-        });
-
-        setCustomers(formattedCustomers);
-      } catch (err) {
-        console.error("Fetch customer error", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchCustomers();
-  }, []);
-
   const handleSelectAll = () => {
-    if (selectedCustomers.length === paginatedCustomers.length) {
+    if (selectedCustomers.length === customers.length) {
       setSelectedCustomers([]);
     } else {
-      setSelectedCustomers(paginatedCustomers.map((customer) => customer.id));
+      setSelectedCustomers(customers.map((customer) => customer.id));
     }
   };
 
-  // Handle customer actions
   const handleViewCustomer = (customer) => {
     setSelectedCustomer(customer);
     setShowCustomerModal(true);
   };
 
-  const handleBulkDelete = () => {
-    if (
-      confirm(
-        `Are you sure you want to delete ${selectedCustomers.length} customers?`,
-      )
-    ) {
-      setCustomers((prev) =>
-        prev.filter((customer) => !selectedCustomers.includes(customer.id)),
-      );
-      setSelectedCustomers([]);
-    }
-  };
+  const totalPages = pagination.totalPages;
+  const totalCount = pagination.totalCount;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800">
@@ -171,23 +134,23 @@ const AllCustomersPage = () => {
           </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="w-full mt-3 px-5">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mb-8">
-            {[
-              {
-                title: "Total Customers",
-                value: customers.length,
-                icon: "👥",
-                color: "from-blue-500 to-cyan-500",
-              },
-              {
-                title: "Active Customers",
-                value: customers.filter((c) => c.status === "active").length,
-                icon: "✅",
-                color: "from-green-500 to-emerald-500",
-              },
-            ].map((stat, index) => (
+          {/* Stats Cards */}
+          <div className="w-full mt-3 px-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mb-8">
+              {[
+                {
+                  title: "Total Customers",
+                  value: totalCount,
+                  icon: "👥",
+                  color: "from-blue-500 to-cyan-500",
+                },
+                {
+                  title: "Active Customers",
+                  value: customers.filter((c) => c.status === "active").length,
+                  icon: "✅",
+                  color: "from-green-500 to-emerald-500",
+                },
+              ].map((stat, index) => (
               <div
                 key={index}
                 className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6 w-full flex flex-col items-center justify-center text-center"
@@ -217,7 +180,7 @@ const AllCustomersPage = () => {
                   type="text"
                   placeholder="Search customers by name, email, or phone..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={handleSearch}
                   className="w-full sm:w-[500px] pl-10 pr-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-slate-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
@@ -226,12 +189,12 @@ const AllCustomersPage = () => {
               <div className="flex-shrink-0 w-full sm:w-auto">
                 <select
                   value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
+                  onChange={handleStatusFilter}
                   className="w-full sm:w-[200px] px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="all">All Status</option>
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
                 </select>
               </div>
             </div>
@@ -248,12 +211,6 @@ const AllCustomersPage = () => {
                   selected
                 </span>
                 <div className="flex gap-2">
-                  <button
-                    onClick={handleBulkDelete}
-                    className="px-4 py-2 bg-red-600 text-slate-300 rounded-lg hover:bg-red-700"
-                  >
-                    Delete Selected
-                  </button>
                   <button
                     onClick={() => setSelectedCustomers([])}
                     className="px-4 py-2 bg-gray-600 text-slate-300 rounded-lg hover:bg-gray-700"
@@ -273,8 +230,8 @@ const AllCustomersPage = () => {
                 <input
                   type="checkbox"
                   checked={
-                    selectedCustomers.length === paginatedCustomers.length &&
-                    paginatedCustomers.length > 0
+                    selectedCustomers.length === customers.length &&
+                    customers.length > 0
                   }
                   onChange={handleSelectAll}
                   className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
@@ -287,137 +244,134 @@ const AllCustomersPage = () => {
 
             {/* Table Body */}
             <div className="divide-y divide-gray-700/50">
-              {paginatedCustomers.map((customer, index) => (
-                // console.log("Rendering customer:", customer),
-                <div
-                  key={customer.id}
-                  className="px-6 py-4 hover:bg-gray-700/30"
-                >
-                  <div className="flex items-center gap-4">
-                    <input
-                      type="checkbox"
-                      checked={selectedCustomers.includes(customer.id)}
-                      onChange={() => handleSelectCustomer(customer.id)}
-                      className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
-                    />
+              {isLoading ? (
+                <div className="px-6 py-12 text-center">
+                  <div className="text-gray-400 text-lg mb-2">Loading...</div>
+                </div>
+              ) : customers.length === 0 ? (
+                <div className="px-6 py-12 text-center">
+                  <div className="text-gray-400 text-lg mb-2">
+                    No customers found
+                  </div>
+                  <p className="text-gray-500">
+                    Try adjusting your search or filter criteria
+                  </p>
+                </div>
+              ) : (
+                customers.map((customer) => (
+                  <div
+                    key={customer.id}
+                    className="px-6 py-4 hover:bg-gray-700/30"
+                  >
+                    <div className="flex items-center gap-4">
+                      <input
+                        type="checkbox"
+                        checked={selectedCustomers.includes(customer.id)}
+                        onChange={() => handleSelectCustomer(customer.id)}
+                        className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
+                      />
 
-                    {/* Customer Info */}
-                    <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
-                      {/* Avatar and Basic Info */}
-                      <div className="lg:col-span-4 flex items-center gap-3">
-                        {/* Avatar or First Letter */}
-                        <div className="w-12 h-12 rounded-full border-2 border-gray-600 flex items-center justify-center bg-gray-800 text-slate-300 font-bold text-lg overflow-hidden">
-                          {customer?.avatar?.trim() ? (
-                            <img
-                              src={customer?.avatar}
-                              alt={
-                                customer?.name?.charAt(0).toUpperCase() || "U"
-                              }
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-12 h-12 rounded-full border-2 border-yellow-500 bg-gray-600 flex items-center justify-center text-slate-300 font-bold text-lg">
-                              {customer?.name?.charAt(0).toUpperCase() || "U"}
+                      {/* Customer Info */}
+                      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                        {/* Avatar and Basic Info */}
+                        <div className="lg:col-span-4 flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-full border-2 border-gray-600 flex items-center justify-center bg-gray-800 text-slate-300 font-bold text-lg overflow-hidden">
+                            {customer?.avatar?.trim() ? (
+                              <img
+                                src={customer?.avatar}
+                                alt={
+                                  customer?.name?.charAt(0).toUpperCase() || "U"
+                                }
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-12 h-12 rounded-full border-2 border-yellow-500 bg-gray-600 flex items-center justify-center text-slate-300 font-bold text-lg">
+                                {customer?.name?.charAt(0).toUpperCase() || "U"}
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="flex flex-col">
+                            <h3 className="text-slate-300 font-semibold">
+                              {customer.name}
+                            </h3>
+                            <div className="flex items-center gap-2 text-sm text-gray-400">
+                              <Mail className="w-3 h-3" />
+                              <span>{customer.email}</span>
                             </div>
-                          )}
-                        </div>
-
-                        {/* Name & Email */}
-                        <div className="flex flex-col">
-                          <h3 className="text-slate-300 font-semibold">
-                            {customer.name}
-                          </h3>
-                          <div className="flex items-center gap-2 text-sm text-gray-400">
-                            <Mail className="w-3 h-3" />
-                            <span>{customer.email}</span>
                           </div>
                         </div>
-                      </div>
 
-                      {/* Contact Info */}
-                      <div className="lg:col-span-3">
-                        <div className="flex items-center gap-2 text-sm text-gray-300 mb-1">
-                          <Phone className="w-3 h-3" />
-                          {customer.phone}
+                        {/* Contact Info */}
+                        <div className="lg:col-span-3">
+                          <div className="flex items-center gap-2 text-sm text-gray-300 mb-1">
+                            <Phone className="w-3 h-3" />
+                            {customer.phone}
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-gray-400">
+                            <MapPin className="w-3 h-3" />
+                            {customer?.address?.address_line || "none"}
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-400">
-                          <MapPin className="w-3 h-3" />
-                          {customer?.address.address_line || "none"}
-                        </div>
-                      </div>
 
-                      {/* Stats */}
-                      <div className="lg:col-span-2">
-                        <div className="flex items-center gap-2 text-sm text-gray-300 mb-1">
-                          <ShoppingBag className="w-3 h-3" />
-                          {customer?.totalOrders} orders
+                        {/* Stats */}
+                        <div className="lg:col-span-2">
+                          <div className="flex items-center gap-2 text-sm text-gray-300 mb-1">
+                            <ShoppingBag className="w-3 h-3" />
+                            {customer?.totalOrders} orders
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            ৳{customer?.totalSpent?.toLocaleString() || 0} spent
+                          </div>
                         </div>
-                      </div>
 
-                      {/* Status and Rating */}
-                      <div className="lg:col-span-2">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              customer.status === "active"
-                                ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                                : "bg-red-500/20 text-red-400 border border-red-500/30"
-                            }`}
-                          >
-                            {customer.status}
-                          </span>
+                        {/* Status */}
+                        <div className="lg:col-span-2">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span
+                              className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                customer.status === "active"
+                                  ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                                  : "bg-red-500/20 text-red-400 border border-red-500/30"
+                              }`}
+                            >
+                              {customer.status}
+                            </span>
+                          </div>
                         </div>
-                      </div>
 
-                      {/* Actions */}
-                      <div className="lg:col-span-1 flex items-center justify-end">
-                        <div className="flex items-center gap-1">
-                          <button
-                            onClick={() => handleViewCustomer(customer)}
-                            className="p-2 text-gray-400 hover:text-blue-400 hover:bg-blue-500/20 rounded-lg"
-                            title="View Customer"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </button>
+                        {/* Actions */}
+                        <div className="lg:col-span-1 flex items-center justify-end">
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => handleViewCustomer(customer)}
+                              className="p-2 text-gray-400 hover:text-blue-400 hover:bg-blue-500/20 rounded-lg"
+                              title="View Customer"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
-
-            {/* Empty State */}
-            {filteredAndSortedCustomers.length === 0 && (
-              <div className="px-6 py-12 text-center">
-                <div className="text-gray-400 text-lg mb-2">
-                  No customers found
-                </div>
-                <p className="text-gray-500">
-                  Try adjusting your search or filter criteria
-                </p>
-              </div>
-            )}
           </div>
 
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
               <div className="text-gray-400 text-sm">
-                Showing {startIndex + 1} to{""}
-                {Math.min(
-                  startIndex + itemsPerPage,
-                  filteredAndSortedCustomers.length,
-                )}{" "}
-                of{""}
-                {filteredAndSortedCustomers.length} customers
+                Showing {pagination.limit * (pagination.currentPage - 1) + 1} to{" "}
+                {Math.min(pagination.limit * pagination.currentPage, totalCount)} of{" "}
+                {totalCount} customers
               </div>
 
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.max(prev - 1, 1))
-                  }
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
                   className="flex items-center gap-2 px-3 py-2 bg-gray-700/50 text-slate-300 rounded-lg hover:bg-gray-600/50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >

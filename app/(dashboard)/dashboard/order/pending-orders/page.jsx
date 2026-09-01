@@ -1,14 +1,14 @@
 "use client";
 
-import OrderManagement from "@/src/dashboard/order/orderList";
+import OrderManagementPage from "@/src/dashboard/order/OrderManagementPage";
 import DashboardGuard from "@/src/utlis/DashboardGuard";
 
-const allorder = () => {
+const PendingOrders = () => {
   return (
     <DashboardGuard section="orders">
-      <OrderManagement />
+      <OrderManagementPage />
     </DashboardGuard>
   );
 };
 
-export default allorder;
+export default PendingOrders;

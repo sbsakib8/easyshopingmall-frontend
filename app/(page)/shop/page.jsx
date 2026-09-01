@@ -51,13 +51,22 @@ async function getSubCategories() {
   }
 }
 
-async function getProducts() {
+async function getProducts(searchParams = {}) {
   try {
-    const limit = 50;
+    const limit = 100;
+    const body = { page: 1, limit };
+    if (searchParams.search) body.search = searchParams.search;
+    if (searchParams.category) body.categoryId = searchParams.category;
+    if (searchParams.subCategory) body.subCategoryId = searchParams.subCategory;
+    if (searchParams.brand) body.brand = searchParams.brand;
+    if (searchParams.gender) body.gender = searchParams.gender;
+    if (searchParams.minPrice) body.minPrice = Number(searchParams.minPrice);
+    if (searchParams.maxPrice) body.maxPrice = Number(searchParams.maxPrice);
+
     const res = await fetch(`${UrlBackend}/products/get`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ page: 1, limit }),
+      body: JSON.stringify(body),
       next: { revalidate: 60 }
     });
 
@@ -79,7 +88,7 @@ async function ShopContent({ searchParams }) {
 
   // Prefetch ALL products, categories and subcategories on the server for instant client-side experience
   const [productsData, categories, subcategories] = await Promise.all([
-    getProducts(),
+    getProducts(resolvedSearchParams),
     getCategories(),
     getSubCategories()
   ]);

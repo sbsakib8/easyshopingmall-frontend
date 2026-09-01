@@ -47,6 +47,21 @@ export const RightBannerUploade = async (formData, id) => {
   }
 };
 
+// toggle RightBanner status
+export const RightBannerToggleActive = async (id) => {
+  try {
+    const response = await apiClient.patch(
+      `/RightBanner/${id}/toggle-active`,
+      {},
+      { withCredentials: true }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("RightBanner toggle error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
 // delete RightBanner
 export const RightBannerDelete = async (categoryId) => {
   try {

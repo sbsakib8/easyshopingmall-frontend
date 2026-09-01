@@ -33,6 +33,7 @@ import {
   syncFromUrl,
   toggleFilters,
 } from "@/src/redux/shopSlice";
+import { fuzzyFilterAndSort } from "@/src/utlis/fuzzySearch";
 import { useCategoryWithSubcategories } from "@/src/utlis/useCategoryWithSubcategories";
 import { useWishlist } from "@/src/utlis/useWishList";
 import MenuItem from "@mui/material/MenuItem";
@@ -264,53 +265,40 @@ const ProductCard = React.memo(
             </div>
 
             {user?.role !== "ADMIN" ? (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  // addToCart(product)
-                }}
-                disabled={!inStock}
-                className={`w-full py-1.5 px-2 rounded font-medium text-xs ${
-                  inStock
-                    ? "bg-primary/80 hover:bg-primary text-primary-content"
-                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                }`}
-              >
-                {inStock ? (
-                  <AddtoCartBtn productId={productId}>
-                    <span className="flex items-center justify-center gap-1">
-                      <ShoppingCart size={16} /> Add to Cart
-                    </span>
-                  </AddtoCartBtn>
-                ) : (
-                  "Out of Stock"
-                )}
-              </button>
+              inStock ? (
+                <AddtoCartBtn
+                  productId={productId}
+                  className="w-full py-1.5 px-2 rounded font-medium text-xs bg-primary/80 hover:bg-primary text-primary-content"
+                >
+                  <span className="flex items-center justify-center gap-1">
+                    <ShoppingCart size={16} /> Add to Cart
+                  </span>
+                </AddtoCartBtn>
+              ) : (
+                <button
+                  disabled
+                  className="w-full py-1.5 px-2 rounded font-medium text-xs bg-gray-300 text-gray-500 cursor-not-allowed"
+                >
+                  Out of Stock
+                </button>
+              )
             ) : (
               <div className="flex justify-around gap-2">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    // addToCart(product)
-                  }}
-                  disabled={!inStock}
-                  className={`py-1.5 px-2 rounded font-medium text-xs ${
-                    inStock
-                      ? "bg-primary/80 hover:bg-primary text-primary-content"
-                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  }`}
-                >
-                  {inStock ? (
-                    <span className="flex items-center justify-center gap-1">
-                      <AddtoCartBtn productId={productId}>
-                        {" "}
-                        <ShoppingCart size={16} />
-                      </AddtoCartBtn>
-                    </span>
-                  ) : (
-                    "Out of Stock"
-                  )}
-                </button>
+                {inStock ? (
+                  <AddtoCartBtn
+                    productId={productId}
+                    className="py-1.5 px-2 rounded font-medium text-xs bg-primary/80 hover:bg-primary text-primary-content"
+                  >
+                    <ShoppingCart size={16} />
+                  </AddtoCartBtn>
+                ) : (
+                  <button
+                    disabled
+                    className="py-1.5 px-2 rounded font-medium text-xs bg-gray-300 text-gray-500 cursor-not-allowed"
+                  >
+                    Out of Stock
+                  </button>
+                )}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -423,6 +411,7 @@ const ShopPage = ({ initialData, queryParams }) => {
     );
   }, [
     dispatch,
+    urlSearch,
     urlCategory,
     urlSubCategory,
     urlBrand,
@@ -432,7 +421,7 @@ const ShopPage = ({ initialData, queryParams }) => {
     urlRating,
     urlSortBy,
     urlPage,
-  ]); // Only run on mount to sync initial URL -> Redux
+  ]); // Sync URL -> Redux on mount and when URL params change
 
   // Update URL when Filters Change (Redux -> URL)
   useEffect(() => {
@@ -613,8 +602,11 @@ const ShopPage = ({ initialData, queryParams }) => {
     initialData,
   ]);
 
-  const currentProducts = reduxProducts;
-  const totalCountComputed = reduxTotalCount;
+  const currentProducts = useMemo(() => {
+    return fuzzyFilterAndSort(reduxProducts, debouncedSearchTerm);
+  }, [reduxProducts, debouncedSearchTerm]);
+
+  const totalCountComputed = reduxTotalCount || currentProducts.length;
   const totalPages = Math.ceil(totalCountComputed / productsPerPage);
 
   // Debounce search term
@@ -774,7 +766,7 @@ const ShopPage = ({ initialData, queryParams }) => {
     .filter((sub) => {
       if (filterCategory === "all") return true;
       const parentCategory = apiCategories.find(
-        (cat) => cat.id === (sub.categoryId?._id || sub.categoryId),
+        (cat) => String(cat.id) === String(sub.categoryId?._id || sub.categoryId),
       );
       return (
         parentCategory?.slug === filterCategory ||
@@ -1252,7 +1244,7 @@ const ShopPage = ({ initialData, queryParams }) => {
               {/* Subcategories */}
               {subCategories.length > 1 && (
                 <div
-                  className={`bg-white p-6 rounded-lg shadow-md border border-gray-200 ${showSubCategory & !showCategory ? "block" : "hidden"} lg:block`}
+                  className={`bg-white p-6 rounded-lg shadow-md border border-gray-200 ${showSubCategory && !showCategory ? "block" : "hidden"} lg:block`}
                 >
                   <h3 className="font-bold text-lg mb-4 text-gray-800 flex justify-between ">
                     Subcategories
@@ -1317,7 +1309,18 @@ const ShopPage = ({ initialData, queryParams }) => {
                   {productsError.message || "Check your internet or try again."}
                 </p>
                 <button
-                  onClick={() => dispatch(fetchShopProducts({ limit: 10000 }))}
+                  onClick={() => dispatch(fetchShopProducts({
+                    page: currentPage,
+                    limit: productsPerPage,
+                    search: debouncedSearchTerm,
+                    categoryId: filterCategory === "all" ? undefined : filterCategory,
+                    subCategoryId: filterSubCategory === "all" ? undefined : filterSubCategory,
+                    brand: filterBrand === "all" ? undefined : filterBrand,
+                    gender: filterGender === "all" ? undefined : filterGender,
+                    minPrice: priceRange[0],
+                    maxPrice: priceRange[1],
+                    sortBy: sortBy,
+                  }))}
                   className="bg-red-500 hover:bg-red-600 text-accent-content px-6 py-2 rounded-lg transition-colors font-medium shadow-md"
                 >
                   Retry Loading

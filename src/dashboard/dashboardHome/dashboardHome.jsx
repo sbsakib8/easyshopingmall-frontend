@@ -7,7 +7,6 @@ import {
   Package,
   Users,
   Settings,
-  Search,
   TrendingUp,
   Eye,
   Star,
@@ -15,39 +14,75 @@ import {
   BarChart3,
   Plus,
   ChevronRight,
-  FileText,
-  Globe,
   ArrowUp,
+  ArrowDown,
   Activity,
-  Zap,
+  Truck,
+  Calendar,
+  Clock,
+  CheckCircle,
+  XCircle,
+  RefreshCw,
+  Filter,
+  Search,
 } from "lucide-react";
-import { getAllUser, getUserProfile } from "@/src/hook/useAuth";
-import { OrderAllAdminGet } from "@/src/utlis/useOrder";
-import { ProductAllGet } from "@/src/hook/useProduct";
-import useGetRevenue from "@/src/utlis/useGetRevenue";
-import Container from "@/src/compronent/shared/Container"
+import { getUserProfile } from "@/src/hook/useAuth";
+import { useDashboardStats } from "@/src/utlis/useDashboardStats";
+import Container from "@/src/compronent/shared/Container";
+
+const statusColors = {
+  pending: "bg-yellow-900/50 text-yellow-300 border border-yellow-800/50",
+  processing: "bg-blue-900/50 text-blue-300 border border-blue-800/50",
+  shipped: "bg-purple-900/50 text-purple-300 border border-purple-800/50",
+  completed: "bg-green-900/50 text-green-300 border border-green-800/50",
+  cancelled: "bg-red-900/50 text-red-300 border border-red-800/50",
+  return: "bg-orange-900/50 text-orange-300 border border-orange-800/50",
+};
+
+const dateRanges = [
+  { label: "Today", value: "today" },
+  { label: "This Week", value: "week" },
+  { label: "This Month", value: "month" },
+  { label: "All Time", value: "all" },
+];
 
 const DashboardHome = () => {
   const router = useRouter();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [usersCount, setUsersCount] = useState(0);
-  const [userChange, setUserChange] = useState(0);
-  const [ordersCount, setOrdersCount] = useState(0);
-  const [orderChange, setOrderChange] = useState(0);
-  const [productsCount, setProductsCount] = useState(0);
-  const [productsChange, setProductsChange] = useState("0.0");
-  const [recentOrders, setRecentOrders] = useState([]);
-  const [topProducts, setTopProducts] = useState([]);
-  const [ordersLoading, setOrdersLoading] = useState(true);
-  const { totalRevenue } = useGetRevenue();
-  const [revenueChange, setRevenueChange] = useState("0.0");
+  const [activeRange, setActiveRange] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const getDateRange = (range) => {
+    const now = new Date();
+    const start = new Date();
+    switch (range) {
+      case "today":
+        start.setHours(0, 0, 0, 0);
+        break;
+      case "week":
+        start.setDate(now.getDate() - 7);
+        break;
+      case "month":
+        start.setMonth(now.getMonth() - 1);
+        break;
+      default:
+        return { startDate: undefined, endDate: undefined };
+    }
+    return {
+      startDate: start.toISOString().split("T")[0],
+      endDate: now.toISOString().split("T")[0],
+    };
+  };
+
+  const dateRange = getDateRange(activeRange);
+  const { data: stats, loading: statsLoading } = useDashboardStats(
+    activeRange !== "all" ? dateRange : undefined
+  );
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
@@ -55,7 +90,6 @@ const DashboardHome = () => {
     const fetchProfile = async () => {
       try {
         const res = await getUserProfile();
-
         setUser(res.user || res.data || res);
       } catch (error) {
         console.error("User not logged in");
@@ -63,413 +97,237 @@ const DashboardHome = () => {
         setLoading(false);
       }
     };
-
     fetchProfile();
   }, []);
 
-  useEffect(() => {
-    const fetchUsersStats = async () => {
-      try {
-        const res = await getAllUser();
-        const users = res?.users || [];
+  const formatCurrency = (val) => `৳${(val || 0).toLocaleString()}`;
 
-        const today = new Date();
-        const yesterday = new Date();
-        yesterday.setDate(today.getDate() - 1);
+  const ChangeBadge = ({ value, size = "sm" }) => {
+    if (value === 0 || value === undefined) return null;
+    const isPositive = value > 0;
+    return (
+      <span className={`inline-flex items-center gap-0.5 ${size === "sm" ? "text-xs" : "text-sm"} font-bold ${isPositive ? "text-green-400" : "text-red-400"}`}>
+        {isPositive ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
+        {Math.abs(value)}%
+      </span>
+    );
+  };
 
-        const totalUsers = users.length;
-
-        const yesterdayUsers = users.filter(
-          (u) => new Date(u.createdAt) <= yesterday,
-        ).length;
-
-        let percentage = 0;
-        if (yesterdayUsers > 0) {
-          percentage = ((totalUsers - yesterdayUsers) / yesterdayUsers) * 100;
-        }
-
-        setUsersCount(totalUsers);
-        setUserChange(percentage.toFixed(1));
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchUsersStats();
-  }, []);
-
-  useEffect(() => {
-    const fetchOrdersStats = async () => {
-      try {
-        setOrdersLoading(true);
-        const res = await OrderAllAdminGet();
-        const orders = res.orders || res.data || [];
-
-        const totalOrders = orders.length;
-
-        const today = new Date();
-        const yesterday = new Date();
-        yesterday.setDate(today.getDate() - 1);
-
-        const toDateOnly = (dateStr) => {
-          const d = new Date(dateStr);
-          return new Date(d.getFullYear(), d.getMonth(), d.getDate());
-        };
-
-        const yesterdayOrdersList = orders.filter(
-          (order) =>
-            toDateOnly(order.createdAt).getTime() === yesterday.getTime(),
-        );
-
-        const yesterdayOrders = yesterdayOrdersList.length;
-
-        let percentage = 0;
-        if (yesterdayOrders > 0) {
-          percentage =
-            ((totalOrders - yesterdayOrders) / yesterdayOrders) * 100;
-        }
-
-        setOrdersCount(totalOrders);
-        setOrderChange(percentage.toFixed(1));
-
-        // Revenue calculations
-        const currentRevenue = orders.filter((o) => o?.order_status === "completed").reduce((sum, o) => sum + o.totalAmt, 0);
-        const pastRevenue = yesterdayOrdersList.filter((o) => o?.order_status === "completed").reduce((sum, o) => sum + o.totalAmt, 0);
-        
-        let revPercentage = 0;
-        if (pastRevenue > 0) {
-          revPercentage = ((currentRevenue - pastRevenue) / pastRevenue) * 100;
-        } else if (currentRevenue > 0) {
-          revPercentage = 100;
-        }
-        setRevenueChange(revPercentage.toFixed(1));
-
-        // ── Recent Orders: sort by newest, take top 4 ──
-        const sorted = [...orders].sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
-        );
-        const recent = sorted.slice(0, 4).map((order) => {
-          const customerName =
-            order.shippingAddress?.name ||
-            order.user?.name ||
-            order.userId?.name ||
-            "Customer";
-          const initials = customerName
-            .split(" ")
-            .map((n) => n[0])
-            .join("")
-            .toUpperCase()
-            .slice(0, 2);
-          const timeAgo = (() => {
-            const diff = Date.now() - new Date(order.createdAt).getTime();
-            const mins = Math.floor(diff / 60000);
-            if (mins < 60) return `${mins} min ago`;
-            const hrs = Math.floor(mins / 60);
-            if (hrs < 24) return `${hrs} hour${hrs > 1 ? "s" : ""} ago`;
-            return `${Math.floor(hrs / 24)} day${Math.floor(hrs / 24) > 1 ? "s" : ""} ago`;
-          })();
-          return {
-            id: `#${order._id?.slice(-6).toUpperCase() || "------"}`,
-            customer: customerName,
-            amount: `৳${(order.totalAmt || 0).toLocaleString()}`,
-            status: order.order_status
-              ? order.order_status.charAt(0).toUpperCase() +
-              order.order_status.slice(1)
-              : "Pending",
-            time: timeAgo,
-            avatar: initials,
-          };
-        });
-        setRecentOrders(recent);
-
-        // ── Top Products: aggregate sold qty per product ──
-        const productMap = {};
-        orders.forEach((order) => {
-          (order.products || order.items || order.orderItems || []).forEach(
-            (item) => {
-              const prod = item.product || item.productId || item;
-              const id =
-                prod?._id || prod?.toString?.() || item.productId || null;
-              if (!id) return;
-              if (!productMap[id]) {
-                productMap[id] = {
-                  id,
-                  name: prod?.productName || prod?.name || "Product",
-                  price: prod?.price || 0,
-                  discount: prod?.discount || 0,
-                  ratings: prod?.ratings || 0,
-                  sold: 0,
-                };
-              }
-              productMap[id].sold += item.quantity || 1;
-            },
-          );
-        });
-        const top = Object.values(productMap)
-          .sort((a, b) => b.sold - a.sold)
-          .slice(0, 4)
-          .map((p) => ({
-            name: p.name,
-            sales: `${p.sold} sold`,
-            price: `৳${Number(p.price).toLocaleString()}`,
-            rating: p.ratings ? Number(p.ratings).toFixed(1) : "N/A",
-            trend: `+${p.sold}`,
-          }));
-        setTopProducts(top);
-      } catch (error) {
-        console.error("Fetch orders error:", error);
-      } finally {
-        setOrdersLoading(false);
-      }
-    };
-
-    fetchOrdersStats();
-  }, []);
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const allProducts = [];
-        let page = 1;
-        let limit = 100;
-        let totalFetched = 0;
-        let totalCount = 0;
-
-        do {
-          const res = await ProductAllGet({ page, limit });
-          const products = res.data || [];
-
-          if (products.length === 0) break; // Fix: Prevent infinite loop if API returns empty array
-
-          allProducts.push(...products);
-
-          totalFetched += products.length;
-          totalCount = res.totalCount || totalFetched;
-
-          page++;
-        } while (totalFetched < totalCount);
-
-        const totalProducts = allProducts.length;
-
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-
-        const yesterdayProducts = allProducts.filter(
-          (p) => new Date(p.createdAt) < yesterday,
-        ).length;
-
-        let percentage = 0;
-        if (yesterdayProducts > 0) {
-          percentage =
-            ((totalProducts - yesterdayProducts) / yesterdayProducts) * 100;
-        }
-
-        setProductsCount(totalProducts);
-        setProductsChange(percentage.toFixed(1));
-      } catch (error) {
-        console.error("Fetch products error:", error);
-      }
-    };
-
-    fetchProducts();
-  }, []);
-
-  const statsCards = [
-    {
-      title: "Total Users",
-      value: usersCount,
-      change: `${userChange > 0 ? "+" : ""}${userChange}%`,
-      changeType: userChange >= 0 ? "positive" : "negative",
-      icon: Users,
-      gradient: "from-gray-900 via-gray-800 to-black",
-      shadowColor: "shadow-gray-900/50",
-    },
-    {
-      title: "Total Orders",
-      value: ordersCount,
-      change: `${orderChange}%`,
-      changeType: Number(orderChange) >= 0 ? "positive" : "negative",
-      icon: ShoppingCart,
-      gradient: "from-slate-900 via-gray-900 to-black",
-      shadowColor: "shadow-slate-900/50",
-    },
-    {
-      title: "Total Products",
-      value: productsCount,
-      change: `${productsChange > 0 ? "+" : ""}${productsChange}%`,
-      changeType: productsChange >= 0 ? "positive" : "negative",
-      icon: Package,
-      gradient: "from-zinc-900 via-slate-800 to-gray-900",
-      shadowColor: "shadow-zinc-900/50",
-    },
-    {
-      title: "Total Revenue",
-      value: totalRevenue,
-      change: `${Number(revenueChange) > 0 ? "+" : ""}${revenueChange}%`,
-      changeType: Number(revenueChange) >= 0 ? "positive" : "negative",
-      icon: DollarSign,
-      gradient: "from-black via-gray-900 to-slate-800",
-      shadowColor: "shadow-black/50",
-    },
-  ];
-
-  const quickActions = [
-    {
-      label: "Add Product",
-      icon: Plus,
-      gradient: "from-gray-800 to-black",
-      description: "Create new product",
-      route: "/dashboard/products/addproduct",
-    },
-    {
-      label: "View Orders",
-      icon: Eye,
-      gradient: "from-slate-800 to-gray-900",
-      description: "Check recent orders",
-      route: "/dashboard/order/allorders",
-    },
-    {
-      label: "Analytics",
-      icon: BarChart3,
-      gradient: "from-zinc-800 to-slate-900",
-      description: "View insights",
-      route: "/dashboard/analytics/sales-report",
-    },
-    {
-      label: "Customers",
-      icon: Users,
-      gradient: "from-gray-900 to-black",
-      description: "Manage customers",
-      route: "/dashboard/customers/all-customers",
-    },
-    {
-      label: "Settings",
-      icon: Settings,
-      gradient: "from-slate-900 to-zinc-900",
-      description: "Configure system",
-      route: "/dashboard/settings/userupdate",
-    },
-    // {
-    //   label: "Reports",
-    //   icon: FileText,
-    //   gradient: "from-black to-gray-800",
-    //   description: "Generate reports",
-    //   route: "/dashboard/analytics",
-    // },
-  ];
-
-  // recentOrders and topProducts are now populated dynamically from API
+  const filteredRecentOrders = (stats?.recentOrders || []).filter((order) => {
+    if (!searchTerm) return true;
+    const name = order?.userId?.name || "";
+    const id = order?.orderId || "";
+    return (
+      name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      id.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
 
   return (
     <section className="min-h-dvh bg-gradient-to-br from-gray-900 via-black to-gray-900 overflow-hidden py-8 md:py-12">
       <Container>
-        {/* Welcome Section */}
+        {/* Welcome Banner */}
         <div className="mb-8">
           <div className="bg-gradient-to-r from-gray-900 via-black to-slate-900 rounded-3xl p-6 sm:p-8 text-slate-300 shadow-2xl shadow-black/50 relative overflow-hidden backdrop-blur-xl border border-gray-800/50">
-            {/* Animated background elements */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-16 translate-x-16 backdrop-blur-sm"></div>
-            <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/3 rounded-full translate-y-12 -translate-x-12 backdrop-blur-sm"></div>
-
-            <div className="relative z-10">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <h1 className="text-2xl sm:text-3xl font-bold mb-2 bg-gradient-to-r from-white via-gray-200 to-gray-300 bg-clip-text text-transparent">
-                    {loading
-                      ? "Loading..."
-                      : `Welcome back, ${user?.name || "Admin"}! 👋`}
-                  </h1>
-
-                  <p className="text-gray-300 text-sm sm:text-base">
-                    Here's what's happening with your store today
-                  </p>
-                </div>
-                <div className="mt-4 sm:mt-0 text-right flex flex-col items-end">
-                  <p className="text-lg font-semibold text-gray-200">
-                    {currentTime.toLocaleDateString("en-BD")}
-                  </p>
-                  <p className="text-gray-400 text-sm">
-                    {currentTime.toLocaleTimeString("en-BD")}
-                  </p>
-                </div>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-16 translate-x-16 backdrop-blur-sm" />
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/3 rounded-full translate-y-12 -translate-x-12 backdrop-blur-sm" />
+            <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold mb-2 bg-gradient-to-r from-white via-gray-200 to-gray-300 bg-clip-text text-transparent">
+                  {loading ? "Loading..." : `Welcome back, ${user?.name || "Admin"}! 👋`}
+                </h1>
+                <p className="text-gray-300 text-sm sm:text-base">
+                  Here&apos;s what&apos;s happening with your business today
+                </p>
+              </div>
+              <div className="mt-4 sm:mt-0 text-right flex flex-col items-end">
+                <p className="text-lg font-semibold text-gray-200">
+                  {currentTime.toLocaleDateString("en-BD")}
+                </p>
+                <p className="text-gray-400 text-sm">
+                  {currentTime.toLocaleTimeString("en-BD")}
+                </p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8">
-          {statsCards.map((card) => (
-            <div
-              key={card.title}
-              className={`group relative bg-white/10 backdrop-blur-xl p-4 sm:p-6 rounded-3xl border border-gray-800/50 shadow-lg ${card.shadowColor} overflow-hidden`}
+        {/* Date Range Filter */}
+        <div className="mb-6 flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2 text-gray-400">
+            <Filter className="w-4 h-4" />
+            <span className="text-sm font-medium">Period:</span>
+          </div>
+          {dateRanges.map((r) => (
+            <button
+              key={r.value}
+              onClick={() => setActiveRange(r.value)}
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                activeRange === r.value
+                  ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25"
+                  : "bg-gray-800/50 text-gray-400 border border-gray-700 hover:bg-gray-700/50 hover:text-gray-300"
+              }`}
             >
-              <div
-                className={`absolute inset-0 bg-gradient-to-br ${card.gradient} opacity-0 group-hover:opacity-20 rounded-3xl`}
-              ></div>
-
-              <div className="relative z-10">
-                <div className="flex items-center justify-between mb-4">
-                  <div
-                    className={`p-3 rounded-2xl bg-gradient-to-r ${card.gradient} shadow-lg ${card.shadowColor}`}
-                  >
-                    <card.icon className="w-6 h-6 text-slate-300" />
-                  </div>
-                  <div className="flex items-center space-x-1 text-green-400">
-                    <ArrowUp className="w-4 h-4" />
-                    <span className="text-sm font-bold">{card.change}</span>
-                  </div>
-                </div>
-
-                <div>
-                  <p className="text-sm font-medium text-gray-400 mb-1">
-                    {card.title}
-                  </p>
-                  <p className="text-3xl font-bold text-slate-300 mb-2">
-                    {card.value}
-                  </p>
-                  <p className="text-xs text-gray-500">from last month</p>
-                </div>
-              </div>
-            </div>
+              {r.label}
+            </button>
           ))}
         </div>
 
-        {/* Quick Actions */}
+        {/* ── TODAY'S BUSINESS ── */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="p-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600">
+              <Calendar className="w-5 h-5 text-white" />
+            </div>
             <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-white via-gray-200 to-gray-300 bg-clip-text text-transparent">
-              Quick Actions
+              Today&apos;s Business
             </h2>
-            <div className="flex items-center space-x-2 text-gray-400">
-              <Activity className="w-4 h-4" />
-              <span className="text-sm">Live Dashboard</span>
+            <ChangeBadge value={stats?.changes?.orders} size="md" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {[
+              {
+                title: "Today's Orders",
+                value: stats?.today?.orders ?? 0,
+                icon: ShoppingCart,
+                gradient: "from-blue-600 to-cyan-600",
+                bg: "from-blue-900/30 to-cyan-900/20",
+                sub: `${stats?.today?.pending || 0} pending · ${stats?.today?.processing || 0} processing`,
+              },
+              {
+                title: "Today's Sales",
+                value: formatCurrency(stats?.today?.revenue),
+                icon: DollarSign,
+                gradient: "from-green-600 to-emerald-600",
+                bg: "from-green-900/30 to-emerald-900/20",
+                sub: `${stats?.today?.completed || 0} completed`,
+              },
+              {
+                title: "Today's Delivery",
+                value: stats?.today?.delivered ?? 0,
+                icon: Truck,
+                gradient: "from-purple-600 to-pink-600",
+                bg: "from-purple-900/30 to-pink-900/20",
+                sub: `৳${(stats?.today?.deliveryRevenue || 0).toLocaleString()} revenue`,
+              },
+            ].map((card) => (
+              <div
+                key={card.title}
+                className={`relative bg-gradient-to-br ${card.bg} backdrop-blur-xl p-5 sm:p-6 rounded-3xl border border-gray-800/50 shadow-xl overflow-hidden group hover:scale-[1.02] transition-transform`}
+              >
+                <div className={`absolute top-0 right-0 w-full h-1 bg-gradient-to-r ${card.gradient}`} />
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className={`p-3 rounded-2xl bg-gradient-to-r ${card.gradient} shadow-lg`}>
+                      <card.icon className="w-5 h-5 text-white" />
+                    </div>
+                    <ChangeBadge value={stats?.changes?.[card.title.includes("Orders") ? "orders" : card.title.includes("Sales") ? "revenue" : "delivered"]} />
+                  </div>
+                  <p className="text-sm font-medium text-gray-400 mb-1">{card.title}</p>
+                  <p className="text-3xl font-bold text-slate-300">
+                    {statsLoading ? (
+                      <span className="inline-block w-16 h-8 bg-gray-700/50 rounded animate-pulse" />
+                    ) : (
+                      card.value
+                    )}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">{card.sub}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── TOTAL BUSINESS ── */}
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="p-2 rounded-xl bg-gradient-to-r from-gray-700 to-gray-800">
+              <BarChart3 className="w-5 h-5 text-slate-300" />
+            </div>
+            <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-white via-gray-200 to-gray-300 bg-clip-text text-transparent">
+              Total Business Overview
+            </h2>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-5">
+            {[
+              { label: "Total Orders", value: stats?.totals?.orders ?? 0, icon: ShoppingCart, color: "text-blue-400" },
+              { label: "Total Sales", value: formatCurrency(stats?.totals?.revenue), icon: DollarSign, color: "text-green-400" },
+              { label: "Total Delivery", value: stats?.totals?.completed ?? 0, icon: Truck, color: "text-purple-400" },
+              { label: "Users", value: stats?.totals?.users ?? 0, icon: Users, color: "text-cyan-400" },
+              { label: "Products", value: stats?.totals?.products ?? 0, icon: Package, color: "text-orange-400" },
+              { label: "Pending", value: stats?.totals?.pending ?? 0, icon: Clock, color: "text-yellow-400" },
+            ].map((card) => (
+              <div
+                key={card.label}
+                className="bg-white/5 backdrop-blur-xl p-4 sm:p-5 rounded-2xl border border-gray-800/50 shadow-lg hover:bg-white/10 transition-all"
+              >
+                <card.icon className={`w-6 h-6 mb-2 ${card.color}`} />
+                <p className="text-xs text-gray-400 mb-1">{card.label}</p>
+                {statsLoading ? (
+                  <div className="w-12 h-6 bg-gray-700/50 rounded animate-pulse" />
+                ) : (
+                  <p className="text-xl sm:text-2xl font-bold text-slate-300">{card.value}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Order Status Breakdown ── */}
+        <div className="mb-8">
+          <div className="bg-white/5 backdrop-blur-xl rounded-3xl border border-gray-800/40 shadow-xl p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Activity className="w-5 h-5 text-blue-400" />
+              <h3 className="text-lg font-bold text-slate-300">Order Status Breakdown</h3>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+              {[
+                { label: "Pending", value: stats?.totals?.pending ?? 0, icon: Clock, color: "text-yellow-400", bg: "bg-yellow-500/10" },
+                { label: "Processing", value: stats?.totals?.processing ?? 0, icon: RefreshCw, color: "text-blue-400", bg: "bg-blue-500/10" },
+                { label: "Shipped", value: stats?.totals?.shipped ?? 0, icon: Truck, color: "text-purple-400", bg: "bg-purple-500/10" },
+                { label: "Completed", value: stats?.totals?.completed ?? 0, icon: CheckCircle, color: "text-green-400", bg: "bg-green-500/10" },
+                { label: "Cancelled", value: stats?.totals?.cancelled ?? 0, icon: XCircle, color: "text-red-400", bg: "bg-red-500/10" },
+                { label: "Returned", value: stats?.totals?.returned ?? 0, icon: RefreshCw, color: "text-orange-400", bg: "bg-orange-500/10" },
+              ].map((item) => (
+                <div key={item.label} className={`${item.bg} rounded-2xl p-4 border border-gray-800/30`}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <item.icon className={`w-4 h-4 ${item.color}`} />
+                    <span className="text-xs text-gray-400">{item.label}</span>
+                  </div>
+                  <p className="text-2xl font-bold text-slate-300">{statsLoading ? "..." : item.value}</p>
+                </div>
+              ))}
             </div>
           </div>
+        </div>
 
+        {/* ── Quick Actions ── */}
+        <div className="mb-8">
+          <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-white via-gray-200 to-gray-300 bg-clip-text text-transparent mb-4">
+            Quick Actions
+          </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
-            {quickActions.map((action) => (
+            {[
+              { label: "Add Product", icon: Plus, gradient: "from-gray-800 to-black", description: "Create new product", route: "/dashboard/products/addproduct" },
+              { label: "View Orders", icon: Eye, gradient: "from-slate-800 to-gray-900", description: "Check recent orders", route: "/dashboard/order/allorders" },
+              { label: "Analytics", icon: BarChart3, gradient: "from-zinc-800 to-slate-900", description: "View insights", route: "/dashboard/analytics/sales-report" },
+              { label: "Customers", icon: Users, gradient: "from-gray-900 to-black", description: "Manage customers", route: "/dashboard/customers/all-customers" },
+              { label: "Settings", icon: Settings, gradient: "from-slate-900 to-zinc-900", description: "Configure system", route: "/dashboard/settings/userupdate" },
+              { label: "Dropshipping", icon: Truck, gradient: "from-blue-900 to-indigo-900", description: "Manage DS orders", route: "/dashboard/order/allorders" },
+            ].map((action) => (
               <button
                 key={action.label}
                 onClick={() => action.route && router.push(action.route)}
                 className="group relative bg-white/5 backdrop-blur-xl p-3 rounded-2xl border border-gray-800/30 shadow-lg overflow-hidden cursor-pointer"
               >
-                <div
-                  className={`absolute inset-0 bg-gradient-to-r ${action.gradient} opacity-0 group-hover:opacity-30 rounded-2xl`}
-                ></div>
-
+                <div className={`absolute inset-0 bg-gradient-to-r ${action.gradient} opacity-0 group-hover:opacity-30 rounded-2xl`} />
                 <div className="relative z-10 flex items-center gap-2">
-                  <div
-                    className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-r ${action.gradient} flex items-center justify-center shadow-lg shadow-black/50`}
-                  >
+                  <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-r ${action.gradient} flex items-center justify-center shadow-lg shadow-black/50`}>
                     <action.icon className="w-5 h-5 sm:w-6 sm:h-6 text-slate-300" />
                   </div>
                   <div className="text-start">
-                    <p className="text-sm font-bold text-slate-300 mb-1">
-                      {action.label}
-                    </p>
-                    <p className="text-xs text-gray-400">
-                      {action.description}
-                    </p>
+                    <p className="text-sm font-bold text-slate-300 mb-1">{action.label}</p>
+                    <p className="text-xs text-gray-400">{action.description}</p>
                   </div>
                 </div>
               </button>
@@ -477,37 +335,46 @@ const DashboardHome = () => {
           </div>
         </div>
 
-        {/* Content Grid */}
+        {/* ── Recent Orders + Top Products ── */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 sm:gap-8 mb-8">
           {/* Recent Orders */}
           <div className="bg-white/5 backdrop-blur-xl rounded-3xl border border-gray-800/40 shadow-xl shadow-black/30 p-6 sm:p-8 overflow-hidden relative">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-gray-800/20 to-black/20 rounded-full -translate-y-16 translate-x-16 backdrop-blur-sm"></div>
-
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-gray-800/20 to-black/20 rounded-full -translate-y-16 translate-x-16 backdrop-blur-sm" />
             <div className="relative z-10">
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
                   <div className="p-2 rounded-xl bg-gradient-to-r from-gray-800 to-black shadow-lg shadow-black/50">
                     <ShoppingCart className="w-5 h-5 text-slate-300" />
                   </div>
-                  <h3 className="text-lg sm:text-xl font-bold text-slate-300">
-                    Recent Orders
-                  </h3>
+                  <h3 className="text-lg sm:text-xl font-bold text-slate-300">Recent Orders</h3>
                 </div>
-                <button className="group flex items-center space-x-2 text-gray-300 hover:text-slate-300 text-sm font-semibold">
+                <button
+                  onClick={() => router.push("/dashboard/order/allorders")}
+                  className="flex items-center space-x-1 text-gray-400 hover:text-slate-300 text-sm font-semibold"
+                >
                   <span>View All</span>
                   <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-1 gap-4">
-                {ordersLoading ? (
+              {/* Search */}
+              <div className="relative mb-4">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <input
+                  type="text"
+                  placeholder="Search orders..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 bg-gray-800/50 border border-gray-700 rounded-xl text-sm text-slate-300 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                />
+              </div>
+
+              <div className="space-y-3 max-h-80 overflow-y-auto">
+                {statsLoading ? (
                   Array.from({ length: 4 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="animate-pulse flex items-center justify-between p-4 rounded-2xl bg-gray-800/30 border border-gray-800/40"
-                    >
+                    <div key={i} className="animate-pulse flex items-center justify-between p-4 rounded-2xl bg-gray-800/30 border border-gray-800/40">
                       <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 bg-gray-700/50 rounded-2xl" />
+                        <div className="w-10 h-10 bg-gray-700/50 rounded-2xl" />
                         <div className="space-y-2">
                           <div className="h-3 w-24 bg-gray-700/50 rounded" />
                           <div className="h-2 w-32 bg-gray-700/30 rounded" />
@@ -516,63 +383,39 @@ const DashboardHome = () => {
                       <div className="h-4 w-16 bg-gray-700/50 rounded" />
                     </div>
                   ))
-                ) : recentOrders.length === 0 ? (
+                ) : filteredRecentOrders.length === 0 ? (
                   <div className="text-center py-10 text-gray-500">
                     <ShoppingCart className="w-10 h-10 mx-auto mb-2 opacity-30" />
-                    <p className="text-sm">No orders yet</p>
+                    <p className="text-sm">No orders found</p>
                   </div>
                 ) : (
-                  recentOrders.map((order) => (
-                    <div
-                      key={order.id}
-                      className="group flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-gray-900/50 to-black/30 border border-gray-800/40 backdrop-blur-sm"
-                    >
-                      <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 bg-gradient-to-r from-gray-800 via-slate-800 to-black rounded-2xl flex items-center justify-center shadow-lg shadow-black/50">
-                          <span className="text-slate-300 font-bold text-sm">
-                            {order.avatar}
-                          </span>
-                        </div>
-                        <div>
-                          <div className="flex items-center space-x-2">
-                            <p className="text-sm font-bold text-slate-300">
-                              {order.id}
-                            </p>
-                            <span
-                              className={`px-2 py-1 text-xs rounded-full font-medium ${order.status === "Completed" ||
-                                  order.status === "completed"
-                                  ? "bg-green-900/50 text-green-300 border border-green-800/50"
-                                  : order.status === "Processing" ||
-                                    order.status === "processing"
-                                    ? "bg-yellow-900/50 text-yellow-300 border border-yellow-800/50"
-                                    : order.status === "Shipped" ||
-                                      order.status === "shipped"
-                                      ? "bg-blue-900/50 text-blue-300 border border-blue-800/50"
-                                      : order.status === "Cancelled" ||
-                                        order.status === "cancelled"
-                                        ? "bg-red-900/50 text-red-300 border border-red-800/50"
-                                        : "bg-gray-800/50 text-gray-300 border border-gray-700/50"
-                                } backdrop-blur-sm`}
-                            >
-                              {order.status}
-                            </span>
+                  filteredRecentOrders.map((order) => {
+                    const name = order?.userId?.name || "Customer";
+                    const initials = name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+                    const diff = Date.now() - new Date(order.createdAt).getTime();
+                    const mins = Math.floor(diff / 60000);
+                    const timeAgo = mins < 60 ? `${mins}m ago` : mins < 1440 ? `${Math.floor(mins / 60)}h ago` : `${Math.floor(mins / 1440)}d ago`;
+
+                    return (
+                      <div key={order._id} className="flex items-center justify-between p-3 rounded-2xl bg-gradient-to-r from-gray-900/50 to-black/30 border border-gray-800/40 backdrop-blur-sm hover:bg-gray-800/30 transition-colors">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-gradient-to-r from-gray-800 via-slate-800 to-black rounded-2xl flex items-center justify-center shadow-lg shadow-black/50">
+                            <span className="text-slate-300 font-bold text-xs">{initials}</span>
                           </div>
-                          <p className="text-xs text-gray-400 mt-1">
-                            {order.customer} • {order.time}
-                          </p>
+                          <div>
+                            <div className="flex items-center space-x-2">
+                              <p className="text-sm font-bold text-slate-300">#{order?.orderId?.slice(-8) || "------"}</p>
+                              <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${statusColors[order?.order_status] || "bg-gray-800/50 text-gray-300 border border-gray-700/50"}`}>
+                                {order?.order_status?.charAt(0).toUpperCase() + order?.order_status?.slice(1)}
+                              </span>
+                            </div>
+                            <p className="text-xs text-gray-400 mt-0.5">{name} · {timeAgo}</p>
+                          </div>
                         </div>
+                        <p className="text-sm font-bold text-slate-300">৳{(order?.totalAmt || 0).toLocaleString()}</p>
                       </div>
-                      <div className="text-right">
-                        <p className="text-lg font-bold text-slate-300">
-                          {order.amount}
-                        </p>
-                        <div className="flex items-center space-x-1 text-green-400">
-                          <TrendingUp className="w-3 h-3" />
-                          <span className="text-xs font-medium">Active</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             </div>
@@ -580,33 +423,22 @@ const DashboardHome = () => {
 
           {/* Top Products */}
           <div className="bg-white/5 backdrop-blur-xl rounded-3xl border border-gray-800/40 shadow-xl shadow-black/30 p-6 sm:p-8 overflow-hidden relative">
-            <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-slate-800/20 to-gray-900/20 rounded-full -translate-y-16 -translate-x-16 backdrop-blur-sm"></div>
-
+            <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-slate-800/20 to-gray-900/20 rounded-full -translate-y-16 -translate-x-16 backdrop-blur-sm" />
             <div className="relative z-10">
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
                   <div className="p-2 rounded-xl bg-gradient-to-r from-zinc-800 via-gray-800 to-slate-900 shadow-lg shadow-black/50">
                     <Package className="w-5 h-5 text-slate-300" />
                   </div>
-                  <h3 className="text-lg sm:text-xl font-bold text-slate-300">
-                    Top Selling Products
-                  </h3>
+                  <h3 className="text-lg sm:text-xl font-bold text-slate-300">Top Selling Products</h3>
                 </div>
-                <button className="group flex items-center space-x-2 text-gray-300 hover:text-slate-300 text-sm font-semibold">
-                  <span>View All</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-1 gap-4">
-                {ordersLoading ? (
+              <div className="space-y-3 max-h-80 overflow-y-auto">
+                {statsLoading ? (
                   Array.from({ length: 4 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="animate-pulse flex items-center justify-between p-4 rounded-2xl bg-gray-800/30 border border-gray-800/40"
-                    >
+                    <div key={i} className="animate-pulse flex items-center justify-between p-4 rounded-2xl bg-gray-800/30 border border-gray-800/40">
                       <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 bg-gray-700/50 rounded-2xl" />
+                        <div className="w-10 h-10 bg-gray-700/50 rounded-2xl" />
                         <div className="space-y-2">
                           <div className="h-3 w-28 bg-gray-700/50 rounded" />
                           <div className="h-2 w-20 bg-gray-700/30 rounded" />
@@ -615,49 +447,24 @@ const DashboardHome = () => {
                       <div className="h-4 w-16 bg-gray-700/50 rounded" />
                     </div>
                   ))
-                ) : topProducts.length === 0 ? (
+                ) : (stats?.topProducts || []).length === 0 ? (
                   <div className="text-center py-10 text-gray-500">
                     <Package className="w-10 h-10 mx-auto mb-2 opacity-30" />
                     <p className="text-sm">No product sales data yet</p>
                   </div>
                 ) : (
-                  topProducts.map((product, index) => (
-                    <div
-                      key={`${product.name}-${index}`}
-                      className="group flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-gray-900/50 to-black/30 border border-gray-800/40 backdrop-blur-sm"
-                    >
-                      <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 bg-gradient-to-r from-zinc-800 via-gray-800 to-slate-900 rounded-2xl flex items-center justify-center shadow-lg shadow-black/50">
+                  stats.topProducts.map((product, index) => (
+                    <div key={`${product.name}-${index}`} className="flex items-center justify-between p-3 rounded-2xl bg-gradient-to-r from-gray-900/50 to-black/30 border border-gray-800/40 backdrop-blur-sm hover:bg-gray-800/30 transition-colors">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-gradient-to-r from-zinc-800 via-gray-800 to-slate-900 rounded-2xl flex items-center justify-center shadow-lg shadow-black/50">
                           <Package className="w-5 h-5 text-slate-300" />
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-slate-300">
-                            {product.name}
-                          </p>
-                          <div className="flex items-center space-x-3 mt-1">
-                            <p className="text-xs text-gray-400">
-                              {product.sales}
-                            </p>
-                            <div className="flex items-center space-x-1">
-                              <Star className="w-3 h-3 text-yellow-400 fill-current" />
-                              <span className="text-xs text-gray-300 font-medium">
-                                {product.rating}
-                              </span>
-                            </div>
-                          </div>
+                          <p className="text-sm font-bold text-slate-300">{product.name}</p>
+                          <p className="text-xs text-gray-400">{product.totalSold} sold</p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-lg font-bold text-slate-300">
-                          {product.price}
-                        </p>
-                        <div className="flex items-center space-x-1 text-green-400">
-                          <ArrowUp className="w-3 h-3" />
-                          <span className="text-xs font-bold">
-                            {product.trend}
-                          </span>
-                        </div>
-                      </div>
+                      <p className="text-sm font-bold text-green-400">৳{(product.totalRevenue || 0).toLocaleString()}</p>
                     </div>
                   ))
                 )}
@@ -666,228 +473,24 @@ const DashboardHome = () => {
           </div>
         </div>
 
-        {/* Performance Overview */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 mb-8">
-          {/* Sales Chart Preview */}
-          <div className="lg:col-span-2 bg-white/5 backdrop-blur-xl rounded-3xl border border-gray-800/40 shadow-xl shadow-black/30 p-6 sm:p-8 overflow-hidden relative">
-            <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-gray-800/10 to-black/10 rounded-full -translate-y-20 translate-x-20 backdrop-blur-sm"></div>
-
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 rounded-xl bg-gradient-to-r from-gray-800 to-black shadow-lg shadow-black/50">
-                    <BarChart3 className="w-5 h-5 text-slate-300" />
-                  </div>
-                  <h3 className="text-lg sm:text-xl font-bold text-slate-300">
-                    Sales Overview
-                  </h3>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-400">This Month</span>
-                  <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-                </div>
-              </div>
-
-              {/* Mock Chart Area */}
-              <div className="h-48 sm:h-64 bg-gradient-to-br from-gray-900/30 to-black/20 rounded-2xl border border-gray-800/30 backdrop-blur-sm flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-r from-gray-800 to-black rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-black/50">
-                    <BarChart3 className="w-8 h-8 text-slate-300" />
-                  </div>
-                  <p className="text-gray-300 font-medium">
-                    Chart will be rendered here
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    Sales analytics visualization
-                  </p>
-                </div>
-              </div>
+        {/* ── Financial Summary ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+          {[
+            { label: "Revenue Collected", value: formatCurrency(stats?.totals?.amountPaid), icon: DollarSign, color: "text-green-400", bg: "from-green-900/30 to-emerald-900/20" },
+            { label: "Amount Due", value: formatCurrency(stats?.totals?.amountDue), icon: TrendingUp, color: "text-red-400", bg: "from-red-900/30 to-rose-900/20" },
+            { label: "Coupon Discounts", value: formatCurrency(stats?.totals?.couponDiscount), icon: Star, color: "text-yellow-400", bg: "from-yellow-900/30 to-amber-900/20" },
+            { label: "Delivery Revenue", value: formatCurrency(stats?.totals?.deliveryCompleted), icon: Truck, color: "text-purple-400", bg: "from-purple-900/30 to-pink-900/20" },
+          ].map((card) => (
+            <div key={card.label} className={`bg-gradient-to-br ${card.bg} backdrop-blur-xl p-5 rounded-2xl border border-gray-800/50 shadow-xl`}>
+              <card.icon className={`w-6 h-6 mb-2 ${card.color}`} />
+              <p className="text-xs text-gray-400 mb-1">{card.label}</p>
+              <p className="text-2xl font-bold text-slate-300">
+                {statsLoading ? <span className="inline-block w-20 h-6 bg-gray-700/50 rounded animate-pulse" /> : card.value}
+              </p>
             </div>
-          </div>
-
-          {/* Activity Feed */}
-          <div className="bg-white/5 backdrop-blur-xl rounded-3xl border border-gray-800/40 shadow-xl shadow-black/30 p-6 sm:p-8 overflow-hidden relative">
-            <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-br from-slate-800/10 to-gray-900/10 rounded-full translate-y-16 -translate-x-16 backdrop-blur-sm"></div>
-
-            <div className="relative z-10">
-              <div className="flex items-center space-x-3 mb-6">
-                <div className="p-2 rounded-xl bg-gradient-to-r from-slate-800 to-gray-900 shadow-lg shadow-black/50">
-                  <Activity className="w-5 h-5 text-slate-300" />
-                </div>
-                <h3 className="text-lg sm:text-xl font-bold text-slate-300">
-                  Live Activity
-                </h3>
-              </div>
-
-              <div className="space-y-4">
-                {[
-                  {
-                    action: "New order received",
-                    time: "2 min ago",
-                    type: "order",
-                  },
-                  {
-                    action: "Product updated",
-                    time: "5 min ago",
-                    type: "product",
-                  },
-                  {
-                    action: "Customer registered",
-                    time: "12 min ago",
-                    type: "user",
-                  },
-                  {
-                    action: "Payment processed",
-                    time: "18 min ago",
-                    type: "payment",
-                  },
-                  {
-                    action: "Review submitted",
-                    time: "25 min ago",
-                    type: "review",
-                  },
-                ].map((activity, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center space-x-3 p-3 rounded-xl bg-gray-900/30 border border-gray-800/40 backdrop-blur-sm"
-                  >
-                    <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center shadow-md ${activity.type === "order"
-                          ? "bg-gradient-to-r from-gray-700 to-gray-800"
-                          : activity.type === "product"
-                            ? "bg-gradient-to-r from-slate-700 to-slate-800"
-                            : activity.type === "user"
-                              ? "bg-gradient-to-r from-zinc-700 to-zinc-800"
-                              : activity.type === "payment"
-                                ? "bg-gradient-to-r from-gray-800 to-black"
-                                : "bg-gradient-to-r from-slate-800 to-gray-900"
-                        }`}
-                    >
-                      <div className="w-2 h-2 bg-white rounded-full"></div>
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-slate-300">
-                        {activity.action}
-                      </p>
-                      <p className="text-xs text-gray-400">{activity.time}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile Search */}
-        <div className="md:hidden mb-6">
-          <div className="relative group">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-gray-200" />
-            <input
-              type="text"
-              placeholder="Search anything..."
-              className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white/5 backdrop-blur-xl text-gray-200 placeholder-gray-400 focus:bg-white/10 focus:outline-none focus:ring-4 focus:ring-gray-700/50 shadow-lg shadow-black/20 border border-gray-800/30"
-            />
-            <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-gray-800/10 to-black/10 opacity-0 group-focus-within:opacity-100 pointer-events-none"></div>
-          </div>
-        </div>
-
-        {/* Performance Metrics */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-          <div className="bg-gradient-to-br from-gray-800 to-black rounded-2xl p-6 text-slate-300 shadow-xl shadow-black/50 relative overflow-hidden backdrop-blur-xl border border-gray-700/50">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-full -translate-y-10 translate-x-10 backdrop-blur-sm"></div>
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-4">
-                <Zap className="w-6 h-6" />
-                <span className="text-xs bg-white/10 px-2 py-1 rounded-full backdrop-blur-sm">
-                  Live
-                </span>
-              </div>
-              <p className="text-2xl font-bold mb-1">98.5%</p>
-              <p className="text-sm text-gray-300">Server Uptime</p>
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-br from-slate-800 to-gray-900 rounded-2xl p-6 text-slate-300 shadow-xl shadow-black/50 relative overflow-hidden backdrop-blur-xl border border-gray-700/50">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-full -translate-y-10 translate-x-10 backdrop-blur-sm"></div>
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-4">
-                <Globe className="w-6 h-6" />
-                <span className="text-xs bg-white/10 px-2 py-1 rounded-full backdrop-blur-sm">
-                  +12%
-                </span>
-              </div>
-              <p className="text-2xl font-bold mb-1">1,432</p>
-              <p className="text-sm text-gray-300">Active Visitors</p>
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-br from-zinc-800 to-slate-900 rounded-2xl p-6 text-slate-300 shadow-xl shadow-black/50 relative overflow-hidden backdrop-blur-xl border border-gray-700/50">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-full -translate-y-10 translate-x-10 backdrop-blur-sm"></div>
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-4">
-                <Star className="w-6 h-6" />
-                <span className="text-xs bg-white/10 px-2 py-1 rounded-full backdrop-blur-sm">
-                  Excellent
-                </span>
-              </div>
-              <p className="text-2xl font-bold mb-1">4.8</p>
-              <p className="text-sm text-gray-300">Avg. Rating</p>
-            </div>
-          </div>
+          ))}
         </div>
       </Container>
-
-      <style jsx>{`
-        /* Glassmorphism effects */
-        .glass {
-          background: rgba(0, 0, 0, 0.25);
-          backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-          width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-          background: rgba(0, 0, 0, 0.3);
-          border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-          background: linear-gradient(to bottom, #374151, #111827);
-          border-radius: 4px;
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-          background: linear-gradient(to bottom, #4b5563, #1f2937);
-        }
-
-        /* Mobile responsiveness */
-        @media (max-width: 640px) {
-          .grid {
-            gap: 1rem;
-          }
-
-          .p-6 {
-            padding: 1rem;
-          }
-
-          .p-8 {
-            padding: 1.5rem;
-          }
-
-          .text-3xl {
-            font-size: 1.5rem;
-          }
-
-          .text-2xl {
-            font-size: 1.25rem;
-          }
-        }
-      `}</style>
     </section>
   );
 };

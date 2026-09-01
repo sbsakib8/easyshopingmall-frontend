@@ -6,6 +6,7 @@ import {
   CategoryCreate,
   CategoryDelete,
   CategoryUploade,
+  CategoryToggleActive,
 } from "@/src/hook/usecategory";
 import { cn } from "@/src/utlis/utils";
 import {
@@ -231,15 +232,11 @@ const AddCategoriesComponent = () => {
         ),
       );
 
-      const updatedData = {
-        isActive: !category.isActive,
-      };
+      await CategoryToggleActive(category._id);
 
-      await CategoryUploade(updatedData, category._id);
-
-      toast.success(`Category"${category.name}"status updated successfully.`);
+      toast.success(`Category "${category.name}" status updated successfully.`);
     } catch (error) {
-      toast.error("Failed to update category status:", error);
+      toast.error("Failed to update category status");
 
       setCategories((prev) =>
         prev.map((cat) =>
@@ -710,7 +707,7 @@ const AddCategoriesComponent = () => {
                         placeholder="SEO meta description"
                       />
                       <p className="text-xs text-gray-400">
-                        {formData.metaDescription.length}/160 characters
+                        {formData?.metaDescription?.length ?? 0}/160 characters
                       </p>
                     </div>
                   </div>

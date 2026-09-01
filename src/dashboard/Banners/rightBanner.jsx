@@ -4,6 +4,7 @@ import {
   RightBannerCreate,
   RightBannerDelete,
   RightBannerUploade,
+  RightBannerToggleActive,
 } from "@/src/hook/userRightBanner";
 import { useGetRightBanner } from "@/src/utlis/banner/userRightBanner";
 import { useDashboardPermission } from "@/src/utlis/useDashboardPermission";
@@ -170,15 +171,35 @@ const RightBanner = () => {
         banners
           .filter((b) => b._id)
           .map(async (banner) => {
-            const data = new FormData();
-            data.append("status", newStatus);
-            await RightBannerUploade(data, banner._id);
+            await RightBannerToggleActive(banner._id);
           }),
       );
+      refetch();
       toast.success(`All banners are now ${newStatus}!`);
     } catch (error) {
       console.error("Error toggling all statuses:", error);
       toast.error("Something went wrong while updating statuses!");
+    }
+  };
+
+  // Toggle individual banner status
+  const toggleBannerStatus = async (id) => {
+    const previousBanners = [...banners];
+    setBanners((prev) =>
+      prev.map((banner) =>
+        banner._id === id
+          ? { ...banner, status: banner.status === "active" ? "inactive" : "active" }
+          : banner,
+      ),
+    );
+
+    try {
+      await RightBannerToggleActive(id);
+      refetch();
+      toast.success("Banner status updated!");
+    } catch (error) {
+      setBanners(previousBanners);
+      toast.error("Failed to toggle banner status");
     }
   };
 
@@ -407,16 +428,26 @@ const RightBanner = () => {
                   {canModify("banner") && (
                     <>
                       <button
+                        onClick={() => toggleBannerStatus(banner._id)}
+                        className={`flex-1 px-4 py-3 rounded-xl font-semibold ${
+                          banner.status === "active"
+                            ? "bg-gradient-to-r from-orange-500/20 to-red-500/20 hover:from-orange-500/40 hover:to-red-500/40 text-orange-300 border border-orange-500/30"
+                            : "bg-gradient-to-r from-green-500/20 to-emerald-500/20 hover:from-green-500/40 hover:to-emerald-500/40 text-green-300 border border-green-500/30"
+                        }`}
+                      >
+                        {banner.status === "active" ? "Deactivate" : "Activate"}
+                      </button>
+                      <button
                         onClick={() => openModal(banner)}
                         className="flex-1 bg-gradient-to-r from-blue-500/20 to-purple-500/20 hover:from-blue-500/40 hover:to-purple-500/40 text-blue-300 border border-blue-500/30 px-4 py-3 rounded-xl font-semibold hover:shadow-lg hover:shadow-blue-500/25 transform"
                       >
-                        ✏️ Edit
+                        Edit
                       </button>
                       <button
                         onClick={() => handleDelete(banner._id)}
                         className="flex-1 bg-gradient-to-r from-red-500/20 to-pink-500/20 hover:from-red-500/40 hover:to-pink-500/40 text-red-300 border border-red-500/30 px-4 py-3 rounded-xl font-semibold hover:shadow-lg hover:shadow-red-500/25 transform"
                       >
-                        🗑️ Delete
+                        Delete
                       </button>
                     </>
                   )}

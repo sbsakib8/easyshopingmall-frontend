@@ -6,7 +6,7 @@ import Skeleton from "@/src/compronent/loading/Skeleton";
 import Container from "@/src/compronent/shared/Container";
 import { getCartApi } from "@/src/hook/useCart";
 import { getWishlistApi } from "@/src/hook/useWishlist";
-import { setSearchTerm } from "@/src/redux/shopSlice";
+import { setDebouncedSearch, setSearchTerm } from "@/src/redux/shopSlice";
 import { useCategoryWithSubcategories } from "@/src/utlis/useCategoryWithSubcategories";
 import { useSearchProduct } from "@/src/utlis/useSearchProduct";
 import useWebsiteInfo from "@/src/utlis/useWebsiteInfo";
@@ -26,7 +26,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 const Header = ({ initialData }) => {
@@ -202,6 +202,28 @@ const Header = ({ initialData }) => {
       setShowLiveResults(true);
     else setShowLiveResults(false);
   }, [debouncedSearch]);
+
+  // Immediate search on Enter key or form submit
+  const handleSearchSubmit = useCallback((e) => {
+    e?.preventDefault();
+    const q = searchQuery.trim();
+    if (q) {
+      dispatch(setSearchTerm(q));
+      dispatch(setDebouncedSearch(q));
+      if (pathname !== "/shop") {
+        router.push(`/shop?search=${encodeURIComponent(q)}`);
+      } else {
+        router.push(`/shop?search=${encodeURIComponent(q)}`, { scroll: false });
+      }
+    } else {
+      dispatch(setSearchTerm(""));
+      dispatch(setDebouncedSearch(""));
+      if (pathname === "/shop") {
+        router.push("/shop", { scroll: false });
+      }
+    }
+    setShowLiveResults(false);
+  }, [searchQuery, dispatch, pathname, router]);
 
   // Close dropdown and image search when clicking outside
   useEffect(() => {
@@ -465,7 +487,7 @@ const Header = ({ initialData }) => {
                 </div>
 
                 {/* Search Input */}
-                <div className="flex-1 relative flex items-center bg-bg rounded-2xl">
+                <form onSubmit={handleSearchSubmit} className="flex-1 relative flex items-center bg-bg rounded-2xl">
                   <Search
                     className="absolute left-4 lg:left-6 text-gray-400"
                     size={18}
@@ -478,8 +500,14 @@ const Header = ({ initialData }) => {
                     className="w-full pl-12 lg:pl-14 pr-4 lg:pr-6 py-3 lg:py-4 bg-transparent focus:outline-none text-gray-700 placeholder-gray-500 font-medium"
                   />
                   <button
+                    type="submit"
+                    className="px-3 lg:px-4 text-gray-500 hover:text-primary transition-colors cursor-pointer"
+                  >
+                    <Search size={18} />
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => {
-                      // router.push(`/shop`);
                       setImageSearch(!imageSearch);
                     }}
                     className="w-12 cursor-pointer"
@@ -515,7 +543,7 @@ const Header = ({ initialData }) => {
                   ) : (
                     ""
                   )}
-                </div>
+                </form>
               </div>
             </div>
 
@@ -601,7 +629,11 @@ const Header = ({ initialData }) => {
                       className="flex items-center space-x-1 sm:space-x-2 text-gray-700 group-hover:text-emerald-600 transition-all duration-300"
                     >
                       <div
-                        className={`relative p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-bg ${item.hoverColors} transition-all duration-300 shadow-sm`}
+                        className={cn(
+                          "relative p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-bg transition-all duration-300 shadow-sm",
+                          item.hoverColors,
+                          { "hidden sm:block": item.key === "signin" }
+                        )}
                       >
                         <item.icon
                           size={item.size}
@@ -628,7 +660,7 @@ const Header = ({ initialData }) => {
 
                       {/* Label */}
                       {item.label && (
-                        <div className="hidden md:block">
+                        <div className={cn(item.key === "signin" ? "" : "hidden md:block")}>
                           <div className="text-xs text-neutral font-bold">
                             {item.label}
                           </div>
@@ -643,7 +675,7 @@ const Header = ({ initialData }) => {
 
           {/* Mobile/Tablet Search Bar - Responsive */}
           <div className="lg:hidden">
-            <div className="shadow-lg rounded-xl sm:rounded-2xl overflow-hidden bg-white/90 backdrop-blur-sm border border-gray-200/60">
+            <form onSubmit={handleSearchSubmit} className="shadow-lg rounded-xl sm:rounded-2xl overflow-hidden bg-white/90 backdrop-blur-sm border border-gray-200/60">
               <div className="flex-1 relative flex items-center">
                 <Search
                   className="absolute left-3 sm:left-4 text-gray-400"
@@ -657,8 +689,14 @@ const Header = ({ initialData }) => {
                   className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2 sm:py-3 bg-transparent focus:outline-none text-gray-700 placeholder-gray-500 font-medium text-sm sm:text-base"
                 />
                 <button
+                  type="submit"
+                  className="px-2 text-gray-500 hover:text-primary transition-colors cursor-pointer"
+                >
+                  <Search size={16} />
+                </button>
+                <button
+                  type="button"
                   onClick={() => {
-                    router.push("/shop");
                     setImageSearch(!imageSearch);
                   }}
                   className="w-12 cursor-pointer"
@@ -666,7 +704,7 @@ const Header = ({ initialData }) => {
                   <Camera />
                 </button>
               </div>
-            </div>
+            </form>
           </div>
         </Container>
 

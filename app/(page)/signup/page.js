@@ -16,6 +16,24 @@ import AuthRedirect from "@/src/utlis/authRedirect";
 import { useDispatch } from "react-redux";
 import Section from "@/src/compronent/shared/Section";
 import { sanitizeInput, sanitizeEmail, sanitizePhone } from "@/src/lib/sanitize";
+import { FaCheck, FaTimes } from "react-icons/fa";
+
+const getPasswordChecks = (pwd) => ({
+  length: pwd.length >= 6,
+  uppercase: /[A-Z]/.test(pwd),
+  lowercase: /[a-z]/.test(pwd),
+  number: /[0-9]/.test(pwd),
+});
+
+const getPasswordStrength = (pwd) => {
+  const checks = getPasswordChecks(pwd);
+  const passed = Object.values(checks).filter(Boolean).length;
+  if (pwd.length === 0) return { strength: 0, text: "", color: "", checks };
+  if (passed <= 1) return { strength: 25, text: "Weak", color: "bg-red-500", checks };
+  if (passed <= 2) return { strength: 50, text: "Fair", color: "bg-orange-500", checks };
+  if (passed <= 3) return { strength: 75, text: "Good", color: "bg-yellow-500", checks };
+  return { strength: 100, text: "Strong", color: "bg-green-500", checks };
+};
 
 function Signup() {
   const [name, setName] = useState('');
@@ -28,6 +46,7 @@ function Signup() {
   const router = useRouter()
   const searchParams = useSearchParams();
   const dispatch = useDispatch();
+  const passwordStrength = getPasswordStrength(password);
 
   useEffect(() => {
     const ref = searchParams.get('ref');
@@ -39,6 +58,12 @@ function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      setIsLoading(false);
+      return;
+    }
 
     const user = {
       name: sanitizeInput(name),
@@ -111,11 +136,43 @@ function Signup() {
                 <div className=' h-[60px] '>
                   <TextField disabled={isLoading} type='text' className=' w-full!' value={number} onChange={(e) => setNumber(e.target.value)} id="number" label="Number" variant="outlined" required />
                 </div>
-                <div className=' h-[60px] relative'>
+                <div className='min-h-[60px] relative'>
                   <TextField disabled={isLoading} type={showpassword ? 'text' : 'password'} className=' w-full!' value={password} onChange={(e) => setpassword(e.target.value)} id="password" label="Password" variant="outlined" required />
                   <button type='button' disabled={isLoading} onClick={() => setShowPassword(!showpassword)} className='absolute right-3 top-[50%] transform -translate-y-1/2 cursor-pointer text-gray-500'>
                     {showpassword ? <FaRegEye className='text-xl' /> : <FaEyeSlash className='text-xl' />}
                   </button>
+                  {password.length > 0 && (
+                    <div className='mt-2 space-y-1.5'>
+                      <div className='flex items-center justify-between text-xs'>
+                        <span className='text-gray-500'>Password strength</span>
+                        <span className={`font-semibold ${
+                          passwordStrength.strength === 100 ? 'text-green-600' :
+                          passwordStrength.strength >= 75 ? 'text-yellow-600' :
+                          passwordStrength.strength >= 50 ? 'text-orange-600' : 'text-red-600'
+                        }`}>{passwordStrength.text}</span>
+                      </div>
+                      <div className='w-full bg-gray-200 rounded-full h-1.5 overflow-hidden'>
+                        <div className={`h-full transition-all duration-300 ${passwordStrength.color}`} style={{ width: `${passwordStrength.strength}%` }} />
+                      </div>
+                      <div className='grid grid-cols-2 gap-x-4 gap-y-1 pt-1'>
+                        {[
+                          { key: "length", label: "At least 6 characters" },
+                          { key: "uppercase", label: "One uppercase letter (A-Z)" },
+                          { key: "lowercase", label: "One lowercase letter (a-z)" },
+                          { key: "number", label: "One number (0-9)" },
+                        ].map(({ key, label }) => (
+                          <div key={key} className='flex items-center gap-1.5 text-xs'>
+                            {passwordStrength.checks[key] ? (
+                              <FaCheck className='text-green-500 w-3 h-3' />
+                            ) : (
+                              <FaTimes className='text-red-400 w-3 h-3' />
+                            )}
+                            <span className={passwordStrength.checks[key] ? 'text-gray-600' : 'text-red-500'}>{label}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div className=' h-[60px] '>
                   <TextField disabled={isLoading} type='text' className=' w-full!' value={referralCode} onChange={(e) => setReferralCode(e.target.value)} id="referralCode" label="Referral Code (Optional)" variant="outlined" />
@@ -126,7 +183,7 @@ function Signup() {
 
 
             </div>
-            <button disabled={isLoading} type='submit' className='w-full bg-primary text-accent-content py-2 rounded-md hover:bg-[#609283] cursor-pointer transition duration-200 disabled:opacity-70 disabled:bg-gray-300'>
+            <button disabled={isLoading || (password.length > 0 && passwordStrength.strength < 50)} type='submit' className='w-full bg-primary text-accent-content py-2 rounded-md hover:bg-[#609283] cursor-pointer transition duration-200 disabled:opacity-70 disabled:bg-gray-300'>
               {isLoading ?
 
               <span className="w-full flex justify-center items-center gap-2">

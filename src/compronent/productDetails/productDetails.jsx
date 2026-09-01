@@ -1,6 +1,7 @@
 "use client"
 import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
@@ -11,6 +12,7 @@ import { getApprovedReviews, submitReview, deleteReview } from "@/src/hook/useRe
 import { decreaseProductQuantity, increaseProductQuantity } from "@/src/hook/useUpdateProduct";
 import { addToWishlistApi, removeFromWishlistApi } from "@/src/hook/useWishlist";
 import { useGetProduct } from "@/src/utlis/userProduct";
+import apiClient from "@/src/lib/axios";
 import { dsCartAdd } from "@/src/redux/dropshippingCartSlice";
 import ReactPlayer from 'react-player'
 import {
@@ -27,7 +29,8 @@ import {
   Star,
   Truck,
   Zap,
-  TriangleAlert // Added for error UI
+  TriangleAlert,
+  Loader2
 } from "lucide-react";
 import { setDetailsError, clearDetailsError } from "../../redux/shopSlice";
 import CustomLoader from '@/src/compronent/loading/CustomLoader';
@@ -110,6 +113,7 @@ const ProductDetails = ({ initialProduct }) => {
   const [couponsLoading, setCouponsLoading] = useState(false);
   const [downloadingImage, setDownloadingImage] = useState(null);
   const [downloadingAll, setDownloadingAll] = useState(false);
+  const [hasCourseAccess, setHasCourseAccess] = useState(false);
 
   const isDropshipping = user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING");
 
@@ -118,6 +122,7 @@ const ProductDetails = ({ initialProduct }) => {
   const [reviewRating, setReviewRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
   const [reviewList, setReviewList] = useState([]);
+  const [cartLoading, setCartLoading] = useState(false);
 
   // Optimize: Fetch only products in the same category for related products
   const productParams = useMemo(() => {
@@ -213,6 +218,22 @@ const ProductDetails = ({ initialProduct }) => {
     };
     fetchCoupons();
   }, [params?.id, isDropshipping]);
+
+  // Fetch course access for dropshipping users to determine coupon visibility
+  useEffect(() => {
+    if (!isDropshipping) return;
+    const fetchCourseAccess = async () => {
+      try {
+        const res = await apiClient.get("/video-access/my-access");
+        const accessRequests = res.data?.accessRequests || res.data || [];
+        const hasApproved = accessRequests.some(req => req.status === "approved");
+        setHasCourseAccess(hasApproved);
+      } catch (err) {
+        console.error("Course access fetch error:", err);
+      }
+    };
+    fetchCourseAccess();
+  }, [isDropshipping]);
 
   // Download a single image
   const handleDownloadImage = async (imageUrl, index) => {
@@ -395,7 +416,8 @@ const ProductDetails = ({ initialProduct }) => {
   };
 
   const handleAddToCart = async () => {
-    if (quantity > product.stock) return toast.error("অতিরিক্ত পরিমাণ যোগ করা হয়েছে")
+    if (cartLoading) return;
+    if (quantity > product.stock) return toast.error("অতিরিক্ত পরিমাণ যোগ করা হয়েছে")
 
     if (!user?._id) {
       toast.error("Please sign in to add items to cart");
@@ -412,6 +434,7 @@ const ProductDetails = ({ initialProduct }) => {
       return;
     }
 
+    setCartLoading(true);
     try {
       if (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) {
         // Dropshipping Cart (Local)
@@ -453,6 +476,8 @@ const ProductDetails = ({ initialProduct }) => {
     } catch (err) {
       console.error("Add to cart error:", err);
       toast.error("Failed to add to cart");
+    } finally {
+      setCartLoading(false);
     }
 
   };
@@ -878,16 +903,20 @@ const ProductDetails = ({ initialProduct }) => {
             <div className="space-y-4">
               <button
                 onClick={handleAddToCart}
-                disabled={product?.stock === 0}
-                className={`w-full py-4 rounded-xl font-semibold text-lg flex items-center justify-center space-x-2 transition-all duration-300 ${product?.stock === 0
+                disabled={product?.stock === 0 || cartLoading}
+                className={`w-full py-4 rounded-xl font-semibold text-lg flex items-center justify-center space-x-2 transition-all duration-300 ${product?.stock === 0 || cartLoading
                   ? "bg-gray-400 text-gray-200 cursor-not-allowed"
                   : (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING"))
                     ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:shadow-lg hover:shadow-emerald-500/20 transform hover:-translate-y-0.5 cursor-pointer"
                     : "bg-btn-color text-accent-content hover:shadow-lg hover:scale-102 cursor-pointer"
                   }`}
               >
-                <ShoppingCart className="w-5 h-5 " />
-                <span>{product?.stock === 0 ? "Out of Stock" : "Add to Cart"}</span>
+                {cartLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <ShoppingCart className="w-5 h-5 " />
+                )}
+                <span>{cartLoading ? "Adding..." : product?.stock === 0 ? "Out of Stock" : "Add to Cart"}</span>
               </button>
               <div className="grid grid-cols-2 gap-4">
                 <button
@@ -964,7 +993,7 @@ const ProductDetails = ({ initialProduct }) => {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`py-4 ${(user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) && tab === "reviews" ? "hidden" : ''} ${(user?.role !== "DROPSHIPPING" && !user?.roles?.includes("DROPSHIPPING")) && tab === "coupon information" ? "hidden" : ''} px-1 border-b-2 font-medium text-sm capitalize transition-all duration-300 ${activeTab === tab
+                  className={`py-4 ${(user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) && tab === "reviews" ? "hidden" : ''} ${(!isDropshipping && tab === "coupon information") ? "hidden" : ''} px-1 border-b-2 font-medium text-sm capitalize transition-all duration-300 ${activeTab === tab
                     ? "border-blue-500 text-blue-600"
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                     }`}
@@ -1134,7 +1163,7 @@ const ProductDetails = ({ initialProduct }) => {
               </div>
             )}
             { }
-            {activeTab === "coupon information" && isDropshipping && (
+            {activeTab === "coupon information" && isDropshipping && hasCourseAccess && (
               <div className="py-6 px-2">
                 {/* Section Header */}
                 <div className="flex items-center gap-3 mb-6">
@@ -1301,6 +1330,19 @@ const ProductDetails = ({ initialProduct }) => {
                     <p className="text-gray-400 text-xs mt-1">Check back later for special dropshipping offers.</p>
                   </div>
                 )}
+              </div>
+            )}
+
+            {activeTab === "coupon information" && isDropshipping && !hasCourseAccess && (
+              <div className="py-12 text-center">
+                <div className="w-16 h-16 mx-auto bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mb-4 shadow-inner">
+                  <span className="text-3xl">🎟️</span>
+                </div>
+                <h4 className="text-gray-700 font-bold text-lg mb-2">Course Purchase Required</h4>
+                <p className="text-gray-500 text-sm mb-4">You need to purchase a course to access exclusive coupon codes.</p>
+                <Link href="/video" className="inline-block bg-primary text-accent-content px-6 py-2 rounded-md hover:bg-[#609283] transition duration-200">
+                  Browse Courses
+                </Link>
               </div>
             )}
 

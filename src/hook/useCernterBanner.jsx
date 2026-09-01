@@ -47,6 +47,21 @@ export const CenterBannerUploade = async (formData, id) => {
   }
 };
 
+// toggle CenterBanner status
+export const CenterBannerToggleActive = async (id) => {
+  try {
+    const response = await apiClient.patch(
+      `/CenterBanner/${id}/toggle-active`,
+      {},
+      { withCredentials: true }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("CenterBanner toggle error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
 // delete CenterBanner
 export const CenterBannerDelete = async (categoryId) => {
   try {

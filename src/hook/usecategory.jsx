@@ -55,6 +55,21 @@ export const CategoryUploade = async (formData, categoryId) => {
   }
 };
 
+// toggle category active status
+export const CategoryToggleActive = async (categoryId) => {
+  try {
+    const response = await apiClient.patch(
+      `/categories/${categoryId}/toggle-active`,
+      {},
+      { withCredentials: true }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Category toggle error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
 // delete category
 export const CategoryDelete = async (categoryId) => {
   try {
