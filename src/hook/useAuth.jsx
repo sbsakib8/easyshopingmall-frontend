@@ -70,7 +70,7 @@ export const sendOtp = async (formData) => {
     const response = await apiClient.post("/users/send-otp", sanitized);
     return response.data;
   } catch (error) {
-    console.error("Reset Password error:", error.response?.data || error.message);
+    console.error("Reset Password error:", error.response?.data?.message || error.response?.data || error.message);
     throw error;
   }
 };

@@ -12,13 +12,16 @@ export const useCategoryWithSubcategories = (initialCategories = null, initialSu
         image: cat.categoryImage || '',
     }));
 
-    const normalizeSubcats = (data) => (data || []).map(subcat => ({
-        id: subcat._id,
-        name: subcat.subcategoryName || subcat.name,
-        slug: subcat.slug || subcat.subcategorySlug || '',
-        categoryId: subcat.categoryId || subcat.category,
-        image: subcat.subcategoryImage || '',
-    }));
+    const normalizeSubcats = (data) => (data || [])
+        .filter(subcat => subcat.isActive !== false)
+        .map(subcat => ({
+            id: subcat._id,
+            name: subcat.subcategoryName || subcat.name,
+            slug: subcat.slug || subcat.subcategorySlug || '',
+            categoryId: subcat.categoryId || subcat.category,
+            image: subcat.subcategoryImage || '',
+            isActive: subcat.isActive,
+        }));
 
     const [categories, setCategories] = useState(initialCategories?.length > 0 ? normalizeCategories(initialCategories) : []);
     const [subcategories, setSubcategories] = useState(initialSubcategories?.length > 0 ? normalizeSubcats(initialSubcategories) : []);

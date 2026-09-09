@@ -45,7 +45,8 @@ async function getSubCategories() {
     });
     if (!res.ok) return [];
     const json = await res.json();
-    return json.data || [];
+    const list = json.data || [];
+    return (Array.isArray(list) ? list : []).filter((sub) => sub.isActive !== false);
   } catch {
     return [];
   }
