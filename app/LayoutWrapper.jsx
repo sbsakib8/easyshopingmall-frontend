@@ -4,7 +4,6 @@ import Header from "@/src/compronent/header/header";
 import Footer from "@/src/compronent/Home/Footer";
 import DropshippingNavbar from "@/src/dropShipping/dropshippingNavbar/dropshippingNavbar";
 import BlockedUserRoute from "@/src/utlis/BlockedUserRoute";
-import FloatingCartCard from "@/src/compronent/shared/FloatingCartCard";
 import { useGetUser } from "@/src/utlis/useGetuser";
 import { usePathname } from "next/navigation";
 import { Suspense, useEffect } from "react";
@@ -29,20 +28,22 @@ export default function LayoutWrapper({ children, initialWebsiteInfo }) {
   }, [dispatch]);
 
   const { user, loading } = useGetUser();
-  const role = user?.role;
+  const userRole = (user?.role || "").toUpperCase();
+  const userRoles = (user?.roles || []).map((r) => (r || "").toUpperCase());
+  const isDropshipper = userRole === "DROPSHIPPING" || userRoles.includes("DROPSHIPPING");
 
   return (
 
     <BlockedUserRoute>
       <Suspense fallback={null}>
-        {(!hideLayout && role !== "DROPSHIPPING" && !user?.roles?.includes("DROPSHIPPING")) ? <Header /> : ""}
-        {(role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING")) && <DropshippingNavbar />}
+        {(!hideLayout && !isDropshipper) ? <Header /> : ""}
+        {isDropshipper && <DropshippingNavbar />}
       </Suspense>
       <main>
         {children}
       </main>
       {!hideLayout && <Footer initialData={initialWebsiteInfo} />}
-      {showFloatingCart && <FloatingCartCard />}
+      {showFloatingCart}
     </BlockedUserRoute>
   );
 }

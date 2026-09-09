@@ -22,9 +22,10 @@ export const SubCategoryCreate = async (formData,) => {
 // subcatagory ALL GET
 export const SubCategoryAllGet = async (dispatch, filterType, status) => {
   try {
+    const targetStatus = status || "active";
     const url = filterType 
-      ? `/subcategories?filterType=${filterType}&status=${status || "all"}` 
-      : `/subcategories?status=${status || "all"}`;
+      ? `/subcategories?filterType=${filterType}&status=${targetStatus}` 
+      : `/subcategories?status=${targetStatus}`;
     const response = await apiClient.get(url, {
       withCredentials: true,
       headers: {

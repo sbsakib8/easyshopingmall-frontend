@@ -1335,15 +1335,38 @@ const AccountPage = () => {
                                         Full Address
                                       </p>
                                       <p className="text-gray-800 font-medium">
-                                        {typeof data.address_details ===
-                                        "string"
+                                        {typeof data.address_details === "string"
                                           ? data.address_details
-                                          : Array.isArray(
-                                                data.address_details,
-                                              ) &&
-                                              data.address_details.length > 0
+                                          : Array.isArray(data.address_details) &&
+                                            data.address_details.length > 0
+                                          ? typeof data.address_details[0] === "string"
                                             ? data.address_details[0]
-                                            : "No address available"}
+                                            : typeof data.address_details[0] === "object" &&
+                                              data.address_details[0] !== null
+                                            ? [
+                                                data.address_details[0].address_line,
+                                                data.address_details[0].upazila_thana,
+                                                data.address_details[0].district,
+                                                data.address_details[0].division,
+                                                data.address_details[0].pincode,
+                                                data.address_details[0].country,
+                                              ]
+                                                .filter(Boolean)
+                                                .join(", ") || "No address available"
+                                            : "No address available"
+                                          : typeof data.address_details === "object" &&
+                                            data.address_details !== null
+                                          ? [
+                                              data.address_details.address_line,
+                                              data.address_details.upazila_thana,
+                                              data.address_details.district,
+                                              data.address_details.division,
+                                              data.address_details.pincode,
+                                              data.address_details.country,
+                                            ]
+                                              .filter(Boolean)
+                                              .join(", ") || "No address available"
+                                          : "No address available"}
                                       </p>
                                     </div>
                                   )}

@@ -23,7 +23,8 @@ async function getSubCategories() {
     });
     if (!res.ok) return [];
     const json = await res.json();
-    return json.data || (Array.isArray(json) ? json : []);
+    const list = json.data || (Array.isArray(json) ? json : []);
+    return list.filter((sub) => sub.isActive !== false);
   } catch {
     return [];
   }

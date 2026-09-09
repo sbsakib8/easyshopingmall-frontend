@@ -42,7 +42,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "img-src 'self' data: blob: https: http:",
       "font-src 'self' https://fonts.gstatic.com",
-      `connect-src 'self' ${backendOrigin} https://easyshoppingmallbd.com https://*.googleapis.com https://*.firebaseio.com https://identitytoolkit.googleapis.com https://www.google-analytics.com https://www.google.com wss://easyshoppingmallbd.com`,
+      `connect-src 'self' ${backendOrigin} https://api.easyshoppingmallbd.com wss://api.easyshoppingmallbd.com https://easyshoppingmallbd.com wss://easyshoppingmallbd.com https://*.googleapis.com https://*.firebaseio.com https://identitytoolkit.googleapis.com https://www.google-analytics.com https://www.google.com https://res.cloudinary.com https://i.ibb.co`,
       "frame-src 'self' https://www.youtube.com https://easyshoppingmall-48bf0.firebaseapp.com https://*.firebaseapp.com https://*.facebook.com",
       "object-src 'none'",
       "base-uri 'self'",
@@ -59,6 +59,27 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "res.cloudinary.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "http",
+        hostname: "res.cloudinary.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "i.ibb.co",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "api.easyshoppingmallbd.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "easyshoppingmallbd.com",
+        pathname: "/**",
       },
     ],
   },

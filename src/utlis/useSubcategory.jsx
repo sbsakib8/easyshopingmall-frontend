@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import { SubCategoryAllGet } from "../hook/useSubcategory";
 
 // ✅ Custom hook
-export const useGetSubcategory = (filterType) => {
+export const useGetSubcategory = (filterType, status = "active") => {
   const [subcategory, setSubcategory] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -13,8 +13,11 @@ export const useGetSubcategory = (filterType) => {
     const fetchUser = async () => {
       try {
         setLoading(true);
-        const data = await SubCategoryAllGet(dispatch, filterType);
-        setSubcategory(data.data);
+        const data = await SubCategoryAllGet(dispatch, filterType, status);
+        const activeSubcategories = (data?.data || []).filter(
+          (sub) => status === "all" || sub.isActive !== false
+        );
+        setSubcategory(activeSubcategories);
       } catch (err) {
         setError(err);
       } finally {
@@ -23,6 +26,6 @@ export const useGetSubcategory = (filterType) => {
     };
 
     fetchUser();
-  }, [filterType]);
+  }, [filterType, status]);
   return { subcategory, loading, error };
 };
