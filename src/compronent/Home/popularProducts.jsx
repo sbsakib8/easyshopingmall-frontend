@@ -20,6 +20,7 @@ import { useDispatch, useSelector } from "react-redux";
 import AddtoCartBtn from "@/src/helper/Buttons/AddtoCartBtn";
 import { fuzzyFilterAndSort } from "@/src/utlis/fuzzySearch";
 import { useWishlist } from "@/src/utlis/useWishList";
+import { toBengaliPrice, toBengaliNumber, toBengaliDiscount } from "@/src/utlis/bengali";
 import { cn } from "@/src/utlis/utils";
 import { addToCartApi } from "../../hook/useCart";
 import {
@@ -263,7 +264,7 @@ const PopularProducts = ({ initialData }) => {
 
     if (filteredProducts.length > 0 && currentPage === 1) {
       let seeMoreUrl = "/shop";
-      let seeMoreLabel = "All Products";
+      let seeMoreLabel = "সকল পণ্য";
       if (activeCategory !== "ALL") {
         seeMoreUrl = `/shop?category=${encodeURIComponent(activeCategory)}`;
         seeMoreLabel = activeCategory;
@@ -290,7 +291,7 @@ const PopularProducts = ({ initialData }) => {
         className={`w-3 h-3 sm:w-4 sm:h-4 ${
           i < Math.floor(rating)
             ? "text-yellow-400 fill-current"
-            : "text-gray-300"
+            : "text-line"
         }`}
       />
     ));
@@ -372,16 +373,16 @@ const PopularProducts = ({ initialData }) => {
     <Link
       key={item.key}
       href={item.seeMoreUrl}
-      className="group bg-white rounded-md shadow-md overflow-hidden hover:shadow-xl flex flex-col items-center justify-center cursor-pointer border-2 border-dashed border-gray-200 hover:border-primary transition-all duration-300 min-h-[280px]"
+      className="group bg-card rounded-md shadow-md overflow-hidden hover:shadow-xl flex flex-col items-center justify-center cursor-pointer border-2 border-dashed border-line hover:border-primary transition-all duration-300 min-h-[280px]"
     >
       <div className="flex flex-col items-center justify-center p-4 text-center">
         <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300">
           <ArrowRight className="w-7 h-7 text-primary" />
         </div>
-        <span className="text-sm font-semibold text-gray-700 group-hover:text-primary transition-colors duration-300">
-          See More
+        <span className="text-sm font-semibold text-ink group-hover:text-primary transition-colors duration-300">
+          আরও দেখুন
         </span>
-        <span className="text-xs text-gray-400 mt-1 line-clamp-1 max-w-[140px]">
+        <span className="text-xs text-muted mt-1 line-clamp-1 max-w-[140px]">
           {item.subCategoryName}
         </span>
       </div>
@@ -395,7 +396,7 @@ const PopularProducts = ({ initialData }) => {
         dispatch(setQuickViewProduct(product.data));
         router.push(`/productdetails/${product.data.id}`);
       }}
-      className="group bg-white rounded-md shadow-md overflow-hidden hover:shadow-xl cursor-pointer"
+      className="group bg-card rounded-md shadow-md overflow-hidden hover:shadow-xl cursor-pointer"
     >
       <div className="relative h-32">
         <Image
@@ -410,13 +411,13 @@ const PopularProducts = ({ initialData }) => {
         <div className="absolute top-0 left-0 flex justify-between w-full">
           <div className="flex items-start">
             {product.data.isNew && (
-              <span className="bg-primary text-primary-content px-1 py-1 rounded text-[8px] font-semibold">
+              <span className="bg-primary text-white px-1 py-1 rounded text-[8px] font-semibold">
                 NEW
               </span>
             )}
 
             {product.data.retailSale > product.data.price ? (
-              <span className="bg-accent text-accent-content px-1 py-1 mx-[2px] rounded text-[8px] font-semibold">
+              <span className="bg-accent text-white px-1 py-1 mx-[2px] rounded text-[8px] font-semibold">
                 -{product.data.retailSale - product.data.price}৳
               </span>
             ) : null}
@@ -440,7 +441,7 @@ const PopularProducts = ({ initialData }) => {
         <div
           className={`absolute ${
             product.data.productStatus?.length > 0 ? "top-6" : "top-0"
-          }  bg-white rounded-md right-0 space-y-2`}
+          }  bg-card rounded-md right-0 space-y-2`}
         >
           <button
             onClick={(e) => {
@@ -451,7 +452,7 @@ const PopularProducts = ({ initialData }) => {
       ${
         localWishlist.has(product.data.id)
           ? "text-red-500 bg-red-100"
-          : "text-gray-400 hover:text-red-500 hover:bg-red-50"
+          : "text-muted hover:text-red-500 hover:bg-red-50"
       }`}
           >
             <Heart
@@ -465,10 +466,10 @@ const PopularProducts = ({ initialData }) => {
 
       <div className="p-3">
         <div className="space-y-2">
-          <h3 className="font-semibold text-sm text-gray-800 mb-1 group-hover:text-primary transition-colors duration-300 line-clamp-1">
+          <h3 className="font-semibold text-sm text-ink mb-1 group-hover:text-primary transition-colors duration-300 line-clamp-1">
             {product.data.name}
           </h3>
-          <p className="text-xs text-gray-500 line-clamp-1">
+          <p className="text-xs text-muted line-clamp-1">
             {product.data.category}
           </p>
 
@@ -476,7 +477,7 @@ const PopularProducts = ({ initialData }) => {
             <div className="flex items-center">
               {renderStars(product.data.rating)}
             </div>
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-muted">
               ({product.data.rating})
             </span>
           </div>
@@ -484,23 +485,23 @@ const PopularProducts = ({ initialData }) => {
 
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-base font-bold text-red-600">
-              Tk {product.data.price}
+            <span className="text-base font-bold text-primary">
+              {toBengaliPrice(product.data.price)}
             </span>
             {product.data.retailSale > product.data.price && (
-              <span className="text-xs text-gray-400 line-through">
-                Tk {product.data.retailSale.toFixed(2)}
+              <span className="text-xs text-muted line-through">
+                {toBengaliPrice(product.data.retailSale)}
               </span>
             )}
           </div>
 
           <AddtoCartBtn
             productId={product.data.id}
-            className="w-full py-1.5 px-2 bg-primary/80 hover:bg-primary rounded font-medium text-xs cursor-pointer mt-auto"
+            className="w-full py-1.5 px-2 bg-primary hover:bg-primary-dark rounded font-medium text-xs cursor-pointer mt-auto text-white transition-colors"
           >
             <span className="flex items-center justify-center gap-1">
               <ShoppingCart className="w-3 h-3" />
-              Add to Cart
+              কার্টে যোগ করুন
             </span>
           </AddtoCartBtn>
         </div>
@@ -532,24 +533,24 @@ const PopularProducts = ({ initialData }) => {
           className={cn(
             "flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
             currentPage === 1
-              ? "text-gray-300 cursor-not-allowed"
-              : "text-gray-600 hover:bg-primary hover:text-white cursor-pointer",
+              ? "text-line cursor-not-allowed"
+              : "text-ink hover:bg-primary hover:text-white cursor-pointer",
           )}
         >
           <ChevronLeft className="w-4 h-4" />
-          Prev
+          পূর্ববর্তী
         </button>
 
         {startPage > 1 && (
           <>
             <button
               onClick={() => setCurrentPage(1)}
-              className="w-9 h-9 rounded-lg text-sm font-medium text-gray-600 hover:bg-primary hover:text-white transition-all duration-200 cursor-pointer"
+              className="w-9 h-9 rounded-lg text-sm font-medium text-ink hover:bg-primary hover:text-white transition-all duration-200 cursor-pointer"
             >
               1
             </button>
             {startPage > 2 && (
-              <span className="text-gray-400 text-sm">...</span>
+              <span className="text-muted text-sm">...</span>
             )}
           </>
         )}
@@ -562,23 +563,23 @@ const PopularProducts = ({ initialData }) => {
               "w-9 h-9 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer",
               currentPage === page
                 ? "bg-primary text-white shadow-lg"
-                : "text-gray-600 hover:bg-primary hover:text-white",
+                : "text-ink hover:bg-primary hover:text-white",
             )}
           >
-            {page}
+            {toBengaliNumber(page, false)}
           </button>
         ))}
 
         {endPage < totalPages && (
           <>
             {endPage < totalPages - 1 && (
-              <span className="text-gray-400 text-sm">...</span>
+              <span className="text-muted text-sm">...</span>
             )}
             <button
               onClick={() => setCurrentPage(totalPages)}
-              className="w-9 h-9 rounded-lg text-sm font-medium text-gray-600 hover:bg-primary hover:text-white transition-all duration-200 cursor-pointer"
+              className="w-9 h-9 rounded-lg text-sm font-medium text-ink hover:bg-primary hover:text-white transition-all duration-200 cursor-pointer"
             >
-              {totalPages}
+              {toBengaliNumber(totalPages, false)}
             </button>
           </>
         )}
@@ -591,11 +592,11 @@ const PopularProducts = ({ initialData }) => {
           className={cn(
             "flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
             currentPage === totalPages
-              ? "text-gray-300 cursor-not-allowed"
-              : "text-gray-600 hover:bg-primary hover:text-white cursor-pointer",
+              ? "text-line cursor-not-allowed"
+              : "text-ink hover:bg-primary hover:text-white cursor-pointer",
           )}
         >
-          Next
+          পরবর্তী
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
@@ -607,23 +608,23 @@ const PopularProducts = ({ initialData }) => {
       <Container className="space-y-8">
         <div className="space-y-6">
           <div className="text-center">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-b from-primary via-primary/60 to-secondary/30 bg-clip-text text-transparent leading-relaxed">
-              Popular Products
-            </h1>
-            <p className="text-slate-400 text-sm sm:text-sm md:text-base lg:text-lg">
-              Discover amazing products across all categories
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-b from-primary via-primary/70 to-primary/40 bg-clip-text text-transparent leading-relaxed">
+              জনপ্রিয় পণ্যসমূহ
+            </h2>
+            <p className="text-muted text-sm sm:text-sm md:text-base lg:text-lg">
+              সেরা দামে আপনার পছন্দের সকল পণ্য খুঁজে নিন
             </p>
           </div>
 
           <div className="max-w-md mx-auto">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5 z-10" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted w-5 h-5 z-10" />
               <input
                 type="search"
-                placeholder="Search products by title, tags, category..."
+                placeholder="পণ্য, ট্যাগ বা ক্যাটাগরি অনুসন্ধান করুন..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white/50 text-slate-400 placeholder:text-slate-400"
+                className="w-full pl-10 pr-4 py-2 text-sm rounded-xl border border-line focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white text-ink placeholder:text-muted"
               />
             </div>
           </div>
@@ -640,11 +641,11 @@ const PopularProducts = ({ initialData }) => {
                   onClick={() => setActiveCategory(cat.id)}
                   type="button"
                   className={cn(
-                    "flex items-center gap-2 px-4 py-1.5 rounded-full font-medium whitespace-nowrap flex-shrink-0 transition-all duration-200 snap-start bg-gray-100 border border-gray-200 text-gray-600 text-xs md:text-sm lg:text-base uppercase",
+                    "flex items-center gap-2 px-4 py-1.5 rounded-full font-medium whitespace-nowrap flex-shrink-0 transition-all duration-200 snap-start bg-card border border-line text-ink text-xs md:text-sm lg:text-base uppercase",
                     {
-                      "bg-primary text-primary-content shadow-lg":
+                      "bg-primary text-white border-primary shadow-lg":
                         activeCategory === cat.id,
-                      "hover:shadow hover:bg-gray-200":
+                      "hover:shadow hover:bg-bg":
                         activeCategory !== cat.id,
                     },
                   )}
@@ -667,49 +668,47 @@ const PopularProducts = ({ initialData }) => {
           {filteredProducts.length === 0 && !isError && (
             <div className="col-span-full flex flex-col items-center justify-center py-24 px-4 bg-gradient-to-br from-white/90 to-slate-50/80 backdrop-blur-xl rounded-[3rem] border border-white/40 shadow-2xl relative overflow-hidden group">
               <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-                <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-emerald-500/10 blur-[120px] rounded-full animate-pulse" />
+                <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-primary/10 blur-[120px] rounded-full animate-pulse" />
                 <div
-                  className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-teal-500/10 blur-[120px] rounded-full animate-pulse"
+                  className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-primary-dark/10 blur-[120px] rounded-full animate-pulse"
                   style={{ animationDelay: "1s" }}
                 />
               </div>
 
               <div className="relative z-10 flex flex-col items-center">
                 <div className="mb-10 relative">
-                  <div className="absolute inset-0 bg-emerald-200/50 rounded-full blur-3xl opacity-30 group-hover:scale-150 transition-transform duration-1000" />
-                  <div className="relative bg-white p-10 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-emerald-50 transform group-hover:scale-105 group-hover:-rotate-3 transition-all duration-500">
-                    <Search className="w-20 h-20 text-emerald-600 animate-[bounce_3s_infinite]" />
-                    <Sparkles className="absolute -top-4 -right-4 w-12 h-12 text-yellow-400 animate-pulse" />
+                  <div className="absolute inset-0 bg-primary-light rounded-full blur-3xl opacity-30 group-hover:scale-150 transition-transform duration-1000" />
+                  <div className="relative bg-card p-10 rounded-[2.5rem] shadow-xl border border-line transform group-hover:scale-105 group-hover:-rotate-3 transition-all duration-500">
+                    <Search className="w-20 h-20 text-primary animate-[bounce_3s_infinite]" />
+                    <Sparkles className="absolute -top-4 -right-4 w-12 h-12 text-amber-400 animate-pulse" />
                   </div>
                 </div>
 
                 <div className="text-center space-y-4 max-w-lg px-6">
-                  <h3 className="text-4xl font-extrabold text-slate-800 tracking-tight">
-                    Data is Coming!{" "}
+                  <h3 className="text-3xl sm:text-4xl font-extrabold text-ink tracking-tight">
+                    শীঘ্রই পণ্য আসছে!{" "}
                     <span className="inline-block animate-bounce">✨</span>
                   </h3>
-                  <p className="text-slate-500 text-lg sm:text-xl font-medium leading-relaxed">
-                    We're meticulously curating our latest collection. Stay
-                    tuned! In the meantime, try adjusting your search or explore
-                    other categories.
+                  <p className="text-muted text-base sm:text-lg font-medium leading-relaxed">
+                    আপনার পছন্দের কালেকশন সাজানো হচ্ছে। অনুগ্রহ করে ভিন্ন অনুসন্ধান করুন বা অন্যান্য ক্যাটাগরি ব্রাউজ করুন।
                   </p>
                 </div>
 
-                <div className="mt-12 flex flex-wrap justify-center gap-6">
+                <div className="mt-8 flex flex-wrap justify-center gap-4">
                   <button
                     onClick={() => {
                       setSearchTerm("");
                       setActiveCategory("ALL");
                     }}
-                    className="px-12 py-5 bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-2xl font-bold text-lg shadow-[0_15px_30px_-10px_rgba(16,185,129,0.5)] hover:shadow-[0_20px_40px_-5px_rgba(16,185,129,0.6)] hover:-translate-y-1 active:scale-95 transition-all duration-400"
+                    className="px-8 py-3.5 bg-primary hover:bg-primary-dark text-white rounded-2xl font-bold text-base shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-95 transition-all cursor-pointer"
                   >
-                    Check All Products
+                    সকল পণ্য দেখুন
                   </button>
                   <button
                     onClick={() => setSearchTerm("")}
-                    className="px-12 py-5 bg-white/50 border border-slate-200 text-slate-700 backdrop-blur-sm rounded-2xl font-bold text-lg hover:bg-white hover:border-emerald-200 transition-all duration-400 shadow-sm"
+                    className="px-8 py-3.5 bg-white border border-line text-ink rounded-2xl font-bold text-base hover:bg-slate-50 transition-all shadow-xs cursor-pointer"
                   >
-                    Clear Filters
+                    অনুসন্ধান মুছুন
                   </button>
                 </div>
               </div>
@@ -721,17 +720,17 @@ const PopularProducts = ({ initialData }) => {
               <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Search className="w-10 h-10 text-red-500" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                Failed to load products
+              <h3 className="text-xl font-semibold text-ink mb-2">
+                পণ্য লোড করা যায়নি
               </h3>
-              <p className="text-gray-600 mb-8">
-                There was a problem connecting to the server. Please try again.
+              <p className="text-muted mb-8">
+                সার্ভারের সাথে সংযোগে সমস্যা হয়েছে। আবার চেষ্টা করুন।
               </p>
               <button
                 onClick={manualFetch}
-                className="px-8 py-3 bg-red-500 text-accent-content rounded-xl hover:bg-red-600 transform hover:scale-105 transition-all shadow-lg shadow-red-200 font-bold"
+                className="px-8 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transform hover:scale-105 transition-all shadow-lg shadow-red-200 font-bold"
               >
-                Retry Fetching Data
+                আবার চেষ্টা করুন
               </button>
             </div>
           )}

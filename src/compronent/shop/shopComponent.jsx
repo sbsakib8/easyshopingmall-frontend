@@ -984,7 +984,7 @@ const ShopPage = ({ initialData, queryParams }) => {
               {/* Active Filter Chips */}
               <div className="flex flex-wrap gap-2 items-center">
                 {filterCategory !== "all" && (
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-lg border border-emerald-100 shadow-sm animate-in fade-in zoom-in duration-300">
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-primary-light text-primary text-xs font-bold rounded-lg border border-primary/20 shadow-xs animate-in fade-in zoom-in duration-300">
                     <span className="capitalize">
                       {filterCategory.replace(/-/g, " ")}
                     </span>
@@ -1332,36 +1332,34 @@ const ShopPage = ({ initialData, queryParams }) => {
             {!productsLoading && currentProducts.length === 0 && (
               <div className="flex flex-col items-center justify-center py-20 px-4 bg-gradient-to-br from-white/90 to-slate-50/80 backdrop-blur-xl rounded-[2.5rem] border border-white/40 shadow-xl relative overflow-hidden group">
                 <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-                  <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-emerald-500/5 blur-[100px] rounded-full animate-pulse" />
-                  <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-teal-500/5 blur-[100px] rounded-full animate-pulse" />
+                  <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/5 blur-[100px] rounded-full animate-pulse" />
+                  <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-primary-dark/5 blur-[100px] rounded-full animate-pulse" />
                 </div>
 
                 <div className="relative z-10 flex flex-col items-center">
                   <div className="mb-8 relative">
-                    <div className="absolute inset-0 bg-emerald-200/40 rounded-full blur-2xl opacity-40 group-hover:scale-125 transition-transform duration-700" />
-                    <div className="relative bg-white p-8 rounded-[2rem] shadow-lg border border-emerald-50 transform group-hover:rotate-6 transition-all duration-500">
-                      <Search className="w-16 h-16 text-emerald-600 animate-[bounce_2.5s_infinite]" />
-                      <Sparkles className="absolute -top-3 -right-3 w-10 h-10 text-yellow-400 animate-pulse" />
+                    <div className="absolute inset-0 bg-primary-light/50 rounded-full blur-2xl opacity-40 group-hover:scale-125 transition-transform duration-700" />
+                    <div className="relative bg-white p-8 rounded-[2rem] shadow-lg border border-line transform group-hover:rotate-6 transition-all duration-500">
+                      <Search className="w-16 h-16 text-primary animate-[bounce_2.5s_infinite]" />
+                      <Sparkles className="absolute -top-3 -right-3 w-10 h-10 text-amber-400 animate-pulse" />
                     </div>
                   </div>
 
                   <div className="text-center space-y-3 max-w-lg mb-10">
-                    <h3 className="text-3xl font-extrabold text-slate-800 tracking-tight">
-                      Data is Coming!{" "}
+                    <h3 className="text-3xl font-extrabold text-ink tracking-tight">
+                      শীঘ্রই নতুন পণ্য আসছে!{" "}
                       <span className="inline-block animate-bounce">✨</span>
                     </h3>
-                    <p className="text-slate-500 text-lg font-medium leading-relaxed">
-                      We're refreshing our stock with premium new arrivals. Stay
-                      tuned! Try clearing your filters or exploring a different
-                      category.
+                    <p className="text-muted text-lg font-medium leading-relaxed">
+                      আপনার পছন্দের পণ্যের স্টক আপডেট করা হচ্ছে। অনুগ্রহ করে ফিল্টার পরিবর্তন করুন বা অন্য ক্যাটাগরি অনুসন্ধান করুন।
                     </p>
                   </div>
 
                   <button
                     onClick={clearFilters}
-                    className="px-10 py-4 bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-2xl font-bold shadow-[0_12px_25px_-10px_rgba(16,185,129,0.5)] hover:shadow-[0_18px_35px_-5px_rgba(16,185,129,0.6)] hover:-translate-y-1 active:scale-95 transition-all duration-300"
+                    className="px-10 py-3.5 bg-primary hover:bg-primary-dark text-white rounded-2xl font-bold shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-95 transition-all duration-300 cursor-pointer"
                   >
-                    Clear All Filters
+                    সকল ফিল্টার মুছুন
                   </button>
                 </div>
               </div>

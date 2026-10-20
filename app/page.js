@@ -48,7 +48,7 @@ async function getProducts() {
     const res = await fetch(`${UrlBackend}/homepage/popular-products`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ page: 1, limit: 80 }),
+      body: JSON.stringify({ page: 1, limit: 300 }),
       next: { revalidate: 300 }
     });
 

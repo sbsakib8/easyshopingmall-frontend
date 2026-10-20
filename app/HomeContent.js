@@ -31,7 +31,7 @@ export default function HomeContent({ initialData }) {
         const [banners, categories, productsRes] = await Promise.all([
           HomeBannerAllGet(),
           CategoryAllGet(),
-          ProductAllGet({ page: 1, limit: 100 }),
+          ProductAllGet({ page: 1, limit: 300 }),
         ]);
 
         const products = productsRes?.data || productsRes?.products || [];

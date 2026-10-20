@@ -1,5 +1,5 @@
 "use client";
-
+import React from "react";
 import { cn } from "@/src/utlis/utils";
 import {
   AddShoppingCart,
@@ -23,19 +23,19 @@ const BottomNav = ({ cartCount = 0, menuCategories = [] }) => {
   const [activeCategory, setActiveCategory] = useState(null);
 
   const navItems = [
-    { icon: HomeFilled, href: "/", key: "home", label: "Home" },
-    { icon: NewspaperRounded, href: "/blog", key: "blog", label: "Blog" },
+    { icon: HomeFilled, href: "/", key: "home", label: "হোম" },
+    { icon: NewspaperRounded, href: "/blog", key: "blog", label: "ব্লগ" },
     {
       icon: AddShoppingCart,
       href: "/addtocart",
       key: "cart",
-      label: "Cart",
+      label: "কার্ট",
       badge: String(cartCount),
     },
-    { icon: ShopRounded, href: "/shop", key: "shop", label: "Shop" },
-    { icon: MailRounded, href: "/contact", key: "contact", label: "Contact" },
-    { icon: Info, href: "/about", key: "about", label: "About" },
-    { icon: GridView, key: "menu", label: "Category" },
+    { icon: ShopRounded, href: "/shop", key: "shop", label: "শপ" },
+    { icon: MailRounded, href: "/contact", key: "contact", label: "যোগাযোগ" },
+    { icon: Info, href: "/about", key: "about", label: "সম্পর্কে" },
+    { icon: GridView, key: "menu", label: "ক্যাটাগরি" },
   ];
 
   const handleClick = (item) => {
@@ -109,7 +109,7 @@ const BottomNav = ({ cartCount = 0, menuCategories = [] }) => {
                       {/* Animated Running Border */}
                       <div
                         className="absolute inset-[-4px] rounded-full
-                   bg-[conic-gradient(transparent_0deg,transparent_85deg,#10b981_115deg,#34d399_165deg,#6ee7b7_205deg,#34d399_245deg,transparent_300deg,transparent_360deg)]
+                   bg-[conic-gradient(transparent_0deg,transparent_85deg,#0092EE_115deg,#0077C2_165deg,#E5F4FD_205deg,#0077C2_245deg,transparent_300deg,transparent_360deg)]
                    animate-[spin_2.8s_linear_infinite]
                    blur-[1.5px]"
                       />
@@ -192,8 +192,8 @@ const BottomNav = ({ cartCount = 0, menuCategories = [] }) => {
       >
         <div className="w-[300px]">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-emerald-100 to-teal-100">
-            <h3 className="font-bold text-slate-800">Shop by Category</h3>
+          <div className="flex items-center justify-between px-4 py-3.5 bg-primary text-white">
+            <h3 className="font-bold text-white">ক্যাটাগরি ব্রাউজ করুন</h3>
             <button
               onClick={() => {
                 setMenuOpen(false);
@@ -202,16 +202,16 @@ const BottomNav = ({ cartCount = 0, menuCategories = [] }) => {
               type="button"
               title="Close"
               aria-label="Close"
-              className="p-1.5 rounded-full hover:bg-white/70"
+              className="p-1.5 rounded-full hover:bg-white/20 text-white cursor-pointer"
             >
-              <X className="w-5 h-5 text-slate-600" />
+              <X className="w-5 h-5 text-white" />
             </button>
           </div>
 
           {/* Categories */}
           {menuCategories.length === 0 ? (
-            <p className="text-center py-10 text-slate-400">
-              No categories found
+            <p className="text-center py-10 text-muted">
+              কোনো ক্যাটাগরি পাওয়া যায়নি
             </p>
           ) : (
             <div className="overflow-y-auto h-[calc(100vh-56px)]">
@@ -220,23 +220,22 @@ const BottomNav = ({ cartCount = 0, menuCategories = [] }) => {
                 const hasSubs = category?.subcategories?.length > 0;
 
                 return (
-                  <>
+                  <React.Fragment key={category.id}>
                     <button
-                      key={category.id}
                       onClick={() =>
                         hasSubs
                           ? handleCategoryClick(category)
-                          : router.push(`/shop?category=${category.slug}`)
+                          : router.push(`/shop?category=${category.slug || category.name}`)
                       }
                       type="button"
                       title={category.name}
                       aria-pressed={isExpanded}
                       aria-label={category.name}
                       className={cn(
-                        "w-full flex items-center justify-between px-4 py-4 text-left transition-colors",
+                        "w-full flex items-center justify-between px-4 py-4 text-left transition-colors border-b border-line/60 cursor-pointer",
                         {
-                          "bg-emerald-50 text-emerald-700": isExpanded,
-                          "hover:bg-slate-50": !isExpanded,
+                          "bg-primary-light text-primary font-bold": isExpanded,
+                          "hover:bg-slate-50 text-ink": !isExpanded,
                         },
                       )}
                     >
@@ -253,25 +252,25 @@ const BottomNav = ({ cartCount = 0, menuCategories = [] }) => {
                     </button>
 
                     {isExpanded && hasSubs && (
-                      <div className="bg-slate-50 px-4 py-2 space-y-1">
+                      <div className="bg-bg-app px-4 py-2 space-y-1">
                         {category?.subcategories?.map((sub) => (
                           <button
-                            key={sub.id}
+                            key={sub.id || sub._id || sub.name}
                             onClick={() =>
                               handleSubcategoryClick(category, sub)
                             }
                             type="button"
                             title={sub.name}
                             aria-label={sub.name}
-                            className="w-full text-left px-4 py-3 rounded-xl hover:bg-white hover:text-emerald-600 transition-all flex items-center gap-2"
+                            className="w-full text-left px-4 py-2.5 rounded-xl hover:bg-white hover:text-primary transition-all flex items-center gap-2 text-ink text-sm cursor-pointer"
                           >
-                            <span className="w-1.5 h-1.5 bg-slate-400 rounded-full" />
+                            <span className="w-1.5 h-1.5 bg-primary rounded-full" />
                             {sub.name}
                           </button>
                         ))}
                       </div>
                     )}
-                  </>
+                  </React.Fragment>
                 );
               })}
             </div>

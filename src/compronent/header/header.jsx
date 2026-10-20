@@ -34,7 +34,7 @@ const Header = ({ initialData }) => {
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [hoveredCategoryId, setHoveredCategoryId] = useState(null);
   const [mounted, setMounted] = useState(false);
-  
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -73,11 +73,11 @@ const Header = ({ initialData }) => {
 
   // Navigation items
   const navItems = [
-    { name: "Home", href: "/" },
-    { name: "Shop", href: "/shop" },
-    { name: "Blog", href: "/blog", badge: "New" },
-    { name: "Contact", href: "/contact" },
-    { name: "About", href: "/about" },
+    { name: "হোম", href: "/" },
+    { name: "শপ", href: "/shop" },
+    { name: "ব্লগ", href: "/blog", badge: "নতুন" },
+    { name: "যোগাযোগ", href: "/contact" },
+    { name: "আমাদের সম্পর্কে", href: "/about" },
   ];
 
   // load wishlist + cart for logged-in user
@@ -117,7 +117,7 @@ const Header = ({ initialData }) => {
   }));
 
   if (hasDashboardAccess) {
-    navItems.push({ name: "Dashboard", href: "/dashboard" });
+    navItems.push({ name: "ড্যাশবোর্ড", href: "/dashboard" });
   }
 
   // Scroll effect
@@ -305,22 +305,21 @@ const Header = ({ initialData }) => {
       {/* Main Header */}
       <header
         className={cn(
-          "sticky bg-primary/60 top-0 z-40 transition-all duration-300  backdrop-blur-md md:space-y-2",
+          "sticky bg-white/95 top-0 z-40 transition-all duration-300 backdrop-blur-md md:space-y-2 border-b border-line shadow-xs",
           {
-            "bg-primary/20": isScrolled,
+            "bg-white shadow-md": isScrolled,
           },
         )}
       >
-        <Container className="space-y-2">
+        <Container className="space-y-2 py-1">
           <div className="flex items-center justify-between">
             {/* Enhanced Logo - Responsive */}
             <div className="flex items-center">
               <div className="flex items-center space-x-2 sm:space-x-3 group cursor-pointer">
                 <div className="relative">
                   <div
-                    className={`w-6 h-6 sm:w-10 sm:h-10 lg:w-12 lg:h-12  from-emerald-500 via-green-500 to-teal-500 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 ${
-                      isScrolled ? "animate-pulse" : ""
-                    }`}
+                    className={`w-6 h-6 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-sm group-hover:shadow-md transition-all duration-300 group-hover:scale-105 ${isScrolled ? "animate-pulse" : ""
+                      }`}
                   >
                     <Image
                       src={logo}
@@ -329,17 +328,17 @@ const Header = ({ initialData }) => {
                       alt="Easy Shopping Mall Logo"
                     />
                   </div>
-                  <div className="absolute -top-0.5 sm:-top-1 -right-0.5 sm:-right-1 w-2 h-2 sm:w-3 sm:h-3 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full animate-pulse"></div>
+                  <div className="absolute -top-0.5 sm:-top-1 -right-0.5 sm:-right-1 w-2 h-2 sm:w-3 sm:h-3 bg-primary rounded-full animate-pulse"></div>
                 </div>
                 <div className="transform group-hover:scale-105 transition-transform duration-300">
-                  <Link href={"/"} className="flex flex-row ">
-                    <span className="text-[13px] sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-emerald-700 to-teal-700 bg-clip-text text-transparent">
+                  <Link href={"/"} className="flex flex-row items-center">
+                    <span className="text-[13px] sm:text-xl lg:text-2xl font-black text-primary">
                       EASY
                     </span>
-                    <span className="text-[13px] sm:text-xl lg:text-2xl font-bold text-gray-800">
+                    <span className="text-[13px] sm:text-xl lg:text-2xl font-black text-ink ml-1">
                       SHOPPING
                     </span>
-                    <span className="text-[13px] sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-emerald-700 to-teal-700 bg-clip-text text-transparent">
+                    <span className="text-[13px] sm:text-xl lg:text-2xl font-black text-primary ml-1">
                       MALL
                     </span>
                   </Link>
@@ -349,41 +348,40 @@ const Header = ({ initialData }) => {
 
             {/* Enhanced Search Bar  */}
             <div className="hidden lg:flex flex-1 max-w-xl justify-center mx-8">
-              <div className="flex w-full shadow-lg rounded-2xl z-50  border border-gray-200/60 bg-bg backdrop-blur-sm">
+              <div className="flex w-full shadow-sm rounded-2xl z-50 border border-line bg-bg backdrop-blur-sm">
                 {/* Categories Button */}
                 <div className="relative group/main" ref={dropdownRef}>
                   <button
                     onClick={toggleCategories}
-                    className="flex items-center space-x-2 bg-bg px-4 lg:px-6 py-3 lg:py-4 hover:from-emerald-50 hover:to-teal-50 hover:text-secondary transition-all duration-300 group rounded-2xl"
+                    className="flex items-center space-x-2 bg-bg px-4 lg:px-6 py-3 lg:py-3.5 hover:bg-primary-light hover:text-primary transition-all duration-300 group rounded-2xl cursor-pointer"
                   >
                     <Menu
                       size={16}
                       className="group-hover:rotate-90 transition-transform duration-300"
                     />
-                    <span className="font-semibold text-sm lg:text-base">
-                      Categories
+                    <span className="font-bold text-sm lg:text-base text-ink">
+                      ক্যাটাগরি
                     </span>
                     <ChevronDown
                       size={14}
-                      className={`transition-transform duration-300 ${
-                        isCategoriesOpen ? "rotate-180" : ""
-                      }`}
+                      className={`transition-transform duration-300 ${isCategoriesOpen ? "rotate-180" : ""
+                        }`}
                     />
                   </button>
 
                   {/* Categories Dropdown Container */}
                   {isCategoriesOpen && (
-                    <div className="absolute top-full left-0 mt-2 w-80 bg-white border border-gray-200 rounded-2xl shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div className="absolute top-full left-0 mt-2 w-80 bg-white border border-line rounded-2xl shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-300">
                       {/* Header */}
-                      <div className="bg-secondary/80 p-4 rounded-t-2xl">
-                        <h3 className="text-secondary-content font-bold text-lg flex items-center space-x-2">
+                      <div className="bg-primary p-4 rounded-t-2xl">
+                        <h3 className="text-black font-bold text-lg flex items-center space-x-2">
                           <Star className="w-5 h-5 animate-pulse" />
-                          <span>Shop by Category</span>
+                          <span>ক্যাটাগরি ব্রাউজ করুন</span>
                         </h3>
                       </div>
 
                       {/* Main Categories List */}
-                      <div className="py-2 relative">
+                      <div className="py-2 relative ">
                         {categoriesLoading ? (
                           <div className="py-2 space-y-1">
                             {[...Array(6)].map((_, i) => (
@@ -405,7 +403,7 @@ const Header = ({ initialData }) => {
                               (sub) =>
                                 pathname === "/shop" &&
                                 searchParams.get("category") ===
-                                  category.name &&
+                                category.name &&
                                 searchParams.get("subcategory") === sub.name,
                             );
                             const isActiveCategory =
@@ -430,11 +428,10 @@ const Header = ({ initialData }) => {
                                     );
                                     setIsCategoriesOpen(false);
                                   }}
-                                  className={`flex items-center space-x-3 w-full px-6 py-4 transition-all duration-300 ${
-                                    isActiveCategory
-                                      ? "bg-secondary/10 text-secondary"
-                                      : "hover:bg-secondary/10 text-secondary-content"
-                                  }`}
+                                  className={`flex items-center space-x-3 text-black w-full px-6 py-4 transition-all duration-300 ${isActiveCategory
+                                    ? "bg-secondary/10 text-secondary"
+                                    : "hover:bg-secondary/10 text-secondary-content"
+                                    }`}
                                 >
                                   <span className="text-xl">
                                     {category.icon}
@@ -450,11 +447,10 @@ const Header = ({ initialData }) => {
 
                                 <div
                                   className={`absolute left-full top-0 ml-[2px] bg-white w-64 rounded-2xl shadow-2xl transition-all duration-300 ease-out z-[60]
-                  ${
-                    isActiveCategory
-                      ? "opacity-100 visible translate-x-0"
-                      : "opacity-0 invisible -translate-x-4"
-                  }`}
+                  ${isActiveCategory
+                                      ? "opacity-100 visible translate-x-0"
+                                      : "opacity-0 invisible -translate-x-4"
+                                    }`}
                                 >
                                   <div className="bg-secondary/80 p-4 rounded-t-2xl">
                                     <h4 className="font-bold text-secondary-content">
@@ -494,14 +490,14 @@ const Header = ({ initialData }) => {
                   />
                   <input
                     type="search"
-                    placeholder="Search for products"
+                    placeholder="পণ্য, ব্র্যান্ড বা ক্যাটাগরি অনুসন্ধান করুন..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-12 lg:pl-14 pr-4 lg:pr-6 py-3 lg:py-4 bg-transparent focus:outline-none text-gray-700 placeholder-gray-500 font-medium"
+                    className="w-full pl-12 lg:pl-14 pr-4 lg:pr-6 py-3 lg:py-3.5 bg-transparent focus:outline-none text-ink placeholder:text-muted font-medium text-sm lg:text-base"
                   />
                   <button
                     type="submit"
-                    className="px-3 lg:px-4 text-gray-500 hover:text-primary transition-colors cursor-pointer"
+                    className="px-3 lg:px-4 text-muted hover:text-primary transition-colors cursor-pointer"
                   >
                     <Search size={18} />
                   </button>
@@ -510,7 +506,7 @@ const Header = ({ initialData }) => {
                     onClick={() => {
                       setImageSearch(!imageSearch);
                     }}
-                    className="w-12 cursor-pointer"
+                    className="w-12 cursor-pointer text-muted hover:text-primary transition-colors"
                   >
                     <Camera />
                   </button>
@@ -518,26 +514,11 @@ const Header = ({ initialData }) => {
                   {imageSearch ? (
                     <div
                       ref={imageSearchRef}
-                      className="hidden sm:flex flex-col  justify-center items-center min-w-66 min-h-36 absolute top-15 left-12 bg-amber-50 rounded-2xl shadow-2xl shadow-black-100 z-50"
+                      className="hidden sm:flex flex-col justify-center items-center min-w-66 min-h-36 absolute top-15 left-12 bg-white rounded-2xl shadow-xl border border-line z-50 p-4"
                     >
-                      {/*
-                    <p className="my-4 text-green-600 font-semibold">
-                        Search Product with Image
-                      </p>
-                      <div className="max-w-2/3 min-h-30 border-3 border-dotted border-green-300 bg-green-100 flex flex-col gap-2 justify-center items-center">
-                        <p className="text-red-400">(JPG and PNG file only)</p>
-                        <input
-                          className="max-w-2/3 max-h-60 cursor-pointer bg-gray-200 py-1 rounded-2xl px-2"
-                          type="file"
-                          accept="image/*"
-                        />
-                      </div>
-
-                    */}
-
-                      <div>
-                        <p>This feature is coming soon!</p>
-                        <p>Thank you for your patience.</p>
+                      <div className="text-center">
+                        <p className="font-bold text-ink">ছবি দিয়ে অনুসন্ধান</p>
+                        <p className="text-xs text-muted mt-1">শীঘ্রই এই সুবিধা যুক্ত হচ্ছে!</p>
                       </div>
                     </div>
                   ) : (
@@ -552,46 +533,42 @@ const Header = ({ initialData }) => {
                 {
                   key: "account",
                   href: "/account",
-                  label: "Account",
+                  label: "অ্যাকাউন্ট",
                   icon: User,
                   size: 18,
                   showWhenLoggedIn: true,
-                  hoverColors:
-                    "group-hover:from-emerald-100 group-hover:to-teal-100",
+                  hoverColors: "group-hover:bg-primary-light",
                 },
                 {
                   key: "signin",
                   href: "/signin",
-                  label: "SignIn",
+                  label: "লগইন",
                   icon: data ? User : LogIn,
                   size: 16,
                   showWhenLoggedIn: false,
-                  hoverColors:
-                    "group-hover:from-emerald-100 group-hover:to-teal-100",
+                  hoverColors: "group-hover:bg-primary-light",
                 },
                 {
                   key: "wishlist",
                   href: "/wishlist",
-                  label: "Wishlist",
+                  label: "উইশলিস্ট",
                   icon: Heart,
                   size: 16,
                   smSize: 20,
                   showWhenLoggedIn: true,
                   badge: String(wishlistCount),
-                  hoverColors:
-                    "group-hover:from-pink-100 group-hover:to-rose-100",
+                  hoverColors: "group-hover:bg-accent-light",
                 },
                 {
                   key: "cart",
                   href: "/addtocart",
-                  label: "Cart",
+                  label: "কার্ট",
                   icon: ShoppingCart,
                   size: 16,
                   smSize: 20,
                   showWhenLoggedIn: true,
                   badge: String(cartItems?.length || 0),
-                  hoverColors:
-                    "group-hover:from-emerald-100 group-hover:to-teal-100",
+                  hoverColors: "group-hover:bg-primary-light",
                 },
                 {
                   key: "dashboard",
@@ -603,8 +580,7 @@ const Header = ({ initialData }) => {
                   showWhenLoggedIn: true,
                   onlyForMobile: true,
                   isAdminOnly: true,
-                  hoverColors:
-                    "group-hover:from-emerald-100 group-hover:to-teal-100",
+                  hoverColors: "group-hover:bg-primary-light",
                 },
               ].map((item) => {
                 const isLoggedIn = mounted ? !!data : false;
@@ -626,7 +602,7 @@ const Header = ({ initialData }) => {
                   >
                     <Link
                       href={item.href}
-                      className="flex items-center space-x-1 sm:space-x-2 text-gray-700 group-hover:text-emerald-600 transition-all duration-300"
+                      className="flex items-center space-x-1 sm:space-x-2 text-ink group-hover:text-primary transition-all duration-300"
                     >
                       <div
                         className={cn(
@@ -683,14 +659,14 @@ const Header = ({ initialData }) => {
                 />
                 <input
                   type="text"
-                  placeholder="Search products..."
+                  placeholder="পণ্য, ব্র্যান্ড বা ক্যাটাগরি অনুসন্ধান করুন..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2 sm:py-3 bg-transparent focus:outline-none text-gray-700 placeholder-gray-500 font-medium text-sm sm:text-base"
+                  className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2 sm:py-3 bg-transparent focus:outline-none text-ink placeholder:text-muted font-medium text-sm sm:text-base"
                 />
                 <button
                   type="submit"
-                  className="px-2 text-gray-500 hover:text-primary transition-colors cursor-pointer"
+                  className="px-2 text-muted hover:text-primary transition-colors cursor-pointer"
                 >
                   <Search size={16} />
                 </button>
@@ -699,7 +675,7 @@ const Header = ({ initialData }) => {
                   onClick={() => {
                     setImageSearch(!imageSearch);
                   }}
-                  className="w-12 cursor-pointer"
+                  className="w-12 cursor-pointer text-muted hover:text-primary transition-colors"
                 >
                   <Camera />
                 </button>
@@ -710,46 +686,41 @@ const Header = ({ initialData }) => {
 
         {/* image search dropdown */}
         {imageSearch && (
-          <div className="flex flex-col lg:hidden justify-center items-center absolute inset-0  bg-white  shadow-2xl shadow-black-100 z-999 sm:w-80 mx-auto min-h-52 mt-25 rounded-sm">
+          <div className="flex flex-col lg:hidden justify-center items-center absolute inset-0 bg-white shadow-2xl z-999 sm:w-80 mx-auto min-h-52 mt-25 rounded-2xl border border-line p-4">
             <button
               onClick={() => {
                 setImageSearch(!imageSearch);
               }}
-              className="absolute top-2 right-5 text-2xl"
+              className="absolute top-2 right-5 text-2xl text-muted hover:text-ink cursor-pointer"
             >
-              X
+              ×
             </button>
-            <p className="my-4 text-green-600 font-semibold">
-              Search Product with Image
+            <p className="my-4 text-primary font-semibold">
+              ছবি দিয়ে অনুসন্ধান
             </p>
-            <div className="max-w-2/3 min-h-30 border-3 border-dotted border-green-300 bg-green-100 flex flex-col justify-center items-center gap-2">
-              <p className="text-secondary">(JPG and PNG file only)</p>
-              <input
-                className="max-w-2/3 max-h-60 cursor-pointer bg-gray-200 py-1 rounded-2xl px-2"
-                type="file"
-                accept="image/*"
-              />
+            <div className="max-w-2/3 min-h-30 border-2 border-dashed border-primary/40 bg-primary-light/40 flex flex-col justify-center items-center gap-2 rounded-xl p-4 text-center">
+              <p className="text-xs text-muted">শীঘ্রই এই সুবিধা যুক্ত হচ্ছে!</p>
             </div>
           </div>
         )}
 
         {/* Enhanced Navigation Menu - Responsive */}
         <Container className="hidden md:block pt-0!">
-          <nav className=" items-center justify-between flex">
+          <nav className="items-center justify-between flex border-t border-line/60 pt-2 pb-1">
             <div className="flex items-center space-x-4 lg:space-x-8">
               {navItems.map((item, index) => (
                 <Link
                   key={index}
                   href={item.href}
-                  className="relative flex items-center space-x-1 text-primary-content hover:text-accent font-semibold transition-all duration-300 group hover:scale-105"
+                  className="relative flex items-center space-x-1.5 text-ink/80 hover:text-primary font-semibold transition-all duration-300 group hover:scale-102 py-1"
                 >
                   <span className="text-sm lg:text-base">{item.name}</span>
                   {item.badge && (
-                    <span className="bg-warning text-accent-content text-xs px-2 lg:px-3 py-0.5 lg:py-1 rounded-full font-bold shadow-sm animate-pulse">
+                    <span className="bg-primary text-black text-[10px] px-2 py-0.5 rounded-full font-bold shadow-xs animate-pulse">
                       {item.badge}
                     </span>
                   )}
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-accent transition-all duration-300 group-hover:w-full rounded-full"></span>
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full rounded-full"></span>
                 </Link>
               ))}
             </div>

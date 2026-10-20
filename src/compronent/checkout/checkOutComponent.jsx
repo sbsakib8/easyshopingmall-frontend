@@ -814,18 +814,18 @@ export default function CheckoutComponent({ initialUser, initialCartItems }) {
                                 onClick={() => setSelectedManualMethod(method.id)}
                                 className={`w-full flex items-center justify-between p-4 rounded-xl border transition
                   ${isActive
-                                    ? 'border-btn-color bg-green-50'
-                                    : 'border-gray-200 bg-white hover:border-green-400'}
+                                    ? 'border-primary bg-primary-light text-primary'
+                                    : 'border-line bg-white hover:border-primary/50'}
                 `}
                               >
                                 <div className="text-left">
-                                  <div className="font-medium">{method.name}</div>
-                                  <div className="text-xs text-gray-500">{method.number}</div>
+                                  <div className="font-semibold text-ink">{method.name}</div>
+                                  <div className="text-xs text-muted">{method.number}</div>
                                 </div>
 
                                 <span
                                   className={`w-5 h-5 rounded-full border-2 flex items-center justify-center
-                    ${isActive ? 'border-green-600' : 'border-gray-300'}
+                    ${isActive ? 'border-primary bg-primary text-white' : 'border-gray-300'}
                   `}
                                 >
                                   {isActive && (

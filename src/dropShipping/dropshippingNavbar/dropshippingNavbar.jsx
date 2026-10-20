@@ -87,7 +87,7 @@ const DropShippingNavbar = () => {
     },
 
     // {name:"Passive Income", href:"/passive-income", icon: <Coins size={18} />, subLink: [{name:"Box Leader", href:"/box-leader"}, {name:"Auditor", href:"/auditor"}, {name:"Member", href:"/member"}]},
-    {name:"Referral Profile", href:"/referral-profile", icon: <Users size={18} />},
+    { name: "Referral Profile", href: "/referral-profile", icon: <Users size={18} /> },
     {
       name: "Payment Request",
       href: "/payment-request",
@@ -126,11 +126,10 @@ const DropShippingNavbar = () => {
                 {/* Mobile Menu Button */}
                 <button
                   onClick={toggleMobileMenu}
-                  className={`p-2 sm:p-3 rounded-lg sm:rounded-xl shadow-sm border ${
-                    isMobileMenuOpen
-                      ? "bg-emerald-600 text-white border-emerald-600"
-                      : "bg-white hover:bg-gray-50 text-gray-700 border-gray-100 hover:shadow-md"
-                  }`}
+                  className={`p-2 sm:p-3 rounded-lg sm:rounded-xl shadow-sm border ${isMobileMenuOpen
+                    ? "bg-emerald-600 text-white border-emerald-600"
+                    : "bg-white hover:bg-gray-50 text-gray-700 border-gray-100 hover:shadow-md"
+                    }`}
                 >
                   {isMobileMenuOpen ? (
                     <X size={20} className="sm:w-6 sm:h-6" />
@@ -140,11 +139,11 @@ const DropShippingNavbar = () => {
                 </button>
                 <div className="relative">
                   <div
-                    className={`w-6 h-6 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl ${
-                      isScrolled ? "" : ""
-                    }`}
+                    className={`w-6 h-6 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl ${isScrolled ? "" : ""
+                      }`}
                   >
                     <Image
+                      className=" w-full h-full rounded-full "
                       src={logo}
                       width={60}
                       height={100}
@@ -155,13 +154,13 @@ const DropShippingNavbar = () => {
                 </div>
                 <div className="hidden lg:flex transform items-center">
                   <Link href={"/"} className="flex flex-row">
-                    <span className="text-[13px] sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                    <span className="text-[13px] sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-primary ">
                       EASY
                     </span>
                     <span className="text-[13px] sm:text-xl lg:text-2xl font-bold text-gray-800">
                       SHOPPING
                     </span>
-                    <span className="text-[13px] sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                    <span className="text-[13px] sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-primary">
                       MALL
                     </span>
                   </Link>
@@ -180,29 +179,26 @@ const DropShippingNavbar = () => {
               >
                 {/* coin icon */}
                 <div
-                  className={`w-8 h-8 rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 flex items-center justify-center text-white shrink-0 shadow-sm z-10 ${
-                    showBalance ? "translate-x-[108px]" : "translate-x-0"
-                  }`}
+                  className={`w-8 h-8 rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 flex items-center justify-center text-white shrink-0 shadow-sm z-10 ${showBalance ? "translate-x-[108px]" : "translate-x-0"
+                    }`}
                 >
                   ৳
                 </div>
 
                 <div className="absolute left-10 right-10 flex items-center justify-center">
                   <span
-                    className={`text-[13.5px] pl-2 font-bold text-gray-700 whitespace-nowrap ${
-                      showBalance
-                        ? "opacity-0 -translate-x-4"
-                        : "opacity-100 translate-x-0"
-                    }`}
+                    className={`text-[13.5px] pl-2 font-bold text-gray-700 whitespace-nowrap ${showBalance
+                      ? "opacity-0 -translate-x-4"
+                      : "opacity-100 translate-x-0"
+                      }`}
                   >
                     ব্যালেন্স দে...
                   </span>
                   <span
-                    className={`text-[13.5px] font-bold text-emerald-600 absolute whitespace-nowrap ${
-                      showBalance
-                        ? "opacity-100 translate-x-[-28px]"
-                        : "opacity-0 translate-x-4"
-                    }`}
+                    className={`text-[13.5px] font-bold text-emerald-600 absolute whitespace-nowrap ${showBalance
+                      ? "opacity-100 translate-x-[-28px]"
+                      : "opacity-0 translate-x-4"
+                      }`}
                   >
                     ৳{" "}
                     {Number(data?.balance || 0).toLocaleString(undefined, {
@@ -243,14 +239,14 @@ const DropShippingNavbar = () => {
                   key={item.id}
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-1.5 sm:gap-2 text-gray-700 hover:text-emerald-600 group transition-colors",
+                    "flex items-center gap-1.5 sm:gap-2 text-black hover:text-emerald-600 group transition-colors",
                     item.className,
                   )}
                 >
                   <div className="relative p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-bg group-hover:bg-primary/10 shadow-sm transition-colors">
                     <item.icon
                       size={16}
-                    className="sm:w-5 sm:h-5 text-primary-content group-hover:text-primary transition-colors"
+                      className="sm:w-5 sm:h-5 text-secondary-content group-hover:text-primary transition-colors"
                     />
                     {item.badge > 0 && (
                       <span
@@ -264,7 +260,7 @@ const DropShippingNavbar = () => {
                   </div>
 
                   <div className="hidden sm:block">
-                    <div className="text-xs text-primary-content group-hover:text-primary font-bold">
+                    <div className="text-xs text-secondary-content group-hover:text-primary font-bold">
                       {item.label}
                     </div>
                   </div>
@@ -329,11 +325,10 @@ const DropShippingNavbar = () => {
                           onClick={() =>
                             setExpandedItem(isExpanded ? null : item.name)
                           }
-                          className={`w-full flex items-center justify-between py-2.5 px-4 rounded-full font-medium ${
-                            isExpanded
-                              ? "bg-black text-white shadow-sm"
-                              : "text-gray-600 hover:bg-gray-100 hover:text-black"
-                          }`}
+                          className={`w-full flex items-center justify-between py-2.5 px-4 rounded-full font-medium ${isExpanded
+                            ? "bg-black text-white shadow-sm"
+                            : "text-gray-600 hover:bg-gray-100 hover:text-black"
+                            }`}
                         >
                           <div className="flex items-center space-x-3">
                             {item.icon}

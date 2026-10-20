@@ -32,11 +32,11 @@ function Categories({ initialData }) {
       <Container className="space-y-8">
         {/* Header */}
         <div className="text-center">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-b from-primary via-primary/60 to-secondary/30 bg-clip-text text-transparent leading-relaxed">
-            Featured Sub-Categories
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-b from-primary via-primary/70 to-primary/40 bg-clip-text text-transparent leading-relaxed">
+            জনপ্রিয় সাব-ক্যাটাগরি
           </h2>
-          <p className="text-slate-400 text-sm sm:text-sm md:text-base lg:text-lg">
-            Discover amazing products across all sub-categories
+          <p className="text-muted text-sm sm:text-sm md:text-base lg:text-lg">
+            বিভিন্ন সাব-ক্যাটাগরির সেরা পণ্য ব্রাউজ করুন
           </p>
         </div>
 
@@ -49,50 +49,49 @@ function Categories({ initialData }) {
           <div className={`flex gap-4 ${!paused ? "animate-marquee" : ""}`}>
             {loopData.map((item, idx) => (
               <Link
-                href={`/shop?category=${encodeURIComponent(item?.category?.name)}&subcategory=${encodeURIComponent(item?.name)}`}
+                href={`/shop?category=${encodeURIComponent(item?.category?.name || '')}&subcategory=${encodeURIComponent(item?.name || '')}`}
                 key={idx}
-                className="bg-white/70 backdrop-blur-2xl border border-slate-100 w-48 flex-shrink-0 flex flex-col rounded-md hover:shadow-xl transition-all duration-500 overflow-hidden cursor-pointer relative"
+                className="bg-card border border-line w-48 shrink-0 flex flex-col rounded-2xl hover:shadow-lg hover:border-primary/40 transition-all duration-300 overflow-hidden cursor-pointer relative"
               >
                 {/* Trending Badge */}
                 {item.trending && (
-                  <div className="absolute top-3 right-3 z-10 bg-accent text-accent-content text-xs px-2 py-1 rounded-full flex items-center gap-1">
-                    <TrendingUp className="w-3 h-3" /> Hot
+                  <div className="absolute top-3 right-3 z-10 bg-accent text-white text-[11px] px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm font-bold">
+                    <TrendingUp className="w-3 h-3" /> হট
                   </div>
                 )}
 
                 {/* Image */}
-                <div className="h-32 flex-shrink-0 overflow-hidden relative">
+                <div className="h-32 shrink-0 overflow-hidden relative bg-slate-50">
                   <Image
-                    src={item.image}
+                    src={item.image || "/img/product.jpg"}
                     alt={item.name}
                     width={200}
                     height={150}
                     loading="lazy"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                   />
                 </div>
 
                 {/* Content */}
                 <div className="p-3 text-center flex-grow flex flex-col">
-                  <h3 className="text-sm font-bold text-gray-800 line-clamp-1">
+                  <h3 className="text-sm font-bold text-ink line-clamp-1">
                     {item.name}
                   </h3>
-                  {/* <p className="text-xs text-gray-500 line-clamp-4">{item.metaDescription} items</p> */}
                   <div className="flex justify-center gap-1 my-2">
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
                         className={`w-3 h-3 ${
                           i < 4
-                            ? "fill-yellow-400 text-yellow-400"
-                            : "text-gray-300"
+                            ? "fill-amber-400 text-amber-400"
+                            : "text-line"
                         }`}
                       />
                     ))}
                   </div>
                   <div className="mt-auto">
-                    <button className="w-full bg-primary/80 hover:bg-primary transition-all text-primary-content py-1.5 rounded-md text-xs font-medium">
-                      Explore Now
+                    <button className="w-full bg-primary hover:bg-primary-dark transition-all text-white py-1.5 rounded-xl text-xs font-semibold shadow-xs">
+                      ব্রাউজ করুন
                     </button>
                   </div>
                 </div>

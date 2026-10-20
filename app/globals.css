@@ -1,73 +1,136 @@
 @import "tailwindcss";
 
-/* color set up  */
-/* @theme {
-  --color-primary-color: #135E4B;
-  --color-secondary: #4CB572;
-  --color-btn-color: #478c1f;
-  --color-bg: #CADCAE;
-  --color-accent: black;
-  --color-accent-content: white;
-} */
-@theme {
-  --color-primary: oklch(70% 0.14 182.503);
-  --color-primary-content: oklch(27% 0.046 192.524);
-  --color-secondary: oklch(69% 0.17 162.48);
-  --color-secondary-content: oklch(26% 0.051 172.552);
-  --color-neutral: oklch(20% 0.042 265.755);
-  --color-neutral-content: oklch(98% 0.003 247.858);
-  --color-error: oklch(50% 0.213 27.518);
-  --color-error-content: oklch(93% 0.032 17.717);
-  --color-info: oklch(78% 0.154 211.53);
-  --color-info-content: oklch(30% 0.056 229.695);
-  --color-warning: oklch(85% 0.199 91.936);
-  --color-warning-content: oklch(28% 0.066 53.813);
-  --color-accent: oklch(76% 0.188 70.08);
-  --color-accent-content: oklch(27% 0.077 45.635);
-  --color-btn-color: #478c1f;
-  --color-bg: #fffde1;
 
-  --color-base-400: #cadcae;
-  --color-base-500: #ffc900;
-  --color-base-600: #ffe100;
-  --color-base-700: #ff9b00;
-  --color-base-800: #eda35a;
+/* ==========================================================================
+   EASYSHOPPINGMALL GLOBAL COLOR PALETTE
+   Modify colors here to instantly change them across the entire website!
+   ========================================================================== */
+@theme {
+  /* Primary brand colors */
+  --color-primary: #0092EE;
+  --color-primary-dark: #0077C2;
+  --color-primary-light: #E5F4FD;
+  --color-primary-start: #0092EE;
+  --color-primary-end: #0067B3;
+  --color-primary-content: #FFFFFF;
+
+  /* Secondary */
+  --color-secondary: #0077C2;
+  --color-secondary-content: #FFFFFF;
+
+  /* Typography & neutrals */
+  --color-ink: #12263A;
+  --color-muted: #64748B;
+  --color-line: #E3EAF1;
+
+  /* Backgrounds & Cards */
+  --color-bg: #EDF2F7;
+  --color-bg-app: #E2EBF4;
+  --color-card: #FFFFFF;
+
+  /* Accent / Highlights */
+  --color-accent: #E5484D;
+  --color-accent-light: #FDECEF;
+  --color-accent-content: #FFFFFF;
+
+  /* Button colors */
+  --color-btn-color: #0092EE;
+  --color-btn-hover: #0077C2;
+
+  /* Tints */
+  --color-tint-blue: #E5F4FD;
+  --color-tint-orange: #FFF1E0;
+  --color-tint-green: #EAF7EE;
+  --color-tint-purple: #F3EBFB;
+  --color-tint-pink: #FDECEF;
+  --color-tint-yellow: #FEF9C3;
+
+  /* Neutral / Status mappings */
+  --color-neutral: #12263A;
+  --color-neutral-content: #FFFFFF;
+  --color-error: #E5484D;
+  --color-error-content: #FFFFFF;
+  --color-info: #0092EE;
+  --color-info-content: #FFFFFF;
+  --color-warning: #FEF9C3;
+  --color-warning-content: #12263A;
+
+  /* Backward compatibility for base colors */
+  --color-base-400: #E3EAF1;
+  --color-base-500: #0092EE;
+  --color-base-600: #0077C2;
+  --color-base-700: #0067B3;
+  --color-base-800: #12263A;
 }
 
-/* #135E4B */
-/* #4CB572 */
-/* #A1D8B5 */
-/* #CCDCDB */
+:root {
+  --color-primary: #0092EE;
+  --color-primary-dark: #0077C2;
+  --color-primary-light: #E5F4FD;
+  --color-primary-start: #0092EE;
+  --color-primary-end: #0067B3;
+  --color-primary-content: #FFFFFF;
 
-/* #777777 */
-/* #ffbb00 */
+  --color-secondary: #0077C2;
+  --color-secondary-content: #020202;
 
-/* header style  */
+  --color-ink: #12263A;
+  --color-muted: #64748B;
+  --color-line: #E3EAF1;
 
+  --color-bg: #EDF2F7;
+  --color-bg-app: #E2EBF4;
+  --color-card: #FFFFFF;
+
+  --color-accent: #E5484D;
+  --color-accent-light: #FDECEF;
+  --color-accent-content: #FFFFFF;
+
+  --color-btn-color: #0092EE;
+  --color-btn-hover: #0077C2;
+
+  --color-tint-blue: #E5F4FD;
+  --color-tint-orange: #FFF1E0;
+  --color-tint-green: #EAF7EE;
+  --color-tint-purple: #F3EBFB;
+  --color-tint-pink: #FDECEF;
+  --color-tint-yellow: #FEF9C3;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+}
+
+/* Material UI Overrides */
 .MuiToolbar-root {
   @apply !bg-primary;
 }
 
 .MuiInputBase-root {
-  @apply !border-2  border-primary! !outline-none !rounded-lg !shadow-sm w-full! h-13!;
+  @apply !border-2 !border-primary !outline-none !rounded-lg !shadow-sm !w-full !h-13;
 }
 
 /* Custom Scrollbar Styles */
 .scrollbar-thin::-webkit-scrollbar {
   width: 6px;
-  display: none;
+  height: 6px;
+  display: block;
 }
 
 .scrollbar-thin::-webkit-scrollbar-track {
-  @apply  rounded-full;
+  background: var(--color-line);
+  border-radius: 9999px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  @apply bg-primary/80 rounded-full;
+  background: var(--color-primary);
+  border-radius: 9999px;
+  opacity: 0.8;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  @apply bg-primary;
+  background: var(--color-primary-dark);
 }
 
 .scrollbar-hide {
@@ -75,18 +138,23 @@
   scrollbar-width: none;
 }
 
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* For Firefox */
 .scrollbar-thin {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-primary) var(--color-bg);
+  scrollbar-color: var(--color-primary) var(--color-line);
 }
-/* ===== Chart Animations ===== */
 
+/* ===== Chart & Motion Animations ===== */
 @keyframes lineDraw {
   from {
     stroke-dasharray: 600;
     stroke-dashoffset: 600;
   }
+
   to {
     stroke-dasharray: 600;
     stroke-dashoffset: 0;
@@ -102,6 +170,7 @@
     opacity: 0;
     transform: translateY(12px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -117,6 +186,7 @@
     transform: rotate(-90deg) scale(0.85);
     opacity: 0;
   }
+
   to {
     transform: rotate(0deg) scale(1);
     opacity: 1;
@@ -132,6 +202,7 @@
   0% {
     transform: translateX(0%);
   }
+
   100% {
     transform: translateX(-50%);
   }
@@ -155,20 +226,24 @@ input:disabled {
 }
 
 @keyframes float {
+
   0%,
   100% {
     transform: translateY(0) rotate(0deg);
   }
+
   50% {
     transform: translateY(-25px) rotate(5deg);
   }
 }
 
 @keyframes floatDelay {
+
   0%,
   100% {
     transform: translateY(0) rotate(0deg);
   }
+
   50% {
     transform: translateY(-35px) rotate(-3deg);
   }
