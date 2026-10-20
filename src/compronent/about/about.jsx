@@ -1,20 +1,26 @@
 "use client";
 
-import { cn } from "@/src/utlis/utils";
-import {
-  Award,
-  CheckCircle,
-  Heart,
-  Shield,
-  ShoppingBag,
-  Star,
-  Truck,
-  Users,
-} from "lucide-react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import {
+  Users,
+  ShoppingBag,
+  Truck,
+  Star,
+  Heart,
+  ShieldCheck,
+  Zap,
+  CheckCircle2,
+  ArrowRight,
+  Headphones,
+  Award,
+  Sparkles,
+  PhoneCall,
+} from "lucide-react";
+
 import Container from "../shared/Container";
 import Section from "../shared/Section";
+import { cn } from "@/src/utlis/utils";
 
 const AboutPage = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -24,90 +30,118 @@ const AboutPage = () => {
   }, []);
 
   const stats = [
-    { icon: Users, number: "1,000+", label: "Happy Customers" },
-    { icon: ShoppingBag, number: "5000", label: "Products" },
-    { icon: Award, number: "1 Years", label: "Experience" },
-    { icon: Star, number: "4.9", label: "Rating" },
+    { icon: Users, number: "১০,০০০+", label: "সন্তুষ্ট গ্রাহক" },
+    { icon: ShoppingBag, number: "৫,০০০+", label: "মানসম্মত পণ্য" },
+    { icon: Truck, number: "৬৪টি জেলায়", label: "ডেলিভারি সেবা" },
+    { icon: Star, number: "৪.৯ / ৫", label: "পজিটিভ রিভিউ" },
   ];
 
   const values = [
     {
       icon: Heart,
-      title: "Customer First",
+      title: "গ্রাহক সন্তুষ্টি সর্বোচ্চ",
       description:
-        "আমাদের গ্রাহকদের সন্তুষ্টিই আমাদের প্রধান লক্ষ্য। প্রতিটি সেবায় আমরা গ্রাহকের চাহিদাকে সর্বোচ্চ অগ্রাধিকার দিয়ে থাকি।",
+        "আমাদের প্রতিটি সিদ্ধান্তের কেন্দ্রবিন্দুতে গ্রাহক। সর্বোত্তম সেবা ও আন্তরিকতার মাধ্যমে গ্রাহকের আস্থাই আমাদের সবচেয়ে বড় অর্জন।",
+      badge: "অগ্রাধিকার",
     },
     {
-      icon: Shield,
-      title: "Secure Shopping",
+      icon: ShieldCheck,
+      title: "শতভাগ সততা ও গুণগত মান",
       description:
-        "আপনার নিরাপত্তা আমাদের কাছে অগ্রাধিকার। আমরা সর্বোচ্চ নিরাপত্তা ব্যবস্থা নিশ্চিত করে আপনার শপিং অভিজ্ঞতা সুরক্ষিত রাখি।",
+        "আমরা প্রতিটি পণ্যের গুণগত মান কঠোরভাবে যাচাই করি। কোনো নকল বা নিম্নমানের পণ্যের সাথে কোনো আপস করা হয় না।",
+      badge: "নিশ্চয়তা",
     },
     {
       icon: Truck,
-      title: "Fast Delivery",
+      title: "দ্রুত ও নিরাপদ ডেলিভারি",
       description:
-        "দ্রুত ও নির্ভরযোগ্য ডেলিভারি সেবা। আমরা সারাদেশব্যাপী দ্রুততম সময়ে আপনার পণ্য পৌঁছে দেওয়ার জন্য প্রতিশ্রুতিবদ্ধ।",
+        "সারাদেশব্যাপী দ্রুততম সময়ে নিরাপদে আপনার পছন্দের পণ্য দোরগোড়ায় পৌঁছে দিতে আমাদের রয়েছে নিজস্ব দক্ষ লজিস্টিক নেটওয়ার্ক।",
+      badge: "গতি",
+    },
+    {
+      icon: Headphones,
+      title: "২৪/৭ সার্বক্ষণিক সহায়তা",
+      description:
+        "অর্ডার করা থেকে ডেলিভারি পাওয়া পর্যন্ত যেকোনো প্রয়োজনে আমাদের সাপোর্ট টিম ২৪ ঘণ্টা আপনার পাশে সদা প্রস্তুত।",
+      badge: "সহায়তা",
     },
   ];
 
-  const features = [
-    "বাংলাদেশের সবচেয়ে বড় পণ্যের সংগ্রহ",
-    "২৪/৭ কাস্টমার সাপোর্ট",
-    "সহজ রিটার্ন ও এক্সচেঞ্জ নীতি",
-    "নিরাপদ পেমেন্ট সিস্টেম",
-    "ক্যাশ অন ডেলিভারি সুবিধা",
-    "দেশব্যাপী ফ্রি ডেলিভারি",
+  const whyChooseUs = [
+    {
+      title: "১০০% আসল ও প্রিমিয়াম পণ্য",
+      desc: "সরাসরি বিশ্বস্ত প্রস্তুতকারক থেকে সংগৃহীত ভেরিফাইড কোয়ালিটি পণ্য।",
+    },
+    {
+      title: "দেশজুড়ে ক্যাশ অন ডেলিভারি",
+      desc: "পণ্য হাতে পেয়ে চেক করে পেমেন্ট করার সম্পূর্ণ নিরাপদ ও সহজ সুবিধা।",
+    },
+    {
+      title: "সহজ রিটার্ন ও রিপ্লেসমেন্ট",
+      desc: "পণ্যে কোনো সমস্যা থাকলে দ্রুত এবং ঝামেলামুক্ত সহজ রিটার্ন পলিসি।",
+    },
+    {
+      title: "১০০% সুরক্ষিত পেমেন্ট গেটওয়ে",
+      desc: "বিকাশ, নগদ, রকেট ও কার্ডে পেমেন্টের সর্বোচ্চ এনক্রিপ্টেড নিরাপত্তা ব্যবস্থা।",
+    },
+    {
+      title: "সাশ্রয়ী মূল্য ও আকর্ষণীয় অফার",
+      desc: "প্রতিটি ক্যাটাগরিতে বাজারের সেরা অফার, মেগা ডিসকাউন্ট ও ক্যাশব্যাক।",
+    },
+    {
+      title: "২৪/৭ বন্ধুত্বপূর্ণ গ্রাহক সেবা",
+      desc: "আপনার যেকোনো প্রশ্ন ও সমস্যার তাত্ক্ষণিক সমাধানের নিশ্চয়তা।",
+    },
   ];
 
   return (
-    <Section className="min-h-dvh py-5 bg-bg">
-      <Container className="space-y-16">
-        {/* Header Section */}
-        <div className="text-center">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-b from-primary via-primary/60 to-secondary/30 bg-clip-text text-transparent leading-relaxed">
-            EasyShoppingMall
+    <Section className="min-h-screen py-8 md:py-14 bg-bg">
+      <Container className="space-y-16 md:space-y-24">
+        {/* =========================================================
+            HERO HEADER
+            ========================================================= */}
+        <div
+          className={cn(
+            "text-center max-w-3xl mx-auto space-y-4 transition-all duration-700 transform",
+            isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+          )}
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary-light text-primary text-xs sm:text-sm font-bold shadow-xs">
+            <Sparkles className="w-4 h-4" />
+            <span>বিশ্বস্ততার সাথে অনলাইন শপিং</span>
+          </div>
+
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-ink tracking-tight">
+            আমাদের <span className="text-primary">সম্পর্কে</span>
           </h1>
-          <p className="text-slate-400 text-sm sm:text-sm md:text-base lg:text-lg">
-            বাংলাদেশের সবচেয়ে বিশ্বস্ত অনলাইন শপিং গন্তব্য
+
+          <p className="text-muted text-sm sm:text-base md:text-lg leading-relaxed">
+            EasyShoppingMall বাংলাদেশের কোটি মানুষের কাছে সাশ্রয়ী মূল্যে সেরা মানের পণ্য এবং একটি নির্ভরযোগ্য, আধুনিক অনলাইন শপিং অভিজ্ঞতা নিশ্চিত করতে প্রতিশ্রুতিবদ্ধ।
           </p>
         </div>
 
-        {/* Stats Section */}
+        {/* =========================================================
+            STATS SECTION
+            ========================================================= */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           {stats.map((stat, index) => {
             const IconComponent = stat.icon;
-
             return (
               <div
                 key={index}
                 className={cn(
-                  "relative text-center group cursor-pointer p-4 rounded-2xl transition-all duration-700 transform ease-out",
-                  "bg-white/30 backdrop-blur-sm border border-[var(--color-base-400)]/20 shadow-sm shadow-[var(--color-neutral)]/5",
-                  "hover:scale-[1.02] hover:shadow-lg hover:shadow-[var(--color-primary)]/5 hover:border-[var(--color-primary)]/30",
-                  isVisible
-                    ? "translate-y-0 opacity-100"
-                    : "translate-y-8 opacity-0",
+                  "bg-card rounded-2xl p-5 border border-line shadow-xs hover:shadow-md hover:border-primary/40 transition-all text-center group",
+                  isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
                 )}
-                style={{ transitionDelay: `${index * 120}ms` }}
+                style={{ transitionDelay: `${index * 100}ms` }}
               >
-                {/* Subtle background glow mapping */}
-                <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-primary)]/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-
-                {/* Minimalist Smaller Icon Container using Primary Colors */}
-                <div className="mb-3.5 flex justify-center relative z-10">
-                  <div className="p-2.5 rounded-xl bg-[var(--color-primary)] text-[var(--color-primary-content)] transition-all duration-300 transform group-hover:scale-105 group-hover:bg-[var(--color-neutral)] group-hover:text-[var(--color-neutral-content)]">
-                    <IconComponent className="w-5 h-5 transition-transform duration-500 group-hover:rotate-6" />
-                  </div>
+                <div className="w-12 h-12 mx-auto rounded-2xl bg-primary-light text-primary flex items-center justify-center mb-3 group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all shadow-xs">
+                  <IconComponent className="w-6 h-6" />
                 </div>
-
-                {/* Smaller, Elegant Stat Number (Neutral Color Theme) */}
-                <div className="relative z-10 text-2xl sm:text-3xl font-bold text-[var(--color-neutral)] tracking-tight mb-1 transition-colors duration-300 group-hover:text-[var(--color-primary-content)]">
+                <div className="text-2xl sm:text-3xl font-black text-ink mb-1 tracking-tight">
                   {stat.number}
                 </div>
-
-                {/* Muted, Smaller Stat Label */}
-                <div className="relative z-10 text-xs sm:text-sm font-medium text-[var(--color-neutral)]/60 transition-colors duration-300 group-hover:text-[var(--color-neutral)]/80">
+                <div className="text-xs sm:text-sm font-medium text-muted">
                   {stat.label}
                 </div>
               </div>
@@ -115,130 +149,188 @@ const AboutPage = () => {
           })}
         </div>
 
-        {/* About Content */}
-        <div className="max-w-4xl mx-auto">
-          <div
-            className={`text-center transform transition-all duration-1000 ${
-              isVisible
-                ? "translate-y-0 opacity-100"
-                : "translate-y-10 opacity-0"
-            }`}
-          >
-            <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 mb-4">
+        {/* =========================================================
+            SECTION 1: আমাদের সম্পর্কে (ABOUT US)
+            ========================================================= */}
+        <div className="bg-card rounded-3xl border border-line p-6 sm:p-10 shadow-xs relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-80 h-80 bg-primary-light/40 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
+          
+          <div className="max-w-4xl mx-auto space-y-6 relative z-10">
+            <div className="inline-block px-3 py-1 rounded-lg bg-primary-light text-primary text-xs font-bold uppercase tracking-wider">
+              আমাদের গল্প
+            </div>
+
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-ink tracking-tight">
               আমাদের সম্পর্কে
             </h2>
-            <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed">
-              <p className="mb-2 text-sm md:text-base lg:text-lg">
-                ২০২৫ সাল থেকে EasyShoppingMall বাংলাদেশের মানুষের কাছে গুণগত
-                পণ্য সাশ্রয়ী মূল্যে পৌঁছে দেওয়ার লক্ষ্যে কাজ করে যাচ্ছে।
-                আমাদের স্বপ্ন হলো প্রতিটি বাংলাদেশী পরিবারের কাছে সহজ ও নিরাপদ
-                অনলাইন শপিং সুবিধা পৌঁছে দেওয়া।
+
+            <div className="space-y-4 text-muted text-sm sm:text-base leading-relaxed">
+              <p>
+                EasyShoppingMall যাত্রা শুরু করেছে একটি সহজ কিন্তু অত্যন্ত শক্তিশালী লক্ষ্য নিয়ে—বাংলাদেশের প্রতিটি অঞ্চলের সাধারণ মানুষের জন্য অনলাইন কেনাকাটাকে সহজ, নিরাপদ এবং আনন্দদায়ক করে তোলা।
               </p>
-              <p className="text-sm md:text-base lg:text-lg">
-                আমরা বিশ্বাস করি যে, প্রযুক্তির সঠিক ব্যবহারের মাধ্যমে আমরা
-                মানুষের জীবনযাত্রার মান উন্নয়নে অবদান রাখতে পারি। তাই আমাদের
-                প্রতিটি সেবা ডিজাইন করা হয়েছে গ্রাহকের সুবিধাকে মাথায় রেখে।
+              <p>
+                আমরা কেবল একটি ই-কমার্স প্ল্যাটফর্ম নই; আমরা আপনার প্রাত্যহিক জীবনের প্রয়োজনীয় পণ্য ও ফ্যাশন ট্রেন্ডের এক বিশ্বস্ত সঙ্গী। প্রযুক্তির উদ্ভাবন ও আন্তরিক সেবার মেলবন্ধনে আমরা প্রতিটি পণ্যের সঠিক মান ও ন্যায্য মূল্য নিশ্চিত করি, যেন আপনার প্রতিটি শপিং অভিজ্ঞতা হয় সন্তোষজনক।
+              </p>
+              <p>
+                পোশাক, লাইফস্টাইল, গ্যাজেট, হোম ডেকর থেকে শুরু করে রূপচর্চা—আমাদের রয়েছে সুবিশাল পণ্যের সমাহার। আমরা বিশ্বাস করি, গুণগত মান এবং সততাই একটি প্রতিষ্ঠানের দীর্ঘস্থায়ী পথচলার আসল ভিত্তি।
               </p>
             </div>
           </div>
         </div>
 
-        {/* Values Section */}
-        <div className="space-y-12">
-          <div className="text-center">
-            <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 mb-4">
+        {/* =========================================================
+            SECTION 2: আমাদের মূল্যবোধ (OUR VALUES)
+            ========================================================= */}
+        <div className="space-y-8">
+          <div className="text-center max-w-2xl mx-auto space-y-3">
+            <div className="inline-block px-3 py-1 rounded-lg bg-primary-light text-primary text-xs font-bold uppercase tracking-wider">
+              মূল নীতি
+            </div>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-ink tracking-tight">
               আমাদের মূল্যবোধ
             </h2>
-            <p className="text-sm md:text-base lg:text-lg">
-              যে নীতিগুলো আমাদের পরিচালনা করে
+            <p className="text-muted text-sm sm:text-base">
+              যে নীতি ও আদর্শের উপর ভিত্তি করে আমরা প্রতিনিয়ত এগিয়ে চলছি
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-3 gap-5">
-            {values.map((value, index) => (
-              <div
-                key={index}
-                className={`bg-white rounded-2xl p-4 flex flex-col items-center gap-4 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-500 ${
-                  isVisible
-                    ? "translate-y-0 opacity-100"
-                    : "translate-y-10 opacity-0"
-                }`}
-                style={{ transitionDelay: `${index * 300}ms` }}
-              >
-                <div className="flex justify-center items-center">
-                  <div className="p-4 bg-primary/15 rounded-full">
-                    <value.icon className="w-8 h-8 text-primary-content" />
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {values.map((val, idx) => {
+              const IconComp = val.icon;
+              return (
+                <div
+                  key={idx}
+                  className="bg-card rounded-2xl p-6 border border-line shadow-xs hover:shadow-lg hover:border-primary/40 transition-all flex flex-col justify-between group"
+                >
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="w-12 h-12 rounded-2xl bg-primary-light text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all shadow-xs">
+                        <IconComp className="w-6 h-6" />
+                      </div>
+                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-muted">
+                        {val.badge}
+                      </span>
+                    </div>
+
+                    <h3 className="text-base sm:text-lg font-bold text-ink">
+                      {val.title}
+                    </h3>
+
+                    <p className="text-xs sm:text-sm text-muted leading-relaxed">
+                      {val.description}
+                    </p>
                   </div>
                 </div>
-                <h3 className="text-lg font-bold text-gray-800 text-center">
-                  {value.title}
-                </h3>
-                <p className="text-gray-600 leading-relaxed text-sm text-center">
-                  {value.description}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
-        {/* Features Section */}
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 mb-4">
+        {/* =========================================================
+            SECTION 3: কেন EasyShoppingMall? (WHY CHOOSE US?)
+            ========================================================= */}
+        <div className="space-y-8">
+          <div className="text-center max-w-2xl mx-auto space-y-3">
+            <div className="inline-block px-3 py-1 rounded-lg bg-accent-light text-accent text-xs font-bold uppercase tracking-wider">
+              আমাদের স্বাতন্ত্র্য
+            </div>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-ink tracking-tight">
               কেন EasyShoppingMall?
             </h2>
-            <p className="text-sm md:text-base lg:text-lg">
-              আমাদের বিশেষত্বগুলো যা আমাদের আলাদা করে তোলে
+            <p className="text-muted text-sm sm:text-base">
+              হাজারো অনলাইন শপের ভিড়ে কেন আমরাই আপনার প্রথম পছন্দ
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-6">
-            {features.map((feature, index) => (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {whyChooseUs.map((item, idx) => (
               <div
-                key={index}
-                className={`flex items-center text-sm lg:text-base space-x-2.5 p-3 bg-white rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 ${
-                  isVisible
-                    ? "translate-x-0 opacity-100"
-                    : "translate-x-10 opacity-0"
-                }`}
-                style={{ transitionDelay: `${index * 200}ms` }}
+                key={idx}
+                className="bg-card rounded-2xl p-5 border border-line shadow-xs hover:shadow-md hover:border-primary/40 transition-all flex items-start gap-4"
               >
-                <CheckCircle className="w-6 h-6 text-btn-color flex-shrink-0" />
-                <span className="text-gray-700 font-medium">{feature}</span>
+                <div className="w-10 h-10 rounded-xl bg-primary-light text-primary flex items-center justify-center shrink-0 mt-0.5">
+                  <CheckCircle2 className="w-5 h-5" />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="text-sm sm:text-base font-bold text-ink">
+                    {item.title}
+                  </h4>
+                  <p className="text-xs sm:text-sm text-muted leading-relaxed">
+                    {item.desc}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Mission Section */}
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 mb-4">
-            আমাদের লক্ষ্য
-          </h2>
-          <p className="text-sm md:text-base lg:text-lg">
-            আমাদের লক্ষ্য হলো বাংলাদেশের প্রতিটি মানুষের কাছে সহজ, নিরাপদ এবং
-            আনন্দদায়ক অনলাইন শপিং অভিজ্ঞতা পৌঁছে দেওয়া। আমরা চাই প্রত্যেকটি
-            গ্রাহক যেন আমাদের সাথে শপিং করে সন্তুষ্ট এবং খুশি হয়ে ফিরে যান।
-          </p>
-          <div className="flex justify-center">
-            <div className="w-32 h-1 bg-white/30 rounded-full"></div>
+        {/* =========================================================
+            SECTION 4: আমাদের লক্ষ্য (OUR MISSION & VISION)
+            ========================================================= */}
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="bg-gradient-to-br from-primary-light/50 via-card to-card rounded-3xl p-6 sm:p-8 border border-primary/20 shadow-xs space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center shadow-sm">
+              <Zap className="w-6 h-6" />
+            </div>
+            <h3 className="text-xl sm:text-2xl font-bold text-ink">
+              আমাদের লক্ষ্য (Mission)
+            </h3>
+            <p className="text-sm sm:text-base text-muted leading-relaxed">
+              বাংলাদেশের প্রতিটি প্রান্তের গ্রাহকের কাছে সেরা মানের পণ্য সুলভ মূল্যে পৌঁছে দেওয়া। স্বচ্ছতা, গুণগত মান এবং আধুনিক প্রযুক্তির সমন্বয়ে এমন এক ই-কমার্স অভিজ্ঞতা গড়ে তোলা, যেখানে প্রতিটি কেনাকাটা হবে সহজ এবং নিশ্চিত।
+            </p>
+          </div>
+
+          <div className="bg-gradient-to-br from-tint-orange/50 via-card to-card rounded-3xl p-6 sm:p-8 border border-amber-200/50 shadow-xs space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-sm">
+              <Award className="w-6 h-6" />
+            </div>
+            <h3 className="text-xl sm:text-2xl font-bold text-ink">
+              আমাদের ভিশন (Vision)
+            </h3>
+            <p className="text-sm sm:text-base text-muted leading-relaxed">
+              দেশের শীর্ষস্থানীয় ও সর্বাধিক নির্ভরযোগ্য অনলাইন কেনাকাটার মাধ্যম হিসেবে প্রতিষ্ঠিত হওয়া। গ্রাহকের আস্থার প্রতীক হয়ে প্রযুক্তি ও সামাজিক দায়বদ্ধতার মাধ্যমে দেশের ডিজিটাল অর্থনীতিতে দৃঢ় ভূমিকা রাখা।
+            </p>
           </div>
         </div>
 
-        {/* Call to Action */}
-        <div className="text-center">
-          <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 mb-4">
-            আমাদের সাথে যুক্ত হন
-          </h2>
-          <p className="text-sm md:text-base lg:text-lg mb-8">
-            আজই শুরু করুন আপনার অনলাইন শপিং যাত্রা এবং অভিজ্ঞতা নিন সেরা সেবার।
-          </p>
-          <Link
-            href="/shop"
-            className="bg-primary/80 hover:bg-primary text-primary-content px-4 py-2.5 rounded-full text-base font-semibold hover:shadow-lg hover:shadow-blue-500/25 transform hover:scale-105 transition-all duration-300"
-          >
-            এখনই শপিং শুরু করুন
-          </Link>
+        {/* =========================================================
+            SECTION 5: আমাদের সাথে যুক্ত হন (JOIN US / CTA)
+            ========================================================= */}
+        <div className="rounded-3xl bg-gradient-to-r from-primary via-primary to-primary-end p-8 sm:p-12 text-white text-center shadow-lg relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-2xl pointer-events-none -mr-24 -mt-24" />
+
+          <div className="max-w-2xl mx-auto space-y-5 relative z-10">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/20 backdrop-blur-sm text-xs sm:text-sm font-semibold">
+              <Sparkles className="w-4 h-4" />
+              <span>সহজ শপিংয়ের নতুন দিগন্ত</span>
+            </div>
+
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-white">
+              আমাদের সাথে যুক্ত হন
+            </h2>
+
+            <p className="text-white/90 text-sm sm:text-base leading-relaxed">
+              আজই শুরু করুন আপনার পছন্দের পণ্য কেনাকাটা এবং উপভোগ করুন আকর্ষণীয় অফার, ফ্রি ডেলিভারি ও দ্রুততম হোম ডেলিভারি সুবিধা!
+            </p>
+
+            <div className="flex flex-wrap justify-center gap-3.5 pt-2">
+              <Link
+                href="/shop"
+                className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-white text-primary font-bold text-sm sm:text-base hover:bg-slate-100 shadow-md hover:shadow-xl transform hover:scale-105 transition-all"
+              >
+                <span>এখনই শপিং শুরু করুন</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+
+              <Link
+                href="/contact"
+                className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-primary-dark/60 hover:bg-primary-dark text-white border border-white/20 font-bold text-sm sm:text-base transition-all"
+              >
+                <PhoneCall className="w-4 h-4" />
+                <span>যোগাযোগ করুন</span>
+              </Link>
+            </div>
+          </div>
         </div>
       </Container>
     </Section>

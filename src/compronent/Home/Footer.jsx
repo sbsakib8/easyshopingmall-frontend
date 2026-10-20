@@ -12,6 +12,7 @@ import {
 } from "react-icons/io5";
 import { MdAddCall, MdEmail } from "react-icons/md";
 import Container from "../shared/Container";
+import { toBengaliNumber } from "@/src/utlis/bengali";
 
 const iconMap = {
   "fa-facebook": IoLogoFacebook,
@@ -31,98 +32,85 @@ function Footer({ initialData }) {
 
   const footerNavLinks = [
     {
-      title: "Company",
+      title: "কোম্পানি",
       links: [
-        { label: "About", href: "/about" },
-        { label: "Delivery Information", href: "/delivery" },
-        { label: "Dropshipping", href: "/dropshipping" },
-        { label: "Dropshipping Signup", href: "/dropshipping-signup" },
-        { label: "Privacy Policy", href: "/privacy-policy" },
-        { label: "Terms & Conditions", href: "/terms-conditions" },
-        { label: "Contact Us", href: "/contact" },
-        { label: "Support Center", href: "/" },
-        { label: "Careers", href: "/" },
+        { label: "আমাদের সম্পর্কে", href: "/about" },
+        { label: "যোগাযোগ", href: "/contact" },
+        { label: "গোপনীয়তা নীতি", href: "/privacy-policy" },
+        { label: "শর্তাবলী ও নিয়ম", href: "/terms-conditions" },
+        { label: "ড্রপশিপিং", href: "/dropshipping" },
       ],
     },
     {
-      title: "Corporate",
+      title: "গ্রাহক সেবা",
       links: [
-        { label: "About", href: "/about" },
-        { label: "Delivery Information", href: "/delivery" },
-        { label: "Dropshipping", href: "/dropshipping" },
-        { label: "Dropshipping Signup", href: "/dropshipping-signup" },
-        { label: "Privacy Policy", href: "/privacy-policy" },
-        { label: "Terms & Conditions", href: "/terms-conditions" },
-        { label: "Contact Us", href: "/contact" },
-        { label: "Support Center", href: "/" },
-        { label: "Careers", href: "/" },
+        { label: "সহায়তা কেন্দ্র", href: "/support" },
+        { label: "ডেলিভারি তথ্য", href: "/delivery" },
+        { label: "উইশলিস্ট", href: "/wishlist" },
+        { label: "আমার কার্ট", href: "/addtocart" },
+        { label: "আমার অ্যাকাউন্ট", href: "/account" },
       ],
     },
     {
-      title: "Popular",
+      title: "জনপ্রিয় লিংক",
       links: [
-        { label: "About", href: "/about" },
-        { label: "Delivery Information", href: "/delivery" },
-        { label: "Dropshipping", href: "/dropshipping" },
-        { label: "Dropshipping Signup", href: "/dropshipping-signup" },
-        { label: "Privacy Policy", href: "/privacy-policy" },
-        { label: "Terms & Conditions", href: "/terms-conditions" },
-        { label: "Contact Us", href: "/contact" },
-        { label: "Support Center", href: "/" },
-        { label: "Careers", href: "/" },
+        { label: "সকল পণ্য", href: "/shop" },
+        { label: "ব্লগ ও টিপস", href: "/blog" },
+        { label: "ড্রপশিপিং সাইনআপ", href: "/dropshipping-signup" },
+        { label: "আমাদের সম্পর্কে", href: "/about" },
       ],
     },
   ];
 
   return (
     <footer
-      className={cn("bg-primary/10", {
-        "pb-26 md:pb-0": !isDropshippingUser,
+      className={cn("bg-bg-app border-t border-line text-ink", {
+        "pb-24 md:pb-0": !isDropshippingUser,
       })}
     >
-      <Container className="py-8 lg:py-12 space-y-6">
-        {/* main div */}
-        <div className="grid sm:grid-cols-3 lg:grid-cols-5 gap-6">
-          <div className="sm:col-span-3 lg:col-span-2">
-            <h3 className="text-[22px] font-bold text-accent-content">
+      <Container className="py-10 lg:py-14 space-y-8">
+        {/* Main Grid */}
+        <div className="grid sm:grid-cols-3 lg:grid-cols-5 gap-8">
+          <div className="sm:col-span-3 lg:col-span-2 space-y-4">
+            <h3 className="text-2xl font-black text-primary tracking-tight">
               EasyShoppingMall
             </h3>
+            <p className="text-sm text-muted max-w-sm">
+              বাংলাদেশের সবচেয়ে বিশ্বস্ত ও দ্রুততম অনলাইন শপিং প্ল্যাটফর্ম। আপনার পছন্দের পণ্য পৌঁছে দিচ্ছি আপনার দোরগোড়ায়।
+            </p>
 
-            <div>
-              <div className="flex items-center gap-2 my-3">
-                <IoLocationOutline className=" text-[20px] text-primary font-medium" />
-                <p className=" text-[16px]">{siteInfo?.address || ""} </p>
+            <div className="space-y-2.5 pt-2">
+              <div className="flex items-center gap-2.5">
+                <IoLocationOutline className="text-xl text-primary shrink-0" />
+                <p className="text-sm text-ink/80">{siteInfo?.address || "ঢাকা, বাংলাদেশ"} </p>
               </div>
-              <div className="flex items-center gap-2 my-3">
-                <MdAddCall className=" text-[20px] text-primary font-medium" />
-                <p className=" text-[16px]"> Call Us: {siteInfo?.number}</p>
+              <div className="flex items-center gap-2.5">
+                <MdAddCall className="text-xl text-primary shrink-0" />
+                <p className="text-sm text-ink/80"> কল করুন: {siteInfo?.number || "০১৮..."}</p>
               </div>
-              <div className="flex items-center gap-2 my-3">
-                <MdEmail className=" text-[20px] text-primary font-medium" />
-                <p className=" text-[16px]"> Email: {siteInfo?.email}</p>
+              <div className="flex items-center gap-2.5">
+                <MdEmail className="text-xl text-primary shrink-0" />
+                <p className="text-sm text-ink/80"> ইমেইল: {siteInfo?.email || "support@easyshoppingmall.com"}</p>
               </div>
-              <div className="flex items-center gap-2 my-3">
-                <IoTimeOutline className=" text-[20px] text-primary font-medium" />
-                <p className=" text-[16px]">{!isDropshippingUser ? "Working Hours: 24/7" : "Working Hours: 9:00 AM - 7:00 PM"}</p>
+              <div className="flex items-center gap-2.5">
+                <IoTimeOutline className="text-xl text-primary shrink-0" />
+                <p className="text-sm text-ink/80">{!isDropshippingUser ? "কাজের সময়: ২৪/৭ সাপোর্ট" : "কাজের সময়: সকাল ৯:০০ - সন্ধ্যা ৭:০০"}</p>
               </div>
             </div>
           </div>
 
           {footerNavLinks.map((item, index) => (
-            <div key={index} className="">
-              <h3 className="text-[20px] text-accent-content font-bold mb-4">
+            <div key={index} className="space-y-4">
+              <h4 className="text-base font-bold text-ink tracking-tight">
                 {item.title}
-              </h3>
+              </h4>
 
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 {item.links.map((link, i) => (
                   <Link
                     href={link.href}
                     key={i}
-                    className={cn(
-                      "text-[16px] block hover:text-primary cursor-pointer transition-all duration-200 hover:ml-4",
-                      "hover:transition-all hover:duration-200",
-                    )}
+                    className="text-sm text-muted hover:text-primary hover:translate-x-1 transition-all duration-200 block"
                   >
                     {link.label}
                   </Link>
@@ -132,18 +120,17 @@ function Footer({ initialData }) {
           ))}
         </div>
 
-        <div className="w-full bg-gray-200 h-[1px]"></div>
+        <div className="w-full bg-line h-px"></div>
 
-        <div className="flex flex-col md:flex-row justify-between items-center">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-xs sm:text-sm text-muted">
           <div>
-            <p className=" text-center text-wrap text-[16px]">
-              © {new Date().getFullYear()} EasyShoppingMall. All rights
-              reserved.
+            <p className="text-center sm:text-left">
+              © {toBengaliNumber(new Date().getFullYear(), false)} EasyShoppingMall. সর্বস্বত্ব সংরক্ষিত।
             </p>
           </div>
 
-          <div className="flex justify-between items-center gap-4">
-            <h3 className="text-[19px] font-medium text-accent">Follow Us:</h3>
+          <div className="flex items-center gap-3">
+            <span className="font-semibold text-ink">আমাদের সাথে থাকুন:</span>
 
             {socialLinks
               .filter((link) => link.active)
@@ -157,11 +144,9 @@ function Footer({ initialData }) {
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-10 h-10 bg-secondary/80 hover:bg-secondary rounded-full
-                     flex justify-center items-center cursor-pointer
-                     transition-all duration-200 delay-100"
+                    className="w-9 h-9 bg-primary/10 hover:bg-primary text-primary hover:text-white rounded-full flex justify-center items-center transition-all shadow-xs"
                   >
-                    <IconComponent className="text-2xl text-secondary-content" />
+                    <IconComponent className="text-lg" />
                   </Link>
                 );
               })}

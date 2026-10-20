@@ -31,12 +31,12 @@ const Carousel = ({ initialData }) => {
     setCurrentSlide(index);
   };
 
-  // Auto play functionality
+  // Auto play functionality — reset on slide change so timer always counts from 0
   React.useEffect(() => {
     if (!isAutoPlaying || slides.length <= 1) return;
     const interval = setInterval(() => nextSlide(), 4000);
     return () => clearInterval(interval);
-  }, [isAutoPlaying, slides.length]);
+  }, [isAutoPlaying, slides.length, currentSlide]);
 
   // Pause autoplay on hover
   const handleMouseEnter = () => setIsAutoPlaying(false);
@@ -44,35 +44,36 @@ const Carousel = ({ initialData }) => {
 
   if (slides?.length === 0) {
     return (
-      <Section className="py-8 md:py-12 lg:py-16 bg-gradient-to-b from-primary/5 from-20% to-100% to-primary/30">
-        <div className="h-[240px] sm:h-[400px] md:h-[450px] lg:h-[600px] xl:h-[650px] w-full px-2 sm:px-4 md:px-8 lg:px-12 2xl:px-16">
-          <Skeleton className="w-full h-full rounded-md animate-pulse" />
+      <Section className="py-2 md:py-4 bg-bg">
+        <div className="h-[200px] sm:h-[350px] md:h-[420px] lg:h-[480px] xl:h-[540px] w-full px-2 sm:px-4 md:px-8">
+          <Skeleton className="w-full h-full rounded-2xl animate-pulse" />
         </div>
       </Section>
     );
   }
 
   return (
-    <Section className="py-8 md:py-12 lg:py-16 bg-gradient-to-b from-primary/5 from-20% to-100% to-primary/30">
-      <div className="px-2 sm:px-4 md:px-8 lg:px-12 xl:px-16 2xl:px-20">
-        <div className="relative h-[240px] sm:h-[400px] md:h-[450px] lg:h-[600px] xl:h-[650px] w-full">
-          {/* Main carousel container */}
+    <Section className="py-2 md:py-4 bg-bg">
+      <div className="px-2 sm:px-4 md:px-8">
+        <div className="relative h-[200px] sm:h-[350px] md:h-[420px] lg:h-[480px] xl:h-[540px] w-full">
+          {/* Main carousel container — `group` enables group-hover for arrows */}
           <div
-            className="relative w-full h-full rounded-md overflow-hidden shadow-2xl"
+            className="group relative w-full h-full rounded-md overflow-hidden shadow-2xl"
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
           >
             {/* Slides */}
-            <div className="relative w-full h-full ">
+            <div className="relative w-full h-full">
               {slides?.map((slide, index) => (
                 <div
                   key={slide._id}
-                  className={`absolute inset-0 transition-all duration-700 ease-in-out ${index === currentSlide
-                    ? "opacity-100 translate-x-0"
-                    : index < currentSlide
-                      ? "opacity-0 -translate-x-full"
-                      : "opacity-0 translate-x-full"
-                    }`}
+                  className={`absolute inset-0 transition-all duration-700 ease-in-out ${
+                    index === currentSlide
+                      ? "opacity-100 translate-x-0 z-10"
+                      : index < currentSlide
+                        ? "opacity-0 -translate-x-full z-0"
+                        : "opacity-0 translate-x-full z-0"
+                  }`}
                 >
                   <Image
                     src={
@@ -84,21 +85,24 @@ const Carousel = ({ initialData }) => {
                     width={1200}
                     height={600}
                     className="w-full h-full object-fill"
+                    priority={index === 0}
                   />
+                  {/* Subtle gradient overlay for arrow readability */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/25 via-transparent to-black/25 pointer-events-none" />
                 </div>
               ))}
             </div>
 
-            {/* Navigation arrows */}
+            {/* Navigation arrows — visible on group-hover */}
             <button
               onClick={prevSlide}
-              className="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 z-10
-                     bg-white/20 hover:bg-white/30 backdrop-blur-sm
-                     text-accent-content p-2 md:p-3 rounded-full
+              className="absolute left-3 md:left-5 top-1/2 -translate-y-1/2 z-20
+                     bg-black/30 hover:bg-black/60 backdrop-blur-sm
+                     text-white p-2 md:p-3 rounded-full
                      transition-all duration-300 ease-in-out
                      opacity-0 group-hover:opacity-100
                      hover:scale-110 active:scale-95
-                     border border-white/20"
+                     border border-white/30 shadow-lg"
               aria-label="Previous slide"
             >
               <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
@@ -106,50 +110,65 @@ const Carousel = ({ initialData }) => {
 
             <button
               onClick={nextSlide}
-              className="absolute right-4 md:right-6 top-1/2 -translate-y-1/2 z-10
-                     bg-white/20 hover:bg-white/30 backdrop-blur-sm
-                     text-accent-content p-2 md:p-3 rounded-full
+              className="absolute right-3 md:right-5 top-1/2 -translate-y-1/2 z-20
+                     bg-black/30 hover:bg-black/60 backdrop-blur-sm
+                     text-white p-2 md:p-3 rounded-full
                      transition-all duration-300 ease-in-out
                      opacity-0 group-hover:opacity-100
                      hover:scale-110 active:scale-95
-                     border border-white/20"
+                     border border-white/30 shadow-lg"
               aria-label="Next slide"
             >
               <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
             </button>
 
-            {/* Progress indicator */}
-            <div className="hidden md:block absolute top-4 right-4 bg-black/30 backdrop-blur-sm rounded-full px-3 py-1 text-accent-content text-sm">
-              {currentSlide + 1} / {slides?.length}
+            {/* Slide counter badge */}
+            <div className="hidden md:flex absolute top-4 right-4 z-20 items-center gap-1.5 bg-black/40 backdrop-blur-sm rounded-full px-3 py-1 text-white text-sm font-medium">
+              <span className="text-white/90">{currentSlide + 1}</span>
+              <span className="text-white/50">/</span>
+              <span className="text-white/70">{slides?.length}</span>
             </div>
+
+            {/* Auto-play animated progress bar */}
+            {isAutoPlaying && slides.length > 1 && (
+              <div className="absolute bottom-0 left-0 right-0 z-20 h-[3px] bg-white/20">
+                <div
+                  key={currentSlide}
+                  className="h-full bg-primary/90 rounded-full"
+                  style={{ animation: "bannerProgress 4s linear forwards" }}
+                />
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Dots indicator */}
-        <div className="hidden lg:flex justify-center mt-1 md:mt-6 space-x-2">
+        {/* Dots indicator — always visible */}
+        <div className="flex justify-center mt-3 gap-2">
           {slides?.map((_, index) => (
             <button
               key={index}
               onClick={() => goToSlide(index)}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentSlide
-                ? "bg-blue-600 w-8"
-                : "bg-gray-300 hover:bg-gray-400"
-                }`}
+              className={`rounded-full transition-all duration-300 cursor-pointer ${
+                index === currentSlide
+                  ? "bg-primary w-7 h-2.5"
+                  : "bg-line hover:bg-muted w-2.5 h-2.5"
+              }`}
               aria-label={`Go to slide ${index + 1}`}
             />
           ))}
         </div>
 
-        {/* Thumbnail navigation (optional) */}
-        <div className="hidden lg:flex justify-center mt-4 space-x-2">
+        {/* Thumbnail navigation */}
+        <div className="hidden lg:flex justify-center mt-3 gap-2">
           {slides?.map((slide, index) => (
             <button
               key={index}
               onClick={() => goToSlide(index)}
-              className={`relative overflow-hidden rounded-lg transition-all duration-300 ${index === currentSlide
-                ? "ring-2 ring-blue-500 ring-offset-2"
-                : "opacity-60 hover:opacity-80"
-                }`}
+              className={`relative overflow-hidden rounded-xl transition-all duration-300 cursor-pointer ${
+                index === currentSlide
+                  ? "ring-2 ring-primary ring-offset-2 scale-105"
+                  : "opacity-55 hover:opacity-80 hover:scale-105"
+              }`}
             >
               <Image
                 src={
@@ -166,6 +185,14 @@ const Carousel = ({ initialData }) => {
           ))}
         </div>
       </div>
+
+      {/* Keyframes for progress bar */}
+      <style>{`
+        @keyframes bannerProgress {
+          from { width: 0%; }
+          to   { width: 100%; }
+        }
+      `}</style>
     </Section>
   );
 };

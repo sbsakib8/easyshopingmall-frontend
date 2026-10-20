@@ -776,24 +776,24 @@ const ProductDetails = ({ initialProduct }) => {
 
             {/* Price */}
             <div className="flex items-center space-x-7">
-              <span className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+              <span className="text-4xl font-black text-primary">
                 ৳{isDropshipping ? (product?.dropshippingPrice?.toFixed(0) || 0) : (product?.price?.toFixed(0) || 0)}
               </span>
 
               <div>
                 {(product?.rank > product?.price && user?.role !== "DROPSHIPPING" && !user?.roles?.includes("DROPSHIPPING")) && (
                   <>
-                    <p className="bg-secondary text-white px-3 py-1 rounded-full text-sm font-semibold">
-                      Save ৳{(product?.rank - product?.price)?.toFixed(0) || 0}
+                    <p className="bg-accent text-white px-3 py-1 rounded-full text-sm font-semibold shadow-xs">
+                      সাশ্রয় ৳{(product?.rank - product?.price)?.toFixed(0) || 0}
                     </p>
                   </>
                 )}
                 {
-                  (user?.role !== "DROPSHIPPING" && !user?.roles?.includes("DROPSHIPPING")) ? <del className="text-2xl font-bold bg-gradient-to-r from-gray-400 to-gray-500 bg-clip-text text-transparent">
-                    Rs {product?.rank}
+                  (user?.role !== "DROPSHIPPING" && !user?.roles?.includes("DROPSHIPPING")) ? <del className="text-2xl font-bold text-muted ml-2">
+                    ৳{product?.rank}
                   </del> : ""
                 }
-              </div >
+              </div>
 
 
             </div >
@@ -908,15 +908,15 @@ const ProductDetails = ({ initialProduct }) => {
                   ? "bg-gray-400 text-gray-200 cursor-not-allowed"
                   : (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING"))
                     ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:shadow-lg hover:shadow-emerald-500/20 transform hover:-translate-y-0.5 cursor-pointer"
-                    : "bg-btn-color text-accent-content hover:shadow-lg hover:scale-102 cursor-pointer"
+                    : "bg-primary hover:bg-primary-dark text-white hover:shadow-lg hover:scale-102 cursor-pointer transition-colors"
                   }`}
               >
                 {cartLoading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
                 ) : (
-                  <ShoppingCart className="w-5 h-5 " />
+                  <ShoppingCart className="w-5 h-5" />
                 )}
-                <span>{cartLoading ? "Adding..." : product?.stock === 0 ? "Out of Stock" : "Add to Cart"}</span>
+                <span>{cartLoading ? "যোগ হচ্ছে..." : product?.stock === 0 ? "স্টক শেষ" : "কার্টে যোগ করুন"}</span>
               </button>
               <div className="grid grid-cols-2 gap-4">
                 <button
@@ -936,16 +936,16 @@ const ProductDetails = ({ initialProduct }) => {
                     ? "bg-gray-400 text-gray-200 cursor-not-allowed"
                     : (user?.role === "DROPSHIPPING" || user?.roles?.includes("DROPSHIPPING"))
                       ? "bg-gradient-to-r from-teal-600 to-emerald-600 text-white hover:shadow-lg hover:shadow-teal-500/20 transform hover:-translate-y-0.5 cursor-pointer"
-                      : "bg-btn-color text-white hover:shadow-lg hover:scale-102 cursor-pointer"
+                      : "bg-primary hover:bg-primary-dark text-white hover:shadow-lg hover:scale-102 cursor-pointer transition-colors"
                     }`}>
                   <Zap className={`w-5 h-5 ${loading ? 'animate-spin' : ''} `} />
-                  <span>Buy Now</span>
+                  <span>এখনই কিনুন</span>
                 </button>
                 <button
                   onClick={() => setShowShareModal(true)}
-                  className="border-2 border-gray-300 text-gray-700 py-3 rounded-xl font-semibold hover:border-blue-300 hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2 cursor-pointer w-full">
+                  className="border-2 border-line text-ink py-3 rounded-xl font-semibold hover:border-primary hover:text-primary hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2 cursor-pointer w-full">
                   <Share2 className="w-5 h-5" />
-                  <span>Share</span>
+                  <span>শেয়ার করুন</span>
                 </button>
               </div>
             </div>
